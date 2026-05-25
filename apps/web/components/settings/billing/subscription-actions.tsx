@@ -238,7 +238,7 @@ export function SubscriptionActions({
 			<div className="flex justify-end">
 				<button
 					onClick={() => setIsExpanded(!isExpanded)}
-					className="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-white/4 rounded-lg hover:bg-slate-200 dark:hover:bg-white/6 transition-colors"
+					className="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-neutral-600 dark:text-neutral-300 bg-neutral-100 dark:bg-white/4 rounded-lg hover:bg-neutral-200 dark:hover:bg-white/6 transition-colors"
 				>
 					<Settings className="w-4 h-4" />
 					{isExpanded ? 'Hide' : 'Actions'}
@@ -247,16 +247,16 @@ export function SubscriptionActions({
 
 			{/* Actions Panel */}
 			{isExpanded && (
-				<div className="bg-white dark:bg-white/5 border border-slate-200 dark:border-white/6 rounded-lg p-4 shadow-xs">
+				<div className="bg-white dark:bg-white/5 border border-neutral-200 dark:border-white/6 rounded-lg p-4 shadow-xs">
 					<div className="flex items-center justify-between mb-4">
-						<h4 className="text-base font-semibold text-slate-900 dark:text-slate-100">
+						<h4 className="text-base font-semibold text-neutral-900 dark:text-neutral-100">
 							Subscription Actions
 						</h4>
 						<div className="flex items-center gap-2">
-							<span className="text-xs text-slate-500 dark:text-slate-400 capitalize">
+							<span className="text-xs text-neutral-500 dark:text-neutral-400 capitalize">
 								{status.replace('_', ' ')}
 							</span>
-							<span className="text-xs text-slate-600 dark:text-slate-300 font-medium">
+							<span className="text-xs text-neutral-600 dark:text-neutral-300 font-medium">
 								{planName}
 							</span>
 						</div>
@@ -283,10 +283,10 @@ export function SubscriptionActions({
 								disabled={action.disabled}
 								className={cn(
 									'flex items-center justify-center gap-2 px-3 py-1.5 rounded-md font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm',
-									action.variant === 'default' && 'bg-slate-900/10 hover:bg-slate-900/10 text-slate-200 border border-slate-900/50 dark:border-slate-100/50',
+									action.variant === 'default' && 'bg-neutral-900/10 hover:bg-neutral-900/10 text-neutral-200 border border-neutral-900/50 dark:border-neutral-100/50',
 									action.variant === 'destructive' && 'bg-red-900 hover:bg-red-900 text-white border border-red-900/50 dark:border-red-100/50',
 									action.variant === 'success' && 'bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-300/50 dark:border-emerald-100/50',
-									action.variant === 'secondary' && 'bg-slate-900/50 hover:bg-slate-900/10 text-slate-200 border border-slate-900/50 dark:border-slate-100/50'
+									action.variant === 'secondary' && 'bg-neutral-900/50 hover:bg-neutral-900/10 text-neutral-200 border border-neutral-900/50 dark:border-neutral-100/50'
 								)}
 							>
 								<action.icon className="w-3.5 h-3.5" />
@@ -302,22 +302,22 @@ export function SubscriptionActions({
 			{/* Confirmation Dialog */}
 			{showConfirmDialog && (
 				<div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-					<div className="bg-white dark:bg-white/5 rounded-lg p-4 max-w-sm mx-4 shadow-lg border border-slate-200 dark:border-white/6">
+					<div className="bg-white dark:bg-white/5 rounded-lg p-4 max-w-sm mx-4 shadow-lg border border-neutral-200 dark:border-white/6">
 						<div className="flex items-center gap-2 mb-3">
 							<AlertTriangle className="w-5 h-5 text-orange-500" />
-							<h3 className="text-base font-semibold text-slate-900 dark:text-slate-100">
+							<h3 className="text-base font-semibold text-neutral-900 dark:text-neutral-100">
 								Confirm Action
 							</h3>
 						</div>
 
-						<p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
+						<p className="text-sm text-neutral-600 dark:text-neutral-400 mb-4">
 							{availableActions.find((a) => a.id === showConfirmDialog)?.confirmMessage}
 						</p>
 
 						<div className="flex gap-2 justify-end">
 							<button
 								onClick={() => setShowConfirmDialog(null)}
-								className="px-3 py-1.5 text-sm font-medium text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-white/4 rounded-sm hover:bg-slate-200 dark:hover:bg-white/6 transition-colors"
+								className="px-3 py-1.5 text-sm font-medium text-neutral-600 dark:text-neutral-300 bg-neutral-100 dark:bg-white/4 rounded-sm hover:bg-neutral-200 dark:hover:bg-white/6 transition-colors"
 								disabled={isProcessing}
 							>
 								Cancel

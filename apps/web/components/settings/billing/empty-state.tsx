@@ -116,17 +116,17 @@ export function EmptyState({ type, onAction, className = '' }: EmptyStateProps) 
   const ActionIcon = config.actionIcon;
 
   return (
-    <div className={`bg-white dark:bg-white/5 border border-slate-200 dark:border-white/6 rounded-xl p-8 shadow-xs text-center ${className}`}>
+    <div className={`bg-white dark:bg-white/5 border border-neutral-200 dark:border-white/6 rounded-xl p-8 shadow-xs text-center ${className}`}>
       {/* Main Icon */}
-      <div className="w-20 h-20 mx-auto mb-6 bg-linear-to-br from-slate-100 to-slate-200 dark:from-white/6 dark:to-white/8 rounded-full flex items-center justify-center">
-        <Icon className="w-10 h-10 text-slate-600 dark:text-slate-400" />
+      <div className="w-20 h-20 mx-auto mb-6 bg-linear-to-br from-neutral-100 to-neutral-200 dark:from-white/6 dark:to-white/8 rounded-full flex items-center justify-center">
+        <Icon className="w-10 h-10 text-neutral-600 dark:text-neutral-400" />
       </div>
 
       {/* Title and Description */}
-      <h3 className="text-xl font-semibold text-slate-900 dark:text-slate-100 mb-3">
+      <h3 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100 mb-3">
         {config.title}
       </h3>
-      <p className="text-slate-600 dark:text-slate-300 mb-8 max-w-md mx-auto">
+      <p className="text-neutral-600 dark:text-neutral-300 mb-8 max-w-md mx-auto">
         {config.description}
       </p>
 
@@ -134,7 +134,7 @@ export function EmptyState({ type, onAction, className = '' }: EmptyStateProps) 
       {config.actionLabel && onAction && (
         <button
           onClick={onAction}
-          className="inline-flex items-center gap-2 px-6 py-3 bg-linear-to-r from-theme-primary-600 to-theme-primary-700 text-white font-medium rounded-lg hover:from-theme-primary-700 hover:to-theme-primary-800 transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 mb-8"
+          className="inline-flex items-center gap-2 px-6 py-3 bg-linear-to-r from-neutral-800 to-neutral-900 text-white font-medium rounded-lg hover:from-neutral-900 hover:to-neutral-950 transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 mb-8"
         >
           {ActionIcon && <ActionIcon className="w-4 h-4" />}
           {config.actionLabel}
@@ -143,14 +143,14 @@ export function EmptyState({ type, onAction, className = '' }: EmptyStateProps) 
 
       {/* Additional Help Section */}
       {config.additionalHelp && (
-        <div className="bg-slate-50 dark:bg-white/4 rounded-lg p-6 border border-slate-200 dark:border-white/6">
-          <h4 className="text-sm font-semibold text-slate-900 dark:text-slate-100 mb-4">
+        <div className="bg-neutral-50 dark:bg-white/4 rounded-lg p-6 border border-neutral-200 dark:border-white/6">
+          <h4 className="text-sm font-semibold text-neutral-900 dark:text-neutral-100 mb-4">
             {config.additionalHelp.title}
           </h4>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
             {config.additionalHelp.items.map((item, index) => (
-              <div key={index} className="flex items-center gap-2 text-slate-600 dark:text-slate-300">
-                <div className="w-1.5 h-1.5 bg-theme-primary-500 rounded-full"></div>
+              <div key={index} className="flex items-center gap-2 text-neutral-600 dark:text-neutral-300">
+                <div className="w-1.5 h-1.5 bg-neutral-900 dark:bg-white rounded-full"></div>
                 {item}
               </div>
             ))}
@@ -196,16 +196,16 @@ export function EnhancedEmptyState({ type, actions, quickTips, className = '' }:
   const Icon = config.icon;
 
   return (
-    <div className={`bg-white dark:bg-white/5 border border-slate-200 dark:border-white/6 rounded-xl p-8 shadow-xs ${className}`}>
+    <div className={`bg-white dark:bg-white/5 border border-neutral-200 dark:border-white/6 rounded-xl p-8 shadow-xs ${className}`}>
       {/* Header */}
       <div className="text-center mb-8">
-        <div className="w-16 h-16 mx-auto mb-4 bg-linear-to-br from-slate-100 to-slate-200 dark:from-white/6 dark:to-white/8 rounded-full flex items-center justify-center">
-          <Icon className="w-8 h-8 text-slate-600 dark:text-slate-400" />
+        <div className="w-16 h-16 mx-auto mb-4 bg-linear-to-br from-neutral-100 to-neutral-200 dark:from-white/6 dark:to-white/8 rounded-full flex items-center justify-center">
+          <Icon className="w-8 h-8 text-neutral-600 dark:text-neutral-400" />
         </div>
-        <h3 className="text-xl font-semibold text-slate-900 dark:text-slate-100 mb-2">
+        <h3 className="text-xl font-semibold text-neutral-900 dark:text-neutral-100 mb-2">
           {config.title}
         </h3>
-        <p className="text-slate-600 dark:text-slate-300">
+        <p className="text-neutral-600 dark:text-neutral-300">
           {config.description}
         </p>
       </div>
@@ -223,8 +223,8 @@ export function EnhancedEmptyState({ type, actions, quickTips, className = '' }:
                 onClick={action.onClick}
                 className={`inline-flex items-center gap-2 px-4 py-2 font-medium rounded-lg transition-all duration-200 ${
                   isPrimary
-                    ? 'bg-linear-to-r from-theme-primary-600 to-theme-primary-700 text-white hover:from-theme-primary-700 hover:to-theme-primary-800 shadow-md hover:shadow-lg transform hover:-translate-y-0.5'
-                    : 'bg-slate-100 dark:bg-white/4 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-white/6 border border-slate-200 dark:border-white/6'
+                    ? 'bg-linear-to-r from-neutral-800 to-neutral-900 text-white hover:from-neutral-900 hover:to-neutral-950 shadow-md hover:shadow-lg transform hover:-translate-y-0.5'
+                    : 'bg-neutral-100 dark:bg-white/4 text-neutral-700 dark:text-neutral-300 hover:bg-neutral-200 dark:hover:bg-white/6 border border-neutral-200 dark:border-white/6'
                 }`}
               >
                 <ActionIcon className="w-4 h-4" />
@@ -237,15 +237,15 @@ export function EnhancedEmptyState({ type, actions, quickTips, className = '' }:
 
       {/* Quick Tips */}
       {quickTips && quickTips.length > 0 && (
-        <div className="bg-slate-50 dark:bg-white/4 rounded-lg p-4 border border-slate-200 dark:border-white/6">
-          <h4 className="text-sm font-semibold text-slate-900 dark:text-slate-100 mb-3 flex items-center gap-2">
-            <Zap className="w-4 h-4 text-theme-primary-500" />
+        <div className="bg-neutral-50 dark:bg-white/4 rounded-lg p-4 border border-neutral-200 dark:border-white/6">
+          <h4 className="text-sm font-semibold text-neutral-900 dark:text-neutral-100 mb-3 flex items-center gap-2">
+            <Zap className="w-4 h-4 text-neutral-500" />
             Quick Tips
           </h4>
           <div className="space-y-2">
             {quickTips.map((tip, index) => (
-              <div key={index} className="flex items-start gap-2 text-sm text-slate-600 dark:text-slate-300">
-                <div className="w-1.5 h-1.5 bg-theme-primary-500 rounded-full mt-2 shrink-0"></div>
+              <div key={index} className="flex items-start gap-2 text-sm text-neutral-600 dark:text-neutral-300">
+                <div className="w-1.5 h-1.5 bg-neutral-900 dark:bg-white rounded-full mt-2 shrink-0"></div>
                 <span>{tip}</span>
               </div>
             ))}
@@ -255,14 +255,14 @@ export function EnhancedEmptyState({ type, actions, quickTips, className = '' }:
 
       {/* Additional Help */}
       {config.additionalHelp && (
-        <div className="mt-6 pt-6 border-t border-slate-200 dark:border-white/6">
-          <h4 className="text-sm font-semibold text-slate-900 dark:text-slate-100 mb-3">
+        <div className="mt-6 pt-6 border-t border-neutral-200 dark:border-white/6">
+          <h4 className="text-sm font-semibold text-neutral-900 dark:text-neutral-100 mb-3">
             {config.additionalHelp.title}
           </h4>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
             {config.additionalHelp.items.map((item, index) => (
-              <div key={index} className="flex items-center gap-2 text-slate-600 dark:text-slate-300">
-                <div className="w-1.5 h-1.5 bg-theme-primary-500 rounded-full"></div>
+              <div key={index} className="flex items-center gap-2 text-neutral-600 dark:text-neutral-300">
+                <div className="w-1.5 h-1.5 bg-neutral-900 dark:bg-white rounded-full"></div>
                 {item}
               </div>
             ))}

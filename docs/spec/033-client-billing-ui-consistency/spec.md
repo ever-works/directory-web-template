@@ -6,7 +6,7 @@ sidebar_label: '033 Client Billing UI Consistency'
 
 # Feature spec — `033-client-billing-ui-consistency`
 
-> **Status:** proposed.
+> **Status:** in-progress.
 >
 > **Owner:** Template maintainers.
 >
@@ -18,95 +18,104 @@ sidebar_label: '033 Client Billing UI Consistency'
 
 ## 1. Summary
 
-The billing page at `/client/settings/profile/billing` is visually
-inconsistent with its sibling settings pages (`basic-info`, `location`,
-`visibility`, `theme-colors`). It hardcodes its own card surface
-(`bg-white dark:bg-[#111111] border … rounded-xl p-4 shadow-sm`) instead
-of the shared `Card` design-system primitive, lays out its header
-differently from every other settings page, and renders several
-user-facing strings as raw hardcoded English that bypass the `next-intl`
-translation layer.
+The billing page at `/client/settings/profile/billing` and its
+sub-components used a different visual language from the rest of the
+client area: gradient KPI cards, `theme-primary`-tinted icon tiles,
+`slate`/`gray` text palettes, a boxed multi-line tab bar, and
+gradient/`theme-primary` buttons.
 
-This spec aligns the page with the rest of the project: it reuses the
-shared `Card` component, adopts the canonical settings-page header
-structure (back link in its own row, then an icon-tile + title block with
-actions on the right), and moves the remaining hardcoded strings into the
-`billing` i18n namespace. **No functional or data behaviour changes.**
+This spec realigns the page with the **client dashboard**
+(`/client/dashboard`), which is the canonical design system for the
+client area (`components/dashboard/styles.ts`, `stats-card.tsx`,
+`dashboard-header.tsx`, `quick-actions.tsx`): a **neutral** palette,
+`bg-white dark:bg-white/3` card surfaces with
+`border-neutral-200 dark:border-white/8`, **monochrome** icon tiles
+(`p-2 bg-neutral-100 dark:bg-white/8` + `text-neutral-500`),
+`neutral-900 / white` primary CTAs, and a minimal underline tab bar.
+**No functional or data behaviour changes.**
 
 ## 2. Motivation
 
-- **Visual parity.** Every other `/client/settings/profile/*` page uses
-  the shared `@/components/ui/card` `Card` primitive and an identical
-  header layout. The billing page diverges, producing a different card
-  surface colour in dark mode and an inconsistent header.
-- **Maintainability.** Hardcoded card styling drifts from the design
-  system over time; using `Card` keeps it in lockstep with theme changes.
-- **i18n correctness.** The project is fully internationalized
-  (21 locales, `deepmerge(en, locale)` fallback). Hardcoded English
-  strings ("Active"/"Free", "Renews …", "Upgrade to unlock all
-  features", "Upgrade", "Nd left", "/Nd") are untranslatable.
-- Primary user: the end-user (client) viewing their billing/subscription.
+- **Visual parity with the dashboard.** The dashboard is the reference
+  for client-area "blocks, buttons, icons". The billing page diverged on
+  every axis, so it looked like a different product.
+- **Monochrome / neutral system.** The dashboard KPIs are monochrome
+  (neutral icon tiles, neutral values); status colour lives on small
+  badges, not on whole cards. The old billing KPIs were full-colour
+  gradient cards.
+- **Maintainability.** Centralising on the dashboard token set keeps the
+  page in lockstep with theme changes.
+- Primary user: the end-user (client) viewing billing / subscription.
 
 ## 3. Goals
 
-- Replace every hardcoded card container on the page with the shared
-  `Card` primitive.
-- Restructure the page header to match the sibling settings pages.
-- Route all remaining hardcoded user-facing strings through the
-  `billing` i18n namespace.
-- Preserve light/dark parity, responsive behaviour, and all existing
-  functionality (tabs, refresh, export, empty/loading states).
+- Card surfaces use `bg-white dark:bg-white/3` +
+  `border-neutral-200 dark:border-white/8` (the dashboard
+  `CARD_BASE_STYLES`), not bespoke `dark:bg-[#111111]` / shadcn `bg-card`.
+- KPI tiles mirror the dashboard `StatsCard`: neutral card, monochrome
+  icon tile, `text-xl font-semibold` value, neutral label — no gradients
+  or hover-scale.
+- Header mirrors `DashboardHeader`: icon tile + title on the left,
+  `Button` (outline) + neutral-900/white primary CTA on the right.
+- Tab bar mirrors the dashboard underline tabs (neutral, animated active
+  underline, neutral count badge).
+- Palette is **neutral** end-to-end (no `slate`, no `theme-primary`
+  accents); primary buttons are `bg-neutral-900 dark:bg-white`.
+- Remaining hardcoded strings on the page route through the `billing`
+  i18n namespace.
+- Preserve light/dark parity, responsiveness, and all functionality.
 
 ## 4. Non-Goals
 
 - No changes to billing data fetching, payment providers, or the
   subscription/payment APIs.
-- No redesign of the page's information architecture (tabs, stats,
-  sections remain as-is).
-- No refactor of the billing **sub-components** (`PaymentCard`,
-  `SubscriptionCard`, `BillingStats`, `TabNavigation`, etc.) — those are
-  tracked as a follow-up (see §7).
+- No change to the page's information architecture (plan card → stats →
+  tabs → sections).
+- No new dependencies.
 
 ## 5. User Stories
 
 ```text
-As a client, I want the billing page to look and behave like the rest of
-my settings, so that the app feels coherent and trustworthy.
+As a client, I want the billing page to look and behave like my
+dashboard, so that the client area feels like one coherent product.
 
-As a non-English user, I want the billing page's labels translated, so
-that the whole settings area reads in my language.
+As a non-English user, I want the billing page's page-level labels
+translated, so that the settings area reads in my language.
 ```
 
 ## 6. Acceptance Criteria
 
-- [ ] AC-1: The page renders all card surfaces via the shared `Card`
-      component; no `dark:bg-[#111111]` hardcoded card containers remain.
-- [ ] AC-2: The header matches sibling pages: a back link in its own row,
-      then a row with the icon-tile + title/subtitle on the left and the
-      Refresh / Export actions on the right.
-- [ ] AC-3: No raw hardcoded English strings remain in the page body; the
-      previously-hardcoded labels resolve through `useTranslations('billing')`.
-- [ ] AC-4: New i18n keys (`FREE`, `UPGRADE`, `RENEWS_ON`,
+- [ ] AC-1: No `dark:bg-[#111111]`, `slate-*`, or `theme-primary-*`
+      classes remain in `components/settings/billing/**` or the page.
+- [ ] AC-2: KPI cards (`billing-stats.tsx`) render as neutral
+      dashboard-style `StatsCard`s (monochrome tile, neutral value), not
+      gradient cards.
+- [ ] AC-3: Header matches `DashboardHeader` (icon tile + title left,
+      outline `Button` + neutral-900/white primary CTA right).
+- [ ] AC-4: Tab bar matches the dashboard underline tabs with neutral
+      count badges and i18n labels.
+- [ ] AC-5: New i18n keys (`FREE`, `UPGRADE`, `RENEWS_ON`,
       `UPGRADE_UNLOCK_FEATURES`, `DAYS_LEFT`, `DAYS_TOTAL`) exist in
-      `messages/en.json`; non-English locales fall back to English via the
-      existing `deepmerge` config until translated.
-- [ ] AC-5: Light and dark modes both render correctly; layout stays
-      responsive (header wraps gracefully on narrow viewports).
-- [ ] AC-6: No behavioural change — tabs, refresh, export, loading and
-      empty states behave exactly as before.
+      `messages/en.json`; non-English locales fall back via the existing
+      `deepmerge` config.
+- [ ] AC-6: Light and dark modes both render correctly; layout stays
+      responsive.
+- [ ] AC-7: No behavioural change — tabs, refresh, export, manage-plan,
+      loading and empty states behave exactly as before.
 
 ## 7. Out-of-Scope Considerations
 
-- The billing **sub-components** still carry their own hardcoded card
-  styling and some inline strings. Aligning them to `Card` + i18n is a
-  natural follow-up but is deferred to keep this PR focused and reviewable.
-- The "Export" button is currently a no-op placeholder; wiring it up is
-  out of scope.
+- The `View History` / `Export` buttons remain placeholders (pre-existing
+  behaviour) — wiring them is out of scope.
+- Descriptive sub-line copy inside `billing-stats.tsx` (e.g.
+  "Successfully processed") stays in English as before; full i18n of
+  those strings is a follow-up.
 
 ## 8. UX Notes (if applicable)
 
-The visual result is intentionally near-identical to the previous page —
-the goal is *consistency*, not a redesign. The most visible change is the
-dark-mode card surface shifting from `#111111` to the design-system
-`--card` token (matching `theme-colors`), and the header gaining the
-standard icon-tile + title block used everywhere else.
+The result intentionally looks like a billing-flavoured dashboard page:
+same neutral cards, same monochrome icon tiles, same underline tabs and
+button treatments. Status/brand colour is retained only on small badges
+(active plan = emerald, payment provider = orange/violet) and on the
+renewal/days-left indicators, consistent with the dashboard's use of
+semantic colour.

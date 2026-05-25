@@ -53,9 +53,9 @@ const getStatusConfig = (status: string) => {
 			};
 		case 'trialing':
 			return {
-				color: 'text-theme-primary-600 dark:text-theme-primary-300',
-				bgColor: 'bg-theme-primary-50 dark:bg-theme-primary-20',
-				borderColor: 'border-theme-primary-200 dark:border-theme-primary-500',
+				color: 'text-neutral-500 dark:text-neutral-300',
+				bgColor: 'bg-neutral-100 dark:bg-white/8',
+				borderColor: 'border-neutral-200 dark:border-white/8',
 				icon: Clock,
 				label: 'Trial'
 			};
@@ -69,9 +69,9 @@ const getStatusConfig = (status: string) => {
 			};
 		default:
 			return {
-				color: 'text-slate-600 dark:text-slate-300',
-				bgColor: 'bg-slate-50 dark:bg-white/4',
-				borderColor: 'border-slate-200 dark:border-white/1',
+				color: 'text-neutral-600 dark:text-neutral-300',
+				bgColor: 'bg-neutral-50 dark:bg-white/4',
+				borderColor: 'border-neutral-200 dark:border-white/1',
 				icon: Clock,
 				label: status.charAt(0).toUpperCase() + status.slice(1)
 			};
@@ -100,7 +100,7 @@ export function SubscriptionHistoryCard({ subscription }: { subscription: Subscr
 	const isTrialing = subscription.status.toLowerCase() === 'trialing';
 
 	return (
-		<div className="bg-white dark:bg-white/5 border border-slate-200 dark:border-white/6 rounded-xl p-6 shadow-xs hover:shadow-md transition-all duration-300 group">
+		<div className="bg-white dark:bg-white/5 border border-neutral-200 dark:border-white/6 rounded-xl p-6 shadow-xs hover:shadow-md transition-all duration-300 group">
 			<div className="flex items-start justify-between">
 				{/* Left Section - Subscription Details */}
 				<div className="flex-1">
@@ -112,9 +112,9 @@ export function SubscriptionHistoryCard({ subscription }: { subscription: Subscr
 									: isCancelled
 										? 'bg-red-100 dark:bg-red-700/50'
 										: isTrialing
-											? 'bg-theme-primary-100 dark:bg-theme-primary-20'
-											: 'bg-slate-100 dark:bg-white/4'
-							} group-hover:scale-105 transition-transform duration-300 dark:bg-theme-primary-20`}
+											? 'bg-neutral-100 dark:bg-white/8'
+											: 'bg-neutral-100 dark:bg-white/4'
+							} group-hover:scale-105 transition-transform duration-300 dark:bg-white/8`}
 						>
 							<PlanIcon
 								className={`w-6 h-6 ${
@@ -123,14 +123,14 @@ export function SubscriptionHistoryCard({ subscription }: { subscription: Subscr
 										: isCancelled
 											? 'text-red-600'
 											: isTrialing
-												? 'text-theme-primary-600'
-												: 'text-slate-600 dark:text-slate-300'
+												? 'text-neutral-500'
+												: 'text-neutral-600 dark:text-neutral-300'
 								}`}
 							/>
 						</div>
 
 						<div className="flex-1">
-							<h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 dark:group-hover:text-slate-100 transition-colors">
+							<h3 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100 dark:group-hover:text-neutral-100 transition-colors">
 								{subscription.planName}
 							</h3>
 
@@ -142,7 +142,7 @@ export function SubscriptionHistoryCard({ subscription }: { subscription: Subscr
 									{statusConfig.label}
 								</span>
 
-								<span className="inline-flex items-center gap-1 px-2 py-1 bg-slate-100 dark:bg-white/4 text-slate-600 dark:text-slate-300 text-xs font-medium rounded-full">
+								<span className="inline-flex items-center gap-1 px-2 py-1 bg-neutral-100 dark:bg-white/4 text-neutral-600 dark:text-neutral-300 text-xs font-medium rounded-full">
 									{subscription.billingInterval.charAt(0).toUpperCase() +
 										subscription.billingInterval.slice(1)}
 								</span>
@@ -155,7 +155,7 @@ export function SubscriptionHistoryCard({ subscription }: { subscription: Subscr
 								)}
 
 								{isTrialing && (
-									<span className="inline-flex items-center gap-1 px-2 py-1 bg-theme-primary-100 dark:bg-theme-primary-20 text-theme-primary-700 dark:text-theme-primary-300 text-xs font-medium rounded-full">
+									<span className="inline-flex items-center gap-1 px-2 py-1 bg-neutral-100 dark:bg-white/8 text-neutral-700 dark:text-neutral-300 text-xs font-medium rounded-full">
 										<Clock className="w-3 h-3" />
 										Trial Period
 									</span>
@@ -166,15 +166,15 @@ export function SubscriptionHistoryCard({ subscription }: { subscription: Subscr
 
 					{/* Timeline Details */}
 					<div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm mb-4">
-						<div className="flex items-center gap-2 text-slate-600 dark:text-slate-300">
-							<Calendar className="w-4 h-4 text-slate-400 dark:text-slate-300" />
+						<div className="flex items-center gap-2 text-neutral-600 dark:text-neutral-300">
+							<Calendar className="w-4 h-4 text-neutral-400 dark:text-neutral-300" />
 							<span>
 								<span className="font-medium">Started:</span> {formatDate(subscription.startDate)}
 							</span>
 						</div>
 
-						<div className="flex items-center gap-2 text-slate-600 dark:text-slate-300">
-							<Clock className="w-4 h-4 text-slate-400 dark:text-slate-300" />
+						<div className="flex items-center gap-2 text-neutral-600 dark:text-neutral-300">
+							<Clock className="w-4 h-4 text-neutral-400 dark:text-neutral-300" />
 							<span>
 								<span className="font-medium">Ended:</span>{' '}
 								{subscription.endDate ? formatDate(subscription.endDate) : 'Ongoing'}
@@ -203,23 +203,23 @@ export function SubscriptionHistoryCard({ subscription }: { subscription: Subscr
 				</div>
 
 				<div className="text-right ml-6">
-					<div className="text-2xl font-bold text-slate-900 mb-1 group-hover:text-slate-800 transition-colors dark:text-slate-100 dark:group-hover:text-slate-100">
+					<div className="text-2xl font-bold text-neutral-900 mb-1 group-hover:text-neutral-800 transition-colors dark:text-neutral-100 dark:group-hover:text-neutral-100">
 						{formatCurrencyAmount(subscription.amount, subscription.currency, locale)}
 					</div>
 
-					<div className="text-sm text-slate-600 dark:text-slate-300 mb-3">
+					<div className="text-sm text-neutral-600 dark:text-neutral-300 mb-3">
 						per {subscription.billingInterval}
 					</div>
 
 					{/* Action Buttons */}
 					<div className="flex flex-col gap-2">
-						<button className="inline-flex items-center gap-2 px-3 py-2 text-xs font-medium text-slate-600 bg-slate-100 dark:bg-white/4 rounded-lg hover:bg-slate-200 transition-colors dark:text-slate-300">
+						<button className="inline-flex items-center gap-2 px-3 py-2 text-xs font-medium text-neutral-600 bg-neutral-100 dark:bg-white/4 rounded-lg hover:bg-neutral-200 transition-colors dark:text-neutral-300">
 							<Calendar className="w-3 h-3" />
 							View Details
 						</button>
 
 						{isActive && (
-							<button className="inline-flex items-center gap-2 px-3 py-2 text-xs font-medium text-white bg-linear-to-r from-theme-primary-600 to-theme-primary-700 rounded-lg hover:from-theme-primary-700 hover:to-theme-primary-800 transition-all duration-200 dark:text-slate-300 dark:bg-theme-primary-20">
+							<button className="inline-flex items-center gap-2 px-3 py-2 text-xs font-medium text-white bg-linear-to-r from-neutral-800 to-neutral-900 rounded-lg hover:from-neutral-900 hover:to-neutral-950 transition-all duration-200 dark:text-neutral-300 dark:bg-white/8">
 								<TrendingUp className="w-3 h-3" />
 								Manage
 							</button>
@@ -229,26 +229,26 @@ export function SubscriptionHistoryCard({ subscription }: { subscription: Subscr
 			</div>
 
 			{/* Footer Section */}
-			<div className="mt-4 pt-4 border-t border-slate-200 dark:border-white/6">
+			<div className="mt-4 pt-4 border-t border-neutral-200 dark:border-white/6">
 				<div className="flex items-center justify-between text-sm">
-					<div className="flex items-center gap-4 text-slate-600 dark:text-slate-300">
+					<div className="flex items-center gap-4 text-neutral-600 dark:text-neutral-300">
 						<span className="font-medium">Subscription ID:</span>
-						<code className="bg-slate-100 dark:bg-white/4 px-2 py-1 rounded-sm text-xs font-mono">
+						<code className="bg-neutral-100 dark:bg-white/4 px-2 py-1 rounded-sm text-xs font-mono">
 							{subscription.id.slice(-8)}
 						</code>
 
 						<span className="font-medium">Plan ID:</span>
-						<code className="bg-slate-100 dark:bg-white/4 px-2 py-1 rounded-sm text-xs font-mono">
+						<code className="bg-neutral-100 dark:bg-white/4 px-2 py-1 rounded-sm text-xs font-mono">
 							{subscription.planId.slice(-8)}
 						</code>
 					</div>
 
 					<div className="flex items-center gap-2">
-						<button className="text-slate-600 hover:text-slate-800 font-medium text-sm underline dark:text-slate-300">
+						<button className="text-neutral-600 hover:text-neutral-800 font-medium text-sm underline dark:text-neutral-300">
 							View History
 						</button>
 
-						<button className="text-slate-600 hover:text-slate-800 font-medium text-sm underline dark:text-slate-300">
+						<button className="text-neutral-600 hover:text-neutral-800 font-medium text-sm underline dark:text-neutral-300">
 							Contact Support
 						</button>
 					</div>

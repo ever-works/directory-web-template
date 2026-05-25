@@ -39,9 +39,9 @@ const getStatusConfig = (status: string) => {
       };
     case 'pending':
       return {
-        color: 'text-theme-primary-400 dark:text-theme-primary-400',
-        bgColor: 'bg-theme-primary-900/20 dark:bg-theme-primary-900/20',
-        borderColor: 'border-theme-primary-700/50 dark:border-theme-primary-700/50',
+        color: 'text-neutral-400 dark:text-neutral-400',
+        bgColor: 'bg-neutral-100 dark:bg-white/8',
+        borderColor: 'border-neutral-200 dark:border-white/8',
         icon: Clock,
         label: 'Pending'
       };
@@ -55,17 +55,17 @@ const getStatusConfig = (status: string) => {
       };
     case 'draft':
       return {
-        color: 'text-slate-600 dark:text-slate-400',
-        bgColor: 'bg-slate-50 dark:bg-[#0a0a0a]/20',
-        borderColor: 'border-slate-200 dark:border-white/6/50',
+        color: 'text-neutral-600 dark:text-neutral-400',
+        bgColor: 'bg-neutral-50 dark:bg-[#0a0a0a]/20',
+        borderColor: 'border-neutral-200 dark:border-white/6/50',
         icon: Clock,
         label: 'Draft'
       };
     default:
       return {
-        color: 'text-slate-600 dark:text-slate-400',
-        bgColor: 'bg-slate-50 dark:bg-[#0a0a0a]/20',
-        borderColor: 'border-slate-200 dark:border-white/6/50',
+        color: 'text-neutral-600 dark:text-neutral-400',
+        bgColor: 'bg-neutral-50 dark:bg-[#0a0a0a]/20',
+        borderColor: 'border-neutral-200 dark:border-white/6/50',
         icon: Clock,
         label: status.charAt(0).toUpperCase() + status.slice(1)
       };
@@ -97,28 +97,28 @@ export function PaymentCard({ payment }: { payment: PaymentHistoryItem }) {
 
 
   return (
-    <div className="bg-white dark:bg-white/5 border border-slate-200 dark:border-white/6 rounded-xl p-6 shadow-xs hover:shadow-md transition-all duration-300 group">
+    <div className="bg-white dark:bg-white/5 border border-neutral-200 dark:border-white/6 rounded-xl p-6 shadow-xs hover:shadow-md transition-all duration-300 group">
       <div className="flex items-start justify-between">
         {/* Left Section - Payment Details */}
         <div className="flex-1">
           <div className="flex items-center gap-4 mb-4 px-2">
             <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
               isPaid ? 'bg-emerald-100 dark:bg-emerald-800/50' :
-              isPending ? 'bg-theme-primary-100 dark:bg-theme-primary-800/50' :
-              'bg-slate-100 dark:bg-white/4'
-            } group-hover:scale-105 transition-transform duration-300 border border-slate-200 dark:border-white/6`}>
+              isPending ? 'bg-neutral-100 dark:bg-white/8' :
+              'bg-neutral-100 dark:bg-white/4'
+            } group-hover:scale-105 transition-transform duration-300 border border-neutral-200 dark:border-white/6`}>
               <CreditCard className={`w-6 h-6 ${
                 isPaid ? 'text-emerald-600 dark:text-emerald-400' :
-                isPending ? 'text-theme-primary-600 dark:text-theme-primary-400' :
-                'text-slate-600 dark:text-slate-400'
+                isPending ? 'text-neutral-500 dark:text-neutral-400' :
+                'text-neutral-600 dark:text-neutral-400'
               }`} />
             </div>
             
             <div className="flex-1">
-              <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 mb-1 group-hover:text-slate-800 dark:group-hover:text-white transition-colors">
+              <h3 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100 mb-1 group-hover:text-neutral-800 dark:group-hover:text-white transition-colors">
                 {payment.plan}
               </h3>
-              <p className="text-sm text-slate-600 dark:text-slate-300 mb-2">
+              <p className="text-sm text-neutral-600 dark:text-neutral-300 mb-2">
                 {payment.description}
               </p>
               
@@ -128,12 +128,12 @@ export function PaymentCard({ payment }: { payment: PaymentHistoryItem }) {
                   {statusConfig.label}
                 </span>
                 
-                <span className="inline-flex items-center gap-1 px-2 py-1 bg-slate-100 dark:bg-white/4 text-slate-600 dark:text-slate-300 text-xs font-medium rounded-full border border-slate-200 dark:border-white/6 ">
+                <span className="inline-flex items-center gap-1 px-2 py-1 bg-neutral-100 dark:bg-white/4 text-neutral-600 dark:text-neutral-300 text-xs font-medium rounded-full border border-neutral-200 dark:border-white/6 ">
                   {getProviderIcon(payment.paymentProvider)}
                   {payment.paymentProvider.charAt(0).toUpperCase() + payment.paymentProvider.slice(1)}
                 </span>
                 
-                <span className="inline-flex items-center gap-1 px-2 py-1 bg-theme-primary-100 dark:bg-theme-primary-20 text-theme-primary-600 dark:text-theme-primary-300 text-xs font-medium rounded-full border border-theme-primary-200 dark:border-theme-primary-500">
+                <span className="inline-flex items-center gap-1 px-2 py-1 bg-neutral-100 dark:bg-white/8 text-neutral-500 dark:text-neutral-300 text-xs font-medium rounded-full border border-neutral-200 dark:border-white/8">
                   {payment.billingInterval.charAt(0).toUpperCase() + payment.billingInterval.slice(1)}
                 </span>
               </div>
@@ -142,23 +142,23 @@ export function PaymentCard({ payment }: { payment: PaymentHistoryItem }) {
           
           {/* Additional Details */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-            <div className="flex items-center gap-2 text-slate-600 dark:text-slate-300">
-              <Calendar className="w-4 h-4 text-slate-400" />
+            <div className="flex items-center gap-2 text-neutral-600 dark:text-neutral-300">
+              <Calendar className="w-4 h-4 text-neutral-400" />
               <span>
                 <span className="font-medium">Date:</span> {formatDate(payment.date)}
               </span>
             </div>
             
-            <div className="flex items-center gap-2 text-slate-600 dark:text-slate-300">
-              <DollarSign className="w-4 h-4 text-slate-400" />
+            <div className="flex items-center gap-2 text-neutral-600 dark:text-neutral-300">
+              <DollarSign className="w-4 h-4 text-neutral-400" />
               <span>
                 <span className="font-medium">Currency:</span> {payment.currency}
               </span>
             </div>
             
             {payment.invoiceNumber && (
-              <div className="flex items-center gap-2 text-slate-600 dark:text-slate-300">
-                <CreditCard className="w-4 h-4 text-slate-400" />
+              <div className="flex items-center gap-2 text-neutral-600 dark:text-neutral-300">
+                <CreditCard className="w-4 h-4 text-neutral-400" />
                 <span>
                   <span className="font-medium">Invoice:</span> {payment.invoiceNumber}
                 </span>
@@ -169,11 +169,11 @@ export function PaymentCard({ payment }: { payment: PaymentHistoryItem }) {
         
         {/* Right Section - Amount and Actions */}
         <div className="text-right ml-6">
-          <div className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-1 group-hover:text-slate-800 dark:group-hover:text-white transition-colors">
+          <div className="text-2xl font-bold text-neutral-900 dark:text-neutral-100 mb-1 group-hover:text-neutral-800 dark:group-hover:text-white transition-colors">
             {formatCurrencyAmount(payment.amount, payment.currency, locale)}
           </div>
           
-          <div className="text-sm text-slate-600 dark:text-slate-300 mb-3">
+          <div className="text-sm text-neutral-600 dark:text-neutral-300 mb-3">
             {payment.billingInterval} billing
           </div>
           
@@ -184,14 +184,14 @@ export function PaymentCard({ payment }: { payment: PaymentHistoryItem }) {
                 href={payment.invoiceUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-3 py-2 text-xs font-medium text-theme-primary-600 dark:text-theme-primary-300 bg-theme-primary-50 dark:bg-theme-primary-20 rounded-lg hover:bg-theme-primary-100 dark:hover:bg-theme-primary-800/30 transition-colors border border-theme-primary-200 dark:border-theme-primary-500"
+                className="inline-flex items-center gap-2 px-3 py-2 text-xs font-medium text-neutral-500 dark:text-neutral-300 bg-neutral-100 dark:bg-white/8 rounded-lg hover:bg-neutral-100 dark:hover:bg-white/8 transition-colors border border-neutral-200 dark:border-white/8"
               >
                 <ExternalLink className="w-3 h-3" />
                 View Invoice
               </a>
             )}
             
-            <button className="inline-flex items-center gap-2 px-3 py-2 text-xs font-medium text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-white/4 rounded-lg hover:bg-slate-200 dark:hover:bg-white/6 transition-colors border border-slate-200 dark:border-white/6">
+            <button className="inline-flex items-center gap-2 px-3 py-2 text-xs font-medium text-neutral-600 dark:text-neutral-300 bg-neutral-100 dark:bg-white/4 rounded-lg hover:bg-neutral-200 dark:hover:bg-white/6 transition-colors border border-neutral-200 dark:border-white/6">
               <Download className="w-3 h-3" />
               Download
             </button>
@@ -236,18 +236,18 @@ export function PaymentCard({ payment }: { payment: PaymentHistoryItem }) {
       </div>
       
       {/* Footer Section */}
-      <div className="mt-4 pt-4 border-t border-slate-200 dark:border-white/6">
+      <div className="mt-4 pt-4 border-t border-neutral-200 dark:border-white/6">
         <div className="flex items-center justify-between text-sm">
-          <div className="flex items-center gap-4 text-slate-600 dark:text-slate-400">
+          <div className="flex items-center gap-4 text-neutral-600 dark:text-neutral-400">
             <span className="font-medium">Payment ID:</span>
-            <code className="bg-slate-100 dark:bg-white/4 px-2 py-1 rounded-sm text-xs font-mono border border-slate-200 dark:border-white/6">
+            <code className="bg-neutral-100 dark:bg-white/4 px-2 py-1 rounded-sm text-xs font-mono border border-neutral-200 dark:border-white/6">
               {payment.id.slice(-8)}
             </code>
             
             {payment.subscriptionId && (
               <>
                 <span className="font-medium">Subscription:</span>
-                <code className="bg-slate-100 dark:bg-white/4 px-2 py-1 rounded-sm text-xs font-mono border border-slate-200 dark:border-white/6">
+                <code className="bg-neutral-100 dark:bg-white/4 px-2 py-1 rounded-sm text-xs font-mono border border-neutral-200 dark:border-white/6">
                   {payment.subscriptionId.slice(-8)}
                 </code>
               </>
@@ -255,11 +255,11 @@ export function PaymentCard({ payment }: { payment: PaymentHistoryItem }) {
           </div>
           
           <div className="flex items-center gap-2">
-            <button className="text-slate-600 dark:text-slate-300 hover:text-slate-800 dark:hover:text-slate-100 font-medium text-sm underline">
+            <button className="text-neutral-600 dark:text-neutral-300 hover:text-neutral-800 dark:hover:text-neutral-100 font-medium text-sm underline">
               View Details
             </button>
             
-            <button className="text-slate-600 dark:text-slate-300 hover:text-slate-800 dark:hover:text-slate-100 font-medium text-sm underline">
+            <button className="text-neutral-600 dark:text-neutral-300 hover:text-neutral-800 dark:hover:text-neutral-100 font-medium text-sm underline">
               Contact Support
             </button>
           </div>

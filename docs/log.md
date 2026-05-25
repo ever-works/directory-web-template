@@ -34,16 +34,19 @@ why** at a higher level than per-commit diffs.
 ## 2026-05-26 — Spec 033: Client Billing page UI consistency
 
 - spec-033: drafted `docs/spec/033-client-billing-ui-consistency/spec.md` and
-  shipped the implementation in the same PR (EW-649). UI-only alignment of
-  `/client/settings/profile/billing` with its sibling settings pages:
-  replaced the hardcoded card surfaces (`bg-white dark:bg-[#111111] …`) with
-  the shared `@/components/ui/card` `Card` primitive, restructured the header
-  to the canonical back-link row + icon-tile/title block with actions on the
-  right, and routed the remaining hardcoded strings through the `billing`
-  i18n namespace (new keys `FREE`, `UPGRADE`, `RENEWS_ON`,
-  `UPGRADE_UNLOCK_FEATURES`, `DAYS_LEFT`, `DAYS_TOTAL` in `messages/en.json`,
-  non-English locales fall back via the existing `deepmerge` config). No
-  functional/data changes.
+  shipped the implementation in the same PR (EW-649). UI-only realignment of
+  `/client/settings/profile/billing` (and its `components/settings/billing/**`
+  sub-components) with the **client dashboard** design system: neutral palette
+  (dropped all `slate-*` and `theme-primary-*`), `bg-white dark:bg-white/3`
+  card surfaces with `border-neutral-200 dark:border-white/8`, monochrome icon
+  tiles, `neutral-900 / white` primary CTAs. Rewrote the KPI cards
+  (`billing-stats.tsx`) to mirror the dashboard `StatsCard` (no gradients) and
+  the tab bar (`tab-navigation.tsx`) to the dashboard underline tabs; matched
+  the page header to `DashboardHeader`. Routed page-level hardcoded strings
+  through the `billing` i18n namespace (new keys `FREE`, `UPGRADE`,
+  `RENEWS_ON`, `UPGRADE_UNLOCK_FEATURES`, `DAYS_LEFT`, `DAYS_TOTAL` in
+  `messages/en.json`; non-English locales fall back via the existing
+  `deepmerge` config). No functional/data changes.
 
 ## 2026-05-21 — Spec 032: Collection icon picker — implementation
 

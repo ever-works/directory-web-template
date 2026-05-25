@@ -68,8 +68,8 @@ const getStatusConfig = (status: string) => {
 			};
 		default:
 			return {
-				color: 'text-slate-600 dark:text-slate-400',
-				bgColor: 'bg-slate-50 dark:bg-[#0a0a0a]/20',
+				color: 'text-neutral-600 dark:text-neutral-400',
+				bgColor: 'bg-neutral-50 dark:bg-[#0a0a0a]/20',
 				icon: Clock,
 				label: status
 			};
@@ -98,15 +98,15 @@ export function SubscriptionCard({ subscription }: { subscription: SubscriptionI
 	};
 
 	return (
-		<div className="bg-white dark:bg-white/5 border border-slate-200 dark:border-white/6 rounded-lg p-4 shadow-xs hover:shadow-md transition-all duration-200">
+		<div className="bg-white dark:bg-white/5 border border-neutral-200 dark:border-white/6 rounded-lg p-4 shadow-xs hover:shadow-md transition-all duration-200">
 			{/* Header */}
 			<div className="flex justify-between items-start mb-3">
 				<div className="flex-1">
-					<h3 className="font-semibold text-slate-900 dark:text-slate-100 text-lg mb-2">
+					<h3 className="font-semibold text-neutral-900 dark:text-neutral-100 text-lg mb-2">
 						{subscription.planName}
 					</h3>
 					<span
-						className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium ${statusConfig.bgColor} ${statusConfig.color} border border-slate-200 dark:border-white/8`}
+						className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium ${statusConfig.bgColor} ${statusConfig.color} border border-neutral-200 dark:border-white/8`}
 					>
 						<StatusIcon className="w-3.5 h-3.5" />
 						{statusConfig.label}
@@ -114,10 +114,10 @@ export function SubscriptionCard({ subscription }: { subscription: SubscriptionI
 				</div>
 
 				<div className="text-right ml-3">
-					<div className="text-xl font-bold text-slate-900 dark:text-slate-100">
+					<div className="text-xl font-bold text-neutral-900 dark:text-neutral-100">
 						{formatCurrencyAmount(subscription.amount, subscription.currency, locale)}
 					</div>
-					<div className="text-sm text-slate-600 dark:text-slate-400 font-medium">
+					<div className="text-sm text-neutral-600 dark:text-neutral-400 font-medium">
 						per {subscription.billingInterval}
 					</div>
 				</div>
@@ -125,20 +125,20 @@ export function SubscriptionCard({ subscription }: { subscription: SubscriptionI
 
 			{/* Key Info */}
 			<div className="grid grid-cols-2 gap-3 mb-3">
-				<div className="flex items-center gap-2.5 p-2.5 bg-slate-50 dark:bg-white/4 rounded-lg border border-slate-200 dark:border-white/8">
+				<div className="flex items-center gap-2.5 p-2.5 bg-neutral-50 dark:bg-white/4 rounded-lg border border-neutral-200 dark:border-white/8">
 					<div className="w-7 h-7 bg-blue-500 dark:bg-blue-600 rounded-lg flex items-center justify-center">
 						<Calendar className="w-3.5 h-3.5 text-white" />
 					</div>
-					<div className="text-sm text-slate-700 dark:text-slate-300 font-medium">
+					<div className="text-sm text-neutral-700 dark:text-neutral-300 font-medium">
 						Started: {formatDate(subscription.startDate)}
 					</div>
 				</div>
 
-				<div className="flex items-center gap-2.5 p-2.5 bg-slate-50 dark:bg-white/4 rounded-lg border border-slate-200 dark:border-white/8">
+				<div className="flex items-center gap-2.5 p-2.5 bg-neutral-50 dark:bg-white/4 rounded-lg border border-neutral-200 dark:border-white/8">
 					<div className="w-7 h-7 bg-emerald-500 dark:bg-emerald-600 rounded-lg flex items-center justify-center">
 						<Clock className="w-3.5 h-3.5 text-white" />
 					</div>
-					<div className="text-sm text-slate-700 dark:text-slate-300 font-medium">
+					<div className="text-sm text-neutral-700 dark:text-neutral-300 font-medium">
 						Next:{' '}
 						{subscription.currentPeriodEnd || subscription.endDate
 							? formatDate(subscription.currentPeriodEnd || subscription.endDate)
@@ -148,12 +148,12 @@ export function SubscriptionCard({ subscription }: { subscription: SubscriptionI
 			</div>
 
 			{/* Footer */}
-			<div className="flex justify-between items-center pt-3 border-t border-slate-200 dark:border-white/6">
+			<div className="flex justify-between items-center pt-3 border-t border-neutral-200 dark:border-white/6">
 				<div className="flex items-center gap-2">
-					<div className="w-6 h-6 bg-slate-500 dark:bg-white/1 rounded-lg flex items-center justify-center">
+					<div className="w-6 h-6 bg-neutral-500 dark:bg-white/1 rounded-lg flex items-center justify-center">
 						<CreditCard className="w-3 h-3 text-white" />
 					</div>
-					<span className="text-xs text-slate-500 dark:text-slate-400 font-medium">
+					<span className="text-xs text-neutral-500 dark:text-neutral-400 font-medium">
 						{subscription.paymentProvider} •{' '}
 						{subscription.subscriptionId && typeof subscription.subscriptionId === 'string'
 							? subscription.subscriptionId.slice(-8)
