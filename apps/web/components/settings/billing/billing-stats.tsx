@@ -392,7 +392,7 @@ export function DetailedBillingStats({
 							<span className="text-neutral-500 dark:text-neutral-400">Average Transaction:</span>
 							<span className="font-semibold text-neutral-900 dark:text-white">
 								{totalPayments > 0
-									? formatCurrencyAmount(totalPayments > 0 ? totalSpent / totalPayments : 0, currency, locale)
+									? formatCurrencyAmount(totalSpent / totalPayments, currency, locale)
 									: 'N/A'}
 							</span>
 						</div>
