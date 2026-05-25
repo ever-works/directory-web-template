@@ -1016,7 +1016,12 @@
 		"SPONSOR_WEEK": "неделя",
 		"SPONSOR_OR": "или",
 		"SPONSOR_MONTH": "месяц",
-		"SPONSOR_CTA": "Стать спонсором"
+		"SPONSOR_CTA": "Стать спонсором",
+		"PAY_NOW": "Оплатить сейчас",
+		"PAY_LATER": "Оплатить позже",
+		"PER_MONTH": "/мес",
+		"PER_YEAR": "/год",
+		"LEARN_MORE_PAYMENT_OPTIONS": "Подробнее о вариантах оплаты"
 	},
 	"payment": {
 		"title": "Завершите ваш заказ",

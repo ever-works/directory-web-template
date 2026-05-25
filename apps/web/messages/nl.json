@@ -938,7 +938,12 @@
 		"SPONSOR_WEEK": "week",
 		"SPONSOR_OR": "or",
 		"SPONSOR_MONTH": "month",
-		"SPONSOR_CTA": "Become a Sponsor"
+		"SPONSOR_CTA": "Become a Sponsor",
+		"PAY_NOW": "Nu betalen",
+		"PAY_LATER": "Later betalen",
+		"PER_MONTH": "/maand",
+		"PER_YEAR": "/jaar",
+		"LEARN_MORE_PAYMENT_OPTIONS": "Meer informatie over betaalopties"
 	},
 	"payment": {
 		"title": "Complete Your Order",

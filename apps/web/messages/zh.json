@@ -954,7 +954,12 @@
 		"SPONSOR_MONTH": "月",
 		"SPONSOR_CTA": "成为赞助商",
 		"UPGRADE_TO_PRO": "升级到专业版",
-		"GO_ENTERPRISE": "选择企业版"
+		"GO_ENTERPRISE": "选择企业版",
+		"PAY_NOW": "立即付款",
+		"PAY_LATER": "稍后付款",
+		"PER_MONTH": "/月",
+		"PER_YEAR": "/年",
+		"LEARN_MORE_PAYMENT_OPTIONS": "了解更多付款选项"
 	},
 	"payment": {
 		"title": "Complete Your Order",

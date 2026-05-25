@@ -955,7 +955,12 @@
 		"SPONSOR_MONTH": "Monat",
 		"SPONSOR_CTA": "Sponsor werden",
 		"UPGRADE_TO_PRO": "Auf Pro upgraden",
-		"GO_ENTERPRISE": "Enterprise wählen"
+		"GO_ENTERPRISE": "Enterprise wählen",
+		"PAY_NOW": "Jetzt zahlen",
+		"PAY_LATER": "Später zahlen",
+		"PER_MONTH": "/Monat",
+		"PER_YEAR": "/Jahr",
+		"LEARN_MORE_PAYMENT_OPTIONS": "Mehr über Zahlungsoptionen erfahren"
 	},
 	"payment": {
 		"title": "Complete Your Order",

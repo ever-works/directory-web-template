@@ -938,7 +938,12 @@
 		"SPONSOR_WEEK": "week",
 		"SPONSOR_OR": "or",
 		"SPONSOR_MONTH": "month",
-		"SPONSOR_CTA": "Become a Sponsor"
+		"SPONSOR_CTA": "Become a Sponsor",
+		"PAY_NOW": "Сплатити зараз",
+		"PAY_LATER": "Сплатити пізніше",
+		"PER_MONTH": "/міс",
+		"PER_YEAR": "/рік",
+		"LEARN_MORE_PAYMENT_OPTIONS": "Докладніше про варіанти оплати"
 	},
 	"payment": {
 		"title": "Complete Your Order",

@@ -938,7 +938,12 @@
 		"SPONSOR_WEEK": "week",
 		"SPONSOR_OR": "or",
 		"SPONSOR_MONTH": "month",
-		"SPONSOR_CTA": "Become a Sponsor"
+		"SPONSOR_CTA": "Become a Sponsor",
+		"PAY_NOW": "ชำระเงินทันที",
+		"PAY_LATER": "ชำระเงินภายหลัง",
+		"PER_MONTH": "/เดือน",
+		"PER_YEAR": "/ปี",
+		"LEARN_MORE_PAYMENT_OPTIONS": "เรียนรู้เพิ่มเติมเกี่ยวกับตัวเลือกการชำระเงิน"
 	},
 	"payment": {
 		"title": "Complete Your Order",

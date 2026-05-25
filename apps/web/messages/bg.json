@@ -1016,7 +1016,12 @@
 		"SPONSOR_WEEK": "седмица",
 		"SPONSOR_OR": "или",
 		"SPONSOR_MONTH": "месец",
-		"SPONSOR_CTA": "Станете спонсор"
+		"SPONSOR_CTA": "Станете спонсор",
+		"PAY_NOW": "Платете сега",
+		"PAY_LATER": "Платете по-късно",
+		"PER_MONTH": "/месец",
+		"PER_YEAR": "/година",
+		"LEARN_MORE_PAYMENT_OPTIONS": "Научете повече за опциите за плащане"
 	},
 	"payment": {
 		"title": "Завършете вашата поръчка",

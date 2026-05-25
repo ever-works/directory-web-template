@@ -942,7 +942,12 @@
 		"SPONSOR_MONTH": "شهر",
 		"SPONSOR_CTA": "كن راعياً",
 		"UPGRADE_TO_PRO": "الترقية إلى الاحترافي",
-		"GO_ENTERPRISE": "اختر المؤسسات"
+		"GO_ENTERPRISE": "اختر المؤسسات",
+		"PAY_NOW": "ادفع الآن",
+		"PAY_LATER": "ادفع لاحقًا",
+		"PER_MONTH": "/شهر",
+		"PER_YEAR": "/سنة",
+		"LEARN_MORE_PAYMENT_OPTIONS": "تعرّف على المزيد حول خيارات الدفع"
 	},
 	"payment": {
 		"title": "Complete Your Order",

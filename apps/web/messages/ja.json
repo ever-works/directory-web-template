@@ -938,7 +938,12 @@
 		"SPONSOR_WEEK": "week",
 		"SPONSOR_OR": "or",
 		"SPONSOR_MONTH": "month",
-		"SPONSOR_CTA": "Become a Sponsor"
+		"SPONSOR_CTA": "Become a Sponsor",
+		"PAY_NOW": "今すぐ支払う",
+		"PAY_LATER": "後で支払う",
+		"PER_MONTH": "/月",
+		"PER_YEAR": "/年",
+		"LEARN_MORE_PAYMENT_OPTIONS": "支払いオプションの詳細"
 	},
 	"payment": {
 		"title": "Complete Your Order",

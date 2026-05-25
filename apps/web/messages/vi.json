@@ -1016,7 +1016,12 @@
 		"SPONSOR_WEEK": "tuần",
 		"SPONSOR_OR": "hoặc",
 		"SPONSOR_MONTH": "tháng",
-		"SPONSOR_CTA": "Trở thành Nhà tài trợ"
+		"SPONSOR_CTA": "Trở thành Nhà tài trợ",
+		"PAY_NOW": "Thanh toán ngay",
+		"PAY_LATER": "Thanh toán sau",
+		"PER_MONTH": "/tháng",
+		"PER_YEAR": "/năm",
+		"LEARN_MORE_PAYMENT_OPTIONS": "Tìm hiểu thêm về tùy chọn thanh toán"
 	},
 	"payment": {
 		"title": "Hoàn tất đơn hàng của bạn",

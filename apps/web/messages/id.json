@@ -1016,7 +1016,12 @@
 		"SPONSOR_WEEK": "minggu",
 		"SPONSOR_OR": "atau",
 		"SPONSOR_MONTH": "bulan",
-		"SPONSOR_CTA": "Jadi Sponsor"
+		"SPONSOR_CTA": "Jadi Sponsor",
+		"PAY_NOW": "Bayar sekarang",
+		"PAY_LATER": "Bayar nanti",
+		"PER_MONTH": "/bulan",
+		"PER_YEAR": "/tahun",
+		"LEARN_MORE_PAYMENT_OPTIONS": "Pelajari lebih lanjut tentang opsi pembayaran"
 	},
 	"payment": {
 		"title": "Selesaikan Pesanan Anda",

@@ -1087,7 +1087,12 @@
 		"SPONSOR_WEEK": "week",
 		"SPONSOR_OR": "or",
 		"SPONSOR_MONTH": "month",
-		"SPONSOR_CTA": "Become a Sponsor"
+		"SPONSOR_CTA": "Become a Sponsor",
+		"PAY_NOW": "Pay Now",
+		"PAY_LATER": "Pay Later",
+		"PER_MONTH": "/month",
+		"PER_YEAR": "/year",
+		"LEARN_MORE_PAYMENT_OPTIONS": "Learn more about payment options"
 	},
 	"payment": {
 		"title": "Complete Your Order",

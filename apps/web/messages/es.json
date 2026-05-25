@@ -944,7 +944,12 @@
 		"SPONSOR_MONTH": "mes",
 		"SPONSOR_CTA": "Ser patrocinador",
 		"UPGRADE_TO_PRO": "Actualizar a Pro",
-		"GO_ENTERPRISE": "Ir a Empresa"
+		"GO_ENTERPRISE": "Ir a Empresa",
+		"PAY_NOW": "Pagar ahora",
+		"PAY_LATER": "Pagar después",
+		"PER_MONTH": "/mes",
+		"PER_YEAR": "/año",
+		"LEARN_MORE_PAYMENT_OPTIONS": "Más información sobre las opciones de pago"
 	},
 	"payment": {
 		"title": "Complete Your Order",

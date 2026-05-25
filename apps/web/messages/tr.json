@@ -1016,7 +1016,12 @@
 		"SPONSOR_WEEK": "hafta",
 		"SPONSOR_OR": "veya",
 		"SPONSOR_MONTH": "ay",
-		"SPONSOR_CTA": "Sponsor Ol"
+		"SPONSOR_CTA": "Sponsor Ol",
+		"PAY_NOW": "Şimdi öde",
+		"PAY_LATER": "Sonra öde",
+		"PER_MONTH": "/ay",
+		"PER_YEAR": "/yıl",
+		"LEARN_MORE_PAYMENT_OPTIONS": "Ödeme seçenekleri hakkında daha fazla bilgi"
 	},
 	"payment": {
 		"title": "Siparişinizi Tamamlayın",

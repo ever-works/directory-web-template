@@ -928,7 +928,12 @@
 			"UNLIMITED_SUBMISSIONS": "Unlimited submissions included"
 		},
 		"UPGRADE_TO_PRO": "שדרג למקצועי",
-		"GO_ENTERPRISE": "בחר ארגוני"
+		"GO_ENTERPRISE": "בחר ארגוני",
+		"PAY_NOW": "שלם עכשיו",
+		"PAY_LATER": "שלם מאוחר יותר",
+		"PER_MONTH": "/חודש",
+		"PER_YEAR": "/שנה",
+		"LEARN_MORE_PAYMENT_OPTIONS": "מידע נוסף על אפשרויות התשלום"
 	},
 	"payment": {
 		"title": "Complete Your Order",

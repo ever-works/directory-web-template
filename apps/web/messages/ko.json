@@ -1016,7 +1016,12 @@
 		"SPONSOR_WEEK": "주",
 		"SPONSOR_OR": "또는",
 		"SPONSOR_MONTH": "월",
-		"SPONSOR_CTA": "스폰서 되기"
+		"SPONSOR_CTA": "스폰서 되기",
+		"PAY_NOW": "지금 결제",
+		"PAY_LATER": "나중에 결제",
+		"PER_MONTH": "/월",
+		"PER_YEAR": "/년",
+		"LEARN_MORE_PAYMENT_OPTIONS": "결제 옵션에 대해 자세히 알아보기"
 	},
 	"payment": {
 		"title": "주문 완료",
