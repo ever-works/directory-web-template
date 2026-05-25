@@ -241,31 +241,6 @@ export default async function ClientProfilePage({
 						)}
 					</div>
 
-					{/* Security & Status + Billing & Plans — owner-only. These
-						expose account-private fields (verification, 2FA, lifecycle
-						status, plan, billing) that `toPublicClientProfile` strips, so
-						they read from the unprojected `rawProfile` and are hidden in
-						public-preview mode (`effectiveIsOwn`). */}
-					{effectiveIsOwn && (
-						<div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-							<section aria-label={t('SECURITY_STATUS_SECTION')}>
-								<SecurityStatusSection
-									emailVerified={!!rawProfile.emailVerified}
-									twoFactorEnabled={!!rawProfile.twoFactorEnabled}
-									status={rawProfile.status ?? 'active'}
-									memberSince={profile.memberSince}
-								/>
-							</section>
-							<section aria-label={t('BILLING_PLANS_SECTION')}>
-								<BillingPlansSection
-									plan={rawProfile.plan ?? 'free'}
-									accountType={rawProfile.accountType ?? 'individual'}
-									currency={rawProfile.currency ?? 'USD'}
-								/>
-							</section>
-						</div>
-					)}
-
 					{/* 2-column dashboard */}
 					<div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
 						{/* Left column — profile panel */}
@@ -278,6 +253,30 @@ export default async function ClientProfilePage({
 								verified={!!clientProfile.emailVerified}
 								stats={{ favorites: stats.favorites, portfolio: stats.portfolio, followers: stats.followers, following: stats.following }}
 							/>
+							{/* Security & Status + Billing & Plans — owner-only. These
+						expose account-private fields (verification, 2FA, lifecycle
+						status, plan, billing) that `toPublicClientProfile` strips, so
+						they read from the unprojected `rawProfile` and are hidden in
+						public-preview mode (`effectiveIsOwn`). */}
+							{effectiveIsOwn && (
+								<div className="grid grid-cols-1 gap-6">
+									<section aria-label={t('SECURITY_STATUS_SECTION')}>
+										<SecurityStatusSection
+											emailVerified={!!rawProfile.emailVerified}
+											twoFactorEnabled={!!rawProfile.twoFactorEnabled}
+											status={rawProfile.status ?? 'active'}
+											memberSince={profile.memberSince}
+										/>
+									</section>
+									<section aria-label={t('BILLING_PLANS_SECTION')}>
+										<BillingPlansSection
+											plan={rawProfile.plan ?? 'free'}
+											accountType={rawProfile.accountType ?? 'individual'}
+											currency={rawProfile.currency ?? 'USD'}
+										/>
+									</section>
+								</div>
+							)}
 						</aside>
 
 						{/* Right column — stats + sections */}
