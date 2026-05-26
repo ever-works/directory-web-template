@@ -34,13 +34,14 @@ why** at a higher level than per-commit diffs.
 ## 2026-05-26 — Spec 034: Admin header profile link
 
 - spec-034: drafted `docs/spec/034-admin-header-profile-link/spec.md` and
-  shipped the fix in the same PR (EWW-5). The admin layout header
-  (`apps/web/app/[locale]/admin/layout-client.tsx`) was a static `Admin Panel`
-  bar with no profile control; now renders the shared `ProfileButton`
-  right-aligned. Also added the missing "Your Profile" link to the admin branch
-  of `apps/web/components/profile-button/menu-items.tsx` (the admin branch
-  previously omitted it), reusing the existing `common.YOUR_PROFILE` /
-  `common.YOUR_PROFILE_DESC` i18n keys, so an admin can reach their own profile.
+  shipped the fix in the same PR (EWW-5). The admin branch of the shared
+  `ProfileButton` dropdown (`apps/web/components/profile-button/menu-items.tsx`)
+  omitted the "Your Profile" link the non-admin branch has, so an admin had no
+  link to their own profile; added it, reusing the existing
+  `common.YOUR_PROFILE` / `common.YOUR_PROFILE_DESC` i18n keys. The `/admin`
+  panel header (`apps/web/app/[locale]/admin/layout-client.tsx`) keeps its
+  `Admin Panel` label unchanged (an earlier revision added a header button, then
+  reverted it per review feedback).
 
 ---
 
