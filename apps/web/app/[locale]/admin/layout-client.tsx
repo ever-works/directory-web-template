@@ -81,8 +81,7 @@ function AdminAuthGuard({ children }: { children: React.ReactNode }) {
 
 	return (
 		<div className="min-h-screen bg-gray-100 dark:bg-white/3">
-			<header className="flex items-center justify-between p-3 bg-white dark:bg-white/4 dark:text-white text-gray-600 text-sm">
-				<span>Admin Panel</span>
+			<header className="flex items-center justify-end p-3 bg-white dark:bg-white/4 dark:text-white text-gray-600 text-sm">
 				<ProfileButton />
 			</header>
 			<main className="p-8">{children}</main>

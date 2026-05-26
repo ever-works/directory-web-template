@@ -63,10 +63,10 @@ my account menu and reach my own profile without leaving the admin panel.
 
 ## 8. UX Notes
 
-- The header becomes a flex row: `Admin Panel` label on the left, `ProfileButton`
-  on the right. `ProfileButton` already handles its own avatar, admin crown
-  badge, dropdown, keyboard semantics (`aria-haspopup`, `aria-expanded`), and
-  logout overlay.
+- The header is a flex row with the `ProfileButton` right-aligned (no text
+  label). `ProfileButton` already handles its own avatar, admin crown badge,
+  dropdown, keyboard semantics (`aria-haspopup`, `aria-expanded`), and logout
+  overlay.
 - Localisation: no new strings; reuses keys already present in `messages/*`.
 
 ## 9. Data & API Surface
