@@ -127,7 +127,6 @@ function PlanCard({ planName, hasActiveSubscription, currentPeriodEnd, onUpgrade
 					)}
 					{!hasActiveSubscription && (
 						<button onClick={onUpgrade} className={PRIMARY_CTA}>
-							<Zap className="h-3.5 w-3.5" />
 							{t('UPGRADE')}
 						</button>
 					)}
@@ -157,7 +156,7 @@ export default function BillingPage() {
 		monthlyAverage,
 		totalPayments,
 		hasPaymentHistory,
-		hasSubscriptionHistory
+		hasSubscriptionHistory,
 	} = useProviderPayment();
 
 	const [activeTab, setActiveTab] = useState<'overview' | 'payments' | 'subscriptions'>('overview');
