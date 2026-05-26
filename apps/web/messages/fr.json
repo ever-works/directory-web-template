@@ -732,6 +732,15 @@
 			"REVIEW_PUBLISH": "Révision et publication"
 		},
 		"DETAILS_FORM": {
+			"VIDEO_URL_LABEL": "URL de la vidéo (YouTube ou Vimeo)",
+			"VIDEO_PREVIEW": "Aperçu de la vidéo",
+			"STEP_TITLE_BASIC_INFO": "Informations de base",
+			"STEP_TITLE_PAYMENT": "Paiement",
+			"STEP_TITLE_REVIEW": "Vérification",
+			"TOAST_INVALID_URL": "Veuillez fournir une URL valide pour votre élément.",
+			"TOAST_SUBMIT_SUCCESS": "Élément envoyé avec succès !",
+			"TOAST_SUBMIT_FAILED": "Échec de l'envoi de l'élément",
+			"TOAST_SUBMIT_ERROR": "Erreur lors de l'envoi du formulaire. Veuillez réessayer.",
 			"TITLE": "Parlez-nous de votre produit",
 			"DESCRIPTION": "Partagez les détails qui aideront les utilisateurs à découvrir et comprendre votre produit incroyable",
 			"STEP_INDICATOR": "Étape {step} sur 3 · Détails du produit",
@@ -765,7 +774,8 @@
 			"REMOVE_LINK": "Supprimer le lien",
 			"REVIEW_AND_SUBMIT": "Réviser et Soumettre",
 			"EXTRACT": "Extraire",
-			"EXTRACTING": "Extraction..."
+			"EXTRACTING": "Extraction...",
+				"URL_FORMAT_HINT": "L'URL doit commencer par https:// ou http://"
 		},
 		"PAYMENT": {
 			"TITLE": "Finalisez votre commande",
@@ -865,7 +875,7 @@
 		"UPGRADE_TO_STANDARD": "Soumettre maintenant",
 		"GO_PREMIUM": "S'abonner",
 		"SUBMIT_FOR_FREE": "Soumettre gratuitement",
-		"SUBSCRIBE_NOW": "Subscribe Now",
+		"SUBSCRIBE_NOW": "S'abonner maintenant",
 		"SELECT_FREE": "Choisir Gratuit",
 		"SELECT_STANDARD": "Choisir Standard",
 		"SELECT_PREMIUM": "Choisir Premium",
@@ -939,7 +949,12 @@
 		"SPONSOR_WEEK": "semaine",
 		"SPONSOR_OR": "ou",
 		"SPONSOR_MONTH": "mois",
-		"SPONSOR_CTA": "Devenir sponsor"
+		"SPONSOR_CTA": "Devenir sponsor",
+		"PAY_NOW": "Payer maintenant",
+		"PAY_LATER": "Payer plus tard",
+		"PER_MONTH": "/mois",
+		"PER_YEAR": "/an",
+		"LEARN_MORE_PAYMENT_OPTIONS": "En savoir plus sur les options de paiement"
 	},
 	"payment": {
 		"title": "Finalisez votre commande",
@@ -959,7 +974,29 @@
 			"failed": "Paiement échoué",
 			"pending": "Paiement en attente"
 		},
-		"COMPLETE_PAYMENT": "Finaliser le paiement"
+		"COMPLETE_PAYMENT": "Finaliser le paiement",
+		"flowSelector": {
+			"title": "Moment du paiement",
+			"subtitle": "Choisissez quand être débité pour votre soumission",
+			"payNow": {
+				"title": "Payer maintenant",
+				"description": "Paiement traité immédiatement. File de révision prioritaire.",
+				"benefits": [
+					"Traitement immédiat",
+					"Révision prioritaire",
+					"Approbation plus rapide"
+				]
+			},
+			"payLater": {
+				"title": "Payer plus tard",
+				"description": "Débité uniquement après l'approbation de votre soumission.",
+				"benefits": [
+					"Aucun coût initial",
+					"Révision avant paiement",
+					"Sans risque"
+				]
+			}
+		}
 	},
 	"help": {
 		"HERO_BADGE_TEXT": "Maintenant disponible sur GitHub",
@@ -1706,9 +1743,40 @@
 		"SUBSCRIPTIONS_EMPTY_STATE": "Aucun historique d'abonnement",
 		"SUBSCRIPTIONS_EMPTY_DESCRIPTION": "Votre historique d'abonnement apparaîtra ici une fois que vous aurez des abonnements actifs.",
 		"OVERVIEW_EMPTY_STATE": "Aucune activité récente",
-		"OVERVIEW_EMPTY_DESCRIPTION": "Votre activité de facturation récente apparaîtra ici une fois que vous aurez des transactions."
+		"OVERVIEW_EMPTY_DESCRIPTION": "Votre activité de facturation récente apparaîtra ici une fois que vous aurez des transactions.",
+		"SAVE_PER_YEAR": "Économisez {amount}/an"
 	},
 	"profile": {
+		"SECURITY_STATUS_SECTION": "Sécurité et statut",
+		"EMAIL_VERIFICATION": "Vérification de l'e-mail",
+		"EMAIL_VERIFIED": "Vérifié",
+		"EMAIL_UNVERIFIED": "Non vérifié",
+		"TWO_FACTOR": "Authentification à deux facteurs",
+		"TWO_FACTOR_ON": "Activée",
+		"TWO_FACTOR_OFF": "Désactivée",
+		"ACCOUNT_STATUS": "Statut du compte",
+		"STATUS_ACTIVE": "Actif",
+		"STATUS_INACTIVE": "Inactif",
+		"STATUS_SUSPENDED": "Suspendu",
+		"STATUS_BANNED": "Banni",
+		"STATUS_TRIAL": "Essai",
+		"MEMBER_SINCE": "Membre depuis",
+		"MANAGE_SECURITY": "Gérer la sécurité",
+		"BILLING_PLANS_SECTION": "Facturation et forfaits",
+		"CURRENT_PLAN": "Forfait actuel",
+		"PLAN_FREE": "Gratuit",
+		"PLAN_STANDARD": "Standard",
+		"PLAN_PREMIUM": "Premium",
+		"PLAN_BADGE_ACTIVE": "Actif",
+		"PLAN_BADGE_FREE": "Gratuit",
+		"ACCOUNT_TYPE": "Type de compte",
+		"ACCOUNT_TYPE_INDIVIDUAL": "Particulier",
+		"ACCOUNT_TYPE_BUSINESS": "Entreprise",
+		"ACCOUNT_TYPE_ENTERPRISE": "Grand compte",
+		"BILLING_CURRENCY": "Devise",
+		"MANAGE_BILLING": "Gérer la facturation",
+		"BILLING_PLANS_UPGRADE": "Mettre à niveau",
+		"BILLING_PLANS_VIEW_PLANS": "Voir les forfaits",
 		"BASIC_INFO_TITLE": "Informations de base",
 		"BASIC_INFO_DESCRIPTION": "Mettez à jour vos informations personnelles et coordonnées. Ces informations seront affichées sur votre profil public et aident les autres à vous découvrir et à vous contacter.",
 		"PERSONAL_INFORMATION": "Informations personnelles",

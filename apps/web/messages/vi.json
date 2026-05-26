@@ -809,6 +809,15 @@
 			"REVIEW_PUBLISH": "Đánh giá & Xuất bản"
 		},
 		"DETAILS_FORM": {
+			"VIDEO_URL_LABEL": "URL video (YouTube hoặc Vimeo)",
+			"VIDEO_PREVIEW": "Xem trước video",
+			"STEP_TITLE_BASIC_INFO": "Thông tin cơ bản",
+			"STEP_TITLE_PAYMENT": "Thanh toán",
+			"STEP_TITLE_REVIEW": "Xem lại",
+			"TOAST_INVALID_URL": "Vui lòng cung cấp một URL hợp lệ cho mục của bạn.",
+			"TOAST_SUBMIT_SUCCESS": "Đã gửi mục thành công!",
+			"TOAST_SUBMIT_FAILED": "Gửi mục thất bại",
+			"TOAST_SUBMIT_ERROR": "Lỗi khi gửi biểu mẫu. Vui lòng thử lại.",
 			"TITLE": "Hãy cho chúng tôi biết về sản phẩm của bạn",
 			"DESCRIPTION": "Chia sẻ những chi tiết sẽ giúp người dùng khám phá và hiểu được sản phẩm tuyệt vời của bạn",
 			"STEP_INDICATOR": "Bước {bước} trên 3 · Chi tiết sản phẩm",
@@ -842,7 +851,8 @@
 			"REMOVE_LINK": "Xóa liên kết",
 			"REVIEW_AND_SUBMIT": "Xem xét và gửi",
 			"EXTRACT": "Trích xuất",
-			"EXTRACTING": "Đang trích xuất..."
+			"EXTRACTING": "Đang trích xuất...",
+				"URL_FORMAT_HINT": "URL phải bắt đầu bằng https:// hoặc http://"
 		},
 		"PAYMENT": {
 			"TITLE": "Hoàn tất đơn hàng của bạn",
@@ -1016,7 +1026,12 @@
 		"SPONSOR_WEEK": "tuần",
 		"SPONSOR_OR": "hoặc",
 		"SPONSOR_MONTH": "tháng",
-		"SPONSOR_CTA": "Trở thành Nhà tài trợ"
+		"SPONSOR_CTA": "Trở thành Nhà tài trợ",
+		"PAY_NOW": "Thanh toán ngay",
+		"PAY_LATER": "Thanh toán sau",
+		"PER_MONTH": "/tháng",
+		"PER_YEAR": "/năm",
+		"LEARN_MORE_PAYMENT_OPTIONS": "Tìm hiểu thêm về tùy chọn thanh toán"
 	},
 	"payment": {
 		"title": "Hoàn tất đơn hàng của bạn",
@@ -1036,7 +1051,29 @@
 			"failed": "Thanh toán thất bại",
 			"pending": "Thanh toán đang chờ xử lý"
 		},
-		"COMPLETE_PAYMENT": "Hoàn tất thanh toán"
+		"COMPLETE_PAYMENT": "Hoàn tất thanh toán",
+		"flowSelector": {
+			"title": "Thời điểm thanh toán",
+			"subtitle": "Chọn thời điểm bị tính phí cho mục gửi của bạn",
+			"payNow": {
+				"title": "Thanh toán ngay",
+				"description": "Thanh toán được xử lý ngay lập tức. Hàng đợi xét duyệt ưu tiên.",
+				"benefits": [
+					"Xử lý tức thì",
+					"Xét duyệt ưu tiên",
+					"Phê duyệt nhanh hơn"
+				]
+			},
+			"payLater": {
+				"title": "Thanh toán sau",
+				"description": "Chỉ tính phí sau khi mục gửi của bạn được phê duyệt.",
+				"benefits": [
+					"Không chi phí trả trước",
+					"Xét duyệt trước khi thanh toán",
+					"Không rủi ro"
+				]
+			}
+		}
 	},
 	"help": {
 		"HERO_BADGE_TEXT": "Trình tạo Nền tảng Thư mục Chuyên nghiệp",
@@ -1641,9 +1678,40 @@
 		"SUBSCRIPTION_EXPIRING_SOON": "Đăng ký sắp hết hạn",
 		"EXPIRED_ON": "Hết hạn vào",
 		"EXPIRED_LABEL": "Hết hạn",
-		"EXPIRES_IN_DAYS_LABEL": "Hết hạn sau {days} ngày"
+		"EXPIRES_IN_DAYS_LABEL": "Hết hạn sau {days} ngày",
+		"SAVE_PER_YEAR": "Tiết kiệm {amount}/năm"
 	},
 	"profile": {
+		"SECURITY_STATUS_SECTION": "Bảo mật & Trạng thái",
+		"EMAIL_VERIFICATION": "Xác minh email",
+		"EMAIL_VERIFIED": "Đã xác minh",
+		"EMAIL_UNVERIFIED": "Chưa xác minh",
+		"TWO_FACTOR": "Xác thực hai yếu tố",
+		"TWO_FACTOR_ON": "Đã bật",
+		"TWO_FACTOR_OFF": "Đã tắt",
+		"ACCOUNT_STATUS": "Trạng thái tài khoản",
+		"STATUS_ACTIVE": "Hoạt động",
+		"STATUS_INACTIVE": "Không hoạt động",
+		"STATUS_SUSPENDED": "Tạm ngưng",
+		"STATUS_BANNED": "Bị cấm",
+		"STATUS_TRIAL": "Dùng thử",
+		"MEMBER_SINCE": "Thành viên từ",
+		"MANAGE_SECURITY": "Quản lý bảo mật",
+		"BILLING_PLANS_SECTION": "Thanh toán & Gói",
+		"CURRENT_PLAN": "Gói hiện tại",
+		"PLAN_FREE": "Miễn phí",
+		"PLAN_STANDARD": "Tiêu chuẩn",
+		"PLAN_PREMIUM": "Premium",
+		"PLAN_BADGE_ACTIVE": "Đang hoạt động",
+		"PLAN_BADGE_FREE": "Miễn phí",
+		"ACCOUNT_TYPE": "Loại tài khoản",
+		"ACCOUNT_TYPE_INDIVIDUAL": "Cá nhân",
+		"ACCOUNT_TYPE_BUSINESS": "Doanh nghiệp",
+		"ACCOUNT_TYPE_ENTERPRISE": "Doanh nghiệp lớn",
+		"BILLING_CURRENCY": "Tiền tệ",
+		"MANAGE_BILLING": "Quản lý thanh toán",
+		"BILLING_PLANS_UPGRADE": "Nâng cấp",
+		"BILLING_PLANS_VIEW_PLANS": "Xem các gói",
 		"BASIC_INFO_TITLE": "Thông tin cơ bản",
 		"BASIC_INFO_DESCRIPTION": "Cập nhật thông tin cá nhân và chi tiết liên lạc của bạn. ",
 		"PERSONAL_INFORMATION": "Thông tin cá nhân",

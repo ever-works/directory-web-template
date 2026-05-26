@@ -809,6 +809,15 @@
 			"REVIEW_PUBLISH": "Проверка и публикация"
 		},
 		"DETAILS_FORM": {
+			"VIDEO_URL_LABEL": "URL видео (YouTube или Vimeo)",
+			"VIDEO_PREVIEW": "Предпросмотр видео",
+			"STEP_TITLE_BASIC_INFO": "Основная информация",
+			"STEP_TITLE_PAYMENT": "Оплата",
+			"STEP_TITLE_REVIEW": "Проверка",
+			"TOAST_INVALID_URL": "Укажите действительный URL для вашего элемента.",
+			"TOAST_SUBMIT_SUCCESS": "Элемент успешно отправлен!",
+			"TOAST_SUBMIT_FAILED": "Не удалось отправить элемент",
+			"TOAST_SUBMIT_ERROR": "Ошибка при отправке формы. Попробуйте ещё раз.",
 			"TITLE": "Расскажите о вашем продукте",
 			"DESCRIPTION": "Поделитесь деталями, которые помогут пользователям найти и понять ваш замечательный продукт",
 			"STEP_INDICATOR": "Шаг {step} из 3 · Детали продукта",
@@ -842,7 +851,8 @@
 			"REMOVE_LINK": "Удалить ссылку",
 			"REVIEW_AND_SUBMIT": "Проверить и отправить",
 			"EXTRACT": "Извлечь",
-			"EXTRACTING": "Извлечение..."
+			"EXTRACTING": "Извлечение...",
+				"URL_FORMAT_HINT": "URL должен начинаться с https:// или http://"
 		},
 		"PAYMENT": {
 			"TITLE": "Завершите ваш заказ",
@@ -1016,7 +1026,12 @@
 		"SPONSOR_WEEK": "неделя",
 		"SPONSOR_OR": "или",
 		"SPONSOR_MONTH": "месяц",
-		"SPONSOR_CTA": "Стать спонсором"
+		"SPONSOR_CTA": "Стать спонсором",
+		"PAY_NOW": "Оплатить сейчас",
+		"PAY_LATER": "Оплатить позже",
+		"PER_MONTH": "/мес",
+		"PER_YEAR": "/год",
+		"LEARN_MORE_PAYMENT_OPTIONS": "Подробнее о вариантах оплаты"
 	},
 	"payment": {
 		"title": "Завершите ваш заказ",
@@ -1036,7 +1051,29 @@
 			"failed": "Оплата не удалась",
 			"pending": "Оплата ожидает"
 		},
-		"COMPLETE_PAYMENT": "Завершить оплату"
+		"COMPLETE_PAYMENT": "Завершить оплату",
+		"flowSelector": {
+			"title": "Время оплаты",
+			"subtitle": "Выберите, когда списать оплату за вашу заявку",
+			"payNow": {
+				"title": "Оплатить сейчас",
+				"description": "Платёж обрабатывается сразу. Приоритетная очередь на проверку.",
+				"benefits": [
+					"Мгновенная обработка",
+					"Приоритетная проверка",
+					"Быстрее одобрение"
+				]
+			},
+			"payLater": {
+				"title": "Оплатить позже",
+				"description": "Списание только после одобрения вашей заявки.",
+				"benefits": [
+					"Без предоплаты",
+					"Проверка до оплаты",
+					"Без риска"
+				]
+			}
+		}
 	},
 	"help": {
 		"HERO_BADGE_TEXT": "Конструктор профессиональной платформы каталогов",
@@ -1704,9 +1741,40 @@
 		"SUBSCRIPTIONS_EMPTY_STATE": "Нет истории подписок",
 		"SUBSCRIPTIONS_EMPTY_DESCRIPTION": "Ваша история подписок появится здесь, когда у вас появятся активные подписки.",
 		"OVERVIEW_EMPTY_STATE": "Нет недавней активности",
-		"OVERVIEW_EMPTY_DESCRIPTION": "Ваша недавняя активность по биллингу появится здесь, когда у вас появятся транзакции."
+		"OVERVIEW_EMPTY_DESCRIPTION": "Ваша недавняя активность по биллингу появится здесь, когда у вас появятся транзакции.",
+		"SAVE_PER_YEAR": "Экономьте {amount}/год"
 	},
 	"profile": {
+		"SECURITY_STATUS_SECTION": "Безопасность и статус",
+		"EMAIL_VERIFICATION": "Подтверждение эл. почты",
+		"EMAIL_VERIFIED": "Подтверждён",
+		"EMAIL_UNVERIFIED": "Не подтверждён",
+		"TWO_FACTOR": "Двухфакторная аутентификация",
+		"TWO_FACTOR_ON": "Включена",
+		"TWO_FACTOR_OFF": "Отключена",
+		"ACCOUNT_STATUS": "Статус аккаунта",
+		"STATUS_ACTIVE": "Активен",
+		"STATUS_INACTIVE": "Неактивен",
+		"STATUS_SUSPENDED": "Приостановлен",
+		"STATUS_BANNED": "Заблокирован",
+		"STATUS_TRIAL": "Пробный",
+		"MEMBER_SINCE": "Участник с",
+		"MANAGE_SECURITY": "Управление безопасностью",
+		"BILLING_PLANS_SECTION": "Оплата и тарифы",
+		"CURRENT_PLAN": "Текущий тариф",
+		"PLAN_FREE": "Бесплатный",
+		"PLAN_STANDARD": "Стандарт",
+		"PLAN_PREMIUM": "Премиум",
+		"PLAN_BADGE_ACTIVE": "Активен",
+		"PLAN_BADGE_FREE": "Бесплатный",
+		"ACCOUNT_TYPE": "Тип аккаунта",
+		"ACCOUNT_TYPE_INDIVIDUAL": "Личный",
+		"ACCOUNT_TYPE_BUSINESS": "Бизнес",
+		"ACCOUNT_TYPE_ENTERPRISE": "Корпоративный",
+		"BILLING_CURRENCY": "Валюта",
+		"MANAGE_BILLING": "Управление оплатой",
+		"BILLING_PLANS_UPGRADE": "Улучшить",
+		"BILLING_PLANS_VIEW_PLANS": "Посмотреть тарифы",
 		"BASIC_INFO_TITLE": "Основная информация",
 		"BASIC_INFO_DESCRIPTION": "Обновите вашу личную информацию и контактные данные. Эта информация будет отображаться в вашем публичном профиле и помогает другим находить и связываться с вами.",
 		"PERSONAL_INFORMATION": "Личная информация",

@@ -1,7 +1,7 @@
 'use client';
 
 import { useId, useState, useEffect, useRef } from 'react';
-import { Type, FileText, Star, Plus, ChevronUp, ChevronDown, Search, X } from 'lucide-react';
+import { FileText, Star, Plus, ChevronUp, ChevronDown, Search, X, Video } from 'lucide-react';
 import { cn, getVideoEmbedUrl } from '@/lib/utils';
 import { useUrlExtraction } from '@/hooks/use-url-extraction';
 import type { Editor } from '@tiptap/react';
@@ -159,13 +159,10 @@ export function BasicInfoStep({
 			<div className={STEP_CARD_CLASSES.background} />
 			<div className={STEP_CARD_CLASSES.content}>
 				<div className={STEP_CARD_CLASSES.header.wrapper}>
-					<div className={STEP_CARD_CLASSES.header.icon}>
-						<Type className={STEP_CARD_CLASSES.header.iconInner} />
-					</div>
 					<h3 className={STEP_CARD_CLASSES.header.title}>{t('directory.DETAILS_FORM.BASIC_INFORMATION')}</h3>
 				</div>
 
-				<div className="grid gap-8">
+				<div className="space-y-6">
 					<LinkInput
 						formData={formData}
 						animatingLinkId={animatingLinkId}
@@ -181,8 +178,8 @@ export function BasicInfoStep({
 						isExtracting={isExtracting}
 					/>
 
-					<div className="flex gap-10">
-					<div className="w-1/2 flex flex-col gap-6">
+					<div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+					<div className="flex flex-col gap-6">
 					{/* Product Name */}
 					<div className="space-y-3">
 						<label htmlFor="name" className={FORM_FIELD_CLASSES.label}>
@@ -219,9 +216,9 @@ export function BasicInfoStep({
 									type="button"
 									role="combobox"
 									className={cn(
-										'group relative inline-flex w-full items-center justify-between rounded-lg border bg-theme-primary-50 px-3 py-2 text-md font-medium text-theme-primary-900 transition-all duration-300 focus:outline-hidden focus:ring-2 focus:ring-theme-primary-500 dark:border-white/8 dark:bg-white/4 dark:text-white dark:focus:ring-theme-primary-400',
-										categoryMenuOpen && 'ring-1 ring-theme-primary-500 dark:ring-theme-primary-400',
-										focusedField === 'categories' && 'border-theme-primary-500 dark:border-theme-primary-400'
+										'inline-flex w-full items-center justify-between rounded-lg border border-gray-200 dark:border-white/10 bg-white dark:bg-white/5 px-3 py-2 text-sm text-gray-700 dark:text-white transition-all duration-150 focus:outline-none hover:border-gray-300 dark:hover:border-white/15',
+										categoryMenuOpen && 'ring-1 ring-theme-primary-500/40 border-theme-primary-400 dark:border-theme-primary-500',
+										focusedField === 'categories' && 'border-theme-primary-400 dark:border-theme-primary-500'
 									)}
 									aria-label={t('directory.DETAILS_FORM.CATEGORIES')}
 									aria-expanded={categoryMenuOpen}
@@ -253,13 +250,13 @@ export function BasicInfoStep({
 													return (
 														<span
 															key={catId}
-															className="inline-flex items-center rounded-full bg-theme-primary-600 text-white px-2 py-0.5 text-xs font-normal mr-1"
+															className="inline-flex items-center gap-0.5 rounded-md bg-theme-primary-500 text-white px-2 py-0.5 text-xs font-medium"
 														>
 															{cat.name}
 															<button
 																type="button"
 																aria-label={t('directory.DETAILS_FORM.REMOVE_CATEGORY', { name: cat.name })}
-																className="ml-1 cursor-pointer rounded-full hover:bg-theme-primary-700/30 focus:outline-none focus:ring-1 focus:ring-theme-primary-400"
+																className="cursor-pointer rounded-sm hover:bg-white/20 focus:outline-none"
 																onClick={e => {
 																	e.stopPropagation();
 																	toggleCategory(catId);
@@ -271,14 +268,14 @@ export function BasicInfoStep({
 													);
 												})
 											: (
-												<span className="text-gray-700 dark:text-gray-300">
+												<span className="text-gray-400 dark:text-white/30 text-sm">
 													{t('directory.DETAILS_FORM.CATEGORY_PLACEHOLDER')}
 												</span>
 											)}
 									</span>
 									<ChevronDown
 										className={cn(
-											'h-5 w-5 text-theme-primary-500 transition-transform duration-300',
+											'h-4 w-4 text-gray-400 dark:text-gray-500 transition-transform duration-200 shrink-0',
 											categoryMenuOpen && 'rotate-180'
 										)}
 									/>
@@ -287,8 +284,8 @@ export function BasicInfoStep({
 									<div
 										id={categoryDropdownId}
 										className={cn(
-											'absolute z-50 w-full bg-white dark:bg-[#141414] border border-theme-primary-200 dark:border-white/8 rounded-lg shadow-lg max-h-80 overflow-hidden flex flex-col',
-											categoryDropdownDirection === 'down' ? 'mt-2' : 'bottom-full mb-2'
+											'absolute z-50 w-full bg-white dark:bg-neutral-900 border border-gray-200 dark:border-white/10 rounded-lg shadow-lg max-h-80 overflow-hidden flex flex-col',
+											categoryDropdownDirection === 'down' ? 'mt-1.5' : 'bottom-full mb-1.5'
 										)}
 										role="listbox"
 									>
@@ -299,9 +296,9 @@ export function BasicInfoStep({
 													value={categorySearch}
 													onChange={(e) => setCategorySearch(e.target.value)}
 													placeholder={t('directory.DETAILS_FORM.SEARCH_CATEGORIES_PLACEHOLDER')}
-													className="w-full pl-10 pr-3 py-2 border-b border-theme-primary-200 dark:border-white/8 bg-theme-primary-50/50 dark:bg-white/4 text-md focus:outline-none focus:ring-0 focus:border-theme-primary-200 dark:focus:border-white/8 dark:text-gray-300 placeholder-theme-primary-600 dark:placeholder-gray-500"
+													className="w-full pl-10 pr-3 py-2 text-sm border-b border-gray-100 dark:border-white/8 bg-transparent text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-white/30 focus:outline-none"
 												/>
-												<span className="absolute left-3 top-1/2 -translate-y-1/2 text-theme-primary-400 dark:text-gray-500 pointer-events-none">
+												<span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 pointer-events-none">
 													<Search className="w-4 h-4" />
 												</span>
 											</div>
@@ -318,8 +315,8 @@ export function BasicInfoStep({
 													<div
 														key={category.id}
 														className={cn(
-															'flex cursor-pointer items-center gap-2 px-3 py-1.5 rounded-lg border border-gray-200 dark:border-white/8 bg-white dark:bg-white/4 text-gray-900 dark:text-white',
-															selectedCategories.includes(category.id) && 'bg-theme-primary-600 dark:bg-theme-primary-600 text-white'
+															'flex cursor-pointer items-center gap-2 px-2.5 py-1 rounded-md text-xs font-medium border border-gray-200 dark:border-white/8 bg-gray-50 dark:bg-white/4 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-white/8 transition-colors duration-150',
+															selectedCategories.includes(category.id) && 'bg-theme-primary-500 dark:bg-theme-primary-600 text-white border-theme-primary-500 dark:border-theme-primary-600'
 														)}
 														role="option"
 														aria-selected={selectedCategories.includes(category.id)}
@@ -343,7 +340,7 @@ export function BasicInfoStep({
 													</div>
 												))) : (
 												<div
-													className="px-3 py-2 text-theme-primary-500 dark:text-gray-400"
+													className="px-3 py-2 text-sm text-gray-400 dark:text-gray-500"
 													role="status"
 													aria-live="polite"
 													aria-atomic="true"
@@ -360,11 +357,14 @@ export function BasicInfoStep({
 					)}
 
 					{/* Video URL */}
-					<div className="space-y-3">
+					<div className="space-y-2">
 						<label htmlFor="video_url" className={FORM_FIELD_CLASSES.label}>
-							Video URL (YouTube or Vimeo)
+							{t('directory.DETAILS_FORM.VIDEO_URL_LABEL')}
 						</label>
 						<div className="relative">
+							<div className="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
+								<Video className="w-4 h-4 text-gray-400 dark:text-gray-500" />
+							</div>
 							<input
 								id="video_url"
 								name="video_url"
@@ -372,16 +372,19 @@ export function BasicInfoStep({
 								value={formData.video_url || ''}
 								onChange={handleInputChange}
 								placeholder="https://www.youtube.com/watch?v=..."
-								className={cn(FORM_FIELD_CLASSES.videoInput.base, FORM_FIELD_CLASSES.videoInput.focus)}
+								className={cn(FORM_FIELD_CLASSES.input.base, 'pl-9')}
 							/>
 						</div>
+						<p className="text-[11px] text-gray-400 dark:text-gray-500">
+							YouTube &amp; Vimeo supported
+						</p>
 						{/* Video Preview - only for whitelisted hosts */}
 						{formData.video_url && isValidVideoUrl(formData.video_url) && (
 							<div className={VIDEO_PREVIEW_CLASSES.container}>
 								<div className={VIDEO_PREVIEW_CLASSES.wrapper}>
 									<iframe
 										src={getVideoEmbedUrl(formData.video_url)}
-										title="Video Preview"
+										title={t('directory.DETAILS_FORM.VIDEO_PREVIEW')}
 										style={{ border: 0 }}
 										allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
 										allowFullScreen
@@ -393,15 +396,15 @@ export function BasicInfoStep({
 					</div>
 					</div>
 					
-					<div className='w-1/2 px-4'>
+					<div className="flex flex-col gap-4">
 					{/* Tags - Only show if tags enabled */}
 					{tagsEnabled && (
-						<div className="space-y-6">
+						<div className="space-y-3">
 							<div>
-								<h4 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+								<label className={FORM_FIELD_CLASSES.label}>
 									{t('directory.DETAILS_FORM.TAGS_LABELS')}
-								</h4>
-								<p className="text-sm text-gray-600 dark:text-gray-400">
+								</label>
+								<p className="text-xs text-gray-500 dark:text-gray-400">
 									{t('directory.DETAILS_FORM.TAGS_DESCRIPTION')}
 								</p>
 							</div>
@@ -525,7 +528,7 @@ export function BasicInfoStep({
 									}
 									editor={editor}
 									role="presentation"
-									placeholder="Write your introduction here..."
+									placeholder={t('directory.DETAILS_FORM.DETAILED_INTRODUCTION_PLACEHOLDER')}
 								/>
 							)}
 						</div>

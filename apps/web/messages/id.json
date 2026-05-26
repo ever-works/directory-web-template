@@ -809,6 +809,15 @@
 			"REVIEW_PUBLISH": "Tinjau & Terbitkan"
 		},
 		"DETAILS_FORM": {
+			"VIDEO_URL_LABEL": "URL Video (YouTube atau Vimeo)",
+			"VIDEO_PREVIEW": "Pratinjau Video",
+			"STEP_TITLE_BASIC_INFO": "Informasi Dasar",
+			"STEP_TITLE_PAYMENT": "Pembayaran",
+			"STEP_TITLE_REVIEW": "Tinjauan",
+			"TOAST_INVALID_URL": "Harap berikan URL yang valid untuk item Anda.",
+			"TOAST_SUBMIT_SUCCESS": "Item berhasil dikirim!",
+			"TOAST_SUBMIT_FAILED": "Gagal mengirim item",
+			"TOAST_SUBMIT_ERROR": "Terjadi kesalahan saat mengirim formulir. Silakan coba lagi.",
 			"TITLE": "Ceritakan Tentang Produk Anda",
 			"DESCRIPTION": "Bagikan detail yang akan membantu pengguna menemukan dan memahami produk luar biasa Anda",
 			"STEP_INDICATOR": "Langkah {step} dari 3 · Detail Produk",
@@ -842,7 +851,8 @@
 			"REMOVE_LINK": "Hapus tautan",
 			"REVIEW_AND_SUBMIT": "Tinjau & Kirim",
 			"EXTRACT": "Ekstrak",
-			"EXTRACTING": "Mengekstrak..."
+			"EXTRACTING": "Mengekstrak...",
+				"URL_FORMAT_HINT": "URL harus dimulai dengan https:// atau http://"
 		},
 		"PAYMENT": {
 			"TITLE": "Selesaikan Pesanan Anda",
@@ -1016,7 +1026,12 @@
 		"SPONSOR_WEEK": "minggu",
 		"SPONSOR_OR": "atau",
 		"SPONSOR_MONTH": "bulan",
-		"SPONSOR_CTA": "Jadi Sponsor"
+		"SPONSOR_CTA": "Jadi Sponsor",
+		"PAY_NOW": "Bayar sekarang",
+		"PAY_LATER": "Bayar nanti",
+		"PER_MONTH": "/bulan",
+		"PER_YEAR": "/tahun",
+		"LEARN_MORE_PAYMENT_OPTIONS": "Pelajari lebih lanjut tentang opsi pembayaran"
 	},
 	"payment": {
 		"title": "Selesaikan Pesanan Anda",
@@ -1036,7 +1051,29 @@
 			"failed": "Pembayaran gagal",
 			"pending": "Pembayaran tertunda"
 		},
-		"COMPLETE_PAYMENT": "Selesaikan Pembayaran"
+		"COMPLETE_PAYMENT": "Selesaikan Pembayaran",
+		"flowSelector": {
+			"title": "Waktu pembayaran",
+			"subtitle": "Pilih kapan Anda akan ditagih untuk kiriman Anda",
+			"payNow": {
+				"title": "Bayar sekarang",
+				"description": "Pembayaran diproses segera. Antrean tinjauan prioritas.",
+				"benefits": [
+					"Pemrosesan instan",
+					"Tinjauan prioritas",
+					"Persetujuan lebih cepat"
+				]
+			},
+			"payLater": {
+				"title": "Bayar nanti",
+				"description": "Ditagih hanya setelah kiriman Anda disetujui.",
+				"benefits": [
+					"Tanpa biaya di muka",
+					"Tinjauan sebelum pembayaran",
+					"Tanpa risiko"
+				]
+			}
+		}
 	},
 	"help": {
 		"HERO_BADGE_TEXT": "Pembangun Platform Direktori Profesional",
@@ -1641,9 +1678,40 @@
 		"SUBSCRIPTIONS_EMPTY_STATE": "Tidak ada riwayat langganan",
 		"SUBSCRIPTIONS_EMPTY_DESCRIPTION": "Riwayat langganan Anda akan muncul di sini setelah Anda memiliki langganan aktif.",
 		"OVERVIEW_EMPTY_STATE": "Tidak ada aktivitas terbaru",
-		"OVERVIEW_EMPTY_DESCRIPTION": "Aktivitas penagihan terbaru Anda akan muncul di sini setelah Anda memiliki transaksi."
+		"OVERVIEW_EMPTY_DESCRIPTION": "Aktivitas penagihan terbaru Anda akan muncul di sini setelah Anda memiliki transaksi.",
+		"SAVE_PER_YEAR": "Hemat {amount}/tahun"
 	},
 	"profile": {
+		"SECURITY_STATUS_SECTION": "Keamanan & Status",
+		"EMAIL_VERIFICATION": "Verifikasi email",
+		"EMAIL_VERIFIED": "Terverifikasi",
+		"EMAIL_UNVERIFIED": "Belum terverifikasi",
+		"TWO_FACTOR": "Autentikasi dua faktor",
+		"TWO_FACTOR_ON": "Aktif",
+		"TWO_FACTOR_OFF": "Nonaktif",
+		"ACCOUNT_STATUS": "Status akun",
+		"STATUS_ACTIVE": "Aktif",
+		"STATUS_INACTIVE": "Tidak aktif",
+		"STATUS_SUSPENDED": "Ditangguhkan",
+		"STATUS_BANNED": "Diblokir",
+		"STATUS_TRIAL": "Uji coba",
+		"MEMBER_SINCE": "Anggota sejak",
+		"MANAGE_SECURITY": "Kelola keamanan",
+		"BILLING_PLANS_SECTION": "Tagihan & Paket",
+		"CURRENT_PLAN": "Paket saat ini",
+		"PLAN_FREE": "Gratis",
+		"PLAN_STANDARD": "Standar",
+		"PLAN_PREMIUM": "Premium",
+		"PLAN_BADGE_ACTIVE": "Aktif",
+		"PLAN_BADGE_FREE": "Gratis",
+		"ACCOUNT_TYPE": "Tipe akun",
+		"ACCOUNT_TYPE_INDIVIDUAL": "Individu",
+		"ACCOUNT_TYPE_BUSINESS": "Bisnis",
+		"ACCOUNT_TYPE_ENTERPRISE": "Enterprise",
+		"BILLING_CURRENCY": "Mata uang",
+		"MANAGE_BILLING": "Kelola tagihan",
+		"BILLING_PLANS_UPGRADE": "Tingkatkan",
+		"BILLING_PLANS_VIEW_PLANS": "Lihat paket",
 		"BASIC_INFO_TITLE": "Informasi Dasar",
 		"BASIC_INFO_DESCRIPTION": "Perbarui informasi pribadi dan detail kontak Anda. Informasi ini akan ditampilkan di profil publik Anda dan membantu orang lain menemukan dan terhubung dengan Anda.",
 		"PERSONAL_INFORMATION": "Informasi Pribadi",

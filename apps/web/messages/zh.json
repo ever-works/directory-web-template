@@ -742,6 +742,15 @@
 			"REVIEW_PUBLISH": "审核和发布"
 		},
 		"DETAILS_FORM": {
+			"VIDEO_URL_LABEL": "视频网址（YouTube 或 Vimeo）",
+			"VIDEO_PREVIEW": "视频预览",
+			"STEP_TITLE_BASIC_INFO": "基本信息",
+			"STEP_TITLE_PAYMENT": "支付",
+			"STEP_TITLE_REVIEW": "审核",
+			"TOAST_INVALID_URL": "请为您的项目提供有效的网址。",
+			"TOAST_SUBMIT_SUCCESS": "项目提交成功！",
+			"TOAST_SUBMIT_FAILED": "项目提交失败",
+			"TOAST_SUBMIT_ERROR": "提交表单时出错。请重试。",
 			"TITLE": "告诉我们您的产品",
 			"DESCRIPTION": "分享详情，帮助用户发现和了解您出色的产品",
 			"STEP_INDICATOR": "第 {step} 步，共 3 步 · 产品详情",
@@ -775,7 +784,8 @@
 			"REMOVE_LINK": "删除链接",
 			"REVIEW_AND_SUBMIT": "审核并提交",
 			"EXTRACT": "提取",
-			"EXTRACTING": "正在提取..."
+			"EXTRACTING": "正在提取...",
+				"URL_FORMAT_HINT": "URL必须以https://或http://开头"
 		},
 		"PAYMENT": {
 			"TITLE": "完成您的订单",
@@ -875,10 +885,10 @@
 		"PREMIUM_SUPPORT": "高级支持",
 		"MOST_POPULAR": "最受欢迎",
 		"GET_STARTED_FREE": "免费开始",
-		"UPGRADE_TO_STANDARD": "Submit Now",
-		"GO_PREMIUM": "Subscribe",
+		"UPGRADE_TO_STANDARD": "立即提交",
+		"GO_PREMIUM": "订阅",
 		"SUBMIT_FOR_FREE": "免费提交",
-		"SUBSCRIBE_NOW": "Subscribe Now",
+		"SUBSCRIBE_NOW": "立即订阅",
 		"SELECT_FREE": "选择免费",
 		"SELECT_STANDARD": "选择标准",
 		"SELECT_PREMIUM": "选择高级",
@@ -954,7 +964,12 @@
 		"SPONSOR_MONTH": "月",
 		"SPONSOR_CTA": "成为赞助商",
 		"UPGRADE_TO_PRO": "升级到专业版",
-		"GO_ENTERPRISE": "选择企业版"
+		"GO_ENTERPRISE": "选择企业版",
+		"PAY_NOW": "立即付款",
+		"PAY_LATER": "稍后付款",
+		"PER_MONTH": "/月",
+		"PER_YEAR": "/年",
+		"LEARN_MORE_PAYMENT_OPTIONS": "了解更多付款选项"
 	},
 	"payment": {
 		"title": "Complete Your Order",
@@ -974,7 +989,29 @@
 			"failed": "Payment failed",
 			"pending": "Payment pending"
 		},
-		"COMPLETE_PAYMENT": "完成支付"
+		"COMPLETE_PAYMENT": "完成支付",
+		"flowSelector": {
+			"title": "付款时间",
+			"subtitle": "选择何时为您的提交收费",
+			"payNow": {
+				"title": "立即付款",
+				"description": "立即处理付款。优先审核队列。",
+				"benefits": [
+					"即时处理",
+					"优先审核",
+					"更快批准"
+				]
+			},
+			"payLater": {
+				"title": "稍后付款",
+				"description": "仅在您的提交获批后收费。",
+				"benefits": [
+					"无预付费用",
+					"付款前审核",
+					"无风险"
+				]
+			}
+		}
 	},
 	"help": {
 		"HERO_BADGE_TEXT": "The Professional Directory Platform Builder",
@@ -1647,9 +1684,40 @@
 		"SUBSCRIPTIONS_EMPTY_STATE": "无订阅历史",
 		"SUBSCRIPTIONS_EMPTY_DESCRIPTION": "一旦您有活跃订阅，您的订阅历史将显示在这里。",
 		"OVERVIEW_EMPTY_STATE": "无最近活动",
-		"OVERVIEW_EMPTY_DESCRIPTION": "一旦您有交易，您最近的账单活动将显示在这里。"
+		"OVERVIEW_EMPTY_DESCRIPTION": "一旦您有交易，您最近的账单活动将显示在这里。",
+		"SAVE_PER_YEAR": "每年节省 {amount}"
 	},
 	"profile": {
+		"SECURITY_STATUS_SECTION": "安全与状态",
+		"EMAIL_VERIFICATION": "电子邮件验证",
+		"EMAIL_VERIFIED": "已验证",
+		"EMAIL_UNVERIFIED": "未验证",
+		"TWO_FACTOR": "双重身份验证",
+		"TWO_FACTOR_ON": "已启用",
+		"TWO_FACTOR_OFF": "已禁用",
+		"ACCOUNT_STATUS": "账户状态",
+		"STATUS_ACTIVE": "活跃",
+		"STATUS_INACTIVE": "未激活",
+		"STATUS_SUSPENDED": "已暂停",
+		"STATUS_BANNED": "已封禁",
+		"STATUS_TRIAL": "试用",
+		"MEMBER_SINCE": "注册于",
+		"MANAGE_SECURITY": "管理安全设置",
+		"BILLING_PLANS_SECTION": "账单与套餐",
+		"CURRENT_PLAN": "当前套餐",
+		"PLAN_FREE": "免费",
+		"PLAN_STANDARD": "标准版",
+		"PLAN_PREMIUM": "高级版",
+		"PLAN_BADGE_ACTIVE": "有效",
+		"PLAN_BADGE_FREE": "免费",
+		"ACCOUNT_TYPE": "账户类型",
+		"ACCOUNT_TYPE_INDIVIDUAL": "个人",
+		"ACCOUNT_TYPE_BUSINESS": "企业",
+		"ACCOUNT_TYPE_ENTERPRISE": "大型企业",
+		"BILLING_CURRENCY": "货币",
+		"MANAGE_BILLING": "管理账单",
+		"BILLING_PLANS_UPGRADE": "升级",
+		"BILLING_PLANS_VIEW_PLANS": "查看套餐",
 		"BASIC_INFO_TITLE": "基本信息",
 		"BASIC_INFO_DESCRIPTION": "更新您的个人信息和联系详情。这些信息将显示在您的公开档案中，帮助他人发现并与您联系。",
 		"PERSONAL_INFORMATION": "个人信息",

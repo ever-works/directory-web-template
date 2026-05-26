@@ -809,6 +809,15 @@
 			"REVIEW_PUBLISH": "İncele ve Yayınla"
 		},
 		"DETAILS_FORM": {
+			"VIDEO_URL_LABEL": "Video URL'si (YouTube veya Vimeo)",
+			"VIDEO_PREVIEW": "Video Önizlemesi",
+			"STEP_TITLE_BASIC_INFO": "Temel Bilgiler",
+			"STEP_TITLE_PAYMENT": "Ödeme",
+			"STEP_TITLE_REVIEW": "İnceleme",
+			"TOAST_INVALID_URL": "Lütfen öğeniz için geçerli bir URL girin.",
+			"TOAST_SUBMIT_SUCCESS": "Öğe başarıyla gönderildi!",
+			"TOAST_SUBMIT_FAILED": "Öğe gönderilemedi",
+			"TOAST_SUBMIT_ERROR": "Form gönderilirken hata oluştu. Lütfen tekrar deneyin.",
 			"TITLE": "Ürününüz Hakkında Bize Bilgi Verin",
 			"DESCRIPTION": "Kullanıcıların harika ürününüzü keşfetmesine ve anlamasına yardımcı olacak detayları paylaşın",
 			"STEP_INDICATOR": "3. Adım {step} · Ürün Detayları",
@@ -842,7 +851,8 @@
 			"REMOVE_LINK": "Bağlantıyı kaldır",
 			"REVIEW_AND_SUBMIT": "İncele ve Gönder",
 			"EXTRACT": "Çıkar",
-			"EXTRACTING": "Çıkarılıyor..."
+			"EXTRACTING": "Çıkarılıyor...",
+				"URL_FORMAT_HINT": "URL, https:// veya http:// ile başlamalıdır"
 		},
 		"PAYMENT": {
 			"TITLE": "Siparişinizi Tamamlayın",
@@ -1016,7 +1026,12 @@
 		"SPONSOR_WEEK": "hafta",
 		"SPONSOR_OR": "veya",
 		"SPONSOR_MONTH": "ay",
-		"SPONSOR_CTA": "Sponsor Ol"
+		"SPONSOR_CTA": "Sponsor Ol",
+		"PAY_NOW": "Şimdi öde",
+		"PAY_LATER": "Sonra öde",
+		"PER_MONTH": "/ay",
+		"PER_YEAR": "/yıl",
+		"LEARN_MORE_PAYMENT_OPTIONS": "Ödeme seçenekleri hakkında daha fazla bilgi"
 	},
 	"payment": {
 		"title": "Siparişinizi Tamamlayın",
@@ -1036,7 +1051,29 @@
 			"failed": "Ödeme başarısız",
 			"pending": "Ödeme bekleniyor"
 		},
-		"COMPLETE_PAYMENT": "Ödemeyi Tamamla"
+		"COMPLETE_PAYMENT": "Ödemeyi Tamamla",
+		"flowSelector": {
+			"title": "Ödeme zamanı",
+			"subtitle": "Gönderiminiz için ne zaman ücretlendirileceğinizi seçin",
+			"payNow": {
+				"title": "Şimdi öde",
+				"description": "Ödeme hemen işlenir. Öncelikli inceleme sırası.",
+				"benefits": [
+					"Anında işlem",
+					"Öncelikli inceleme",
+					"Daha hızlı onay"
+				]
+			},
+			"payLater": {
+				"title": "Sonra öde",
+				"description": "Yalnızca gönderiminiz onaylandıktan sonra ücretlendirilir.",
+				"benefits": [
+					"Ön ödeme yok",
+					"Ödemeden önce inceleme",
+					"Risksiz"
+				]
+			}
+		}
 	},
 	"help": {
 		"HERO_BADGE_TEXT": "Profesyonel Dizin Platformu Oluşturucu",
@@ -1641,9 +1678,40 @@
 		"SUBSCRIPTIONS_EMPTY_STATE": "Abonelik geçmişi yok",
 		"SUBSCRIPTIONS_EMPTY_DESCRIPTION": "Aktif abonelikleriniz olduğunda abonelik geçmişiniz burada görünecektir.",
 		"OVERVIEW_EMPTY_STATE": "Son aktivite yok",
-		"OVERVIEW_EMPTY_DESCRIPTION": "İşlemleriniz olduğunda son faturalandırma aktiviteniz burada görünecektir."
+		"OVERVIEW_EMPTY_DESCRIPTION": "İşlemleriniz olduğunda son faturalandırma aktiviteniz burada görünecektir.",
+		"SAVE_PER_YEAR": "Yılda {amount} tasarruf edin"
 	},
 	"profile": {
+		"SECURITY_STATUS_SECTION": "Güvenlik ve Durum",
+		"EMAIL_VERIFICATION": "E-posta doğrulaması",
+		"EMAIL_VERIFIED": "Doğrulandı",
+		"EMAIL_UNVERIFIED": "Doğrulanmadı",
+		"TWO_FACTOR": "İki faktörlü kimlik doğrulama",
+		"TWO_FACTOR_ON": "Etkin",
+		"TWO_FACTOR_OFF": "Devre dışı",
+		"ACCOUNT_STATUS": "Hesap durumu",
+		"STATUS_ACTIVE": "Aktif",
+		"STATUS_INACTIVE": "Pasif",
+		"STATUS_SUSPENDED": "Askıya alındı",
+		"STATUS_BANNED": "Yasaklandı",
+		"STATUS_TRIAL": "Deneme",
+		"MEMBER_SINCE": "Üyelik tarihi",
+		"MANAGE_SECURITY": "Güvenliği yönet",
+		"BILLING_PLANS_SECTION": "Faturalandırma ve Planlar",
+		"CURRENT_PLAN": "Mevcut plan",
+		"PLAN_FREE": "Ücretsiz",
+		"PLAN_STANDARD": "Standart",
+		"PLAN_PREMIUM": "Premium",
+		"PLAN_BADGE_ACTIVE": "Aktif",
+		"PLAN_BADGE_FREE": "Ücretsiz",
+		"ACCOUNT_TYPE": "Hesap türü",
+		"ACCOUNT_TYPE_INDIVIDUAL": "Bireysel",
+		"ACCOUNT_TYPE_BUSINESS": "İşletme",
+		"ACCOUNT_TYPE_ENTERPRISE": "Kurumsal",
+		"BILLING_CURRENCY": "Para birimi",
+		"MANAGE_BILLING": "Faturalandırmayı yönet",
+		"BILLING_PLANS_UPGRADE": "Yükselt",
+		"BILLING_PLANS_VIEW_PLANS": "Planları görüntüle",
 		"BASIC_INFO_TITLE": "Temel Bilgiler",
 		"BASIC_INFO_DESCRIPTION": "Kişisel bilgilerinizi ve iletişim detaylarınızı güncelleyin. Bu bilgiler herkese açık profilinizde görüntülenecek ve diğerlerinin sizi keşfetmesine ve bağlantı kurmasına yardımcı olacaktır.",
 		"PERSONAL_INFORMATION": "Kişisel Bilgiler",

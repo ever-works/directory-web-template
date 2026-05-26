@@ -875,6 +875,15 @@
 			"REVIEW_PUBLISH": "Review & Publish"
 		},
 		"DETAILS_FORM": {
+			"VIDEO_URL_LABEL": "Video URL (YouTube or Vimeo)",
+			"VIDEO_PREVIEW": "Video Preview",
+			"STEP_TITLE_BASIC_INFO": "Basic Information",
+			"STEP_TITLE_PAYMENT": "Payment",
+			"STEP_TITLE_REVIEW": "Review",
+			"TOAST_INVALID_URL": "Please provide a valid URL for your item.",
+			"TOAST_SUBMIT_SUCCESS": "Item submitted successfully!",
+			"TOAST_SUBMIT_FAILED": "Failed to submit item",
+			"TOAST_SUBMIT_ERROR": "Error submitting form. Please try again.",
 			"TITLE": "Tell Us About Your Product",
 			"DESCRIPTION": "Share the details that will help users discover and understand your amazing product",
 			"STEP_INDICATOR": "Step {step} of 3 · Product Details",
@@ -909,6 +918,7 @@
 			"REVIEW_AND_SUBMIT": "Review & Submit",
 			"EXTRACT": "Extract",
 			"EXTRACTING": "Extracting...",
+				"URL_FORMAT_HINT": "URL must start with https:// or http://",
 			"REMOVE_CATEGORY": "Remove category: {name}",
 			"NO_CATEGORIES_FOUND": "No categories found.",
 			"SEARCH_CATEGORIES_PLACEHOLDER": "Search categories..."
@@ -1087,7 +1097,12 @@
 		"SPONSOR_WEEK": "week",
 		"SPONSOR_OR": "or",
 		"SPONSOR_MONTH": "month",
-		"SPONSOR_CTA": "Become a Sponsor"
+		"SPONSOR_CTA": "Become a Sponsor",
+		"PAY_NOW": "Pay Now",
+		"PAY_LATER": "Pay Later",
+		"PER_MONTH": "/month",
+		"PER_YEAR": "/year",
+		"LEARN_MORE_PAYMENT_OPTIONS": "Learn more about payment options"
 	},
 	"payment": {
 		"title": "Complete Your Order",
@@ -1110,7 +1125,29 @@
 		"COMPLETE_PAYMENT": "Complete Payment",
 		"CHECKOUT_CLOSED": "Checkout closed",
 		"CREATE_CHECKOUT_FAILED": "Failed to create embedded checkout: {message}",
-		"UNABLE_TO_OPEN_CHECKOUT": "Unable to open checkout. Please try again or contact support."
+		"UNABLE_TO_OPEN_CHECKOUT": "Unable to open checkout. Please try again or contact support.",
+		"flowSelector": {
+			"title": "Payment timing",
+			"subtitle": "Choose when to be charged for your submission",
+			"payNow": {
+				"title": "Pay now",
+				"description": "Payment processed immediately. Priority review queue.",
+				"benefits": [
+					"Immediate processing",
+					"Priority review",
+					"Faster approval"
+				]
+			},
+			"payLater": {
+				"title": "Pay later",
+				"description": "Charged only after your submission is approved.",
+				"benefits": [
+					"No upfront cost",
+					"Review before payment",
+					"Risk-free"
+				]
+			}
+		}
 	},
 	"help": {
 		"HERO_BADGE_TEXT": "The Professional Directory Platform Builder",
@@ -1784,7 +1821,8 @@
 		"RENEWS_ON": "Renews {date}",
 		"UPGRADE_UNLOCK_FEATURES": "Upgrade to unlock all features",
 		"DAYS_LEFT": "{days}d left",
-		"DAYS_TOTAL": "/{days}d"
+		"DAYS_TOTAL": "/{days}d",
+		"SAVE_PER_YEAR": "Save {amount}/year"
 	},
 	"profile": {
 		"BASIC_INFO_TITLE": "Basic Information",
@@ -1956,7 +1994,37 @@
 			"BACKEND": "Backend",
 			"TOOLS_FRAMEWORKS": "Tools & Frameworks",
 			"OTHER": "Other"
-		}
+		},
+		"SECURITY_STATUS_SECTION": "Security & Status",
+		"EMAIL_VERIFICATION": "Email verification",
+		"EMAIL_VERIFIED": "Verified",
+		"EMAIL_UNVERIFIED": "Unverified",
+		"TWO_FACTOR": "Two-factor authentication",
+		"TWO_FACTOR_ON": "Enabled",
+		"TWO_FACTOR_OFF": "Disabled",
+		"ACCOUNT_STATUS": "Account status",
+		"STATUS_ACTIVE": "Active",
+		"STATUS_INACTIVE": "Inactive",
+		"STATUS_SUSPENDED": "Suspended",
+		"STATUS_BANNED": "Banned",
+		"STATUS_TRIAL": "Trial",
+		"MEMBER_SINCE": "Member since",
+		"MANAGE_SECURITY": "Manage security",
+		"BILLING_PLANS_SECTION": "Billing & Plans",
+		"CURRENT_PLAN": "Current plan",
+		"PLAN_FREE": "Free",
+		"PLAN_STANDARD": "Standard",
+		"PLAN_PREMIUM": "Premium",
+		"PLAN_BADGE_ACTIVE": "Active",
+		"PLAN_BADGE_FREE": "Free",
+		"ACCOUNT_TYPE": "Account type",
+		"ACCOUNT_TYPE_INDIVIDUAL": "Individual",
+		"ACCOUNT_TYPE_BUSINESS": "Business",
+		"ACCOUNT_TYPE_ENTERPRISE": "Enterprise",
+		"BILLING_CURRENCY": "Currency",
+		"MANAGE_BILLING": "Manage billing",
+		"BILLING_PLANS_UPGRADE": "Upgrade",
+		"BILLING_PLANS_VIEW_PLANS": "View plans"
 	},
 	"page": {
 		"documentation": {
@@ -3945,7 +4013,6 @@
 			"YOUR_SUBMISSIONS": "Your Submissions",
 			"TRASH": "Trash",
 			"BULK_IMPORT": "Bulk Import",
-			"NEW_SUBMISSION": "New Submission",
 			"NEW_SUBMISSION_SHORT": "New",
 			"OF_TOTAL_PERCENT": "{percent} of total",
 			"ALL_TIME": "All time",

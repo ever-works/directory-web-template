@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, memo } from 'react';
+import { useTranslations } from 'next-intl';
 import { PaymentFlow } from '@/lib/payment/types/payment';
 import { Modal, ModalContent, ModalBody } from '@/components/ui/modal';
 import { CreditCard, Clock, Check } from 'lucide-react';
@@ -14,30 +15,22 @@ interface PaymentFlowSelectorModalProps {
 	onSelect?: (flow: PaymentFlow) => void;
 }
 
-const FLOWS_DATA = [
-	{
-		flow: PaymentFlow.PAY_AT_START,
-		title: 'Pay now',
-		description: 'Payment processed immediately. Priority review queue.',
-		icon: CreditCard,
-		benefits: ['Immediate processing', 'Priority review', 'Faster approval']
-	},
-	{
-		flow: PaymentFlow.PAY_AT_END,
-		title: 'Pay later',
-		description: 'Charged only after your submission is approved.',
-		icon: Clock,
-		benefits: ['No upfront cost', 'Review before payment', 'Risk-free']
-	}
+// Static metadata only; all user-facing copy is resolved from i18n at render time
+// under the `payment.flowSelector` namespace.
+const FLOWS_META = [
+	{ flow: PaymentFlow.PAY_AT_START, key: 'payNow', icon: CreditCard },
+	{ flow: PaymentFlow.PAY_AT_END, key: 'payLater', icon: Clock }
 ] as const;
 
 export const PaymentFlowSelectorModal = memo(function PaymentFlowSelectorModal({
 	selectedFlow,
-	title = 'Payment timing',
+	title,
 	isOpen,
 	onClose,
 	onSelect
 }: PaymentFlowSelectorModalProps) {
+	const t = useTranslations('payment.flowSelector');
+
 	const handleCardClick = useCallback((flow: PaymentFlow) => {
 		if (onSelect) {
 			onSelect(flow);
@@ -45,9 +38,10 @@ export const PaymentFlowSelectorModal = memo(function PaymentFlowSelectorModal({
 		}
 	}, [onSelect, onClose]);
 
-	const renderFlowCard = (flowOption: typeof FLOWS_DATA[number]) => {
+	const renderFlowCard = (flowOption: typeof FLOWS_META[number]) => {
 		const IconComponent = flowOption.icon;
 		const isSelected = selectedFlow === flowOption.flow;
+		const benefits = t.raw(`${flowOption.key}.benefits`) as string[];
 
 		return (
 			<button
@@ -80,7 +74,7 @@ export const PaymentFlowSelectorModal = memo(function PaymentFlowSelectorModal({
 								'text-[13px] font-medium leading-none',
 								isSelected ? 'text-gray-900 dark:text-white' : 'text-gray-700 dark:text-gray-300'
 							)}>
-								{flowOption.title}
+								{t(`${flowOption.key}.title`)}
 							</span>
 							{isSelected && (
 								<span className="flex h-4 w-4 items-center justify-center rounded-full bg-gray-900 dark:bg-white shrink-0">
@@ -89,10 +83,10 @@ export const PaymentFlowSelectorModal = memo(function PaymentFlowSelectorModal({
 							)}
 						</div>
 						<p className="text-xs leading-relaxed text-gray-500 dark:text-gray-500 mb-2.5">
-							{flowOption.description}
+							{t(`${flowOption.key}.description`)}
 						</p>
 						<div className="flex flex-wrap gap-x-3 gap-y-1">
-							{flowOption.benefits.map((benefit, index) => (
+							{benefits.map((benefit, index) => (
 								<span
 									key={`${flowOption.flow}-${index}`}
 									className="flex items-center gap-1 text-xs text-gray-400 dark:text-gray-500"
@@ -115,8 +109,8 @@ export const PaymentFlowSelectorModal = memo(function PaymentFlowSelectorModal({
 			isOpen={isOpen}
 			onClose={onClose}
 			isDismissable={true}
-			title={title}
-			subtitle="Choose when to be charged for your submission"
+			title={title ?? t('title')}
+			subtitle={t('subtitle')}
 			size="sm"
 			backdrop="opaque"
 			hideCloseButton={false}
@@ -124,7 +118,7 @@ export const PaymentFlowSelectorModal = memo(function PaymentFlowSelectorModal({
 		>
 			<ModalContent>
 				<ModalBody className="space-y-2 px-4 pb-4 pt-1">
-					{FLOWS_DATA.map(renderFlowCard)}
+					{FLOWS_META.map(renderFlowCard)}
 				</ModalBody>
 			</ModalContent>
 		</Modal>

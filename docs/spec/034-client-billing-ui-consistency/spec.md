@@ -1,10 +1,10 @@
 ---
-id: spec-033-client-billing-ui-consistency
-title: 'Spec 033 — Client Billing page UI consistency'
-sidebar_label: '033 Client Billing UI Consistency'
+id: spec-034-client-billing-ui-consistency
+title: 'Spec 034 — Client Billing page UI consistency'
+sidebar_label: '034 Client Billing UI Consistency'
 ---
 
-# Feature spec — `033-client-billing-ui-consistency`
+# Feature spec — `034-client-billing-ui-consistency`
 
 > **Status:** in-progress.
 >

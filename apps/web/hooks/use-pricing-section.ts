@@ -185,13 +185,25 @@ export function usePricingSection(params: UsePricingSectionParams = {}): UsePric
 	const [processingPlan, setProcessingPlan] = useState<string | null>(null);
 	// Default to FREE when paid plans aren't available, otherwise use initialSelectedPlan or STANDARD
 	const defaultPlan = shouldShowPaidPlans ? (initialSelectedPlan ?? PaymentPlan.STANDARD) : PaymentPlan.FREE;
-	const [selectedPlan, setSelectedPlan] = useState<PaymentPlan | null>(defaultPlan);
+	// A valid `?plan=` query param (free|standard|premium) takes precedence on first render,
+	// so deep links like `/pricing?plan=premium` pre-select the requested plan without a flash.
+	const [selectedPlan, setSelectedPlan] = useState<PaymentPlan | null>(() => {
+		const planFromUrl = searchParams.get('plan');
+		if (planFromUrl && (Object.values(PaymentPlan) as string[]).includes(planFromUrl)) {
+			return planFromUrl as PaymentPlan;
+		}
+		return defaultPlan;
+	});
 	const [showPaymentForm, setShowPaymentForm] = useState(false);
 	const [planForPayment, setPlanForPayment] = useState<PricingConfig | null>(null);
 	const loginModal = useLoginModal();
 
 	// Ref for current processing plan
 	const currentProcessingPlanRef = useRef<string | null>(null);
+
+	// Tracks the last `?plan=` value applied from the URL, so we don't re-apply it
+	// over a user's manual plan selection on subsequent renders.
+	const lastAppliedUrlPlanRef = useRef<string | null>(null);
 
 	// Static plans from config (with proper typing)
 	const staticPlans = useMemo(
@@ -337,9 +349,9 @@ export function usePricingSection(params: UsePricingSectionParams = {}): UsePric
 			const monthlyTotal = plan.price * 12;
 			const yearlyPrice = calculatePrice(plan);
 			const savings = monthlyTotal - yearlyPrice;
-			return `Save ${formatAmountWithSymbol(savings, currency)}/year`;
+			return tBilling('SAVE_PER_YEAR', { amount: formatAmountWithSymbol(savings, currency) });
 		},
-		[billingInterval, calculatePrice, currency]
+		[billingInterval, calculatePrice, currency, tBilling]
 	);
 
 	/**
@@ -498,19 +510,17 @@ export function usePricingSection(params: UsePricingSectionParams = {}): UsePric
 		}
 	}, [shouldShowPaidPlans, selectedPlan]);
 
-	// Effect to handle plan selection from URL
+	// Effect to apply plan selection when the `?plan=` query param changes after mount
+	// (e.g. client-side navigation). The lazy initializer above covers the first render.
 	useEffect(() => {
 		const planFromUrl = searchParams.get('plan');
-		const availablePlans = [FREE, STANDARD, PREMIUM];
 
-		if (!planFromUrl || selectedPlan) return;
+		if (!planFromUrl || planFromUrl === lastAppliedUrlPlanRef.current) return;
+		if (!(Object.values(PaymentPlan) as string[]).includes(planFromUrl)) return;
 
-		const matchedPlan = availablePlans.find((plan) => plan?.id === planFromUrl);
-
-		if (matchedPlan) {
-			console.log('Plan selected from URL:', matchedPlan.id);
-		}
-	}, [searchParams, selectedPlan, FREE, STANDARD, PREMIUM]);
+		lastAppliedUrlPlanRef.current = planFromUrl;
+		handleSelectPlan(planFromUrl as PaymentPlan);
+	}, [searchParams, handleSelectPlan]);
 
 	// Effect to handle checkout error
 	const lemonSqueezyEmbedded = collectPaymentModeConfig().lemonSqueezy;
