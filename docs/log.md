@@ -31,6 +31,22 @@ why** at a higher level than per-commit diffs.
 
 ---
 
+## 2026-05-26 — Spec 035: Admin header profile link
+
+- spec-035: drafted `docs/spec/035-admin-header-profile-link/spec.md` and
+  shipped the fix in the same PR (EWW-5). The admin branch of the shared
+  `ProfileButton` dropdown (`apps/web/components/profile-button/menu-items.tsx`)
+  omitted the "Your Profile" link the non-admin branch has, so an admin had no
+  link to their own profile; added it, reusing the existing
+  `common.YOUR_PROFILE` / `common.YOUR_PROFILE_DESC` i18n keys. The `/admin`
+  panel header (`apps/web/app/[locale]/admin/layout-client.tsx`) keeps its
+  `Admin Panel` label unchanged (an earlier revision added a header button, then
+  reverted it per review feedback). (Spec was originally numbered 034 in the PR
+  branch but renumbered to 035 on merge to avoid collision with the already-
+  merged spec-034 Client Billing UI consistency.)
+
+---
+
 ## 2026-05-26 — Spec 034: Client Billing — wire placeholder actions
 
 - spec-034: connected previously-dead billing controls to real behaviour
