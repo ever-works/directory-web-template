@@ -219,15 +219,16 @@ export function PaymentCard({ payment, onChanged }: { payment: PaymentHistoryIte
 
 			{showDetails && (
 				<dl className="mt-3 pt-3 border-t border-neutral-100 dark:border-white/[0.06] grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-2">
-					{[
-						['Date', formatDate(payment.date)],
-						['Amount', formatCurrencyAmount(payment.amount, payment.currency, locale)],
-						['Status', statusConfig.label],
-						['Provider', payment.paymentProvider],
-						['Billing', payment.billingInterval],
-						payment.invoiceNumber ? ['Invoice', payment.invoiceNumber] : null
-					]
-						.filter(Boolean)
+					{(
+						[
+							['Date', formatDate(payment.date)],
+							['Amount', formatCurrencyAmount(payment.amount, payment.currency, locale)],
+							['Status', statusConfig.label],
+							['Provider', payment.paymentProvider],
+							['Billing', payment.billingInterval],
+							...(payment.invoiceNumber ? [['Invoice', payment.invoiceNumber]] : [])
+						] as [string, string][]
+					)
 						.map(([label, value]) => (
 							<div key={label} className="flex flex-col gap-0.5">
 								<dt className={LABEL}>{label}</dt>
