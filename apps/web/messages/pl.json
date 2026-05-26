@@ -871,10 +871,10 @@
 		"PREMIUM_SUPPORT": "Premium Support",
 		"MOST_POPULAR": "Najpopularniejszy",
 		"GET_STARTED_FREE": "Zacznij za darmo",
-		"UPGRADE_TO_STANDARD": "Submit Now",
-		"GO_PREMIUM": "Subscribe",
-		"SUBMIT_FOR_FREE": "Submit for Free",
-		"SUBSCRIBE_NOW": "Subscribe Now",
+		"UPGRADE_TO_STANDARD": "Zgłoś teraz",
+		"GO_PREMIUM": "Subskrybuj",
+		"SUBMIT_FOR_FREE": "Zgłoś za darmo",
+		"SUBSCRIBE_NOW": "Subskrybuj teraz",
 		"SELECT_FREE": "Wybierz Darmowy",
 		"SELECT_STANDARD": "Wybierz Standard",
 		"SELECT_PREMIUM": "Wybierz Premium",
@@ -948,7 +948,12 @@
 		"SPONSOR_WEEK": "week",
 		"SPONSOR_OR": "or",
 		"SPONSOR_MONTH": "month",
-		"SPONSOR_CTA": "Become a Sponsor"
+		"SPONSOR_CTA": "Become a Sponsor",
+		"PAY_NOW": "Zapłać teraz",
+		"PAY_LATER": "Zapłać później",
+		"PER_MONTH": "/mies",
+		"PER_YEAR": "/rok",
+		"LEARN_MORE_PAYMENT_OPTIONS": "Dowiedz się więcej o opcjach płatności"
 	},
 	"payment": {
 		"title": "Complete Your Order",
@@ -968,7 +973,29 @@
 			"failed": "Payment failed",
 			"pending": "Payment pending"
 		},
-		"COMPLETE_PAYMENT": "Dokończ płatność"
+		"COMPLETE_PAYMENT": "Dokończ płatność",
+		"flowSelector": {
+			"title": "Termin płatności",
+			"subtitle": "Wybierz, kiedy chcesz zostać obciążony za zgłoszenie",
+			"payNow": {
+				"title": "Zapłać teraz",
+				"description": "Płatność przetwarzana natychmiast. Priorytetowa kolejka weryfikacji.",
+				"benefits": [
+					"Natychmiastowe przetwarzanie",
+					"Priorytetowa weryfikacja",
+					"Szybsze zatwierdzenie"
+				]
+			},
+			"payLater": {
+				"title": "Zapłać później",
+				"description": "Obciążenie tylko po zatwierdzeniu zgłoszenia.",
+				"benefits": [
+					"Brak kosztów początkowych",
+					"Weryfikacja przed płatnością",
+					"Bez ryzyka"
+				]
+			}
+		}
 	},
 	"help": {
 		"HERO_BADGE_TEXT": "The Professional Directory Platform Builder",
@@ -1625,9 +1652,40 @@
 		"SUBSCRIPTIONS_EMPTY_STATE": "No subscription history",
 		"SUBSCRIPTIONS_EMPTY_DESCRIPTION": "Your subscription history will appear here once you have active subscriptions.",
 		"OVERVIEW_EMPTY_STATE": "No recent activity",
-		"OVERVIEW_EMPTY_DESCRIPTION": "Your recent billing activity will appear here once you have transactions."
+		"OVERVIEW_EMPTY_DESCRIPTION": "Your recent billing activity will appear here once you have transactions.",
+		"SAVE_PER_YEAR": "Oszczędzaj {amount}/rok"
 	},
 	"profile": {
+		"SECURITY_STATUS_SECTION": "Bezpieczeństwo i status",
+		"EMAIL_VERIFICATION": "Weryfikacja e-maila",
+		"EMAIL_VERIFIED": "Zweryfikowany",
+		"EMAIL_UNVERIFIED": "Niezweryfikowany",
+		"TWO_FACTOR": "Uwierzytelnianie dwuskładnikowe",
+		"TWO_FACTOR_ON": "Włączone",
+		"TWO_FACTOR_OFF": "Wyłączone",
+		"ACCOUNT_STATUS": "Status konta",
+		"STATUS_ACTIVE": "Aktywne",
+		"STATUS_INACTIVE": "Nieaktywne",
+		"STATUS_SUSPENDED": "Zawieszone",
+		"STATUS_BANNED": "Zablokowane",
+		"STATUS_TRIAL": "Próbny",
+		"MEMBER_SINCE": "Członek od",
+		"MANAGE_SECURITY": "Zarządzaj bezpieczeństwem",
+		"BILLING_PLANS_SECTION": "Rozliczenia i plany",
+		"CURRENT_PLAN": "Bieżący plan",
+		"PLAN_FREE": "Darmowy",
+		"PLAN_STANDARD": "Standard",
+		"PLAN_PREMIUM": "Premium",
+		"PLAN_BADGE_ACTIVE": "Aktywny",
+		"PLAN_BADGE_FREE": "Darmowy",
+		"ACCOUNT_TYPE": "Typ konta",
+		"ACCOUNT_TYPE_INDIVIDUAL": "Indywidualne",
+		"ACCOUNT_TYPE_BUSINESS": "Firmowe",
+		"ACCOUNT_TYPE_ENTERPRISE": "Korporacyjne",
+		"BILLING_CURRENCY": "Waluta",
+		"MANAGE_BILLING": "Zarządzaj rozliczeniami",
+		"BILLING_PLANS_UPGRADE": "Ulepsz",
+		"BILLING_PLANS_VIEW_PLANS": "Zobacz plany",
 		"BASIC_INFO_TITLE": "Basic Information",
 		"BASIC_INFO_DESCRIPTION": "Update your personal information and contact details. This information will be displayed on your public profile and helps others discover and connect with you.",
 		"PERSONAL_INFORMATION": "Personal Information",

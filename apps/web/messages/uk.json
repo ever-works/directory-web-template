@@ -871,10 +871,10 @@
 		"PREMIUM_SUPPORT": "Premium Support",
 		"MOST_POPULAR": "Найпопулярніший",
 		"GET_STARTED_FREE": "Почати безкоштовно",
-		"UPGRADE_TO_STANDARD": "Submit Now",
-		"GO_PREMIUM": "Subscribe",
-		"SUBMIT_FOR_FREE": "Submit for Free",
-		"SUBSCRIBE_NOW": "Subscribe Now",
+		"UPGRADE_TO_STANDARD": "Надіслати зараз",
+		"GO_PREMIUM": "Підписатися",
+		"SUBMIT_FOR_FREE": "Надіслати безкоштовно",
+		"SUBSCRIBE_NOW": "Підписатися зараз",
 		"SELECT_FREE": "Вибрати Безкоштовний",
 		"SELECT_STANDARD": "Вибрати Стандартний",
 		"SELECT_PREMIUM": "Вибрати Преміум",
@@ -948,7 +948,12 @@
 		"SPONSOR_WEEK": "week",
 		"SPONSOR_OR": "or",
 		"SPONSOR_MONTH": "month",
-		"SPONSOR_CTA": "Become a Sponsor"
+		"SPONSOR_CTA": "Become a Sponsor",
+		"PAY_NOW": "Сплатити зараз",
+		"PAY_LATER": "Сплатити пізніше",
+		"PER_MONTH": "/міс",
+		"PER_YEAR": "/рік",
+		"LEARN_MORE_PAYMENT_OPTIONS": "Докладніше про варіанти оплати"
 	},
 	"payment": {
 		"title": "Complete Your Order",
@@ -968,7 +973,29 @@
 			"failed": "Payment failed",
 			"pending": "Payment pending"
 		},
-		"COMPLETE_PAYMENT": "Завершити оплату"
+		"COMPLETE_PAYMENT": "Завершити оплату",
+		"flowSelector": {
+			"title": "Час оплати",
+			"subtitle": "Виберіть, коли списати оплату за вашу заявку",
+			"payNow": {
+				"title": "Сплатити зараз",
+				"description": "Платіж обробляється негайно. Пріоритетна черга на розгляд.",
+				"benefits": [
+					"Миттєва обробка",
+					"Пріоритетний розгляд",
+					"Швидше схвалення"
+				]
+			},
+			"payLater": {
+				"title": "Сплатити пізніше",
+				"description": "Списання лише після схвалення вашої заявки.",
+				"benefits": [
+					"Без передоплати",
+					"Розгляд до оплати",
+					"Без ризику"
+				]
+			}
+		}
 	},
 	"help": {
 		"HERO_BADGE_TEXT": "The Professional Directory Platform Builder",
@@ -1625,9 +1652,40 @@
 		"SUBSCRIPTIONS_EMPTY_STATE": "No subscription history",
 		"SUBSCRIPTIONS_EMPTY_DESCRIPTION": "Your subscription history will appear here once you have active subscriptions.",
 		"OVERVIEW_EMPTY_STATE": "No recent activity",
-		"OVERVIEW_EMPTY_DESCRIPTION": "Your recent billing activity will appear here once you have transactions."
+		"OVERVIEW_EMPTY_DESCRIPTION": "Your recent billing activity will appear here once you have transactions.",
+		"SAVE_PER_YEAR": "Заощаджуйте {amount}/рік"
 	},
 	"profile": {
+		"SECURITY_STATUS_SECTION": "Безпека та статус",
+		"EMAIL_VERIFICATION": "Підтвердження ел. пошти",
+		"EMAIL_VERIFIED": "Підтверджено",
+		"EMAIL_UNVERIFIED": "Не підтверджено",
+		"TWO_FACTOR": "Двофакторна автентифікація",
+		"TWO_FACTOR_ON": "Увімкнено",
+		"TWO_FACTOR_OFF": "Вимкнено",
+		"ACCOUNT_STATUS": "Статус облікового запису",
+		"STATUS_ACTIVE": "Активний",
+		"STATUS_INACTIVE": "Неактивний",
+		"STATUS_SUSPENDED": "Призупинено",
+		"STATUS_BANNED": "Заблоковано",
+		"STATUS_TRIAL": "Пробний",
+		"MEMBER_SINCE": "Учасник з",
+		"MANAGE_SECURITY": "Керування безпекою",
+		"BILLING_PLANS_SECTION": "Оплата та тарифи",
+		"CURRENT_PLAN": "Поточний тариф",
+		"PLAN_FREE": "Безкоштовний",
+		"PLAN_STANDARD": "Стандарт",
+		"PLAN_PREMIUM": "Преміум",
+		"PLAN_BADGE_ACTIVE": "Активний",
+		"PLAN_BADGE_FREE": "Безкоштовний",
+		"ACCOUNT_TYPE": "Тип облікового запису",
+		"ACCOUNT_TYPE_INDIVIDUAL": "Особистий",
+		"ACCOUNT_TYPE_BUSINESS": "Бізнес",
+		"ACCOUNT_TYPE_ENTERPRISE": "Корпоративний",
+		"BILLING_CURRENCY": "Валюта",
+		"MANAGE_BILLING": "Керування оплатою",
+		"BILLING_PLANS_UPGRADE": "Покращити",
+		"BILLING_PLANS_VIEW_PLANS": "Переглянути тарифи",
 		"BASIC_INFO_TITLE": "Basic Information",
 		"BASIC_INFO_DESCRIPTION": "Update your personal information and contact details. This information will be displayed on your public profile and helps others discover and connect with you.",
 		"PERSONAL_INFORMATION": "Personal Information",

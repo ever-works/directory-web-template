@@ -31,6 +31,28 @@ why** at a higher level than per-commit diffs.
 
 ---
 
+## 2026-05-25 — Spec 033: Client profile Security & Billing blocks
+
+- spec-033: drafted `docs/spec/033-client-profile-security-billing/spec.md`
+  and shipped the implementation in the same PR (EW-648). Adds two
+  **owner-only** read-only blocks to the bottom of the right column on
+  `/[locale]/client/profile/[username]`: **Security & Status**
+  (`apps/web/components/profile/sections/security-status-section.tsx` —
+  email verification, two-factor, account status, member-since, link to
+  `/client/settings/security`) and **Billing & Plans**
+  (`billing-plans-section.tsx` — plan, account type, currency, links to
+  `/client/settings/profile/billing` + `/pricing`, Upgrade CTA on the free
+  plan). Both are pure async server components fed from data already loaded
+  by the page; the account-private fields (`status`, `plan`, `accountType`,
+  `twoFactorEnabled`, `currency`) that `toPublicClientProfile` strips are
+  read from the unprojected `rawProfile`, gated by `effectiveIsOwn` (so
+  they are hidden from visitors and in `?preview=public`). New English keys
+  added under the `profile` namespace in `messages/en.json` and translated
+  into all 20 other locales (ar, bg, de, es, fr, he, hi, id, it, ja, ko, nl,
+  pl, pt, ru, th, tr, uk, vi, zh); the `deepmerge(en, locale)` fallback in
+  `i18n/request.ts` remains as a safety net. No new queries, hooks,
+  dependencies, or schema changes. (PR: #930, draft)
+
 ## 2026-05-24 — /submit: fix step-1 progress jumping to 100%
 
 - `apps/web/components/directory/details-form/components/step-indicator.tsx`

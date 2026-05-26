@@ -871,10 +871,10 @@
 		"PREMIUM_SUPPORT": "Premium Support",
 		"MOST_POPULAR": "人気No.1",
 		"GET_STARTED_FREE": "無料で始める",
-		"UPGRADE_TO_STANDARD": "Submit Now",
-		"GO_PREMIUM": "Subscribe",
-		"SUBMIT_FOR_FREE": "Submit for Free",
-		"SUBSCRIBE_NOW": "Subscribe Now",
+		"UPGRADE_TO_STANDARD": "今すぐ送信",
+		"GO_PREMIUM": "登録する",
+		"SUBMIT_FOR_FREE": "無料で送信",
+		"SUBSCRIBE_NOW": "今すぐ登録",
 		"SELECT_FREE": "無料を選択",
 		"SELECT_STANDARD": "スタンダードを選択",
 		"SELECT_PREMIUM": "プレミアムを選択",
@@ -948,7 +948,12 @@
 		"SPONSOR_WEEK": "week",
 		"SPONSOR_OR": "or",
 		"SPONSOR_MONTH": "month",
-		"SPONSOR_CTA": "Become a Sponsor"
+		"SPONSOR_CTA": "Become a Sponsor",
+		"PAY_NOW": "今すぐ支払う",
+		"PAY_LATER": "後で支払う",
+		"PER_MONTH": "/月",
+		"PER_YEAR": "/年",
+		"LEARN_MORE_PAYMENT_OPTIONS": "支払いオプションの詳細"
 	},
 	"payment": {
 		"title": "Complete Your Order",
@@ -968,7 +973,29 @@
 			"failed": "Payment failed",
 			"pending": "Payment pending"
 		},
-		"COMPLETE_PAYMENT": "支払いを完了する"
+		"COMPLETE_PAYMENT": "支払いを完了する",
+		"flowSelector": {
+			"title": "支払いのタイミング",
+			"subtitle": "提出物の請求タイミングを選択してください",
+			"payNow": {
+				"title": "今すぐ支払う",
+				"description": "支払いは即時処理されます。優先審査キュー。",
+				"benefits": [
+					"即時処理",
+					"優先審査",
+					"より早い承認"
+				]
+			},
+			"payLater": {
+				"title": "後で支払う",
+				"description": "提出物が承認された後にのみ請求されます。",
+				"benefits": [
+					"初期費用なし",
+					"支払い前に審査",
+					"リスクなし"
+				]
+			}
+		}
 	},
 	"help": {
 		"HERO_BADGE_TEXT": "The Professional Directory Platform Builder",
@@ -1625,9 +1652,40 @@
 		"SUBSCRIPTIONS_EMPTY_STATE": "No subscription history",
 		"SUBSCRIPTIONS_EMPTY_DESCRIPTION": "Your subscription history will appear here once you have active subscriptions.",
 		"OVERVIEW_EMPTY_STATE": "No recent activity",
-		"OVERVIEW_EMPTY_DESCRIPTION": "Your recent billing activity will appear here once you have transactions."
+		"OVERVIEW_EMPTY_DESCRIPTION": "Your recent billing activity will appear here once you have transactions.",
+		"SAVE_PER_YEAR": "年間 {amount} 節約"
 	},
 	"profile": {
+		"SECURITY_STATUS_SECTION": "セキュリティとステータス",
+		"EMAIL_VERIFICATION": "メール認証",
+		"EMAIL_VERIFIED": "認証済み",
+		"EMAIL_UNVERIFIED": "未認証",
+		"TWO_FACTOR": "二要素認証",
+		"TWO_FACTOR_ON": "有効",
+		"TWO_FACTOR_OFF": "無効",
+		"ACCOUNT_STATUS": "アカウントステータス",
+		"STATUS_ACTIVE": "有効",
+		"STATUS_INACTIVE": "無効",
+		"STATUS_SUSPENDED": "停止中",
+		"STATUS_BANNED": "禁止",
+		"STATUS_TRIAL": "トライアル",
+		"MEMBER_SINCE": "登録日",
+		"MANAGE_SECURITY": "セキュリティを管理",
+		"BILLING_PLANS_SECTION": "請求とプラン",
+		"CURRENT_PLAN": "現在のプラン",
+		"PLAN_FREE": "無料",
+		"PLAN_STANDARD": "スタンダード",
+		"PLAN_PREMIUM": "プレミアム",
+		"PLAN_BADGE_ACTIVE": "有効",
+		"PLAN_BADGE_FREE": "無料",
+		"ACCOUNT_TYPE": "アカウントタイプ",
+		"ACCOUNT_TYPE_INDIVIDUAL": "個人",
+		"ACCOUNT_TYPE_BUSINESS": "ビジネス",
+		"ACCOUNT_TYPE_ENTERPRISE": "エンタープライズ",
+		"BILLING_CURRENCY": "通貨",
+		"MANAGE_BILLING": "請求を管理",
+		"BILLING_PLANS_UPGRADE": "アップグレード",
+		"BILLING_PLANS_VIEW_PLANS": "プランを見る",
 		"BASIC_INFO_TITLE": "Basic Information",
 		"BASIC_INFO_DESCRIPTION": "Update your personal information and contact details. This information will be displayed on your public profile and helps others discover and connect with you.",
 		"PERSONAL_INFORMATION": "Personal Information",
