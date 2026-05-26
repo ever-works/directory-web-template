@@ -1,4 +1,5 @@
 import { Suspense } from 'react';
+import { Metadata } from 'next';
 import { Container } from '@/components/ui/container';
 import { FavoritesClient } from '@/components/favorites/favorites-client';
 import { FilterProvider } from '@/components/filters/context/filter-context';
@@ -7,8 +8,44 @@ import { getCachedItems } from '@/lib/content';
 import { requireAuth } from '@/lib/auth/guards';
 import { getFeatureFlags } from '@/lib/config/feature-flags';
 import { notFound } from 'next/navigation';
+import { generateHreflangAlternates, getLocalizedUrl } from '@/lib/seo/hreflang';
+import { siteConfig } from '@/lib/config';
+import { Locale } from '@/lib/constants';
+
 // Force dynamic rendering for authenticated pages to prevent auth bypasses
 export const dynamic = 'force-dynamic';
+
+export async function generateMetadata({
+    params,
+}: {
+    params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+    const { locale } = await params;
+    const t = await getTranslations({ locale, namespace: 'common' });
+
+    const path = '/favorites';
+    const title = `${t('FAVORITES')} | ${siteConfig.name}`;
+    const description = t('FAVORITES_DESCRIPTION');
+
+    return {
+        title,
+        description,
+        // Auth-gated page — keep search crawlers out, but emit OG tags so
+        // explicit shares (Slack / Twitter unfurls) still render nicely.
+        robots: { index: false, follow: false },
+        openGraph: {
+            title,
+            description,
+            type: 'website',
+            url: getLocalizedUrl(path, locale as Locale),
+            siteName: siteConfig.name,
+        },
+        alternates: {
+            canonical: getLocalizedUrl(path, locale as Locale),
+            languages: generateHreflangAlternates(path),
+        },
+    };
+}
 
 export default async function FavoritesPage({
     params,
