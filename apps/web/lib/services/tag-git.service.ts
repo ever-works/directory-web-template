@@ -216,23 +216,41 @@ export class TagGitService {
     return await this.readTags();
   }
 
-  async getTagsPaginated(page: number = 1, limit: number = 10): Promise<{
+  async getTagsPaginated(options: {
+    page?: number;
+    limit?: number;
+    includeInactive?: boolean;
+    onlyInactive?: boolean;
+  } = {}): Promise<{
     tags: TagData[];
     total: number;
+    allTotal: number;
+    activeTotal: number;
     page: number;
     limit: number;
     totalPages: number;
   }> {
+    const { page = 1, limit = 10, includeInactive, onlyInactive } = options;
     const allTags = await this.readTags();
-    const total = allTags.length;
+    const allTotal = allTags.length;
+    const activeTotal = allTags.filter((t) => t.isActive).length;
+
+    const filteredTags = onlyInactive
+      ? allTags.filter((t) => !t.isActive)
+      : includeInactive === false
+        ? allTags.filter((t) => t.isActive)
+        : allTags;
+
+    const total = filteredTags.length;
     const totalPages = Math.ceil(total / limit);
     const startIndex = (page - 1) * limit;
-    const endIndex = startIndex + limit;
-    const tags = allTags.slice(startIndex, endIndex);
+    const tags = filteredTags.slice(startIndex, startIndex + limit);
 
     return {
       tags,
       total,
+      allTotal,
+      activeTotal,
       page,
       limit,
       totalPages,

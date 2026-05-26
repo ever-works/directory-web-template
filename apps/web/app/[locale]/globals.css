@@ -533,6 +533,27 @@
   }
 }
 
+@keyframes dot-flow {
+  0% {
+    left: -6px;
+    opacity: 0;
+  }
+  8% {
+    opacity: 1;
+  }
+  92% {
+    opacity: 1;
+  }
+  100% {
+    left: calc(100% + 6px);
+    opacity: 0;
+  }
+}
+
+.animate-dot-flow {
+  animation: dot-flow 1.8s linear infinite;
+}
+
 @keyframes blob {
   0% {
     transform: translate(0px, 0px) scale(1);

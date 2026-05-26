@@ -3,7 +3,6 @@
 import React, { useCallback } from 'react';
 import {
 	TrendingUp,
-	TrendingDown,
 	DollarSign,
 	Calendar,
 	CreditCard,
@@ -12,12 +11,25 @@ import {
 	BarChart3,
 	Zap,
 	Crown,
-	Loader2
+	Loader2,
+	ArrowUpRight
 } from 'lucide-react';
 import { useSubscription } from '@/hooks/use-subscription';
 import { toast } from 'sonner';
 import { useLocale } from 'next-intl';
 import { formatCurrencyAmount } from '@/lib/utils/currency-format';
+
+const CARD = 'bg-white dark:bg-white/3 rounded-xl border border-neutral-200 dark:border-white/8';
+const LABEL = 'text-xs font-medium text-neutral-500 dark:text-neutral-400';
+const VALUE = 'text-xl font-semibold text-neutral-900 dark:text-white tracking-tight';
+const DESC = 'mt-1 text-xs text-neutral-400 dark:text-neutral-500';
+const ICON_TILE = 'p-2 bg-neutral-100 dark:bg-white/8 rounded-lg shrink-0';
+const ICON = 'h-4 w-4 text-neutral-500 dark:text-neutral-400';
+const PANEL = `${CARD} p-5`;
+const OUTLINE_BTN =
+	'inline-flex items-center gap-1.5 h-8 px-3 text-xs font-medium rounded-md border border-neutral-200 dark:border-white/10 text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-white/6 transition-colors';
+const PRIMARY_BTN =
+	'inline-flex items-center gap-1.5 h-8 px-3 text-xs font-medium rounded-md bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 hover:bg-neutral-700 dark:hover:bg-neutral-100 transition-colors disabled:opacity-50 disabled:cursor-not-allowed';
 
 interface BillingStatsProps {
 	planName: string;
@@ -32,6 +44,37 @@ interface BillingStatsProps {
 	nextBillingDate?: string;
 	daysUntilRenewal?: number;
 	currentPeriodEnd?: string;
+	onViewHistory?: () => void;
+}
+
+interface StatTileProps {
+	label: string;
+	value: string;
+	description: string;
+	icon: React.ComponentType<{ className?: string }>;
+	badge?: { label: string; color: string };
+}
+
+function StatTile({ label, value, description, icon: Icon, badge }: StatTileProps) {
+	return (
+		<div className={`${CARD} p-5`}>
+			<div className="flex items-start justify-between mb-3">
+				<span className={LABEL}>{label}</span>
+				<div className={ICON_TILE} aria-hidden="true">
+					<Icon className={ICON} />
+				</div>
+			</div>
+			<p className={VALUE}>{value}</p>
+			<div className="flex items-center justify-between mt-1 gap-2">
+				<p className={DESC}>{description}</p>
+				{badge && (
+					<span className={`inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-semibold shrink-0 ${badge.color}`}>
+						{badge.label}
+					</span>
+				)}
+			</div>
+		</div>
+	);
 }
 
 export function BillingStats({
@@ -46,51 +89,20 @@ export function BillingStats({
 	growthRate,
 	nextBillingDate,
 	daysUntilRenewal,
-	currentPeriodEnd
+	currentPeriodEnd,
+	onViewHistory
 }: BillingStatsProps) {
 	const { createBillingPortalSession, isCreateBillingPortalSessionPending } = useSubscription();
 	const locale = useLocale();
 
-	const getTrendIcon = (value: number, threshold: number): React.ReactElement | null => {
-		if (value > threshold) {
-			return <TrendingUp className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />;
-		} else if (value < threshold) {
-			return <TrendingDown className="w-4 h-4 text-red-600 dark:text-red-400" />;
-		}
-		return null;
-	};
-
 	const getRenewalStatus = () => {
 		if (!daysUntilRenewal) return null;
-
 		if (daysUntilRenewal <= 7) {
-			return {
-				color: 'text-red-600 dark:text-red-400',
-				bgColor: 'bg-red-50 dark:bg-red-900/20',
-				borderColor: 'border-red-200 dark:border-red-700/50',
-				icon: Clock,
-				label: 'Renewing Soon',
-				urgency: 'high'
-			};
+			return { color: 'text-red-600 dark:text-red-400', icon: Clock, label: 'Renewing Soon', urgency: 'high' };
 		} else if (daysUntilRenewal <= 30) {
-			return {
-				color: 'text-orange-600 dark:text-orange-400',
-				bgColor: 'bg-orange-50 dark:bg-orange-900/20',
-				borderColor: 'border-orange-200 dark:border-orange-700/50',
-				icon: Calendar,
-				label: 'Upcoming Renewal',
-				urgency: 'medium'
-			};
-		} else {
-			return {
-				color: 'text-emerald-600 dark:text-emerald-400',
-				bgColor: 'bg-emerald-50 dark:bg-emerald-900/20',
-				borderColor: 'border-emerald-200 dark:border-emerald-700/50',
-				icon: Calendar,
-				label: 'Active',
-				urgency: 'low'
-			};
+			return { color: 'text-amber-600 dark:text-amber-400', icon: Calendar, label: 'Upcoming Renewal', urgency: 'medium' };
 		}
+		return { color: 'text-emerald-600 dark:text-emerald-400', icon: Calendar, label: 'Active', urgency: 'low' };
 	};
 
 	const renewalStatus = getRenewalStatus();
@@ -100,9 +112,7 @@ export function BillingStats({
 		try {
 			const result = await createBillingPortalSession.mutateAsync();
 			const portalUrl = result?.data?.url;
-			if (!portalUrl) {
-				throw new Error('Portal URL not available in response');
-			}
+			if (!portalUrl) throw new Error('Portal URL not available in response');
 			toast.success('Redirecting to billing portal...', { id: toastId, duration: 2000 });
 			window.location.href = portalUrl;
 		} catch (error) {
@@ -113,155 +123,89 @@ export function BillingStats({
 	}, [createBillingPortalSession]);
 
 	return (
-		<div className="space-y-6">
-			{/* Main Stats Grid */}
-			<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-				{/* Total Spent */}
-				<div className="bg-linear-to-br from-theme-primary-20 dark:from-theme-primary-20 to-theme-primary-10 dark:to-theme-primary-20 border border-theme-primary-200 dark:border-theme-primary-300 rounded-xl p-6 hover:shadow-lg transition-all duration-300 group bg-theme-primary-10 dark:bg-theme-primary-10">
-					<div className="flex items-center justify-between mb-4">
-						<div className="w-12 h-12 bg-theme-primary-20 dark:bg-theme-primary-10 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform duration-300 border border-theme-primary-200 dark:border-theme-primary-500">
-							<DollarSign className="w-6 h-6 text-theme-primary-600 dark:text-theme-primary-700" />
-						</div>
-						{getTrendIcon(totalSpent, 100)}
-					</div>
-					<h3 className="text-2xl font-bold text-theme-primary-900 dark:text-theme-primary-100 mb-1 group-hover:text-theme-primary-800 dark:group-hover:text-white transition-colors">
-						{formatCurrencyAmount(totalSpent, currency, locale)}
-					</h3>
-					<p className="text-theme-primary-700 dark:text-theme-primary-300 text-sm font-medium">
-						Total Spent
-					</p>
-					<div className="mt-2 text-xs text-theme-primary-600 dark:text-theme-primary-400">
-						{totalPayments > 0 ? `${totalPayments} transactions` : 'No transactions yet'}
-					</div>
-				</div>
-
-				<div className="bg-linear-to-br from-emerald-50 dark:from-emerald-900/20 to-teal-50 dark:to-teal-900/20 border border-emerald-200 dark:border-emerald-700/50 rounded-xl p-6 hover:shadow-lg transition-all duration-300 group">
-					<div className="flex items-center justify-between mb-4">
-						<div className="w-12 h-12 bg-emerald-100 dark:bg-emerald-800/50 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform duration-300 border border-emerald-200 dark:border-emerald-600/50">
-							<CreditCard className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
-						</div>
-						{getTrendIcon(activePayments, 1)}
-					</div>
-					<h3 className="text-2xl font-bold text-emerald-900 dark:text-emerald-100 mb-1 group-hover:text-emerald-800 dark:group-hover:text-white transition-colors">
-						{activePayments}
-					</h3>
-					<p className="text-emerald-700 dark:text-emerald-300 text-sm font-medium">Active Payments</p>
-					<div className="mt-2 text-xs text-emerald-600 dark:text-emerald-400">
-						{activePayments > 0 ? 'Successfully processed' : 'No active payments'}
-					</div>
-				</div>
-
-				{/* Monthly Average */}
-				<div className="bg-linear-to-br from-purple-50 to-violet-50 dark:from-purple-900/20 dark:to-violet-900/20 border border-purple-200 dark:border-purple-700/50 rounded-xl p-6 hover:shadow-lg transition-all duration-300 group">
-					<div className="flex items-center justify-between mb-4">
-						<div className="w-12 h-12 bg-purple-100 dark:bg-purple-800/50 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform duration-300 border border-purple-200 dark:border-purple-600/50">
-							<BarChart3 className="w-6 h-6 text-purple-600 dark:text-purple-400" />
-						</div>
-						{getTrendIcon(monthlyAverage, 50)}
-					</div>
-					<h3 className="text-2xl font-bold text-purple-900 dark:text-purple-100 mb-1 group-hover:text-purple-800 dark:group-hover:text-white transition-colors">
-						{formatCurrencyAmount(monthlyAverage, currency, locale)}
-					</h3>
-					<p className="text-purple-700 dark:text-purple-300 text-sm font-medium">Monthly Average</p>
-					<div className="mt-2 text-xs text-purple-600 dark:text-purple-400">
-						{totalPayments > 0 ? 'Based on all payments' : 'Calculated from transactions'}
-					</div>
-				</div>
-
-				{/* Plan Status */}
-				<div className="bg-linear-to-br from-orange-50 to-amber-50 dark:from-orange-900/20 dark:to-amber-900/20 border border-orange-200 dark:border-orange-700/50 rounded-xl p-6 hover:shadow-lg transition-all duration-300 group">
-					<div className="flex items-center justify-between mb-4">
-						<div className="w-12 h-12 bg-orange-100 dark:bg-orange-800/50 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform duration-300 border border-orange-200 dark:border-orange-600/50">
-							<Crown className="w-6 h-6 text-orange-600 dark:text-orange-400" />
-						</div>
-						<div
-							className={`w-3 h-3 rounded-full ${hasActiveSubscription ? 'bg-emerald-500 dark:bg-emerald-400' : 'bg-slate-400'}`}
-						></div>
-					</div>
-					<h3
-						className={`text-2xl font-bold mb-1 group-hover:opacity-80 transition-opacity ${
-							hasActiveSubscription
-								? 'text-orange-900 dark:text-orange-100'
-								: 'text-slate-700 dark:text-slate-300'
-						}`}
-					>
-						{hasActiveSubscription ? 'Active' : 'Free'}
-					</h3>
-					<p
-						className={`text-sm font-medium ${
-							hasActiveSubscription
-								? 'text-orange-700 dark:text-orange-300'
-								: 'text-slate-600 dark:text-slate-400'
-						}`}
-					>
-						{hasActiveSubscription ? planName : 'Basic Plan'}
-					</p>
-					<div className="mt-2 text-xs text-orange-600 dark:text-orange-400">
-						{hasActiveSubscription ? 'Full access enabled' : 'Upgrade for more features'}
-					</div>
-				</div>
+		<div className="space-y-4">
+			{/* KPI grid */}
+			<div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+				<StatTile
+					label="Total Spent"
+					value={formatCurrencyAmount(totalSpent, currency, locale)}
+					description={totalPayments > 0 ? `${totalPayments} transaction${totalPayments !== 1 ? 's' : ''}` : 'No transactions yet'}
+					icon={DollarSign}
+				/>
+				<StatTile
+					label="Active Payments"
+					value={String(activePayments)}
+					description={activePayments > 0 ? 'Successfully processed' : 'No active payments'}
+					icon={CreditCard}
+					badge={activePayments > 0 ? { label: 'Live', color: 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400' } : undefined}
+				/>
+				<StatTile
+					label="Monthly Average"
+					value={formatCurrencyAmount(monthlyAverage, currency, locale)}
+					description={totalPayments > 0 ? 'Based on all payments' : 'No data yet'}
+					icon={BarChart3}
+				/>
+				<StatTile
+					label="Plan Status"
+					value={hasActiveSubscription ? 'Active' : 'Free'}
+					description={planName}
+					icon={Crown}
+					badge={
+						hasActiveSubscription
+							? { label: 'Pro', color: 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400' }
+							: { label: 'Free', color: 'bg-neutral-100 text-neutral-500 dark:bg-white/8 dark:text-neutral-400' }
+					}
+				/>
 			</div>
 
-			{/* Additional Metrics Row */}
+			{/* Additional Metrics Row — only rendered when optional props are passed */}
 			{(lastMonthSpent !== undefined || growthRate !== undefined || renewalStatus) && (
-				<div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-					{/* Monthly Comparison */}
+				<div className="grid grid-cols-1 md:grid-cols-3 gap-3">
 					{lastMonthSpent !== undefined && (
-						<div className="bg-white dark:bg-white/5 border border-slate-200 dark:border-white/6 rounded-xl p-6 shadow-xs">
-							<div className="flex items-center justify-between mb-4">
-								<h4 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
-									Monthly Comparison
-								</h4>
-								<Calendar className="w-5 h-5 text-slate-400" />
+						<div className={PANEL}>
+							<div className="flex items-center justify-between mb-3">
+								<span className="text-xs font-semibold text-neutral-900 dark:text-white">Monthly Comparison</span>
+								<Calendar className="w-4 h-4 text-neutral-400 dark:text-neutral-500" />
 							</div>
-							<div className="space-y-3">
+							<div className="space-y-2 text-xs">
 								<div className="flex justify-between items-center">
-									<span className="text-slate-600 dark:text-slate-300">This Month:</span>
-									<span className="font-semibold text-slate-900 dark:text-slate-100">
+									<span className={LABEL}>This month</span>
+									<span className="font-semibold text-neutral-900 dark:text-white">
 										{formatCurrencyAmount(totalSpent, currency, locale)}
 									</span>
 								</div>
 								<div className="flex justify-between items-center">
-									<span className="text-slate-600 dark:text-slate-300">Last Month:</span>
-									<span className="font-semibold text-slate-900 dark:text-slate-100">
-										{formatCurrencyAmount(lastMonthSpent || 0, currency, locale)}
+									<span className={LABEL}>Last month</span>
+									<span className="font-semibold text-neutral-900 dark:text-white">
+										{formatCurrencyAmount(lastMonthSpent, currency, locale)}
 									</span>
 								</div>
-								<div className="pt-2 border-t border-slate-200 dark:border-white/6">
-									<div className="flex justify-between items-center">
-										<span className="text-slate-600 dark:text-slate-300">Change:</span>
-										<span
-											className={`font-semibold ${
-												lastMonthSpent && lastMonthSpent > totalSpent
-													? 'text-emerald-600 dark:text-emerald-400'
-													: 'text-red-600 dark:text-red-400'
-											}`}
-										>
-											{lastMonthSpent && lastMonthSpent > totalSpent ? '↓' : '↑'}{' '}
-											{formatCurrencyAmount(
-												Math.abs((lastMonthSpent || 0) - totalSpent),
-												currency,
-												locale
-											)}
-										</span>
-									</div>
+								<div className="pt-2 border-t border-neutral-100 dark:border-white/[0.06] flex justify-between items-center">
+									<span className={LABEL}>Change</span>
+									<span
+										className={`font-semibold ${
+											lastMonthSpent > totalSpent
+												? 'text-emerald-600 dark:text-emerald-400'
+												: 'text-red-600 dark:text-red-400'
+										}`}
+									>
+										{lastMonthSpent > totalSpent ? '↓' : '↑'}{' '}
+										{formatCurrencyAmount(Math.abs(lastMonthSpent - totalSpent), currency, locale)}
+									</span>
 								</div>
 							</div>
 						</div>
 					)}
 
-					{/* Growth Rate */}
 					{growthRate !== undefined && (
-						<div className="bg-white dark:bg-white/5 border border-slate-200 dark:border-white/6 rounded-xl p-6 shadow-xs">
-							<div className="flex items-center justify-between mb-4">
-								<h4 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
-									Growth Rate
-								</h4>
-								<TrendingUp className="w-5 h-5 text-slate-400" />
+						<div className={PANEL}>
+							<div className="flex items-center justify-between mb-3">
+								<span className="text-xs font-semibold text-neutral-900 dark:text-white">Growth Rate</span>
+								<TrendingUp className="w-4 h-4 text-neutral-400 dark:text-neutral-500" />
 							</div>
-							<div className="space-y-3">
+							<div className="space-y-2 text-xs">
 								<div className="flex justify-between items-center">
-									<span className="text-slate-600 dark:text-slate-300">Monthly Growth:</span>
+									<span className={LABEL}>Monthly growth</span>
 									<span
 										className={`font-semibold ${
 											growthRate > 0
@@ -273,67 +217,60 @@ export function BillingStats({
 										{growthRate.toFixed(1)}%
 									</span>
 								</div>
-								<div className="pt-2 border-t border-slate-200 dark:border-white/6">
-									<div className="text-sm text-slate-500 dark:text-slate-400">
+								<div className="pt-2 border-t border-neutral-100 dark:border-white/[0.06]">
+									<p className={DESC}>
 										{growthRate > 0
-											? 'Your spending is increasing month over month'
+											? 'Spending increasing month over month'
 											: growthRate < 0
-												? 'Your spending has decreased compared to last month'
-												: 'Your spending remains consistent'}
-									</div>
+												? 'Spending decreased vs last month'
+												: 'Spending is consistent'}
+									</p>
 								</div>
 							</div>
 						</div>
 					)}
 
-					{/* Renewal Status */}
 					{renewalStatus && (
-						<div className="bg-white dark:bg-white/5 border border-slate-200 dark:border-white/6 rounded-xl p-6 shadow-xs">
-							<div className="flex items-center justify-between mb-4">
-								<h4 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
-									Renewal Status
-								</h4>
-								<renewalStatus.icon className="w-5 h-5 text-slate-400" />
+						<div className={PANEL}>
+							<div className="flex items-center justify-between mb-3">
+								<span className="text-xs font-semibold text-neutral-900 dark:text-white">Renewal Status</span>
+								<renewalStatus.icon className="w-4 h-4 text-neutral-400 dark:text-neutral-500" />
 							</div>
-							<div className="space-y-3">
+							<div className="space-y-2 text-xs">
 								<div className="flex justify-between items-center">
-									<span className="text-slate-600 dark:text-slate-300">Status:</span>
-									<span className={`font-semibold ${renewalStatus.color}`}>
-										{renewalStatus.label}
-									</span>
+									<span className={LABEL}>Status</span>
+									<span className={`font-semibold ${renewalStatus.color}`}>{renewalStatus.label}</span>
 								</div>
 								{nextBillingDate && (
 									<div className="flex justify-between items-center">
-										<span className="text-slate-600 dark:text-slate-300">Next Billing:</span>
-										<span className="font-semibold text-slate-900 dark:text-slate-100">
+										<span className={LABEL}>Next billing</span>
+										<span className="font-semibold text-neutral-900 dark:text-white">
 											{new Date(nextBillingDate).toLocaleDateString()}
 										</span>
 									</div>
 								)}
 								{currentPeriodEnd && (
 									<div className="flex justify-between items-center">
-										<span className="text-slate-600 dark:text-slate-300">Period Ends:</span>
-										<span className="font-semibold text-slate-900 dark:text-slate-100">
+										<span className={LABEL}>Period ends</span>
+										<span className="font-semibold text-neutral-900 dark:text-white">
 											{new Date(currentPeriodEnd).toLocaleDateString()}
 										</span>
 									</div>
 								)}
 								{daysUntilRenewal && (
-									<div className="pt-2 border-t border-slate-200 dark:border-white/6">
-										<div className="flex justify-between items-center">
-											<span className="text-slate-600 dark:text-slate-300">Days Left:</span>
-											<span
-												className={`font-semibold ${
-													renewalStatus.urgency === 'high'
-														? 'text-red-600 dark:text-red-400'
-														: renewalStatus.urgency === 'medium'
-															? 'text-orange-600 dark:text-orange-400'
-															: 'text-emerald-600 dark:text-emerald-400'
-												}`}
-											>
-												{daysUntilRenewal} days
-											</span>
-										</div>
+									<div className="pt-2 border-t border-neutral-100 dark:border-white/[0.06] flex justify-between items-center">
+										<span className={LABEL}>Days left</span>
+										<span
+											className={`font-semibold ${
+												renewalStatus.urgency === 'high'
+													? 'text-red-600 dark:text-red-400'
+													: renewalStatus.urgency === 'medium'
+														? 'text-amber-600 dark:text-amber-400'
+														: 'text-emerald-600 dark:text-emerald-400'
+											}`}
+										>
+											{daysUntilRenewal}d
+										</span>
 									</div>
 								)}
 							</div>
@@ -342,52 +279,41 @@ export function BillingStats({
 				</div>
 			)}
 
-			{/* Quick Actions */}
-			<div className="bg-linear-to-r from-slate-50 to-theme-primary-50 dark:from-white/5 dark:to-theme-primary-900/20 border border-slate-200 dark:border-white/6 rounded-xl p-6">
-				<div className="flex items-center justify-between">
-					<div className="flex items-center gap-3">
-						<div className="w-10 h-10 bg-theme-primary-100 dark:bg-theme-primary-10 rounded-lg flex items-center justify-center border border-theme-primary-200 dark:border-transparent">
-							<Zap className="w-5 h-5 text-theme-primary-600 dark:text-theme-primary-400" />
-						</div>
-						<div>
-							<h4 className="text-lg font-semibold text-slate-900 dark:text-slate-100">Quick Actions</h4>
-							<p className="text-sm text-slate-600 dark:text-slate-300">
-								Manage your billing and subscription
-							</p>
-						</div>
+			{/* Quick Actions bar */}
+			<div className={`${PANEL} flex items-center justify-between gap-4 flex-wrap`}>
+				<div className="flex items-center gap-3">
+					<div className={ICON_TILE}>
+						<Zap className={ICON} />
 					</div>
-
-					<div className="flex items-center gap-3">
-						<button className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 bg-white dark:bg-white/4 border border-slate-300 dark:border-white/6 rounded-lg hover:bg-slate-50 dark:hover:bg-white/6 hover:border-slate-400 dark:hover:border-white/8 transition-colors">
-							<Calendar className="w-4 h-4" />
-							View History
-						</button>
-
-						<button
-							onClick={handleManagePlan}
-							disabled={isCreateBillingPortalSessionPending}
-							className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-linear-to-r from-theme-primary-600 to-theme-primary-700 rounded-lg hover:from-theme-primary-700 hover:to-theme-primary-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:from-theme-primary-600 disabled:hover:to-theme-primary-700"
-						>
-							{isCreateBillingPortalSessionPending ? (
-								<>
-									<Loader2 className="w-4 h-4 animate-spin" />
-									Opening...
-								</>
-							) : (
-								<>
-									<CreditCard className="w-4 h-4" />
-									Manage Plan
-								</>
-							)}
-						</button>
+					<div>
+						<p className="text-xs font-semibold text-neutral-900 dark:text-white">Quick Actions</p>
+						<p className={DESC}>Manage your billing and subscription</p>
 					</div>
+				</div>
+				<div className="flex items-center gap-2">
+					<button onClick={onViewHistory} className={OUTLINE_BTN}>
+						<ArrowUpRight className="h-3.5 w-3.5" />
+						View History
+					</button>
+					<button onClick={handleManagePlan} disabled={isCreateBillingPortalSessionPending} className={PRIMARY_BTN}>
+						{isCreateBillingPortalSessionPending ? (
+							<>
+								<Loader2 className="h-3.5 w-3.5 animate-spin" />
+								Opening…
+							</>
+						) : (
+							<>
+								<CreditCard className="h-3.5 w-3.5" />
+								Manage Plan
+							</>
+						)}
+					</button>
 				</div>
 			</div>
 		</div>
 	);
 }
 
-// Enhanced version with more detailed metrics
 export function DetailedBillingStats({
 	planName,
 	totalSpent,
@@ -404,9 +330,11 @@ export function DetailedBillingStats({
 }: BillingStatsProps) {
 	const locale = useLocale();
 
+	const ROW =
+		'flex items-center justify-between p-3 bg-neutral-50 dark:bg-white/[0.04] rounded-lg border border-neutral-100 dark:border-white/[0.06]';
+
 	return (
-		<div className="space-y-6">
-			{/* Main Stats Grid */}
+		<div className="space-y-4">
 			<BillingStats
 				planName={planName}
 				totalSpent={totalSpent}
@@ -422,73 +350,60 @@ export function DetailedBillingStats({
 				currentPeriodEnd={currentPeriodEnd}
 			/>
 
-			{/* Additional Insights */}
-			<div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-				{/* Payment Trends */}
-				<div className="bg-white dark:bg-white/5 border border-slate-200 dark:border-white/6 rounded-xl p-6 shadow-xs">
-					<div className="flex items-center justify-between mb-4">
-						<h4 className="text-lg font-semibold text-slate-900 dark:text-slate-100">Payment Trends</h4>
-						<TrendingUp className="w-5 h-5 text-slate-400" />
+			<div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+				<div className={PANEL}>
+					<div className="flex items-center justify-between mb-3">
+						<span className="text-xs font-semibold text-neutral-900 dark:text-white">Payment Trends</span>
+						<TrendingUp className="w-4 h-4 text-neutral-400 dark:text-neutral-500" />
 					</div>
-					<div className="space-y-4">
-						<div className="flex items-center justify-between p-3 bg-slate-50 dark:bg-white/4 rounded-lg border border-slate-200 dark:border-white/6">
-							<span className="text-slate-600 dark:text-slate-300">Average Transaction:</span>
-							<span className="font-semibold text-slate-900 dark:text-slate-100">
-								{totalPayments > 0
-									? formatCurrencyAmount(
-											totalPayments > 0 ? totalSpent / totalPayments : 0,
-											currency,
-											locale
-										)
-									: 'N/A'}
+					<div className="space-y-2">
+						<div className={ROW}>
+							<span className={LABEL}>Average transaction</span>
+							<span className="text-xs font-semibold text-neutral-900 dark:text-white">
+								{totalPayments > 0 ? formatCurrencyAmount(totalSpent / totalPayments, currency, locale) : 'N/A'}
 							</span>
 						</div>
-						<div className="flex items-center justify-between p-3 bg-slate-50 dark:bg-white/4 rounded-lg border border-slate-200 dark:border-white/6">
-							<span className="text-slate-600 dark:text-slate-300">Success Rate:</span>
-							<span className="font-semibold text-emerald-600 dark:text-emerald-400">
+						<div className={ROW}>
+							<span className={LABEL}>Success rate</span>
+							<span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">
 								{totalPayments > 0 ? Math.round((activePayments / totalPayments) * 100) : 0}%
 							</span>
 						</div>
-						<div className="flex items-center justify-between p-3 bg-slate-50 dark:bg-white/4 rounded-lg border border-slate-200 dark:border-white/6">
-							<span className="text-slate-600 dark:text-slate-300">Total Transactions:</span>
-							<span className="font-semibold text-slate-900 dark:text-slate-100">{totalPayments}</span>
+						<div className={ROW}>
+							<span className={LABEL}>Total transactions</span>
+							<span className="text-xs font-semibold text-neutral-900 dark:text-white">{totalPayments}</span>
 						</div>
 					</div>
 				</div>
 
-				{/* Subscription Insights */}
-				<div className="bg-white dark:bg-white/5 border border-slate-200 dark:border-white/6 rounded-xl p-6 shadow-xs">
-					<div className="flex items-center justify-between mb-4">
-						<h4 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
-							Subscription Insights
-						</h4>
-						<Users className="w-5 h-5 text-slate-400" />
+				<div className={PANEL}>
+					<div className="flex items-center justify-between mb-3">
+						<span className="text-xs font-semibold text-neutral-900 dark:text-white">Subscription Insights</span>
+						<Users className="w-4 h-4 text-neutral-400 dark:text-neutral-500" />
 					</div>
-					<div className="space-y-4">
-						<div className="flex items-center justify-between p-3 bg-slate-50 dark:bg-white/4 rounded-lg border border-slate-200 dark:border-white/6">
-							<span className="text-slate-600 dark:text-slate-300">Plan Type:</span>
-							<span className="font-semibold text-slate-900 dark:text-slate-100">
+					<div className="space-y-2">
+						<div className={ROW}>
+							<span className={LABEL}>Plan type</span>
+							<span className="text-xs font-semibold text-neutral-900 dark:text-white">
 								{hasActiveSubscription ? 'Premium' : 'Free'}
 							</span>
 						</div>
-						<div className="flex items-center justify-between p-3 bg-slate-50 dark:bg-white/4 rounded-lg border border-slate-200 dark:border-white/6">
-							<span className="text-slate-600 dark:text-slate-300">Status:</span>
+						<div className={ROW}>
+							<span className={LABEL}>Status</span>
 							<span
-								className={`font-semibold ${
+								className={`text-xs font-semibold ${
 									hasActiveSubscription
 										? 'text-emerald-600 dark:text-emerald-400'
-										: 'text-slate-600 dark:text-slate-400'
+										: 'text-neutral-500 dark:text-neutral-400'
 								}`}
 							>
 								{hasActiveSubscription ? 'Active' : 'Inactive'}
 							</span>
 						</div>
-						<div className="flex items-center justify-between p-3 bg-slate-50 dark:bg-white/4 rounded-lg border border-slate-200 dark:border-white/6">
-							<span className="text-slate-600 dark:text-slate-300">Monthly Cost:</span>
-							<span className="font-semibold text-slate-900 dark:text-slate-100">
-								{hasActiveSubscription
-									? formatCurrencyAmount(monthlyAverage, currency, locale)
-									: 'Free'}
+						<div className={ROW}>
+							<span className={LABEL}>Monthly cost</span>
+							<span className="text-xs font-semibold text-neutral-900 dark:text-white">
+								{hasActiveSubscription ? formatCurrencyAmount(monthlyAverage, currency, locale) : 'Free'}
 							</span>
 						</div>
 					</div>

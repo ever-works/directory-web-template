@@ -19,6 +19,7 @@ export default function AdminTagsPage() {
 	const { tagsEnabled } = useTagsEnabled();
 	const { isInitialLoad } = useNavigation();
 	const [currentPage, setCurrentPage] = useState(1);
+	const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all');
 
 	const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
 	const [isModalOpen, setIsModalOpen] = useState(false);
@@ -26,12 +27,23 @@ export default function AdminTagsPage() {
 	const [selectedTag, setSelectedTag] = useState<TagData | undefined>();
 	const [deletingTagId, setDeletingTagId] = useState<string | null>(null);
 
-	const { data: tagsData, isLoading, error } = useTags(currentPage, viewMode === 'grid' ? 12 : 10);
+	const filterOptions = statusFilter === 'inactive'
+		? { onlyInactive: true }
+		: statusFilter === 'active'
+			? { includeInactive: false }
+			: {};
+
+	const { data: tagsData, isLoading, error } = useTags(currentPage, viewMode === 'grid' ? 12 : 10, filterOptions);
 	const { createTag, updateTag, deleteTag, isCreating, isUpdating } = useTagManagement();
 
 	const handlePageChange = (newPage: number) => {
 		setCurrentPage(newPage);
 		window.scrollTo({ top: 0, behavior: 'smooth' });
+	};
+
+	const handleStatusFilter = (filter: 'all' | 'active' | 'inactive') => {
+		setStatusFilter(filter);
+		setCurrentPage(1);
 	};
 
 	const handleCreateTag = async (data: { id: string; name: string; isActive: boolean }) => {
@@ -116,9 +128,9 @@ export default function AdminTagsPage() {
 	}
 
 	const shouldShowSkeleton = isInitialLoad && isLoading;
-	const totalTags = tagsData?.total || 0;
-	const activeTags = tagsData?.tags?.filter((tag) => tag.isActive).length ?? 0;
-	const activePercent = totalTags > 0 ? Math.round((activeTags / totalTags) * 100) : 0;
+	const allTagsCount = tagsData?.allTotal || 0;
+	const activeTags = tagsData?.activeTotal ?? 0;
+	const activePercent = allTagsCount > 0 ? Math.round((activeTags / allTagsCount) * 100) : 0;
 
 	if (shouldShowSkeleton) {
 		return (
@@ -245,7 +257,7 @@ export default function AdminTagsPage() {
 						</div>
 					</div>
 					<p className="text-2xl font-bold text-gray-900 dark:text-white tracking-tight leading-none mb-3">
-						{totalTags}
+						{allTagsCount}
 					</p>
 					<p className="text-xs text-gray-500 dark:text-gray-400">{t('TOTAL_TAGS')}</p>
 				</div>
@@ -277,11 +289,30 @@ export default function AdminTagsPage() {
 
 			{/* Tags List */}
 			<div className="bg-white dark:bg-white/3 border border-gray-100 dark:border-white/6 rounded-2xl overflow-hidden">
-				<div className="px-5 py-3.5 border-b border-gray-100 dark:border-white/6 bg-gray-50/60 dark:bg-white/1.5 flex items-center justify-between">
-					<h3 className="text-sm font-semibold text-gray-900 dark:text-white">{t('TAGS_TABLE_TITLE')}</h3>
+				<div className="px-5 py-3.5 border-b border-gray-100 dark:border-white/6 bg-gray-50/60 dark:bg-white/1.5 flex flex-wrap items-center justify-between gap-3">
+					<div className="flex items-center gap-3">
+						<h3 className="text-sm font-semibold text-gray-900 dark:text-white">{t('TAGS_TABLE_TITLE')}</h3>
+						<div className="flex items-center gap-1 p-0.5 rounded-lg bg-gray-100 dark:bg-white/6">
+							{(['all', 'active', 'inactive'] as const).map((f) => (
+								<button
+									key={f}
+									type="button"
+									onClick={() => handleStatusFilter(f)}
+									className={cn(
+										'px-2.5 py-1 rounded-md text-xs font-medium transition-colors',
+										statusFilter === f
+											? 'bg-white dark:bg-white/10 text-gray-900 dark:text-white shadow-sm'
+											: 'text-gray-400 dark:text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
+									)}
+								>
+									{f === 'all' ? t('FILTER_ALL') : f === 'active' ? t('ACTIVE') : t('INACTIVE')}
+								</button>
+							))}
+						</div>
+					</div>
 					<div className="flex items-center gap-3">
 						<span className="text-xs text-gray-500 dark:text-gray-400 tabular-nums">
-							{t('TAGS_TOTAL_COUNT', { total: totalTags })}
+							{t('TAGS_TOTAL_COUNT', { total: tagsData?.total ?? 0 })}
 						</span>
 						<div className="flex items-center gap-1 p-0.5 rounded-lg bg-gray-100 dark:bg-white/6">
 							<button

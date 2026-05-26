@@ -1,243 +1,209 @@
+'use client';
+
 import { useState } from 'react';
 import { Search, Filter, Calendar, CreditCard, X, RefreshCw, Download } from 'lucide-react';
 
 interface SearchAndFiltersProps {
-  searchTerm: string;
-  onSearchChange: (value: string) => void;
-  onRefresh: () => void;
-  isRefreshing: boolean;
-  totalResults: number;
+	searchTerm: string;
+	onSearchChange: (value: string) => void;
+	onRefresh: () => void;
+	isRefreshing: boolean;
+	totalResults: number;
+	selectedStatuses?: string[];
+	onStatusChange?: (statuses: string[]) => void;
+	onExport?: () => void;
 }
 
 interface FilterOption {
-  id: string;
-  label: string;
-  value: string;
-  count?: number;
+	id: string;
+	label: string;
+	value: string;
 }
 
-const statusFilters: FilterOption[] = [
-  { id: 'paid', label: 'Paid', value: 'paid' },
-  { id: 'pending', label: 'Pending', value: 'pending' },
-  { id: 'failed', label: 'Failed', value: 'failed' },
-  { id: 'draft', label: 'Draft', value: 'draft' }
+const STATUS_OPTIONS: FilterOption[] = [
+	{ id: 'paid', label: 'Paid', value: 'paid' },
+	{ id: 'pending', label: 'Pending', value: 'pending' },
+	{ id: 'failed', label: 'Failed', value: 'failed' },
+	{ id: 'draft', label: 'Draft', value: 'draft' }
 ];
 
+const CARD = 'bg-white dark:bg-white/3 rounded-xl border border-neutral-200 dark:border-white/8';
+const ICON_TILE = 'p-2 bg-neutral-100 dark:bg-white/8 rounded-lg shrink-0 flex items-center justify-center';
+const ICON = 'h-4 w-4 text-neutral-500 dark:text-neutral-400';
+const OUTLINE_BTN =
+	'inline-flex items-center gap-1.5 h-8 px-3 text-xs font-medium rounded-md border border-neutral-200 dark:border-white/10 text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-white/6 transition-colors disabled:opacity-50';
+
 export function SearchAndFilters({
-  searchTerm,
-  onSearchChange,
-  onRefresh,
-  isRefreshing,
-  totalResults
+	searchTerm,
+	onSearchChange,
+	onRefresh,
+	isRefreshing,
+	totalResults,
+	selectedStatuses,
+	onStatusChange,
+	onExport
 }: SearchAndFiltersProps) {
-  const [showFilters, setShowFilters] = useState(false);
-  const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
-  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
+	const [showFilters, setShowFilters] = useState(false);
+	const [localFilters, setLocalFilters] = useState<string[]>([]);
+	const selectedFilters = selectedStatuses ?? localFilters;
 
-  const handleFilterToggle = (filterValue: string) => {
-    setSelectedFilters(prev => 
-      prev.includes(filterValue) 
-        ? prev.filter(f => f !== filterValue)
-        : [...prev, filterValue]
-    );
-  };
+	const setFilters = (next: string[]) => {
+		if (onStatusChange) onStatusChange(next);
+		else setLocalFilters(next);
+	};
 
-  const clearAllFilters = () => {
-    setSelectedFilters([]);
-    onSearchChange('');
-  };
+	const handleFilterToggle = (value: string) => {
+		setFilters(
+			selectedFilters.includes(value)
+				? selectedFilters.filter((f) => f !== value)
+				: [...selectedFilters, value]
+		);
+	};
 
-  const hasActiveFilters = selectedFilters.length > 0 || searchTerm.length > 0;
+	const clearAll = () => {
+		setFilters([]);
+		onSearchChange('');
+	};
 
-  return (
-    <div className="bg-white dark:bg-white/5 border border-slate-200 dark:border-white/6 rounded-xl p-6 shadow-xs mb-6">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-theme-primary-100 dark:bg-theme-primary-20 rounded-lg flex items-center justify-center border border-theme-primary-200 dark:border-theme-primary-500">
-            <Search className="w-5 h-5 text-theme-primary-600 dark:text-theme-primary-400" />
-          </div>
-          <div>
-            <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">Search & Filters</h3>
-            <p className="text-sm text-slate-600 dark:text-slate-300">
-              {totalResults} result{totalResults !== 1 ? 's' : ''} found
-            </p>
-          </div>
-        </div>
-        
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => setShowFilters(!showFilters)}
-            className={`inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
-              showFilters
-                ? 'bg-theme-primary-100 dark:bg-theme-primary-900/20 text-theme-primary-700 dark:text-theme-primary-300 border border-theme-primary-200 dark:border-theme-primary-700/50'
-                : 'bg-slate-100 dark:bg-white/4 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-white/6'
-            }`}
-          >
-            <Filter className="w-4 h-4" />
-            Filters
-            {selectedFilters.length > 0 && (
-              <span className="inline-flex items-center justify-center w-5 h-5 text-xs font-medium bg-theme-primary-600 dark:bg-theme-primary-500 text-white rounded-full">
-                {selectedFilters.length}
-              </span>
-            )}
-          </button>
-          
-          <button
-            onClick={onRefresh}
-            disabled={isRefreshing}
-            className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-white/4 rounded-lg hover:bg-slate-200 dark:hover:bg-white/6 transition-colors disabled:opacity-50"
-          >
-            <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
-            {isRefreshing ? 'Refreshing...' : 'Refresh'}
-          </button>
-        </div>
-      </div>
+	const hasActiveFilters = selectedFilters.length > 0 || searchTerm.length > 0;
 
-      {/* Search Bar */}
-      <div className="relative mb-6">
-        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-          <Search className="w-5 h-5 text-slate-400" />
-        </div>
-        <input
-          type="text"
-          placeholder="Search payments by plan, description, or status..."
-          value={searchTerm}
-          onChange={(e) => onSearchChange(e.target.value)}
-          className="block w-full pl-12 pr-4 py-3 border border-slate-300 dark:border-white/8 rounded-xl text-slate-900 dark:text-slate-100 placeholder-slate-500 dark:placeholder-slate-400 bg-white dark:bg-white/8 focus:outline-hidden focus:ring-2 focus:ring-theme-primary-500 focus:border-theme-primary-500 transition-all duration-200"
-        />
-        {searchTerm && (
-          <button
-            onClick={() => onSearchChange('')}
-            className="absolute inset-y-0 right-0 pr-4 flex items-center text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
-          >
-            <X className="w-5 h-5" />
-          </button>
-        )}
-      </div>
+	return (
+		<div className={`${CARD} p-5`}>
+			{/* Header row */}
+			<div className="flex items-center gap-3 mb-3">
+				<div className={ICON_TILE}>
+					<Search className={ICON} />
+				</div>
+				<div className="flex-1 min-w-0">
+					<p className="text-xs font-semibold text-neutral-900 dark:text-white">Search & Filters</p>
+					<p className="text-xs text-neutral-500 dark:text-neutral-400">
+						{totalResults} result{totalResults !== 1 ? 's' : ''}
+					</p>
+				</div>
+				<div className="flex items-center gap-2 shrink-0">
+					<button
+						onClick={() => setShowFilters(!showFilters)}
+						className={`${OUTLINE_BTN} ${showFilters ? 'bg-neutral-100 dark:bg-white/8' : ''}`}
+					>
+						<Filter className="h-3.5 w-3.5" />
+						Filters
+						{selectedFilters.length > 0 && (
+							<span className="inline-flex items-center justify-center w-4 h-4 text-[10px] font-semibold bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 rounded-full">
+								{selectedFilters.length}
+							</span>
+						)}
+					</button>
+					<button onClick={onRefresh} disabled={isRefreshing} className={OUTLINE_BTN}>
+						<RefreshCw className={`h-3.5 w-3.5 ${isRefreshing ? 'animate-spin' : ''}`} />
+						<span className="hidden sm:inline">{isRefreshing ? 'Refreshing…' : 'Refresh'}</span>
+					</button>
+					{onExport && (
+						<button
+							onClick={onExport}
+							disabled={totalResults === 0}
+							className={OUTLINE_BTN}
+						>
+							<Download className="h-3.5 w-3.5" />
+							<span className="hidden sm:inline">Export</span>
+						</button>
+					)}
+				</div>
+			</div>
 
-      {/* Filters Section */}
-      {showFilters && (
-        <div className="border-t border-slate-200 dark:border-white/6 pt-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Status Filters */}
-            <div>
-              <h4 className="text-sm font-semibold text-slate-900 dark:text-slate-100 mb-3 flex items-center gap-2">
-                <CreditCard className="w-4 h-4 text-slate-500 dark:text-slate-400" />
-                Payment Status
-              </h4>
-              <div className="space-y-2">
-                {statusFilters.map((filter) => (
-                  <label key={filter.id} className="flex items-center gap-3 cursor-pointer group">
-                    <input
-                      type="checkbox"
-                      checked={selectedFilters.includes(filter.value)}
-                      onChange={() => handleFilterToggle(filter.value)}
-                      className="w-4 h-4 text-theme-primary-600 border-slate-300 dark:border-white/8 rounded-sm focus:ring-theme-primary-500 focus:ring-2 bg-white dark:bg-white/8"
-                    />
-                    <span className="text-sm text-slate-700 dark:text-slate-300 group-hover:text-slate-900 dark:group-hover:text-slate-100 transition-colors">
-                      {filter.label}
-                    </span>
-                    {filter.count !== undefined && (
-                      <span className="inline-flex items-center justify-center w-5 h-5 text-xs font-medium bg-slate-100 dark:bg-white/4 text-slate-600 dark:text-slate-400 rounded-full">
-                        {filter.count}
-                      </span>
-                    )}
-                  </label>
-                ))}
-              </div>
-            </div>
+			{/* Search input */}
+			<div className="relative">
+				<Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-neutral-400 pointer-events-none" />
+				<input
+					type="text"
+					placeholder="Search by plan, description, status…"
+					value={searchTerm}
+					onChange={(e) => onSearchChange(e.target.value)}
+					className="w-full pl-9 pr-8 py-2 text-xs bg-neutral-50 dark:bg-white/4 border border-neutral-200 dark:border-white/8 rounded-lg text-neutral-900 dark:text-neutral-100 placeholder-neutral-400 dark:placeholder-neutral-500 focus:outline-none focus:ring-1 focus:ring-neutral-400 dark:focus:ring-white/20 transition-colors"
+				/>
+				{searchTerm && (
+					<button
+						onClick={() => onSearchChange('')}
+						className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-300 transition-colors"
+					>
+						<X className="h-3.5 w-3.5" />
+					</button>
+				)}
+			</div>
 
-            {/* Advanced Filters */}
-            <div>
-              <h4 className="text-sm font-semibold text-slate-900 dark:text-slate-100 mb-3 flex items-center gap-2">
-                <Calendar className="w-4 h-4 text-slate-500 dark:text-slate-400" />
-                Advanced Filters
-              </h4>
-              
-              <button
-                onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
-                className="w-full text-left p-3 bg-slate-50 dark:bg-white/4 border border-slate-200 dark:border-white/6 rounded-lg hover:bg-slate-100 dark:hover:bg-white/6 transition-colors"
-              >
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-slate-700 dark:text-slate-300">Date Range & Amount</span>
-                  <span className="text-xs text-slate-500 dark:text-slate-400">Coming Soon</span>
-                </div>
-              </button>
-              
-              {showAdvancedFilters && (
-                <div className="mt-3 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700/50 rounded-lg">
-                  <p className="text-xs text-blue-700 dark:text-blue-300">
-                    Advanced filtering options including date ranges, amount ranges, and sorting will be available in the next update.
-                  </p>
-                </div>
-              )}
-            </div>
-          </div>
+			{/* Expandable filter panel */}
+			{showFilters && (
+				<div className="mt-3 pt-3 border-t border-neutral-100 dark:border-white/[0.06]">
+					<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+						{/* Status chips */}
+						<div>
+							<div className="flex items-center gap-1.5 mb-2">
+								<CreditCard className="h-3.5 w-3.5 text-neutral-500 dark:text-neutral-400" />
+								<span className="text-xs font-medium text-neutral-700 dark:text-neutral-300">Payment Status</span>
+							</div>
+							<div className="flex flex-wrap gap-1.5">
+								{STATUS_OPTIONS.map((opt) => {
+									const active = selectedFilters.includes(opt.value);
+									return (
+										<button
+											key={opt.id}
+											onClick={() => handleFilterToggle(opt.value)}
+											className={`inline-flex items-center h-7 px-2.5 text-xs font-medium rounded-md border transition-colors ${
+												active
+													? 'bg-neutral-900 dark:bg-white border-transparent text-white dark:text-neutral-900'
+													: 'bg-white dark:bg-white/4 border-neutral-200 dark:border-white/10 text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-white/6'
+											}`}
+										>
+											{opt.label}
+										</button>
+									);
+								})}
+							</div>
+						</div>
 
-          {/* Filter Actions */}
-          {hasActiveFilters && (
-            <div className="mt-6 pt-4 border-t border-slate-200 dark:border-white/6">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <span className="text-sm text-slate-600 dark:text-slate-400">Active filters:</span>
-                  {searchTerm && (
-                    <span className="inline-flex items-center gap-1 px-2 py-1 bg-theme-primary-100 dark:bg-theme-primary-900/20 text-theme-primary-700 dark:text-theme-primary-300 text-xs font-medium rounded-full">
-                      Search: &quot;{searchTerm}&quot;
-                      <button
-                        onClick={() => onSearchChange('')}
-                        className="ml-1 hover:text-theme-primary-800 dark:hover:text-theme-primary-200"
-                      >
-                        <X className="w-3 h-3" />
-                      </button>
-                    </span>
-                  )}
-                  {selectedFilters.map((filter) => (
-                    <span key={filter} className="inline-flex items-center gap-1 px-2 py-1 bg-slate-100 dark:bg-white/4 text-slate-700 dark:text-slate-300 text-xs font-medium rounded-full">
-                      {filter}
-                      <button
-                        onClick={() => handleFilterToggle(filter)}
-                        className="ml-1 hover:text-slate-800 dark:hover:text-slate-200"
-                      >
-                        <X className="w-3 h-3" />
-                      </button>
-                    </span>
-                  ))}
-                </div>
-                
-                <button
-                  onClick={clearAllFilters}
-                  className="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-white/4 rounded-lg hover:bg-slate-200 dark:hover:bg-white/6 transition-colors"
-                >
-                  <X className="w-4 h-4" />
-                  Clear All
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
-      )}
+						{/* Advanced placeholder */}
+						<div>
+							<div className="flex items-center gap-1.5 mb-2">
+								<Calendar className="h-3.5 w-3.5 text-neutral-500 dark:text-neutral-400" />
+								<span className="text-xs font-medium text-neutral-700 dark:text-neutral-300">Date Range</span>
+							</div>
+							<div className="h-7 flex items-center">
+								<span className="text-xs text-neutral-400 dark:text-neutral-500">Coming soon</span>
+							</div>
+						</div>
+					</div>
 
-      {/* Quick Actions */}
-      <div className="border-t border-slate-200 dark:border-white/6 pt-4 mt-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4 text-sm text-slate-600 dark:text-slate-400">
-            <span>Quick actions:</span>
-            <button className="inline-flex items-center gap-1 text-theme-primary-600 dark:text-theme-primary-400 hover:text-theme-primary-700 dark:hover:text-theme-primary-300 font-medium underline">
-              <Download className="w-3 h-3" />
-              Export Results
-            </button>
-            <button className="inline-flex items-center gap-1 text-theme-primary-600 dark:text-theme-primary-400 hover:text-theme-primary-700 dark:hover:text-theme-primary-300 font-medium underline">
-              <Calendar className="w-3 h-3" />
-              Date Range
-            </button>
-          </div>
-          
-          <div className="text-xs text-slate-500 dark:text-slate-400">
-            Last updated: {new Date().toLocaleTimeString()}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
+					{/* Active filter chips + clear */}
+					{hasActiveFilters && (
+						<div className="mt-3 pt-3 border-t border-neutral-100 dark:border-white/[0.06] flex items-center gap-2 flex-wrap">
+							{searchTerm && (
+								<span className="inline-flex items-center gap-1 h-6 pl-2 pr-1 text-xs bg-neutral-100 dark:bg-white/8 text-neutral-700 dark:text-neutral-300 rounded-full border border-neutral-200 dark:border-white/10">
+									&quot;{searchTerm}&quot;
+									<button onClick={() => onSearchChange('')} className="hover:text-neutral-900 dark:hover:text-white">
+										<X className="h-3 w-3" />
+									</button>
+								</span>
+							)}
+							{selectedFilters.map((f) => (
+								<span
+									key={f}
+									className="inline-flex items-center gap-1 h-6 pl-2 pr-1 text-xs bg-neutral-100 dark:bg-white/8 text-neutral-700 dark:text-neutral-300 rounded-full border border-neutral-200 dark:border-white/10"
+								>
+									{f}
+									<button onClick={() => handleFilterToggle(f)} className="hover:text-neutral-900 dark:hover:text-white">
+										<X className="h-3 w-3" />
+									</button>
+								</span>
+							))}
+							<button
+								onClick={clearAll}
+								className="ml-auto text-xs text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200 transition-colors"
+							>
+								Clear all
+							</button>
+						</div>
+					)}
+				</div>
+			)}
+		</div>
+	);
 }

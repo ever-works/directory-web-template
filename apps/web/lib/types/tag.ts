@@ -20,7 +20,9 @@ export type UpdateTagRequest = Partial<Omit<CreateTagRequest, 'id'>>;
 
 export interface TagListResponse {
   tags: TagWithCount[];
-  total: number;
+  total: number;       // filtered count (drives pagination)
+  allTotal: number;    // all tags regardless of filter (drives stat card)
+  activeTotal: number; // active tags regardless of filter (drives stat card)
   page: number;
   limit: number;
   totalPages: number;
@@ -34,6 +36,7 @@ export interface TagResponse {
 
 export interface TagListOptions {
   includeInactive?: boolean;
+  onlyInactive?: boolean;
   sortBy?: 'name' | 'id';
   sortOrder?: 'asc' | 'desc';
   page?: number;

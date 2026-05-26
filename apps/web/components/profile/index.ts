@@ -10,6 +10,8 @@ export { PortfolioSection } from "./sections/portfolio-section";
 export { SkillsSection } from "./sections/skills-section";
 export { SubmissionsSection } from "./sections/submissions-section";
 export { RecentActivitySection } from "./sections/recent-activity-section";
+export { SecurityStatusSection } from "./sections/security-status-section";
+export { BillingPlansSection } from "./sections/billing-plans-section";
 export { ProfileRow } from "./profile-row";
 export { ProfileCard } from "./profile-card";
 export { ProfileSettingsMenu } from "./profile-settings-menu";

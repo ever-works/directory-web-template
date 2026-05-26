@@ -809,6 +809,15 @@
 			"REVIEW_PUBLISH": "Преглед и публикуване"
 		},
 		"DETAILS_FORM": {
+			"VIDEO_URL_LABEL": "URL адрес на видео (YouTube или Vimeo)",
+			"VIDEO_PREVIEW": "Преглед на видеото",
+			"STEP_TITLE_BASIC_INFO": "Основна информация",
+			"STEP_TITLE_PAYMENT": "Плащане",
+			"STEP_TITLE_REVIEW": "Преглед",
+			"TOAST_INVALID_URL": "Моля, въведете валиден URL адрес за вашия артикул.",
+			"TOAST_SUBMIT_SUCCESS": "Артикулът е изпратен успешно!",
+			"TOAST_SUBMIT_FAILED": "Изпращането на артикула е неуспешно",
+			"TOAST_SUBMIT_ERROR": "Грешка при изпращане на формуляра. Моля, опитайте отново.",
 			"TITLE": "Разкажете ни за вашия продукт",
 			"DESCRIPTION": "Споделете детайлите, които ще помогнат на потребителите да открият и разберат вашия невероятен продукт",
 			"STEP_INDICATOR": "Стъпка {step} от 3 · Детайли за продукта",
@@ -842,7 +851,8 @@
 			"REMOVE_LINK": "Премахни връзката",
 			"REVIEW_AND_SUBMIT": "Преглед и изпращане",
 			"EXTRACT": "Извлечи",
-			"EXTRACTING": "Извличане..."
+			"EXTRACTING": "Извличане...",
+				"URL_FORMAT_HINT": "URL адресът трябва да започва с https:// или http://"
 		},
 		"PAYMENT": {
 			"TITLE": "Завършете вашата поръчка",
@@ -1016,7 +1026,12 @@
 		"SPONSOR_WEEK": "седмица",
 		"SPONSOR_OR": "или",
 		"SPONSOR_MONTH": "месец",
-		"SPONSOR_CTA": "Станете спонсор"
+		"SPONSOR_CTA": "Станете спонсор",
+		"PAY_NOW": "Платете сега",
+		"PAY_LATER": "Платете по-късно",
+		"PER_MONTH": "/месец",
+		"PER_YEAR": "/година",
+		"LEARN_MORE_PAYMENT_OPTIONS": "Научете повече за опциите за плащане"
 	},
 	"payment": {
 		"title": "Завършете вашата поръчка",
@@ -1036,7 +1051,29 @@
 			"failed": "Плащането е неуспешно",
 			"pending": "Плащането е в процес на обработка"
 		},
-		"COMPLETE_PAYMENT": "Завършване на плащането"
+		"COMPLETE_PAYMENT": "Завършване на плащането",
+		"flowSelector": {
+			"title": "Време за плащане",
+			"subtitle": "Изберете кога да бъдете таксувани за вашата заявка",
+			"payNow": {
+				"title": "Платете сега",
+				"description": "Плащането се обработва веднага. Приоритетна опашка за преглед.",
+				"benefits": [
+					"Незабавна обработка",
+					"Приоритетен преглед",
+					"По-бързо одобрение"
+				]
+			},
+			"payLater": {
+				"title": "Платете по-късно",
+				"description": "Таксува се само след одобрение на вашата заявка.",
+				"benefits": [
+					"Без първоначални разходи",
+					"Преглед преди плащане",
+					"Без риск"
+				]
+			}
+		}
 	},
 	"help": {
 		"HERO_BADGE_TEXT": "Създателят на професионални директорни платформи",
@@ -1641,9 +1678,40 @@
 		"SUBSCRIPTIONS_EMPTY_STATE": "Няма история на абонаменти",
 		"SUBSCRIPTIONS_EMPTY_DESCRIPTION": "Вашата история на абонаменти ще се появи тук, след като имате активни абонаменти.",
 		"OVERVIEW_EMPTY_STATE": "Няма скорошна активност",
-		"OVERVIEW_EMPTY_DESCRIPTION": "Вашата скорошна активност по таксуване ще се появи тук, след като имате транзакции."
+		"OVERVIEW_EMPTY_DESCRIPTION": "Вашата скорошна активност по таксуване ще се появи тук, след като имате транзакции.",
+		"SAVE_PER_YEAR": "Спестете {amount}/година"
 	},
 	"profile": {
+		"SECURITY_STATUS_SECTION": "Сигурност и статус",
+		"EMAIL_VERIFICATION": "Потвърждение на имейл",
+		"EMAIL_VERIFIED": "Потвърден",
+		"EMAIL_UNVERIFIED": "Непотвърден",
+		"TWO_FACTOR": "Двуфакторно удостоверяване",
+		"TWO_FACTOR_ON": "Активирано",
+		"TWO_FACTOR_OFF": "Деактивирано",
+		"ACCOUNT_STATUS": "Статус на акаунта",
+		"STATUS_ACTIVE": "Активен",
+		"STATUS_INACTIVE": "Неактивен",
+		"STATUS_SUSPENDED": "Спрян",
+		"STATUS_BANNED": "Блокиран",
+		"STATUS_TRIAL": "Пробен",
+		"MEMBER_SINCE": "Член от",
+		"MANAGE_SECURITY": "Управление на сигурността",
+		"BILLING_PLANS_SECTION": "Плащания и планове",
+		"CURRENT_PLAN": "Текущ план",
+		"PLAN_FREE": "Безплатен",
+		"PLAN_STANDARD": "Стандартен",
+		"PLAN_PREMIUM": "Премиум",
+		"PLAN_BADGE_ACTIVE": "Активен",
+		"PLAN_BADGE_FREE": "Безплатен",
+		"ACCOUNT_TYPE": "Тип акаунт",
+		"ACCOUNT_TYPE_INDIVIDUAL": "Личен",
+		"ACCOUNT_TYPE_BUSINESS": "Бизнес",
+		"ACCOUNT_TYPE_ENTERPRISE": "Корпоративен",
+		"BILLING_CURRENCY": "Валута",
+		"MANAGE_BILLING": "Управление на плащанията",
+		"BILLING_PLANS_UPGRADE": "Надграждане",
+		"BILLING_PLANS_VIEW_PLANS": "Виж плановете",
 		"BASIC_INFO_TITLE": "Основна информация",
 		"BASIC_INFO_DESCRIPTION": "Актуализирайте вашата лична информация и данни за контакт. Тази информация ще се показва на вашия публичен профил и помага на другите да ви открият и се свържат с вас.",
 		"PERSONAL_INFORMATION": "Лична информация",
@@ -2698,7 +2766,8 @@
 			"DELETE_CONFIRMATION": "Сигурни ли сте, че искате да изтриете този етикет?",
 			"WARNING_DISABLED_TITLE": "Етикетите в момента са деактивирани за целия сайт",
 			"WARNING_DISABLED_MESSAGE": "Етикетите са скрити от публичния сайт, включително навигацията, филтрите и страниците с елементи. Можете да продължите да ги управлявате тук, но те няма да са видими за потребителите, докато не се активират отново.",
-			"WARNING_DISABLED_ACTION": "Отидете в Настройки, за да активирате"
+			"WARNING_DISABLED_ACTION": "Отидете в Настройки, за да активирате",
+			"FILTER_ALL": "All"
 		},
 		"ADMIN_ROLES_PAGE": {
 			"TITLE": "Управление на роли",
