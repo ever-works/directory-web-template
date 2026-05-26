@@ -223,7 +223,7 @@ export function SubscriptionHistoryCard({ subscription }: { subscription: Subscr
 						subscription.cancelledAt ? ['Cancelled', formatDate(subscription.cancelledAt)] : null,
 						subscription.cancelReason ? ['Reason', subscription.cancelReason] : null
 					]
-						.filter(Boolean)
+						.filter((entry): entry is [string, string] => entry !== null)
 						.map(([label, value]) => (
 							<div key={label} className="flex flex-col gap-0.5">
 								<dt className={LABEL}>{label}</dt>
