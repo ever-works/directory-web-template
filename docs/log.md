@@ -31,6 +31,127 @@ why** at a higher level than per-commit diffs.
 
 ---
 
+## 2026-05-26 — Spec 035: Admin header profile link
+
+- spec-035: drafted `docs/spec/035-admin-header-profile-link/spec.md` and
+  shipped the fix in the same PR (EWW-5). The admin branch of the shared
+  `ProfileButton` dropdown (`apps/web/components/profile-button/menu-items.tsx`)
+  omitted the "Your Profile" link the non-admin branch has, so an admin had no
+  link to their own profile; added it, reusing the existing
+  `common.YOUR_PROFILE` / `common.YOUR_PROFILE_DESC` i18n keys. The `/admin`
+  panel header (`apps/web/app/[locale]/admin/layout-client.tsx`) keeps its
+  `Admin Panel` label unchanged (an earlier revision added a header button, then
+  reverted it per review feedback). (Spec was originally numbered 034 in the PR
+  branch but renumbered to 035 on merge to avoid collision with the already-
+  merged spec-034 Client Billing UI consistency.)
+
+---
+
+## 2026-05-26 — Spec 034: Client Billing — wire placeholder actions
+
+- spec-034: connected previously-dead billing controls to real behaviour
+  (EW-649). Export / Export Results → client-side CSV via new
+  `lib/utils/billing-csv.ts`; View History → Payment History tab; status
+  filter checkboxes lifted to the page and actually applied; Date Range →
+  opens advanced filters; payment-card Download → `invoiceUrl`; LemonSqueezy
+  Cancel Plan → `POST /api/lemonsqueezy/cancel` via existing
+  `useSubscriptionActions` (confirm + toast + refresh; removed `console.log`
+  + orphan modal state); Modify Plan → `/pricing`; View Details → details
+  disclosure; Contact Support → `mailto:`. No new API routes.
+
+## 2026-05-26 — Spec 034: Client Billing page UI consistency
+
+- spec-034: drafted `docs/spec/034-client-billing-ui-consistency/spec.md` and
+  shipped the implementation in the same PR (EW-649). UI-only realignment of
+  `/client/settings/profile/billing` (and its `components/settings/billing/**`
+  sub-components) with the **client dashboard** design system: neutral palette
+  (dropped all `slate-*` and `theme-primary-*`), `bg-white dark:bg-white/3`
+  card surfaces with `border-neutral-200 dark:border-white/8`, monochrome icon
+  tiles, `neutral-900 / white` primary CTAs. Rewrote the KPI cards
+  (`billing-stats.tsx`) to mirror the dashboard `StatsCard` (no gradients) and
+  the tab bar (`tab-navigation.tsx`) to the dashboard underline tabs; matched
+  the page header to `DashboardHeader`. Routed page-level hardcoded strings
+  through the `billing` i18n namespace (new keys `FREE`, `UPGRADE`,
+  `RENEWS_ON`, `UPGRADE_UNLOCK_FEATURES`, `DAYS_LEFT`, `DAYS_TOTAL` in
+  `messages/en.json`; non-English locales fall back via the existing
+  `deepmerge` config). No functional/data changes.
+## 2026-05-25 — Spec 033: Client profile Security & Billing blocks
+
+- spec-033: drafted `docs/spec/033-client-profile-security-billing/spec.md`
+  and shipped the implementation in the same PR (EW-648). Adds two
+  **owner-only** read-only blocks to the bottom of the right column on
+  `/[locale]/client/profile/[username]`: **Security & Status**
+  (`apps/web/components/profile/sections/security-status-section.tsx` —
+  email verification, two-factor, account status, member-since, link to
+  `/client/settings/security`) and **Billing & Plans**
+  (`billing-plans-section.tsx` — plan, account type, currency, links to
+  `/client/settings/profile/billing` + `/pricing`, Upgrade CTA on the free
+  plan). Both are pure async server components fed from data already loaded
+  by the page; the account-private fields (`status`, `plan`, `accountType`,
+  `twoFactorEnabled`, `currency`) that `toPublicClientProfile` strips are
+  read from the unprojected `rawProfile`, gated by `effectiveIsOwn` (so
+  they are hidden from visitors and in `?preview=public`). New English keys
+  added under the `profile` namespace in `messages/en.json` and translated
+  into all 20 other locales (ar, bg, de, es, fr, he, hi, id, it, ja, ko, nl,
+  pl, pt, ru, th, tr, uk, vi, zh); the `deepmerge(en, locale)` fallback in
+  `i18n/request.ts` remains as a safety net. No new queries, hooks,
+  dependencies, or schema changes. (PR: #930, draft)
+
+## 2026-05-24 — /submit: fix step-1 progress jumping to 100%
+
+- `apps/web/components/directory/details-form/components/step-indicator.tsx`
+  + `.../validation/form-validators.ts`: step 1's progress bar/checkmark
+  jumped straight to 100% once Product Name + URL were filled, because the
+  connector fill short-circuited to 100% on the navigation-gate fields
+  (`['name','link']`). Reworked it to be proportional to the actually-tracked
+  fields and reset step 1's `progressFields` to the five visible inputs
+  (`link`, `name`, `category`, `tags`, `description`). Category/Tags are
+  filtered out of the count when those features are disabled in settings, so
+  the bar can still reach 100%. The step is now marked complete only when all
+  applicable tracked fields are filled.
+
+## 2026-05-24 — /submit: hide pricing-only promo sections in payment step
+
+- `apps/web/components/pricing/pricing-section.tsx`: gated the "Sponsor Ads"
+  promo block, the "Enhanced Continue Section" (its own continue-to-/submit
+  CTA), and the "Trust Section" behind `!isReview` so they render only on the
+  standalone `/pricing` page, not when `PricingSection` is embedded as the
+  submit-flow payment step (`PaymentStep` passes `isReview`). Matches the
+  existing `!isReview` gating used for the section's decorative background and
+  header; the submit flow has its own form navigation, so the continue CTA was
+  redundant there.
+
+## 2026-05-24 — i18n: translate remaining hard-coded strings on /submit
+
+- `apps/web/components/submit/submit-form-client.tsx`,
+  `apps/web/components/directory/details-form/steps/basic-info-step.tsx`,
+  `.../components/step-indicator.tsx`, `.../details-form.tsx`,
+  `.../validation/form-validators.ts`: replaced the last hard-coded English
+  strings on the submit page with `next-intl` keys — the four submit toast
+  messages (invalid URL / success / failed / generic error), the Video URL
+  field label, the video-preview iframe title, the rich-text editor
+  placeholder (reused existing `DETAILED_INTRODUCTION_PLACEHOLDER`), and the
+  three step-indicator/header titles (Basic Information / Payment / Review,
+  via a new `titleKey` on each `StepDefinition`). Added 9 new
+  `directory.DETAILS_FORM` keys (`VIDEO_URL_LABEL`, `VIDEO_PREVIEW`,
+  `STEP_TITLE_BASIC_INFO/PAYMENT/REVIEW`,
+  `TOAST_INVALID_URL/SUBMIT_SUCCESS/SUBMIT_FAILED/SUBMIT_ERROR`) across all 21
+  locale files. No behaviour change.
+
+## 2026-05-24 — Fix: /submit drops location and extra categories
+
+- `apps/web/components/submit/submit-form-client.tsx`: the submit handler built
+  its API payload from the singular `category` field (first selected id only)
+  and omitted `location` entirely, so a multi-category selection silently lost
+  every category after the first, and any location collected by `LocationFields`
+  (including when `requireLocationOnSubmit` gates the form) was discarded before
+  reaching `POST /api/client/items`. The payload now sends the full
+  `categories` array when present and includes `location` when set — both are
+  already supported by `ClientCreateItemRequest` and persisted by
+  `ClientItemRepository.createAsClient`. UI-only fix; no API/schema changes.
+
+---
+
 ## 2026-05-21 — Spec 032: Collection icon picker — implementation
 
 - spec-032: drafted `docs/spec/032-collection-icon-picker/spec.md` and shipped

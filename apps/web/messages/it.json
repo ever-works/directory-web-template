@@ -731,6 +731,15 @@
 			"REVIEW_PUBLISH": "Review & Publish"
 		},
 		"DETAILS_FORM": {
+			"VIDEO_URL_LABEL": "URL del video (YouTube o Vimeo)",
+			"VIDEO_PREVIEW": "Anteprima del video",
+			"STEP_TITLE_BASIC_INFO": "Informazioni di base",
+			"STEP_TITLE_PAYMENT": "Pagamento",
+			"STEP_TITLE_REVIEW": "Revisione",
+			"TOAST_INVALID_URL": "Fornisci un URL valido per il tuo elemento.",
+			"TOAST_SUBMIT_SUCCESS": "Elemento inviato con successo!",
+			"TOAST_SUBMIT_FAILED": "Invio dell'elemento non riuscito",
+			"TOAST_SUBMIT_ERROR": "Errore durante l'invio del modulo. Riprova.",
 			"TITLE": "Tell Us About Your Product",
 			"DESCRIPTION": "Share the details that will help users discover and understand your amazing product",
 			"STEP_INDICATOR": "Step {step} of 3 · Product Details",
@@ -764,7 +773,8 @@
 			"REMOVE_LINK": "Remove link",
 			"REVIEW_AND_SUBMIT": "Review & Submit",
 			"EXTRACT": "Estrarre",
-			"EXTRACTING": "Estrazione..."
+			"EXTRACTING": "Estrazione...",
+				"URL_FORMAT_HINT": "L'URL deve iniziare con https:// o http://"
 		},
 		"PAYMENT": {
 			"TITLE": "Complete Your Order",
@@ -861,10 +871,10 @@
 		"PREMIUM_SUPPORT": "Premium Support",
 		"MOST_POPULAR": "Più popolare",
 		"GET_STARTED_FREE": "Inizia gratis",
-		"UPGRADE_TO_STANDARD": "Submit Now",
-		"GO_PREMIUM": "Subscribe",
-		"SUBMIT_FOR_FREE": "Submit for Free",
-		"SUBSCRIBE_NOW": "Subscribe Now",
+		"UPGRADE_TO_STANDARD": "Invia ora",
+		"GO_PREMIUM": "Abbonati",
+		"SUBMIT_FOR_FREE": "Invia gratis",
+		"SUBSCRIBE_NOW": "Abbonati ora",
 		"SELECT_FREE": "Seleziona Gratuito",
 		"SELECT_STANDARD": "Seleziona Standard",
 		"SELECT_PREMIUM": "Seleziona Premium",
@@ -938,7 +948,12 @@
 		"SPONSOR_WEEK": "week",
 		"SPONSOR_OR": "or",
 		"SPONSOR_MONTH": "month",
-		"SPONSOR_CTA": "Become a Sponsor"
+		"SPONSOR_CTA": "Become a Sponsor",
+		"PAY_NOW": "Paga ora",
+		"PAY_LATER": "Paga dopo",
+		"PER_MONTH": "/mese",
+		"PER_YEAR": "/anno",
+		"LEARN_MORE_PAYMENT_OPTIONS": "Scopri di più sulle opzioni di pagamento"
 	},
 	"payment": {
 		"title": "Complete Your Order",
@@ -958,7 +973,29 @@
 			"failed": "Payment failed",
 			"pending": "Payment pending"
 		},
-		"COMPLETE_PAYMENT": "Completa il pagamento"
+		"COMPLETE_PAYMENT": "Completa il pagamento",
+		"flowSelector": {
+			"title": "Tempistica di pagamento",
+			"subtitle": "Scegli quando ricevere l'addebito per il tuo invio",
+			"payNow": {
+				"title": "Paga ora",
+				"description": "Pagamento elaborato immediatamente. Coda di revisione prioritaria.",
+				"benefits": [
+					"Elaborazione immediata",
+					"Revisione prioritaria",
+					"Approvazione più rapida"
+				]
+			},
+			"payLater": {
+				"title": "Paga dopo",
+				"description": "Addebitato solo dopo l'approvazione del tuo invio.",
+				"benefits": [
+					"Nessun costo iniziale",
+					"Revisione prima del pagamento",
+					"Senza rischi"
+				]
+			}
+		}
 	},
 	"help": {
 		"HERO_BADGE_TEXT": "The Professional Directory Platform Builder",
@@ -1615,9 +1652,40 @@
 		"SUBSCRIPTIONS_EMPTY_STATE": "No subscription history",
 		"SUBSCRIPTIONS_EMPTY_DESCRIPTION": "Your subscription history will appear here once you have active subscriptions.",
 		"OVERVIEW_EMPTY_STATE": "No recent activity",
-		"OVERVIEW_EMPTY_DESCRIPTION": "Your recent billing activity will appear here once you have transactions."
+		"OVERVIEW_EMPTY_DESCRIPTION": "Your recent billing activity will appear here once you have transactions.",
+		"SAVE_PER_YEAR": "Risparmia {amount}/anno"
 	},
 	"profile": {
+		"SECURITY_STATUS_SECTION": "Sicurezza e stato",
+		"EMAIL_VERIFICATION": "Verifica e-mail",
+		"EMAIL_VERIFIED": "Verificata",
+		"EMAIL_UNVERIFIED": "Non verificata",
+		"TWO_FACTOR": "Autenticazione a due fattori",
+		"TWO_FACTOR_ON": "Attivata",
+		"TWO_FACTOR_OFF": "Disattivata",
+		"ACCOUNT_STATUS": "Stato dell'account",
+		"STATUS_ACTIVE": "Attivo",
+		"STATUS_INACTIVE": "Inattivo",
+		"STATUS_SUSPENDED": "Sospeso",
+		"STATUS_BANNED": "Bannato",
+		"STATUS_TRIAL": "Prova",
+		"MEMBER_SINCE": "Membro dal",
+		"MANAGE_SECURITY": "Gestisci sicurezza",
+		"BILLING_PLANS_SECTION": "Fatturazione e piani",
+		"CURRENT_PLAN": "Piano attuale",
+		"PLAN_FREE": "Gratuito",
+		"PLAN_STANDARD": "Standard",
+		"PLAN_PREMIUM": "Premium",
+		"PLAN_BADGE_ACTIVE": "Attivo",
+		"PLAN_BADGE_FREE": "Gratuito",
+		"ACCOUNT_TYPE": "Tipo di account",
+		"ACCOUNT_TYPE_INDIVIDUAL": "Individuale",
+		"ACCOUNT_TYPE_BUSINESS": "Azienda",
+		"ACCOUNT_TYPE_ENTERPRISE": "Enterprise",
+		"BILLING_CURRENCY": "Valuta",
+		"MANAGE_BILLING": "Gestisci fatturazione",
+		"BILLING_PLANS_UPGRADE": "Esegui upgrade",
+		"BILLING_PLANS_VIEW_PLANS": "Visualizza piani",
 		"BASIC_INFO_TITLE": "Basic Information",
 		"BASIC_INFO_DESCRIPTION": "Update your personal information and contact details. This information will be displayed on your public profile and helps others discover and connect with you.",
 		"PERSONAL_INFORMATION": "Personal Information",
@@ -2673,7 +2741,8 @@
 			"DELETE_CONFIRMATION": "Are you sure you want to delete this tag?",
 			"WARNING_DISABLED_TITLE": "Tags are currently disabled site-wide",
 			"WARNING_DISABLED_MESSAGE": "Tags are hidden from the public site including navigation, filters, and item pages. You can still manage tags here, but they won't be visible to users until re-enabled.",
-			"WARNING_DISABLED_ACTION": "Go to Settings to Enable"
+			"WARNING_DISABLED_ACTION": "Go to Settings to Enable",
+			"FILTER_ALL": "All"
 		},
 		"ADMIN_ROLES_PAGE": {
 			"TITLE": "Role Management",

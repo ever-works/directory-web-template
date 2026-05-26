@@ -93,29 +93,17 @@ export function NotificationBell({ className }: NotificationBellProps) {
 					aria-expanded={isOpen}
 					aria-controls="client-notifications-dropdown"
 					className={cn(
-						'relative inline-flex items-center justify-center h-9 cursor-pointer',
-						'flex items-center gap-1.5 transition-all duration-200',
-						'font-medium whitespace-nowrap',
-						'text-sm lg:text-base xl:text-lg',
-						'text-gray-700 dark:text-gray-300',
-						'hover:text-theme-primary dark:hover:text-theme-primary',
-						'hover:scale-105'
+						'relative inline-flex items-center justify-center gap-1.5 h-9 cursor-pointer',
+						'font-medium whitespace-nowrap text-sm lg:text-base xl:text-lg',
+						'text-gray-700 dark:text-gray-300 transition-all duration-200',
+						'hover:text-theme-primary dark:hover:text-theme-primary hover:scale-105'
 					)}
 				>
-					<Bell className="h-4 w-4 lg:h-5 lg:w-5" aria-hidden="true" />
+					<Bell className="h-3.5 w-3.5 lg:h-4 lg:w-4" aria-hidden="true" />
 					{unreadCount > 0 && (
 						<span
-							className={cn(
-								'absolute -top-0.5 -right-0.5',
-								'min-w-[16px] h-4 px-1',
-								'inline-flex items-center justify-center',
-								'rounded-full',
-								'bg-red-500 text-white',
-								'text-[10px] font-semibold leading-none tabular-nums',
-								'ring-2 ring-white dark:ring-[#0a0a0a]',
-								'animate-pulse'
-							)}
 							aria-hidden="true"
+							className="absolute -top-0.5 -right-0.5 min-w-4 h-4 px-1 inline-flex items-center justify-center rounded-full bg-red-500 text-white text-[10px] font-semibold leading-none tabular-nums ring-2 ring-white dark:ring-[#0a0a0a] animate-pulse"
 						>
 							{unreadCount > 99 ? '99+' : unreadCount}
 						</span>

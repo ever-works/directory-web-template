@@ -36,7 +36,7 @@ export function CacheStatus({
   const getStatusColor = () => {
     if (isStale) return 'text-orange-600 dark:text-orange-400 bg-orange-50 dark:bg-orange-900/20 border-orange-200 dark:border-orange-700/50';
     if (lastUpdated) return 'text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-700/50';
-    return 'text-slate-600 dark:text-slate-400 bg-slate-50 dark:bg-[#0a0a0a]/20 border-slate-200 dark:border-white/6/50';
+    return 'text-neutral-600 dark:text-neutral-400 bg-neutral-50 dark:bg-[#0a0a0a]/20 border-neutral-200 dark:border-white/6/50';
   };
 
   const getStatusIcon = () => {
@@ -63,16 +63,16 @@ export function CacheStatus({
   };
 
   return (
-    <div className="bg-white dark:bg-white/5 border border-slate-200 dark:border-white/6 rounded-xl p-6 shadow-xs mb-6">
+    <div className="bg-white dark:bg-white/5 border border-neutral-200 dark:border-white/6 rounded-xl p-6 shadow-xs mb-6">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-theme-primary-100 dark:bg-theme-primary-900/20 rounded-lg flex items-center justify-center border border-theme-primary-200 dark:border-theme-primary-700/50">
-            <Database className="w-5 h-5 text-theme-primary-600 dark:text-theme-primary-400" />
+          <div className="w-10 h-10 bg-neutral-100 dark:bg-white/8 rounded-lg flex items-center justify-center border border-neutral-200 dark:border-white/8">
+            <Database className="w-5 h-5 text-neutral-500 dark:text-neutral-400" />
           </div>
           <div>
-            <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">Cache Status</h3>
-            <p className="text-sm text-slate-600 dark:text-slate-300">React Query cache information and management</p>
+            <h3 className="text-lg font-semibold text-neutral-900 dark:text-neutral-100">Cache Status</h3>
+            <p className="text-sm text-neutral-600 dark:text-neutral-300">React Query cache information and management</p>
           </div>
         </div>
         
@@ -84,22 +84,22 @@ export function CacheStatus({
 
       {/* Status Overview */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <div className="bg-slate-50 dark:bg-white/4 rounded-lg p-4 border border-slate-200 dark:border-white/6">
+        <div className="bg-neutral-50 dark:bg-white/4 rounded-lg p-4 border border-neutral-200 dark:border-white/6">
           <div className="flex items-center gap-3 mb-2">
-            <Database className="w-4 h-4 text-slate-500 dark:text-slate-400" />
-            <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Total Queries</span>
+            <Database className="w-4 h-4 text-neutral-500 dark:text-neutral-400" />
+            <span className="text-sm font-medium text-neutral-700 dark:text-neutral-300">Total Queries</span>
           </div>
-          <div className="text-2xl font-bold text-slate-900 dark:text-slate-100">{totalQueries}</div>
-          <div className="text-xs text-slate-500 dark:text-slate-400">All cached queries</div>
+          <div className="text-2xl font-bold text-neutral-900 dark:text-neutral-100">{totalQueries}</div>
+          <div className="text-xs text-neutral-500 dark:text-neutral-400">All cached queries</div>
         </div>
 
-        <div className="bg-theme-primary-50 dark:bg-theme-primary-900/20 rounded-lg p-4 border border-theme-primary-200 dark:border-theme-primary-700/50">
+        <div className="bg-neutral-100 dark:bg-white/8 rounded-lg p-4 border border-neutral-200 dark:border-white/8">
           <div className="flex items-center gap-3 mb-2">
-            <CheckCircle className="w-4 h-4 text-theme-primary-500 dark:text-theme-primary-400" />
-            <span className="text-sm font-medium text-theme-primary-700 dark:text-theme-primary-300">Billing Queries</span>
+            <CheckCircle className="w-4 h-4 text-neutral-500 dark:text-neutral-400" />
+            <span className="text-sm font-medium text-neutral-700 dark:text-neutral-300">Billing Queries</span>
           </div>
-          <div className="text-2xl font-bold text-theme-primary-900 dark:text-theme-primary-100">{billingQueryCount}</div>
-          <div className="text-xs text-theme-primary-500 dark:text-theme-primary-400">Billing related</div>
+          <div className="text-2xl font-bold text-neutral-900 dark:text-white">{billingQueryCount}</div>
+          <div className="text-xs text-neutral-500 dark:text-neutral-400">Billing related</div>
         </div>
 
         <div className="bg-emerald-50 dark:bg-emerald-900/20 rounded-lg p-4 border border-emerald-200 dark:border-emerald-700/50">
@@ -122,44 +122,44 @@ export function CacheStatus({
       </div>
 
       {/* Performance Metrics */}
-      <div className="bg-linear-to-r from-slate-50 to-theme-primary-50 dark:from-white/6/50 dark:to-theme-primary-900/20 rounded-lg p-4 border border-slate-200 dark:border-white/6 mb-6">
+      <div className="bg-linear-to-r from-neutral-50 to-neutral-100 dark:from-white/6/50 dark:to-white/8 rounded-lg p-4 border border-neutral-200 dark:border-white/6 mb-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-theme-primary-100 dark:bg-theme-primary-800/50 rounded-lg flex items-center justify-center border border-theme-primary-200 dark:border-theme-primary-600/50">
-              <Info className="w-4 h-4 text-theme-primary-600 dark:text-theme-primary-400" />
+            <div className="w-8 h-8 bg-neutral-100 dark:bg-white/8 rounded-lg flex items-center justify-center border border-neutral-200 dark:border-white/8">
+              <Info className="w-4 h-4 text-neutral-500 dark:text-neutral-400" />
             </div>
             <div>
-              <h4 className="text-sm font-semibold text-slate-900 dark:text-slate-100">Performance Metrics</h4>
-              <p className="text-xs text-slate-600 dark:text-slate-300">Cache efficiency and performance</p>
+              <h4 className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">Performance Metrics</h4>
+              <p className="text-xs text-neutral-600 dark:text-neutral-300">Cache efficiency and performance</p>
             </div>
           </div>
           
           <div className="text-right">
-            <div className="text-sm font-medium text-slate-900 dark:text-slate-100">
+            <div className="text-sm font-medium text-neutral-900 dark:text-neutral-100">
               {activeQueries > 0 ? Math.round((activeQueries / totalQueries) * 100) : 0}%
             </div>
-            <div className="text-xs text-slate-500 dark:text-slate-400">Cache Hit Rate</div>
+            <div className="text-xs text-neutral-500 dark:text-neutral-400">Cache Hit Rate</div>
           </div>
         </div>
       </div>
 
       {/* Last Updated Info */}
       {lastUpdated && (
-        <div className="bg-slate-50 dark:bg-white/4 rounded-lg p-4 border border-slate-200 dark:border-white/6 mb-6">
+        <div className="bg-neutral-50 dark:bg-white/4 rounded-lg p-4 border border-neutral-200 dark:border-white/6 mb-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <Clock className="w-5 h-5 text-slate-500 dark:text-slate-400" />
+              <Clock className="w-5 h-5 text-neutral-500 dark:text-neutral-400" />
               <div>
-                <div className="text-sm font-medium text-slate-900 dark:text-slate-100">Last Updated</div>
-                <div className="text-sm text-slate-600 dark:text-slate-300">{formatLastUpdated(lastUpdated)}</div>
+                <div className="text-sm font-medium text-neutral-900 dark:text-neutral-100">Last Updated</div>
+                <div className="text-sm text-neutral-600 dark:text-neutral-300">{formatLastUpdated(lastUpdated)}</div>
               </div>
             </div>
             
             <div className="text-right">
-              <div className="text-xs text-slate-500 dark:text-slate-400">
+              <div className="text-xs text-neutral-500 dark:text-neutral-400">
                 {new Date(lastUpdated).toLocaleTimeString()}
               </div>
-              <div className="text-xs text-slate-500 dark:text-slate-400">
+              <div className="text-xs text-neutral-500 dark:text-neutral-400">
                 {new Date(lastUpdated).toLocaleDateString()}
               </div>
             </div>
@@ -185,7 +185,7 @@ export function CacheStatus({
         <button
           onClick={onRefresh}
           disabled={isRefreshing}
-          className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium text-white bg-linear-to-r from-theme-primary-600 to-theme-primary-700 rounded-lg hover:from-theme-primary-700 hover:to-theme-primary-800 transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium text-white bg-linear-to-r from-neutral-800 to-neutral-900 rounded-lg hover:from-neutral-900 hover:to-neutral-950 transition-all duration-200 shadow-md hover:shadow-lg transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
           {isRefreshing ? 'Refreshing...' : 'Refresh All Data'}
@@ -193,7 +193,7 @@ export function CacheStatus({
         
         <button
           onClick={onInvalidateCache}
-          className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium text-slate-700 dark:text-slate-300 bg-slate-100 dark:bg-white/4 border border-slate-300 dark:border-white/6 rounded-lg hover:bg-slate-200 dark:hover:bg-white/6 hover:border-slate-400 dark:hover:border-white/8 transition-colors"
+          className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium text-neutral-700 dark:text-neutral-300 bg-neutral-100 dark:bg-white/4 border border-neutral-300 dark:border-white/6 rounded-lg hover:bg-neutral-200 dark:hover:bg-white/6 hover:border-neutral-400 dark:hover:border-white/8 transition-colors"
         >
           <XCircle className="w-4 h-4" />
           Invalidate Cache
@@ -201,8 +201,8 @@ export function CacheStatus({
       </div>
 
       {/* Cache Tips */}
-      <div className="mt-6 pt-4 border-t border-slate-200 dark:border-white/6">
-        <div className="text-xs text-slate-500 dark:text-slate-400">
+      <div className="mt-6 pt-4 border-t border-neutral-200 dark:border-white/6">
+        <div className="text-xs text-neutral-500 dark:text-neutral-400">
           <strong>Tip:</strong> The cache automatically manages data freshness and performance. 
           Use &quot;Refresh&quot; to update data and &quot;Invalidate&quot; to clear cached data.
         </div>

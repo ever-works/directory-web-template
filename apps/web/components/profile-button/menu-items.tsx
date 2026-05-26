@@ -106,6 +106,16 @@ function MenuItems({ user, profilePath, onItemClick, onNavigationStart, isNaviga
       <div className="max-h-100 overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-400/40 dark:scrollbar-thumb-gray-500/40 scrollbar-thumb-rounded-full [&::-webkit-scrollbar]:w-1"
       >
         <MenuItem
+          href={profilePath}
+          icon={User}
+          title={translations.yourProfile}
+          description={translations.yourProfileDesc}
+          gradientFrom="from-blue-100"
+          gradientTo="to-indigo-100 dark:from-blue-900/30 dark:to-indigo-900/30"
+          iconColor="text-theme-primary-600 dark:text-theme-primary-400"
+        />
+
+        <MenuItem
           href="/admin"
           icon={Settings}
           title={translations.analyticsDashboard}

@@ -161,7 +161,11 @@ export async function GET(request: NextRequest) {
     }
     const { page, limit } = paginationResult;
 
-    const result = await tagRepository.findAllPaginated(page, limit);
+    const includeInactiveParam = searchParams.get('includeInactive');
+    const onlyInactive = searchParams.get('onlyInactive') === 'true';
+    const includeInactive = includeInactiveParam === 'false' ? false : undefined;
+
+    const result = await tagRepository.findAllPaginated({ page, limit, includeInactive, onlyInactive });
     
     return NextResponse.json({
       success: true,
