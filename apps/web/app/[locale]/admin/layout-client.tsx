@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import { useEffect, useRef } from 'react';
 import { SessionProvider } from 'next-auth/react';
 import { useRouter } from '@/i18n/navigation';
+import ProfileButton from '@/components/profile-button';
 
 function AdminAuthGuard({ children }: { children: React.ReactNode }) {
 	const { data: session, status } = useSession();
@@ -80,7 +81,10 @@ function AdminAuthGuard({ children }: { children: React.ReactNode }) {
 
 	return (
 		<div className="min-h-screen bg-gray-100 dark:bg-white/3">
-			<header className="p-3 bg-white dark:bg-white/4 dark:text-white text-gray-600 text-sm">Admin Panel</header>
+			<header className="flex items-center justify-between p-3 bg-white dark:bg-white/4 dark:text-white text-gray-600 text-sm">
+				<span>Admin Panel</span>
+				<ProfileButton />
+			</header>
 			<main className="p-8">{children}</main>
 		</div>
 	);
