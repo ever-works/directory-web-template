@@ -1087,7 +1087,12 @@
 		"SPONSOR_WEEK": "week",
 		"SPONSOR_OR": "or",
 		"SPONSOR_MONTH": "month",
-		"SPONSOR_CTA": "Become a Sponsor"
+		"SPONSOR_CTA": "Become a Sponsor",
+		"PAY_NOW": "Pay Now",
+		"PAY_LATER": "Pay Later",
+		"PER_MONTH": "/month",
+		"PER_YEAR": "/year",
+		"LEARN_MORE_PAYMENT_OPTIONS": "Learn more about payment options"
 	},
 	"payment": {
 		"title": "Complete Your Order",
@@ -1110,7 +1115,29 @@
 		"COMPLETE_PAYMENT": "Complete Payment",
 		"CHECKOUT_CLOSED": "Checkout closed",
 		"CREATE_CHECKOUT_FAILED": "Failed to create embedded checkout: {message}",
-		"UNABLE_TO_OPEN_CHECKOUT": "Unable to open checkout. Please try again or contact support."
+		"UNABLE_TO_OPEN_CHECKOUT": "Unable to open checkout. Please try again or contact support.",
+		"flowSelector": {
+			"title": "Payment timing",
+			"subtitle": "Choose when to be charged for your submission",
+			"payNow": {
+				"title": "Pay now",
+				"description": "Payment processed immediately. Priority review queue.",
+				"benefits": [
+					"Immediate processing",
+					"Priority review",
+					"Faster approval"
+				]
+			},
+			"payLater": {
+				"title": "Pay later",
+				"description": "Charged only after your submission is approved.",
+				"benefits": [
+					"No upfront cost",
+					"Review before payment",
+					"Risk-free"
+				]
+			}
+		}
 	},
 	"help": {
 		"HERO_BADGE_TEXT": "The Professional Directory Platform Builder",
@@ -1778,7 +1805,8 @@
 		"SUBSCRIPTIONS_EMPTY_STATE": "No subscription history",
 		"SUBSCRIPTIONS_EMPTY_DESCRIPTION": "Your subscription history will appear here once you have active subscriptions.",
 		"OVERVIEW_EMPTY_STATE": "No recent activity",
-		"OVERVIEW_EMPTY_DESCRIPTION": "Your recent billing activity will appear here once you have transactions."
+		"OVERVIEW_EMPTY_DESCRIPTION": "Your recent billing activity will appear here once you have transactions.",
+		"SAVE_PER_YEAR": "Save {amount}/year"
 	},
 	"profile": {
 		"BASIC_INFO_TITLE": "Basic Information",
@@ -3969,7 +3997,6 @@
 			"YOUR_SUBMISSIONS": "Your Submissions",
 			"TRASH": "Trash",
 			"BULK_IMPORT": "Bulk Import",
-			"NEW_SUBMISSION": "New Submission",
 			"NEW_SUBMISSION_SHORT": "New",
 			"OF_TOTAL_PERCENT": "{percent} of total",
 			"ALL_TIME": "All time",

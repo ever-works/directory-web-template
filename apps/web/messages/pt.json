@@ -861,10 +861,10 @@
 		"PREMIUM_SUPPORT": "Premium Support",
 		"MOST_POPULAR": "Mais popular",
 		"GET_STARTED_FREE": "Comece grátis",
-		"UPGRADE_TO_STANDARD": "Submit Now",
-		"GO_PREMIUM": "Subscribe",
-		"SUBMIT_FOR_FREE": "Submit for Free",
-		"SUBSCRIBE_NOW": "Subscribe Now",
+		"UPGRADE_TO_STANDARD": "Enviar agora",
+		"GO_PREMIUM": "Assinar",
+		"SUBMIT_FOR_FREE": "Enviar grátis",
+		"SUBSCRIBE_NOW": "Assine agora",
 		"SELECT_FREE": "Selecionar Grátis",
 		"SELECT_STANDARD": "Selecionar Padrão",
 		"SELECT_PREMIUM": "Selecionar Premium",
@@ -938,7 +938,12 @@
 		"SPONSOR_WEEK": "week",
 		"SPONSOR_OR": "or",
 		"SPONSOR_MONTH": "month",
-		"SPONSOR_CTA": "Become a Sponsor"
+		"SPONSOR_CTA": "Become a Sponsor",
+		"PAY_NOW": "Pagar agora",
+		"PAY_LATER": "Pagar depois",
+		"PER_MONTH": "/mês",
+		"PER_YEAR": "/ano",
+		"LEARN_MORE_PAYMENT_OPTIONS": "Saiba mais sobre as opções de pagamento"
 	},
 	"payment": {
 		"title": "Complete Your Order",
@@ -958,7 +963,29 @@
 			"failed": "Payment failed",
 			"pending": "Payment pending"
 		},
-		"COMPLETE_PAYMENT": "Concluir pagamento"
+		"COMPLETE_PAYMENT": "Concluir pagamento",
+		"flowSelector": {
+			"title": "Momento do pagamento",
+			"subtitle": "Escolha quando será cobrado pelo seu envio",
+			"payNow": {
+				"title": "Pagar agora",
+				"description": "Pagamento processado imediatamente. Fila de revisão prioritária.",
+				"benefits": [
+					"Processamento imediato",
+					"Revisão prioritária",
+					"Aprovação mais rápida"
+				]
+			},
+			"payLater": {
+				"title": "Pagar depois",
+				"description": "Cobrado apenas após a aprovação do seu envio.",
+				"benefits": [
+					"Sem custo inicial",
+					"Revisão antes do pagamento",
+					"Sem risco"
+				]
+			}
+		}
 	},
 	"help": {
 		"HERO_BADGE_TEXT": "The Professional Directory Platform Builder",
@@ -1615,7 +1642,8 @@
 		"SUBSCRIPTIONS_EMPTY_STATE": "No subscription history",
 		"SUBSCRIPTIONS_EMPTY_DESCRIPTION": "Your subscription history will appear here once you have active subscriptions.",
 		"OVERVIEW_EMPTY_STATE": "No recent activity",
-		"OVERVIEW_EMPTY_DESCRIPTION": "Your recent billing activity will appear here once you have transactions."
+		"OVERVIEW_EMPTY_DESCRIPTION": "Your recent billing activity will appear here once you have transactions.",
+		"SAVE_PER_YEAR": "Economize {amount}/ano"
 	},
 	"profile": {
 		"SECURITY_STATUS_SECTION": "Segurança e estado",

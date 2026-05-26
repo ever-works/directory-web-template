@@ -876,10 +876,10 @@
 		"PREMIUM_SUPPORT": "Premium-Support",
 		"MOST_POPULAR": "Am beliebtesten",
 		"GET_STARTED_FREE": "Kostenlos starten",
-		"UPGRADE_TO_STANDARD": "Submit Now",
-		"GO_PREMIUM": "Subscribe",
+		"UPGRADE_TO_STANDARD": "Jetzt einreichen",
+		"GO_PREMIUM": "Abonnieren",
 		"SUBMIT_FOR_FREE": "Kostenlos einreichen",
-		"SUBSCRIBE_NOW": "Subscribe Now",
+		"SUBSCRIBE_NOW": "Jetzt abonnieren",
 		"SELECT_FREE": "Kostenlos wählen",
 		"SELECT_STANDARD": "Standard wählen",
 		"SELECT_PREMIUM": "Premium wählen",
@@ -955,7 +955,12 @@
 		"SPONSOR_MONTH": "Monat",
 		"SPONSOR_CTA": "Sponsor werden",
 		"UPGRADE_TO_PRO": "Auf Pro upgraden",
-		"GO_ENTERPRISE": "Enterprise wählen"
+		"GO_ENTERPRISE": "Enterprise wählen",
+		"PAY_NOW": "Jetzt zahlen",
+		"PAY_LATER": "Später zahlen",
+		"PER_MONTH": "/Monat",
+		"PER_YEAR": "/Jahr",
+		"LEARN_MORE_PAYMENT_OPTIONS": "Mehr über Zahlungsoptionen erfahren"
 	},
 	"payment": {
 		"title": "Complete Your Order",
@@ -975,7 +980,29 @@
 			"failed": "Payment failed",
 			"pending": "Payment pending"
 		},
-		"COMPLETE_PAYMENT": "Zahlung abschließen"
+		"COMPLETE_PAYMENT": "Zahlung abschließen",
+		"flowSelector": {
+			"title": "Zahlungszeitpunkt",
+			"subtitle": "Wählen Sie, wann Ihre Einreichung berechnet wird",
+			"payNow": {
+				"title": "Jetzt bezahlen",
+				"description": "Zahlung wird sofort verarbeitet. Bevorzugte Prüfungs-Warteschlange.",
+				"benefits": [
+					"Sofortige Verarbeitung",
+					"Bevorzugte Prüfung",
+					"Schnellere Freigabe"
+				]
+			},
+			"payLater": {
+				"title": "Später bezahlen",
+				"description": "Wird erst berechnet, nachdem Ihre Einreichung genehmigt wurde.",
+				"benefits": [
+					"Keine Vorabkosten",
+					"Prüfung vor Zahlung",
+					"Risikofrei"
+				]
+			}
+		}
 	},
 	"help": {
 		"HERO_BADGE_TEXT": "The Professional Directory Platform Builder",
@@ -1648,7 +1675,8 @@
 		"SUBSCRIPTIONS_EMPTY_STATE": "Keine Abonnement-Historie",
 		"SUBSCRIPTIONS_EMPTY_DESCRIPTION": "Ihre Abonnement-Historie wird hier angezeigt, sobald Sie aktive Abonnements haben.",
 		"OVERVIEW_EMPTY_STATE": "Keine kürzliche Aktivität",
-		"OVERVIEW_EMPTY_DESCRIPTION": "Ihre kürzliche Abrechnungsaktivität wird hier angezeigt, sobald Sie Transaktionen haben."
+		"OVERVIEW_EMPTY_DESCRIPTION": "Ihre kürzliche Abrechnungsaktivität wird hier angezeigt, sobald Sie Transaktionen haben.",
+		"SAVE_PER_YEAR": "Sparen Sie {amount}/Jahr"
 	},
 	"profile": {
 		"SECURITY_STATUS_SECTION": "Sicherheit & Status",

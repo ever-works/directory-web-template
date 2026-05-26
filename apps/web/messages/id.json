@@ -1016,7 +1016,12 @@
 		"SPONSOR_WEEK": "minggu",
 		"SPONSOR_OR": "atau",
 		"SPONSOR_MONTH": "bulan",
-		"SPONSOR_CTA": "Jadi Sponsor"
+		"SPONSOR_CTA": "Jadi Sponsor",
+		"PAY_NOW": "Bayar sekarang",
+		"PAY_LATER": "Bayar nanti",
+		"PER_MONTH": "/bulan",
+		"PER_YEAR": "/tahun",
+		"LEARN_MORE_PAYMENT_OPTIONS": "Pelajari lebih lanjut tentang opsi pembayaran"
 	},
 	"payment": {
 		"title": "Selesaikan Pesanan Anda",
@@ -1036,7 +1041,29 @@
 			"failed": "Pembayaran gagal",
 			"pending": "Pembayaran tertunda"
 		},
-		"COMPLETE_PAYMENT": "Selesaikan Pembayaran"
+		"COMPLETE_PAYMENT": "Selesaikan Pembayaran",
+		"flowSelector": {
+			"title": "Waktu pembayaran",
+			"subtitle": "Pilih kapan Anda akan ditagih untuk kiriman Anda",
+			"payNow": {
+				"title": "Bayar sekarang",
+				"description": "Pembayaran diproses segera. Antrean tinjauan prioritas.",
+				"benefits": [
+					"Pemrosesan instan",
+					"Tinjauan prioritas",
+					"Persetujuan lebih cepat"
+				]
+			},
+			"payLater": {
+				"title": "Bayar nanti",
+				"description": "Ditagih hanya setelah kiriman Anda disetujui.",
+				"benefits": [
+					"Tanpa biaya di muka",
+					"Tinjauan sebelum pembayaran",
+					"Tanpa risiko"
+				]
+			}
+		}
 	},
 	"help": {
 		"HERO_BADGE_TEXT": "Pembangun Platform Direktori Profesional",
@@ -1641,7 +1668,8 @@
 		"SUBSCRIPTIONS_EMPTY_STATE": "Tidak ada riwayat langganan",
 		"SUBSCRIPTIONS_EMPTY_DESCRIPTION": "Riwayat langganan Anda akan muncul di sini setelah Anda memiliki langganan aktif.",
 		"OVERVIEW_EMPTY_STATE": "Tidak ada aktivitas terbaru",
-		"OVERVIEW_EMPTY_DESCRIPTION": "Aktivitas penagihan terbaru Anda akan muncul di sini setelah Anda memiliki transaksi."
+		"OVERVIEW_EMPTY_DESCRIPTION": "Aktivitas penagihan terbaru Anda akan muncul di sini setelah Anda memiliki transaksi.",
+		"SAVE_PER_YEAR": "Hemat {amount}/tahun"
 	},
 	"profile": {
 		"SECURITY_STATUS_SECTION": "Keamanan & Status",

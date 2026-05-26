@@ -119,7 +119,10 @@ export function ToggleGroup({
           'top-1.5 h-[calc(100%-12px)]'
         )}
         style={{
-          left: `calc(${(selectedIndex * 100) / options.length}% + ${size === 'sm' ? '2px' : size === 'md' ? '4px' : '6px'})`,
+          // Logical inset so the slider tracks the active option under both LTR and RTL
+          // (e.g. Arabic/Hebrew). selectedIndex counts in logical order, matching the
+          // start->end flow of the buttons.
+          insetInlineStart: `calc(${(selectedIndex * 100) / options.length}% + ${size === 'sm' ? '2px' : size === 'md' ? '4px' : '6px'})`,
           width: `calc(${100 / options.length}% - ${size === 'sm' ? '4px' : size === 'md' ? '8px' : '12px'})`
         }}
       />

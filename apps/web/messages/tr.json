@@ -1016,7 +1016,12 @@
 		"SPONSOR_WEEK": "hafta",
 		"SPONSOR_OR": "veya",
 		"SPONSOR_MONTH": "ay",
-		"SPONSOR_CTA": "Sponsor Ol"
+		"SPONSOR_CTA": "Sponsor Ol",
+		"PAY_NOW": "Şimdi öde",
+		"PAY_LATER": "Sonra öde",
+		"PER_MONTH": "/ay",
+		"PER_YEAR": "/yıl",
+		"LEARN_MORE_PAYMENT_OPTIONS": "Ödeme seçenekleri hakkında daha fazla bilgi"
 	},
 	"payment": {
 		"title": "Siparişinizi Tamamlayın",
@@ -1036,7 +1041,29 @@
 			"failed": "Ödeme başarısız",
 			"pending": "Ödeme bekleniyor"
 		},
-		"COMPLETE_PAYMENT": "Ödemeyi Tamamla"
+		"COMPLETE_PAYMENT": "Ödemeyi Tamamla",
+		"flowSelector": {
+			"title": "Ödeme zamanı",
+			"subtitle": "Gönderiminiz için ne zaman ücretlendirileceğinizi seçin",
+			"payNow": {
+				"title": "Şimdi öde",
+				"description": "Ödeme hemen işlenir. Öncelikli inceleme sırası.",
+				"benefits": [
+					"Anında işlem",
+					"Öncelikli inceleme",
+					"Daha hızlı onay"
+				]
+			},
+			"payLater": {
+				"title": "Sonra öde",
+				"description": "Yalnızca gönderiminiz onaylandıktan sonra ücretlendirilir.",
+				"benefits": [
+					"Ön ödeme yok",
+					"Ödemeden önce inceleme",
+					"Risksiz"
+				]
+			}
+		}
 	},
 	"help": {
 		"HERO_BADGE_TEXT": "Profesyonel Dizin Platformu Oluşturucu",
@@ -1641,7 +1668,8 @@
 		"SUBSCRIPTIONS_EMPTY_STATE": "Abonelik geçmişi yok",
 		"SUBSCRIPTIONS_EMPTY_DESCRIPTION": "Aktif abonelikleriniz olduğunda abonelik geçmişiniz burada görünecektir.",
 		"OVERVIEW_EMPTY_STATE": "Son aktivite yok",
-		"OVERVIEW_EMPTY_DESCRIPTION": "İşlemleriniz olduğunda son faturalandırma aktiviteniz burada görünecektir."
+		"OVERVIEW_EMPTY_DESCRIPTION": "İşlemleriniz olduğunda son faturalandırma aktiviteniz burada görünecektir.",
+		"SAVE_PER_YEAR": "Yılda {amount} tasarruf edin"
 	},
 	"profile": {
 		"SECURITY_STATUS_SECTION": "Güvenlik ve Durum",

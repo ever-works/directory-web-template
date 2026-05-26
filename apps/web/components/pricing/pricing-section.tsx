@@ -158,8 +158,8 @@ export function PricingSection({ onSelectPlan, isReview, initialSelectedPlan }: 
 						className={cn(
 							'absolute top-1 h-[calc(100%-8px)] bg-white dark:bg-white/1 rounded-lg shadow-md border border-gray-200/50 dark:border-white/8 transition-all duration-300 ease-out backdrop-blur-xs z-0 pointer-events-none',
 							billingInterval === PaymentInterval.MONTHLY
-								? 'left-1 w-[calc(50%-4px)]'
-								: 'left-[calc(50%+2px)] w-[calc(50%-4px)]'
+								? 'start-1 w-[calc(50%-4px)]'
+								: 'start-[calc(50%+2px)] w-[calc(50%-4px)]'
 						)}
 					/>
 				</div>
@@ -178,7 +178,7 @@ export function PricingSection({ onSelectPlan, isReview, initialSelectedPlan }: 
 							plan={PaymentPlan.FREE}
 							title={getPlanConfig(PaymentPlan.FREE).name.toUpperCase()}
 							price={formatPrice(FREE ? calculatePrice(FREE) : 0)}
-							priceUnit={'/month'}
+							priceUnit={t('PER_MONTH')}
 							features={freePlanFeatures}
 							isSelected={selectedPlan === PaymentPlan.FREE}
 							onSelect={handleSelectPlan}
@@ -238,7 +238,7 @@ export function PricingSection({ onSelectPlan, isReview, initialSelectedPlan }: 
 									plan={PaymentPlan.STANDARD}
 									title={getPlanConfig(PaymentPlan.STANDARD).name.toUpperCase()}
 									price={formatPrice(STANDARD ? calculatePrice(STANDARD) : 0)}
-									priceUnit={billingInterval === PaymentInterval.YEARLY ? '/year' : '/month'}
+									priceUnit={billingInterval === PaymentInterval.YEARLY ? t('PER_YEAR') : t('PER_MONTH')}
 									features={standardPlanFeatures}
 									isPopular={true}
 									isSelected={selectedPlan === PaymentPlan.STANDARD}
@@ -298,7 +298,7 @@ export function PricingSection({ onSelectPlan, isReview, initialSelectedPlan }: 
 									plan={PaymentPlan.PREMIUM}
 									title={getPlanConfig(PaymentPlan.PREMIUM).name.toUpperCase()}
 									price={formatPrice(PREMIUM ? calculatePrice(PREMIUM) : 0)}
-									priceUnit={billingInterval === PaymentInterval.YEARLY ? '/year' : '/month'}
+									priceUnit={billingInterval === PaymentInterval.YEARLY ? t('PER_YEAR') : t('PER_MONTH')}
 									features={premiumPlanFeatures}
 									isSelected={selectedPlan === PaymentPlan.PREMIUM}
 									onSelect={handleSelectPlan}

@@ -861,10 +861,10 @@
 		"PREMIUM_SUPPORT": "Premium Support",
 		"MOST_POPULAR": "सबसे लोकप्रिय",
 		"GET_STARTED_FREE": "मुफ्त में शुरू करें",
-		"UPGRADE_TO_STANDARD": "Submit Now",
-		"GO_PREMIUM": "Subscribe",
-		"SUBMIT_FOR_FREE": "Submit for Free",
-		"SUBSCRIBE_NOW": "Subscribe Now",
+		"UPGRADE_TO_STANDARD": "अभी सबमिट करें",
+		"GO_PREMIUM": "सदस्यता लें",
+		"SUBMIT_FOR_FREE": "मुफ़्त में सबमिट करें",
+		"SUBSCRIBE_NOW": "अभी सदस्यता लें",
 		"SELECT_FREE": "मुफ्त चुनें",
 		"SELECT_STANDARD": "स्टैंडर्ड चुनें",
 		"SELECT_PREMIUM": "प्रीमियम चुनें",
@@ -938,7 +938,12 @@
 		"SPONSOR_WEEK": "week",
 		"SPONSOR_OR": "or",
 		"SPONSOR_MONTH": "month",
-		"SPONSOR_CTA": "Become a Sponsor"
+		"SPONSOR_CTA": "Become a Sponsor",
+		"PAY_NOW": "अभी भुगतान करें",
+		"PAY_LATER": "बाद में भुगतान करें",
+		"PER_MONTH": "/माह",
+		"PER_YEAR": "/वर्ष",
+		"LEARN_MORE_PAYMENT_OPTIONS": "भुगतान विकल्पों के बारे में और जानें"
 	},
 	"payment": {
 		"title": "Complete Your Order",
@@ -958,7 +963,29 @@
 			"failed": "Payment failed",
 			"pending": "Payment pending"
 		},
-		"COMPLETE_PAYMENT": "भुगतान पूरा करें"
+		"COMPLETE_PAYMENT": "भुगतान पूरा करें",
+		"flowSelector": {
+			"title": "भुगतान का समय",
+			"subtitle": "चुनें कि आपकी प्रविष्टि के लिए शुल्क कब लिया जाए",
+			"payNow": {
+				"title": "अभी भुगतान करें",
+				"description": "भुगतान तुरंत संसाधित होता है। प्राथमिकता समीक्षा कतार।",
+				"benefits": [
+					"तत्काल प्रसंस्करण",
+					"प्राथमिकता समीक्षा",
+					"तेज़ स्वीकृति"
+				]
+			},
+			"payLater": {
+				"title": "बाद में भुगतान करें",
+				"description": "शुल्क केवल आपकी प्रविष्टि स्वीकृत होने के बाद लिया जाता है।",
+				"benefits": [
+					"कोई अग्रिम लागत नहीं",
+					"भुगतान से पहले समीक्षा",
+					"जोखिम-मुक्त"
+				]
+			}
+		}
 	},
 	"help": {
 		"HERO_BADGE_TEXT": "The Professional Directory Platform Builder",
@@ -1552,7 +1579,8 @@
 		"SUBSCRIPTIONS_EMPTY_STATE": "No subscription history",
 		"SUBSCRIPTIONS_EMPTY_DESCRIPTION": "Your subscription history will appear here once you have active subscriptions.",
 		"OVERVIEW_EMPTY_STATE": "No recent activity",
-		"OVERVIEW_EMPTY_DESCRIPTION": "Your recent billing activity will appear here once you have transactions."
+		"OVERVIEW_EMPTY_DESCRIPTION": "Your recent billing activity will appear here once you have transactions.",
+		"SAVE_PER_YEAR": "बचाएं {amount}/वर्ष"
 	},
 	"profile": {
 		"SECURITY_STATUS_SECTION": "सुरक्षा और स्थिति",

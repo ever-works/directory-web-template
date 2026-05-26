@@ -861,10 +861,10 @@
 		"PREMIUM_SUPPORT": "Premium Support",
 		"MOST_POPULAR": "人気No.1",
 		"GET_STARTED_FREE": "無料で始める",
-		"UPGRADE_TO_STANDARD": "Submit Now",
-		"GO_PREMIUM": "Subscribe",
-		"SUBMIT_FOR_FREE": "Submit for Free",
-		"SUBSCRIBE_NOW": "Subscribe Now",
+		"UPGRADE_TO_STANDARD": "今すぐ送信",
+		"GO_PREMIUM": "登録する",
+		"SUBMIT_FOR_FREE": "無料で送信",
+		"SUBSCRIBE_NOW": "今すぐ登録",
 		"SELECT_FREE": "無料を選択",
 		"SELECT_STANDARD": "スタンダードを選択",
 		"SELECT_PREMIUM": "プレミアムを選択",
@@ -938,7 +938,12 @@
 		"SPONSOR_WEEK": "week",
 		"SPONSOR_OR": "or",
 		"SPONSOR_MONTH": "month",
-		"SPONSOR_CTA": "Become a Sponsor"
+		"SPONSOR_CTA": "Become a Sponsor",
+		"PAY_NOW": "今すぐ支払う",
+		"PAY_LATER": "後で支払う",
+		"PER_MONTH": "/月",
+		"PER_YEAR": "/年",
+		"LEARN_MORE_PAYMENT_OPTIONS": "支払いオプションの詳細"
 	},
 	"payment": {
 		"title": "Complete Your Order",
@@ -958,7 +963,29 @@
 			"failed": "Payment failed",
 			"pending": "Payment pending"
 		},
-		"COMPLETE_PAYMENT": "支払いを完了する"
+		"COMPLETE_PAYMENT": "支払いを完了する",
+		"flowSelector": {
+			"title": "支払いのタイミング",
+			"subtitle": "提出物の請求タイミングを選択してください",
+			"payNow": {
+				"title": "今すぐ支払う",
+				"description": "支払いは即時処理されます。優先審査キュー。",
+				"benefits": [
+					"即時処理",
+					"優先審査",
+					"より早い承認"
+				]
+			},
+			"payLater": {
+				"title": "後で支払う",
+				"description": "提出物が承認された後にのみ請求されます。",
+				"benefits": [
+					"初期費用なし",
+					"支払い前に審査",
+					"リスクなし"
+				]
+			}
+		}
 	},
 	"help": {
 		"HERO_BADGE_TEXT": "The Professional Directory Platform Builder",
@@ -1615,7 +1642,8 @@
 		"SUBSCRIPTIONS_EMPTY_STATE": "No subscription history",
 		"SUBSCRIPTIONS_EMPTY_DESCRIPTION": "Your subscription history will appear here once you have active subscriptions.",
 		"OVERVIEW_EMPTY_STATE": "No recent activity",
-		"OVERVIEW_EMPTY_DESCRIPTION": "Your recent billing activity will appear here once you have transactions."
+		"OVERVIEW_EMPTY_DESCRIPTION": "Your recent billing activity will appear here once you have transactions.",
+		"SAVE_PER_YEAR": "年間 {amount} 節約"
 	},
 	"profile": {
 		"SECURITY_STATUS_SECTION": "セキュリティとステータス",

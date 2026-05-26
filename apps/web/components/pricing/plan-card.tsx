@@ -1,6 +1,7 @@
 "use client";
 
 import { ReactNode, useMemo, useCallback } from "react";
+import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -43,11 +44,6 @@ const PLAN_TYPES = {
   STANDARD: 'STANDARD',
   PREMIUM: 'PREMIUM'
 } as const;
-
-const PAYMENT_FLOW_OPTIONS = [
-  { value: PaymentFlow.PAY_AT_START, label: "Pay Now" },
-  { value: PaymentFlow.PAY_AT_END, label: "Pay Later" },
-];
 
 const getButtonStyles = (title: string, isPopular: boolean) => {
   const upperTitle = title.toUpperCase();
@@ -141,7 +137,14 @@ export function PlanCard({
 }: PlanCardProps) {
   const router = useRouter();
   const { track } = useAnalytics();
-  
+  const t = useTranslations("pricing");
+  const tBilling = useTranslations("billing");
+
+  const paymentFlowOptions = useMemo(() => [
+    { value: PaymentFlow.PAY_AT_START, label: t("PAY_NOW") },
+    { value: PaymentFlow.PAY_AT_END, label: t("PAY_LATER") },
+  ], [t]);
+
   const isPaidPlan = title.toUpperCase() === PLAN_TYPES.STANDARD || title.toUpperCase() === PLAN_TYPES.PREMIUM;
 
   const cardStyles = useMemo(() => cn(
@@ -193,7 +196,7 @@ export function PlanCard({
       {(title.toUpperCase() === 'STANDARD' || isPopular) && (
         <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 z-30">
           <div className="bg-theme-primary-700 text-white px-4 py-1 rounded-full text-sm font-normal shadow-xl whitespace-nowrap">
-            Most Popular
+            {t("MOST_POPULAR")}
           </div>
         </div>
       )}
@@ -206,7 +209,7 @@ export function PlanCard({
           {isPaidPlan && onFlowChange && (
             <div className="flex items-center gap-2 shrink-0">
               <ToggleGroup
-                options={PAYMENT_FLOW_OPTIONS}
+                options={paymentFlowOptions}
                 value={selectedFlow}
                 onValueChange={handleFlowChange}
                 size="sm"
@@ -217,7 +220,7 @@ export function PlanCard({
                 <button
                   onClick={handleOpenModal}
                   className="w-5 h-5 rounded-full flex items-center justify-center text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-white/8 transition-colors shrink-0 cursor-pointer"
-                  aria-label="Learn more about payment options"
+                  aria-label={t("LEARN_MORE_PAYMENT_OPTIONS")}
                   type="button"
                 >
                   <Info className="w-4 h-4" />
@@ -289,7 +292,7 @@ export function PlanCard({
           {isLoading ? (
             <div className="flex items-center justify-center gap-2">
               <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-              <span className="text-sm">Processing...</span>
+              <span className="text-sm">{tBilling("PROCESSING")}</span>
             </div>
           ) : (
             <span className="text-sm font-medium">
