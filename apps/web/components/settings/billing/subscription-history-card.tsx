@@ -1,8 +1,12 @@
 'use client';
 
 import { Calendar, Clock, TrendingUp, XCircle, CheckCircle, AlertCircle, Crown } from 'lucide-react';
+import { useState } from 'react';
 import { useLocale } from 'next-intl';
+import { Link } from '@/i18n/navigation';
 import { formatCurrencyAmount } from '@/lib/utils/currency-format';
+
+const SUPPORT_EMAIL = process.env.NEXT_PUBLIC_SOCIAL_EMAIL || 'ever@ever.works';
 
 interface SubscriptionHistoryItem {
 	id: string;
@@ -18,60 +22,63 @@ interface SubscriptionHistoryItem {
 	billingInterval: string;
 }
 
+const CARD = 'bg-white dark:bg-white/3 rounded-xl border border-neutral-200 dark:border-white/8 p-4';
+const ICON_TILE = 'p-2 bg-neutral-100 dark:bg-white/8 rounded-lg flex items-center justify-center shrink-0';
+const ICON = 'h-4 w-4 text-neutral-500 dark:text-neutral-400';
+const LABEL = 'text-xs text-neutral-500 dark:text-neutral-400';
+const OUTLINE_BTN =
+	'inline-flex items-center gap-1.5 h-7 px-2.5 text-xs font-medium rounded-md border border-neutral-200 dark:border-white/10 text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-white/6 transition-colors';
+
 const formatDate = (date: string) =>
-	new Date(date).toLocaleDateString(undefined, {
-		year: 'numeric',
-		month: 'short',
-		day: 'numeric'
-	});
+	new Date(date).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
 
 const getStatusConfig = (status: string) => {
 	switch (status.toLowerCase()) {
 		case 'active':
 			return {
-				color: 'text-emerald-600 dark:text-emerald-500',
-				bgColor: 'bg-emerald-50 dark:bg-emerald-700/50',
-				borderColor: 'border-emerald-200 dark:border-emerald-500',
+				color: 'text-emerald-600 dark:text-emerald-400',
+				bg: 'bg-emerald-50 dark:bg-emerald-500/10',
+				border: 'border-emerald-200 dark:border-emerald-500/20',
 				icon: CheckCircle,
 				label: 'Active'
 			};
 		case 'cancelled':
 			return {
-				color: 'text-red-600 dark:text-red-500',
-				bgColor: 'bg-red-50 dark:bg-red-700/50',
-				borderColor: 'border-red-200 dark:border-red-500',
+				color: 'text-red-600 dark:text-red-400',
+				bg: 'bg-red-50 dark:bg-red-500/10',
+				border: 'border-red-200 dark:border-red-500/20',
 				icon: XCircle,
 				label: 'Cancelled'
 			};
 		case 'past_due':
 			return {
-				color: 'text-orange-600 dark:text-orange-500',
-				bgColor: 'bg-orange-50 dark:bg-orange-700/50',
-				borderColor: 'border-orange-200 dark:border-orange-500',
+				color: 'text-amber-600 dark:text-amber-400',
+				bg: 'bg-amber-50 dark:bg-amber-500/10',
+				border: 'border-amber-200 dark:border-amber-500/20',
 				icon: AlertCircle,
 				label: 'Past Due'
 			};
 		case 'trialing':
 			return {
-				color: 'text-theme-primary-600 dark:text-theme-primary-300',
-				bgColor: 'bg-theme-primary-50 dark:bg-theme-primary-20',
-				borderColor: 'border-theme-primary-200 dark:border-theme-primary-500',
+				color: 'text-neutral-500 dark:text-neutral-400',
+				bg: 'bg-neutral-100 dark:bg-white/8',
+				border: 'border-neutral-200 dark:border-white/10',
 				icon: Clock,
 				label: 'Trial'
 			};
 		case 'unpaid':
 			return {
-				color: 'text-red-600 dark:text-red-500',
-				bgColor: 'bg-red-50 dark:bg-red-700/50',
-				borderColor: 'border-red-200 dark:border-red-500',
+				color: 'text-red-600 dark:text-red-400',
+				bg: 'bg-red-50 dark:bg-red-500/10',
+				border: 'border-red-200 dark:border-red-500/20',
 				icon: AlertCircle,
 				label: 'Unpaid'
 			};
 		default:
 			return {
-				color: 'text-slate-600 dark:text-slate-300',
-				bgColor: 'bg-slate-50 dark:bg-white/4',
-				borderColor: 'border-slate-200 dark:border-white/1',
+				color: 'text-neutral-500 dark:text-neutral-400',
+				bg: 'bg-neutral-50 dark:bg-white/4',
+				border: 'border-neutral-200 dark:border-white/8',
 				icon: Clock,
 				label: status.charAt(0).toUpperCase() + status.slice(1)
 			};
@@ -79,181 +86,152 @@ const getStatusConfig = (status: string) => {
 };
 
 const getPlanIcon = (planName: string) => {
-	const lowerPlan = planName.toLowerCase();
-	if (lowerPlan.includes('premium') || lowerPlan.includes('pro')) {
-		return Crown;
-	}
-	if (lowerPlan.includes('enterprise') || lowerPlan.includes('business')) {
-		return TrendingUp;
-	}
+	const lp = planName.toLowerCase();
+	if (lp.includes('premium') || lp.includes('pro')) return Crown;
+	if (lp.includes('enterprise') || lp.includes('business')) return TrendingUp;
 	return Calendar;
 };
 
 export function SubscriptionHistoryCard({ subscription }: { subscription: SubscriptionHistoryItem }) {
 	const locale = useLocale();
+	const [showDetails, setShowDetails] = useState(false);
 	const statusConfig = getStatusConfig(subscription.status);
 	const StatusIcon = statusConfig.icon;
 	const PlanIcon = getPlanIcon(subscription.planName);
-
 	const isActive = subscription.status.toLowerCase() === 'active';
 	const isCancelled = subscription.status.toLowerCase() === 'cancelled';
-	const isTrialing = subscription.status.toLowerCase() === 'trialing';
 
 	return (
-		<div className="bg-white dark:bg-white/5 border border-slate-200 dark:border-white/6 rounded-xl p-6 shadow-xs hover:shadow-md transition-all duration-300 group">
-			<div className="flex items-start justify-between">
-				{/* Left Section - Subscription Details */}
-				<div className="flex-1">
-					<div className="flex items-center gap-4 mb-4">
-						<div
-							className={`w-12 h-12 rounded-xl flex items-center justify-center ${
-								isActive
-									? 'bg-emerald-100'
-									: isCancelled
-										? 'bg-red-100 dark:bg-red-700/50'
-										: isTrialing
-											? 'bg-theme-primary-100 dark:bg-theme-primary-20'
-											: 'bg-slate-100 dark:bg-white/4'
-							} group-hover:scale-105 transition-transform duration-300 dark:bg-theme-primary-20`}
-						>
-							<PlanIcon
-								className={`w-6 h-6 ${
-									isActive
-										? 'text-emerald-600'
-										: isCancelled
-											? 'text-red-600'
-											: isTrialing
-												? 'text-theme-primary-600'
-												: 'text-slate-600 dark:text-slate-300'
-								}`}
-							/>
-						</div>
+		<div className={CARD}>
+			{/* Main row */}
+			<div className="flex items-start gap-3">
+				<div className={ICON_TILE}>
+					<PlanIcon className={ICON} />
+				</div>
 
-						<div className="flex-1">
-							<h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 dark:group-hover:text-slate-100 transition-colors">
-								{subscription.planName}
-							</h3>
+				<div className="flex-1 min-w-0">
+					<div className="flex items-start justify-between gap-3">
+						<div className="min-w-0">
+							<p className="text-sm font-semibold text-neutral-900 dark:text-white truncate">{subscription.planName}</p>
 
-							<div className="flex items-center gap-3">
+							{/* Badges */}
+							<div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
 								<span
-									className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-medium border ${statusConfig.bgColor} ${statusConfig.color} ${statusConfig.borderColor} dark:border-white/1`}
+									className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold border ${statusConfig.bg} ${statusConfig.color} ${statusConfig.border}`}
 								>
-									<StatusIcon className="w-3 h-3" />
+									<StatusIcon className="h-3 w-3" />
 									{statusConfig.label}
 								</span>
-
-								<span className="inline-flex items-center gap-1 px-2 py-1 bg-slate-100 dark:bg-white/4 text-slate-600 dark:text-slate-300 text-xs font-medium rounded-full">
-									{subscription.billingInterval.charAt(0).toUpperCase() +
-										subscription.billingInterval.slice(1)}
+								<span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-neutral-100 dark:bg-white/8 border border-neutral-200 dark:border-white/10 text-neutral-600 dark:text-neutral-400">
+									{subscription.billingInterval.charAt(0).toUpperCase() + subscription.billingInterval.slice(1)}
 								</span>
-
 								{isActive && (
-									<span className="inline-flex items-center gap-1 px-2 py-1 bg-emerald-100 text-emerald-700 text-xs font-medium rounded-full">
-										<CheckCircle className="w-3 h-3" />
+									<span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/20">
+										<CheckCircle className="h-3 w-3" />
 										Current
 									</span>
 								)}
-
-								{isTrialing && (
-									<span className="inline-flex items-center gap-1 px-2 py-1 bg-theme-primary-100 dark:bg-theme-primary-20 text-theme-primary-700 dark:text-theme-primary-300 text-xs font-medium rounded-full">
-										<Clock className="w-3 h-3" />
-										Trial Period
-									</span>
-								)}
 							</div>
+						</div>
+
+						<div className="text-right shrink-0">
+							<p className="text-sm font-semibold text-neutral-900 dark:text-white">
+								{formatCurrencyAmount(subscription.amount, subscription.currency, locale)}
+							</p>
+							<p className="text-xs text-neutral-500 dark:text-neutral-400 mt-0.5">per {subscription.billingInterval}</p>
 						</div>
 					</div>
 
-					{/* Timeline Details */}
-					<div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm mb-4">
-						<div className="flex items-center gap-2 text-slate-600 dark:text-slate-300">
-							<Calendar className="w-4 h-4 text-slate-400 dark:text-slate-300" />
-							<span>
-								<span className="font-medium">Started:</span> {formatDate(subscription.startDate)}
-							</span>
-						</div>
-
-						<div className="flex items-center gap-2 text-slate-600 dark:text-slate-300">
-							<Clock className="w-4 h-4 text-slate-400 dark:text-slate-300" />
-							<span>
-								<span className="font-medium">Ended:</span>{' '}
-								{subscription.endDate ? formatDate(subscription.endDate) : 'Ongoing'}
-							</span>
-						</div>
+					{/* Timeline */}
+					<div className="flex items-center gap-4 mt-2">
+						<span className="flex items-center gap-1 text-xs text-neutral-500 dark:text-neutral-400">
+							<Calendar className="h-3 w-3" />
+							Started {formatDate(subscription.startDate)}
+						</span>
+						<span className="flex items-center gap-1 text-xs text-neutral-500 dark:text-neutral-400">
+							<Clock className="h-3 w-3" />
+							{subscription.endDate ? `Ended ${formatDate(subscription.endDate)}` : 'Ongoing'}
+						</span>
 					</div>
-
-					{/* Cancellation Details */}
-					{isCancelled && subscription.cancelledAt && (
-						<div className="bg-red-50 dark:bg-red-700/50 border border-red-200 dark:border-red-500 rounded-lg p-4 mb-4">
-							<div className="flex items-start gap-3">
-								<XCircle className="w-5 h-5 text-red-600 dark:text-red-500 mt-0.5" />
-								<div className="flex-1">
-									<div className="text-sm font-medium text-red-800 dark:text-red-500 mb-1">
-										Cancelled on {formatDate(subscription.cancelledAt)}
-									</div>
-									{subscription.cancelReason && (
-										<div className="text-sm text-red-700">
-											<span className="font-medium">Reason:</span> {subscription.cancelReason}
-										</div>
-									)}
-								</div>
-							</div>
-						</div>
-					)}
 				</div>
+			</div>
 
-				<div className="text-right ml-6">
-					<div className="text-2xl font-bold text-slate-900 mb-1 group-hover:text-slate-800 transition-colors dark:text-slate-100 dark:group-hover:text-slate-100">
-						{formatCurrencyAmount(subscription.amount, subscription.currency, locale)}
-					</div>
-
-					<div className="text-sm text-slate-600 dark:text-slate-300 mb-3">
-						per {subscription.billingInterval}
-					</div>
-
-					{/* Action Buttons */}
-					<div className="flex flex-col gap-2">
-						<button className="inline-flex items-center gap-2 px-3 py-2 text-xs font-medium text-slate-600 bg-slate-100 dark:bg-white/4 rounded-lg hover:bg-slate-200 transition-colors dark:text-slate-300">
-							<Calendar className="w-3 h-3" />
-							View Details
-						</button>
-
-						{isActive && (
-							<button className="inline-flex items-center gap-2 px-3 py-2 text-xs font-medium text-white bg-linear-to-r from-theme-primary-600 to-theme-primary-700 rounded-lg hover:from-theme-primary-700 hover:to-theme-primary-800 transition-all duration-200 dark:text-slate-300 dark:bg-theme-primary-20">
-								<TrendingUp className="w-3 h-3" />
-								Manage
-							</button>
+			{/* Cancellation notice */}
+			{isCancelled && subscription.cancelledAt && (
+				<div className="mt-3 flex items-start gap-2 p-3 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 rounded-lg">
+					<XCircle className="h-4 w-4 text-red-500 dark:text-red-400 shrink-0 mt-0.5" />
+					<div>
+						<p className="text-xs font-medium text-red-700 dark:text-red-400">
+							Cancelled {formatDate(subscription.cancelledAt)}
+						</p>
+						{subscription.cancelReason && (
+							<p className="text-xs text-red-600 dark:text-red-500 mt-0.5">
+								Reason: {subscription.cancelReason}
+							</p>
 						)}
 					</div>
 				</div>
-			</div>
+			)}
 
-			{/* Footer Section */}
-			<div className="mt-4 pt-4 border-t border-slate-200 dark:border-white/6">
-				<div className="flex items-center justify-between text-sm">
-					<div className="flex items-center gap-4 text-slate-600 dark:text-slate-300">
-						<span className="font-medium">Subscription ID:</span>
-						<code className="bg-slate-100 dark:bg-white/4 px-2 py-1 rounded-sm text-xs font-mono">
+			{/* Footer */}
+			<div className="mt-3 pt-3 border-t border-neutral-100 dark:border-white/[0.06] flex items-center justify-between gap-3 flex-wrap">
+				<div className="flex items-center gap-3 text-xs text-neutral-500 dark:text-neutral-400">
+					<span>
+						ID:{' '}
+						<code className="bg-neutral-100 dark:bg-white/4 px-1.5 py-0.5 rounded text-[10px] font-mono border border-neutral-200 dark:border-white/8">
 							{subscription.id.slice(-8)}
 						</code>
-
-						<span className="font-medium">Plan ID:</span>
-						<code className="bg-slate-100 dark:bg-white/4 px-2 py-1 rounded-sm text-xs font-mono">
+					</span>
+					<span>
+						Plan:{' '}
+						<code className="bg-neutral-100 dark:bg-white/4 px-1.5 py-0.5 rounded text-[10px] font-mono border border-neutral-200 dark:border-white/8">
 							{subscription.planId.slice(-8)}
 						</code>
-					</div>
+					</span>
+				</div>
 
-					<div className="flex items-center gap-2">
-						<button className="text-slate-600 hover:text-slate-800 font-medium text-sm underline dark:text-slate-300">
-							View History
-						</button>
-
-						<button className="text-slate-600 hover:text-slate-800 font-medium text-sm underline dark:text-slate-300">
-							Contact Support
-						</button>
-					</div>
+				<div className="flex items-center gap-2">
+					{isActive && (
+						<Link
+							href="/pricing"
+							className="inline-flex items-center gap-1.5 h-8 px-3 text-xs font-medium rounded-md bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 hover:bg-neutral-700 dark:hover:bg-neutral-100 transition-colors"
+						>
+							<TrendingUp className="h-3.5 w-3.5" />
+							Manage
+						</Link>
+					)}
+					<button onClick={() => setShowDetails((v) => !v)} aria-expanded={showDetails} className={OUTLINE_BTN}>
+						<Calendar className="h-3 w-3" />
+						{showDetails ? 'Hide' : 'Details'}
+					</button>
+					<a
+						href={`mailto:${SUPPORT_EMAIL}?subject=${encodeURIComponent(`Subscription question — ${subscription.id}`)}`}
+						className="text-xs font-medium text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200 transition-colors"
+					>
+						Support
+					</a>
 				</div>
 			</div>
+
+			{showDetails && (
+				<dl className="mt-3 pt-3 border-t border-neutral-100 dark:border-white/[0.06] grid grid-cols-2 sm:grid-cols-3 gap-x-4 gap-y-2">
+					{[
+						['Plan', subscription.planName],
+						['Status', statusConfig.label],
+						['Started', formatDate(subscription.startDate)],
+						['Ends', formatDate(subscription.endDate)],
+						subscription.cancelledAt ? ['Cancelled', formatDate(subscription.cancelledAt)] : null,
+						subscription.cancelReason ? ['Reason', subscription.cancelReason] : null
+					]
+						.filter(Boolean)
+						.map(([label, value]) => (
+							<div key={label} className="flex flex-col gap-0.5">
+								<dt className={LABEL}>{label}</dt>
+								<dd className="text-xs font-medium text-neutral-900 dark:text-white">{value}</dd>
+							</div>
+						))}
+				</dl>
+			)}
 		</div>
 	);
 }

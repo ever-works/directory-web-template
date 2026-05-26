@@ -35,6 +35,17 @@ const SUBSCRIPTION_STATUSES = {
 	UNPAID: 'unpaid'
 } as const;
 
+const variantClass: Record<ActionConfig['variant'], string> = {
+	default:
+		'bg-neutral-100 dark:bg-white/8 hover:bg-neutral-200 dark:hover:bg-white/12 text-neutral-700 dark:text-neutral-300 border border-neutral-200 dark:border-white/10',
+	secondary:
+		'bg-neutral-100 dark:bg-white/8 hover:bg-neutral-200 dark:hover:bg-white/12 text-neutral-700 dark:text-neutral-300 border border-neutral-200 dark:border-white/10',
+	destructive:
+		'bg-red-50 dark:bg-red-500/10 hover:bg-red-100 dark:hover:bg-red-500/20 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-500/20',
+	success:
+		'bg-emerald-50 dark:bg-emerald-500/10 hover:bg-emerald-100 dark:hover:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/20'
+};
+
 export function SubscriptionActions({
 	subscriptionId,
 	status,
@@ -60,66 +71,64 @@ export function SubscriptionActions({
 	} = useSubscription();
 	const router = useRouter();
 
-	// Helper function to handle toast lifecycle and UI state
-	const handleActionWithToast = useCallback(async (
-		action: () => Promise<void>,
-		loadingMessage: string,
-		successMessage: string,
-		errorMessage: string
-	) => {
-		setIsProcessing(true);
-		const toastId = toast.loading(loadingMessage, { duration: Infinity });
+	const handleActionWithToast = useCallback(
+		async (
+			action: () => Promise<void>,
+			loadingMessage: string,
+			successMessage: string,
+			errorMessage: string
+		) => {
+			setIsProcessing(true);
+			const toastId = toast.loading(loadingMessage, { duration: Infinity });
+			try {
+				await action();
+				toast.success(successMessage, { id: toastId, duration: 3000 });
+				setShowConfirmDialog(null);
+				setIsExpanded(false);
+				onActionComplete?.();
+			} catch (error) {
+				console.error('Action failed:', error);
+				toast.error(errorMessage, { id: toastId, duration: 5000 });
+			} finally {
+				setIsProcessing(false);
+			}
+		},
+		[onActionComplete]
+	);
 
-		try {
-			await action();
-			toast.success(successMessage, { id: toastId, duration: 3000 });
-			setShowConfirmDialog(null);
-			setIsExpanded(false);
-			onActionComplete?.();
-		} catch (error) {
-			console.error('Action failed:', error);
-			toast.error(errorMessage, { id: toastId, duration: 5000 });
-		} finally {
-			setIsProcessing(false);
-		}
-	}, [onActionComplete]);
-
-	// Action handlers
 	const handleUpdatePlan = useCallback(async () => {
 		await handleActionWithToast(
 			async () => {
 				const result = await createBillingPortalSession.mutateAsync();
-				if (result) {
-					window.open(result.data.url, '_blank');
-				}
+				if (result) window.open(result.data.url, '_blank');
 			},
-			'Updating plan...',
-			'Plan update submitted successfully.',
+			'Updating plan…',
+			'Plan update submitted.',
 			'Failed to update plan. Please try again.'
 		);
 	}, [createBillingPortalSession, handleActionWithToast]);
 
-	const handleCancelSubscription = useCallback(async (cancelAtPeriodEnd: boolean) => {
-		const loadingMessage = cancelAtPeriodEnd ? 'Scheduling cancellation...' : 'Cancelling...';
-		const successMessage = cancelAtPeriodEnd ? 'Cancellation scheduled.' : 'Subscription cancelled.';
-
-		await handleActionWithToast(
-			async () => {
-				await cancelSubscriptionById.mutateAsync({ subscriptionId, cancelAtPeriodEnd });
-			},
-			loadingMessage,
-			successMessage,
-			'Failed to cancel subscription. Please try again.'
-		);
-	}, [subscriptionId, cancelSubscriptionById, handleActionWithToast]);
+	const handleCancelSubscription = useCallback(
+		async (cancelAtPeriodEnd: boolean) => {
+			await handleActionWithToast(
+				async () => {
+					await cancelSubscriptionById.mutateAsync({ subscriptionId, cancelAtPeriodEnd });
+				},
+				cancelAtPeriodEnd ? 'Scheduling cancellation…' : 'Cancelling…',
+				cancelAtPeriodEnd ? 'Cancellation scheduled.' : 'Subscription cancelled.',
+				'Failed to cancel subscription. Please try again.'
+			);
+		},
+		[subscriptionId, cancelSubscriptionById, handleActionWithToast]
+	);
 
 	const handleReactivateSubscription = useCallback(async () => {
 		await handleActionWithToast(
 			async () => {
 				await reactivateSubscription.mutateAsync({ subscriptionId });
 			},
-			'Reactivating...',
-			'Subscription reactivated successfully.',
+			'Reactivating…',
+			'Subscription reactivated.',
 			'Failed to reactivate subscription. Please try again.'
 		);
 	}, [subscriptionId, reactivateSubscription, handleActionWithToast]);
@@ -130,72 +139,75 @@ export function SubscriptionActions({
 				const result = await createBillingPortalSession.mutateAsync();
 				router.push(result.data.url);
 			},
-			'Creating billing portal session...',
-			'Billing portal session created successfully.',
-			'Failed to create billing portal session. Please try again.'
+			'Opening billing portal…',
+			'Redirecting…',
+			'Failed to open billing portal. Please try again.'
 		);
 	}, [createBillingPortalSession, handleActionWithToast, router]);
 
-	// Memoized action configurations based on subscription status
 	const availableActions = useMemo((): ActionConfig[] => {
-		const baseActions: ActionConfig[] = [
+		const portalBusy =
+			isProcessing ||
+			isCreateBillingPortalSessionPending ||
+			isCreateBillingPortalSessionSuccess ||
+			isCreateBillingPortalSessionError;
+
+		const base: ActionConfig[] = [
 			{
 				id: 'update',
 				label: 'Update Plan',
 				icon: Settings,
 				variant: 'default',
-				disabled: isProcessing || isCreateBillingPortalSessionPending || isCreateBillingPortalSessionSuccess || isCreateBillingPortalSessionError,
-				confirmMessage: 'Are you sure you want to update your plan?',
-				action: async () => handleUpdatePlan()
+				disabled: portalBusy,
+				confirmMessage: 'Open the billing portal to update your plan?',
+				action: handleUpdatePlan
 			}
 		];
 
-		// Status-specific actions
 		switch (status.toLowerCase()) {
 			case SUBSCRIPTION_STATUSES.ACTIVE:
-				baseActions.push({
+				base.push({
 					id: 'cancel',
 					label: 'Cancel Subscription',
 					icon: Pause,
 					variant: 'destructive',
 					disabled: isCancelling || isProcessing,
-					confirmMessage: 'Are you sure you want to cancel your subscription?',
+					confirmMessage: 'Cancel your subscription at the end of the current period?',
 					action: async () => handleCancelSubscription(true)
 				});
 				break;
-
 			case SUBSCRIPTION_STATUSES.TRIALING:
-				baseActions.push({
+				base.push({
 					id: 'cancel',
 					label: 'End Trial',
 					icon: Pause,
 					variant: 'destructive',
 					disabled: isCancelling || isProcessing,
-					confirmMessage: 'Are you sure you want to end your trial?',
+					confirmMessage: 'End your trial period now?',
 					action: async () => handleCancelSubscription(false)
 				});
 				break;
-
 			case SUBSCRIPTION_STATUSES.CANCELLED:
-				baseActions.push({
+				base.push({
 					id: 'reactivate',
 					label: 'Reactivate',
 					icon: Play,
 					variant: 'success',
 					disabled: isReactivating || isProcessing,
-					confirmMessage: 'Are you sure you want to reactivate your subscription?',
-					action: async () => handleReactivateSubscription()
+					confirmMessage: 'Reactivate your subscription?',
+					action: handleReactivateSubscription
 				});
-			}
+				break;
+		}
 
-		return baseActions;
+		return base;
 	}, [
-		status, 
-		isCancelling, 
-		isReactivating, 
-		isProcessing, 
-		isCreateBillingPortalSessionPending, 
-		isCreateBillingPortalSessionSuccess, 
+		status,
+		isCancelling,
+		isReactivating,
+		isProcessing,
+		isCreateBillingPortalSessionPending,
+		isCreateBillingPortalSessionSuccess,
 		isCreateBillingPortalSessionError,
 		handleUpdatePlan,
 		handleCancelSubscription,
@@ -203,78 +215,61 @@ export function SubscriptionActions({
 	]);
 
 	const handleActionClick = useCallback((action: ActionConfig) => {
-		if (action.confirmMessage) {
-			setShowConfirmDialog(action.id);
-		} else {
-			action.action();
-		}
+		if (action.confirmMessage) setShowConfirmDialog(action.id);
+		else action.action();
 	}, []);
 
-	const handleConfirmAction = useCallback(async (actionId: string) => {
-		if (actionId === 'cancel') {
-			const cancelAtPeriodEnd = status.toLowerCase() === SUBSCRIPTION_STATUSES.ACTIVE;
-			await handleCancelSubscription(cancelAtPeriodEnd);
-		} else if (actionId === 'reactivate') {
-			await handleReactivateSubscription();
-		} else if (actionId === 'update') {
-			await handleUpdatePlan();
-		}
-		else if (actionId === 'billing-portal') {
-			await handleBillingPortalSession();
-		}
-	}, [status, handleCancelSubscription, handleReactivateSubscription, handleUpdatePlan, handleBillingPortalSession]);
+	const handleConfirmAction = useCallback(
+		async (actionId: string) => {
+			if (actionId === 'cancel') {
+				await handleCancelSubscription(status.toLowerCase() === SUBSCRIPTION_STATUSES.ACTIVE);
+			} else if (actionId === 'reactivate') {
+				await handleReactivateSubscription();
+			} else if (actionId === 'update') {
+				await handleUpdatePlan();
+			} else if (actionId === 'billing-portal') {
+				await handleBillingPortalSession();
+			}
+		},
+		[status, handleCancelSubscription, handleReactivateSubscription, handleUpdatePlan, handleBillingPortalSession]
+	);
 
-	// Error aggregation
-	const hasErrors = cancelError || reactivateError;
 	const errorMessages = [cancelError?.message, reactivateError?.message].filter(Boolean);
 
-	if (availableActions.length === 0) {
-		return null;
-	}
+	if (availableActions.length === 0) return null;
 
 	return (
 		<div className={cn('space-y-3', className)}>
-			{/* Actions Toggle */}
+			{/* Toggle */}
 			<div className="flex justify-end">
 				<button
 					onClick={() => setIsExpanded(!isExpanded)}
-					className="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-white/4 rounded-lg hover:bg-slate-200 dark:hover:bg-white/6 transition-colors"
+					className="inline-flex items-center gap-1.5 h-8 px-3 text-xs font-medium rounded-md border border-neutral-200 dark:border-white/10 text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-white/6 transition-colors"
 				>
-					<Settings className="w-4 h-4" />
-					{isExpanded ? 'Hide' : 'Actions'}
+					<Settings className="h-3.5 w-3.5" />
+					{isExpanded ? 'Hide Actions' : 'Actions'}
 				</button>
 			</div>
 
-			{/* Actions Panel */}
 			{isExpanded && (
-				<div className="bg-white dark:bg-white/5 border border-slate-200 dark:border-white/6 rounded-lg p-4 shadow-xs">
-					<div className="flex items-center justify-between mb-4">
-						<h4 className="text-base font-semibold text-slate-900 dark:text-slate-100">
-							Subscription Actions
-						</h4>
+				<div className="bg-white dark:bg-white/3 border border-neutral-200 dark:border-white/8 rounded-lg p-4">
+					<div className="flex items-center justify-between mb-3">
+						<p className="text-xs font-semibold text-neutral-900 dark:text-white">Subscription Actions</p>
 						<div className="flex items-center gap-2">
-							<span className="text-xs text-slate-500 dark:text-slate-400 capitalize">
+							<span className="text-xs text-neutral-500 dark:text-neutral-400 capitalize">
 								{status.replace('_', ' ')}
 							</span>
-							<span className="text-xs text-slate-600 dark:text-slate-300 font-medium">
-								{planName}
-							</span>
+							<span className="text-xs font-medium text-neutral-700 dark:text-neutral-300">{planName}</span>
 						</div>
 					</div>
 
-					{/* Error Display */}
-					{hasErrors && (
-						<div className="mb-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700/50 rounded-lg">
-							<div className="flex items-center gap-2">
-								<AlertTriangle className="w-4 h-4 text-red-500" />
-								<p className="text-sm text-red-700 dark:text-red-300">
-									{errorMessages[0] || 'Action failed'}
-								</p>
-							</div>
+					{errorMessages.length > 0 && (
+						<div className="mb-3 p-3 bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 rounded-lg flex items-center gap-2">
+							<AlertTriangle className="h-4 w-4 text-red-500 shrink-0" />
+							<p className="text-xs text-red-700 dark:text-red-400">{errorMessages[0]}</p>
 						</div>
 					)}
 
-					{/* Actions Grid */}
 					<div className="flex flex-wrap gap-2 justify-end">
 						{availableActions.map((action) => (
 							<button
@@ -282,56 +277,43 @@ export function SubscriptionActions({
 								onClick={() => handleActionClick(action)}
 								disabled={action.disabled}
 								className={cn(
-									'flex items-center justify-center gap-2 px-3 py-1.5 rounded-md font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm',
-									action.variant === 'default' && 'bg-slate-900/10 hover:bg-slate-900/10 text-slate-200 border border-slate-900/50 dark:border-slate-100/50',
-									action.variant === 'destructive' && 'bg-red-900 hover:bg-red-900 text-white border border-red-900/50 dark:border-red-100/50',
-									action.variant === 'success' && 'bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-300/50 dark:border-emerald-100/50',
-									action.variant === 'secondary' && 'bg-slate-900/50 hover:bg-slate-900/10 text-slate-200 border border-slate-900/50 dark:border-slate-100/50'
+									'inline-flex items-center gap-1.5 h-8 px-3 text-xs font-medium rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed',
+									variantClass[action.variant]
 								)}
 							>
-								<action.icon className="w-3.5 h-3.5" />
-								<span className="font-medium">
-									{action.disabled ? 'Processing...' : action.label}
-								</span>
+								<action.icon className="h-3.5 w-3.5" />
+								{action.disabled ? 'Processing…' : action.label}
 							</button>
 						))}
 					</div>
 				</div>
 			)}
 
-			{/* Confirmation Dialog */}
+			{/* Confirmation dialog */}
 			{showConfirmDialog && (
 				<div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-					<div className="bg-white dark:bg-white/5 rounded-lg p-4 max-w-sm mx-4 shadow-lg border border-slate-200 dark:border-white/6">
+					<div className="bg-white dark:bg-neutral-900 rounded-xl p-5 max-w-sm w-full mx-4 shadow-xl border border-neutral-200 dark:border-white/10">
 						<div className="flex items-center gap-2 mb-3">
-							<AlertTriangle className="w-5 h-5 text-orange-500" />
-							<h3 className="text-base font-semibold text-slate-900 dark:text-slate-100">
-								Confirm Action
-							</h3>
+							<AlertTriangle className="h-4 w-4 text-amber-500 shrink-0" />
+							<p className="text-sm font-semibold text-neutral-900 dark:text-white">Confirm Action</p>
 						</div>
-
-						<p className="text-sm text-slate-600 dark:text-slate-400 mb-4">
+						<p className="text-xs text-neutral-600 dark:text-neutral-400 mb-4">
 							{availableActions.find((a) => a.id === showConfirmDialog)?.confirmMessage}
 						</p>
-
 						<div className="flex gap-2 justify-end">
 							<button
 								onClick={() => setShowConfirmDialog(null)}
-								className="px-3 py-1.5 text-sm font-medium text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-white/4 rounded-sm hover:bg-slate-200 dark:hover:bg-white/6 transition-colors"
 								disabled={isProcessing}
+								className="inline-flex items-center h-8 px-3 text-xs font-medium rounded-md border border-neutral-200 dark:border-white/10 text-neutral-600 dark:text-neutral-400 hover:bg-neutral-100 dark:hover:bg-white/6 transition-colors disabled:opacity-50"
 							>
 								Cancel
 							</button>
 							<button
 								onClick={() => handleConfirmAction(showConfirmDialog)}
-								className="px-3 py-1.5 text-sm font-medium text-white bg-red-600 rounded-sm hover:bg-red-700 transition-colors disabled:opacity-50"
 								disabled={isProcessing}
+								className="inline-flex items-center gap-1.5 h-8 px-3 text-xs font-medium rounded-md bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 hover:bg-neutral-700 dark:hover:bg-neutral-100 transition-colors disabled:opacity-50"
 							>
-								{isProcessing ? (
-									<Loader2 className="w-4 h-4 animate-spin" />
-								) : (
-									'Confirm'
-								)}
+								{isProcessing ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : 'Confirm'}
 							</button>
 						</div>
 					</div>

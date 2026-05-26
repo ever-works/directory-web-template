@@ -1,4 +1,4 @@
-# Feature spec — `034-admin-header-profile-link`
+# Feature spec — `035-admin-header-profile-link`
 
 > Jira: [EWW-5](https://evertech.atlassian.net/browse/EWW-5)
 

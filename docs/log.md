@@ -31,9 +31,9 @@ why** at a higher level than per-commit diffs.
 
 ---
 
-## 2026-05-26 — Spec 034: Admin header profile link
+## 2026-05-26 — Spec 035: Admin header profile link
 
-- spec-034: drafted `docs/spec/034-admin-header-profile-link/spec.md` and
+- spec-035: drafted `docs/spec/035-admin-header-profile-link/spec.md` and
   shipped the fix in the same PR (EWW-5). The admin branch of the shared
   `ProfileButton` dropdown (`apps/web/components/profile-button/menu-items.tsx`)
   omitted the "Your Profile" link the non-admin branch has, so an admin had no
@@ -41,10 +41,40 @@ why** at a higher level than per-commit diffs.
   `common.YOUR_PROFILE` / `common.YOUR_PROFILE_DESC` i18n keys. The `/admin`
   panel header (`apps/web/app/[locale]/admin/layout-client.tsx`) keeps its
   `Admin Panel` label unchanged (an earlier revision added a header button, then
-  reverted it per review feedback).
+  reverted it per review feedback). (Spec was originally numbered 034 in the PR
+  branch but renumbered to 035 on merge to avoid collision with the already-
+  merged spec-034 Client Billing UI consistency.)
 
 ---
 
+## 2026-05-26 — Spec 034: Client Billing — wire placeholder actions
+
+- spec-034: connected previously-dead billing controls to real behaviour
+  (EW-649). Export / Export Results → client-side CSV via new
+  `lib/utils/billing-csv.ts`; View History → Payment History tab; status
+  filter checkboxes lifted to the page and actually applied; Date Range →
+  opens advanced filters; payment-card Download → `invoiceUrl`; LemonSqueezy
+  Cancel Plan → `POST /api/lemonsqueezy/cancel` via existing
+  `useSubscriptionActions` (confirm + toast + refresh; removed `console.log`
+  + orphan modal state); Modify Plan → `/pricing`; View Details → details
+  disclosure; Contact Support → `mailto:`. No new API routes.
+
+## 2026-05-26 — Spec 034: Client Billing page UI consistency
+
+- spec-034: drafted `docs/spec/034-client-billing-ui-consistency/spec.md` and
+  shipped the implementation in the same PR (EW-649). UI-only realignment of
+  `/client/settings/profile/billing` (and its `components/settings/billing/**`
+  sub-components) with the **client dashboard** design system: neutral palette
+  (dropped all `slate-*` and `theme-primary-*`), `bg-white dark:bg-white/3`
+  card surfaces with `border-neutral-200 dark:border-white/8`, monochrome icon
+  tiles, `neutral-900 / white` primary CTAs. Rewrote the KPI cards
+  (`billing-stats.tsx`) to mirror the dashboard `StatsCard` (no gradients) and
+  the tab bar (`tab-navigation.tsx`) to the dashboard underline tabs; matched
+  the page header to `DashboardHeader`. Routed page-level hardcoded strings
+  through the `billing` i18n namespace (new keys `FREE`, `UPGRADE`,
+  `RENEWS_ON`, `UPGRADE_UNLOCK_FEATURES`, `DAYS_LEFT`, `DAYS_TOTAL` in
+  `messages/en.json`; non-English locales fall back via the existing
+  `deepmerge` config). No functional/data changes.
 ## 2026-05-25 — Spec 033: Client profile Security & Billing blocks
 
 - spec-033: drafted `docs/spec/033-client-profile-security-billing/spec.md`
