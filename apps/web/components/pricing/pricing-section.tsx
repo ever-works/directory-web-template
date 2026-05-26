@@ -351,7 +351,11 @@ export function PricingSection({ onSelectPlan, isReview, initialSelectedPlan }: 
 				)}
 			</div>
 
-			{/* Sponsor Ads Block - Modern Centered Design */}
+			{/* Sponsor Ads Block - Modern Centered Design.
+				Only shown on the standalone /pricing page — hidden in the
+				submit (review) flow where this section is rendered as the
+				payment step. */}
+			{!isReview && (
 			<div className="mt-40 mb-12 max-w-5xl mx-auto animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
 				<div className="relative">
 					{/* Animated Radar Circles at Top — clipped to top half only.
@@ -461,8 +465,11 @@ export function PricingSection({ onSelectPlan, isReview, initialSelectedPlan }: 
 				</div>
 			</div>
 
-			{/* Enhanced Continue Section */}
-			{selectedPlan && (
+			)}
+
+			{/* Enhanced Continue Section — only on the standalone /pricing
+				page; the submit (review) flow has its own form navigation. */}
+			{!isReview && selectedPlan && (
 				<div className="text-center relative animate-fade-in-up">
 
 					<div className={`absolute overflow-hidden top-20 w-4/5 h-72 left-1/2 -translate-x-1/2`}>
@@ -504,7 +511,9 @@ export function PricingSection({ onSelectPlan, isReview, initialSelectedPlan }: 
 				</div>
 			)}
 
-			{/* Trust Section */}
+			{/* Trust Section — only on the standalone /pricing page, hidden
+				in the submit (review) flow payment step. */}
+			{!isReview && (
 			<div className="mt-10 lg:mb-20 text-center animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
 				<div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
 					{[
@@ -539,6 +548,7 @@ export function PricingSection({ onSelectPlan, isReview, initialSelectedPlan }: 
 					))}
 				</div>
 			</div>
+			)}
 			<PaymentFlowSelectorModal
 				selectedFlow={selectedFlow}
 				isOpen={isModalOpen}

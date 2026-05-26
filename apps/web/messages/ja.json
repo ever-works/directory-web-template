@@ -731,6 +731,15 @@
 			"REVIEW_PUBLISH": "Review & Publish"
 		},
 		"DETAILS_FORM": {
+			"VIDEO_URL_LABEL": "動画URL（YouTubeまたはVimeo）",
+			"VIDEO_PREVIEW": "動画プレビュー",
+			"STEP_TITLE_BASIC_INFO": "基本情報",
+			"STEP_TITLE_PAYMENT": "お支払い",
+			"STEP_TITLE_REVIEW": "確認",
+			"TOAST_INVALID_URL": "アイテムの有効なURLを入力してください。",
+			"TOAST_SUBMIT_SUCCESS": "アイテムが正常に送信されました！",
+			"TOAST_SUBMIT_FAILED": "アイテムの送信に失敗しました",
+			"TOAST_SUBMIT_ERROR": "フォームの送信中にエラーが発生しました。もう一度お試しください。",
 			"TITLE": "Tell Us About Your Product",
 			"DESCRIPTION": "Share the details that will help users discover and understand your amazing product",
 			"STEP_INDICATOR": "Step {step} of 3 · Product Details",
@@ -764,7 +773,8 @@
 			"REMOVE_LINK": "Remove link",
 			"REVIEW_AND_SUBMIT": "Review & Submit",
 			"EXTRACT": "抽出",
-			"EXTRACTING": "抽出中..."
+			"EXTRACTING": "抽出中...",
+				"URL_FORMAT_HINT": "URLはhttps://またはhttp://で始まる必要があります"
 		},
 		"PAYMENT": {
 			"TITLE": "Complete Your Order",

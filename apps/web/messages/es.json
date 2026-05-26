@@ -733,6 +733,15 @@
 			"REVIEW_PUBLISH": "Revisar y publicar"
 		},
 		"DETAILS_FORM": {
+			"VIDEO_URL_LABEL": "URL del vídeo (YouTube o Vimeo)",
+			"VIDEO_PREVIEW": "Vista previa del vídeo",
+			"STEP_TITLE_BASIC_INFO": "Información básica",
+			"STEP_TITLE_PAYMENT": "Pago",
+			"STEP_TITLE_REVIEW": "Revisión",
+			"TOAST_INVALID_URL": "Proporcione una URL válida para su elemento.",
+			"TOAST_SUBMIT_SUCCESS": "¡Elemento enviado correctamente!",
+			"TOAST_SUBMIT_FAILED": "Error al enviar el elemento",
+			"TOAST_SUBMIT_ERROR": "Error al enviar el formulario. Inténtelo de nuevo.",
 			"TITLE": "Cuéntanos sobre tu producto",
 			"DESCRIPTION": "Comparte los detalles que ayudarán a los usuarios a descubrir y entender tu increíble producto",
 			"STEP_INDICATOR": "Paso {step} de 3 · Detalles del producto",
@@ -766,7 +775,8 @@
 			"REMOVE_LINK": "Eliminar enlace",
 			"REVIEW_AND_SUBMIT": "Revisar y Enviar",
 			"EXTRACT": "Extraer",
-			"EXTRACTING": "Extrayendo..."
+			"EXTRACTING": "Extrayendo...",
+				"URL_FORMAT_HINT": "La URL debe comenzar con https:// o http://"
 		},
 		"PAYMENT": {
 			"TITLE": "Completa tu pedido",

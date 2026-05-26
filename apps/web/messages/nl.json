@@ -731,6 +731,15 @@
 			"REVIEW_PUBLISH": "Review & Publish"
 		},
 		"DETAILS_FORM": {
+			"VIDEO_URL_LABEL": "Video-URL (YouTube of Vimeo)",
+			"VIDEO_PREVIEW": "Videovoorbeeld",
+			"STEP_TITLE_BASIC_INFO": "Basisinformatie",
+			"STEP_TITLE_PAYMENT": "Betaling",
+			"STEP_TITLE_REVIEW": "Controle",
+			"TOAST_INVALID_URL": "Geef een geldige URL op voor uw item.",
+			"TOAST_SUBMIT_SUCCESS": "Item succesvol ingediend!",
+			"TOAST_SUBMIT_FAILED": "Indienen van item mislukt",
+			"TOAST_SUBMIT_ERROR": "Fout bij het indienen van het formulier. Probeer het opnieuw.",
 			"TITLE": "Tell Us About Your Product",
 			"DESCRIPTION": "Share the details that will help users discover and understand your amazing product",
 			"STEP_INDICATOR": "Step {step} of 3 · Product Details",
@@ -764,7 +773,8 @@
 			"REMOVE_LINK": "Remove link",
 			"REVIEW_AND_SUBMIT": "Review & Submit",
 			"EXTRACT": "Extraheren",
-			"EXTRACTING": "Extraheren..."
+			"EXTRACTING": "Extraheren...",
+				"URL_FORMAT_HINT": "URL moet beginnen met https:// of http://"
 		},
 		"PAYMENT": {
 			"TITLE": "Complete Your Order",

@@ -809,6 +809,15 @@
 			"REVIEW_PUBLISH": "검토 및 게시"
 		},
 		"DETAILS_FORM": {
+			"VIDEO_URL_LABEL": "동영상 URL (YouTube 또는 Vimeo)",
+			"VIDEO_PREVIEW": "동영상 미리보기",
+			"STEP_TITLE_BASIC_INFO": "기본 정보",
+			"STEP_TITLE_PAYMENT": "결제",
+			"STEP_TITLE_REVIEW": "검토",
+			"TOAST_INVALID_URL": "항목에 대한 유효한 URL을 입력하세요.",
+			"TOAST_SUBMIT_SUCCESS": "항목이 성공적으로 제출되었습니다!",
+			"TOAST_SUBMIT_FAILED": "항목 제출에 실패했습니다",
+			"TOAST_SUBMIT_ERROR": "양식 제출 중 오류가 발생했습니다. 다시 시도해 주세요.",
 			"TITLE": "제품에 대해 알려주세요",
 			"DESCRIPTION": "사용자가 놀라운 제품을 발견하고 이해할 수 있도록 도와주는 세부정보를 공유하세요",
 			"STEP_INDICATOR": "3단계 중 {step}단계 · 제품 상세정보",
@@ -842,7 +851,8 @@
 			"REMOVE_LINK": "링크 제거",
 			"REVIEW_AND_SUBMIT": "검토 및 제출",
 			"EXTRACT": "추출",
-			"EXTRACTING": "추출 중..."
+			"EXTRACTING": "추출 중...",
+				"URL_FORMAT_HINT": "URL은 https:// 또는 http://로 시작해야 합니다"
 		},
 		"PAYMENT": {
 			"TITLE": "주문 완료",

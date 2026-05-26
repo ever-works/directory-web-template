@@ -53,6 +53,61 @@ why** at a higher level than per-commit diffs.
   `i18n/request.ts` remains as a safety net. No new queries, hooks,
   dependencies, or schema changes. (PR: #930, draft)
 
+## 2026-05-24 — /submit: fix step-1 progress jumping to 100%
+
+- `apps/web/components/directory/details-form/components/step-indicator.tsx`
+  + `.../validation/form-validators.ts`: step 1's progress bar/checkmark
+  jumped straight to 100% once Product Name + URL were filled, because the
+  connector fill short-circuited to 100% on the navigation-gate fields
+  (`['name','link']`). Reworked it to be proportional to the actually-tracked
+  fields and reset step 1's `progressFields` to the five visible inputs
+  (`link`, `name`, `category`, `tags`, `description`). Category/Tags are
+  filtered out of the count when those features are disabled in settings, so
+  the bar can still reach 100%. The step is now marked complete only when all
+  applicable tracked fields are filled.
+
+## 2026-05-24 — /submit: hide pricing-only promo sections in payment step
+
+- `apps/web/components/pricing/pricing-section.tsx`: gated the "Sponsor Ads"
+  promo block, the "Enhanced Continue Section" (its own continue-to-/submit
+  CTA), and the "Trust Section" behind `!isReview` so they render only on the
+  standalone `/pricing` page, not when `PricingSection` is embedded as the
+  submit-flow payment step (`PaymentStep` passes `isReview`). Matches the
+  existing `!isReview` gating used for the section's decorative background and
+  header; the submit flow has its own form navigation, so the continue CTA was
+  redundant there.
+
+## 2026-05-24 — i18n: translate remaining hard-coded strings on /submit
+
+- `apps/web/components/submit/submit-form-client.tsx`,
+  `apps/web/components/directory/details-form/steps/basic-info-step.tsx`,
+  `.../components/step-indicator.tsx`, `.../details-form.tsx`,
+  `.../validation/form-validators.ts`: replaced the last hard-coded English
+  strings on the submit page with `next-intl` keys — the four submit toast
+  messages (invalid URL / success / failed / generic error), the Video URL
+  field label, the video-preview iframe title, the rich-text editor
+  placeholder (reused existing `DETAILED_INTRODUCTION_PLACEHOLDER`), and the
+  three step-indicator/header titles (Basic Information / Payment / Review,
+  via a new `titleKey` on each `StepDefinition`). Added 9 new
+  `directory.DETAILS_FORM` keys (`VIDEO_URL_LABEL`, `VIDEO_PREVIEW`,
+  `STEP_TITLE_BASIC_INFO/PAYMENT/REVIEW`,
+  `TOAST_INVALID_URL/SUBMIT_SUCCESS/SUBMIT_FAILED/SUBMIT_ERROR`) across all 21
+  locale files. No behaviour change.
+
+## 2026-05-24 — Fix: /submit drops location and extra categories
+
+- `apps/web/components/submit/submit-form-client.tsx`: the submit handler built
+  its API payload from the singular `category` field (first selected id only)
+  and omitted `location` entirely, so a multi-category selection silently lost
+  every category after the first, and any location collected by `LocationFields`
+  (including when `requireLocationOnSubmit` gates the form) was discarded before
+  reaching `POST /api/client/items`. The payload now sends the full
+  `categories` array when present and includes `location` when set — both are
+  already supported by `ClientCreateItemRequest` and persisted by
+  `ClientItemRepository.createAsClient`. UI-only fix; no API/schema changes.
+
+---
+
 ## 2026-05-21 — Spec 032: Collection icon picker — implementation
 
 - spec-032: drafted `docs/spec/032-collection-icon-picker/spec.md` and shipped

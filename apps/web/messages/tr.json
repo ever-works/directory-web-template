@@ -809,6 +809,15 @@
 			"REVIEW_PUBLISH": "İncele ve Yayınla"
 		},
 		"DETAILS_FORM": {
+			"VIDEO_URL_LABEL": "Video URL'si (YouTube veya Vimeo)",
+			"VIDEO_PREVIEW": "Video Önizlemesi",
+			"STEP_TITLE_BASIC_INFO": "Temel Bilgiler",
+			"STEP_TITLE_PAYMENT": "Ödeme",
+			"STEP_TITLE_REVIEW": "İnceleme",
+			"TOAST_INVALID_URL": "Lütfen öğeniz için geçerli bir URL girin.",
+			"TOAST_SUBMIT_SUCCESS": "Öğe başarıyla gönderildi!",
+			"TOAST_SUBMIT_FAILED": "Öğe gönderilemedi",
+			"TOAST_SUBMIT_ERROR": "Form gönderilirken hata oluştu. Lütfen tekrar deneyin.",
 			"TITLE": "Ürününüz Hakkında Bize Bilgi Verin",
 			"DESCRIPTION": "Kullanıcıların harika ürününüzü keşfetmesine ve anlamasına yardımcı olacak detayları paylaşın",
 			"STEP_INDICATOR": "3. Adım {step} · Ürün Detayları",
@@ -842,7 +851,8 @@
 			"REMOVE_LINK": "Bağlantıyı kaldır",
 			"REVIEW_AND_SUBMIT": "İncele ve Gönder",
 			"EXTRACT": "Çıkar",
-			"EXTRACTING": "Çıkarılıyor..."
+			"EXTRACTING": "Çıkarılıyor...",
+				"URL_FORMAT_HINT": "URL, https:// veya http:// ile başlamalıdır"
 		},
 		"PAYMENT": {
 			"TITLE": "Siparişinizi Tamamlayın",

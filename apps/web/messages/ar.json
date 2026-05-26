@@ -730,6 +730,15 @@
 			"REVIEW_PUBLISH": "مراجعة ونشر"
 		},
 		"DETAILS_FORM": {
+			"VIDEO_URL_LABEL": "رابط الفيديو (يوتيوب أو فيميو)",
+			"VIDEO_PREVIEW": "معاينة الفيديو",
+			"STEP_TITLE_BASIC_INFO": "المعلومات الأساسية",
+			"STEP_TITLE_PAYMENT": "الدفع",
+			"STEP_TITLE_REVIEW": "المراجعة",
+			"TOAST_INVALID_URL": "يرجى إدخال رابط صالح لعنصرك.",
+			"TOAST_SUBMIT_SUCCESS": "تم إرسال العنصر بنجاح!",
+			"TOAST_SUBMIT_FAILED": "فشل إرسال العنصر",
+			"TOAST_SUBMIT_ERROR": "حدث خطأ أثناء إرسال النموذج. يرجى المحاولة مرة أخرى.",
 			"TITLE": "أخبرنا عن منتجك",
 			"DESCRIPTION": "شارك التفاصيل التي ستساعد المستخدمين في اكتشاف وفهم منتجك الرائع",
 			"STEP_INDICATOR": "الخطوة {step} من 3 · تفاصيل المنتج",
@@ -763,7 +772,8 @@
 			"REMOVE_LINK": "إزالة الرابط",
 			"REVIEW_AND_SUBMIT": "مراجعة وإرسال",
 			"EXTRACT": "استخراج",
-			"EXTRACTING": "جاري الاستخراج..."
+			"EXTRACTING": "جاري الاستخراج...",
+				"URL_FORMAT_HINT": "يجب أن يبدأ الرابط بـ https:// أو http://"
 		},
 		"PAYMENT": {
 			"TITLE": "إتمام طلبك",

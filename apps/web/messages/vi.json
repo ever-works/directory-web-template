@@ -809,6 +809,15 @@
 			"REVIEW_PUBLISH": "Đánh giá & Xuất bản"
 		},
 		"DETAILS_FORM": {
+			"VIDEO_URL_LABEL": "URL video (YouTube hoặc Vimeo)",
+			"VIDEO_PREVIEW": "Xem trước video",
+			"STEP_TITLE_BASIC_INFO": "Thông tin cơ bản",
+			"STEP_TITLE_PAYMENT": "Thanh toán",
+			"STEP_TITLE_REVIEW": "Xem lại",
+			"TOAST_INVALID_URL": "Vui lòng cung cấp một URL hợp lệ cho mục của bạn.",
+			"TOAST_SUBMIT_SUCCESS": "Đã gửi mục thành công!",
+			"TOAST_SUBMIT_FAILED": "Gửi mục thất bại",
+			"TOAST_SUBMIT_ERROR": "Lỗi khi gửi biểu mẫu. Vui lòng thử lại.",
 			"TITLE": "Hãy cho chúng tôi biết về sản phẩm của bạn",
 			"DESCRIPTION": "Chia sẻ những chi tiết sẽ giúp người dùng khám phá và hiểu được sản phẩm tuyệt vời của bạn",
 			"STEP_INDICATOR": "Bước {bước} trên 3 · Chi tiết sản phẩm",
@@ -842,7 +851,8 @@
 			"REMOVE_LINK": "Xóa liên kết",
 			"REVIEW_AND_SUBMIT": "Xem xét và gửi",
 			"EXTRACT": "Trích xuất",
-			"EXTRACTING": "Đang trích xuất..."
+			"EXTRACTING": "Đang trích xuất...",
+				"URL_FORMAT_HINT": "URL phải bắt đầu bằng https:// hoặc http://"
 		},
 		"PAYMENT": {
 			"TITLE": "Hoàn tất đơn hàng của bạn",

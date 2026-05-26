@@ -743,6 +743,15 @@
 			"REVIEW_PUBLISH": "Überprüfen & Veröffentlichen"
 		},
 		"DETAILS_FORM": {
+			"VIDEO_URL_LABEL": "Video-URL (YouTube oder Vimeo)",
+			"VIDEO_PREVIEW": "Videovorschau",
+			"STEP_TITLE_BASIC_INFO": "Grundinformationen",
+			"STEP_TITLE_PAYMENT": "Zahlung",
+			"STEP_TITLE_REVIEW": "Überprüfung",
+			"TOAST_INVALID_URL": "Bitte geben Sie eine gültige URL für Ihren Eintrag an.",
+			"TOAST_SUBMIT_SUCCESS": "Eintrag erfolgreich übermittelt!",
+			"TOAST_SUBMIT_FAILED": "Übermittlung des Eintrags fehlgeschlagen",
+			"TOAST_SUBMIT_ERROR": "Fehler beim Übermitteln des Formulars. Bitte versuchen Sie es erneut.",
 			"TITLE": "Erzählen Sie uns von Ihrem Produkt",
 			"DESCRIPTION": "Teilen Sie Details, die Benutzern helfen, Ihr großartiges Produkt zu entdecken und zu verstehen",
 			"STEP_INDICATOR": "Schritt {step} von 3 · Produktdetails",
@@ -776,7 +785,8 @@
 			"REMOVE_LINK": "Link entfernen",
 			"REVIEW_AND_SUBMIT": "Überprüfen & Absenden",
 			"EXTRACT": "Extrahieren",
-			"EXTRACTING": "Extrahieren..."
+			"EXTRACTING": "Extrahieren...",
+				"URL_FORMAT_HINT": "URL muss mit https:// oder http:// beginnen"
 		},
 		"PAYMENT": {
 			"TITLE": "Bestellung abschließen",
