@@ -185,7 +185,7 @@ export function ProfilePanel({
 							<FiCheckCircle className="w-4 h-4 text-theme-primary-500 shrink-0" aria-label={t('VERIFIED_BADGE')} />
 						)}
 					</div>
-					<p className="text-sm text-neutral-500 dark:text-neutral-400">@{profile.username}</p>
+					<p className="text-xs text-neutral-500 dark:text-neutral-400">@{profile.username}</p>
 					{profile.jobTitle && (
 						<div className="inline-flex items-center mt-1">
 							<span className="px-2 py-0.5 rounded-md bg-theme-primary-50 dark:bg-theme-primary-500/12 text-theme-primary-700 dark:text-theme-primary-300 text-xs font-medium border border-theme-primary-100 dark:border-theme-primary-500/20">
@@ -197,14 +197,14 @@ export function ProfilePanel({
 
 				{/* Bio */}
 				{/* {profile.bio && (
-					<p className="text-sm text-neutral-600 dark:text-neutral-300 leading-relaxed">
+					<p className="text-xs text-neutral-600 dark:text-neutral-300 leading-relaxed">
 						{profile.bio}
 					</p>
 				)} */}
 
 				{/* Followers / Following — LinkedIn-style inline links */}
 				{stats && (
-					<div className="flex items-center gap-1 text-sm flex-wrap">
+					<div className="flex items-center gap-1 text-xs flex-wrap">
 						<Link
 							href={`/client/profile/${profile.username}/followers`}
 							className="font-semibold text-neutral-900 dark:text-neutral-100 hover:text-theme-primary-600 dark:hover:text-theme-primary-400 transition-colors duration-150"
@@ -226,19 +226,19 @@ export function ProfilePanel({
 				{/* Info list */}
 				<div className="space-y-1.5">
 					{profile.location && (
-						<div className="flex items-center gap-2 text-sm text-neutral-600 dark:text-neutral-400 min-w-0">
+						<div className="flex items-center gap-2 text-xs text-neutral-600 dark:text-neutral-400 min-w-0">
 							<FiMapPin className="w-3.5 h-3.5 shrink-0 text-neutral-400 dark:text-neutral-500" />
 							<span className="truncate">{profile.location}</span>
 						</div>
 					)}
 					{profile.company && (
-						<div className="flex items-center gap-2 text-sm text-neutral-600 dark:text-neutral-400 min-w-0">
+						<div className="flex items-center gap-2 text-xs text-neutral-600 dark:text-neutral-400 min-w-0">
 							<FiBriefcase className="w-3.5 h-3.5 shrink-0 text-neutral-400 dark:text-neutral-500" />
 							<span className="truncate">{profile.company}</span>
 						</div>
 					)}
 					{profile.website && (
-						<div className="flex items-center gap-2 text-sm min-w-0">
+						<div className="flex items-center gap-2 text-xs min-w-0">
 							<FiGlobe className="w-3.5 h-3.5 shrink-0 text-neutral-400 dark:text-neutral-500" />
 							<a
 								href={profile.website}
@@ -250,7 +250,7 @@ export function ProfilePanel({
 							</a>
 						</div>
 					)}
-					<div className="flex items-center gap-2 text-sm text-neutral-500 dark:text-neutral-500">
+					<div className="flex items-center gap-2 text-xs text-neutral-500 dark:text-neutral-500">
 						<FiCalendar className="w-3.5 h-3.5 shrink-0" />
 						<span>{t('JOINED_DATE', { date: formatMemberSince(profile.memberSince) })}</span>
 					</div>
@@ -343,7 +343,7 @@ export function ProfilePanel({
 				{!hideActions && (isOwn ? (
 					<Link
 						href="/client/settings/profile/basic-info"
-						className="flex items-center justify-center w-full px-4 py-2.5 rounded-lg text-sm font-medium bg-black dark:bg-white text-white dark:text-black shadow-sm hover:shadow-md transition-all duration-150 active:scale-[0.98]"
+						className="flex items-center justify-center w-full px-4 py-2.5 rounded-lg text-xs font-medium bg-black dark:bg-white text-white dark:text-black shadow-sm hover:shadow-md transition-all duration-150 active:scale-[0.98]"
 					>
 						{t('EDIT_PROFILE')}
 					</Link>
