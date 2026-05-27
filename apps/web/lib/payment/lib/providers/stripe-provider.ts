@@ -583,6 +583,32 @@ export class StripeProvider implements PaymentProviderInterface {
 		}
 	}
 
+	/**
+	 * Verify and normalise an inbound Stripe webhook.
+	 *
+	 * **Signature verification is load-bearing.**
+	 * `stripe.webhooks.constructEvent` cryptographically verifies the
+	 * `Stripe-Signature` header against `this.webhookSecret`. Without
+	 * this check, anyone who knows the endpoint URL can POST fake
+	 * `payment_intent.succeeded` events and mark customers as paid.
+	 * If it throws, the error MUST propagate to the route handler so
+	 * the controller responds 400 — never `try { } catch { return ok }`
+	 * around this call.
+	 *
+	 * Unused interface params (`_rawBody`, `_timestamp`, `_webhookId`)
+	 * are kept on the signature for parity with the other provider
+	 * implementations (LemonSqueezy / Polar / Solidgate need raw body
+	 * + timestamp for HMAC verification). Stripe's SDK handles
+	 * signature verification on the already-parsed payload, so they're
+	 * inert here.
+	 *
+	 * The switch normalises Stripe-specific event names
+	 * (`payment_intent.succeeded`) to the cross-provider generic
+	 * vocabulary the rest of the codebase consumes
+	 * (`payment_succeeded`); the `default` branch passes Stripe's
+	 * event type through verbatim so new event types remain visible
+	 * upstream without requiring a code change here first.
+	 */
 	async handleWebhook(
 		payload: any,
 		signature: string,
