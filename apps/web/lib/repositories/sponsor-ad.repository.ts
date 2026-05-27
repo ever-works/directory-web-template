@@ -6,6 +6,32 @@ import type { SponsorAdListOptions, SponsorAdStats, SponsorAdWithUser, SponsorWi
 import { getCachedItems, type ItemData } from '@/lib/content';
 import { getTenantId } from '@/lib/auth/tenant';
 
+/**
+ * Sponsor-ad data layer (Drizzle + Postgres).
+ *
+ * **Tenant policy differs from peer repos.** Every function here
+ * THROWS `"Tenant ID not found"` when `getTenantId()` returns
+ * null — there is NO single-tenant fallback. Compare with
+ * `favorite.repository.ts` / `chat.repository.ts`, which both
+ * gracefully scope by `userId` alone in single-tenant deployments.
+ *
+ * The strict behaviour is appropriate for financial / billing data
+ * (a tenant-less sponsor ad would be unowned and unbillable), but
+ * it makes self-hosted single-tenant deployments unable to use
+ * sponsor ads until `tenantId` resolution is wired. If you're
+ * adding self-hosted sponsorship support, the right fix is to
+ * either ensure `getTenantId()` always returns a default for
+ * single-tenant mode OR add an explicit fallback here — not to
+ * silently strip the tenant predicate (which would leak data
+ * across tenants in multi-tenant deployments).
+ *
+ * **`getSponsorAdWithUser` issues TWO queries** (sponsor+user JOIN,
+ * then a separate reviewer lookup) instead of a self-join, because
+ * `reviewedBy` is nullable and Drizzle's left-join-twice-on-users
+ * gets noisy. Performance is fine for the admin-review surface
+ * where this is called.
+ */
+
 // ######################### Read Operations #########################
 
 /**
