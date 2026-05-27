@@ -1,6 +1,41 @@
 /**
- * In-memory session cache for eliminating 20x authentication overhead
- * MVP implementation with memory storage and fixed TTL
+ * In-memory session cache for eliminating 20x authentication overhead.
+ *
+ * MVP implementation with memory storage and fixed TTL.
+ *
+ * **Operator gotchas — read before scaling horizontally:**
+ *
+ *   1. **Per-process, per-instance.** The `Map` lives in this Node
+ *      process. A 10-pod deployment has 10 independent caches and
+ *      each pod must populate its own copy on first hit. Cache hit
+ *      rate is proportionally lower than a shared cache (Redis,
+ *      Upstash) would be.
+ *
+ *   2. **`delete()` is local-only.** Invalidating a session on
+ *      logout / role change / suspected compromise clears it on the
+ *      pod that handled the mutation; up to N-1 other pods continue
+ *      serving the cached session until {@link TTL_MS} expires
+ *      (default 10 min). For force-logout flows where seconds
+ *      matter, EITHER move this to a shared store OR keep the
+ *      cache off the security-critical path (treat it strictly as
+ *      a perf cache, not as the source of truth).
+ *
+ *   3. **Lost on restart.** Deploys clear the cache cluster-wide.
+ *      First-request-after-deploy storms can briefly amplify auth()
+ *      load by ~20x (per the optimization this cache exists to
+ *      avoid). Pre-warming is not implemented.
+ *
+ *   4. **Probabilistic cleanup.** {@link cleanup} runs on ~10% of
+ *      `set()` calls. Under low write traffic, expired entries can
+ *      linger past their TTL — `get()` still rejects them, but they
+ *      consume the {@link MAX_SIZE} (1000) slot until cleanup
+ *      eventually evicts them. Acceptable for an MVP cap; revisit
+ *      if MAX_SIZE is raised.
+ *
+ *   5. **Key derivation is async.** Every `get`/`set` does a
+ *      SHA-256 via `crypto.subtle.digest`. Negligible per call but
+ *      it adds a microtask boundary to the hot path — measurable
+ *      if request rate is very high.
  */
 
 import { Session } from 'next-auth';
