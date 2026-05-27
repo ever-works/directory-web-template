@@ -15,8 +15,9 @@
 #     fetch the work's data repo while building.
 #   * `apps/web/next.config.ts` has `output: 'standalone'`, so this Dockerfile
 #     does NOT need the full node_modules at runtime.
-#   * Image is published as `<registry>/<owner>/<work-slug>:<sha>` by the
-#     accompanying `.github/workflows/deploy_k8s.yaml`.
+#   * Images are published by `.github/workflows/docker-build-publish-*.yml`
+#     for registry-only builds and by `.github/workflows/deploy_k8s.yaml` for
+#     the Kubernetes deploy path.
 
 ARG NODE_VERSION=22-alpine
 
