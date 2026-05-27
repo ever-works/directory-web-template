@@ -18,6 +18,7 @@ declare module 'next-auth' {
 		clientProfileId?: string;
 		customerId?: string;
 		tenantId?: string;
+		username?: string | null;
 	}
 }
 
