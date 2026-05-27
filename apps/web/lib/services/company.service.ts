@@ -17,6 +17,34 @@ interface CompanyInput {
  *
  * @param input - Company name and website from client profile
  * @returns Company record or null if insufficient data
+ *
+ * **Dedup behaviour worth knowing:**
+ *
+ *   - **Domain match is normalised** (`extractDomain` strips
+ *     `www.` and lowercases) so `WWW.Example.COM` and `example.com`
+ *     land on the same row. But sibling subdomains are NOT
+ *     normalised: `mail.example.com` and `example.com` are
+ *     distinct companies — by design (different orgs may own
+ *     different subdomains) but easy to forget when debugging
+ *     "why did we get a duplicate".
+ *
+ *   - **Name fallback is EXACT MATCH.** Whitespace, punctuation,
+ *     and case differences create duplicate rows ("Acme Corp" vs
+ *     "acme corp" vs "Acme Corp."). If dedup quality matters,
+ *     normalise the name before calling, or move normalisation
+ *     into `getCompanyByName`.
+ *
+ *   - **Lookup-then-insert is NOT atomic.** Two concurrent calls
+ *     with the same domain can both clear `getCompanyByDomain`
+ *     and both proceed to `createCompany`. The schema's UNIQUE
+ *     constraint on `(domain)` / `(slug)` is what catches the
+ *     race; without it, this code produces duplicates under
+ *     concurrency.
+ *
+ *   - **Slug generation is unchecked.** `generateSlug` truncates
+ *     at 50 chars with no uniqueness probe — two companies whose
+ *     names share a 50-char prefix collide on slug. Relies on
+ *     downstream UNIQUE constraint to catch it (throws to caller).
  */
 export async function getOrCreateCompanyFromClient(
   input: CompanyInput

@@ -38,8 +38,30 @@ interface ProviderConfig {
 
 const appUrl = coreConfig.APP_URL;
 
-// Environment variables validation and configuration
-// Uses ConfigService for validated configuration
+/**
+ * Eager-static configuration snapshot for the four payment providers.
+ *
+ * **Read this before reaching for `process.env` in tests.** All private
+ * static fields below are assigned at **class-definition time** (when
+ * the module is first imported), so:
+ *
+ * - Env vars MUST be set **before** the first import of this module.
+ *   Tests that mutate `process.env` after importing it will not see
+ *   the new values until they tear down + re-require the module.
+ * - Hot-reload changes to `.env` do NOT propagate without a process
+ *   restart.
+ * - `PaymentProviderManager.reset()` clears provider instances but
+ *   does NOT re-read the env — the snapshot persists for the process
+ *   lifetime.
+ *
+ * **Provider-source inconsistency worth flagging.** Stripe,
+ * LemonSqueezy, and Polar read from `paymentConfig.*` (the validated
+ * `ConfigService` surface). Solidgate reads `process.env.SOLIDGATE_*`
+ * directly. If you add a new env var for Solidgate, you need to add
+ * it to ConfigService and update the field here, or it will skip the
+ * validation layer. Bringing Solidgate onto ConfigService is a clean
+ * follow-up but out of scope for any change to the existing fields.
+ */
 class ConfigManager {
 	private static config: ProviderConfig | null = null;
 	private static initializedProviders: Set<string> = new Set();
@@ -258,6 +280,29 @@ class ConfigManager {
 	}
 }
 
+/**
+ * Process-wide singleton store for payment-provider instances.
+ *
+ * `getProvider()` is **lazy + memoised**: the first call for a
+ * provider name constructs the instance from its ConfigManager
+ * snapshot and caches it in `instances`; subsequent calls return the
+ * same instance. The `isInitializing` map is a re-entrancy guard for
+ * the case where provider construction itself triggers another
+ * `getProvider()` for the same name (would otherwise infinitely
+ * recurse or double-construct).
+ *
+ * Two module-level entry-point shapes wrap this class, with different
+ * semantics that callers regularly mix up:
+ * - `initializeXProvider()` / `getOrCreateXProvider()` — construct
+ *   on demand, always return an instance. Use when you need to act.
+ * - `getXProvider()` — returns `null` when not yet initialised. Use
+ *   when you want to check "has anyone touched this provider yet?"
+ *   without forcing construction.
+ *
+ * `reset()` clears the instance cache (useful in tests) but does NOT
+ * re-read env vars from `ConfigManager` — see that class's eager-
+ * static caveat. To re-read env in a test, tear down the module.
+ */
 export class PaymentProviderManager {
 	private static instances = new Map<string, any>();
 	private static isInitializing = new Map<string, boolean>();

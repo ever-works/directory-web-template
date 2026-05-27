@@ -3,6 +3,20 @@ import { RoleData } from '@/lib/types/role';
 
 const API_BASE = '/api/admin/roles/active';
 
+/**
+ * Fetch the active-roles list from the admin API and expose it with
+ * loading/error state.
+ *
+ * `getActiveRoles(signal?)` accepts an optional {@link AbortSignal} and is
+ * abort-aware in two places: after the `await fetch` resolves, and inside
+ * the catch handler. In both cases, an aborted signal short-circuits state
+ * updates (so an unmount-aborted fetch never calls `setLoading`/`setError`
+ * after the component is gone), and the function returns `[]`. Callers
+ * should still wrap the call in an effect that creates and aborts an
+ * `AbortController` on cleanup if mount-aware behaviour matters.
+ *
+ * @returns Object with `{ roles, loading, error, getActiveRoles, clearError }`.
+ */
 export function useActiveRoles() {
   const [roles, setRoles] = useState<RoleData[]>([]);
   const [loading, setLoading] = useState(false);

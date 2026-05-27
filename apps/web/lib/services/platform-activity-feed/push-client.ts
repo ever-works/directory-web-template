@@ -23,7 +23,12 @@
  *
  * Spec: docs/spec/024-ew-120-platform-activity-feed/
  */
-import { randomUUID } from 'node:crypto';
+
+// Use the Web Crypto API (globalThis.crypto) rather than `node:crypto`.
+// This module is transitively imported from edge-compatible code paths
+// (instrumentation.ts, NextAuth adapter, /api/admin/navigation), and
+// Turbopack rejects `node:*` imports in those bundles. `crypto.randomUUID()`
+// is available in Node 20+ and the Edge Runtime.
 
 /**
  * Mirror of the platform's `ActivityActionType` website subset. Change
@@ -77,7 +82,7 @@ export async function emitActivityEvent(input: EmitActivityInput): Promise<void>
 
 	const payload: IngestPayload = {
 		workId,
-		eventId: randomUUID(),
+		eventId: crypto.randomUUID(),
 		actionType: input.actionType,
 		occurredAt: (input.occurredAt ?? new Date()).toISOString(),
 		summary: input.summary.slice(0, SUMMARY_MAX_CHARS),

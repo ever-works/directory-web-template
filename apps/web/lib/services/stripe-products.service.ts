@@ -70,7 +70,9 @@ const CACHE_TTL_MS = 5 * 60 * 1000; // 5 minutes
  */
 export function clearStripeProductsCache(): void {
 	productsCache = null;
-	console.log('[StripeProducts] Cache cleared');
+	if (process.env.NODE_ENV !== 'production') {
+		console.log('[StripeProducts] Cache cleared');
+	}
 }
 
 /**

@@ -31,6 +31,46 @@ why** at a higher level than per-commit diffs.
 
 ---
 
+## 2026-05-27 — Fix: Edge Runtime build break in activity-feed push client
+
+- spec-024: replaced the `import { randomUUID } from 'node:crypto'` at the top of
+  `apps/web/lib/services/platform-activity-feed/push-client.ts` with
+  `crypto.randomUUID()` (Web Crypto API). The module is transitively imported
+  from edge-compatible bundles (`instrumentation.ts`, the NextAuth adapter in
+  `lib/auth/index.ts`, and `lib/content-config-file.ts` → `/api/admin/navigation`),
+  so Turbopack rejected the `node:*` import with "A Node.js module is loaded
+  ('node:crypto') which is not supported in the Edge Runtime" and the resulting
+  `Ecmascript file had an error` blocked the `[locale]/submit` page from
+  rendering — which in turn failed the `client can submit a new item via the
+  submit form` Playwright test (button never appeared, hence
+  `missing-required-fields="<unreadable>"`). Spec 024's plan.md:90 already
+  prescribed `crypto.randomUUID()`; the original import was a deviation. Web
+  Crypto's `randomUUID` is available in Node 20+ (this repo's minimum) and the
+  Edge Runtime, so no behavior change beyond removing the build-time error.
+
+---
+
+## 2026-05-27 — Spec 036: Docker build and publish workflow
+
+- spec-036: added `.github/workflows/docker-build-publish-dev.yml`,
+  `.github/workflows/docker-build-publish-stage.yml`, and
+  `.github/workflows/docker-build-publish-prod.yml`, GHCR-first Docker
+  build/publish workflows for the template's root `Dockerfile`. The Dockerfile
+  now mirrors the sibling `../ever-works` monorepo image shape with
+  `turbo prune @ever-works/web --docker`, pruned install/build stages, and a
+  standalone Next.js runtime image; `turbo.json` now allows `STANDALONE_BUILD`
+  through to the Next.js build so `.next/standalone` is emitted. The workflows mirror the sibling
+  `../ever-works` branch-specific registry pattern while adapting it to
+  the template's single web image: `develop` publishes
+  `directory-web-template-dev`, `stage` publishes
+  `directory-web-template-stage`, and `main` publishes
+  `directory-web-template`, each tagged `latest` and short SHA. Docker Hub and
+  DigitalOcean Container Registry pushes are included only when their
+  credentials are configured. Documented the workflows in
+  `docs/deployment/docker.md`.
+
+---
+
 ## 2026-05-26 — Spec 035: Admin header profile link
 
 - spec-035: drafted `docs/spec/035-admin-header-profile-link/spec.md` and

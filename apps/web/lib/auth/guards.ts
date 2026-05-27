@@ -27,12 +27,22 @@ export async function requireAuth() {
 }
 
 /**
- * Server-side admin authorization guard for pages
- * Requires user to be authenticated AND have admin role
+ * Server-side admin authorization guard for pages.
+ *
+ * **Heads-up on staleness vs `requireAdminSession`.** This helper
+ * checks the `session.user.isAdmin` JWT claim that was set at sign-in
+ * and is sticky for the JWT's lifetime (~30 days). A user whose admin
+ * role was revoked TODAY still passes here until their JWT expires or
+ * they sign out and back in. That's fine for casual UX gates (showing
+ * an "Admin" nav link), but for **API authorisation decisions** prefer
+ * `requireAdminSession()` from `@/lib/auth/admin-guard` — it does a
+ * live `isAdmin(userId)` DB lookup per request (request-scoped
+ * memoised) and reflects the current role state, not a 30-day-stale
+ * claim.
  *
  * @returns Session object if user is admin
  * @throws Redirect to /admin/auth/signin if unauthenticated
- * @throws Redirect to /unauthorized if not admin
+ * @throws Redirect to /unauthorized if not admin (per the stale JWT claim)
  *
  * @example
  * ```tsx
@@ -78,9 +88,15 @@ export async function getSession() {
 }
 
 /**
- * Check if current user is admin without redirecting
+ * Check if current user is admin without redirecting.
  *
- * @returns true if user is admin, false otherwise
+ * Same JWT-claim staleness caveat as {@link requireAdmin} — the
+ * value comes from `session.user.isAdmin` (set at sign-in, sticky
+ * for the JWT's lifetime). For authorisation decisions where the
+ * live role state matters, use `useIsAdminLive` (client) or
+ * `requireAdminSession()` from `@/lib/auth/admin-guard` (server).
+ *
+ * @returns true if user is admin (per the JWT claim), false otherwise
  *
  * @example
  * ```tsx

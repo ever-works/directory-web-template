@@ -125,7 +125,19 @@ function extractSessionToken(request?: Request): string | null {
     if (cookieHeader) {
       const cookies = parseCookies(cookieHeader);
 
-      // NextAuth.js default session token cookie names
+      // NextAuth.js default session token cookie names.
+      //
+      // **The `next-auth.csrf-token` fallback is dubious.** CSRF
+      // tokens are a different concern from session tokens — they
+      // can rotate independently of the session, and using one as
+      // a session-cache key means a CSRF rotation cache-misses
+      // (acceptable: one extra auth() call) AND, more concerning,
+      // means a request mid-login (CSRF set, session-token not yet
+      // set) keys a cache slot that downstream requests with the
+      // actual session-token will never look up. If you remove
+      // this fallback, audit that no flow depends on the
+      // "session-token absent, CSRF present" case — most
+      // deployments shouldn't.
       const sessionToken = cookies['next-auth.session-token'] ||
                           cookies['__Secure-next-auth.session-token'] ||
                           cookies['next-auth.csrf-token'];

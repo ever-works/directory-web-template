@@ -5,6 +5,42 @@ import { RoleData, CreateRoleRequest, UpdateRoleRequest, RoleStatus, RoleListOpt
 import { Permission } from '@/lib/permissions/definitions';
 import { getTenantId } from '@/lib/auth/tenant';
 
+/**
+ * Roles + permissions data layer (Drizzle + Postgres).
+ *
+ * **Tenant isolation is THE security invariant.** Every query in
+ * this service threads `getTenantId()` into the `WHERE` clause —
+ * roles, permissions, role↔permission joins, and existence checks
+ * all filter on `tenantId`. Adding a new query that omits the
+ * tenant filter would silently leak cross-tenant data. If a
+ * caller-supplied input lands in a SQL fragment, the tenant
+ * predicate MUST still be present.
+ *
+ * **`findBy()` does NOT filter soft-deleted rows.** Every other
+ * read path applies `isNull(roles.deletedAt)`; `findBy(key, value)`
+ * skips it and will return a tombstoned role. That's a real
+ * inconsistency — either the soft-delete filter belongs here too
+ * (most callers want it), or `findBy` should be renamed to
+ * `findBy_includingDeleted` and a new filtered helper added.
+ * Worth flagging in the next admin-facing PR.
+ *
+ * **`findBy()` whitelist defends against dynamic-column injection.**
+ * The `columnMap` translates a string `key` to a Drizzle column
+ * object; unknown keys throw. Don't bypass it by accepting the
+ * column reference directly — the whitelist is the only thing
+ * stopping caller-controlled column names.
+ *
+ * **`getRolesWithPermissions` avoids N+1** by issuing one query
+ * for roles + one IN-list query for all role↔permission pairs,
+ * then grouping in memory. Don't refactor it back to a
+ * per-role-permission loop without measuring.
+ *
+ * **`updateRolePermissions` is transactional** (delete-all +
+ * re-insert). A concurrent permission grant on the same role can
+ * race with this — the loser's grant gets clobbered by the
+ * delete. For high-traffic role edits, layer optimistic locking
+ * via a `version` column.
+ */
 export class RoleDbService {
 	// Helper method to get permissions for a role
 	private async getRolePermissions(roleId: string): Promise<Permission[]> {

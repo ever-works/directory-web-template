@@ -61,6 +61,12 @@ export function BreadcrumbJsonLd({ items }: BreadcrumbJsonLdProps) {
 		<script
 			type="application/ld+json"
 			dangerouslySetInnerHTML={{
+				// Why: escape every '<' as the < JSON unicode escape so a
+				// stray '</script>' inside any breadcrumb name (or any future
+				// untrusted string we serialise here) can't terminate this
+				// inline <script> block and inject HTML. The browser still
+				// parses the value as the literal character at JSON-decode
+				// time, so it round-trips losslessly into the parsed schema.
 				__html: JSON.stringify(schema).replace(/</g, '\\u003c')
 			}}
 		/>

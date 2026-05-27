@@ -51,6 +51,25 @@ type _TrackedField = (typeof TRACKED_FIELDS)[number];
  * @param previous - Previous item state
  * @param current - Current item state
  * @returns Object with field-level changes
+ *
+ * **Behaviour worth knowing:**
+ *
+ *   - **Only fields in {@link TRACKED_FIELDS} are diffed.** A new
+ *     field added to `ItemData` is silently UNTRACKED until added
+ *     here. Audit gaps from forgetting this are invisible — the
+ *     update logs as "no changes" even when something changed.
+ *
+ *   - **Array equality is order-insensitive but element-strict.**
+ *     `isEqual` sorts both arrays then strict-compares elements,
+ *     so `['a','b']` == `['b','a']`. For arrays of **objects**
+ *     (e.g. nested tag descriptors) this breaks — `Array#sort`
+ *     coerces objects to strings (`[object Object]`) so any two
+ *     non-empty object arrays compare equal regardless of content.
+ *     Keep tracked fields primitive-only, or extend `isEqual`.
+ *
+ *   - **Returns `null`** when no tracked field changed —
+ *     {@link logUpdate} uses that to skip the audit row entirely.
+ *     Don't change the return shape without updating callers.
  */
 export function detectChanges(
 	previous: Partial<ItemData>,
@@ -92,6 +111,12 @@ function isEqual(a: unknown, b: unknown): boolean {
 /**
  * Base method to log an action
  * @param params - Action parameters
+ *
+ * **Failure is silent by design.** Audit logging must not block or
+ * fail the underlying business operation, so DB errors are caught
+ * and logged to `console.error` only. Operators monitoring audit
+ * coverage need to watch `[ItemAuditService] Failed to log action`
+ * lines — there is no other signal that a row went missing.
  */
 async function logAction(params: LogActionParams): Promise<void> {
 	try {

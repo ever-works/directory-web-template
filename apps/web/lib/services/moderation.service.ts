@@ -77,6 +77,35 @@ export async function getContentOwner(
  * @param reportId - Associated report ID
  * @param adminId - Admin user ID performing the action
  * @returns Result of the operation
+ *
+ * **Consistency caveats — read before extending this code path:**
+ *
+ *   - **No transaction wraps the three steps** (content delete →
+ *     moderation history → notification email). If
+ *     `createModerationHistory` throws after `deleteComment` /
+ *     `itemRepository.delete` succeeds, the content is gone with
+ *     NO audit trail. Wrap in a DB transaction if this matters
+ *     for compliance.
+ *
+ *   - **Audit row is gated on owner discovery.** If
+ *     `getContentOwner` fails (item has `submitted_by = null`,
+ *     comment lookup fails), the content is STILL deleted but
+ *     no moderation_history row is created. Audit-gap: an admin
+ *     can remove orphaned content with no record. Either log
+ *     unconditionally (with `userId = null`) or refuse the
+ *     deletion when owner is unknown.
+ *
+ *   - **Soft-delete vs hard-delete asymmetry.** Comments use
+ *     `deleteComment` (soft — sets `deleted_at`); items use
+ *     `itemRepository.delete` which hard-removes from Git.
+ *     A moderator restoring a removed item requires re-import,
+ *     not just an unflag — surface this in the admin UI.
+ *
+ *   - **Email is fire-and-forget.** `.catch()` without `await`
+ *     means the request returns success even if the notification
+ *     bounces. Acceptable for "informational" emails but if
+ *     legal/compliance requires proof of notice, the email send
+ *     must be awaited and any failure rolled back.
  */
 export async function removeContent(
 	contentType: ReportContentTypeValues,

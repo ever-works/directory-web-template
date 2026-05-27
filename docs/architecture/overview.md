@@ -43,7 +43,7 @@ graph TB
 
 ### Frontend Layer
 
-**Technology**: React 19 + Next.js 15
+**Technology**: React 19 + Next.js 16
 **Responsibilities**:
 - User interface rendering
 - Client-side state management
