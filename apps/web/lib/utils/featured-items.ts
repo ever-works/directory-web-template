@@ -1,3 +1,15 @@
+/**
+ * Featured-items helpers.
+ *
+ * **Caller contract — pre-filter expired entries.** Most helpers in
+ * this module (`applyFeaturedFlags`, `sortItemsWithFeatured`,
+ * `isItemFeatured`, `getFeaturedItemData`) only check `item.isActive`,
+ * not `item.featuredUntil`. An expired-but-still-active `FeaturedItem`
+ * row will leak through and get promoted in listings. Pipe
+ * `featuredItems` through {@link filterActiveFeaturedItems} (defined
+ * below) before passing it in, or fetch from a query that filters by
+ * expiration server-side. Existing call sites do this; new ones must.
+ */
 import { ItemData } from '@/lib/content';
 
 export interface FeaturedItem {
