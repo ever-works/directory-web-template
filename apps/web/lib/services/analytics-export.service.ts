@@ -1,6 +1,16 @@
 import { AdminAnalyticsOptimizedRepository } from '@/lib/repositories/admin-analytics-optimized.repository';
 
-// Constants for export formats
+/**
+ * Supported export-format constants.
+ *
+ * **`EXCEL` ('xlsx') is declared but NOT implemented** anywhere in
+ * this service — every `exportXxx` method only handles `CSV` and
+ * `JSON`, and falls through to a `"Unsupported export format"`
+ * throw for `xlsx`. If you wire `EXCEL` into a UI dropdown, the
+ * user will hit a runtime error. Either implement an XLSX path
+ * (e.g. via `exceljs`, mirroring `ItemExportService.buildXLSXBuffer`)
+ * or drop the `EXCEL` entry from this enum until it lands.
+ */
 const EXPORT_FORMATS = {
   CSV: 'csv',
   JSON: 'json',
@@ -111,7 +121,14 @@ export class AnalyticsExportService {
   }
 
   /**
-   * Export comprehensive analytics report
+   * Export comprehensive analytics report.
+   *
+   * **Hardcoded windows.** Ignores `options.dateRange` entirely —
+   * always pulls 12 months of user growth, 30 days of activity
+   * trends, top 50 items, and the 100 most recent activities.
+   * If a caller passes a custom `dateRange`, it's silently
+   * dropped. Either honour it or rename to make the fixed
+   * scope explicit.
    */
   async exportComprehensiveReport(options: ExportOptions): Promise<ExportResult> {
     if (!this.validateExportOptions(options)) throw new Error('Invalid export options');
