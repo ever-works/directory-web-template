@@ -36,8 +36,12 @@ why** at a higher level than per-commit diffs.
 - spec-036: added `.github/workflows/docker-build-publish-dev.yml`,
   `.github/workflows/docker-build-publish-stage.yml`, and
   `.github/workflows/docker-build-publish-prod.yml`, GHCR-first Docker
-  build/publish workflows for the template's root `Dockerfile`. They mirror the
-  sibling `../ever-works` branch-specific registry pattern while adapting it to
+  build/publish workflows for the template's root `Dockerfile`. The Dockerfile
+  now mirrors the sibling `../ever-works` monorepo image shape with
+  `turbo prune @ever-works/web --docker`, pruned install/build stages, and a
+  standalone Next.js runtime image; `turbo.json` now allows `STANDALONE_BUILD`
+  through to the Next.js build so `.next/standalone` is emitted. The workflows mirror the sibling
+  `../ever-works` branch-specific registry pattern while adapting it to
   the template's single web image: `develop` publishes
   `directory-web-template-dev`, `stage` publishes
   `directory-web-template-stage`, and `main` publishes

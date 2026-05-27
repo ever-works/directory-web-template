@@ -38,8 +38,11 @@ Your site will be available at `http://localhost:3000`.
 
 ## GitHub Actions Build and Publish
 
-The repository includes separate branch-specific Docker publish workflows to
-build the root `Dockerfile` and publish images without deploying them.
+The root `Dockerfile` uses Turbo prune for this pnpm monorepo, builds only
+the `@ever-works/web` workspace and its dependencies, then copies the Next.js
+standalone output into a small runtime image. The repository includes separate
+branch-specific Docker publish workflows to build that image and publish it
+without deploying it.
 
 ### Triggers
 
