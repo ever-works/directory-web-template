@@ -1,8 +1,16 @@
 'use client';
 
+import dynamic from 'next/dynamic';
 import { MapPin, Navigation, Globe, Building } from 'lucide-react';
-import { Map } from '@/components/maps';
 import { useLocationSettings } from '@/hooks/use-location-settings';
+
+const Map = dynamic(
+	() => import('@/components/maps').then((m) => ({ default: m.Map })),
+	{
+		ssr: false,
+		loading: () => <div className="h-44 rounded-xl bg-gray-100 dark:bg-white/5 animate-pulse" />,
+	}
+);
 import { useTranslations } from 'next-intl';
 import type { ItemLocationData } from '@/lib/types/item';
 import type { ServiceArea, MapMarkerData } from '@/lib/maps/types';
