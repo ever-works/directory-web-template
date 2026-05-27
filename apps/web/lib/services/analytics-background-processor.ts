@@ -30,6 +30,26 @@ interface JobMetrics {
   lastCleanup: Date;
 }
 
+/**
+ * Owns the in-process recurring timers that keep the admin analytics
+ * aggregates fresh.
+ *
+ * **Side-effect warning** — `new AnalyticsBackgroundProcessor()` is NOT
+ * inert. The constructor immediately calls `initializeJobs()`, which
+ * registers six `setInterval` jobs with the {@link BackgroundJobManager}
+ * (user growth, activity trends, top items, recent activity,
+ * performance metrics, cache cleanup — see {@link JOB_INTERVALS}). The
+ * shortest interval (`PERFORMANCE_METRICS`) fires every 30 seconds.
+ *
+ * To opt out — typical for build scripts, CLI tools, or tests that
+ * import this module without wanting timers to fire — set
+ * `DISABLE_AUTO_SYNC=true` in the environment **before** the
+ * constructor runs. There is no runtime stop method exposed; reset by
+ * killing the process or never instantiating.
+ *
+ * Treat as a singleton — instantiating twice in the same process
+ * doubles every interval's load on the DB.
+ */
 export class AnalyticsBackgroundProcessor {
   private repository: AdminAnalyticsOptimizedRepository;
   private jobs: Map<string, NodeJS.Timeout> = new Map();
