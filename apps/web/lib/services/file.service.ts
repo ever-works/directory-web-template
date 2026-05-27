@@ -44,6 +44,51 @@ export interface FileServiceConfig {
  * Generic service for handling YAML file operations
  * Follows Single Responsibility Principle and DRY principles
  * Can be used for any type of data that needs file-based persistence
+ *
+ * **Concurrency / consistency footguns:**
+ *
+ *   - **No file locking, no atomic write.** `write()` does
+ *     `writeFile(filePath, ...)` directly. Two concurrent writes
+ *     race; a crash mid-write corrupts the file. Pattern fix:
+ *     write to `.tmp` then `rename()`. Multi-worker Next.js
+ *     deployments amplify this — see {@link CategoryFileService}
+ *     for the same concern flagged earlier.
+ *
+ *   - **Backup-then-write is NOT a transaction.** If `write()` fails
+ *     after `createBackup()` succeeded, you end up with a backup
+ *     of the OLD content but no current file. Caller must restore
+ *     manually.
+ *
+ *   - **Backups accumulate.** `createBackups: true` is the default;
+ *     every write produces a timestamped backup file. No GC
+ *     policy here — disk usage grows linearly with write
+ *     frequency. Add a retention cap if writes are hot.
+ *
+ *   - **`baseDir` captured at construct time** via `getContentPath()`.
+ *     Runtime env / content-dir changes don't propagate; build
+ *     a fresh instance.
+ *
+ * **`addItem` is silently UPSERT.** Calling `addItem({id: 'x', …})`
+ * when `x` already exists merges the new fields into the existing
+ * row (`{ ...existing, ...item }` — top-level only, no deep merge).
+ * Callers expecting append-only semantics will silently mutate
+ * existing rows. The bulk `addItems` reports the upsert via its
+ * `{added, updated, skipped}` return — `addItem` doesn't.
+ *
+ * **`addItemAt(item, n)` is MOVE-or-INSERT.** If the item's id
+ * already exists, it's REMOVED from its current slot first, then
+ * inserted at `n`. So "addItemAt 5" doesn't always mean "now at
+ * index 5 in the previous order" — for an existing item, it's
+ * "moved to index 5".
+ *
+ * **`safeName = path.basename(fileName)`** defends against path
+ * traversal if the caller-supplied fileName contains `..` or
+ * absolute components. Don't bypass it.
+ *
+ * **`lineWidth: 0`** disables YAML line-wrapping → produces
+ * one-line-per-value output that diffs cleanly. Don't "fix" it
+ * to enable wrapping without coordinating with the Git-CMS
+ * conventions.
  */
 export class FileService<T extends YamlData> {
   private readonly baseDir: string;
