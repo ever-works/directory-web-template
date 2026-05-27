@@ -8,6 +8,44 @@ import { getContentPath, fsExists } from "@/lib/lib";
 /**
  * Service for handling file-based category operations
  * Follows Single Responsibility Principle - only handles file I/O
+ *
+ * **Footguns worth flagging before you trust the API at face
+ * value:**
+ *
+ *   - **`getContentPath()` is captured at construction time.**
+ *     The singleton at the bottom of this file runs the
+ *     constructor at module-import; changing env vars or content
+ *     dir at runtime won't be reflected. Hot-reload / runtime
+ *     reconfiguration scenarios need fresh instances.
+ *
+ *   - **`createBackup()` silently no-ops when `categories.yml`
+ *     doesn't exist** and STILL returns a backup path string.
+ *     Callers that pre-flight a destructive operation with a
+ *     backup will think they have one when in fact nothing was
+ *     written. Either throw, or change the return to
+ *     `Promise<string | null>` so the contract surfaces the
+ *     gap.
+ *
+ *   - **`writeCategories()` is non-atomic.** It writes directly
+ *     to `categories.yml`; a crash mid-write corrupts the live
+ *     file. Pattern fix: write to `categories.yml.tmp` then
+ *     `rename()` — the OS guarantees atomic rename on the same
+ *     filesystem. Worth applying when you next touch this code
+ *     path.
+ *
+ *   - **`applyTranslations()` swallows errors with `console.warn`
+ *     and returns the source array unmodified.** Corrupt
+ *     `categories.<lang>.yml` produces a silent fallback to
+ *     English — users see no indication that translations
+ *     failed. Acceptable as a graceful-degrade, but operators
+ *     need to watch logs to notice.
+ *
+ *   - **Singleton across Node workers is not write-safe.** In a
+ *     multi-worker Next.js deployment, two `writeCategories()`
+ *     calls hitting different workers race on the same file.
+ *     The non-atomic write above amplifies this. Treat write
+ *     paths as best-effort until both issues are fixed (or move
+ *     writes behind a single-writer lock).
  */
 export class CategoryFileService {
   private readonly contentPath: string;

@@ -48,7 +48,11 @@ export function useCreateLemonSqueezyCheckout() {
 
 			queryClient.setQueryData(lemonsqueezyKeys.checkout(), { ...data });
 
-			console.log('✅ Checkout created successfully:', data);
+			// Dev-only: checkout payload may include user-identifying URLs/IDs;
+			// keep production browser consoles quiet.
+			if (process.env.NODE_ENV !== 'production') {
+				console.log('✅ Checkout created successfully:', data);
+			}
 		},
 
 		onError: (error, _variables) => {
@@ -92,7 +96,9 @@ export function useLemonSqueezyEmbeddedCheckout({ onSuccess, onClose }: UseLemon
 
 		const initializeLemonSqueezy = () => {
 			if (typeof window !== 'undefined' && (window as any).LemonSqueezy?.Setup) {
-				console.log('🍋 Initializing LemonSqueezy...');
+				if (process.env.NODE_ENV !== 'production') {
+					console.log('🍋 Initializing LemonSqueezy...');
+				}
 				try {
 					(window as any).LemonSqueezy.Setup({
 						eventHandler: (event: any) => {
@@ -116,7 +122,9 @@ export function useLemonSqueezyEmbeddedCheckout({ onSuccess, onClose }: UseLemon
 					return;
 				}
 				retryCount++;
-				console.log(`⏳ Waiting for LemonSqueezy SDK... (${retryCount}/${MAX_RETRIES})`);
+				if (process.env.NODE_ENV !== 'production') {
+					console.log(`⏳ Waiting for LemonSqueezy SDK... (${retryCount}/${MAX_RETRIES})`);
+				}
 				timeoutId = setTimeout(initializeLemonSqueezy, 500);
 			}
 		};

@@ -18,6 +18,48 @@ export interface PostHogEventResponse {
   count: number;
 }
 
+/**
+ * Server-side wrapper around PostHog's `/api/projects/<id>/...`
+ * insight endpoints. Used by analytics dashboards / scheduled
+ * reports — distinct from the browser-side `posthog-js` client
+ * which speaks the `/capture` ingest path.
+ *
+ * **Footguns worth knowing:**
+ *
+ *   - **Errors return `0` / `{}`, not throws.** Every public
+ *     fetcher wraps `makeRequest` in try/catch and falls back to
+ *     an empty/zero value. Callers cannot distinguish "PostHog is
+ *     down / misconfigured" from "this query genuinely has 0
+ *     events". A dashboard showing zero traffic could be either —
+ *     check the `[PostHogApiService]` console.error lines.
+ *
+ *   - **`isConfigured()` is checked INSIDE `makeRequest`** as a
+ *     thrown error which the outer try/catch swallows. A
+ *     missing `personalApiKey` or `projectId` silently produces
+ *     zero-data dashboards rather than a clear "PostHog is not
+ *     configured" message.
+ *
+ *   - **Singleton captured at module-load.** `analyticsConfig`
+ *     values are read in the constructor of the bottom-of-file
+ *     `postHogApiService` singleton. Runtime env changes don't
+ *     propagate; restart the process to pick them up.
+ *
+ *   - **`baseUrl` strips `/js`** because `POSTHOG_HOST` is the
+ *     value used by the browser SDK (which appends `/js/<key>`).
+ *     The REST API lives at the bare host. Don't "fix" this
+ *     stripper without checking both call paths.
+ *
+ *   - **Date range uses `toISOString().split('T')[0]`** — that's
+ *     a UTC `YYYY-MM-DD`. Users in extreme timezones (UTC+12 /
+ *     UTC-11) may see day boundaries shifted by ±1 day relative
+ *     to their local "today". For aggregate trends this is
+ *     negligible; for "today vs yesterday" comparisons it can
+ *     cross a tier boundary.
+ *
+ *   - **`cache: 'no-cache'`** disables Next.js fetch caching;
+ *     without it dashboards would freeze on the first response
+ *     per build. Required for fresh data.
+ */
 export class PostHogApiService {
   private readonly apiKey: string | undefined;
   private readonly projectId: string | undefined;

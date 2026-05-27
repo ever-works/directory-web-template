@@ -246,7 +246,7 @@ JWT_REFRESH_TOKEN_EXPIRES_IN=7d
 ### GitHub Integration / Data Repository
 
 1. Fork the data repository:
-    - Visit https://github.com/ever-works/awesome-data
+    - Visit https://github.com/ever-works/awesome-time-tracking-data
     - Click "Fork" to create a copy
     - This repo will hold `.content` data
 
@@ -254,7 +254,7 @@ JWT_REFRESH_TOKEN_EXPIRES_IN=7d
 
 ```bash
 GH_TOKEN='your-github-token'
-DATA_REPOSITORY='https://github.com/ever-works/awesome-data'
+DATA_REPOSITORY='https://github.com/ever-works/awesome-time-tracking-data'
 ```
 
 > 💡 The `.content` folder is created and synced automatically at startup with valid GitHub credentials.

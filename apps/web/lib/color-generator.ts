@@ -2,7 +2,17 @@
  * Generates a complete color palette (50-950) from a base color
  */
 
-// Converts hex color to RGB
+/**
+ * Convert a 6-digit hex color (with or without leading `#`) to an RGB triple.
+ *
+ * Footgun: returns `{ r: 0, g: 0, b: 0 }` (pure black) for any input that
+ * doesn't match the 6-hex-digit pattern — short forms like `#fff`, alpha
+ * like `#ffffffff`, named colors, and outright invalid strings all
+ * silently fall back to black. This makes the function safe to call
+ * without a try/catch but masks upstream bugs (a typo'd brand colour
+ * silently renders as black instead of failing). Validate input at the
+ * boundary if you need the failure to surface.
+ */
 export function hexToRgb(hex: string): { r: number; g: number; b: number } {
   const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
   return result

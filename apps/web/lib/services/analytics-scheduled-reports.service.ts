@@ -45,6 +45,44 @@ interface ReportGenerationOptions {
   customRecipients?: string[];
 }
 
+/**
+ * Auto-scheduled analytics reports (daily / weekly / monthly /
+ * quarterly).
+ *
+ * **Side effects at construct time — read before you `new` this:**
+ *
+ *   - The constructor **schedules background jobs immediately**
+ *     unless `DISABLE_AUTO_SYNC=true`. If this class is
+ *     instantiated at module import (singleton pattern), report
+ *     jobs start firing on boot — a single test import can
+ *     trigger production-shaped behaviour in dev.
+ *
+ *   - **Env-var coupling**: `DISABLE_AUTO_SYNC` is a single gate
+ *     shared with the data-repo sync subsystem. Disabling reports
+ *     also disables data sync (and vice versa). Split into
+ *     separate vars (`DISABLE_AUTO_REPORTS`,
+ *     `DISABLE_AUTO_DATA_SYNC`) if operators ever need to toggle
+ *     them independently.
+ *
+ * **State is in-memory only.**
+ *   - `reportTemplates`, `scheduledReports`, `managedJobIds` are
+ *     plain `Map`s — lost on process restart. Templates are
+ *     re-initialised from {@link initializeDefaultTemplates} every
+ *     boot; user-customised templates (if added later) need
+ *     persistent storage.
+ *   - Multi-pod deployments: each pod runs its own scheduler with
+ *     its own copy of the maps. Without a coordinating lock,
+ *     daily reports get generated N times per day (once per pod).
+ *     Reuse {@link DistributedTaskLockService} from `packages/agent`
+ *     if cross-pod dedup matters.
+ *
+ * **Default recipients leak `*.ever.works` / `example.com`
+ * addresses.** `admin@demo.ever.works`, `growth@example.com`,
+ * `analytics@example.com`, `management@example.com` are
+ * placeholders that will email those literal addresses if a
+ * customer deploys without overriding the templates. Strip them
+ * out or replace before shipping to a tenant.
+ */
 export class AnalyticsScheduledReportsService {
   private exportService: AnalyticsExportService;
   private repository: AdminAnalyticsOptimizedRepository;

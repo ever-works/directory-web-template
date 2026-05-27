@@ -94,8 +94,11 @@ export function PaymentSection({
 
     try {
       // Here, you would integrate the Stripe API call
-      console.log("Processing payment for", getPlanName());
-      console.log("Card details:", paymentInfo);
+      // Dev-only: card details must never reach the browser console in production.
+      if (process.env.NODE_ENV !== "production") {
+        console.log("Processing payment for", getPlanName());
+        console.log("Card details:", paymentInfo);
+      }
 
       // Simulate processing delay
       await new Promise((resolve) => setTimeout(resolve, 2000));

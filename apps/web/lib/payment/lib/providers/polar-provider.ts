@@ -1052,7 +1052,17 @@ export class PolarProvider implements PaymentProviderInterface {
 		webhookId?: string
 	): Promise<WebhookResult> {
 		try {
-			// Verify webhook signature if secret is configured
+			// Verify webhook signature if secret is configured.
+			//
+			// **Production warning**: when `webhookSecret` is unset, this
+			// path silently accepts ANY signature with only a warn log.
+			// Intentional for dev (no secret in .env → don't break local
+			// testing), but a prod deploy with a missing
+			// POLAR_WEBHOOK_SECRET env var ships with webhook
+			// authentication effectively disabled. Validate the env at
+			// boot (e.g. in env.ts / a NODE_ENV-aware check) rather than
+			// changing this branch — keeping the dev escape hatch is
+			// useful.
 			if (this.webhookSecret) {
 				this.verifyWebhookSignature(signature, rawBody, payload, timestamp, webhookId);
 			} else {

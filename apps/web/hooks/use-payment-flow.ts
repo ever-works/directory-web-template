@@ -34,6 +34,31 @@ interface UsePaymentFlowReturn {
   getAnimationDelay: (index: number) => number;
 }
 
+/**
+ * Per-component state machine for the "pay at start vs pay at end" UX
+ * flow toggle on the checkout/subscribe surface.
+ *
+ * Two flow setters are exposed and behave differently — picking the
+ * wrong one is the most common bug here:
+ * - **`setSelectedFlow(flow)`**: synchronous, immediate. Updates state
+ *   and (when `autoSave` + `isHydrated`) writes to localStorage. Does
+ *   NOT reset `submissionStatus`. Use this for silent state-restore
+ *   paths (hydration, programmatic reset, parent-driven flow change).
+ * - **`selectFlow(flow)`**: async, returns Promise. Guards against
+ *   re-entry via `isSelecting`, runs a 150ms "feels-responsive" delay
+ *   when `enableAnimations`, then calls `setSelectedFlow` AND resets
+ *   `submissionStatus` to DRAFT. Use this for **user-initiated**
+ *   flow switches in the UI — the DRAFT reset is intentional, since
+ *   any in-progress submission against the old flow is no longer
+ *   applicable.
+ *
+ * SSR-safe hydration: `selectedFlow` is initialised from `initialFlow`
+ * for both server and client renders to avoid a mismatch warning;
+ * the stored value from localStorage is applied only after the first
+ * client-side effect (`isHydrated` guard). Until then, `autoSave`
+ * silently skips writes so a transient SSR value doesn't overwrite
+ * the persisted choice.
+ */
 export function usePaymentFlow(options: UsePaymentFlowOptions = {}): UsePaymentFlowReturn {
   const {
     initialFlow = PaymentFlow.PAY_AT_END,

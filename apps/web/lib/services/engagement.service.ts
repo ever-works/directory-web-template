@@ -25,10 +25,10 @@ function logScale(value: number, weight: number = 1000): number {
 
 /**
  * Calculate TRUE popularity score using real engagement metrics
- * 
+ *
  * Uses LOGARITHMIC SCALING for performance at scale (1M+ users)
  * This ensures items continue to differentiate even with millions of interactions
- * 
+ *
  * Scoring weights (approximate max at 1M interactions):
  * - Featured: 10,000 points (base boost)
  * - Views: ~6,000 points (weight: 1000, scales with log10)
@@ -37,6 +37,36 @@ function logScale(value: number, weight: number = 1000): number {
  * - Favorites: ~6,600 points (weight: 1100, shows strong interest)
  * - Comments: ~6,000 points (weight: 1000, indicates discussion)
  * - Recency: 0-1,750 points (decay over time)
+ *
+ * **Known behavioural caveats — flag before tuning weights:**
+ *
+ *   - **Recency decay has step discontinuities at the tier
+ *     boundaries.** At age = 30 days the first branch contributes
+ *     ~0 points but the second branch starts at 500; same shape at
+ *     90 (250 jump). Net effect: an item that just crosses 30 days
+ *     old can become *more* popular than one a day younger, purely
+ *     from the recency bonus. Fixing requires the tiers to share a
+ *     value at each boundary (e.g. anchor the lower-tier minimum to
+ *     the upper-tier maximum) — that's a behaviour change, so leave
+ *     it to a deliberate ranking-tweak PR.
+ *
+ *   - **`featured` dominates.** 10,000 points is more than the
+ *     practical sum of all other dimensions for a typical item, so
+ *     featured items effectively always sort first regardless of
+ *     engagement. Treat this score as "featured-first, then ranked"
+ *     rather than a smooth blend.
+ *
+ *   - **Rating is unweighted by sample size.** A 5-star item with
+ *     1 rating beats a 4.9-star item with 1M ratings on the
+ *     `avgRating * 500` term. If statistical confidence matters,
+ *     switch to a lower-bound estimator (Wilson / Bayesian average)
+ *     — currently out of scope.
+ *
+ *   - **Negative net votes are floored to 0** via `Math.max(votes,
+ *     0)`. Heavily-downvoted items get no penalty here, only the
+ *     absence of bonus. If brigading matters, add a separate
+ *     penalty term rather than removing the floor (negative
+ *     log is undefined).
  */
 export function calculatePopularityScore(item: ItemWithEngagement): number {
   let score = 0;

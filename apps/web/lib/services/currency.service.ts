@@ -10,6 +10,27 @@ import { detectUserCurrency } from './currency-detection.service';
 /**
  * Get user's currency preference
  * Returns currency from profile or detects it automatically
+ *
+ * **Behaviour worth knowing — this is not a pure getter:**
+ *
+ *   - **Side-effecting "get".** On cache miss (no `profile.currency`),
+ *     this triggers `detectUserCurrency` AND writes the detected
+ *     currency + country back to the user's profile. Callers that
+ *     expect a `get` to be a cheap read get an extra DB write + one
+ *     network hop's worth of latency on the first call per user.
+ *   - **USD-detected users never persist.** The "only update if
+ *     different from USD" branch means a US user re-runs
+ *     `detectUserCurrency` on every request, since their profile
+ *     stays `currency = null`. Detect-then-store unconditionally
+ *     if you care about avoiding the repeat detection cost.
+ *   - **Write failures are silently logged.** If
+ *     `updateClientProfile` throws, the outer try/catch swallows it
+ *     and returns `'USD'` — the caller sees the fallback currency,
+ *     not the actually-detected one. Watch logs for
+ *     `[CurrencyService] Error getting user currency` to spot
+ *     persistent persistence failures.
+ *   - **Anonymous users always get `'USD'`.** No IP-based detection
+ *     for guests; localisation only kicks in once they're signed in.
  */
 export async function getUserCurrency(userId: string | null | undefined, request?: Request | Headers): Promise<string> {
 	if (!userId) {

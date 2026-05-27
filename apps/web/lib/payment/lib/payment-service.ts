@@ -104,7 +104,20 @@ export class PaymentService {
   }
 
   /**
-   * Cancel a subscription
+   * Cancel a subscription.
+   *
+   * **Default is graceful (`cancelAtPeriodEnd: true`)**, NOT immediate.
+   * The user keeps access until the end of the current billing period,
+   * which is the conventional SaaS-subscription behaviour and what
+   * most payment dashboards default to. Pass `false` only when you
+   * genuinely want to terminate access right now (abuse response,
+   * GDPR purge, etc.) — that path forfeits any remaining prepaid time
+   * and bypasses the usual refund/proration flows the provider may
+   * otherwise run.
+   *
+   * @param subscriptionId Provider-side subscription id.
+   * @param cancelAtPeriodEnd `true` (default) to let the period run
+   *   out; `false` to terminate immediately.
    */
   async cancelSubscription(subscriptionId: string, cancelAtPeriodEnd: boolean = true): Promise<SubscriptionInfo> {
     return this.provider.cancelSubscription(subscriptionId, cancelAtPeriodEnd);

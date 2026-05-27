@@ -28,6 +28,41 @@ function getEmailServiceConfig() {
     timestamp: string;
   }
 
+  /**
+   * Notification-email facade. Wraps {@link EmailService} with
+   * notification-specific templates + a uniform tri-state return
+   * shape.
+   *
+   * **Return shape — callers must discriminate on TWO fields:**
+   *
+   *   - `{ success: true,  messageId }`        — sent
+   *   - `{ success: false, skipped: true,  error }` — not configured
+   *   - `{ success: false,                  error }` — actual failure
+   *
+   * Treat `success === false && skipped === true` as informational
+   * (operator hasn't wired email creds yet), but `success === false
+   * && !skipped` as a real error worth alerting on.
+   *
+   * **Behavioural gotchas:**
+   *
+   *   - **Every call instantiates a fresh `EmailService`.** No
+   *     connection pooling / config caching here — the transport
+   *     is built each send. Cheap for SaaS providers (Resend,
+   *     Novu) that use HTTPS per call, but worth folding into a
+   *     module-level singleton if throughput becomes an issue.
+   *
+   *   - **Skipped classification is a substring match** on the
+   *     error message (`includes('not available')`). If the
+   *     underlying `EmailService` ever changes that string, the
+   *     "skipped" classification silently breaks and every "not
+   *     configured" call falls through to "real failure".
+   *
+   *   - **Fallback defaults leak `ever.works` branding** —
+   *     missing `EMAIL_FROM` falls back to `'info@ever.works'`;
+   *     missing `APP_URL` falls back to `'https://demo.ever.works'`.
+   *     Customer-facing deployments must set both env vars to
+   *     avoid sending mail "from Ever Works".
+   */
   export class EmailNotificationService {
     /**
      * Send admin notification email
