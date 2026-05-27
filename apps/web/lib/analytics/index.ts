@@ -28,6 +28,37 @@ declare module 'posthog-js' {
   }
 }
 
+/**
+ * Browser-side analytics + exception-tracking singleton.
+ *
+ * Usage:
+ *   const analytics = Analytics.getInstance();
+ *   analytics.init();
+ *   analytics.capture('event', { ... });
+ *
+ * Singleton-only — the constructor is `private`. `getInstance()`
+ * lazily instantiates and reuses the same instance across imports
+ * (matters because `init()` is `setUser()`-style state that must be
+ * shared by every caller in the page).
+ *
+ * Non-obvious behaviours documented here so a future maintainer
+ * doesn't get caught:
+ *
+ * - **`init()` is idempotent.** Calling it twice in the same page
+ *   load is a silent no-op (`this.initialized` guard). Callers may
+ *   invoke it from any provider/effect without coordinating.
+ * - **SSR is a silent skip.** When `window` is undefined, `init()`
+ *   logs a warn and returns. PostHog SDKs require a browser, so this
+ *   prevents Next.js server components from accidentally triggering
+ *   the load.
+ * - **Exception-tracking provider falls back silently.** See
+ *   {@link Analytics.determineExceptionTrackingProvider} — if the
+ *   user-configured `EXCEPTION_TRACKING_PROVIDER` references a
+ *   provider that isn't actually enabled (Sentry or PostHog), the
+ *   class downgrades to the other enabled provider (or `'none'`)
+ *   and logs `console.warn`. There is no thrown error; a typo'd
+ *   env var ships with crash-reporting silently disabled.
+ */
 export class Analytics {
   private static instance: Analytics;
   private initialized = false;
