@@ -7,6 +7,40 @@ import {
   RoleWithCount 
 } from '@/lib/types/role';
 
+/**
+ * Thin repository wrapper around {@link RoleDbService}.
+ *
+ * **Purpose**: hold to the repository-pattern interface that the
+ * rest of `apps/web/lib/repositories/` follows, so controllers /
+ * services don't import the DB-service class directly. Most methods
+ * are 1:1 delegates.
+ *
+ * **Behavioural caveats worth flagging:**
+ *
+ *   - **`findWithCounts()` returns `userCount: 0` for every role**
+ *     (TODO inline). Any caller filtering / displaying user counts
+ *     gets misleading data. If the admin "X users in this role"
+ *     surface starts shipping wrong numbers, this is the cause.
+ *
+ *   - **`hardDelete()` bypasses the soft-delete invariant** —
+ *     gone from disk, no `deletedAt` flag for forensics. Use only
+ *     for orphan / test data cleanup; default to `delete()` for
+ *     all user-driven deletions.
+ *
+ *   - **`findByName()` inherits the [findBy soft-delete gap]**
+ *     from `RoleDbService` — returns tombstoned rows. If callers
+ *     are seeing "this role was deleted but still appears in
+ *     lookups", that's why.
+ *
+ *   - **`findActive()` hard-caps at 1000** — no pagination. A
+ *     deployment with >1000 active roles silently truncates the
+ *     list. Switch to paginated read if that's plausible.
+ *
+ *   - **`new RoleDbService()` per repository instance** — caller
+ *     instantiating many repositories pays for many service
+ *     objects. Cheap (no DB connection in constructor) but worth
+ *     noting if `RoleDbService` ever takes on per-instance state.
+ */
 export class RoleRepository {
   private dbService: RoleDbService;
 
