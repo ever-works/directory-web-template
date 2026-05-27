@@ -29,6 +29,7 @@ import { DatabaseStatusWarning } from '@/components/ui/database-status-warning';
 // ─── User Identity Card ────────────────────────────────────────────────────
 
 function UserIdentityCard({ user, isLoading }: { user: User | undefined; isLoading: boolean }) {
+	const t = useTranslations('settings');
 	const initials =
 		user?.name
 			?.split(' ')
@@ -53,7 +54,7 @@ function UserIdentityCard({ user, isLoading }: { user: User | undefined; isLoadi
 		<div className="flex items-center gap-3 p-4 rounded-xl border border-gray-200 dark:border-white/6 bg-white dark:bg-[#111111] shadow-sm">
 			<div className="relative w-10 h-10 rounded-full bg-theme-primary-100 dark:bg-theme-primary-900/30 flex items-center justify-center shrink-0 overflow-hidden ring-2 ring-white dark:ring-white/10">
 				{user?.image ? (
-					<Image src={user.image} alt={user.name || 'User'} fill className="object-cover" />
+					<Image src={user.image} alt={user.name || t('PROFILE')} fill className="object-cover" />
 				) : (
 					<span className="text-sm font-semibold text-theme-primary-600 dark:text-theme-primary-400">
 						{initials}
@@ -62,13 +63,13 @@ function UserIdentityCard({ user, isLoading }: { user: User | undefined; isLoadi
 			</div>
 			<div className="flex-1 min-w-0">
 				<p className="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate">
-					{user?.name || 'Your Profile'}
+					{user?.name || t('PROFILE')}
 				</p>
 				{user?.email && <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{user.email}</p>}
 			</div>
 			<span className="inline-flex items-center gap-1 text-[10px] font-medium text-green-600 dark:text-green-400 shrink-0">
 				<span className="w-1.5 h-1.5 rounded-full bg-green-400" />
-				Active
+				{t('ACTIVE')}
 			</span>
 		</div>
 	);
@@ -215,10 +216,12 @@ export function SettingsContent() {
 					</h1>
 
 					{/* User identity card */}
-					<UserIdentityCard user={user} isLoading={isLoading} />
+					<Link href={`/client/profile/${user?.username}`} className="block">
+						<UserIdentityCard user={user} isLoading={isLoading} />
+					</Link>
 
 					{/* Profile */}
-					<SettingsSection label="Profile">
+					<SettingsSection label={t('SECTION_PROFILE')}>
 						<SettingsCard
 							title={t('SETTINGS_CARDS.BASIC_INFO.TITLE')}
 							description={t('SETTINGS_CARDS.BASIC_INFO.DESCRIPTION')}
@@ -249,7 +252,7 @@ export function SettingsContent() {
 					</SettingsSection>
 
 					{/* Appearance */}
-					<SettingsSection label="Appearance">
+					<SettingsSection label={t('SECTION_APPEARANCE')}>
 						<SettingsCard
 							title={t('SETTINGS_CARDS.THEME_COLORS.TITLE')}
 							description={t('SETTINGS_CARDS.THEME_COLORS.DESCRIPTION')}
@@ -270,7 +273,7 @@ export function SettingsContent() {
 					</PreferencesPanel>
 
 					{/* Security */}
-					<SettingsSection label="Security">
+					<SettingsSection label={t('SECURITY')}>
 						<SettingsCard
 							title={t('SETTINGS_CARDS.SECURITY.TITLE')}
 							description={t('SETTINGS_CARDS.SECURITY.DESCRIPTION')}
@@ -280,7 +283,7 @@ export function SettingsContent() {
 					</SettingsSection>
 
 					{/* Content & Billing */}
-					<SettingsSection label="Content & Billing">
+					<SettingsSection label={t('SECTION_CONTENT_AND_BILLING')}>
 						<SettingsCard
 							title={t('SETTINGS_CARDS.SUBMISSIONS.TITLE')}
 							description={t('SETTINGS_CARDS.SUBMISSIONS.DESCRIPTION')}

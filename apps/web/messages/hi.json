@@ -556,6 +556,10 @@
 		"NO_CHECKOUT_PROVIDERS_CONFIGURED": "कोई भुगतान प्रदाता कॉन्फ़िगर नहीं है। भुगतान सुविधाएं उपलब्ध नहीं होंगी।",
 		"PROVIDER_NOT_CONFIGURED": "कॉन्फ़िगर नहीं है",
 		"NOT_CONFIGURED": "कॉन्फ़िगर नहीं है",
+		"ACTIVE": "सक्रिय",
+		"SECTION_PROFILE": "प्रोफ़ाइल",
+		"SECTION_APPEARANCE": "रूप",
+		"SECTION_CONTENT_AND_BILLING": "सामग्री और बिलिंग",
 		"SETTINGS_CARDS": {
 			"BASIC_INFO": {
 				"TITLE": "Basic Information",

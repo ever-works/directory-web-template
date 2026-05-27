@@ -582,6 +582,10 @@
 		"NO_CHECKOUT_PROVIDERS_CONFIGURED": "Платежные провайдеры не настроены. Платежные функции будут недоступны.",
 		"PROVIDER_NOT_CONFIGURED": "Не настроен",
 		"NOT_CONFIGURED": "не настроен",
+		"ACTIVE": "Активный",
+		"SECTION_PROFILE": "Профиль",
+		"SECTION_APPEARANCE": "Внешний вид",
+		"SECTION_CONTENT_AND_BILLING": "Контент и выставление счетов",
 		"SETTINGS_CARDS": {
 			"BASIC_INFO": {
 				"TITLE": "Основная информация",

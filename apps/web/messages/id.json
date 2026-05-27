@@ -582,6 +582,10 @@
 		"NO_CHECKOUT_PROVIDERS_CONFIGURED": "Tidak ada penyedia pembayaran yang dikonfigurasi. Fitur pembayaran akan tidak tersedia.",
 		"PROVIDER_NOT_CONFIGURED": "Tidak dikonfigurasi",
 		"NOT_CONFIGURED": "tidak dikonfigurasi",
+		"ACTIVE": "Aktif",
+		"SECTION_PROFILE": "Profil",
+		"SECTION_APPEARANCE": "Tampilan",
+		"SECTION_CONTENT_AND_BILLING": "Konten & Penagihan",
 		"SETTINGS_CARDS": {
 			"BASIC_INFO": {
 				"TITLE": "Informasi Dasar",

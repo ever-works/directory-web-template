@@ -556,6 +556,10 @@
 		"NO_CHECKOUT_PROVIDERS_CONFIGURED": "Geen betalingsproviders geconfigureerd. Betalingsfuncties zijn niet beschikbaar.",
 		"PROVIDER_NOT_CONFIGURED": "Niet geconfigureerd",
 		"NOT_CONFIGURED": "niet geconfigureerd",
+		"ACTIVE": "Actief",
+		"SECTION_PROFILE": "Profiel",
+		"SECTION_APPEARANCE": "Uiterlijk",
+		"SECTION_CONTENT_AND_BILLING": "Inhoud & Facturering",
 		"SETTINGS_CARDS": {
 			"BASIC_INFO": {
 				"TITLE": "Basic Information",

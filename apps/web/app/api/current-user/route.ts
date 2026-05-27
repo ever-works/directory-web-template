@@ -124,6 +124,7 @@ export async function GET() {
 	// accounts without a client profile (e.g. admins).
 	let image: string | null | undefined = session.user.image;
 	let name: string | null | undefined = session.user.name;
+	let username: string | undefined;
 	if (session.user.clientProfileId) {
 		try {
 			const profile = await getClientProfileById(session.user.clientProfileId);
@@ -131,6 +132,7 @@ export async function GET() {
 			if (profile?.displayName || profile?.name) {
 				name = profile.displayName || profile.name;
 			}
+			if (profile?.username) username = profile.username;
 		} catch {
 			// best-effort — fall back to the session values
 		}
@@ -141,6 +143,7 @@ export async function GET() {
 		name,
 		email: session.user.email,
 		image,
+		username,
 		provider: session.user.provider,
 		isAdmin: session.user.isAdmin || false,
 		tenantId: session.user.tenantId

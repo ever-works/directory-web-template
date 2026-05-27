@@ -556,6 +556,10 @@
 		"NO_CHECKOUT_PROVIDERS_CONFIGURED": "決済プロバイダーが設定されていません。決済機能は利用できません。",
 		"PROVIDER_NOT_CONFIGURED": "未設定",
 		"NOT_CONFIGURED": "未設定",
+		"ACTIVE": "アクティブ",
+		"SECTION_PROFILE": "プロフィール",
+		"SECTION_APPEARANCE": "外観",
+		"SECTION_CONTENT_AND_BILLING": "コンテンツと請求",
 		"SETTINGS_CARDS": {
 			"BASIC_INFO": {
 				"TITLE": "Basic Information",
