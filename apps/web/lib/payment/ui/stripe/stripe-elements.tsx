@@ -7,6 +7,12 @@ import { PaymentFormProps } from '../../types/payment-types';
 import { Button } from '@heroui/react';
 import { Loader2 } from 'lucide-react';
 
+// Canned, English-only fallback messages for the most common Stripe
+// error tokens. Deliberately NOT routed through next-intl — these
+// are the last-mile presentation strings when the upstream Stripe
+// error isn't directly user-presentable. Moving them onto i18n keys
+// is a clean follow-up but means localising every variant Stripe
+// emits across locales.
 const ERROR_TRANSLATIONS: Record<string, string> = {
 	incomplete: 'Please complete all required fields.',
 	invalid: 'The card information is invalid.',
@@ -16,6 +22,24 @@ const ERROR_TRANSLATIONS: Record<string, string> = {
 	'issuing bank': 'Card declined by the bank.'
 };
 
+/**
+ * Map a Stripe error message to a friendlier user-facing string.
+ *
+ * **Substring match** — checks each key with `.includes()` against
+ * the lowercased message and returns on the FIRST hit. Object-key
+ * iteration order is insertion order, so the first declared key
+ * wins on overlapping matches: a message containing both "declined"
+ * and "issuing bank" maps to "Card declined", not "by the bank".
+ * Reorder the table if a different precedence is needed.
+ *
+ * Caveat: a benign message that happens to contain one of these
+ * substrings will mis-map (e.g. "Customer declined to share
+ * information" → "Card declined" — wrong). Acceptable in practice
+ * because Stripe's error strings are narrow and we control the
+ * key set; keep new entries distinctive if you add them.
+ *
+ * Returns the original message verbatim when no key matches.
+ */
 const getUserFriendlyErrorMessage = (originalMessage: string): string => {
 	const lowerMsg = originalMessage.toLowerCase();
 	// Check for known error patterns
