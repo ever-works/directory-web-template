@@ -25,6 +25,40 @@ import { getClientItemRepository } from '@/lib/repositories/client-item.reposito
  * Every method here is read-only — the chat is read-only + navigate
  * in v1 (Q-023b default). Mutations remain on the existing form /
  * REST surfaces.
+ *
+ * **Behaviour notes worth flagging:**
+ *
+ *   - **`searchItems` is O(N) in-memory contains-match over every
+ *     cached item.** Fine for typical directory templates (<10k
+ *     items) but it's a perf wall as the cache grows — swap to a
+ *     real search index (Meilisearch / pg_trgm) when Spec 002's
+ *     `search` capability lands.
+ *
+ *   - **`matchScore` precedence is hard-coded:** exact name (100)
+ *     → name-prefix (80) → name-contains (60) → description (30)
+ *     → tag (20) → category (15). A search term that's a popular
+ *     tag NEVER beats a name match — by design (users typing a
+ *     known name expect that exact item).
+ *
+ *   - **`getMyProfile` enforces userId equality** with the active
+ *     session — a user cannot probe another user's profile
+ *     through the tool layer even if they pass the wrong userId.
+ *     Keep that check; it's the auth gate, not just a sanity
+ *     branch.
+ *
+ *   - **Stats lookups swallow errors** with `.catch(() => 0/null)`
+ *     so a flaky DB doesn't break the chat tool — but it also
+ *     means a real outage shows "0 favourites / 0 submissions"
+ *     to the user with no surfaced error.
+ *
+ *   - **`getMyFavourites` always returns `tagSlugs: []`** — the
+ *     favorites table doesn't denormalise tag data. If the chat
+ *     UI ever needs tags for favourites, swap to a join or fetch
+ *     each item via `getCachedItem`.
+ *
+ *   - **Placeholder fields:** `avatarUrl: null` and
+ *     `profileCompleteness: undefined` are unimplemented in v1.
+ *     Don't surface them in tool descriptions until they're real.
  */
 
 export interface BuildContextInput {
