@@ -31,6 +31,29 @@ const fetchCurrentUser = async (): Promise<User> => {
 	return response.data;
 };
 
+/**
+ * Subscribe to the current authenticated user via `/api/current-user`.
+ *
+ * Caching is tuned for session data: 10-minute stale time, 30-minute
+ * GC, and `refetchOnWindowFocus`/`refetchOnMount` BOTH disabled. The
+ * intent is that a logged-in user navigating the app doesn't trigger
+ * a re-fetch per page mount; call `refetch()` or `invalidateUserCache()`
+ * explicitly when the user's state may have changed (post-login,
+ * profile update, etc.).
+ *
+ * Retry policy: 401/403 are never retried (auth errors), 204 / "No
+ * user data" is never retried (the documented "logged-out" signal),
+ * everything else is retried up to twice.
+ *
+ * **Misnomer alert**: `invalidateUserCache()` on the return object
+ * calls `removeQueries`, NOT `invalidateQueries` — it deletes the
+ * cached value entirely rather than marking it stale. If you want
+ * the "mark stale + refetch on next mount" semantics, use
+ * `useUserCache().invalidateAllUserData()` from the sibling hook
+ * below; if you want "delete the cached user entirely", either is
+ * fine but the sibling hook's `clearUserCache()` is named more
+ * honestly.
+ */
 export function useCurrentUser() {
 	const queryClient = useQueryClient();
 
@@ -106,7 +129,20 @@ export function useCurrentUser() {
 }
 
 /**
- * Utility hook for managing user cache across the application
+ * Cache-management surface for the current-user query, decoupled from
+ * subscribing to the value itself. Use this when a component only
+ * needs to mutate the cache (login flow, logout flow, manual refresh)
+ * and doesn't want to re-render on every session change.
+ *
+ * Naming convention vs {@link useCurrentUser}:
+ * - `invalidateAllUserData()` → `invalidateQueries` (mark stale +
+ *   refetch on next observer)
+ * - `clearUserCache()` → `removeQueries` (delete entirely; matches
+ *   `useCurrentUser().invalidateUserCache` which is misnamed)
+ *
+ * Both hooks point at the same {@link CURRENT_USER_QUERY_KEY}, so
+ * a `setUserInCache` here is visible to all subscribers of
+ * `useCurrentUser` on the next render.
  */
 export function useUserCache() {
 	const queryClient = useQueryClient();
