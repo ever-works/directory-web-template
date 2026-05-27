@@ -124,7 +124,7 @@ export async function GET() {
 	// accounts without a client profile (e.g. admins).
 	let image: string | null | undefined = session.user.image;
 	let name: string | null | undefined = session.user.name;
-	let username: string | null = null;
+	let username: string | undefined;
 	if (session.user.clientProfileId) {
 		try {
 			const profile = await getClientProfileById(session.user.clientProfileId);
