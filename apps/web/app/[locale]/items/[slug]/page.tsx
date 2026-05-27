@@ -168,18 +168,21 @@ export default async function ItemDetails({ params }: { params: Promise<{ slug: 
 
 		const { meta, content } = item;
 		const categoryName = getCategoriesName(meta.category);
-		// Similar items depend on `meta`, so they run after the item resolves.
-		// `getCachedSimilarItems` persists the scored result in Next's Data
-		// Cache (shared across instances, survives cold starts) rather than the
-		// per-process in-memory map alone.
-		const similarItems = await getCachedSimilarItems(meta, 6, { lang: locale }).then((items) =>
-			items.flatMap((item) => item.item)
+
+		// Similar items scan and score the *entire* catalogue, but only feed the
+		// "Similar Products" carousel at the very bottom of the page. We do NOT
+		// await it here: awaiting blocks the whole HTML response (blank first
+		// paint) on work that's below the fold. Instead we pass the promise down
+		// and let the carousel stream in behind its own Suspense boundary, so the
+		// hero + content + sidebar paint immediately. `getCachedSimilarItems`
+		// still persists the scored result in Next's Data Cache.
+		const similarItemsPromise = getCachedSimilarItems(meta, 6, { lang: locale }).then((items) =>
+			items.flatMap((similar) => similar.item)
 		);
 
 		const metaWithVideo = {
 			...meta,
-			video_url: '', // e.g. https://www.youtube.com/watch?v=eDqfg_LexCQ,
-			allItems: similarItems
+			video_url: '' // e.g. https://www.youtube.com/watch?v=eDqfg_LexCQ,
 		};
 
 		// Render the MDX content on the server
@@ -191,7 +194,12 @@ export default async function ItemDetails({ params }: { params: Promise<{ slug: 
 				<div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(168,85,247,0.05),transparent_50%)] dark:bg-[radial-gradient(circle_at_70%_80%,rgba(168,85,247,0.1),transparent_50%)]"></div> */}
 				<Container maxWidth="7xl" padding="default" useGlobalWidth>
 					<ItemViewTracker slug={slug} />
-					<ItemDetailWrapper meta={metaWithVideo} renderedContent={renderedContent} categoryName={categoryName} />
+					<ItemDetailWrapper
+						meta={metaWithVideo}
+						renderedContent={renderedContent}
+						categoryName={categoryName}
+						similarItemsPromise={similarItemsPromise}
+					/>
 				</Container>
 			</div>
 		);

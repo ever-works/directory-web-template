@@ -8,12 +8,29 @@ sidebar_label: 037 Item detail perf
 
 ## 1. Summary
 
-Make the public item-detail page (`/[locale]/items/[slug]`) faster on cold
-paths by (a) persisting the "similar items" computation in Next's Data Cache
-instead of a per-process in-memory map, and (b) running the two independent
-data loads on the page concurrently. Both changes are transparent to the
-rendered output — same markup, same items, same ordering — they only remove
-redundant work on cache-cold and cross-instance renders.
+Make the public item-detail page (`/[locale]/items/[slug]`) paint faster.
+
+The dominant symptom is a **blank / slow first paint** in both dev and prod.
+Root cause: the server component `await`s the "similar items" computation —
+which scans and scores the **entire** catalogue via `fetchItems` — *before*
+returning any HTML, even though that carousel sits at the very bottom of the
+page. So the hero, body content, and sidebar all wait on below-the-fold work.
+
+This spec:
+
+- **(a) Streams the similar-items carousel** behind its own Suspense boundary
+  (React 19 `use()` + a server-created promise) so the page's first paint no
+  longer blocks on the catalogue scan. This is the primary fix for blank first
+  paint and helps dev the most (where content caching is disabled).
+- **(b) Persists** the similar-items computation in Next's Data Cache
+  (`getCachedSimilarItems`) instead of a per-process in-memory map, so the work
+  survives serverless cold starts and is shared across instances.
+- **(c)** Runs the page's two independent loads (item + translations)
+  concurrently with `Promise.all`.
+
+All changes preserve the rendered output — same markup, same items, same
+ordering. The carousel now appears a beat after the main content (with a
+skeleton placeholder) instead of holding back the whole page.
 
 ## 2. Motivation
 
@@ -33,10 +50,14 @@ redundant work on cache-cold and cross-instance renders.
 
 ## 3. Goals
 
+- First paint of the hero + body content + sidebar no longer blocks on the
+  similar-items catalogue scan; the carousel streams in behind a Suspense
+  boundary with a skeleton placeholder.
 - Similar-items results survive serverless cold starts and are shared across
   instances, via `unstable_cache` (the persisted Data Cache).
 - The page's two independent loads (item + translations) run concurrently.
-- Zero change to rendered output, ordering, or similarity scoring.
+- No change to the final rendered output, ordering, or similarity scoring
+  (only the *timing* of the carousel changes — it arrives a beat later).
 - Cache invalidation reuses the existing item tags so current revalidation
   hooks (`revalidateTag('content' | 'items' | 'item:<slug>')`) keep working.
 
@@ -70,10 +91,15 @@ reuse cached work across instances, so that cold starts don't re-scan content.
 - [ ] AC-3: When `CONTENT_CACHE_ENABLED` is false (dev) or the item has no slug,
       it delegates directly to `fetchSimilarItems` (no behaviour change in dev).
 - [ ] AC-4: `app/[locale]/items/[slug]/page.tsx` loads the item and translations
-      with `Promise.all`, then computes similar items via `getCachedSimilarItems`.
-- [ ] AC-5: Rendered markup and the set/order of similar items are unchanged for
-      a given content revision.
-- [ ] AC-6: `pnpm lint` and `pnpm tsc --noEmit` pass.
+      with `Promise.all`, and passes the similar-items as a **promise**
+      (`similarItemsPromise`) to the client tree without awaiting it on the
+      render path.
+- [ ] AC-5: The "Similar Products" carousel is wrapped in its own `<Suspense>`
+      boundary inside `item-detail.tsx`; the rest of the page renders without
+      waiting for it. An empty result still omits the section.
+- [ ] AC-6: The final rendered markup and the set/order of similar items are
+      unchanged for a given content revision.
+- [ ] AC-7: `pnpm lint` and `pnpm tsc --noEmit` pass.
 
 ## 7. Out-of-Scope Considerations
 
