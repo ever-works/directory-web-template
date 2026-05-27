@@ -3,9 +3,30 @@
 import { VALIDATION_MESSAGES } from './types';
 
 /**
- * Validates email format using regex
- * @param email - Email string to validate
- * @returns boolean indicating if email is valid
+ * Validates email format using a minimal `[^@]+@[^@]+\.[^@]+` regex.
+ *
+ * **There are THREE `isValidEmail` implementations in this repo with
+ * different strictness — pick the right one for your use case:**
+ *
+ * 1. {@link import('@/lib/utils/email-validation').isValidEmail} — the
+ *    strict one. Enforces 5–254 char overall length, 1–64 char local
+ *    part, valid-domain-structure checks, ReDoS-safe non-backtracking
+ *    patterns. Use this for admin-side validation, account creation,
+ *    or anywhere a permissive accept would let a typo land in the DB.
+ * 2. **This function** — minimal regex. Accepts most things that
+ *    "look like" an email but doesn't enforce length, multi-dot
+ *    domains, or character-class limits. Kept for the LemonSqueezy
+ *    checkout API path where the upstream payment provider does its
+ *    own canonical validation server-side and we just want to reject
+ *    obvious typos client-side.
+ * 3. `PolarProvider.isValidEmail` (private method on
+ *    `apps/web/lib/payment/lib/providers/polar-provider.ts`) — a
+ *    third regex with provider-specific tuning.
+ *
+ * If you're not in a payment provider's checkout codepath, prefer #1.
+ *
+ * @param email - Email string to validate.
+ * @returns `true` for "looks like an email", `false` otherwise.
  */
 export function isValidEmail(email: string): boolean {
 	const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
