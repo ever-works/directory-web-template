@@ -2,8 +2,19 @@ import { BackgroundJobManager, JobStatus, JobMetrics } from './types';
 import { coreConfig } from '@/lib/config/config-service';
 
 /**
- * Local job manager implementation using setInterval/setTimeout
- * Used for development and fallback when Trigger.dev is not configured
+ * Dev-mode and Trigger.dev-not-configured fallback implementation of
+ * {@link BackgroundJobManager}, backed by raw `setInterval`. Not
+ * intended for production — there's no persistence (a process restart
+ * loses every scheduled job), no clustering (each Node process
+ * schedules its own copy of every job), and no true cron parsing
+ * (see {@link LocalJobManager.cronToInterval} — time-of-day specs are
+ * collapsed to "every 24h from boot").
+ *
+ * Concurrency: `executeJob` short-circuits when a job's status is
+ * already `'running'` so overlapping ticks don't double-fire the same
+ * job in the same process. Cross-process re-entrancy is NOT
+ * prevented; use Trigger.dev (or another distributed scheduler) when
+ * that matters.
  */
 export class LocalJobManager implements BackgroundJobManager {
   private jobs: Map<string, ReturnType<typeof setInterval>> = new Map();
@@ -128,7 +139,22 @@ export class LocalJobManager implements BackgroundJobManager {
   }
 
   /**
-   * Convert cron expression to interval (simplified)
+   * Pattern-match a small set of cron expressions to a fixed setInterval
+   * period.
+   *
+   * **This is NOT a cron parser.** It does string-`includes` against a
+   * fixed allow-list of patterns and returns the matching cadence as
+   * milliseconds. Anything outside the allow-list falls back to
+   * `60_000` (1 min). Crucially, time-of-day specs like `'0 9 * * *'`
+   * (9am daily) are mapped to "every 24h *from when the timer was
+   * created*" — there is no wall-clock alignment, so the daily job
+   * will fire at random times of day depending on process restart.
+   *
+   * Reason for the hack: this manager is the dev/fallback path; the
+   * production path is Trigger.dev (see {@link createJobManager}),
+   * which understands cron natively. If you need a 9am-sharp job in
+   * dev, point it at Trigger.dev's local dev server instead of
+   * relying on this.
    */
   private cronToInterval(cronExpression: string): number {
     // Simplified dev-only cron→interval mapping (non-deterministic for time-of-day schedules)
