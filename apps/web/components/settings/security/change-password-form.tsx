@@ -281,7 +281,7 @@ export function ChangePasswordForm() {
 				<Button
 					type="submit"
 					disabled={!isValid || isLoading}
-					className="px-4 py-2 text-sm font-medium bg-theme-primary-600 hover:bg-theme-primary-700 text-white rounded-lg transition-colors duration-150 disabled:opacity-60"
+					className="px-4 py-2 text-sm font-medium bg-black dark:bg-white text-white dark:text-black rounded-lg transition-colors duration-150 disabled:opacity-60"
 				>
 					{isLoading ? (
 						<span className="flex items-center gap-1.5">
