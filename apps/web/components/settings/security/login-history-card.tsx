@@ -10,7 +10,8 @@ import {
 	MailCheck,
 	AlertTriangle,
 	RefreshCw,
-	ChevronDown,
+	ChevronLeft,
+	ChevronRight,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLoginActivity } from "@/hooks/use-security-settings";
@@ -125,7 +126,14 @@ export function LoginHistoryCard() {
 
 	const activities = data?.activities ?? [];
 	const pagination = data?.pagination;
-	const hasMore = pagination ? page < pagination.totalPages : false;
+	const totalPages = pagination?.totalPages ?? 1;
+
+	function getPageNumbers(current: number, total: number): (number | "…")[] {
+		if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
+		if (current <= 4) return [1, 2, 3, 4, 5, "…", total];
+		if (current >= total - 3) return [1, "…", total - 4, total - 3, total - 2, total - 1, total];
+		return [1, "…", current - 1, current, current + 1, "…", total];
+	}
 
 	return (
 		<div className="bg-white dark:bg-white/3 border border-neutral-200 dark:border-white/8 rounded-xl shadow-sm divide-y divide-neutral-100 dark:divide-white/6">
@@ -161,12 +169,7 @@ export function LoginHistoryCard() {
 					const Icon = meta.icon;
 					return (
 						<div key={activity.id} className="px-6 py-3.5 flex items-center gap-3">
-							<div className={cn(
-								"w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ring-1",
-								meta.bg
-							)}>
-								<Icon className={cn("w-4 h-4", meta.color)} />
-							</div>
+							<Icon className={cn("w-3 h-3", meta.color)} />
 							<div className="flex-1 min-w-0">
 								<p className="text-xs font-medium text-neutral-700 dark:text-neutral-300">
 									{meta.label}
@@ -188,17 +191,49 @@ export function LoginHistoryCard() {
 				})
 			)}
 
-			{/* Load more */}
-			{hasMore && (
-				<div className="px-6 py-3 flex justify-center">
-					<Button
-						variant="ghost" size="sm"
-						onClick={() => setPage((p) => p + 1)}
-						className="h-7 text-xs text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200"
+			{/* Pagination */}
+			{totalPages > 1 && (
+				<div className="px-6 py-3 flex items-center justify-center gap-1">
+					<button
+						onClick={() => setPage((p) => p - 1)}
+						disabled={page === 1}
+						aria-label="Previous page"
+						className="w-7 h-7 flex items-center justify-center rounded-md text-neutral-400 dark:text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-white/8 disabled:opacity-30 disabled:pointer-events-none transition-all duration-150"
 					>
-						<ChevronDown className="w-3 h-3 mr-1.5" />
-						Load more
-					</Button>
+						<ChevronLeft className="w-3.5 h-3.5" />
+					</button>
+
+					{getPageNumbers(page, totalPages).map((p, i) =>
+						p === "…" ? (
+							<span key={`ellipsis-${i}`} className="w-7 h-7 flex items-center justify-center text-[11px] text-neutral-400 dark:text-neutral-500 select-none">
+								…
+							</span>
+						) : (
+							<button
+								key={p}
+								onClick={() => setPage(p)}
+								aria-label={`Page ${p}`}
+								aria-current={p === page ? "page" : undefined}
+								className={cn(
+									"w-7 h-7 flex items-center justify-center rounded-md text-[11px] font-medium transition-all duration-150",
+									p === page
+										? "bg-neutral-900 dark:bg-white text-white dark:text-neutral-900"
+										: "text-neutral-500 dark:text-neutral-400 hover:text-neutral-700 dark:hover:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-white/8"
+								)}
+							>
+								{p}
+							</button>
+						)
+					)}
+
+					<button
+						onClick={() => setPage((p) => p + 1)}
+						disabled={page === totalPages}
+						aria-label="Next page"
+						className="w-7 h-7 flex items-center justify-center rounded-md text-neutral-400 dark:text-neutral-500 hover:text-neutral-700 dark:hover:text-neutral-200 hover:bg-neutral-100 dark:hover:bg-white/8 disabled:opacity-30 disabled:pointer-events-none transition-all duration-150"
+					>
+						<ChevronRight className="w-3.5 h-3.5" />
+					</button>
 				</div>
 			)}
 		</div>
