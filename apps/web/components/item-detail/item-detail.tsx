@@ -17,7 +17,12 @@ import { FavoriteButton } from '../favorite-button';
 import type { ItemData } from '@/lib/content';
 import type { ItemLocationData } from '@/lib/types/item';
 import { ItemStatsSection } from './item-stats-section';
-import { ItemsCarousel } from '@/components/shared/items-carousel';
+import dynamic from 'next/dynamic';
+
+const ItemsCarousel = dynamic(
+	() => import('@/components/shared/items-carousel').then((m) => ({ default: m.ItemsCarousel })),
+	{ ssr: false, loading: () => null }
+);
 import { LocationSection } from './LocationSection';
 import { UserSurveySection } from '@/components/surveys/user-survey-section';
 import { useTranslations } from 'next-intl';
