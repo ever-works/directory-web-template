@@ -24,7 +24,7 @@ Yes. The Template works independently as a self-contained Next.js application wi
 
 ### What technologies does the Template use?
 
-- **Framework:** Next.js 15, React 19
+- **Framework:** Next.js 16, React 19
 - **Language:** TypeScript 5
 - **Styling:** Tailwind CSS 4, HeroUI React, Radix UI
 - **ORM:** Drizzle ORM with PostgreSQL
