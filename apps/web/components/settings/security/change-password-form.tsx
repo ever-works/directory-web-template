@@ -26,28 +26,30 @@ interface Requirement {
 	test: (p: string) => boolean;
 }
 
-interface StrengthLabels {
-	weak: string;
-	fair: string;
-	good: string;
-	strong: string;
-}
+// Strength labels and requirements are not yet in the message catalogue;
+// they remain in English until translations are provided.
+const REQUIREMENTS: Requirement[] = [
+	{ label: "At least 8 characters", test: (p) => p.length >= 8 },
+	{ label: "One uppercase letter", test: (p) => /[A-Z]/.test(p) },
+	{ label: "One lowercase letter", test: (p) => /[a-z]/.test(p) },
+	{ label: "One number", test: (p) => /[0-9]/.test(p) },
+	{ label: "One special character", test: (p) => /[^A-Za-z0-9]/.test(p) },
+];
 
-function PasswordStrength({ password, requirements, strengthLabels }: {
-	password: string;
-	requirements: Requirement[];
-	strengthLabels: StrengthLabels;
-}) {
+const STRENGTH_LABELS = ["Weak", "Weak", "Fair", "Good", "Strong"] as const;
+const STRENGTH_STYLES = [
+	"bg-red-500 text-red-500",
+	"bg-red-500 text-red-500",
+	"bg-amber-500 text-amber-500",
+	"bg-blue-500 text-blue-500",
+	"bg-emerald-500 text-emerald-500",
+] as const;
+
+function PasswordStrength({ password }: { password: string }) {
 	if (!password) return null;
 
-	const score = requirements.filter((r) => r.test(password)).length;
-	const pct = (score / requirements.length) * 100;
-
-	const [barColor, label, textColor] =
-		score <= 1 ? ["bg-red-500", strengthLabels.weak, "text-red-500"] :
-		score <= 3 ? ["bg-amber-500", strengthLabels.fair, "text-amber-500"] :
-		score === 4 ? ["bg-blue-500", strengthLabels.good, "text-blue-500"] :
-		             ["bg-emerald-500", strengthLabels.strong, "text-emerald-500"];
+	const score = REQUIREMENTS.filter((r) => r.test(password)).length;
+	const [barColor, textColor] = STRENGTH_STYLES[score].split(" ");
 
 	return (
 		<div className="mt-2.5 space-y-2">
@@ -55,15 +57,15 @@ function PasswordStrength({ password, requirements, strengthLabels }: {
 				<div className="flex-1 h-1 bg-neutral-200 dark:bg-white/10 rounded-full overflow-hidden">
 					<div
 						className={cn("h-full rounded-full transition-all duration-300", barColor)}
-						style={{ width: `${pct}%` }}
+						style={{ width: `${(score / REQUIREMENTS.length) * 100}%` }}
 					/>
 				</div>
 				<span className={cn("text-xs font-medium w-10 text-right tabular-nums shrink-0", textColor)}>
-					{label}
+					{STRENGTH_LABELS[score]}
 				</span>
 			</div>
 			<div className="space-y-1">
-				{requirements.map((req) => {
+				{REQUIREMENTS.map((req) => {
 					const met = req.test(password);
 					return (
 						<div key={req.label} className="flex items-center gap-1.5 text-xs">
@@ -82,6 +84,14 @@ function PasswordStrength({ password, requirements, strengthLabels }: {
 		</div>
 	);
 }
+
+// ─── Form type ────────────────────────────────────────────────────────────────
+
+type PasswordFormData = {
+	currentPassword: string;
+	newPassword: string;
+	confirmPassword: string;
+};
 
 // ─── Password field ───────────────────────────────────────────────────────────
 
@@ -135,18 +145,10 @@ function PasswordField({ id, label, placeholder, showLabel, hideLabel, error, re
 	);
 }
 
-// ─── Form type (declared here so PasswordField can reference it) ──────────────
-
-type PasswordFormData = {
-	currentPassword: string;
-	newPassword: string;
-	confirmPassword: string;
-};
-
 // ─── Main form ────────────────────────────────────────────────────────────────
 
 export function ChangePasswordForm() {
-	const t = useTranslations("settings.SECURITY_PAGE.CHANGE_PASSWORD_FORM");
+	const t = useTranslations("settings.SECURITY_PAGE");
 	const [showSuccess, setShowSuccess] = useState(false);
 	const { changePassword, isLoading, isSuccess, reset: resetMutation } = useChangePassword();
 
@@ -154,35 +156,14 @@ export function ChangePasswordForm() {
 		() =>
 			z
 				.object({
-					currentPassword: z.string().min(1, t("VALIDATION.CURRENT_REQUIRED")),
+					currentPassword: z.string().min(1, t("CHANGE_PASSWORD_FORM.VALIDATION.CURRENT_REQUIRED")),
 					newPassword: sharedPasswordSchema,
-					confirmPassword: z.string().min(1, t("VALIDATION.CONFIRM_REQUIRED")),
+					confirmPassword: z.string().min(1, t("CHANGE_PASSWORD_FORM.VALIDATION.CONFIRM_REQUIRED")),
 				})
 				.refine((data) => data.newPassword === data.confirmPassword, {
-					message: t("VALIDATION.PASSWORDS_MATCH"),
+					message: t("CHANGE_PASSWORD_FORM.VALIDATION.PASSWORDS_MATCH"),
 					path: ["confirmPassword"],
 				}),
-		[t]
-	);
-
-	const requirements: Requirement[] = useMemo(
-		() => [
-			{ label: t("REQUIREMENTS.MIN_LENGTH"), test: (p) => p.length >= 8 },
-			{ label: t("REQUIREMENTS.UPPERCASE"), test: (p) => /[A-Z]/.test(p) },
-			{ label: t("REQUIREMENTS.LOWERCASE"), test: (p) => /[a-z]/.test(p) },
-			{ label: t("REQUIREMENTS.NUMBER"), test: (p) => /[0-9]/.test(p) },
-			{ label: t("REQUIREMENTS.SPECIAL"), test: (p) => /[^A-Za-z0-9]/.test(p) },
-		],
-		[t]
-	);
-
-	const strengthLabels: StrengthLabels = useMemo(
-		() => ({
-			weak: t("STRENGTH.WEAK"),
-			fair: t("STRENGTH.FAIR"),
-			good: t("STRENGTH.GOOD"),
-			strong: t("STRENGTH.STRONG"),
-		}),
 		[t]
 	);
 
@@ -215,8 +196,8 @@ export function ChangePasswordForm() {
 		await changePassword(data);
 	};
 
-	const showLabel = t("SHOW_PASSWORD");
-	const hideLabel = t("HIDE_PASSWORD");
+	const showLabel = t("CHANGE_PASSWORD_FORM.SHOW_PASSWORD");
+	const hideLabel = t("CHANGE_PASSWORD_FORM.HIDE_PASSWORD");
 
 	// ── Success state ──────────────────────────────────────────────────────────
 	if (showSuccess) {
@@ -227,10 +208,10 @@ export function ChangePasswordForm() {
 				</div>
 				<div className="pt-0.5">
 					<p className="text-sm font-semibold text-emerald-800 dark:text-emerald-300">
-						{t("SUCCESS_TITLE")}
+						{t("CHANGE_PASSWORD_FORM.SUCCESS_MESSAGE")}
 					</p>
 					<p className="text-xs text-emerald-700 dark:text-emerald-400 mt-0.5 leading-relaxed">
-						{t("SUCCESS_DESCRIPTION")}
+						{t("CHANGE_PASSWORD_FORM.SUCCESS_DESCRIPTION")}
 					</p>
 				</div>
 			</div>
@@ -246,10 +227,10 @@ export function ChangePasswordForm() {
 			{/* Section header */}
 			<div className="px-6 py-5">
 				<p className="text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wide">
-					{t("SECTION_TITLE")}
+					{t("CHANGE_PASSWORD.TITLE")}
 				</p>
 				<p className="text-xs text-neutral-400 dark:text-neutral-500 mt-1">
-					{t("SECTION_DESCRIPTION")}
+					{t("CHANGE_PASSWORD.DESCRIPTION")}
 				</p>
 			</div>
 
@@ -257,8 +238,8 @@ export function ChangePasswordForm() {
 			<div className="px-6 py-5 space-y-4">
 				<PasswordField
 					id="currentPassword"
-					label={t("CURRENT_PASSWORD")}
-					placeholder={t("CURRENT_PASSWORD_PLACEHOLDER")}
+					label={t("CHANGE_PASSWORD_FORM.CURRENT_PASSWORD")}
+					placeholder={t("CHANGE_PASSWORD_FORM.CURRENT_PASSWORD_PLACEHOLDER")}
 					showLabel={showLabel}
 					hideLabel={hideLabel}
 					error={errors.currentPassword?.message}
@@ -267,24 +248,20 @@ export function ChangePasswordForm() {
 
 				<PasswordField
 					id="newPassword"
-					label={t("NEW_PASSWORD")}
-					placeholder={t("NEW_PASSWORD_PLACEHOLDER")}
+					label={t("CHANGE_PASSWORD_FORM.NEW_PASSWORD")}
+					placeholder={t("CHANGE_PASSWORD_FORM.NEW_PASSWORD_PLACEHOLDER")}
 					showLabel={showLabel}
 					hideLabel={hideLabel}
 					error={errors.newPassword?.message}
 					register={register}
 				>
-					<PasswordStrength
-						password={newPassword}
-						requirements={requirements}
-						strengthLabels={strengthLabels}
-					/>
+					<PasswordStrength password={newPassword} />
 				</PasswordField>
 
 				<PasswordField
 					id="confirmPassword"
-					label={t("CONFIRM_PASSWORD")}
-					placeholder={t("CONFIRM_PASSWORD_PLACEHOLDER")}
+					label={t("CHANGE_PASSWORD_FORM.CONFIRM_PASSWORD")}
+					placeholder={t("CHANGE_PASSWORD_FORM.CONFIRM_PASSWORD_PLACEHOLDER")}
 					showLabel={showLabel}
 					hideLabel={hideLabel}
 					error={errors.confirmPassword?.message}
@@ -299,20 +276,20 @@ export function ChangePasswordForm() {
 					onClick={() => reset()}
 					className="px-4 py-2 text-sm text-neutral-600 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-neutral-100 transition-colors duration-150"
 				>
-					{t("CANCEL")}
+					{t("CHANGE_PASSWORD_FORM.CANCEL")}
 				</button>
 				<Button
 					type="submit"
 					disabled={!isValid || isLoading}
-					className="px-4 py-2 text-sm font-medium bg-black dark:text-black dark:bg-white text-white rounded-lg transition-colors duration-150 disabled:opacity-60"
+					className="px-4 py-2 text-sm font-medium bg-theme-primary-600 hover:bg-theme-primary-700 text-white rounded-lg transition-colors duration-150 disabled:opacity-60"
 				>
 					{isLoading ? (
 						<span className="flex items-center gap-1.5">
 							<span className="w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-							{t("UPDATING_PASSWORD")}
+							{t("CHANGE_PASSWORD_FORM.UPDATING_PASSWORD")}
 						</span>
 					) : (
-						t("UPDATE_PASSWORD")
+						t("CHANGE_PASSWORD_FORM.UPDATE_PASSWORD")
 					)}
 				</Button>
 			</div>
