@@ -5,6 +5,10 @@ import { Link } from '@/i18n/navigation';
 import { getTranslations } from 'next-intl/server';
 import { ChangePasswordForm } from '@/components/settings/security';
 import { SecurityOverview } from '@/components/settings/security/security-overview';
+import { ActiveSessionsCard } from '@/components/settings/security/active-sessions-card';
+import { LoginHistoryCard } from '@/components/settings/security/login-history-card';
+import { ConnectedAccountsCard } from '@/components/settings/security/connected-accounts-card';
+import { SecurityNotificationsCard } from '@/components/settings/security/security-notifications-card';
 
 export default async function SecuritySettingsPage() {
 	const t = await getTranslations('settings.SECURITY_PAGE');
@@ -46,6 +50,18 @@ export default async function SecuritySettingsPage() {
 
 					{/* Change password form */}
 					<ChangePasswordForm />
+
+					{/* Active sessions */}
+					<ActiveSessionsCard />
+
+					{/* Login history */}
+					<LoginHistoryCard />
+
+					{/* Connected OAuth accounts */}
+					<ConnectedAccountsCard />
+
+					{/* Security notification toggles */}
+					<SecurityNotificationsCard />
 
 					{/* Security tips */}
 					<aside
