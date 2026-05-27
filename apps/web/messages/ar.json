@@ -555,6 +555,10 @@
 		"NO_CHECKOUT_PROVIDERS_CONFIGURED": "لم يتم تكوين أي مزودي دفع. لن تكون ميزات الدفع متاحة.",
 		"PROVIDER_NOT_CONFIGURED": "غير مكوّن",
 		"NOT_CONFIGURED": "غير مكوّن",
+		"ACTIVE": "نشط",
+		"SECTION_PROFILE": "الملف الشخصي",
+		"SECTION_APPEARANCE": "المظهر",
+		"SECTION_CONTENT_AND_BILLING": "المحتوى والفواتير",
 		"SETTINGS_CARDS": {
 			"BASIC_INFO": {
 				"TITLE": "المعلومات الأساسية",

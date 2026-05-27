@@ -555,6 +555,10 @@
 		"NO_CHECKOUT_PROVIDERS_CONFIGURED": "未配置支付提供商。支付功能将不可用。",
 		"PROVIDER_NOT_CONFIGURED": "未配置",
 		"NOT_CONFIGURED": "未配置",
+		"ACTIVE": "活跃",
+		"SECTION_PROFILE": "个人资料",
+		"SECTION_APPEARANCE": "外观",
+		"SECTION_CONTENT_AND_BILLING": "内容与账单",
 		"SETTINGS_CARDS": {
 			"BASIC_INFO": {
 				"TITLE": "基本信息",

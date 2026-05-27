@@ -582,6 +582,10 @@
 		"NO_CHECKOUT_PROVIDERS_CONFIGURED": "Chưa cấu hình nhà cung cấp thanh toán nào. Các tính năng thanh toán sẽ không khả dụng.",
 		"PROVIDER_NOT_CONFIGURED": "Chưa cấu hình",
 		"NOT_CONFIGURED": "chưa cấu hình",
+		"ACTIVE": "Hoạt động",
+		"SECTION_PROFILE": "Hồ sơ",
+		"SECTION_APPEARANCE": "Giao diện",
+		"SECTION_CONTENT_AND_BILLING": "Nội dung và thanh toán",
 		"SETTINGS_CARDS": {
 			"BASIC_INFO": {
 				"TITLE": "Thông tin cơ bản",

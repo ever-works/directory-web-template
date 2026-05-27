@@ -556,6 +556,10 @@
 		"NO_CHECKOUT_PROVIDERS_CONFIGURED": "ไม่มีผู้ให้บริการชำระเงินที่กำหนดค่าไว้ ฟีเจอร์การชำระเงินจะไม่พร้อมใช้งาน",
 		"PROVIDER_NOT_CONFIGURED": "ไม่ได้กำหนดค่า",
 		"NOT_CONFIGURED": "ไม่ได้กำหนดค่า",
+		"ACTIVE": "ใช้งานอยู่",
+		"SECTION_PROFILE": "โปรไฟล์",
+		"SECTION_APPEARANCE": "รูปลักษณ์",
+		"SECTION_CONTENT_AND_BILLING": "เนื้อหาและการเรียกเก็บเงิน",
 		"SETTINGS_CARDS": {
 			"BASIC_INFO": {
 				"TITLE": "Basic Information",

@@ -555,6 +555,10 @@
 		"NO_CHECKOUT_PROVIDERS_CONFIGURED": "לא הוגדרו ספקי תשלומים. תכונות התשלום לא יהיו זמינות.",
 		"PROVIDER_NOT_CONFIGURED": "לא מוגדר",
 		"NOT_CONFIGURED": "לא מוגדר",
+		"ACTIVE": "פעיל",
+		"SECTION_PROFILE": "פרופיל",
+		"SECTION_APPEARANCE": "מראה",
+		"SECTION_CONTENT_AND_BILLING": "תוכן וחיוב",
 		"SETTINGS_CARDS": {
 			"BASIC_INFO": {
 				"TITLE": "Basic Information",

@@ -582,6 +582,10 @@
 		"NO_CHECKOUT_PROVIDERS_CONFIGURED": "Hiçbir ödeme sağlayıcısı yapılandırılmamış. Ödeme özellikleri kullanılamaz olacak.",
 		"PROVIDER_NOT_CONFIGURED": "Yapılandırılmamış",
 		"NOT_CONFIGURED": "yapılandırılmamış",
+		"ACTIVE": "Aktif",
+		"SECTION_PROFILE": "Profil",
+		"SECTION_APPEARANCE": "Görünüm",
+		"SECTION_CONTENT_AND_BILLING": "İçerik ve Faturalama",
 		"SETTINGS_CARDS": {
 			"BASIC_INFO": {
 				"TITLE": "Temel Bilgiler",

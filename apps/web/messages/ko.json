@@ -582,6 +582,10 @@
 		"NO_CHECKOUT_PROVIDERS_CONFIGURED": "결제 제공자가 구성되지 않았습니다. 결제 기능을 사용할 수 없습니다.",
 		"PROVIDER_NOT_CONFIGURED": "구성되지 않음",
 		"NOT_CONFIGURED": "구성되지 않음",
+		"ACTIVE": "활성",
+		"SECTION_PROFILE": "프로필",
+		"SECTION_APPEARANCE": "외관",
+		"SECTION_CONTENT_AND_BILLING": "콘텐츠 및 청구",
 		"SETTINGS_CARDS": {
 			"BASIC_INFO": {
 				"TITLE": "기본 정보",

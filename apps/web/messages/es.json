@@ -558,6 +558,10 @@
 		"NO_CHECKOUT_PROVIDERS_CONFIGURED": "No hay proveedores de pago configurados. Las funciones de pago no estarán disponibles.",
 		"PROVIDER_NOT_CONFIGURED": "No configurado",
 		"NOT_CONFIGURED": "no configurado",
+		"ACTIVE": "Activo",
+		"SECTION_PROFILE": "Perfil",
+		"SECTION_APPEARANCE": "Apariencia",
+		"SECTION_CONTENT_AND_BILLING": "Contenido y facturación",
 		"SETTINGS_CARDS": {
 			"BASIC_INFO": {
 				"TITLE": "Información básica",
