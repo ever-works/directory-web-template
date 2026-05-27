@@ -50,6 +50,27 @@ why** at a higher level than per-commit diffs.
 
 ---
 
+## 2026-05-27 — Spec 036: Docker build and publish workflow
+
+- spec-036: added `.github/workflows/docker-build-publish-dev.yml`,
+  `.github/workflows/docker-build-publish-stage.yml`, and
+  `.github/workflows/docker-build-publish-prod.yml`, GHCR-first Docker
+  build/publish workflows for the template's root `Dockerfile`. The Dockerfile
+  now mirrors the sibling `../ever-works` monorepo image shape with
+  `turbo prune @ever-works/web --docker`, pruned install/build stages, and a
+  standalone Next.js runtime image; `turbo.json` now allows `STANDALONE_BUILD`
+  through to the Next.js build so `.next/standalone` is emitted. The workflows mirror the sibling
+  `../ever-works` branch-specific registry pattern while adapting it to
+  the template's single web image: `develop` publishes
+  `directory-web-template-dev`, `stage` publishes
+  `directory-web-template-stage`, and `main` publishes
+  `directory-web-template`, each tagged `latest` and short SHA. Docker Hub and
+  DigitalOcean Container Registry pushes are included only when their
+  credentials are configured. Documented the workflows in
+  `docs/deployment/docker.md`.
+
+---
+
 ## 2026-05-26 — Spec 035: Admin header profile link
 
 - spec-035: drafted `docs/spec/035-admin-header-profile-link/spec.md` and
