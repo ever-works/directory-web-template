@@ -31,6 +31,25 @@ why** at a higher level than per-commit diffs.
 
 ---
 
+## 2026-05-27 — Fix: Edge Runtime build break in activity-feed push client
+
+- spec-024: replaced the `import { randomUUID } from 'node:crypto'` at the top of
+  `apps/web/lib/services/platform-activity-feed/push-client.ts` with
+  `crypto.randomUUID()` (Web Crypto API). The module is transitively imported
+  from edge-compatible bundles (`instrumentation.ts`, the NextAuth adapter in
+  `lib/auth/index.ts`, and `lib/content-config-file.ts` → `/api/admin/navigation`),
+  so Turbopack rejected the `node:*` import with "A Node.js module is loaded
+  ('node:crypto') which is not supported in the Edge Runtime" and the resulting
+  `Ecmascript file had an error` blocked the `[locale]/submit` page from
+  rendering — which in turn failed the `client can submit a new item via the
+  submit form` Playwright test (button never appeared, hence
+  `missing-required-fields="<unreadable>"`). Spec 024's plan.md:90 already
+  prescribed `crypto.randomUUID()`; the original import was a deviation. Web
+  Crypto's `randomUUID` is available in Node 20+ (this repo's minimum) and the
+  Edge Runtime, so no behavior change beyond removing the build-time error.
+
+---
+
 ## 2026-05-27 — Spec 036: Docker build and publish workflow
 
 - spec-036: added `.github/workflows/docker-build-publish-dev.yml`,
