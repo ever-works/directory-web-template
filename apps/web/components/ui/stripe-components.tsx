@@ -148,8 +148,10 @@ export function StripeCardInput({ className, disabled, theme = 'auto' }: StripeC
 		disabled
 	};
 
-	// Debug log to verify options
-	console.log('Stripe Element Options:', elementOptions);
+	// Debug log to verify options — dev-only.
+	if (process.env.NODE_ENV !== 'production') {
+		console.log('Stripe Element Options:', elementOptions);
+	}
 
 	return (
 		<div className={`space-y-4 ${className}`}>

@@ -46,6 +46,46 @@ export interface Settings {
 	pricing: PricingPlanConfig;
 }
 
+/**
+ * File-backed singleton for runtime-editable site settings (theme,
+ * layout, pagination, pricing). Persists via {@link FileService} to
+ * a JSON file under the content repo.
+ *
+ * **Footguns worth knowing:**
+ *
+ *   - **`getSettings()` is side-effecting.** On first call (no
+ *     existing settings file) it lazily writes the default config
+ *     to disk. Callers expecting a pure read get an extra fs
+ *     write + a slower first response. The next-instance bootstrap
+ *     dance depends on this — don't change to a pure read without
+ *     wiring an explicit init step somewhere.
+ *
+ *   - **`ensureInitialized` resets `initPromise = null` in
+ *     `finally`,** so EVERY public mutator runs an extra
+ *     `findById('settings')` round-trip before its actual write.
+ *     The first run also does the create-defaults dance. Cheap
+ *     for a file-backed store but worth noting if this ever
+ *     migrates to a DB.
+ *
+ *   - **`updateSettings(settings)` is a full REPLACE, not a patch.**
+ *     Caller must send the whole `Settings` object; any missing
+ *     field gets cleared. The per-field mutators
+ *     (`updateSettingsTheme`, `updateSettingsPagination`, etc.)
+ *     are the patch path.
+ *
+ *   - **`updateSettingsPagination` clamps `itemsPerPage` at min 1
+ *     but has no upper bound.** A caller can set it to a million
+ *     and crash the page render. Add an upper cap if this
+ *     endpoint is ever exposed to non-admin users.
+ *
+ *   - **Logger prefix says `[FileService]`** even though this is
+ *     `SettingsService`. Misleading when grepping logs — rename
+ *     when you next touch this file.
+ *
+ *   - **Singleton instantiated at module-load.** `settingsService`
+ *     at the bottom captures the `FileService` at boot; runtime
+ *     content-path changes won't be reflected.
+ */
 export class SettingsService {
 	private settings: FileService<Settings & { id: string }>;
   private initPromise: Promise<void> | null = null;

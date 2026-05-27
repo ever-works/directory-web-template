@@ -5,6 +5,24 @@ import * as path from 'path';
 import * as fs from 'fs/promises';
 import { hasContentConfigFile } from './content-config-file';
 
+/**
+ * Resolve the on-disk path where the git-CMS `.content` directory lives.
+ *
+ * Branches by environment:
+ * - **Vercel runtime** (`process.env.VERCEL && NEXT_PHASE !== 'phase-production-build'`):
+ *   `os.tmpdir()/.content`. The Vercel build artifact is read-only at
+ *   runtime, so we hydrate to `/tmp` (see `hydrateRuntimeContentFromBundle`)
+ *   and use that as the working copy.
+ * - **Vercel build phase** (Next.js production build running on Vercel):
+ *   `process.cwd()/.content`. The build phase reads the source-tree
+ *   bundle directly so the resulting static output sees real content.
+ * - **Local dev, self-hosted, CI** (anything not `process.env.VERCEL`):
+ *   `process.cwd()/.content`. Standard working-directory location.
+ *
+ * The `/tmp` vs cwd distinction is the load-bearing reason most
+ * runtime helpers in this module call this function rather than
+ * hardcoding a path — keep it that way.
+ */
 export function getContentPath() {
     const contentDir = '.content';
 

@@ -19,7 +19,7 @@ This document provides a comprehensive overview of all technologies used in the 
 
 ### Core Framework
 
-- **[Next.js 15.4.7](https://nextjs.org/)** - React framework with App Router
+- **[Next.js 16.2.6](https://nextjs.org/)** - React framework with App Router
   - Server-side rendering (SSR)
   - Static site generation (SSG)
   - Incremental static regeneration (ISR)
@@ -445,7 +445,7 @@ Ever Works supports **13+ languages** out of the box:
 ### Runtime Performance
 
 - **React 19**: Concurrent features for better UX
-- **Next.js 15**: Optimized rendering and caching
+- **Next.js 16**: Optimized rendering and caching
 - **Image optimization**: WebP/AVIF support with lazy loading
 - **Font optimization**: Self-hosted fonts with preloading
 
@@ -507,7 +507,7 @@ Ever Works supports **13+ languages** out of the box:
 
 | Requirement | Technology Choice | Rationale |
 |-------------|-------------------|-----------|
-| **Framework** | Next.js 15 | Best-in-class React framework with App Router |
+| **Framework** | Next.js 16 | Best-in-class React framework with App Router |
 | **Database** | PostgreSQL + Drizzle | Type-safe, performant, scalable |
 | **Auth** | NextAuth.js + Supabase | Dual provider flexibility |
 | **Styling** | Tailwind CSS + HeroUI | Rapid development, consistent design |

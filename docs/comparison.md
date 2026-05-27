@@ -32,7 +32,7 @@ The **Directory Web Template** (this project) is a production-ready, full-stack 
 
 ### Tech Stack
 
-- **Framework:** Next.js 15, React 19
+- **Framework:** Next.js 16, React 19
 - **Language:** TypeScript 5
 - **ORM:** Drizzle ORM (PostgreSQL)
 - **UI:** Tailwind CSS 4, HeroUI React, Radix UI

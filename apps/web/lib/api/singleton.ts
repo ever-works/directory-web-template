@@ -31,4 +31,16 @@ class ApiClientSingleton {
 	}
 }
 
+/**
+ * Public entry-point for the shared {@link ApiClient} singleton.
+ *
+ * Returns the existing instance if one was created earlier in the
+ * process; otherwise creates one from `config`. The `config` argument
+ * is therefore only honoured on the FIRST call — subsequent calls
+ * ignore it and return the already-configured instance. Use the
+ * `ApiClientSingleton.resetInstance()` test helper if you need to
+ * re-configure between tests.
+ *
+ * @see ApiClientSingleton.getInstance
+ */
 export const getApiClient = ApiClientSingleton.getInstance;

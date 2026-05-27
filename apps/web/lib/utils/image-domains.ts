@@ -74,7 +74,30 @@ export function generateImageRemotePatterns() {
 }
 
 /**
- * Check if a URL is from an allowed image domain
+ * Check if a URL points to a domain in the configured remote-image
+ * allow-list.
+ *
+ * Two non-obvious behaviours worth knowing:
+ *
+ * 1. **Non-http URLs return `true`.** Anything that doesn't start
+ *    with `http://` or `https://` — relative paths (`/img/foo.png`),
+ *    data URIs (`data:image/png;base64,...`), AND scheme-based
+ *    payloads (`javascript:...`, `vbscript:...`) — is reported as
+ *    allowed. The intent is to let same-origin paths through without
+ *    needing a domain registration, but the same pass-through gives
+ *    `javascript:` URLs a "valid" answer. **Do NOT reuse this as a
+ *    generic URL safety check** — it's scoped to "is this a remote
+ *    image host I have to declare in next.config?", not "is this URL
+ *    safe to put in an `<img src>`". Browsers won't render
+ *    `javascript:` as an image anyway, so this isn't directly
+ *    exploitable today, but a future caller treating this as input
+ *    sanitisation would inherit the gap.
+ *
+ * 2. **Wildcard subdomain match.** A registered domain like
+ *    `lh3.googleusercontent.com` matches anything ending in
+ *    `.lh3.googleusercontent.com` (case-insensitive). Add the
+ *    apex domain when you want every subdomain covered, not the
+ *    specific subdomain you're seeing in logs.
  */
 export function isAllowedImageDomain(url: string): boolean {
 	try {

@@ -55,7 +55,17 @@ export function resolveLabel(label: string, t: (key: string) => string): string 
 		return label;
 	}
 
-	// Try common namespaces in order of likelihood
+	// Try common namespaces in order of likelihood.
+	//
+	// MAINTENANCE TRAP: this list is hardcoded and intentionally
+	// narrow — it's the fallback for keys without an explicit
+	// namespace (e.g. an admin types `NAV_ABOUT` into a custom
+	// nav-item label). If a new translation namespace is added under
+	// apps/web/messages/*.json AND a custom-nav label is expected to
+	// resolve from it, add the namespace here. Otherwise the key
+	// silently falls through to the original-label fallback at the
+	// bottom of the function — no error, no warning, just the raw
+	// UPPER_SNAKE string in the UI.
 	const namespaces = ['common', 'footer', 'auth', 'listing', 'survey', 'help'];
 
 	for (const ns of namespaces) {
