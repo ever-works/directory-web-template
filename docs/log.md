@@ -31,6 +31,19 @@ why** at a higher level than per-commit diffs.
 
 ---
 
+## 2026-05-27 — Perf: persist item-detail similar-items in the Data Cache
+
+- spec-037: added `getCachedSimilarItems` in `apps/web/lib/content.ts`, wrapping
+  `fetchSimilarItems` in `unstable_cache` (keyed by slug + locale + maxResults,
+  pinned to the content revision, tagged `content`/`items`/`item:<slug>`) so the
+  scored similar-items list survives serverless cold starts and is shared across
+  instances instead of only living in the per-process in-memory map. Updated
+  `app/[locale]/items/[slug]/page.tsx` to load the item and translations
+  concurrently (`Promise.all`) and to consume the cached helper. No markup or
+  ordering change. See `docs/spec/037-item-detail-perf/spec.md`. (PR: draft)
+
+---
+
 ## 2026-05-27 — Fix: Edge Runtime build break in activity-feed push client
 
 - spec-024: replaced the `import { randomUUID } from 'node:crypto'` at the top of

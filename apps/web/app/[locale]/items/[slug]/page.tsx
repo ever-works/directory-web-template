@@ -1,4 +1,4 @@
-import { getCachedItem, fetchSimilarItems } from '@/lib/content';
+import { getCachedItem, getCachedSimilarItems } from '@/lib/content';
 import { notFound } from 'next/navigation';
 import { getCategoriesName } from '@/lib/utils';
 import { getTranslations } from 'next-intl/server';
@@ -157,17 +157,22 @@ export default async function ItemDetails({ params }: { params: Promise<{ slug: 
 	}
 
 	try {
-		const item = await getCachedItem(slug, { lang: locale });
+		// `getCachedItem` (filesystem + git-CMS read) and `getTranslations`
+		// (next-intl message load) are independent — fetch them concurrently
+		// instead of serially so the page's first await covers both.
+		const [item, t] = await Promise.all([getCachedItem(slug, { lang: locale }), getTranslations('common')]);
 
 		if (!item) {
 			return notFound();
 		}
 
-		const t = await getTranslations('common');
-
 		const { meta, content } = item;
 		const categoryName = getCategoriesName(meta.category);
-		const similarItems = await fetchSimilarItems(meta, 6, { lang: locale }).then((items) =>
+		// Similar items depend on `meta`, so they run after the item resolves.
+		// `getCachedSimilarItems` persists the scored result in Next's Data
+		// Cache (shared across instances, survives cold starts) rather than the
+		// per-process in-memory map alone.
+		const similarItems = await getCachedSimilarItems(meta, 6, { lang: locale }).then((items) =>
 			items.flatMap((item) => item.item)
 		);
 
