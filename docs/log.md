@@ -31,6 +31,25 @@ why** at a higher level than per-commit diffs.
 
 ---
 
+## 2026-05-27 — Perf: item-detail first paint — stream similar-items, persist + parallelize
+
+- spec-037: fixed blank/slow first paint on `/[locale]/items/[slug]`. The page
+  used to `await` the similar-items computation (a full-catalogue scan via
+  `fetchItems`) before returning any HTML, blocking first paint on a
+  below-the-fold carousel. Now the carousel is **streamed** behind its own
+  `<Suspense>` boundary in `components/item-detail/item-detail.tsx` (React 19
+  `use()` + a server-created `similarItemsPromise` passed down from the page),
+  so the hero/content/sidebar paint immediately and the rail arrives a beat
+  later with a skeleton. Also added `getCachedSimilarItems` in
+  `apps/web/lib/content.ts` (wraps `fetchSimilarItems` in `unstable_cache`,
+  keyed by slug + locale + maxResults, pinned to the content revision, tagged
+  `content`/`items`/`item:<slug>`) so the scored list survives serverless cold
+  starts / is shared across instances, and parallelized the page's item +
+  translations loads (`Promise.all`). Final markup and item ordering unchanged.
+  See `docs/spec/037-item-detail-perf/spec.md`. (PR: draft)
+
+---
+
 ## 2026-05-27 — Fix: Edge Runtime build break in activity-feed push client
 
 - spec-024: replaced the `import { randomUUID } from 'node:crypto'` at the top of

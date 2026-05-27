@@ -2210,6 +2210,46 @@ export const getCachedItem = async (slug: string, options: FetchOptions = {}) =>
 };
 
 /**
+ * Cached version of {@link fetchSimilarItems}.
+ *
+ * `fetchSimilarItems` is expensive on a cold path: it loads *every* item's
+ * metadata via `fetchItems` and scores the whole catalogue. Its only built-in
+ * cache is a per-process in-memory `Map`, which is lost on every serverless
+ * cold start and is not shared across pods — so the item-detail page paid the
+ * full all-items scan on each fresh instance.
+ *
+ * This wrapper layers Next's `unstable_cache` (the persisted Data Cache,
+ * shared across instances and survivable across cold starts) on top, keyed by
+ * slug + locale + maxResults and pinned to the content revision so a repo sync
+ * invalidates it. We disable the inner in-memory cache (`useCache = false`)
+ * here so the two layers don't double-store the same payload — `unstable_cache`
+ * owns persistence and request de-duplication on this path.
+ *
+ * Tagged identically to {@link getCachedItem} (`CONTENT` / `ITEMS` /
+ * `ITEM(slug)`) so existing revalidation hooks invalidate it for free.
+ */
+export const getCachedSimilarItems = async (
+	currentItem: ItemData,
+	maxResults: number = 6,
+	options: FetchOptions = {}
+): Promise<SimilarItem[]> => {
+	if (!CONTENT_CACHE_ENABLED || !currentItem.slug) {
+		return fetchSimilarItems(currentItem, maxResults, options);
+	}
+
+	const locale = options.lang || 'en';
+	const revision = await getContentRevision();
+	return unstable_cache(
+		async (_revision: string) => fetchSimilarItems(currentItem, maxResults, options, false),
+		['similar-items', currentItem.slug, locale, String(maxResults)],
+		{
+			revalidate: CONTENT_CACHE_TTL.ITEM,
+			tags: [CACHE_TAGS.CONTENT, CACHE_TAGS.ITEMS, CACHE_TAGS.ITEM(currentItem.slug)]
+		}
+	)(revision);
+};
+
+/**
  * Cached version of fetchPageContent()
  * Cache key includes slug and locale
  * Tagged with CONTENT and PAGES for cache invalidation

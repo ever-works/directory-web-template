@@ -1,5 +1,5 @@
 'use client';
-import { Suspense } from 'react';
+import { Suspense, use } from 'react';
 import { ItemBreadcrumb } from './breadcrumb';
 import { ItemIcon } from './item-icon';
 import { getVideoEmbedUrl, toTitleCase, slugify, cn } from '@/lib/utils';
@@ -17,7 +17,12 @@ import { FavoriteButton } from '../favorite-button';
 import type { ItemData } from '@/lib/content';
 import type { ItemLocationData } from '@/lib/types/item';
 import { ItemStatsSection } from './item-stats-section';
-import { ItemsCarousel } from '@/components/shared/items-carousel';
+import dynamic from 'next/dynamic';
+
+const ItemsCarousel = dynamic(
+	() => import('@/components/shared/items-carousel').then((m) => ({ default: m.ItemsCarousel })),
+	{ ssr: false, loading: () => null }
+);
 import { LocationSection } from './LocationSection';
 import { UserSurveySection } from '@/components/surveys/user-survey-section';
 import { useTranslations } from 'next-intl';
@@ -53,9 +58,16 @@ export interface ItemDetailProps {
 	};
 	renderedContent: React.ReactNode;
 	categoryName: string;
+	/**
+	 * Promise of the "Similar Products" items, streamed from the server so the
+	 * page's first paint doesn't block on the full-catalogue similarity scan.
+	 * Consumed below via React 19 `use()` inside a dedicated Suspense boundary.
+	 * When absent, the component falls back to the eager `meta.allItems`.
+	 */
+	similarItemsPromise?: Promise<ItemData[]>;
 }
 
-function ItemDetailContent({ meta, renderedContent, categoryName }: ItemDetailProps) {
+function ItemDetailContent({ meta, renderedContent, categoryName, similarItemsPromise }: ItemDetailProps) {
 	const t = useTranslations();
 	const params = useParams();
 	const locale = params.locale as string;
@@ -439,32 +451,87 @@ function ItemDetailContent({ meta, renderedContent, categoryName }: ItemDetailPr
 					</div>
 				</div>
 
-				{/* Similar Products — full-width carousel like /favorites */}
-				{meta.allItems && meta.allItems.length > 0 && (
-					<div className="mt-16 pt-8 border-t border-gray-200 dark:border-white/10">
-						<div className="mb-6">
-							<h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-								{t('itemDetail.SIMILAR_PRODUCTS', { defaultValue: 'Similar Products' })}
-							</h2>
-							<p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-								{t('itemDetail.SIMILAR_PRODUCTS_DESCRIPTION', {
-									defaultValue: 'Explore more items related to this one'
-								})}
-							</p>
-						</div>
-						<ItemsCarousel items={meta.allItems} max={12} />
-					</div>
-				)}
+				{/* Similar Products — full-width carousel like /favorites.
+				    Streamed behind its own Suspense boundary so the catalogue-wide
+				    similarity scan never blocks the page's first paint. */}
+				<Suspense fallback={<SimilarProductsSkeleton />}>
+					{similarItemsPromise ? (
+						<SimilarProductsSection promise={similarItemsPromise} max={12} />
+					) : (
+						<SimilarProductsView items={meta.allItems ?? []} max={12} />
+					)}
+				</Suspense>
 			</Container>
 		</div>
 	);
 }
 
-export function ItemDetail({ meta, renderedContent, categoryName }: ItemDetailProps) {
+export function ItemDetail({ meta, renderedContent, categoryName, similarItemsPromise }: ItemDetailProps) {
 	return (
 		<Suspense fallback={<ItemDetailSkeleton />}>
-			<ItemDetailContent meta={meta} renderedContent={renderedContent} categoryName={categoryName} />
+			<ItemDetailContent
+				meta={meta}
+				renderedContent={renderedContent}
+				categoryName={categoryName}
+				similarItemsPromise={similarItemsPromise}
+			/>
 		</Suspense>
+	);
+}
+
+/**
+ * Presentational "Similar Products" rail. Renders nothing when there are no
+ * items, so an empty similarity result simply omits the section (same as the
+ * previous `meta.allItems.length > 0` guard).
+ */
+function SimilarProductsView({ items, max = 12 }: { items: ItemData[]; max?: number }) {
+	const t = useTranslations();
+	if (!items || items.length === 0) {
+		return null;
+	}
+	return (
+		<div className="mt-16 pt-8 border-t border-gray-200 dark:border-white/10">
+			<div className="mb-6">
+				<h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+					{t('itemDetail.SIMILAR_PRODUCTS', { defaultValue: 'Similar Products' })}
+				</h2>
+				<p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+					{t('itemDetail.SIMILAR_PRODUCTS_DESCRIPTION', {
+						defaultValue: 'Explore more items related to this one'
+					})}
+				</p>
+			</div>
+			<ItemsCarousel items={items} max={max} />
+		</div>
+	);
+}
+
+/**
+ * Suspense child that unwraps the streamed similar-items promise with `use()`.
+ * Suspends only this subtree (the bottom carousel), not the whole page.
+ */
+function SimilarProductsSection({ promise, max = 12 }: { promise: Promise<ItemData[]>; max?: number }) {
+	const items = use(promise);
+	return <SimilarProductsView items={items} max={max} />;
+}
+
+/** Lightweight skeleton shown while the similar-items rail streams in. */
+function SimilarProductsSkeleton() {
+	return (
+		<div className="mt-16 pt-8 border-t border-gray-200 dark:border-white/10">
+			<div className="mb-6 space-y-2">
+				<div className="h-7 w-48 rounded-md bg-gray-200 dark:bg-white/10 animate-pulse" />
+				<div className="h-4 w-72 rounded bg-gray-100 dark:bg-white/5 animate-pulse" />
+			</div>
+			<div className="flex gap-4 overflow-hidden">
+				{Array.from({ length: 4 }).map((_, i) => (
+					<div
+						key={i}
+						className="h-44 w-64 shrink-0 rounded-xl bg-gray-100 dark:bg-white/5 animate-pulse"
+					/>
+				))}
+			</div>
+		</div>
 	);
 }
 

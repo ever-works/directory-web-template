@@ -96,6 +96,18 @@ export function useItemVote(itemId: string) {
 				};
 			});
 
+			// Optimistically update the Statistics card so upvotes appear instantly
+			const prevVote = previousVotes?.userVote ?? null;
+			const voteChange = prevVote === type ? -1 : prevVote === null ? 1 : 2;
+			const voteDelta = type === 'up' ? voteChange : -voteChange;
+			queryClient.setQueriesData<{ totals: { votes: number; [k: string]: any }; series: any[] }>(
+				{ queryKey: ['item-activity', itemId], exact: false },
+				(old) => {
+					if (!old) return old;
+					return { ...old, totals: { ...old.totals, votes: old.totals.votes + voteDelta } };
+				}
+			);
+
 			return { previousVotes };
 		},
 		onSuccess: (data) => {
@@ -104,11 +116,15 @@ export function useItemVote(itemId: string) {
 			if (data) {
 				queryClient.setQueryData<ItemVoteResponse>(['item-votes', itemId], data);
 			}
+			// Sync the Statistics card with the authoritative server count
+			queryClient.invalidateQueries({ queryKey: ['item-activity', itemId] });
 		},
 		onError: (error, _, context) => {
 			if (context?.previousVotes) {
 				queryClient.setQueryData(['item-votes', itemId], context.previousVotes);
 			}
+			// Revert the optimistic Statistics update
+			queryClient.invalidateQueries({ queryKey: ['item-activity', itemId] });
 
 			// Don't show error toast if user is not logged in (handled by login modal)
 			if (!error.message.includes('sign in') && !error.message.includes('Authentication required')) {
@@ -160,6 +176,17 @@ export function useItemVote(itemId: string) {
 				};
 			});
 
+			// Optimistically update the Statistics card
+			const prevVote = previousVotes?.userVote ?? null;
+			const voteDelta = prevVote === 'up' ? -1 : prevVote === 'down' ? 1 : 0;
+			queryClient.setQueriesData<{ totals: { votes: number; [k: string]: any }; series: any[] }>(
+				{ queryKey: ['item-activity', itemId], exact: false },
+				(old) => {
+					if (!old) return old;
+					return { ...old, totals: { ...old.totals, votes: old.totals.votes + voteDelta } };
+				}
+			);
+
 			return { previousVotes };
 		},
 		onSuccess: (data) => {
@@ -168,11 +195,15 @@ export function useItemVote(itemId: string) {
 			if (data) {
 				queryClient.setQueryData<ItemVoteResponse>(['item-votes', itemId], data);
 			}
+			// Sync the Statistics card with the authoritative server count
+			queryClient.invalidateQueries({ queryKey: ['item-activity', itemId] });
 		},
 		onError: (error, _, context) => {
 			if (context?.previousVotes) {
 				queryClient.setQueryData(['item-votes', itemId], context.previousVotes);
 			}
+			// Revert the optimistic Statistics update
+			queryClient.invalidateQueries({ queryKey: ['item-activity', itemId] });
 			toast.error(error.message || 'An error occurred while removing your vote');
 		}
 	});
