@@ -10,9 +10,13 @@ sidebar_label: 036 Plan
 
 ## 1. High-Level Approach
 
-Use the existing root `Dockerfile` as the only image definition and add
-branch-specific registry-publish workflows separate from deployment. The workflow follows the
-registry set used in the sibling `../ever-works` repo: GHCR is mandatory,
+Use the root `Dockerfile` as the only image definition and make it follow the
+sibling `../ever-works` monorepo image shape: install Turbo in a base image,
+prune the workspace with `turbo prune @ever-works/web --docker`, install from
+the pruned lockfile/package graph, build `@ever-works/web`, then copy the
+Next.js standalone output into a small runtime image. Add branch-specific
+registry-publish workflows separate from deployment. The workflow set follows
+the registry set used in the sibling `../ever-works` repo: GHCR is mandatory,
 Docker Hub and DigitalOcean Container Registry are optional when secrets are
 configured.
 
@@ -38,6 +42,8 @@ flowchart LR
 | `.github/workflows/docker-build-publish-dev.yml` | new | Build and push the develop image |
 | `.github/workflows/docker-build-publish-stage.yml` | new | Build and push the stage image |
 | `.github/workflows/docker-build-publish-prod.yml` | new | Build and push the main image |
+| `Dockerfile` | modify | Use Turbo prune and standalone runtime for the monorepo web image |
+| `turbo.json` | modify | Allow `STANDALONE_BUILD` into the Turbo build env |
 | `docs/deployment/docker.md` | modify | Document workflow triggers, tags, and secrets |
 | `docs/spec/036-docker-build-publish-workflow/` | new | Spec Kit record |
 | `docs/spec/README.md` | modify | Add spec index row |

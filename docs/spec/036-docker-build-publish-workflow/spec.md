@@ -28,6 +28,7 @@ root `Dockerfile`.
 - Always publish to GHCR using the workflow `GITHUB_TOKEN`.
 - Optionally publish the same image to Docker Hub and DigitalOcean Container
   Registry when their secrets are configured.
+- Use a monorepo-aware Dockerfile based on `turbo prune @ever-works/web --docker`.
 - Preserve the Dockerfile's GHCR source/revision labels and BuildKit secret
   handling for `GH_TOKEN`.
 - Document required secrets and branch-to-image naming.
@@ -35,7 +36,7 @@ root `Dockerfile`.
 ## 4. Non-Goals
 
 - No deployment rollout or Kubernetes manifest changes.
-- No changes to the Dockerfile build stages.
+- No changes to application runtime behaviour beyond container packaging.
 - No new application runtime behaviour.
 
 ## 5. User Stories
@@ -59,7 +60,8 @@ can use the registry my cluster or hosting provider already pulls from.
 - [x] AC-3: GHCR is always configured as the primary registry.
 - [x] AC-4: Docker Hub and DigitalOcean tags are included only when their
   credentials are present.
-- [x] AC-5: Docker docs describe image names, tags, and secrets.
+- [x] AC-5: Docker docs describe image names, tags, secrets, and the monorepo
+  Turbo-prune build shape.
 
 ## 7. Out-of-Scope Considerations
 
