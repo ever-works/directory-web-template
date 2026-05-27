@@ -11,6 +11,9 @@ import { siteConfig } from '@/lib/config';
 import { getBaseUrl } from '@/lib/utils/url-cleaner';
 import { generateItemHreflangAlternates, getLocalizedUrl } from '@/lib/seo/hreflang';
 import { type Locale } from '@/lib/constants';
+import { HydrationBoundary, dehydrate } from '@tanstack/react-query';
+import { getQueryClient } from '@/lib/query-client';
+import { getCommentsByItemId } from '@/lib/db/queries';
 
 // Enable ISR with 10 minutes revalidation
 // Using dynamicParams allows on-demand generation without build-time MDX errors
@@ -157,10 +160,19 @@ export default async function ItemDetails({ params }: { params: Promise<{ slug: 
 	}
 
 	try {
-		// `getCachedItem` (filesystem + git-CMS read) and `getTranslations`
-		// (next-intl message load) are independent — fetch them concurrently
-		// instead of serially so the page's first await covers both.
-		const [item, t] = await Promise.all([getCachedItem(slug, { lang: locale }), getTranslations('common')]);
+		const queryClient = getQueryClient();
+
+		// Run item CMS fetch, i18n load, and comment prefetch all in parallel.
+		// Comment prefetch populates the server-side queryClient so HydrationBoundary
+		// below embeds the data in the HTML — CommentsSection renders without a
+		// client-side waterfall.
+		const [[item, t]] = await Promise.all([
+			Promise.all([getCachedItem(slug, { lang: locale }), getTranslations('common')]),
+			queryClient.prefetchQuery({
+				queryKey: ['comments', slug],
+				queryFn: () => getCommentsByItemId(slug).catch(() => []),
+			}),
+		]);
 
 		if (!item) {
 			return notFound();
@@ -189,19 +201,21 @@ export default async function ItemDetails({ params }: { params: Promise<{ slug: 
 		const renderedContent = <ServerItemContent content={content} noContentMessage={t('NO_CONTENT_PROVIDED')} />;
 
 		return (
-			<div className='relative overflow-hidden dark:bg-[#0a0a0a] text-gray-800 dark:text-white'>
-				{/* <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(59,130,246,0.05),transparent_50%)] dark:bg-[radial-gradient(circle_at_30%_20%,rgba(59,130,246,0.1),transparent_50%)]"></div>
-				<div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(168,85,247,0.05),transparent_50%)] dark:bg-[radial-gradient(circle_at_70%_80%,rgba(168,85,247,0.1),transparent_50%)]"></div> */}
-				<Container maxWidth="7xl" padding="default" useGlobalWidth>
-					<ItemViewTracker slug={slug} />
-					<ItemDetailWrapper
-						meta={metaWithVideo}
-						renderedContent={renderedContent}
-						categoryName={categoryName}
-						similarItemsPromise={similarItemsPromise}
-					/>
-				</Container>
-			</div>
+			<HydrationBoundary state={dehydrate(queryClient)}>
+				<div className='relative overflow-hidden dark:bg-[#0a0a0a] text-gray-800 dark:text-white'>
+					{/* <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(59,130,246,0.05),transparent_50%)] dark:bg-[radial-gradient(circle_at_30%_20%,rgba(59,130,246,0.1),transparent_50%)]"></div>
+					<div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(168,85,247,0.05),transparent_50%)] dark:bg-[radial-gradient(circle_at_70%_80%,rgba(168,85,247,0.1),transparent_50%)]"></div> */}
+					<Container maxWidth="7xl" padding="default" useGlobalWidth>
+						<ItemViewTracker slug={slug} />
+						<ItemDetailWrapper
+							meta={metaWithVideo}
+							renderedContent={renderedContent}
+							categoryName={categoryName}
+							similarItemsPromise={similarItemsPromise}
+						/>
+					</Container>
+				</div>
+			</HydrationBoundary>
 		);
 	} catch (error) {
 		console.error(`Failed to load item ${slug} for locale ${locale}:`, error);
