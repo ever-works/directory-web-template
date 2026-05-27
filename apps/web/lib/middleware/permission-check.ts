@@ -115,14 +115,34 @@ export function canViewAnalytics(userPermissions: UserPermissions): boolean {
 }
 
 /**
- * Check if user is a super admin (has all permissions)
+ * Check if user is a super admin (has all permissions).
+ *
+ * Two paths:
+ *  1. Role check: `roles.includes('super-admin')` — the canonical and
+ *     most secure way to grant super-admin status. Prefer this.
+ *  2. Permission-list fallback: returns `true` only if the user holds
+ *     EVERY permission in the hardcoded `allPermissions` list below.
+ *     Mainly here to handle migration cases / pre-role environments
+ *     where someone might have been manually granted the full set.
+ *
+ * **Maintenance trap on the fallback list.** The `allPermissions`
+ * array MUST stay in sync with the `PERMISSIONS` map in
+ * `@/lib/permissions/definitions`. If a new permission resource is
+ * added there (e.g. `billing:read`) and NOT mirrored below, the
+ * fallback will return `true` even when the user is missing the new
+ * permission — silently widening super-admin status. There is no
+ * compile-time check that catches this. The safer long-term fix is
+ * to derive `allPermissions` from `Object.values(PERMISSIONS)` (as
+ * `VALID_PERMISSIONS` already does at module top); preserved as a
+ * literal here for now to avoid a logic change in a security-adjacent
+ * code path — call this out in any PR that touches definitions.ts.
  */
 export function isSuperAdmin(userPermissions: UserPermissions): boolean {
   // Check if user has the super-admin role (most secure approach)
   if (userPermissions.roles.includes('super-admin')) {
     return true;
   }
-  
+
   // Fallback: Check if user has ALL system permissions
   // This ensures no partial permissions can grant super admin access
   const allPermissions: Permission[] = [
@@ -134,7 +154,7 @@ export function isSuperAdmin(userPermissions: UserPermissions): boolean {
     'analytics:read', 'analytics:export',
     'system:settings'
   ];
-  
+
   return hasAllPermissions(userPermissions, allPermissions);
 }
 
