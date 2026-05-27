@@ -3,6 +3,35 @@ import { createTagGitService } from '@/lib/services/tag-git.service';
 import { getContentPath } from '@/lib/lib';
 import { coreConfig } from '@/lib/config/config-service';
 
+/**
+ * Repository wrapper around the tag-git-service for the Git-CMS
+ * `tags.yml` file.
+ *
+ * **Per-instance lazy git-service cache.** `getGitService()`
+ * memoises the underlying service in `this.gitService` — the
+ * module-bottom singleton means this lives forever in the
+ * process. Env-var changes don't propagate; restart to pick up
+ * new `DATA_REPOSITORY` / `GH_TOKEN`.
+ *
+ * **GitHub-only.** The `DATA_REPOSITORY` regex matches
+ * `https://github.com/owner/repo` exclusively — GitLab, Bitbucket,
+ * self-hosted Gitea URLs all throw `"Invalid DATA_REPOSITORY
+ * format"` at init. Multi-provider support requires extending
+ * both the regex and the underlying git service.
+ *
+ * **Branch defaults to `'main'`.** Pre-2020 repos still on
+ * `master` MUST set `GITHUB_BRANCH=master` explicitly.
+ *
+ * **No tenant isolation.** Unlike `RoleDbService`, tags are
+ * scoped to the Git-CMS repo (one per deployment), not per
+ * tenant. If multi-tenancy ever spans the same data repo, tags
+ * become a cross-tenant surface and need filtering.
+ *
+ * **`gitService: any` is intentional** — the dynamic
+ * `createTagGitService` factory returns a heterogeneous shape
+ * that hasn't been typed yet. Tighten when the git service
+ * exposes a stable interface.
+ */
 export class TagRepository {
   private gitService: any = null;
 
