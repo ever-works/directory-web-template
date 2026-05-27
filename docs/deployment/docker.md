@@ -36,6 +36,45 @@ docker run -p 3000:3000 ever-works-website
 
 Your site will be available at `http://localhost:3000`.
 
+## GitHub Actions Build and Publish
+
+The repository includes separate branch-specific Docker publish workflows to
+build the root `Dockerfile` and publish images without deploying them.
+
+### Triggers
+
+- `.github/workflows/docker-build-publish-dev.yml` runs on `develop` and publishes `directory-web-template-dev`.
+- `.github/workflows/docker-build-publish-stage.yml` runs on `stage` and publishes `directory-web-template-stage`.
+- `.github/workflows/docker-build-publish-prod.yml` runs on `main` and publishes `directory-web-template`.
+- Each workflow also supports `workflow_dispatch`.
+
+Each image receives `latest` and the 12-character commit SHA as tags.
+
+### Registries
+
+GHCR is always enabled and uses the workflow `GITHUB_TOKEN`:
+
+```text
+ghcr.io/<owner>/directory-web-template:latest
+ghcr.io/<owner>/directory-web-template:<short-sha>
+```
+
+Docker Hub is enabled when these secrets are present:
+
+- `DOCKERHUB_USERNAME`
+- `DOCKERHUB_TOKEN`
+
+Set the optional `DOCKERHUB_NAMESPACE` repository variable when the namespace
+differs from `DOCKERHUB_USERNAME`.
+
+DigitalOcean Container Registry is enabled when `DIGITALOCEAN_ACCESS_TOKEN` is
+present. The registry name defaults to `ever`; set the `DIGITALOCEAN_REGISTRY`
+repository variable to override it.
+
+For build-time Git CMS content, set `DATA_REPOSITORY` to the content repository
+name and `GH_TOKEN` to a token that can read it. `GH_TOKEN` is passed to Docker
+as a BuildKit secret rather than a build argument.
+
 ## Docker Compose Setup
 
 Create a `docker-compose.yml` file:
