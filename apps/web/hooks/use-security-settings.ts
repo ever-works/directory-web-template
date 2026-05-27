@@ -199,6 +199,24 @@ export function useUpdateSecurityNotifications() {
   return useMutation({
     mutationFn: (data: Partial<SecurityNotificationPrefs>) =>
       serverClient.patch("/api/auth/security/notifications", data),
+    onMutate: async (newData) => {
+      await queryClient.cancelQueries({ queryKey: SECURITY_QUERY_KEYS.notifications });
+      const previous = queryClient.getQueryData<SecurityNotificationPrefs>(SECURITY_QUERY_KEYS.notifications);
+      queryClient.setQueryData<SecurityNotificationPrefs>(SECURITY_QUERY_KEYS.notifications, (old) => {
+        if (!old) return old;
+        const result = { ...old };
+        for (const [type, channels] of Object.entries(newData) as [keyof SecurityNotificationPrefs, Partial<SecurityNotificationPrefs[keyof SecurityNotificationPrefs]>][]) {
+          result[type] = { ...result[type], ...channels };
+        }
+        return result;
+      });
+      return { previous };
+    },
+    onError: (_err, _vars, context) => {
+      if (context?.previous) {
+        queryClient.setQueryData(SECURITY_QUERY_KEYS.notifications, context.previous);
+      }
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: SECURITY_QUERY_KEYS.notifications });
     },

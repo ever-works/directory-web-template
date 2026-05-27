@@ -137,24 +137,13 @@ export function SecurityNotificationsCard() {
 		<div className="bg-white dark:bg-white/3 border border-neutral-200 dark:border-white/8 rounded-xl shadow-sm divide-y divide-neutral-100 dark:divide-white/6">
 
 			{/* Header */}
-			<div className="px-6 py-5 flex items-center justify-between gap-4">
-				<div>
-					<p className="text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wide">
-						Security Alerts
-					</p>
-					<p className="text-xs text-neutral-400 dark:text-neutral-500 mt-0.5">
-						Choose how you receive security notifications
-					</p>
-				</div>
-				{/* Channel legend */}
-				<div className="hidden sm:flex items-center gap-3 shrink-0">
-					{(Object.entries(CHANNEL_ICONS) as [Channel, { icon: React.ElementType; label: string }][]).map(([ch, { icon: Icon, label }]) => (
-						<div key={ch} className="flex items-center gap-1 text-[11px] text-neutral-400 dark:text-neutral-500">
-							<Icon className="w-3 h-3" />
-							{label}
-						</div>
-					))}
-				</div>
+			<div className="px-6 py-5">
+				<p className="text-xs font-semibold text-neutral-500 dark:text-neutral-400 uppercase tracking-wide">
+					Security Alerts
+				</p>
+				<p className="text-xs text-neutral-400 dark:text-neutral-500 mt-0.5">
+					Choose how you receive security notifications
+				</p>
 			</div>
 
 			{/* Notification rows */}
@@ -185,8 +174,11 @@ export function SecurityNotificationsCard() {
 							{(["in_app", "email"] as Channel[]).map((ch) => {
 								const { icon: CIcon, label } = CHANNEL_ICONS[ch];
 								return (
-									<div key={ch} className="flex flex-col items-center gap-1">
-										<CIcon className="w-3 h-3 text-neutral-300 dark:text-neutral-600 sm:hidden" />
+									<div key={ch} className="flex flex-col items-center gap-1.5">
+										<div className="flex items-center gap-1 text-[10px] text-neutral-400 dark:text-neutral-500">
+											<CIcon className="w-3 h-3" />
+											{label}
+										</div>
 										<Toggle
 											checked={channels?.[ch] ?? true}
 											disabled={updating || !prefs}
