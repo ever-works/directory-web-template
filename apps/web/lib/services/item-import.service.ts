@@ -14,10 +14,35 @@ import type {
 } from '@/lib/types/item-import-export';
 
 
-/** Maximum items per batch import */
+/**
+ * Maximum items per batch import.
+ *
+ * DoS bound — admins uploading a 50k-row CSV would otherwise pin the
+ * Git-CMS writer for minutes. 500 fits comfortably in a single
+ * commit and keeps the worst-case batch wall-time tolerable. If
+ * a customer needs higher caps, run multiple batches sequentially
+ * rather than raising this constant.
+ */
 const MAX_IMPORT_BATCH = 500;
 
-/** Known field aliases for auto-detecting column mapping */
+/**
+ * Known field aliases for auto-detecting column mapping.
+ *
+ * **Matching is case-insensitive and exact (after trim)** —
+ * `Item Name`, `ITEM NAME`, and `item name` all map to `name` but
+ * `itemName` (camelCase, no separator) does NOT. Add new aliases
+ * here when users complain about a CSV header that "should have
+ * been obvious".
+ *
+ * **Duplicate `source_url` entry** in the list is intentional /
+ * harmless — Set-like lookup downstream collapses it.
+ *
+ * **`category` aliases include `categories`** even though category
+ * vs categories has different multi-value semantics. Imports map
+ * either form to the single `category` column; the downstream
+ * `column-mapping.ts` resolver handles split-by-semicolon for the
+ * `categories` plural case.
+ */
 const FIELD_ALIASES: Record<string, string[]> = {
 	name: ['name', 'title', 'item_name', 'item name'],
 	description: ['description', 'desc', 'summary', 'about'],
