@@ -8,18 +8,27 @@ import type { FollowListRow } from '@/lib/db/queries/follows.queries';
  * Person card shared between the /followers and /following pages so both
  * lists render the same visual treatment (gradient banner, avatar overlap,
  * follow action, view-profile link).
+ *
+ * `selfRowMode` controls what the viewer sees on their own row:
+ *   - 'following-pill' (default, used on /following) renders a disabled
+ *     "Following" pill, mirroring the relationship the page is listing.
+ *   - 'hide-action' (used on /followers) drops the action entirely. The
+ *     viewer being in someone's followers list does not imply they follow
+ *     themselves, so the original followers page omitted the action.
  */
 export function FollowPersonCard({
 	row,
 	isViewer,
 	isAuthenticated,
 	initialIsFollowing,
+	selfRowMode = 'following-pill',
 	t
 }: {
 	row: FollowListRow;
 	isViewer: boolean;
 	isAuthenticated: boolean;
 	initialIsFollowing: boolean;
+	selfRowMode?: 'following-pill' | 'hide-action';
 	t: (key: string) => string;
 }) {
 	const handle = row.username ?? row.userId;
@@ -82,10 +91,14 @@ export function FollowPersonCard({
 			{/* Actions */}
 			<div className="px-4 pb-4 flex items-center gap-2">
 				{isViewer ? (
-					<span className="flex-1 inline-flex items-center justify-center gap-1.5 h-8 rounded-xl text-xs font-medium text-neutral-400 dark:text-neutral-500 border border-neutral-200 dark:border-white/8 bg-transparent select-none cursor-default">
-						<FiUserCheck className="w-3.5 h-3.5" />
-						{t('FOLLOWING')}
-					</span>
+					selfRowMode === 'following-pill' ? (
+						<span className="flex-1 inline-flex items-center justify-center gap-1.5 h-8 rounded-xl text-xs font-medium text-neutral-400 dark:text-neutral-500 border border-neutral-200 dark:border-white/8 bg-transparent select-none cursor-default">
+							<FiUserCheck className="w-3.5 h-3.5" />
+							{t('FOLLOWING')}
+						</span>
+					) : (
+						<span className="flex-1" aria-hidden="true" />
+					)
 				) : (
 					<div className="flex-1">
 						<FollowButton

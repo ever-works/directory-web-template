@@ -97,6 +97,7 @@ export default async function ProfileFollowersPage({
 										isViewer={isViewer}
 										isAuthenticated={!!viewerUserId}
 										initialIsFollowing={followingSet.has(row.userId)}
+										selfRowMode="hide-action"
 										t={t}
 									/>
 								);
