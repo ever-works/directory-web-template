@@ -5,10 +5,46 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { useCurrentUser } from './use-current-user';
 import { serverClient, apiUtils } from '@/lib/api/server-api-client';
+import {
+	ITEM_ACTIVITY_QUERY_KEY,
+	type ItemActivityPayload
+} from '@/components/item-detail/item-stats-section';
 
 interface ItemVoteResponse {
 	count: number;
 	userVote: 'up' | 'down' | null;
+}
+
+/**
+ * Apply a signed delta to every cached activity payload for an item (the
+ * cache has one entry per `days` window). Bumps both `totals.votes` and
+ * today's sparkline point so the sidebar Statistics card visibly moves on
+ * the same frame as the vote button.
+ */
+function patchActivityForVoteDelta(
+	queryClient: ReturnType<typeof useQueryClient>,
+	itemId: string,
+	delta: number
+) {
+	if (delta === 0) return;
+	queryClient.setQueriesData<ItemActivityPayload>(
+		{ queryKey: [ITEM_ACTIVITY_QUERY_KEY, itemId] },
+		(old) => {
+			if (!old) return old;
+			const lastIdx = old.series.length - 1;
+			const newSeries =
+				lastIdx >= 0
+					? [
+							...old.series.slice(0, lastIdx),
+							{ ...old.series[lastIdx], votes: (old.series[lastIdx]?.votes ?? 0) + delta }
+						]
+					: old.series;
+			return {
+				totals: { ...old.totals, votes: (old.totals?.votes ?? 0) + delta },
+				series: newSeries
+			};
+		}
+	);
 }
 
 export function useItemVote(itemId: string) {
@@ -85,18 +121,30 @@ export function useItemVote(itemId: string) {
 
 			await queryClient.cancelQueries({ queryKey: ['item-votes', itemId] });
 			const previousVotes = queryClient.getQueryData<ItemVoteResponse>(['item-votes', itemId]);
+			// Snapshot the activity cache so we can roll back on error without
+			// triggering a refetch flicker.
+			const previousActivity = queryClient.getQueriesData<ItemActivityPayload>({
+				queryKey: [ITEM_ACTIVITY_QUERY_KEY, itemId]
+			});
+
+			// Mirror the same diff formula the vote count uses, then apply the
+			// signed delta to the activity cache so the Statistics card updates
+			// on the same frame as the vote button.
+			const prevUserVote = previousVotes?.userVote ?? null;
+			const countDiff = prevUserVote === type ? -1 : prevUserVote === null ? 1 : 2;
+			const signedDelta = type === 'up' ? countDiff : -countDiff;
 
 			queryClient.setQueryData<ItemVoteResponse>(['item-votes', itemId], (old) => {
 				if (!old) return { count: type === 'up' ? 1 : -1, userVote: type };
-
-				const countDiff = old.userVote === type ? -1 : old.userVote === null ? 1 : 2;
 				return {
-					count: old.count + (type === 'up' ? countDiff : -countDiff),
+					count: old.count + signedDelta,
 					userVote: old.userVote === type ? null : type
 				};
 			});
 
-			return { previousVotes };
+			patchActivityForVoteDelta(queryClient, itemId, signedDelta);
+
+			return { previousVotes, previousActivity };
 		},
 		onSuccess: (data) => {
 			// Update cache with server data to ensure consistency
@@ -108,6 +156,11 @@ export function useItemVote(itemId: string) {
 		onError: (error, _, context) => {
 			if (context?.previousVotes) {
 				queryClient.setQueryData(['item-votes', itemId], context.previousVotes);
+			}
+			if (context?.previousActivity) {
+				for (const [key, value] of context.previousActivity) {
+					queryClient.setQueryData(key, value);
+				}
 			}
 
 			// Don't show error toast if user is not logged in (handled by login modal)
@@ -151,16 +204,25 @@ export function useItemVote(itemId: string) {
 
 			await queryClient.cancelQueries({ queryKey: ['item-votes', itemId] });
 			const previousVotes = queryClient.getQueryData<ItemVoteResponse>(['item-votes', itemId]);
+			const previousActivity = queryClient.getQueriesData<ItemActivityPayload>({
+				queryKey: [ITEM_ACTIVITY_QUERY_KEY, itemId]
+			});
+
+			const prevUserVote = previousVotes?.userVote ?? null;
+			// Removing a vote inverts whichever direction it was.
+			const signedDelta = prevUserVote === 'up' ? -1 : prevUserVote === 'down' ? 1 : 0;
 
 			queryClient.setQueryData<ItemVoteResponse>(['item-votes', itemId], (old) => {
 				if (!old) return { count: 0, userVote: null };
 				return {
-					count: old.count + (old.userVote === 'up' ? -1 : old.userVote === 'down' ? 1 : 0),
+					count: old.count + signedDelta,
 					userVote: null
 				};
 			});
 
-			return { previousVotes };
+			patchActivityForVoteDelta(queryClient, itemId, signedDelta);
+
+			return { previousVotes, previousActivity };
 		},
 		onSuccess: (data) => {
 			// Update cache with server data to ensure consistency
@@ -172,6 +234,11 @@ export function useItemVote(itemId: string) {
 		onError: (error, _, context) => {
 			if (context?.previousVotes) {
 				queryClient.setQueryData(['item-votes', itemId], context.previousVotes);
+			}
+			if (context?.previousActivity) {
+				for (const [key, value] of context.previousActivity) {
+					queryClient.setQueryData(key, value);
+				}
 			}
 			toast.error(error.message || 'An error occurred while removing your vote');
 		}

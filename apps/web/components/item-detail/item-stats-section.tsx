@@ -1,9 +1,23 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useLocale, useTranslations } from 'next-intl';
+import { useQuery } from '@tanstack/react-query';
 import { Eye, ThumbsUp, Heart, MessageSquare, Star, Clock, BarChart3 } from 'lucide-react';
 import type { ItemActivityDay, ItemEngagementMetrics } from '@/lib/db/queries/engagement.queries';
+
+/**
+ * Cache-key prefix for the per-item activity payload. Exported so the vote
+ * hook (and any future mutator) can target the same cache via
+ * `queryClient.setQueriesData({ queryKey: [ITEM_ACTIVITY_QUERY_KEY, slug] })`
+ * to apply optimistic updates without restating the literal.
+ */
+export const ITEM_ACTIVITY_QUERY_KEY = 'item-activity' as const;
+
+export interface ItemActivityPayload {
+	totals: ItemEngagementMetrics;
+	series: ItemActivityDay[];
+}
 
 interface ItemStatsSectionProps {
 	itemSlug: string;
@@ -156,11 +170,6 @@ function Sparkline({ series, metric }: SparklineProps) {
 	);
 }
 
-interface ActivityPayload {
-	totals: ItemEngagementMetrics;
-	series: ItemActivityDay[];
-}
-
 /**
  * Compact sidebar Statistics card with an inline sparkline.
  *
@@ -170,34 +179,30 @@ interface ActivityPayload {
  * are clickable — selecting one highlights it with `theme-primary` and
  * re-plots the sparkline below from `/api/items/[slug]/activity`. Rating
  * and Listed rows are static.
+ *
+ * Data lives in the shared React Query cache under
+ * `[ITEM_ACTIVITY_QUERY_KEY, itemSlug, days]` so mutations (e.g. the upvote
+ * button via `useItemVote`) can patch it optimistically — the Upvotes total
+ * and today's sparkline point update on the same frame as the vote.
  */
 export function ItemStatsSection({ itemSlug, publishedAt, days = 30 }: ItemStatsSectionProps) {
 	const t = useTranslations();
 	const locale = useLocale();
-	const [data, setData] = useState<ActivityPayload | null>(null);
-	const [loaded, setLoaded] = useState(false);
 	const [selected, setSelected] = useState<SeriesMetric>('views');
 
-	useEffect(() => {
-		if (!itemSlug) return;
-		let cancelled = false;
-		(async () => {
-			try {
-				const res = await fetch(`/api/items/${encodeURIComponent(itemSlug)}/activity?days=${days}`);
-				if (!res.ok) return;
-				const payload = (await res.json()) as ActivityPayload;
-				if (cancelled) return;
-				setData(payload);
-			} catch {
-				// Non-critical; leave placeholders.
-			} finally {
-				if (!cancelled) setLoaded(true);
+	const { data, isFetched: loaded } = useQuery<ItemActivityPayload>({
+		queryKey: [ITEM_ACTIVITY_QUERY_KEY, itemSlug, days],
+		queryFn: async () => {
+			const res = await fetch(`/api/items/${encodeURIComponent(itemSlug)}/activity?days=${days}`);
+			if (!res.ok) {
+				throw new Error(`Activity fetch failed (${res.status})`);
 			}
-		})();
-		return () => {
-			cancelled = true;
-		};
-	}, [itemSlug, days]);
+			return res.json() as Promise<ItemActivityPayload>;
+		},
+		enabled: !!itemSlug,
+		staleTime: 1000 * 60 * 5,
+		gcTime: 1000 * 60 * 30
+	});
 
 	const totals = data?.totals;
 	const series = data?.series ?? [];

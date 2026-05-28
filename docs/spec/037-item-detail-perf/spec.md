@@ -27,6 +27,13 @@ This spec:
   survives serverless cold starts and is shared across instances.
 - **(c)** Runs the page's two independent loads (item + translations)
   concurrently with `Promise.all`.
+- **(d) Optimistic Statistics card on vote.** The sidebar Statistics card used
+  to fetch activity once on mount, so an upvote never updated its "Upvotes"
+  total or today's sparkline point until a full reload. The card now lives in
+  React Query under the shared `[ITEM_ACTIVITY_QUERY_KEY, slug, days]` cache,
+  and `useItemVote.onMutate` patches that cache with the same signed delta it
+  applies to the vote count — both numbers move on the same frame as the
+  button. Errors roll back the snapshotted cache alongside the vote cache.
 
 All changes preserve the rendered output — same markup, same items, same
 ordering. The carousel now appears a beat after the main content (with a
@@ -99,7 +106,15 @@ reuse cached work across instances, so that cold starts don't re-scan content.
       waiting for it. An empty result still omits the section.
 - [ ] AC-6: The final rendered markup and the set/order of similar items are
       unchanged for a given content revision.
-- [ ] AC-7: `pnpm lint` and `pnpm tsc --noEmit` pass.
+- [ ] AC-7: `ItemStatsSection` reads its activity payload via React Query
+      under `[ITEM_ACTIVITY_QUERY_KEY, slug, days]`. The literal key string is
+      exported once and re-used by mutators.
+- [ ] AC-8: After an upvote toggle, the Statistics "Upvotes" total and the
+      last point of the sparkline update on the same frame as the vote button
+      (no waiting for a network round-trip). On vote-mutation error, both the
+      vote count and the activity cache are restored from snapshots without a
+      refetch flicker.
+- [ ] AC-9: `pnpm lint` and `pnpm tsc --noEmit` pass.
 
 ## 7. Out-of-Scope Considerations
 

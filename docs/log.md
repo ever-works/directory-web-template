@@ -31,6 +31,21 @@ why** at a higher level than per-commit diffs.
 
 ---
 
+## 2026-05-27 — UX: item-detail Statistics card updates instantly on upvote
+
+- spec-037: the sidebar Statistics card on `/[locale]/items/[slug]` used to
+  fetch `/api/items/[slug]/activity` once on mount via plain `useState` /
+  `fetch` — so an upvote never updated the "Upvotes" total or today's sparkline
+  point until a full page reload. Migrated `ItemStatsSection` to React Query
+  under the new shared key `[ITEM_ACTIVITY_QUERY_KEY, itemSlug, days]`, and
+  taught `useItemVote`'s `onMutate` (for both vote and unvote) to apply the
+  same signed delta to that cache — both the totals and the today bar of the
+  sparkline update on the same frame as the vote button. Errors roll back the
+  snapshotted activity cache alongside the vote cache, no flicker-refetch.
+  See `docs/spec/037-item-detail-perf/spec.md`. (PR #940)
+
+---
+
 ## 2026-05-27 — Perf: item-detail first paint — stream similar-items, persist + parallelize
 
 - spec-037: fixed blank/slow first paint on `/[locale]/items/[slug]`. The page
