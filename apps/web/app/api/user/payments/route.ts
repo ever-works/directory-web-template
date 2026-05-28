@@ -261,7 +261,11 @@ export async function GET() {
     // Stripe not configured — return a 200 "no payments" envelope
     // rather than a 5xx. The payment-history panel is optional.
     if (/Stripe configuration is incomplete/i.test(message)) {
-      return NextResponse.json({ payments: [] });
+      // Honour the array contract — every other path here returns a bare
+      // array. Returning the `{ payments: [] }` object made the client store
+      // a non-array, crashing `providerPayments.reduce(...)` in
+      // useProviderPayment on /client/settings/profile/billing.
+      return NextResponse.json([]);
     }
     return NextResponse.json(
       { error: 'Failed to fetch payment data' },
