@@ -9,7 +9,7 @@ on:
     workflow_dispatch:
         inputs:
             environment:
-                description: "Target environment (production, staging, …)"
+                description: 'Target environment (production, staging, …)'
                 required: true
                 type: string
                 default: production
@@ -29,20 +29,23 @@ concurrency:
     cancel-in-progress: true
 
 env:
-    NODE_OPTIONS: "--max-old-space-size=4096"
-    # K8S_REGISTRY_KIND drives every per-registry conditional below.
-    # Defaults to 'github' when the platform pushed nothing — that's the
-    # zero-config GHCR flow.
-    K8S_REGISTRY_KIND: ${{ secrets.K8S_REGISTRY_KIND || 'github' }}
-    # Hoisted from secrets so step `if:` conditionals can reference it.
-    # `secrets.X` is not a valid expression context in step-level `if:`,
-    # but workflow/job-level `env:` is — so we mirror the secret into env
-    # once and let downstream `env.K8S_REGISTRY_VISIBILITY` work everywhere.
-    K8S_REGISTRY_VISIBILITY: ${{ secrets.K8S_REGISTRY_VISIBILITY || 'public' }}
+    NODE_OPTIONS: '--max-old-space-size=4096'
+    # Keep registry settings at job level. GitHub does not allow the
+    # `secrets` context in workflow-level env, and using it there can make
+    # the run fail during workflow startup before any job is created.
 
 jobs:
     build-and-deploy:
         runs-on: ubuntu-latest
+        env:
+            # K8S_REGISTRY_KIND drives every per-registry conditional below.
+            # Defaults to 'github' when the platform pushed nothing — that's
+            # the zero-config GHCR flow.
+            K8S_REGISTRY_KIND: ${{ secrets.K8S_REGISTRY_KIND || 'github' }}
+            # `auto` mirrors the platform/plugin default. Treat auto like
+            # private for pull-secret creation; an extra pull secret is safe
+            # for public GHCR, while a missing one breaks private repos.
+            K8S_REGISTRY_VISIBILITY: ${{ secrets.K8S_REGISTRY_VISIBILITY || 'auto' }}
         steps:
             - name: Echo target environment
               run: echo "Deploying to ${{ inputs.environment }}"
@@ -94,7 +97,7 @@ jobs:
             - name: Setup Node.js
               uses: actions/setup-node@v4
               with:
-                  node-version: "22"
+                  node-version: '22'
                   cache: pnpm
 
             # The Dockerfile copies the working tree into the build context
@@ -198,7 +201,7 @@ jobs:
                   kubectl create namespace "$NAMESPACE" --dry-run=client -o yaml | kubectl apply -f -
 
             - name: Provision image-pull secret (private registries)
-              if: env.K8S_REGISTRY_KIND != 'github' || env.K8S_REGISTRY_VISIBILITY == 'private'
+              if: env.K8S_REGISTRY_KIND != 'github' || env.K8S_REGISTRY_VISIBILITY != 'public'
               env:
                   NAMESPACE: ${{ secrets.K8S_NAMESPACE || 'ever-works' }}
                   WORK_SLUG: ${{ github.event.repository.name }}
@@ -213,12 +216,9 @@ jobs:
                   #    `packages:read` for the workflow's own repo, not for
                   #    images owned by a different account.
                   # 3. GITHUB_TOKEN — fallback that works for same-repo GHCR.
-                  # DEPLOY_TOKEN is what the Ever Works platform's k8s-plugin
-                  # actually pushes — the read:packages PAT created via the
-                  # GitHub OAuth `plugins/read-packages` flow. The legacy
-                  # GITHUB_READ_PACKAGES_TOKEN name is kept in the chain for
-                  # back-compat.
-                  REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD || secrets.GITHUB_READ_PACKAGES_TOKEN || secrets.DEPLOY_TOKEN || secrets.GITHUB_TOKEN }}
+                  # The legacy GITHUB_READ_PACKAGES_TOKEN name is kept in
+                  # the chain for back-compat with older platform pushes.
+                  REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD || secrets.GITHUB_READ_PACKAGES_TOKEN || secrets.GITHUB_TOKEN }}
               run: |
                   kubectl create secret docker-registry "${WORK_SLUG}-pull" \
                       --docker-server="$REGISTRY_HOST" \
@@ -241,7 +241,7 @@ jobs:
                   set -euo pipefail
 
                   # Pull-secret reference for the Deployment podSpec.
-                  if [[ -n "${REGISTRY_USERNAME:-}${{ secrets.REGISTRY_USERNAME }}" || "${{ secrets.K8S_REGISTRY_VISIBILITY }}" == "private" ]]; then
+                  if [[ "$K8S_REGISTRY_KIND" != "github" || "$K8S_REGISTRY_VISIBILITY" != "public" ]]; then
                       export PULL_SECRET_BLOCK="imagePullSecrets:
                                 - name: ${WORK_SLUG}-pull"
                   else
