@@ -17,6 +17,28 @@ interface State {
   isRetrying: boolean;
 }
 
+/**
+ * Top-level React error boundary for the directory web template.
+ *
+ * Catches render-phase errors in the subtree, ships them to
+ * `analytics.captureException` (client-side only — `typeof window !==
+ * 'undefined'` guard), and renders a fallback UI with a retry button.
+ *
+ * **Heads-up on the default fallback UI**: the collapsible "Show error
+ * details" `<details>` block renders `error.message` AND the full
+ * `error.stack` directly into the DOM. The user has to expand the
+ * disclosure to see them, but the stack is present in the rendered
+ * markup (and View Source) on every error. Stack traces can leak
+ * internal file paths, third-party endpoint URLs, and bundler hashes
+ * — fine for dev/staging, less fine for a public production deploy.
+ * If your deployment policy says "no internal paths in client HTML",
+ * pass a custom `fallback` prop that hides the `<details>` block in
+ * production (e.g. `process.env.NODE_ENV === 'production'`).
+ *
+ * The retry path is a soft re-render: `handleRetry` flips the state
+ * back so the subtree re-renders. If the underlying cause persists,
+ * the boundary re-catches and the user sees the same UI again.
+ */
 export class ErrorBoundary extends React.Component<Props, State> {
   private retryTimeoutId: ReturnType<typeof setTimeout> | null = null;
 

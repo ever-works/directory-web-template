@@ -60,6 +60,16 @@ export function useComments(itemId: string) {
       // response.data contains the API response: { success: true, comment: CommentWithUser }
       return response.data.comment;
     },
+    onMutate: async () => {
+      // Optimistically increment comments count in the Statistics card
+      queryClient.setQueriesData<{ totals: { comments: number; [k: string]: any }; series: any[] }>(
+        { queryKey: ['item-activity', itemId], exact: false },
+        (old) => {
+          if (!old) return old;
+          return { ...old, totals: { ...old.totals, comments: old.totals.comments + 1 } };
+        }
+      );
+    },
     onSuccess: async (newComment) => {
       if (newComment) {
         // Optimistically update cache with server-returned comment data
@@ -75,7 +85,13 @@ export function useComments(itemId: string) {
         dispatchCommentEvent(newComment);
         // Force refetch rating query to show updated data immediately
         await queryClient.refetchQueries({ queryKey: ["item-rating", itemId] });
+        // Sync Statistics card (comments count + avgRating) with server
+        queryClient.invalidateQueries({ queryKey: ['item-activity', itemId] });
       }
+    },
+    onError: async () => {
+      // Revert the optimistic comments increment
+      queryClient.invalidateQueries({ queryKey: ['item-activity', itemId] });
     },
   });
 
@@ -90,11 +106,27 @@ export function useComments(itemId: string) {
         throw new Error(apiUtils.getErrorMessage(response));
       }
     },
+    onMutate: async () => {
+      // Optimistically decrement comments count in the Statistics card
+      queryClient.setQueriesData<{ totals: { comments: number; [k: string]: any }; series: any[] }>(
+        { queryKey: ['item-activity', itemId], exact: false },
+        (old) => {
+          if (!old) return old;
+          return { ...old, totals: { ...old.totals, comments: Math.max(0, old.totals.comments - 1) } };
+        }
+      );
+    },
     onSuccess: async () => {
       await queryClient.refetchQueries({
         queryKey: ["comments", itemId],
         exact: true
       });
+      // Sync Statistics card (comments count + avgRating) with server
+      queryClient.invalidateQueries({ queryKey: ['item-activity', itemId] });
+    },
+    onError: async () => {
+      // Revert the optimistic decrement
+      queryClient.invalidateQueries({ queryKey: ['item-activity', itemId] });
     },
   });
 
@@ -126,6 +158,8 @@ export function useComments(itemId: string) {
         dispatchCommentEvent(updatedComment);
         // Force refetch rating to reflect updated rating immediately
         await queryClient.refetchQueries({ queryKey: ["item-rating", itemId] });
+        // Sync avgRating in Statistics card
+        queryClient.invalidateQueries({ queryKey: ['item-activity', itemId] });
       }
     },
   });
@@ -148,6 +182,8 @@ export function useComments(itemId: string) {
     onSuccess: async () => {
       queryClient.invalidateQueries({ queryKey: ["comments", itemId] });
       await queryClient.refetchQueries({ queryKey: ["item-rating", itemId] });
+      // Sync avgRating in Statistics card
+      queryClient.invalidateQueries({ queryKey: ['item-activity', itemId] });
     },
   });
 
@@ -169,6 +205,8 @@ export function useComments(itemId: string) {
     onSuccess: async () => {
       queryClient.invalidateQueries({ queryKey: ["comments", itemId] });
       await queryClient.refetchQueries({ queryKey: ["item-rating", itemId] });
+      // Sync avgRating in Statistics card
+      queryClient.invalidateQueries({ queryKey: ['item-activity', itemId] });
     },
   });
 

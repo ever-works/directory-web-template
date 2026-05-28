@@ -62,7 +62,7 @@ Welcome to the Ever Works support center. We're here to help you get the most ou
 
 #### Installation Problems
 
-- **Node.js Version**: Ensure you're using Node.js 18+
+- **Node.js Version**: Ensure you're using Node.js 20.19.0 or later (matches the template's `package.json` engines field)
 - **Dependencies**: Run `npm install` or `yarn install` in the website directory
 - **Port Conflicts**: Use `--port` flag to specify a different port
 

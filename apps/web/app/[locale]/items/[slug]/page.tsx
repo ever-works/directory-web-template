@@ -1,4 +1,4 @@
-import { getCachedItem, fetchSimilarItems } from '@/lib/content';
+import { getCachedItem, getCachedSimilarItems } from '@/lib/content';
 import { notFound } from 'next/navigation';
 import { getCategoriesName } from '@/lib/utils';
 import { getTranslations } from 'next-intl/server';
@@ -11,6 +11,9 @@ import { siteConfig } from '@/lib/config';
 import { getBaseUrl } from '@/lib/utils/url-cleaner';
 import { generateItemHreflangAlternates, getLocalizedUrl } from '@/lib/seo/hreflang';
 import { type Locale } from '@/lib/constants';
+import { HydrationBoundary, dehydrate } from '@tanstack/react-query';
+import { getQueryClient } from '@/lib/query-client';
+import { getCommentsByItemId } from '@/lib/db/queries';
 
 // Enable ISR with 10 minutes revalidation
 // Using dynamicParams allows on-demand generation without build-time MDX errors
@@ -157,38 +160,62 @@ export default async function ItemDetails({ params }: { params: Promise<{ slug: 
 	}
 
 	try {
-		const item = await getCachedItem(slug, { lang: locale });
+		const queryClient = getQueryClient();
+
+		// Run item CMS fetch, i18n load, and comment prefetch all in parallel.
+		// Comment prefetch populates the server-side queryClient so HydrationBoundary
+		// below embeds the data in the HTML — CommentsSection renders without a
+		// client-side waterfall.
+		const [[item, t]] = await Promise.all([
+			Promise.all([getCachedItem(slug, { lang: locale }), getTranslations('common')]),
+			queryClient.prefetchQuery({
+				queryKey: ['comments', slug],
+				queryFn: () => getCommentsByItemId(slug).catch(() => []),
+			}),
+		]);
 
 		if (!item) {
 			return notFound();
 		}
 
-		const t = await getTranslations('common');
-
 		const { meta, content } = item;
 		const categoryName = getCategoriesName(meta.category);
-		const similarItems = await fetchSimilarItems(meta, 6, { lang: locale }).then((items) =>
-			items.flatMap((item) => item.item)
+
+		// Similar items scan and score the *entire* catalogue, but only feed the
+		// "Similar Products" carousel at the very bottom of the page. We do NOT
+		// await it here: awaiting blocks the whole HTML response (blank first
+		// paint) on work that's below the fold. Instead we pass the promise down
+		// and let the carousel stream in behind its own Suspense boundary, so the
+		// hero + content + sidebar paint immediately. `getCachedSimilarItems`
+		// still persists the scored result in Next's Data Cache.
+		const similarItemsPromise = getCachedSimilarItems(meta, 6, { lang: locale }).then((items) =>
+			items.flatMap((similar) => similar.item)
 		);
 
 		const metaWithVideo = {
 			...meta,
-			video_url: '', // e.g. https://www.youtube.com/watch?v=eDqfg_LexCQ,
-			allItems: similarItems
+			video_url: '' // e.g. https://www.youtube.com/watch?v=eDqfg_LexCQ,
 		};
 
 		// Render the MDX content on the server
 		const renderedContent = <ServerItemContent content={content} noContentMessage={t('NO_CONTENT_PROVIDED')} />;
 
 		return (
-			<div className='relative overflow-hidden dark:bg-[#0a0a0a] text-gray-800 dark:text-white'>
-				{/* <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(59,130,246,0.05),transparent_50%)] dark:bg-[radial-gradient(circle_at_30%_20%,rgba(59,130,246,0.1),transparent_50%)]"></div>
-				<div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(168,85,247,0.05),transparent_50%)] dark:bg-[radial-gradient(circle_at_70%_80%,rgba(168,85,247,0.1),transparent_50%)]"></div> */}
-				<Container maxWidth="7xl" padding="default" useGlobalWidth>
-					<ItemViewTracker slug={slug} />
-					<ItemDetailWrapper meta={metaWithVideo} renderedContent={renderedContent} categoryName={categoryName} />
-				</Container>
-			</div>
+			<HydrationBoundary state={dehydrate(queryClient)}>
+				<div className='relative overflow-hidden dark:bg-[#0a0a0a] text-gray-800 dark:text-white'>
+					{/* <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(59,130,246,0.05),transparent_50%)] dark:bg-[radial-gradient(circle_at_30%_20%,rgba(59,130,246,0.1),transparent_50%)]"></div>
+					<div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(168,85,247,0.05),transparent_50%)] dark:bg-[radial-gradient(circle_at_70%_80%,rgba(168,85,247,0.1),transparent_50%)]"></div> */}
+					<Container maxWidth="7xl" padding="default" useGlobalWidth>
+						<ItemViewTracker slug={slug} />
+						<ItemDetailWrapper
+							meta={metaWithVideo}
+							renderedContent={renderedContent}
+							categoryName={categoryName}
+							similarItemsPromise={similarItemsPromise}
+						/>
+					</Container>
+				</div>
+			</HydrationBoundary>
 		);
 	} catch (error) {
 		console.error(`Failed to load item ${slug} for locale ${locale}:`, error);

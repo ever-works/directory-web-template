@@ -555,6 +555,10 @@
 		"NO_CHECKOUT_PROVIDERS_CONFIGURED": "لم يتم تكوين أي مزودي دفع. لن تكون ميزات الدفع متاحة.",
 		"PROVIDER_NOT_CONFIGURED": "غير مكوّن",
 		"NOT_CONFIGURED": "غير مكوّن",
+		"ACTIVE": "نشط",
+		"SECTION_PROFILE": "الملف الشخصي",
+		"SECTION_APPEARANCE": "المظهر",
+		"SECTION_CONTENT_AND_BILLING": "المحتوى والفواتير",
 		"SETTINGS_CARDS": {
 			"BASIC_INFO": {
 				"TITLE": "المعلومات الأساسية",
@@ -730,6 +734,15 @@
 			"REVIEW_PUBLISH": "مراجعة ونشر"
 		},
 		"DETAILS_FORM": {
+			"VIDEO_URL_LABEL": "رابط الفيديو (يوتيوب أو فيميو)",
+			"VIDEO_PREVIEW": "معاينة الفيديو",
+			"STEP_TITLE_BASIC_INFO": "المعلومات الأساسية",
+			"STEP_TITLE_PAYMENT": "الدفع",
+			"STEP_TITLE_REVIEW": "المراجعة",
+			"TOAST_INVALID_URL": "يرجى إدخال رابط صالح لعنصرك.",
+			"TOAST_SUBMIT_SUCCESS": "تم إرسال العنصر بنجاح!",
+			"TOAST_SUBMIT_FAILED": "فشل إرسال العنصر",
+			"TOAST_SUBMIT_ERROR": "حدث خطأ أثناء إرسال النموذج. يرجى المحاولة مرة أخرى.",
 			"TITLE": "أخبرنا عن منتجك",
 			"DESCRIPTION": "شارك التفاصيل التي ستساعد المستخدمين في اكتشاف وفهم منتجك الرائع",
 			"STEP_INDICATOR": "الخطوة {step} من 3 · تفاصيل المنتج",
@@ -763,7 +776,8 @@
 			"REMOVE_LINK": "إزالة الرابط",
 			"REVIEW_AND_SUBMIT": "مراجعة وإرسال",
 			"EXTRACT": "استخراج",
-			"EXTRACTING": "جاري الاستخراج..."
+			"EXTRACTING": "جاري الاستخراج...",
+				"URL_FORMAT_HINT": "يجب أن يبدأ الرابط بـ https:// أو http://"
 		},
 		"PAYMENT": {
 			"TITLE": "إتمام طلبك",
@@ -863,10 +877,10 @@
 		"PREMIUM_SUPPORT": "دعم متميز",
 		"MOST_POPULAR": "الأكثر شعبية",
 		"GET_STARTED_FREE": "ابدأ مجاناً",
-		"UPGRADE_TO_STANDARD": "Submit Now",
-		"GO_PREMIUM": "Subscribe",
+		"UPGRADE_TO_STANDARD": "أرسل الآن",
+		"GO_PREMIUM": "اشترك",
 		"SUBMIT_FOR_FREE": "أرسل مجاناً",
-		"SUBSCRIBE_NOW": "Subscribe Now",
+		"SUBSCRIBE_NOW": "اشترك الآن",
 		"SELECT_FREE": "اختر المجاني",
 		"SELECT_STANDARD": "اختر القياسي",
 		"SELECT_PREMIUM": "اختر المميز",
@@ -942,7 +956,12 @@
 		"SPONSOR_MONTH": "شهر",
 		"SPONSOR_CTA": "كن راعياً",
 		"UPGRADE_TO_PRO": "الترقية إلى الاحترافي",
-		"GO_ENTERPRISE": "اختر المؤسسات"
+		"GO_ENTERPRISE": "اختر المؤسسات",
+		"PAY_NOW": "ادفع الآن",
+		"PAY_LATER": "ادفع لاحقًا",
+		"PER_MONTH": "/شهر",
+		"PER_YEAR": "/سنة",
+		"LEARN_MORE_PAYMENT_OPTIONS": "تعرّف على المزيد حول خيارات الدفع"
 	},
 	"payment": {
 		"title": "Complete Your Order",
@@ -962,7 +981,29 @@
 			"failed": "Payment failed",
 			"pending": "Payment pending"
 		},
-		"COMPLETE_PAYMENT": "إكمال الدفع"
+		"COMPLETE_PAYMENT": "إكمال الدفع",
+		"flowSelector": {
+			"title": "توقيت الدفع",
+			"subtitle": "اختر متى يتم تحصيل الرسوم مقابل طلبك",
+			"payNow": {
+				"title": "ادفع الآن",
+				"description": "تتم معالجة الدفع فورًا. قائمة مراجعة ذات أولوية.",
+				"benefits": [
+					"معالجة فورية",
+					"مراجعة ذات أولوية",
+					"موافقة أسرع"
+				]
+			},
+			"payLater": {
+				"title": "ادفع لاحقًا",
+				"description": "يتم التحصيل فقط بعد الموافقة على طلبك.",
+				"benefits": [
+					"بدون تكلفة مقدمة",
+					"مراجعة قبل الدفع",
+					"بدون مخاطر"
+				]
+			}
+		}
 	},
 	"help": {
 		"HERO_BADGE_TEXT": "The Professional Directory Platform Builder",
@@ -1635,9 +1676,40 @@
 		"SUBSCRIPTIONS_EMPTY_STATE": "لا يوجد سجل اشتراكات",
 		"SUBSCRIPTIONS_EMPTY_DESCRIPTION": "سيظهر سجل اشتراكاتك هنا بمجرد أن يكون لديك اشتراكات نشطة.",
 		"OVERVIEW_EMPTY_STATE": "لا توجد نشاطات حديثة",
-		"OVERVIEW_EMPTY_DESCRIPTION": "ستظهر نشاطات الفوترة الحديثة الخاصة بك هنا بمجرد أن يكون لديك معاملات."
+		"OVERVIEW_EMPTY_DESCRIPTION": "ستظهر نشاطات الفوترة الحديثة الخاصة بك هنا بمجرد أن يكون لديك معاملات.",
+		"SAVE_PER_YEAR": "وفّر {amount}/سنة"
 	},
 	"profile": {
+		"SECURITY_STATUS_SECTION": "الأمان والحالة",
+		"EMAIL_VERIFICATION": "التحقق من البريد الإلكتروني",
+		"EMAIL_VERIFIED": "موثَّق",
+		"EMAIL_UNVERIFIED": "غير موثَّق",
+		"TWO_FACTOR": "المصادقة الثنائية",
+		"TWO_FACTOR_ON": "مُفعّلة",
+		"TWO_FACTOR_OFF": "مُعطّلة",
+		"ACCOUNT_STATUS": "حالة الحساب",
+		"STATUS_ACTIVE": "نشط",
+		"STATUS_INACTIVE": "غير نشط",
+		"STATUS_SUSPENDED": "موقوف",
+		"STATUS_BANNED": "محظور",
+		"STATUS_TRIAL": "تجريبي",
+		"MEMBER_SINCE": "عضو منذ",
+		"MANAGE_SECURITY": "إدارة الأمان",
+		"BILLING_PLANS_SECTION": "الفوترة والخطط",
+		"CURRENT_PLAN": "الخطة الحالية",
+		"PLAN_FREE": "مجاني",
+		"PLAN_STANDARD": "قياسي",
+		"PLAN_PREMIUM": "مميّز",
+		"PLAN_BADGE_ACTIVE": "نشط",
+		"PLAN_BADGE_FREE": "مجاني",
+		"ACCOUNT_TYPE": "نوع الحساب",
+		"ACCOUNT_TYPE_INDIVIDUAL": "فردي",
+		"ACCOUNT_TYPE_BUSINESS": "أعمال",
+		"ACCOUNT_TYPE_ENTERPRISE": "مؤسسات",
+		"BILLING_CURRENCY": "العملة",
+		"MANAGE_BILLING": "إدارة الفوترة",
+		"BILLING_PLANS_UPGRADE": "ترقية",
+		"BILLING_PLANS_VIEW_PLANS": "عرض الخطط",
 		"BASIC_INFO_TITLE": "المعلومات الأساسية",
 		"BASIC_INFO_DESCRIPTION": "حدث معلوماتك الشخصية وتفاصيل الاتصال. ستظهر هذه المعلومات في ملفك الشخصي العام وتساعد الآخرين على اكتشافك والتواصل معك.",
 		"PERSONAL_INFORMATION": "المعلومات الشخصية",

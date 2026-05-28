@@ -12,10 +12,22 @@ export type SupportedProvider = 'stripe' | 'solidgate' | 'lemonsqueezy' | 'polar
  */
 export class PaymentProviderFactory {
 	/**
-	 * Create an instance of a payment provider based on the type
-	 * @param providerType - Type of provider ('stripe', 'solidgate', or 'lemonsqueezy')
-	 * @param config - Configuration of the provider
-	 * @returns Instance of the payment provider
+	 * Create an instance of a payment provider based on the type.
+	 *
+	 * Unlike the email-provider factory (which silently falls back to a
+	 * mock on unknown providers), this one **throws** — payment is too
+	 * load-bearing to silently route through a no-op. A misconfigured
+	 * `providerType` env var should fail loudly at boot, not silently
+	 * disable checkout.
+	 *
+	 * @param providerType - One of 'stripe' | 'solidgate' | 'lemonsqueezy' | 'polar'.
+	 * @param config - Provider-specific configuration. Note: the
+	 *   `lemonsqueezy` and `polar` branches double-cast `config` through
+	 *   `unknown` because `PaymentProviderConfig` is shaped for Stripe;
+	 *   the cast is intentional and load-bearing until the type is
+	 *   normalised.
+	 * @returns Instance of the payment provider.
+	 * @throws Error when `providerType` is not in the supported set.
 	 */
 	static createProvider(providerType: SupportedProvider, config: PaymentProviderConfig): PaymentProviderInterface {
 		switch (providerType) {

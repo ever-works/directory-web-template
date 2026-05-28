@@ -558,6 +558,10 @@
 		"NO_CHECKOUT_PROVIDERS_CONFIGURED": "No hay proveedores de pago configurados. Las funciones de pago no estarán disponibles.",
 		"PROVIDER_NOT_CONFIGURED": "No configurado",
 		"NOT_CONFIGURED": "no configurado",
+		"ACTIVE": "Activo",
+		"SECTION_PROFILE": "Perfil",
+		"SECTION_APPEARANCE": "Apariencia",
+		"SECTION_CONTENT_AND_BILLING": "Contenido y facturación",
 		"SETTINGS_CARDS": {
 			"BASIC_INFO": {
 				"TITLE": "Información básica",
@@ -733,6 +737,15 @@
 			"REVIEW_PUBLISH": "Revisar y publicar"
 		},
 		"DETAILS_FORM": {
+			"VIDEO_URL_LABEL": "URL del vídeo (YouTube o Vimeo)",
+			"VIDEO_PREVIEW": "Vista previa del vídeo",
+			"STEP_TITLE_BASIC_INFO": "Información básica",
+			"STEP_TITLE_PAYMENT": "Pago",
+			"STEP_TITLE_REVIEW": "Revisión",
+			"TOAST_INVALID_URL": "Proporcione una URL válida para su elemento.",
+			"TOAST_SUBMIT_SUCCESS": "¡Elemento enviado correctamente!",
+			"TOAST_SUBMIT_FAILED": "Error al enviar el elemento",
+			"TOAST_SUBMIT_ERROR": "Error al enviar el formulario. Inténtelo de nuevo.",
 			"TITLE": "Cuéntanos sobre tu producto",
 			"DESCRIPTION": "Comparte los detalles que ayudarán a los usuarios a descubrir y entender tu increíble producto",
 			"STEP_INDICATOR": "Paso {step} de 3 · Detalles del producto",
@@ -766,7 +779,8 @@
 			"REMOVE_LINK": "Eliminar enlace",
 			"REVIEW_AND_SUBMIT": "Revisar y Enviar",
 			"EXTRACT": "Extraer",
-			"EXTRACTING": "Extrayendo..."
+			"EXTRACTING": "Extrayendo...",
+				"URL_FORMAT_HINT": "La URL debe comenzar con https:// o http://"
 		},
 		"PAYMENT": {
 			"TITLE": "Completa tu pedido",
@@ -865,10 +879,10 @@
 		"PREMIUM_SUPPORT": "Soporte Premium",
 		"MOST_POPULAR": "Más Popular",
 		"GET_STARTED_FREE": "Comenzar Gratis",
-		"UPGRADE_TO_STANDARD": "Submit Now",
-		"GO_PREMIUM": "Subscribe",
+		"UPGRADE_TO_STANDARD": "Enviar ahora",
+		"GO_PREMIUM": "Suscribirse",
 		"SUBMIT_FOR_FREE": "Enviar Gratis",
-		"SUBSCRIBE_NOW": "Subscribe Now",
+		"SUBSCRIBE_NOW": "Suscríbete ahora",
 		"SELECT_FREE": "Seleccionar Gratis",
 		"SELECT_STANDARD": "Seleccionar Estándar",
 		"SELECT_PREMIUM": "Seleccionar Premium",
@@ -944,7 +958,12 @@
 		"SPONSOR_MONTH": "mes",
 		"SPONSOR_CTA": "Ser patrocinador",
 		"UPGRADE_TO_PRO": "Actualizar a Pro",
-		"GO_ENTERPRISE": "Ir a Empresa"
+		"GO_ENTERPRISE": "Ir a Empresa",
+		"PAY_NOW": "Pagar ahora",
+		"PAY_LATER": "Pagar después",
+		"PER_MONTH": "/mes",
+		"PER_YEAR": "/año",
+		"LEARN_MORE_PAYMENT_OPTIONS": "Más información sobre las opciones de pago"
 	},
 	"payment": {
 		"title": "Complete Your Order",
@@ -964,7 +983,29 @@
 			"failed": "Payment failed",
 			"pending": "Payment pending"
 		},
-		"COMPLETE_PAYMENT": "Completar pago"
+		"COMPLETE_PAYMENT": "Completar pago",
+		"flowSelector": {
+			"title": "Momento del pago",
+			"subtitle": "Elige cuándo se te cobrará por tu envío",
+			"payNow": {
+				"title": "Pagar ahora",
+				"description": "Pago procesado de inmediato. Cola de revisión prioritaria.",
+				"benefits": [
+					"Procesamiento inmediato",
+					"Revisión prioritaria",
+					"Aprobación más rápida"
+				]
+			},
+			"payLater": {
+				"title": "Pagar después",
+				"description": "Se cobra solo después de que se apruebe tu envío.",
+				"benefits": [
+					"Sin coste inicial",
+					"Revisión antes del pago",
+					"Sin riesgo"
+				]
+			}
+		}
 	},
 	"help": {
 		"HERO_BADGE_TEXT": "The Professional Directory Platform Builder",
@@ -1637,9 +1678,40 @@
 		"SUBSCRIPTIONS_EMPTY_STATE": "Sin historial de suscripciones",
 		"SUBSCRIPTIONS_EMPTY_DESCRIPTION": "Tu historial de suscripciones aparecerá aquí una vez que tengas suscripciones activas.",
 		"OVERVIEW_EMPTY_STATE": "Sin actividad reciente",
-		"OVERVIEW_EMPTY_DESCRIPTION": "Tu actividad de facturación reciente aparecerá aquí una vez que tengas transacciones."
+		"OVERVIEW_EMPTY_DESCRIPTION": "Tu actividad de facturación reciente aparecerá aquí una vez que tengas transacciones.",
+		"SAVE_PER_YEAR": "Ahorra {amount}/año"
 	},
 	"profile": {
+		"SECURITY_STATUS_SECTION": "Seguridad y estado",
+		"EMAIL_VERIFICATION": "Verificación de correo electrónico",
+		"EMAIL_VERIFIED": "Verificado",
+		"EMAIL_UNVERIFIED": "Sin verificar",
+		"TWO_FACTOR": "Autenticación de dos factores",
+		"TWO_FACTOR_ON": "Activada",
+		"TWO_FACTOR_OFF": "Desactivada",
+		"ACCOUNT_STATUS": "Estado de la cuenta",
+		"STATUS_ACTIVE": "Activa",
+		"STATUS_INACTIVE": "Inactiva",
+		"STATUS_SUSPENDED": "Suspendida",
+		"STATUS_BANNED": "Bloqueada",
+		"STATUS_TRIAL": "Prueba",
+		"MEMBER_SINCE": "Miembro desde",
+		"MANAGE_SECURITY": "Gestionar seguridad",
+		"BILLING_PLANS_SECTION": "Facturación y planes",
+		"CURRENT_PLAN": "Plan actual",
+		"PLAN_FREE": "Gratis",
+		"PLAN_STANDARD": "Estándar",
+		"PLAN_PREMIUM": "Premium",
+		"PLAN_BADGE_ACTIVE": "Activo",
+		"PLAN_BADGE_FREE": "Gratis",
+		"ACCOUNT_TYPE": "Tipo de cuenta",
+		"ACCOUNT_TYPE_INDIVIDUAL": "Individual",
+		"ACCOUNT_TYPE_BUSINESS": "Empresa",
+		"ACCOUNT_TYPE_ENTERPRISE": "Corporativa",
+		"BILLING_CURRENCY": "Moneda",
+		"MANAGE_BILLING": "Gestionar facturación",
+		"BILLING_PLANS_UPGRADE": "Mejorar",
+		"BILLING_PLANS_VIEW_PLANS": "Ver planes",
 		"BASIC_INFO_TITLE": "Información básica",
 		"BASIC_INFO_DESCRIPTION": "Actualiza tu información personal y detalles de contacto. Esta información se mostrará en tu perfil público y ayuda a otros a descubrirte y conectarse contigo.",
 		"PERSONAL_INFORMATION": "Información personal",

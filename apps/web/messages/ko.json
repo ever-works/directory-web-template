@@ -582,6 +582,10 @@
 		"NO_CHECKOUT_PROVIDERS_CONFIGURED": "결제 제공자가 구성되지 않았습니다. 결제 기능을 사용할 수 없습니다.",
 		"PROVIDER_NOT_CONFIGURED": "구성되지 않음",
 		"NOT_CONFIGURED": "구성되지 않음",
+		"ACTIVE": "활성",
+		"SECTION_PROFILE": "프로필",
+		"SECTION_APPEARANCE": "외관",
+		"SECTION_CONTENT_AND_BILLING": "콘텐츠 및 청구",
 		"SETTINGS_CARDS": {
 			"BASIC_INFO": {
 				"TITLE": "기본 정보",
@@ -809,6 +813,15 @@
 			"REVIEW_PUBLISH": "검토 및 게시"
 		},
 		"DETAILS_FORM": {
+			"VIDEO_URL_LABEL": "동영상 URL (YouTube 또는 Vimeo)",
+			"VIDEO_PREVIEW": "동영상 미리보기",
+			"STEP_TITLE_BASIC_INFO": "기본 정보",
+			"STEP_TITLE_PAYMENT": "결제",
+			"STEP_TITLE_REVIEW": "검토",
+			"TOAST_INVALID_URL": "항목에 대한 유효한 URL을 입력하세요.",
+			"TOAST_SUBMIT_SUCCESS": "항목이 성공적으로 제출되었습니다!",
+			"TOAST_SUBMIT_FAILED": "항목 제출에 실패했습니다",
+			"TOAST_SUBMIT_ERROR": "양식 제출 중 오류가 발생했습니다. 다시 시도해 주세요.",
 			"TITLE": "제품에 대해 알려주세요",
 			"DESCRIPTION": "사용자가 놀라운 제품을 발견하고 이해할 수 있도록 도와주는 세부정보를 공유하세요",
 			"STEP_INDICATOR": "3단계 중 {step}단계 · 제품 상세정보",
@@ -842,7 +855,8 @@
 			"REMOVE_LINK": "링크 제거",
 			"REVIEW_AND_SUBMIT": "검토 및 제출",
 			"EXTRACT": "추출",
-			"EXTRACTING": "추출 중..."
+			"EXTRACTING": "추출 중...",
+				"URL_FORMAT_HINT": "URL은 https:// 또는 http://로 시작해야 합니다"
 		},
 		"PAYMENT": {
 			"TITLE": "주문 완료",
@@ -1016,7 +1030,12 @@
 		"SPONSOR_WEEK": "주",
 		"SPONSOR_OR": "또는",
 		"SPONSOR_MONTH": "월",
-		"SPONSOR_CTA": "스폰서 되기"
+		"SPONSOR_CTA": "스폰서 되기",
+		"PAY_NOW": "지금 결제",
+		"PAY_LATER": "나중에 결제",
+		"PER_MONTH": "/월",
+		"PER_YEAR": "/년",
+		"LEARN_MORE_PAYMENT_OPTIONS": "결제 옵션에 대해 자세히 알아보기"
 	},
 	"payment": {
 		"title": "주문 완료",
@@ -1036,7 +1055,29 @@
 			"failed": "결제 실패",
 			"pending": "결제 보류 중"
 		},
-		"COMPLETE_PAYMENT": "결제 완료"
+		"COMPLETE_PAYMENT": "결제 완료",
+		"flowSelector": {
+			"title": "결제 시점",
+			"subtitle": "제출물에 대한 청구 시점을 선택하세요",
+			"payNow": {
+				"title": "지금 결제",
+				"description": "결제가 즉시 처리됩니다. 우선 검토 대기열.",
+				"benefits": [
+					"즉시 처리",
+					"우선 검토",
+					"더 빠른 승인"
+				]
+			},
+			"payLater": {
+				"title": "나중에 결제",
+				"description": "제출물이 승인된 후에만 청구됩니다.",
+				"benefits": [
+					"선결제 없음",
+					"결제 전 검토",
+					"위험 없음"
+				]
+			}
+		}
 	},
 	"help": {
 		"HERO_BADGE_TEXT": "프로페셔널 디렉토리 플랫폼 빌더",
@@ -1704,9 +1745,40 @@
 		"SUBSCRIPTIONS_EMPTY_STATE": "구독 기록 없음",
 		"SUBSCRIPTIONS_EMPTY_DESCRIPTION": "활성 구독이 있으면 구독 기록이 여기에 표시됩니다.",
 		"OVERVIEW_EMPTY_STATE": "최근 활동 없음",
-		"OVERVIEW_EMPTY_DESCRIPTION": "거래가 있으면 최근 결제 활동이 여기에 표시됩니다."
+		"OVERVIEW_EMPTY_DESCRIPTION": "거래가 있으면 최근 결제 활동이 여기에 표시됩니다.",
+		"SAVE_PER_YEAR": "연간 {amount} 절약"
 	},
 	"profile": {
+		"SECURITY_STATUS_SECTION": "보안 및 상태",
+		"EMAIL_VERIFICATION": "이메일 인증",
+		"EMAIL_VERIFIED": "인증됨",
+		"EMAIL_UNVERIFIED": "미인증",
+		"TWO_FACTOR": "2단계 인증",
+		"TWO_FACTOR_ON": "사용",
+		"TWO_FACTOR_OFF": "사용 안 함",
+		"ACCOUNT_STATUS": "계정 상태",
+		"STATUS_ACTIVE": "활성",
+		"STATUS_INACTIVE": "비활성",
+		"STATUS_SUSPENDED": "정지됨",
+		"STATUS_BANNED": "차단됨",
+		"STATUS_TRIAL": "체험판",
+		"MEMBER_SINCE": "가입일",
+		"MANAGE_SECURITY": "보안 관리",
+		"BILLING_PLANS_SECTION": "결제 및 요금제",
+		"CURRENT_PLAN": "현재 요금제",
+		"PLAN_FREE": "무료",
+		"PLAN_STANDARD": "스탠다드",
+		"PLAN_PREMIUM": "프리미엄",
+		"PLAN_BADGE_ACTIVE": "활성",
+		"PLAN_BADGE_FREE": "무료",
+		"ACCOUNT_TYPE": "계정 유형",
+		"ACCOUNT_TYPE_INDIVIDUAL": "개인",
+		"ACCOUNT_TYPE_BUSINESS": "비즈니스",
+		"ACCOUNT_TYPE_ENTERPRISE": "엔터프라이즈",
+		"BILLING_CURRENCY": "통화",
+		"MANAGE_BILLING": "결제 관리",
+		"BILLING_PLANS_UPGRADE": "업그레이드",
+		"BILLING_PLANS_VIEW_PLANS": "요금제 보기",
 		"BASIC_INFO_TITLE": "기본 정보",
 		"BASIC_INFO_DESCRIPTION": "개인 정보 및 연락처 세부정보를 업데이트하세요. 이 정보는 공개 프로필에 표시되며 다른 사람들이 귀하를 발견하고 연결하는 데 도움이 됩니다.",
 		"PERSONAL_INFORMATION": "개인 정보",

@@ -683,6 +683,39 @@ export class LemonSqueezyProvider implements PaymentProviderInterface {
 		}
 	}
 
+	/**
+	 * Verify and normalise an inbound LemonSqueezy webhook.
+	 *
+	 * Hand-rolled HMAC-SHA256 verification via the Web Crypto API
+	 * (rather than Node's `crypto.createHmac`) so the same code path
+	 * runs on edge runtimes; the webhook secret signs the body.
+	 *
+	 * **Two known limitations worth surfacing:**
+	 *
+	 * 1. **Non-constant-time signature comparison.** Line below uses
+	 *    a plain `!==` on the hex-encoded signatures, which is
+	 *    technically vulnerable to a timing oracle. The HMAC output
+	 *    space is large enough (256 bits) that timing-side-channel
+	 *    leaks on a hex-string compare are not a practical attack
+	 *    here — but if you're hardening this surface further,
+	 *    upgrade to a constant-time comparator. Stripe's SDK and
+	 *    Node's `crypto.timingSafeEqual` both do this for you.
+	 *
+	 * 2. **Returns `{ received: false }` instead of throwing on
+	 *    signature mismatch.** This is the OPPOSITE of how
+	 *    `StripeProvider.handleWebhook` behaves (which throws). The
+	 *    route handler MUST check `result.received` and respond 4xx
+	 *    when false — a controller that just returns 200 OK on the
+	 *    presence of any WebhookResult would silently ack invalid
+	 *    signatures here.
+	 *
+	 * The `rawBody ?? JSON.stringify(payload)` fallback exists so a
+	 * caller that doesn't pre-capture the wire bytes still gets a
+	 * verification attempt — but JSON.stringify of a re-parsed body
+	 * can shuffle whitespace and key order vs the original signed
+	 * bytes, so this fallback usually fails verification. Always
+	 * pass `rawBody` from a body-parser verify hook in production.
+	 */
 	async handleWebhook(
 		payload: unknown,
 		signature: string,

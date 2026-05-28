@@ -17,10 +17,24 @@ export interface ClientAuthError {
 }
 
 /**
- * Validates that the request is from an authenticated client user (non-admin).
- * Returns the session and user ID if authenticated, or an error response.
+ * Validate that the request comes from an authenticated user.
  *
- * @returns ClientAuthResult if authenticated, ClientAuthError if not
+ * **The name suggests "non-admin only" but the implementation
+ * intentionally allows admins through** — see the commented-out
+ * `session.user.isAdmin` block below. The historical reason in that
+ * inline comment is "We allow admins to use client endpoints for
+ * testing purposes". If your endpoint should be strictly client-side
+ * (i.e. admins must go through the admin API instead), don't rely
+ * on this helper to enforce it — add an explicit `isAdmin` check at
+ * the route handler.
+ *
+ * Audit note: the dormant restriction block has been in place since
+ * March 2026 (file's initial commit) — if your security model evolved
+ * to actually exclude admins, uncomment it AND rename the function
+ * (e.g. `requireAuth`) so callers stop assuming client-only scope.
+ *
+ * @returns `{ success: true, session, userId }` if authenticated, or
+ *   `{ success: false, response }` with a 401 NextResponse otherwise.
  */
 export async function requireClientAuth(): Promise<ClientAuthResult | ClientAuthError> {
   const session = await auth();

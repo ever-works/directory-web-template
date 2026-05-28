@@ -26,6 +26,51 @@ import type {
 
 // ######################### Service Class #########################
 
+/**
+ * Sponsor-ad lifecycle service.
+ *
+ * **State machine** (admin actions in CAPS, system actions in
+ * lowercase):
+ *
+ *   created → PENDING_PAYMENT
+ *             ├─ confirmPayment (webhook) → PENDING
+ *             │                              ├─ APPROVE → ACTIVE
+ *             │                              └─ REJECT  → REJECTED
+ *             ├─ APPROVE (forceApprove=true) → ACTIVE  ← financial-risk path
+ *             ├─ REJECT  → REJECTED
+ *             └─ CANCEL  → CANCELLED
+ *           ACTIVE → CANCEL → CANCELLED
+ *                   └─ (expires at endDate via separate job)
+ *
+ * **Footguns worth knowing:**
+ *
+ *   - **`forceApprove` activates an ad without payment.** Admin
+ *     can bypass the payment gate by passing `forceApprove=true`
+ *     to `approveSponsorAd`. Useful for comp / staff sponsorships
+ *     but a financial-risk surface — audit log + a second
+ *     approver are not enforced here. Wire those in upstream
+ *     if compliance requires.
+ *
+ *   - **Currency hardcoded to `'usd'`.** No localisation in
+ *     `createSponsorAd`. Multi-currency support requires a price
+ *     table + currency selection upstream of this service.
+ *
+ *   - **Pre-create duplicate check is racy.** `hasPendingSponsorAdForItem`
+ *     + `hasActiveSponsorAdForItem` are two reads followed by an
+ *     insert — two concurrent submissions for the same user+item
+ *     can both clear the checks and both insert. Schema-level
+ *     UNIQUE on `(userId, itemSlug, status)` would catch it.
+ *
+ *   - **`confirmPayment` is webhook-driven.** Callers must verify
+ *     the webhook signature BEFORE invoking this; the service
+ *     itself trusts the caller's word that payment was received.
+ *     A spoofed webhook → free activation.
+ *
+ *   - **`rejectableStatuses` / `cancellableStatuses` whitelists**
+ *     are the canonical "is this transition allowed" gates. New
+ *     terminal states must be added to both lists if they should
+ *     be reachable from PENDING_PAYMENT/PENDING/ACTIVE.
+ */
 export class SponsorAdService {
 	// ===================== Read Operations =====================
 

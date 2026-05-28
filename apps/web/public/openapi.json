@@ -33510,6 +33510,240 @@
         ],
         "summary": "Unfollow a profile"
       }
+    },
+    "/api/auth/security/connected-accounts/{provider}": {
+      "delete": {
+        "tags": [
+          "Authentication"
+        ],
+        "summary": "Disconnect an OAuth provider",
+        "description": "Removes an OAuth account link. Blocked if it would leave the user with no sign-in method.",
+        "security": [
+          {
+            "sessionAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "provider",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Provider disconnected"
+          },
+          "400": {
+            "description": "Cannot disconnect — no other sign-in method"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Provider not connected"
+          }
+        }
+      }
+    },
+    "/api/auth/security/connected-accounts": {
+      "get": {
+        "tags": [
+          "Authentication"
+        ],
+        "summary": "List connected OAuth accounts",
+        "description": "Returns all OAuth providers linked to the authenticated user.",
+        "security": [
+          {
+            "sessionAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of connected accounts"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/api/auth/security/login-activity": {
+      "get": {
+        "tags": [
+          "Authentication"
+        ],
+        "summary": "Get login activity history",
+        "description": "Returns a paginated list of security-relevant activity logs for the authenticated user.",
+        "security": [
+          {
+            "sessionAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "query",
+            "name": "page",
+            "schema": {
+              "type": "integer",
+              "default": 1
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "default": 10
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Activity list with pagination"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/api/auth/security/notifications": {
+      "get": {
+        "tags": [
+          "Authentication"
+        ],
+        "summary": "Get security notification preferences",
+        "description": "Returns email and in-app channel settings for security events.",
+        "security": [
+          {
+            "sessionAuth": []
+          }
+        ]
+      },
+      "patch": {
+        "tags": [
+          "Authentication"
+        ],
+        "summary": "Update security notification preferences",
+        "description": "Merges the supplied channel toggles into the user's notification preferences.",
+        "security": [
+          {
+            "sessionAuth": []
+          }
+        ]
+      }
+    },
+    "/api/auth/security/sessions/{token}": {
+      "delete": {
+        "tags": [
+          "Authentication"
+        ],
+        "summary": "Revoke a single session",
+        "description": "Deletes one session by its full token. The current session cannot be revoked.",
+        "security": [
+          {
+            "sessionAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "in": "path",
+            "name": "token",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Session revoked"
+          },
+          "400": {
+            "description": "Cannot revoke current session"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Session not found"
+          }
+        }
+      }
+    },
+    "/api/auth/security/sessions": {
+      "get": {
+        "tags": [
+          "Authentication"
+        ],
+        "summary": "List active sessions",
+        "description": "Returns all active sessions for the authenticated user. Marks the current session. When the app uses JWT sessions (no DB rows written), the current session is synthesised from the NextAuth session data so the card always shows at least one entry.",
+        "security": [
+          {
+            "sessionAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of active sessions"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "Authentication"
+        ],
+        "summary": "Revoke all other sessions",
+        "description": "Deletes all DB sessions for the user except the current one.",
+        "security": [
+          {
+            "sessionAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Sessions revoked"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        }
+      }
+    },
+    "/api/auth/security/settings": {
+      "get": {
+        "tags": [
+          "Authentication"
+        ],
+        "summary": "Get security settings",
+        "description": "Returns the authenticated user's security overview including 2FA status, password age, and active session count.",
+        "security": [
+          {
+            "sessionAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Security settings"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "User not found"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
+      }
     }
   },
   "tags": []

@@ -66,9 +66,9 @@ export function useProviderPayment() {
 
     const providerPayments = useMemo(() => {
         if (provider === PaymentProvider.STRIPE) {
-            return payments;
-        } else if (provider ===PaymentProvider.LEMONSQUEEZY) {
-            return transformedCheckouts;
+            return Array.isArray(payments) ? payments : [];
+        } else if (provider === PaymentProvider.LEMONSQUEEZY) {
+            return Array.isArray(transformedCheckouts) ? transformedCheckouts : [];
         }
         return [];
     }, [provider, payments, transformedCheckouts]);
@@ -88,7 +88,7 @@ export function useProviderPayment() {
 
     // Provider-specific data
     const stripePayments = useMemo(() => {
-        return payments.filter(payment => payment.paymentProvider === 'stripe');
+        return Array.isArray(payments) ? payments.filter(payment => payment.paymentProvider === 'stripe') : [];
     }, [payments]);
 
     const lemonSqueezyPayments = useMemo(() => {

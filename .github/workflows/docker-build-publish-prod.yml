@@ -1,0 +1,125 @@
+name: Build and Publish Docker Image Prod
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.ref }}-${{ github.workflow }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  docker:
+    name: Build and publish prod image
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Resolve image tags
+        id: meta
+        shell: bash
+        env:
+          GHCR_OWNER: ${{ vars.GHCR_OWNER || github.repository_owner }}
+          DOCKERHUB_NAMESPACE: ${{ vars.DOCKERHUB_NAMESPACE || secrets.DOCKERHUB_USERNAME }}
+          DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+          DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+          DIGITALOCEAN_ACCESS_TOKEN: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+          DIGITALOCEAN_REGISTRY: ${{ vars.DIGITALOCEAN_REGISTRY || 'ever' }}
+        run: |
+          set -euo pipefail
+
+          repo_name="${GITHUB_REPOSITORY#*/}"
+          repo_name="$(printf '%s' "$repo_name" | tr '[:upper:]' '[:lower:]')"
+          image_name="$repo_name"
+          short_sha="${GITHUB_SHA::12}"
+          ghcr_owner="$(printf '%s' "$GHCR_OWNER" | tr '[:upper:]' '[:lower:]')"
+
+          tags=(
+            "ghcr.io/${ghcr_owner}/${image_name}:latest"
+            "ghcr.io/${ghcr_owner}/${image_name}:${short_sha}"
+          )
+
+          dockerhub_enabled=false
+          if [[ -n "$DOCKERHUB_NAMESPACE" && -n "$DOCKERHUB_USERNAME" && -n "$DOCKERHUB_TOKEN" ]]; then
+            dockerhub_namespace="$(printf '%s' "$DOCKERHUB_NAMESPACE" | tr '[:upper:]' '[:lower:]')"
+            tags+=(
+              "${dockerhub_namespace}/${image_name}:latest"
+              "${dockerhub_namespace}/${image_name}:${short_sha}"
+            )
+            dockerhub_enabled=true
+          fi
+
+          digitalocean_enabled=false
+          if [[ -n "$DIGITALOCEAN_ACCESS_TOKEN" && -n "$DIGITALOCEAN_REGISTRY" ]]; then
+            do_registry="$(printf '%s' "$DIGITALOCEAN_REGISTRY" | tr '[:upper:]' '[:lower:]')"
+            tags+=(
+              "registry.digitalocean.com/${do_registry}/${image_name}:latest"
+              "registry.digitalocean.com/${do_registry}/${image_name}:${short_sha}"
+            )
+            digitalocean_enabled=true
+          fi
+
+          {
+            echo "tags<<EOF"
+            printf '%s\n' "${tags[@]}"
+            echo "EOF"
+            echo "dockerhub_enabled=${dockerhub_enabled}"
+            echo "digitalocean_enabled=${digitalocean_enabled}"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Login to Docker Hub
+        if: steps.meta.outputs.dockerhub_enabled == 'true'
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Install doctl
+        if: steps.meta.outputs.digitalocean_enabled == 'true'
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+
+      - name: Login to DigitalOcean Container Registry
+        if: steps.meta.outputs.digitalocean_enabled == 'true'
+        run: doctl registry login --expiry-seconds 3600
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and publish image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: Dockerfile
+          push: true
+          platforms: linux/amd64
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: |
+            org.opencontainers.image.source=https://github.com/${{ github.repository }}
+            org.opencontainers.image.revision=${{ github.sha }}
+            org.opencontainers.image.title=${{ github.repository }}
+          build-args: |
+            DATA_REPOSITORY=${{ secrets.DATA_REPOSITORY != '' && format('https://github.com/{0}/{1}', github.repository_owner, secrets.DATA_REPOSITORY) || '' }}
+            GITHUB_REPOSITORY=${{ github.repository }}
+            GITHUB_SHA=${{ github.sha }}
+          secrets: |
+            gh_token=${{ secrets.GH_TOKEN }}
+          provenance: false
+          sbom: false
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

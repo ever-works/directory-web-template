@@ -8,6 +8,32 @@ export interface CheckoutWindowOptions {
 }
 
 
+/**
+ * Open a checkout URL in a new tab, with security defaults and a
+ * popup-blocker fallback.
+ *
+ * **Don't drop the `noopener,noreferrer` default.** It does two
+ * load-bearing security jobs:
+ *  - `noopener`: severs `window.opener` on the new tab so the
+ *    checkout origin can't `window.opener.location = ...` and
+ *    redirect the parent (the classic reverse-tabnabbing attack).
+ *  - `noreferrer`: stops the browser sending the parent's URL as
+ *    the Referer header to the checkout host (privacy + avoids
+ *    leaking internal route params into upstream analytics).
+ *
+ * Behaviour:
+ *  - SSR-safe: returns `false` immediately when `window` is undefined.
+ *  - Popup-blocked: if `window.open` returns `null` (blocker), and
+ *    `fallbackToRedirect` is true (default), the **current** tab
+ *    navigates to `url` instead. Set `fallbackToRedirect: false` to
+ *    surface the failure to the caller and let them handle it.
+ *  - `newWindow.focus()` is wrapped in try/catch because some
+ *    browsers throw cross-origin errors when the new tab is on a
+ *    different document yet.
+ *
+ * Returns `true` if the new tab opened OR the fallback redirect
+ * fired; `false` if the popup was blocked AND fallback was disabled.
+ */
 export function openCheckoutInNewTab(options: CheckoutWindowOptions): boolean {
   const {
     url,

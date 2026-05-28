@@ -556,6 +556,10 @@
 		"NO_CHECKOUT_PROVIDERS_CONFIGURED": "ไม่มีผู้ให้บริการชำระเงินที่กำหนดค่าไว้ ฟีเจอร์การชำระเงินจะไม่พร้อมใช้งาน",
 		"PROVIDER_NOT_CONFIGURED": "ไม่ได้กำหนดค่า",
 		"NOT_CONFIGURED": "ไม่ได้กำหนดค่า",
+		"ACTIVE": "ใช้งานอยู่",
+		"SECTION_PROFILE": "โปรไฟล์",
+		"SECTION_APPEARANCE": "รูปลักษณ์",
+		"SECTION_CONTENT_AND_BILLING": "เนื้อหาและการเรียกเก็บเงิน",
 		"SETTINGS_CARDS": {
 			"BASIC_INFO": {
 				"TITLE": "Basic Information",
@@ -731,6 +735,15 @@
 			"REVIEW_PUBLISH": "Review & Publish"
 		},
 		"DETAILS_FORM": {
+			"VIDEO_URL_LABEL": "URL วิดีโอ (YouTube หรือ Vimeo)",
+			"VIDEO_PREVIEW": "ตัวอย่างวิดีโอ",
+			"STEP_TITLE_BASIC_INFO": "ข้อมูลพื้นฐาน",
+			"STEP_TITLE_PAYMENT": "การชำระเงิน",
+			"STEP_TITLE_REVIEW": "ตรวจสอบ",
+			"TOAST_INVALID_URL": "โปรดระบุ URL ที่ถูกต้องสำหรับรายการของคุณ",
+			"TOAST_SUBMIT_SUCCESS": "ส่งรายการสำเร็จแล้ว!",
+			"TOAST_SUBMIT_FAILED": "ส่งรายการไม่สำเร็จ",
+			"TOAST_SUBMIT_ERROR": "เกิดข้อผิดพลาดในการส่งแบบฟอร์ม โปรดลองอีกครั้ง",
 			"TITLE": "Tell Us About Your Product",
 			"DESCRIPTION": "Share the details that will help users discover and understand your amazing product",
 			"STEP_INDICATOR": "Step {step} of 3 · Product Details",
@@ -764,7 +777,8 @@
 			"REMOVE_LINK": "Remove link",
 			"REVIEW_AND_SUBMIT": "Review & Submit",
 			"EXTRACT": "ดึงข้อมูล",
-			"EXTRACTING": "กำลังดึงข้อมูล..."
+			"EXTRACTING": "กำลังดึงข้อมูล...",
+				"URL_FORMAT_HINT": "URL ต้องเริ่มต้นด้วย https:// หรือ http://"
 		},
 		"PAYMENT": {
 			"TITLE": "Complete Your Order",
@@ -861,10 +875,10 @@
 		"PREMIUM_SUPPORT": "Premium Support",
 		"MOST_POPULAR": "ยอดนิยม",
 		"GET_STARTED_FREE": "เริ่มต้นฟรี",
-		"UPGRADE_TO_STANDARD": "Submit Now",
-		"GO_PREMIUM": "Subscribe",
-		"SUBMIT_FOR_FREE": "Submit for Free",
-		"SUBSCRIBE_NOW": "Subscribe Now",
+		"UPGRADE_TO_STANDARD": "ส่งตอนนี้",
+		"GO_PREMIUM": "สมัครสมาชิก",
+		"SUBMIT_FOR_FREE": "ส่งฟรี",
+		"SUBSCRIBE_NOW": "สมัครสมาชิกตอนนี้",
 		"SELECT_FREE": "เลือกฟรี",
 		"SELECT_STANDARD": "เลือกมาตรฐาน",
 		"SELECT_PREMIUM": "เลือกพรีเมียม",
@@ -938,7 +952,12 @@
 		"SPONSOR_WEEK": "week",
 		"SPONSOR_OR": "or",
 		"SPONSOR_MONTH": "month",
-		"SPONSOR_CTA": "Become a Sponsor"
+		"SPONSOR_CTA": "Become a Sponsor",
+		"PAY_NOW": "ชำระเงินทันที",
+		"PAY_LATER": "ชำระเงินภายหลัง",
+		"PER_MONTH": "/เดือน",
+		"PER_YEAR": "/ปี",
+		"LEARN_MORE_PAYMENT_OPTIONS": "เรียนรู้เพิ่มเติมเกี่ยวกับตัวเลือกการชำระเงิน"
 	},
 	"payment": {
 		"title": "Complete Your Order",
@@ -958,7 +977,29 @@
 			"failed": "Payment failed",
 			"pending": "Payment pending"
 		},
-		"COMPLETE_PAYMENT": "ชำระเงินให้เสร็จสิ้น"
+		"COMPLETE_PAYMENT": "ชำระเงินให้เสร็จสิ้น",
+		"flowSelector": {
+			"title": "ช่วงเวลาการชำระเงิน",
+			"subtitle": "เลือกว่าจะเรียกเก็บเงินสำหรับการส่งของคุณเมื่อใด",
+			"payNow": {
+				"title": "ชำระเงินทันที",
+				"description": "ดำเนินการชำระเงินทันที คิวการตรวจสอบแบบมีลำดับความสำคัญ",
+				"benefits": [
+					"ดำเนินการทันที",
+					"ตรวจสอบก่อนใคร",
+					"อนุมัติเร็วขึ้น"
+				]
+			},
+			"payLater": {
+				"title": "ชำระเงินภายหลัง",
+				"description": "เรียกเก็บเงินหลังจากการส่งของคุณได้รับการอนุมัติแล้วเท่านั้น",
+				"benefits": [
+					"ไม่มีค่าใช้จ่ายล่วงหน้า",
+					"ตรวจสอบก่อนชำระเงิน",
+					"ไม่มีความเสี่ยง"
+				]
+			}
+		}
 	},
 	"help": {
 		"HERO_BADGE_TEXT": "The Professional Directory Platform Builder",
@@ -1552,9 +1593,40 @@
 		"SUBSCRIPTIONS_EMPTY_STATE": "No subscription history",
 		"SUBSCRIPTIONS_EMPTY_DESCRIPTION": "Your subscription history will appear here once you have active subscriptions.",
 		"OVERVIEW_EMPTY_STATE": "No recent activity",
-		"OVERVIEW_EMPTY_DESCRIPTION": "Your recent billing activity will appear here once you have transactions."
+		"OVERVIEW_EMPTY_DESCRIPTION": "Your recent billing activity will appear here once you have transactions.",
+		"SAVE_PER_YEAR": "ประหยัด {amount}/ปี"
 	},
 	"profile": {
+		"SECURITY_STATUS_SECTION": "ความปลอดภัยและสถานะ",
+		"EMAIL_VERIFICATION": "การยืนยันอีเมล",
+		"EMAIL_VERIFIED": "ยืนยันแล้ว",
+		"EMAIL_UNVERIFIED": "ยังไม่ยืนยัน",
+		"TWO_FACTOR": "การยืนยันตัวตนสองขั้นตอน",
+		"TWO_FACTOR_ON": "เปิดใช้งาน",
+		"TWO_FACTOR_OFF": "ปิดใช้งาน",
+		"ACCOUNT_STATUS": "สถานะบัญชี",
+		"STATUS_ACTIVE": "ใช้งานอยู่",
+		"STATUS_INACTIVE": "ไม่ได้ใช้งาน",
+		"STATUS_SUSPENDED": "ถูกระงับ",
+		"STATUS_BANNED": "ถูกแบน",
+		"STATUS_TRIAL": "ทดลองใช้",
+		"MEMBER_SINCE": "เป็นสมาชิกตั้งแต่",
+		"MANAGE_SECURITY": "จัดการความปลอดภัย",
+		"BILLING_PLANS_SECTION": "การเรียกเก็บเงินและแพ็กเกจ",
+		"CURRENT_PLAN": "แพ็กเกจปัจจุบัน",
+		"PLAN_FREE": "ฟรี",
+		"PLAN_STANDARD": "มาตรฐาน",
+		"PLAN_PREMIUM": "พรีเมียม",
+		"PLAN_BADGE_ACTIVE": "ใช้งานอยู่",
+		"PLAN_BADGE_FREE": "ฟรี",
+		"ACCOUNT_TYPE": "ประเภทบัญชี",
+		"ACCOUNT_TYPE_INDIVIDUAL": "บุคคล",
+		"ACCOUNT_TYPE_BUSINESS": "ธุรกิจ",
+		"ACCOUNT_TYPE_ENTERPRISE": "องค์กร",
+		"BILLING_CURRENCY": "สกุลเงิน",
+		"MANAGE_BILLING": "จัดการการเรียกเก็บเงิน",
+		"BILLING_PLANS_UPGRADE": "อัปเกรด",
+		"BILLING_PLANS_VIEW_PLANS": "ดูแพ็กเกจ",
 		"BASIC_INFO_TITLE": "Basic Information",
 		"BASIC_INFO_DESCRIPTION": "Update your personal information and contact details. This information will be displayed on your public profile and helps others discover and connect with you.",
 		"PERSONAL_INFORMATION": "Personal Information",

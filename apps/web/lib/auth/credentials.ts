@@ -44,6 +44,31 @@ export async function comparePasswords(plainTextPassword: string, hashedPassword
 	return compare(plainTextPassword, hashedPassword);
 }
 
+/**
+ * NextAuth credentials provider for the email+password sign-in flow.
+ *
+ * Sign-in precedence: **admin account first, then client account.**
+ * If the same email maps to both roles in the DB, admin login wins.
+ *
+ * **User-enumeration trade-off** worth flagging: the `authorize`
+ * callback distinguishes three error cases (`ACCOUNT_NOT_FOUND`,
+ * `INVALID_PASSWORD`, `PROFILE_NOT_FOUND`) instead of returning a
+ * single generic "invalid credentials" error. This gives clearer UX
+ * messages ("no account with this email" vs "wrong password") but
+ * lets an attacker iterate emails through the sign-in form and
+ * confirm which ones are registered. If user-enumeration resistance
+ * matters more than the UX clarity, collapse all three into one
+ * `INVALID_CREDENTIALS` error and harmonise the response timing too
+ * (a constant-time check across both paths so the response delay
+ * doesn't leak whether bcrypt was actually called).
+ *
+ * Dynamic `bcryptjs` import (see `getBcrypt` above) keeps the heavy
+ * native-ish dep out of the Edge runtime bundle.
+ *
+ * Side-effect audit logging via `logActivity` is fire-and-forget
+ * (`.catch(() => {})`) so a logging hiccup doesn't fail the
+ * sign-in — at the cost of silently losing those audit rows.
+ */
 export const credentialsProvider = Credentials({
 	name: AuthProviders.CREDENTIALS,
 	credentials: {

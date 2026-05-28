@@ -321,7 +321,6 @@ export async function POST(request: NextRequest) {
 
 		// Send confirmation email
 		try {
-			const clientIP = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown';
 			const userAgent = request.headers.get('user-agent') || 'unknown';
 
 			const emailData = {

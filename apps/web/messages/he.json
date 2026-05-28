@@ -555,6 +555,10 @@
 		"NO_CHECKOUT_PROVIDERS_CONFIGURED": "לא הוגדרו ספקי תשלומים. תכונות התשלום לא יהיו זמינות.",
 		"PROVIDER_NOT_CONFIGURED": "לא מוגדר",
 		"NOT_CONFIGURED": "לא מוגדר",
+		"ACTIVE": "פעיל",
+		"SECTION_PROFILE": "פרופיל",
+		"SECTION_APPEARANCE": "מראה",
+		"SECTION_CONTENT_AND_BILLING": "תוכן וחיוב",
 		"SETTINGS_CARDS": {
 			"BASIC_INFO": {
 				"TITLE": "Basic Information",
@@ -730,6 +734,15 @@
 			"REVIEW_PUBLISH": "Review & Publish"
 		},
 		"DETAILS_FORM": {
+			"VIDEO_URL_LABEL": "כתובת URL של הסרטון (YouTube או Vimeo)",
+			"VIDEO_PREVIEW": "תצוגה מקדימה של הסרטון",
+			"STEP_TITLE_BASIC_INFO": "מידע בסיסי",
+			"STEP_TITLE_PAYMENT": "תשלום",
+			"STEP_TITLE_REVIEW": "סקירה",
+			"TOAST_INVALID_URL": "אנא ספק כתובת URL תקינה עבור הפריט שלך.",
+			"TOAST_SUBMIT_SUCCESS": "הפריט נשלח בהצלחה!",
+			"TOAST_SUBMIT_FAILED": "שליחת הפריט נכשלה",
+			"TOAST_SUBMIT_ERROR": "שגיאה בשליחת הטופס. אנא נסה שוב.",
 			"TITLE": "Tell Us About Your Product",
 			"DESCRIPTION": "Share the details that will help users discover and understand your amazing product",
 			"STEP_INDICATOR": "Step {step} of 3 · Product Details",
@@ -763,7 +776,8 @@
 			"REMOVE_LINK": "Remove link",
 			"REVIEW_AND_SUBMIT": "Review & Submit",
 			"EXTRACT": "חלץ",
-			"EXTRACTING": "מחלץ..."
+			"EXTRACTING": "מחלץ...",
+				"URL_FORMAT_HINT": "כתובת URL חייבת להתחיל עם https:// או http://"
 		},
 		"PAYMENT": {
 			"TITLE": "Complete Your Order",
@@ -860,10 +874,10 @@
 		"PREMIUM_SUPPORT": "תמיכת פרימיום",
 		"MOST_POPULAR": "הפופולרי ביותר",
 		"GET_STARTED_FREE": "התחל בחינם",
-		"UPGRADE_TO_STANDARD": "Submit Now",
-		"GO_PREMIUM": "Subscribe",
+		"UPGRADE_TO_STANDARD": "שלח עכשיו",
+		"GO_PREMIUM": "הירשם",
 		"SUBMIT_FOR_FREE": "שלח בחינם",
-		"SUBSCRIBE_NOW": "Subscribe Now",
+		"SUBSCRIBE_NOW": "הירשם עכשיו",
 		"SELECT_FREE": "בחר חינמי",
 		"SELECT_STANDARD": "בחר סטנדרטי",
 		"SELECT_PREMIUM": "בחר פרימיום",
@@ -928,7 +942,12 @@
 			"UNLIMITED_SUBMISSIONS": "Unlimited submissions included"
 		},
 		"UPGRADE_TO_PRO": "שדרג למקצועי",
-		"GO_ENTERPRISE": "בחר ארגוני"
+		"GO_ENTERPRISE": "בחר ארגוני",
+		"PAY_NOW": "שלם עכשיו",
+		"PAY_LATER": "שלם מאוחר יותר",
+		"PER_MONTH": "/חודש",
+		"PER_YEAR": "/שנה",
+		"LEARN_MORE_PAYMENT_OPTIONS": "מידע נוסף על אפשרויות התשלום"
 	},
 	"payment": {
 		"title": "Complete Your Order",
@@ -948,7 +967,29 @@
 			"failed": "Payment failed",
 			"pending": "Payment pending"
 		},
-		"COMPLETE_PAYMENT": "השלם תשלום"
+		"COMPLETE_PAYMENT": "השלם תשלום",
+		"flowSelector": {
+			"title": "תזמון התשלום",
+			"subtitle": "בחרו מתי לחייב אתכם עבור ההגשה שלכם",
+			"payNow": {
+				"title": "שלם עכשיו",
+				"description": "התשלום מעובד מיד. תור בדיקה בעדיפות.",
+				"benefits": [
+					"עיבוד מיידי",
+					"בדיקה בעדיפות",
+					"אישור מהיר יותר"
+				]
+			},
+			"payLater": {
+				"title": "שלם מאוחר יותר",
+				"description": "חיוב מתבצע רק לאחר אישור ההגשה שלכם.",
+				"benefits": [
+					"ללא עלות מראש",
+					"בדיקה לפני תשלום",
+					"ללא סיכון"
+				]
+			}
+		}
 	},
 	"help": {
 		"HERO_BADGE_TEXT": "The Professional Directory Platform Builder",
@@ -1546,9 +1587,40 @@
 		"SUBSCRIPTIONS_EMPTY_STATE": "No subscription history",
 		"SUBSCRIPTIONS_EMPTY_DESCRIPTION": "Your subscription history will appear here once you have active subscriptions.",
 		"OVERVIEW_EMPTY_STATE": "No recent activity",
-		"OVERVIEW_EMPTY_DESCRIPTION": "Your recent billing activity will appear here once you have transactions."
+		"OVERVIEW_EMPTY_DESCRIPTION": "Your recent billing activity will appear here once you have transactions.",
+		"SAVE_PER_YEAR": "חסכו {amount}/שנה"
 	},
 	"profile": {
+		"SECURITY_STATUS_SECTION": "אבטחה וסטטוס",
+		"EMAIL_VERIFICATION": "אימות אימייל",
+		"EMAIL_VERIFIED": "מאומת",
+		"EMAIL_UNVERIFIED": "לא מאומת",
+		"TWO_FACTOR": "אימות דו-שלבי",
+		"TWO_FACTOR_ON": "מופעל",
+		"TWO_FACTOR_OFF": "מושבת",
+		"ACCOUNT_STATUS": "סטטוס החשבון",
+		"STATUS_ACTIVE": "פעיל",
+		"STATUS_INACTIVE": "לא פעיל",
+		"STATUS_SUSPENDED": "מושעה",
+		"STATUS_BANNED": "חסום",
+		"STATUS_TRIAL": "ניסיון",
+		"MEMBER_SINCE": "חבר מאז",
+		"MANAGE_SECURITY": "ניהול אבטחה",
+		"BILLING_PLANS_SECTION": "חיוב ותוכניות",
+		"CURRENT_PLAN": "התוכנית הנוכחית",
+		"PLAN_FREE": "חינם",
+		"PLAN_STANDARD": "סטנדרט",
+		"PLAN_PREMIUM": "פרימיום",
+		"PLAN_BADGE_ACTIVE": "פעיל",
+		"PLAN_BADGE_FREE": "חינם",
+		"ACCOUNT_TYPE": "סוג החשבון",
+		"ACCOUNT_TYPE_INDIVIDUAL": "פרטי",
+		"ACCOUNT_TYPE_BUSINESS": "עסקי",
+		"ACCOUNT_TYPE_ENTERPRISE": "ארגוני",
+		"BILLING_CURRENCY": "מטבע",
+		"MANAGE_BILLING": "ניהול חיוב",
+		"BILLING_PLANS_UPGRADE": "שדרוג",
+		"BILLING_PLANS_VIEW_PLANS": "הצגת תוכניות",
 		"BASIC_INFO_TITLE": "Basic Information",
 		"BASIC_INFO_DESCRIPTION": "Update your personal information and contact details. This information will be displayed on your public profile and helps others discover and connect with you.",
 		"PERSONAL_INFORMATION": "Personal Information",

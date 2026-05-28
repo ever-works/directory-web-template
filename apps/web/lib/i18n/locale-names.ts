@@ -31,6 +31,9 @@ export const LOCALE_NATIVE_NAMES: Readonly<Record<Locale, string>> = {
 	bg: 'Български',
 } as const;
 
+// Why: precompute a Set so isSupportedLocale runs in O(1) on the hot path
+// (every i18n route resolution / locale guard hits this), instead of an
+// O(n) Array.includes scan across the 20-locale LOCALES tuple.
 const SUPPORTED_LOCALE_SET: ReadonlySet<string> = new Set(LOCALES);
 
 export function isSupportedLocale(value: string | null | undefined): value is Locale {

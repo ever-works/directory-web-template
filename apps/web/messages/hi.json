@@ -556,6 +556,10 @@
 		"NO_CHECKOUT_PROVIDERS_CONFIGURED": "कोई भुगतान प्रदाता कॉन्फ़िगर नहीं है। भुगतान सुविधाएं उपलब्ध नहीं होंगी।",
 		"PROVIDER_NOT_CONFIGURED": "कॉन्फ़िगर नहीं है",
 		"NOT_CONFIGURED": "कॉन्फ़िगर नहीं है",
+		"ACTIVE": "सक्रिय",
+		"SECTION_PROFILE": "प्रोफ़ाइल",
+		"SECTION_APPEARANCE": "रूप",
+		"SECTION_CONTENT_AND_BILLING": "सामग्री और बिलिंग",
 		"SETTINGS_CARDS": {
 			"BASIC_INFO": {
 				"TITLE": "Basic Information",
@@ -731,6 +735,15 @@
 			"REVIEW_PUBLISH": "Review & Publish"
 		},
 		"DETAILS_FORM": {
+			"VIDEO_URL_LABEL": "वीडियो URL (YouTube या Vimeo)",
+			"VIDEO_PREVIEW": "वीडियो पूर्वावलोकन",
+			"STEP_TITLE_BASIC_INFO": "बुनियादी जानकारी",
+			"STEP_TITLE_PAYMENT": "भुगतान",
+			"STEP_TITLE_REVIEW": "समीक्षा",
+			"TOAST_INVALID_URL": "कृपया अपनी वस्तु के लिए एक मान्य URL प्रदान करें।",
+			"TOAST_SUBMIT_SUCCESS": "वस्तु सफलतापूर्वक सबमिट की गई!",
+			"TOAST_SUBMIT_FAILED": "वस्तु सबमिट करने में विफल",
+			"TOAST_SUBMIT_ERROR": "फ़ॉर्म सबमिट करने में त्रुटि। कृपया पुनः प्रयास करें।",
 			"TITLE": "Tell Us About Your Product",
 			"DESCRIPTION": "Share the details that will help users discover and understand your amazing product",
 			"STEP_INDICATOR": "Step {step} of 3 · Product Details",
@@ -764,7 +777,8 @@
 			"REMOVE_LINK": "Remove link",
 			"REVIEW_AND_SUBMIT": "Review & Submit",
 			"EXTRACT": "निकालें",
-			"EXTRACTING": "निकाला जा रहा है..."
+			"EXTRACTING": "निकाला जा रहा है...",
+				"URL_FORMAT_HINT": "URL को https:// या http:// से शुरू होना चाहिए"
 		},
 		"PAYMENT": {
 			"TITLE": "Complete Your Order",
@@ -861,10 +875,10 @@
 		"PREMIUM_SUPPORT": "Premium Support",
 		"MOST_POPULAR": "सबसे लोकप्रिय",
 		"GET_STARTED_FREE": "मुफ्त में शुरू करें",
-		"UPGRADE_TO_STANDARD": "Submit Now",
-		"GO_PREMIUM": "Subscribe",
-		"SUBMIT_FOR_FREE": "Submit for Free",
-		"SUBSCRIBE_NOW": "Subscribe Now",
+		"UPGRADE_TO_STANDARD": "अभी सबमिट करें",
+		"GO_PREMIUM": "सदस्यता लें",
+		"SUBMIT_FOR_FREE": "मुफ़्त में सबमिट करें",
+		"SUBSCRIBE_NOW": "अभी सदस्यता लें",
 		"SELECT_FREE": "मुफ्त चुनें",
 		"SELECT_STANDARD": "स्टैंडर्ड चुनें",
 		"SELECT_PREMIUM": "प्रीमियम चुनें",
@@ -938,7 +952,12 @@
 		"SPONSOR_WEEK": "week",
 		"SPONSOR_OR": "or",
 		"SPONSOR_MONTH": "month",
-		"SPONSOR_CTA": "Become a Sponsor"
+		"SPONSOR_CTA": "Become a Sponsor",
+		"PAY_NOW": "अभी भुगतान करें",
+		"PAY_LATER": "बाद में भुगतान करें",
+		"PER_MONTH": "/माह",
+		"PER_YEAR": "/वर्ष",
+		"LEARN_MORE_PAYMENT_OPTIONS": "भुगतान विकल्पों के बारे में और जानें"
 	},
 	"payment": {
 		"title": "Complete Your Order",
@@ -958,7 +977,29 @@
 			"failed": "Payment failed",
 			"pending": "Payment pending"
 		},
-		"COMPLETE_PAYMENT": "भुगतान पूरा करें"
+		"COMPLETE_PAYMENT": "भुगतान पूरा करें",
+		"flowSelector": {
+			"title": "भुगतान का समय",
+			"subtitle": "चुनें कि आपकी प्रविष्टि के लिए शुल्क कब लिया जाए",
+			"payNow": {
+				"title": "अभी भुगतान करें",
+				"description": "भुगतान तुरंत संसाधित होता है। प्राथमिकता समीक्षा कतार।",
+				"benefits": [
+					"तत्काल प्रसंस्करण",
+					"प्राथमिकता समीक्षा",
+					"तेज़ स्वीकृति"
+				]
+			},
+			"payLater": {
+				"title": "बाद में भुगतान करें",
+				"description": "शुल्क केवल आपकी प्रविष्टि स्वीकृत होने के बाद लिया जाता है।",
+				"benefits": [
+					"कोई अग्रिम लागत नहीं",
+					"भुगतान से पहले समीक्षा",
+					"जोखिम-मुक्त"
+				]
+			}
+		}
 	},
 	"help": {
 		"HERO_BADGE_TEXT": "The Professional Directory Platform Builder",
@@ -1552,9 +1593,40 @@
 		"SUBSCRIPTIONS_EMPTY_STATE": "No subscription history",
 		"SUBSCRIPTIONS_EMPTY_DESCRIPTION": "Your subscription history will appear here once you have active subscriptions.",
 		"OVERVIEW_EMPTY_STATE": "No recent activity",
-		"OVERVIEW_EMPTY_DESCRIPTION": "Your recent billing activity will appear here once you have transactions."
+		"OVERVIEW_EMPTY_DESCRIPTION": "Your recent billing activity will appear here once you have transactions.",
+		"SAVE_PER_YEAR": "बचाएं {amount}/वर्ष"
 	},
 	"profile": {
+		"SECURITY_STATUS_SECTION": "सुरक्षा और स्थिति",
+		"EMAIL_VERIFICATION": "ईमेल सत्यापन",
+		"EMAIL_VERIFIED": "सत्यापित",
+		"EMAIL_UNVERIFIED": "असत्यापित",
+		"TWO_FACTOR": "दो-कारक प्रमाणीकरण",
+		"TWO_FACTOR_ON": "सक्षम",
+		"TWO_FACTOR_OFF": "अक्षम",
+		"ACCOUNT_STATUS": "खाता स्थिति",
+		"STATUS_ACTIVE": "सक्रिय",
+		"STATUS_INACTIVE": "निष्क्रिय",
+		"STATUS_SUSPENDED": "निलंबित",
+		"STATUS_BANNED": "प्रतिबंधित",
+		"STATUS_TRIAL": "परीक्षण",
+		"MEMBER_SINCE": "सदस्य बने",
+		"MANAGE_SECURITY": "सुरक्षा प्रबंधित करें",
+		"BILLING_PLANS_SECTION": "बिलिंग और प्लान",
+		"CURRENT_PLAN": "वर्तमान प्लान",
+		"PLAN_FREE": "निःशुल्क",
+		"PLAN_STANDARD": "स्टैंडर्ड",
+		"PLAN_PREMIUM": "प्रीमियम",
+		"PLAN_BADGE_ACTIVE": "सक्रिय",
+		"PLAN_BADGE_FREE": "निःशुल्क",
+		"ACCOUNT_TYPE": "खाता प्रकार",
+		"ACCOUNT_TYPE_INDIVIDUAL": "व्यक्तिगत",
+		"ACCOUNT_TYPE_BUSINESS": "व्यवसाय",
+		"ACCOUNT_TYPE_ENTERPRISE": "एंटरप्राइज़",
+		"BILLING_CURRENCY": "मुद्रा",
+		"MANAGE_BILLING": "बिलिंग प्रबंधित करें",
+		"BILLING_PLANS_UPGRADE": "अपग्रेड करें",
+		"BILLING_PLANS_VIEW_PLANS": "प्लान देखें",
 		"BASIC_INFO_TITLE": "Basic Information",
 		"BASIC_INFO_DESCRIPTION": "Update your personal information and contact details. This information will be displayed on your public profile and helps others discover and connect with you.",
 		"PERSONAL_INFORMATION": "Personal Information",
