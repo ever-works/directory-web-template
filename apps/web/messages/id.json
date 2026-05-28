@@ -856,7 +856,7 @@
 			"REVIEW_AND_SUBMIT": "Tinjau & Kirim",
 			"EXTRACT": "Ekstrak",
 			"EXTRACTING": "Mengekstrak...",
-				"URL_FORMAT_HINT": "URL harus dimulai dengan https:// atau http://"
+			"URL_FORMAT_HINT": "URL harus dimulai dengan https:// atau http://"
 		},
 		"PAYMENT": {
 			"TITLE": "Selesaikan Pesanan Anda",
@@ -3980,5 +3980,9 @@
 		"NAV_ARTICLE": "Artikel",
 		"FALLBACK_TITLE": "Perbandingan",
 		"VS": "vs"
+	},
+	"usersDirectory": {
+		"HERO_TITLE": "Komunitas",
+		"HERO_SUBTITLE": "Temukan orang-orang yang membangun dan berbagi di direktori ini."
 	}
 }

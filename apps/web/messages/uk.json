@@ -778,7 +778,7 @@
 			"REVIEW_AND_SUBMIT": "Review & Submit",
 			"EXTRACT": "Витягти",
 			"EXTRACTING": "Витягнення...",
-				"URL_FORMAT_HINT": "URL має починатися з https:// або http://"
+			"URL_FORMAT_HINT": "URL має починатися з https:// або http://"
 		},
 		"PAYMENT": {
 			"TITLE": "Complete Your Order",
@@ -3731,5 +3731,9 @@
 		"NAV_ARTICLE": "Стаття",
 		"FALLBACK_TITLE": "Порівняння",
 		"VS": "vs"
+	},
+	"usersDirectory": {
+		"HERO_TITLE": "Спільнота",
+		"HERO_SUBTITLE": "Відкрийте людей, які будують та діляться у цьому каталозі."
 	}
 }

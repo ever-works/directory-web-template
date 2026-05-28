@@ -789,7 +789,7 @@
 			"REVIEW_AND_SUBMIT": "审核并提交",
 			"EXTRACT": "提取",
 			"EXTRACTING": "正在提取...",
-				"URL_FORMAT_HINT": "URL必须以https://或http://开头"
+			"URL_FORMAT_HINT": "URL必须以https://或http://开头"
 		},
 		"PAYMENT": {
 			"TITLE": "完成您的订单",
@@ -3896,5 +3896,9 @@
 		"YOU_LABEL": "你",
 		"TOOL_RESULT_LABEL": "工具结果",
 		"TOOL_RESULT_FROM": "来自 {tool} 的结果"
+	},
+	"usersDirectory": {
+		"HERO_TITLE": "社区",
+		"HERO_SUBTITLE": "在此目录中发现正在构建和分享的人们。"
 	}
 }

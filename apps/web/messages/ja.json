@@ -778,7 +778,7 @@
 			"REVIEW_AND_SUBMIT": "Review & Submit",
 			"EXTRACT": "抽出",
 			"EXTRACTING": "抽出中...",
-				"URL_FORMAT_HINT": "URLはhttps://またはhttp://で始まる必要があります"
+			"URL_FORMAT_HINT": "URLはhttps://またはhttp://で始まる必要があります"
 		},
 		"PAYMENT": {
 			"TITLE": "Complete Your Order",
@@ -3838,5 +3838,9 @@
 		"NAV_ARTICLE": "記事",
 		"FALLBACK_TITLE": "比較",
 		"VS": "対"
+	},
+	"usersDirectory": {
+		"HERO_TITLE": "コミュニティ",
+		"HERO_SUBTITLE": "このディレクトリで活動・共有している人々を見つけましょう。"
 	}
 }

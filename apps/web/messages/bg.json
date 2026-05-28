@@ -856,7 +856,7 @@
 			"REVIEW_AND_SUBMIT": "Преглед и изпращане",
 			"EXTRACT": "Извлечи",
 			"EXTRACTING": "Извличане...",
-				"URL_FORMAT_HINT": "URL адресът трябва да започва с https:// или http://"
+			"URL_FORMAT_HINT": "URL адресът трябва да започва с https:// или http://"
 		},
 		"PAYMENT": {
 			"TITLE": "Завършете вашата поръчка",
@@ -3981,5 +3981,9 @@
 		"NAV_ARTICLE": "Статия",
 		"FALLBACK_TITLE": "Сравнение",
 		"VS": "срещу"
+	},
+	"usersDirectory": {
+		"HERO_TITLE": "Общност",
+		"HERO_SUBTITLE": "Открийте хора, които изграждат и споделят в тази директория."
 	}
 }

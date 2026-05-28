@@ -856,7 +856,7 @@
 			"REVIEW_AND_SUBMIT": "검토 및 제출",
 			"EXTRACT": "추출",
 			"EXTRACTING": "추출 중...",
-				"URL_FORMAT_HINT": "URL은 https:// 또는 http://로 시작해야 합니다"
+			"URL_FORMAT_HINT": "URL은 https:// 또는 http://로 시작해야 합니다"
 		},
 		"PAYMENT": {
 			"TITLE": "주문 완료",
@@ -4042,5 +4042,9 @@
 		"NAV_ARTICLE": "기사",
 		"FALLBACK_TITLE": "비교",
 		"VS": "vs"
+	},
+	"usersDirectory": {
+		"HERO_TITLE": "커뮤니티",
+		"HERO_SUBTITLE": "이 디렉토리에서 만들고 공유하는 사람들을 발견하세요."
 	}
 }

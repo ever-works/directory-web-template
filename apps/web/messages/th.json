@@ -778,7 +778,7 @@
 			"REVIEW_AND_SUBMIT": "Review & Submit",
 			"EXTRACT": "ดึงข้อมูล",
 			"EXTRACTING": "กำลังดึงข้อมูล...",
-				"URL_FORMAT_HINT": "URL ต้องเริ่มต้นด้วย https:// หรือ http://"
+			"URL_FORMAT_HINT": "URL ต้องเริ่มต้นด้วย https:// หรือ http://"
 		},
 		"PAYMENT": {
 			"TITLE": "Complete Your Order",
@@ -3688,5 +3688,9 @@
 		"NAV_ARTICLE": "บทความ",
 		"FALLBACK_TITLE": "การเปรียบเทียบ",
 		"VS": "vs"
+	},
+	"usersDirectory": {
+		"HERO_TITLE": "ชุมชน",
+		"HERO_SUBTITLE": "ค้นพบผู้คนที่สร้างและแบ่งปันในไดเร็กทอรีนี้"
 	}
 }

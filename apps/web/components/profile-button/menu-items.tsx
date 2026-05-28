@@ -258,7 +258,7 @@ function MenuItems({ user, profilePath, onItemClick, onNavigationStart, isNaviga
   }
 
   return (
-    <div className="max-h-72 overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-400/40 dark:scrollbar-thumb-gray-500/40 scrollbar-thumb-rounded-full [&::-webkit-scrollbar]:w-1"
+    <div className="max-h-80 overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-400/40 dark:scrollbar-thumb-gray-500/40 scrollbar-thumb-rounded-full [&::-webkit-scrollbar]:w-1"
     >
       <MenuItem
         href="/client/dashboard"

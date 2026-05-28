@@ -856,7 +856,7 @@
 			"REVIEW_AND_SUBMIT": "Xem xét và gửi",
 			"EXTRACT": "Trích xuất",
 			"EXTRACTING": "Đang trích xuất...",
-				"URL_FORMAT_HINT": "URL phải bắt đầu bằng https:// hoặc http://"
+			"URL_FORMAT_HINT": "URL phải bắt đầu bằng https:// hoặc http://"
 		},
 		"PAYMENT": {
 			"TITLE": "Hoàn tất đơn hàng của bạn",
@@ -3996,5 +3996,9 @@
 		"NAV_ARTICLE": "Bài viết",
 		"FALLBACK_TITLE": "So sánh",
 		"VS": "vs"
+	},
+	"usersDirectory": {
+		"HERO_TITLE": "Cộng đồng",
+		"HERO_SUBTITLE": "Khám phá những người đang xây dựng và chia sẻ trong thư mục này."
 	}
 }
