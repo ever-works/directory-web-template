@@ -3,134 +3,16 @@ import { getTranslations } from 'next-intl/server';
 import { auth } from '@/lib/auth';
 import { Container } from '@/components/ui/container';
 import { Link } from '@/i18n/navigation';
-import Image from 'next/image';
-import {
-	FiArrowLeft,
-	FiChevronLeft,
-	FiChevronRight,
-	FiUser,
-	FiUserCheck,
-} from 'react-icons/fi';
-import {
-	getClientProfileByUsername,
-	getFollowingCount,
-	getFollowingSubset,
-	listFollowing,
-} from '@/lib/db/queries';
-import { FollowButton } from '@/components/profile/follow-button';
+import { FiArrowLeft, FiChevronLeft, FiChevronRight, FiUserCheck } from 'react-icons/fi';
+import { getClientProfileByUsername, getFollowingCount, getFollowingSubset, listFollowing } from '@/lib/db/queries';
 import { FOLLOW_LIST_PAGE_SIZE, parsePageParam } from '../_follow-list-shared';
-import type { FollowListRow } from '@/lib/db/queries/follows.queries';
+import { FollowPersonCard } from '../_follow-person-card';
 
 export const dynamic = 'force-dynamic';
 
-// ─── Card ─────────────────────────────────────────────────────────────────────
-
-function FollowPersonCard({
-	row,
-	isViewer,
-	isAuthenticated,
-	initialIsFollowing,
-	t,
-}: {
-	row: FollowListRow;
-	isViewer: boolean;
-	isAuthenticated: boolean;
-	initialIsFollowing: boolean;
-	// next-intl getTranslations return type is not exported; using unknown avoids an import
-	t: (key: string) => string;
-}) {
-	const handle = row.username ?? row.userId;
-	const displayName = row.displayName || row.name;
-
-	return (
-		<div className="group flex flex-col bg-white dark:bg-white/[0.03] border border-neutral-200 dark:border-white/8 rounded-2xl overflow-hidden shadow-sm hover:shadow-md hover:border-neutral-300 dark:hover:border-white/14 transition-all duration-200">
-			{/* Gradient banner */}
-			<div
-				className="h-16 w-full shrink-0"
-				style={{
-					background:
-						'linear-gradient(135deg, var(--theme-primary, #6366f1) 0%, var(--theme-secondary, #a5b4fc) 100%)',
-				}}
-			/>
-
-			{/* Avatar — overlaps the banner */}
-			<div className="flex justify-center -mt-8 px-4">
-				<div className="relative w-16 h-16 rounded-full ring-4 ring-white dark:ring-neutral-950 overflow-hidden bg-neutral-100 dark:bg-neutral-800 shadow">
-					{row.avatar ? (
-						<Image
-							src={row.avatar}
-							alt={displayName}
-							fill
-							sizes="64px"
-							className="object-cover"
-							unoptimized
-						/>
-					) : (
-						<div className="w-full h-full flex items-center justify-center">
-							<FiUser className="w-7 h-7 text-neutral-400" />
-						</div>
-					)}
-				</div>
-			</div>
-
-			{/* Identity */}
-			<div className="flex-1 flex flex-col items-center px-4 pt-3 pb-4 text-center gap-1 min-w-0">
-				<Link
-					href={`/client/profile/${handle}`}
-					className="text-[15px] font-semibold text-neutral-900 dark:text-neutral-100 truncate w-full hover:text-theme-primary-600 dark:hover:text-theme-primary-400 transition-colors leading-tight"
-				>
-					{displayName}
-				</Link>
-				<p className="text-xs text-neutral-400 dark:text-neutral-500 truncate w-full">
-					@{handle}
-				</p>
-
-				{row.jobTitle && (
-					<p className="text-[12px] font-medium text-neutral-600 dark:text-neutral-400 truncate w-full mt-0.5">
-						{row.jobTitle}
-					</p>
-				)}
-
-				{row.bio && (
-					<p className="text-[11.5px] leading-relaxed text-neutral-400 dark:text-neutral-500 line-clamp-2 mt-1 w-full">
-						{row.bio}
-					</p>
-				)}
-			</div>
-
-			{/* Actions */}
-			<div className="px-4 pb-4 flex items-center gap-2">
-				{isViewer ? (
-					<span className="flex-1 inline-flex items-center justify-center gap-1.5 h-8 rounded-xl text-xs font-medium text-neutral-400 dark:text-neutral-500 border border-neutral-200 dark:border-white/8 bg-transparent select-none cursor-default">
-						<FiUserCheck className="w-3.5 h-3.5" />
-						{t('FOLLOWING')}
-					</span>
-				) : (
-					<div className="flex-1">
-						<FollowButton
-							username={handle}
-							initialIsFollowing={initialIsFollowing}
-							isAuthenticated={isAuthenticated}
-						/>
-					</div>
-				)}
-				<Link
-					href={`/client/profile/${handle}`}
-					className="shrink-0 inline-flex items-center justify-center w-8 h-8 rounded-xl border border-neutral-200 dark:border-white/8 bg-transparent text-neutral-500 dark:text-neutral-400 hover:bg-neutral-50 dark:hover:bg-white/5 hover:border-neutral-300 dark:hover:border-white/15 transition-all duration-150"
-					title={`View ${displayName}'s profile`}
-				>
-					<FiUser className="w-3.5 h-3.5" />
-				</Link>
-			</div>
-		</div>
-	);
-}
-
-// ─── Page ─────────────────────────────────────────────────────────────────────
-
 export default async function ProfileFollowingPage({
 	params,
-	searchParams,
+	searchParams
 }: {
 	params: Promise<{ username: string }>;
 	searchParams: Promise<{ page?: string | string[] }>;
@@ -147,14 +29,14 @@ export default async function ProfileFollowingPage({
 
 	const [total, following] = await Promise.all([
 		getFollowingCount(profile.userId),
-		listFollowing(profile.userId, FOLLOW_LIST_PAGE_SIZE, (page - 1) * FOLLOW_LIST_PAGE_SIZE),
+		listFollowing(profile.userId, FOLLOW_LIST_PAGE_SIZE, (page - 1) * FOLLOW_LIST_PAGE_SIZE)
 	]);
 
 	const followingSet = viewerUserId
 		? await getFollowingSubset(
 				viewerUserId,
 				following.map((f) => f.userId)
-		  )
+			)
 		: new Set<string>();
 
 	const totalPages = Math.max(1, Math.ceil(total / FOLLOW_LIST_PAGE_SIZE));
@@ -165,7 +47,6 @@ export default async function ProfileFollowingPage({
 		<div className="min-h-screen bg-neutral-50 dark:bg-neutral-950">
 			<Container maxWidth="7xl" padding="default" useGlobalWidth>
 				<div className="py-8 space-y-6">
-
 					{/* Back link */}
 					<Link
 						href={`/client/profile/${username}`}
@@ -182,8 +63,7 @@ export default async function ProfileFollowingPage({
 								{t('FOLLOWING_PAGE_TITLE', { name: displayName })}
 							</h1>
 							<p className="text-sm text-neutral-500 dark:text-neutral-400 mt-1">
-								{total.toLocaleString()}{' '}
-								{t(total === 1 ? 'PROFILE_SINGULAR' : 'PROFILE_PLURAL')}
+								{total.toLocaleString()} {t(total === 1 ? 'PROFILE_SINGULAR' : 'PROFILE_PLURAL')}
 							</p>
 						</div>
 						{totalPages > 1 && (
@@ -209,8 +89,7 @@ export default async function ProfileFollowingPage({
 					) : (
 						<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
 							{following.map((row) => {
-								const isViewer =
-									!!viewerUserId && viewerUserId === row.userId;
+								const isViewer = !!viewerUserId && viewerUserId === row.userId;
 								return (
 									<FollowPersonCard
 										key={row.userId}
@@ -231,7 +110,7 @@ export default async function ProfileFollowingPage({
 							<Link
 								href={{
 									pathname: `/client/profile/${username}/following`,
-									query: page > 2 ? { page: page - 1 } : undefined,
+									query: page > 2 ? { page: page - 1 } : undefined
 								}}
 								aria-disabled={page <= 1}
 								className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-xl border text-sm font-medium transition-all duration-150 ${
@@ -247,20 +126,25 @@ export default async function ProfileFollowingPage({
 							{/* Page dots */}
 							<div className="flex items-center gap-1.5">
 								{Array.from({ length: Math.min(totalPages, 7) }, (_, i) => {
-									const p = totalPages <= 7
-										? i + 1
-										: i === 0 ? 1
-										: i === 6 ? totalPages
-										: page <= 4 ? i + 1
-										: page >= totalPages - 3 ? totalPages - 6 + i
-										: page - 3 + i;
+									const p =
+										totalPages <= 7
+											? i + 1
+											: i === 0
+												? 1
+												: i === 6
+													? totalPages
+													: page <= 4
+														? i + 1
+														: page >= totalPages - 3
+															? totalPages - 6 + i
+															: page - 3 + i;
 									const isActive = p === page;
 									return (
 										<Link
 											key={i}
 											href={{
 												pathname: `/client/profile/${username}/following`,
-												query: p > 1 ? { page: p } : undefined,
+												query: p > 1 ? { page: p } : undefined
 											}}
 											className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs font-semibold transition-all duration-150 ${
 												isActive
@@ -277,7 +161,7 @@ export default async function ProfileFollowingPage({
 							<Link
 								href={{
 									pathname: `/client/profile/${username}/following`,
-									query: { page: page + 1 },
+									query: { page: page + 1 }
 								}}
 								aria-disabled={page >= totalPages}
 								className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-xl border text-sm font-medium transition-all duration-150 ${
@@ -291,7 +175,6 @@ export default async function ProfileFollowingPage({
 							</Link>
 						</div>
 					)}
-
 				</div>
 			</Container>
 		</div>
