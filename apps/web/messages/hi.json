@@ -778,7 +778,7 @@
 			"REVIEW_AND_SUBMIT": "Review & Submit",
 			"EXTRACT": "निकालें",
 			"EXTRACTING": "निकाला जा रहा है...",
-				"URL_FORMAT_HINT": "URL को https:// या http:// से शुरू होना चाहिए"
+			"URL_FORMAT_HINT": "URL को https:// या http:// से शुरू होना चाहिए"
 		},
 		"PAYMENT": {
 			"TITLE": "Complete Your Order",
@@ -3692,5 +3692,9 @@
 		"NAV_ARTICLE": "लेख",
 		"FALLBACK_TITLE": "तुलना",
 		"VS": "बनाम"
+	},
+	"usersDirectory": {
+		"HERO_TITLE": "समुदाय",
+		"HERO_SUBTITLE": "इस डायरेक्टरी में बनाने और साझा करने वाले लोगों की खोज करें।"
 	}
 }

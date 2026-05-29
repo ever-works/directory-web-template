@@ -780,7 +780,7 @@
 			"REVIEW_AND_SUBMIT": "Revisar y Enviar",
 			"EXTRACT": "Extraer",
 			"EXTRACTING": "Extrayendo...",
-				"URL_FORMAT_HINT": "La URL debe comenzar con https:// o http://"
+			"URL_FORMAT_HINT": "La URL debe comenzar con https:// o http://"
 		},
 		"PAYMENT": {
 			"TITLE": "Completa tu pedido",
@@ -3891,5 +3891,9 @@
 		"YOU_LABEL": "Tú",
 		"TOOL_RESULT_LABEL": "Resultado de la herramienta",
 		"TOOL_RESULT_FROM": "Resultado de {tool}"
+	},
+	"usersDirectory": {
+		"HERO_TITLE": "Comunidad",
+		"HERO_SUBTITLE": "Descubre personas que construyen y comparten en este directorio."
 	}
 }

@@ -790,7 +790,7 @@
 			"REVIEW_AND_SUBMIT": "Überprüfen & Absenden",
 			"EXTRACT": "Extrahieren",
 			"EXTRACTING": "Extrahieren...",
-				"URL_FORMAT_HINT": "URL muss mit https:// oder http:// beginnen"
+			"URL_FORMAT_HINT": "URL muss mit https:// oder http:// beginnen"
 		},
 		"PAYMENT": {
 			"TITLE": "Bestellung abschließen",
@@ -3902,5 +3902,9 @@
 		"YOU_LABEL": "Du",
 		"TOOL_RESULT_LABEL": "Tool-Ergebnis",
 		"TOOL_RESULT_FROM": "Ergebnis von {tool}"
+	},
+	"usersDirectory": {
+		"HERO_TITLE": "Community",
+		"HERO_SUBTITLE": "Entdecke Menschen, die in diesem Verzeichnis aufbauen und teilen."
 	}
 }

@@ -59,6 +59,8 @@ function MenuItems({ user, profilePath, onItemClick, onNavigationStart, isNaviga
     yourProfile: t("common.YOUR_PROFILE"),
     yourProfileDesc: t("common.YOUR_PROFILE_DESC"),
     accountSettingsDesc: t("settings.ACCOUNT_SETTINGS_DESC"),
+    communityTitle: t("usersDirectory.HERO_TITLE"),
+    communityDesc: t("usersDirectory.HERO_SUBTITLE"),
   }), [t]);
 
   // Simplified menu item component
@@ -256,7 +258,7 @@ function MenuItems({ user, profilePath, onItemClick, onNavigationStart, isNaviga
   }
 
   return (
-    <div className="max-h-72 overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-400/40 dark:scrollbar-thumb-gray-500/40 scrollbar-thumb-rounded-full [&::-webkit-scrollbar]:w-1"
+    <div className="max-h-80 overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-gray-400/40 dark:scrollbar-thumb-gray-500/40 scrollbar-thumb-rounded-full [&::-webkit-scrollbar]:w-1"
     >
       <MenuItem
         href="/client/dashboard"
@@ -276,6 +278,16 @@ function MenuItems({ user, profilePath, onItemClick, onNavigationStart, isNaviga
         gradientFrom="from-blue-100"
         gradientTo="to-indigo-100 dark:from-blue-900/30 dark:to-indigo-900/30"
         iconColor="text-theme-primary-600 dark:text-theme-primary-400"
+      />
+
+      <MenuItem
+        href="/client/users"
+        icon={Users}
+        title={translations.communityTitle}
+        description={translations.communityDesc}
+        gradientFrom="from-indigo-100"
+        gradientTo="to-purple-100 dark:from-indigo-900/30 dark:to-purple-900/30"
+        iconColor="text-indigo-600 dark:text-indigo-400"
       />
 
       <MenuItem

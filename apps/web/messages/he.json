@@ -777,7 +777,7 @@
 			"REVIEW_AND_SUBMIT": "Review & Submit",
 			"EXTRACT": "חלץ",
 			"EXTRACTING": "מחלץ...",
-				"URL_FORMAT_HINT": "כתובת URL חייבת להתחיל עם https:// או http://"
+			"URL_FORMAT_HINT": "כתובת URL חייבת להתחיל עם https:// או http://"
 		},
 		"PAYMENT": {
 			"TITLE": "Complete Your Order",
@@ -3686,5 +3686,9 @@
 		"NAV_ARTICLE": "מאמר",
 		"FALLBACK_TITLE": "השוואה",
 		"VS": "מול"
+	},
+	"usersDirectory": {
+		"HERO_TITLE": "קהילה",
+		"HERO_SUBTITLE": "גלה אנשים שבונים ומשתפים בספריה זו."
 	}
 }

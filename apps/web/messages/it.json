@@ -778,7 +778,7 @@
 			"REVIEW_AND_SUBMIT": "Review & Submit",
 			"EXTRACT": "Estrarre",
 			"EXTRACTING": "Estrazione...",
-				"URL_FORMAT_HINT": "L'URL deve iniziare con https:// o http://"
+			"URL_FORMAT_HINT": "L'URL deve iniziare con https:// o http://"
 		},
 		"PAYMENT": {
 			"TITLE": "Complete Your Order",
@@ -3837,5 +3837,9 @@
 		"NAV_ARTICLE": "Articolo",
 		"FALLBACK_TITLE": "Confronto",
 		"VS": "vs"
+	},
+	"usersDirectory": {
+		"HERO_TITLE": "Comunità",
+		"HERO_SUBTITLE": "Scopri persone che costruiscono e condividono in questa directory."
 	}
 }

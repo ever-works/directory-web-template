@@ -3,14 +3,11 @@ import { getTranslations } from 'next-intl/server';
 import { Container } from '@/components/ui/container';
 import { Link } from '@/i18n/navigation';
 import {
-	FiSearch,
 	FiUsers,
-	FiX,
-	FiList,
-	FiGrid,
 	FiChevronLeft,
 	FiChevronRight
 } from 'react-icons/fi';
+import { UsersToolbar } from './users-toolbar';
 import { searchPublicProfiles, getFollowingSubset } from '@/lib/db/queries';
 import { ProfileRow, ProfileCard } from '@/components/profile';
 import { cn } from '@/lib/utils';
@@ -112,92 +109,8 @@ export default async function UsersDirectoryPage({
 						</div>
 					</header>
 
-					{/* Sticky toolbar — keeps search + view toggle in reach while scrolling */}
-					<div className="sticky top-2 z-20">
-						<div className="rounded-xl border border-gray-200/70 dark:border-white/6 bg-white/90 dark:bg-[#111111]/90 backdrop-blur-md shadow-md shadow-gray-900/5 dark:shadow-black/20">
-							<div className="flex items-center gap-1.5 p-1.5">
-								{/* Search form — GET so the URL stays the source of truth */}
-								<form method="GET" className="flex flex-1 items-center gap-1.5 min-w-0">
-									{view === 'list' && <input type="hidden" name="view" value="list" />}
-									<div className="relative flex-1 min-w-0">
-										<div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-2.5">
-											<FiSearch className="h-3.5 w-3.5 text-gray-400 dark:text-gray-500" aria-hidden="true" />
-										</div>
-										<input
-											type="search"
-											name="q"
-											defaultValue={query}
-											placeholder={t('SEARCH_PLACEHOLDER')}
-											autoComplete="off"
-											className={cn(
-												'w-full rounded-lg border border-gray-200 bg-gray-50 py-1.5 pl-8 pr-7 text-xs',
-												'text-gray-900 placeholder:text-gray-400',
-												'transition-all duration-200',
-												'focus:border-theme-primary-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-theme-primary-500/20',
-												'dark:border-white/[0.06] dark:bg-white/[0.04] dark:text-gray-100 dark:placeholder:text-gray-500',
-												'dark:focus:border-theme-primary-400 dark:focus:bg-white/[0.07] dark:focus:ring-theme-primary-500/20'
-											)}
-										/>
-										{query && (
-											<Link
-												href={buildHref({ q: undefined, page: undefined })}
-												className="absolute inset-y-0 right-0 flex items-center pr-2.5 text-gray-400 transition-colors hover:text-gray-600 dark:hover:text-gray-300"
-												aria-label={t('CLEAR_SEARCH')}
-											>
-												<FiX className="h-3 w-3" />
-											</Link>
-										)}
-									</div>
-									<button
-										type="submit"
-										className={cn(
-											'hidden sm:inline-flex h-7 shrink-0 items-center gap-1 rounded-lg px-3 text-[11px] font-semibold',
-											'bg-black text-white dark:bg-white dark:text-gray-900',
-										)}
-									>
-										{t('SEARCH_BUTTON')}
-									</button>
-								</form>
-
-								{/* Divider */}
-								<div className="hidden sm:block h-4 w-px bg-gray-200 dark:bg-white/[0.08] shrink-0" aria-hidden="true" />
-
-								{/* View toggle — list / grid, persisted via URL */}
-								<div
-									role="group"
-									aria-label={t('VIEW_TOGGLE_LABEL')}
-									className="inline-flex shrink-0 items-center p-0.5 rounded-lg bg-gray-100 dark:bg-white/4 border border-gray-200 dark:border-white/6"
-								>
-									<Link
-										href={buildHref({ view: undefined, page: undefined })}
-										aria-current={view === 'grid' ? 'page' : undefined}
-										className={cn(
-											'inline-flex items-center gap-1 px-2.5 h-6 rounded-md text-[11px] font-medium transition-all duration-150',
-											view === 'grid'
-												? 'bg-white dark:bg-white/10 text-gray-900 dark:text-gray-100 shadow-sm ring-1 ring-gray-900/5 dark:ring-white/10'
-												: 'text-gray-500 dark:text-gray-500 hover:text-gray-800 dark:hover:text-gray-300'
-										)}
-									>
-										<FiGrid className="w-3 h-3" aria-hidden="true" />
-										<span className="hidden sm:inline">{t('VIEW_GRID')}</span>
-									</Link>
-									<Link
-										href={buildHref({ view: 'list', page: undefined })}
-										aria-current={view === 'list' ? 'page' : undefined}
-										className={cn(
-											'inline-flex items-center gap-1 px-2.5 h-6 rounded-md text-[11px] font-medium transition-all duration-150',
-											view === 'list'
-												? 'bg-white dark:bg-white/10 text-gray-900 dark:text-gray-100 shadow-sm ring-1 ring-gray-900/5 dark:ring-white/10'
-												: 'text-gray-500 dark:text-gray-500 hover:text-gray-800 dark:hover:text-gray-300'
-										)}
-									>
-										<FiList className="w-3 h-3" aria-hidden="true" />
-										<span className="hidden sm:inline">{t('VIEW_LIST')}</span>
-									</Link>
-								</div>
-							</div>
-						</div>
-					</div>
+					{/* Sticky toolbar — client component so search navigates without a hard reload */}
+					<UsersToolbar query={query} view={view} />
 
 					{/* Results */}
 					{rows.length === 0 ? (

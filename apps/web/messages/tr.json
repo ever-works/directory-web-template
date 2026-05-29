@@ -856,7 +856,7 @@
 			"REVIEW_AND_SUBMIT": "İncele ve Gönder",
 			"EXTRACT": "Çıkar",
 			"EXTRACTING": "Çıkarılıyor...",
-				"URL_FORMAT_HINT": "URL, https:// veya http:// ile başlamalıdır"
+			"URL_FORMAT_HINT": "URL, https:// veya http:// ile başlamalıdır"
 		},
 		"PAYMENT": {
 			"TITLE": "Siparişinizi Tamamlayın",
@@ -3979,5 +3979,9 @@
 		"NAV_ARTICLE": "Makale",
 		"FALLBACK_TITLE": "Karşılaştırma",
 		"VS": "vs"
+	},
+	"usersDirectory": {
+		"HERO_TITLE": "Topluluk",
+		"HERO_SUBTITLE": "Bu dizinde inşa eden ve paylaşan insanları keşfedin."
 	}
 }

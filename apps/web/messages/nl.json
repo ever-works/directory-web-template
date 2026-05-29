@@ -778,7 +778,7 @@
 			"REVIEW_AND_SUBMIT": "Review & Submit",
 			"EXTRACT": "Extraheren",
 			"EXTRACTING": "Extraheren...",
-				"URL_FORMAT_HINT": "URL moet beginnen met https:// of http://"
+			"URL_FORMAT_HINT": "URL moet beginnen met https:// of http://"
 		},
 		"PAYMENT": {
 			"TITLE": "Complete Your Order",
@@ -3833,5 +3833,9 @@
 		"NAV_ARTICLE": "Artikel",
 		"FALLBACK_TITLE": "Vergelijking",
 		"VS": "vs"
+	},
+	"usersDirectory": {
+		"HERO_TITLE": "Gemeenschap",
+		"HERO_SUBTITLE": "Ontdek mensen die bouwen en delen in deze directory."
 	}
 }
