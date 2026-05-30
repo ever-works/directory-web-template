@@ -12,7 +12,6 @@ import { useTheme } from 'next-themes';
 import { useDisclosure } from '@heroui/react';
 import { Link } from '@/i18n/navigation';
 import { Button } from '@/components/ui/button';
-import { BillingToggle } from '@/components/ui/toggle-group';
 import { PaymentFormModal } from '@/components/payment/stripe-payment-modal';
 import { useEffect } from 'react';
 import { useAnalytics } from '@/hooks/use-analytics';
@@ -96,15 +95,35 @@ export function PricingSection({ onSelectPlan, isReview, initialSelectedPlan }: 
 
 			{/* Billing Interval Selector */}
 			<div className="mb-10">
-				<BillingToggle
-					value={billingInterval === PaymentInterval.YEARLY ? 'yearly' : 'monthly'}
-					onValueChange={(v) =>
-						setBillingInterval(v === 'yearly' ? PaymentInterval.YEARLY : PaymentInterval.MONTHLY)
-					}
-					monthlyLabel={tBilling('MONTHLY')}
-					yearlyLabel={tBilling('YEARLY')}
-					saveLabel="-20%"
-				/>
+				<div className="inline-flex items-center rounded-full bg-gray-100 dark:bg-white/[0.04] p-1 gap-1">
+					<button
+						type="button"
+						onClick={() => setBillingInterval(PaymentInterval.MONTHLY)}
+						className={cn(
+							'h-9 px-5 rounded-full text-sm font-medium transition-colors cursor-pointer',
+							billingInterval === PaymentInterval.MONTHLY
+								? 'bg-white text-gray-900 dark:bg-white/[0.1] dark:text-white'
+								: 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
+						)}
+					>
+						{tBilling('MONTHLY')}
+					</button>
+					<button
+						type="button"
+						onClick={() => setBillingInterval(PaymentInterval.YEARLY)}
+						className={cn(
+							'h-9 px-5 rounded-full text-sm font-medium transition-colors cursor-pointer inline-flex items-center gap-2',
+							billingInterval === PaymentInterval.YEARLY
+								? 'bg-white text-gray-900 dark:bg-white/[0.1] dark:text-white'
+								: 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
+						)}
+					>
+						<span>{tBilling('YEARLY')}</span>
+						<span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/15 text-emerald-600 dark:bg-emerald-400/15 dark:text-emerald-400">
+							-20%
+						</span>
+					</button>
+				</div>
 			</div>
 
 			{/* Plan Grid */}
