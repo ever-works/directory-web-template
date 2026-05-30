@@ -85,13 +85,7 @@ export function PricingSection({ onSelectPlan, isReview, initialSelectedPlan }: 
 			{/* Header — mono headline, left-aligned (minimal, 21st.dev style) */}
 			{!isReview && (
 				<header className="max-w-3xl mb-12 sm:mb-16">
-					<h1
-						className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-gray-900 dark:text-white leading-[1.05]"
-						style={{
-							fontFamily:
-								'var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, "Roboto Mono", monospace'
-						}}
-					>
+					<h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-gray-900 dark:text-white leading-[1.05]">
 						{t('CHOOSE_YOUR_PERFECT_PLAN')}
 					</h1>
 					<p className="mt-5 text-base sm:text-lg text-gray-500 dark:text-gray-400 max-w-xl">
