@@ -142,20 +142,44 @@ export function PlanCard({
   return (
     <article className={cardStyles}>
       <header className="flex items-start justify-between gap-3 mb-2">
-        <div className="flex flex-col">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white capitalize">
-            {title.toLowerCase()}
-          </h3>
+        <div className="flex flex-col min-w-0">
+          <div className="flex items-center gap-2 flex-wrap">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white capitalize">
+              {title.toLowerCase()}
+            </h3>
+            {isHighlight && (
+              <span className="shrink-0 inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-gray-200 text-gray-700 dark:bg-white/10 dark:text-gray-200">
+                {t("MOST_POPULAR")}
+              </span>
+            )}
+          </div>
           {description && (
             <p className="mt-1 text-sm text-gray-500 dark:text-gray-400 leading-snug">
               {description}
             </p>
           )}
         </div>
-        {isHighlight && (
-          <span className="shrink-0 inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-gray-200 text-gray-700 dark:bg-white/10 dark:text-gray-200">
-            {t("MOST_POPULAR")}
-          </span>
+        {isPaidPlan && onFlowChange && (
+          <div className="shrink-0 flex items-center gap-1.5">
+            <ToggleGroup
+              options={paymentFlowOptions}
+              value={selectedFlow}
+              onValueChange={handleFlowChange}
+              size="sm"
+              variant="default"
+              className="h-8 cursor-pointer"
+            />
+            {onOpenModal && (
+              <button
+                onClick={handleOpenModal}
+                className="w-6 h-6 rounded-full flex items-center justify-center text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-white/[0.08] transition-colors cursor-pointer"
+                aria-label={t("LEARN_MORE_PAYMENT_OPTIONS")}
+                type="button"
+              >
+                <Info className="w-3.5 h-3.5" />
+              </button>
+            )}
+          </div>
         )}
       </header>
 
@@ -173,29 +197,6 @@ export function PlanCard({
       {children && (
         <div className="mt-2 text-xs text-gray-600 dark:text-gray-400">
           {children}
-        </div>
-      )}
-
-      {isPaidPlan && onFlowChange && (
-        <div className="mt-4 flex items-center gap-2">
-          <ToggleGroup
-            options={paymentFlowOptions}
-            value={selectedFlow}
-            onValueChange={handleFlowChange}
-            size="sm"
-            variant="default"
-            className="h-8 shrink-0 cursor-pointer"
-          />
-          {onOpenModal && (
-            <button
-              onClick={handleOpenModal}
-              className="w-6 h-6 rounded-full flex items-center justify-center text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-white/[0.08] transition-colors cursor-pointer"
-              aria-label={t("LEARN_MORE_PAYMENT_OPTIONS")}
-              type="button"
-            >
-              <Info className="w-3.5 h-3.5" />
-            </button>
-          )}
         </div>
       )}
 
