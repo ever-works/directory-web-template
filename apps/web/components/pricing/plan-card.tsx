@@ -284,6 +284,7 @@ export function PlanCard({
       {/* Action Button Section - Style exactly like reference image */}
       <footer className="relative z-[3] shrink-0 mt-auto px-6 pb-6">
         <Button
+          type="button"
           size="default"
           disabled={isLoading}
           className={buttonStyles}

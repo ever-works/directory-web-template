@@ -132,6 +132,7 @@ export function PricingSection({ onSelectPlan, isReview, initialSelectedPlan }: 
 			<div className="flex justify-center mb-10">
 				<div className="relative inline-flex items-center bg-gray-100 dark:bg-white/5 rounded-xl p-1 border border-gray-200 dark:border-white/8 shadow-xs backdrop-blur-xs">
 					<button
+						type="button"
 						onClick={() => setBillingInterval(PaymentInterval.MONTHLY)}
 						className={cn(
 							'relative cursor-pointer px-6 py-1.5 text-sm font-semibold rounded-lg transition-all duration-300 z-10 min-w-[100px]',
@@ -143,6 +144,7 @@ export function PricingSection({ onSelectPlan, isReview, initialSelectedPlan }: 
 						{tBilling('MONTHLY')}
 					</button>
 					<button
+						type="button"
 						onClick={() => setBillingInterval(PaymentInterval.YEARLY)}
 						className={cn(
 							'relative cursor-pointer px-6 py-1.5 text-sm font-semibold rounded-lg transition-all duration-300 z-10 min-w-[100px] flex items-center justify-center gap-2',
