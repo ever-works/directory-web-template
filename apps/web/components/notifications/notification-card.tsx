@@ -45,7 +45,7 @@ export function NotificationCard({
 	const t = useTranslations('client.notifications.types');
 	const tActions = useTranslations('client.notifications.actions');
 	const { id, type, category, priority, title, message, data, isRead, createdAt } = notification;
-	const actionUrl = typeof data?.actionUrl === 'string' ? (data.actionUrl as string) : null;
+	const actionUrl = resolveActionUrl(type, data);
 
 	const handleNavigate = () => {
 		if (!isRead) onMarkRead?.(id);
@@ -375,6 +375,21 @@ function shortRelative(input: string): string {
 		if (re.test(lower)) return lower.replace(re, repl).replace('about ', '').replace(' ago', '').trim();
 	}
 	return input;
+}
+
+/**
+ * Resolves the navigation target for a notification. Falls back to deriving
+ * a profile link for `user_followed` notifications stored before `actionUrl`
+ * was persisted on the notification's `data`.
+ */
+function resolveActionUrl(type: string, data: Record<string, unknown> | null): string | null {
+	if (typeof data?.actionUrl === 'string') return data.actionUrl;
+
+	if (type === 'user_followed' && typeof data?.followerUsername === 'string' && data.followerUsername) {
+		return `/client/profile/${data.followerUsername}`;
+	}
+
+	return null;
 }
 
 function humanise(type: string): string {
