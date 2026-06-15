@@ -3753,6 +3753,12 @@
 			"CANCEL_BUTTON": "İptal",
 			"PROCEED_TO_PAYMENT": "Ödemeye Devam Et"
 		},
+		"notifications": {
+			"tooltip": "Bildirimler",
+			"aria": {
+				"bellWithCount": "Bildirimler ({n} okunmamış)"
+			}
+		},
 		"dashboard": {
 			"TITLE": "Kontrol Paneli",
 			"WELCOME_BACK": "Tekrar hoş geldiniz, {name}! İşte aktivite genel bakışınız.",
