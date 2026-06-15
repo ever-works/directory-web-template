@@ -3755,6 +3755,12 @@
 			"CANCEL_BUTTON": "Отказ",
 			"PROCEED_TO_PAYMENT": "Продължете към плащането"
 		},
+		"notifications": {
+			"tooltip": "Известия",
+			"aria": {
+				"bellWithCount": "Известия ({n} непрочетени)"
+			}
+		},
 		"dashboard": {
 			"TITLE": "Табло",
 			"WELCOME_BACK": "Добре дошли отново, {name}! Ето прегледа на вашата активност.",
