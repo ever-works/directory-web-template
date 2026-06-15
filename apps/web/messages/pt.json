@@ -3618,6 +3618,12 @@
 			"EDIT_SUBMISSION_DESC": "Atualize os detalhes da sua submissão",
 			"BULK_IMPORT": "Importação em massa"
 		},
+		"notifications": {
+			"tooltip": "Notificações",
+			"aria": {
+				"bellWithCount": "Notificações ({n} não lidas)"
+			}
+		},
 		"dashboard": {
 			"TITLE": "Painel de Controle",
 			"WELCOME_BACK": "Bem-vindo de volta, {name}! Aqui está sua visão geral de atividades.",
