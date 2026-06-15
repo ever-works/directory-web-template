@@ -3712,6 +3712,12 @@
 			"EDIT_SUBMISSION_DESC": "Mettre à jour les détails de votre soumission",
 			"BULK_IMPORT": "Import en masse"
 		},
+		"notifications": {
+			"tooltip": "Notifications",
+			"aria": {
+				"bellWithCount": "Notifications ({n} non lues)"
+			}
+		},
 		"dashboard": {
 			"TITLE": "Tableau de Bord",
 			"WELCOME_BACK": "Bon retour, {name} ! Voici votre aperçu d'activité.",
