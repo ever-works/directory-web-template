@@ -96,6 +96,7 @@ export interface NotificationListResponse {
 export interface NotificationStatsResponse {
 	total: number;
 	unread: number;
+	/** Per-tab "has unread" signal — UI shows a dot indicator when a value is > 0, not the number itself. */
 	byTab: {
 		all: number;
 		unread: number;
