@@ -3617,6 +3617,12 @@
 			"EDIT_SUBMISSION_DESC": "Zaktualizuj szczegóły swojego zgłoszenia",
 			"BULK_IMPORT": "Import zbiorczy"
 		},
+		"notifications": {
+			"tooltip": "Powiadomienia",
+			"aria": {
+				"bellWithCount": "Powiadomienia ({n} nieprzeczytanych)"
+			}
+		},
 		"dashboard": {
 			"TITLE": "Panel",
 			"WELCOME_BACK": "Witaj ponownie, {name}! Oto przegląd Twojej aktywności.",
