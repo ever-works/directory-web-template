@@ -85,7 +85,11 @@ async function notifyFollowed(params: {
 			type: 'user_followed',
 			title: 'New follower',
 			message: `${followerLabel} started following you.`,
-			data: JSON.stringify({ followerUserId: params.followerId, followerUsername: follower?.username ?? null })
+			data: JSON.stringify({
+				followerUserId: params.followerId,
+				followerUsername: follower?.username ?? null,
+				actionUrl: follower?.username ? `/client/profile/${follower.username}` : null
+			})
 		});
 	} catch (error) {
 		console.error('Failed to enqueue user_followed notification:', error);
