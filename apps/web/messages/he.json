@@ -3554,6 +3554,12 @@
 			"EDIT_SUBMISSION_DESC": "עדכן את פרטי ההגשה שלך",
 			"BULK_IMPORT": "ייבוא מרובה"
 		},
+		"notifications": {
+			"tooltip": "התראות",
+			"aria": {
+				"bellWithCount": "התראות ({n} שלא נקראו)"
+			}
+		},
 		"dashboard": {
 			"ITEMS_MAP": {
 				"TITLE": "מפת הפריטים שלך",
