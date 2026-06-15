@@ -3816,6 +3816,12 @@
 			"CANCEL_BUTTON": "취소",
 			"PROCEED_TO_PAYMENT": "결제 진행"
 		},
+		"notifications": {
+			"tooltip": "알림",
+			"aria": {
+				"bellWithCount": "알림 (읽지 않음 {n}개)"
+			}
+		},
 		"dashboard": {
 			"TITLE": "대시보드",
 			"WELCOME_BACK": "{name}님, 다시 오신 것을 환영합니다! 활동 개요입니다.",
