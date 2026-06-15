@@ -3556,6 +3556,12 @@
 			"EDIT_SUBMISSION_DESC": "อัปเดตรายละเอียดการส่งของคุณ",
 			"BULK_IMPORT": "นำเข้าจำนวนมาก"
 		},
+		"notifications": {
+			"tooltip": "การแจ้งเตือน",
+			"aria": {
+				"bellWithCount": "การแจ้งเตือน ({n} ยังไม่อ่าน)"
+			}
+		},
 		"dashboard": {
 			"ITEMS_MAP": {
 				"TITLE": "แผนที่รายการของคุณ",
