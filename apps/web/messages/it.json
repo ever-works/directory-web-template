@@ -3621,6 +3621,12 @@
 			"EDIT_SUBMISSION_DESC": "Aggiorna i dettagli del tuo invio",
 			"BULK_IMPORT": "Importazione in blocco"
 		},
+		"notifications": {
+			"tooltip": "Notifiche",
+			"aria": {
+				"bellWithCount": "Notifiche ({n} non lette)"
+			}
+		},
 		"dashboard": {
 			"TITLE": "Dashboard",
 			"WELCOME_BACK": "Bentornato, {name}! Ecco la panoramica delle tue attività.",
