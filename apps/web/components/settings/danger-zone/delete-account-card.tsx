@@ -306,7 +306,7 @@ function DeleteAccountModal({ isOpen, onClose }: DeleteAccountModalProps) {
 											? 'border-red-300 dark:border-red-700/60 bg-red-50/40 dark:bg-red-950/20 focus:ring-red-500/50 focus:border-red-400'
 											: emailMatches && emailFilled
 												? 'border-emerald-300 dark:border-emerald-700/50 bg-white dark:bg-white/5 focus:ring-emerald-500/40 focus:border-emerald-400'
-												: 'border-gray-300 dark:border-white/10 bg-white dark:bg-white/5 focus:ring-gray-400/40 focus:border-gray-400'
+												: 'border-gray-300 dark:border-white/10 bg-white dark:bg-white/5 focus:ring-theme-primary-500/30 focus:border-theme-primary-400 dark:focus:border-theme-primary-500'
 									)}
 								/>
 								{emailFilled && emailMatches ? (
@@ -354,7 +354,7 @@ function DeleteAccountModal({ isOpen, onClose }: DeleteAccountModalProps) {
 										'disabled:opacity-60 disabled:cursor-not-allowed',
 										errors.password
 											? 'border-red-300 dark:border-red-700/60 bg-red-50/40 dark:bg-red-950/20 focus:ring-red-500/50 focus:border-red-400'
-											: 'border-gray-300 dark:border-white/10 bg-white dark:bg-white/5 focus:ring-gray-400/40 focus:border-gray-400'
+											: 'border-gray-300 dark:border-white/10 bg-white dark:bg-white/5 focus:ring-theme-primary-500/30 focus:border-theme-primary-400 dark:focus:border-theme-primary-500'
 									)}
 								/>
 								<button
