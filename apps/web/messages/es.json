@@ -3644,6 +3644,12 @@
 			"EDIT_SUBMISSION_DESC": "Actualiza los detalles de tu envío",
 			"BULK_IMPORT": "Importación masiva"
 		},
+		"notifications": {
+			"tooltip": "Notificaciones",
+			"aria": {
+				"bellWithCount": "Notificaciones ({n} sin leer)"
+			}
+		},
 		"dashboard": {
 			"TITLE": "Panel de Control",
 			"WELCOME_BACK": "¡Bienvenido de nuevo, {name}! Aquí está tu resumen de actividad.",
