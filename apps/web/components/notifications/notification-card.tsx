@@ -192,12 +192,13 @@ export function NotificationCard({
 					{message}
 				</p>
 
-				{/* Footer: type pill fades, actions slide in, time stays */}
+				{/* Footer: type pill ↔ actions swap on hover (desktop); both
+				    visible on touch since there's no hover to reveal actions. */}
 				<div className="relative mt-auto flex items-center justify-between gap-2 pt-2 border-t border-gray-100 dark:border-white/8">
 					<span
 						className={cn(
-							'inline-flex items-center rounded-md bg-gray-100 dark:bg-white/6 px-1.5 h-5 text-[10px] font-medium text-gray-600 dark:text-gray-400',
-							'transition-opacity duration-150 group-hover/row:opacity-0 motion-reduce:opacity-100'
+							'hidden items-center rounded-md bg-gray-100 dark:bg-white/6 px-1.5 h-5 text-[10px] font-medium text-gray-600 dark:text-gray-400',
+							'sm:inline-flex transition-opacity duration-150 sm:group-hover/row:opacity-0 motion-reduce:opacity-100'
 						)}
 					>
 						{typeLabel}
@@ -205,10 +206,10 @@ export function NotificationCard({
 
 					<div
 						className={cn(
-							'absolute left-0 flex items-center gap-0.5',
-							'opacity-0 transition-opacity duration-150',
-							'group-hover/row:opacity-100 group-focus-within/row:opacity-100',
-							'motion-reduce:opacity-100'
+							'flex items-center gap-0.5',
+							'opacity-100 sm:absolute sm:left-0 sm:opacity-0 transition-opacity duration-150',
+							'sm:group-hover/row:opacity-100 sm:group-focus-within/row:opacity-100',
+							'group-focus-within/row:opacity-100 motion-reduce:opacity-100'
 						)}
 					>
 						{actions}
@@ -310,10 +311,12 @@ export function NotificationCard({
 					<div
 						className={cn(
 							'flex items-center gap-0.5 shrink-0',
-							'opacity-0 -translate-x-1 transition-all duration-150',
-							'group-hover/row:opacity-100 group-hover/row:translate-x-0',
-							'group-focus-within/row:opacity-100 group-focus-within/row:translate-x-0',
-							'motion-reduce:opacity-100 motion-reduce:translate-x-0'
+							// Hover-only reveal would leave touch users with no way to
+							// see (or reach) these actions, so they stay visible by
+							// default and only fade in on hover for pointer devices.
+							'opacity-100 sm:opacity-0 transition-opacity duration-150',
+							'sm:group-hover/row:opacity-100 sm:group-focus-within/row:opacity-100',
+							'group-focus-within/row:opacity-100 motion-reduce:opacity-100'
 						)}
 					>
 						{actions}
