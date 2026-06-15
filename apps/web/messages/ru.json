@@ -3816,6 +3816,12 @@
 			"CANCEL_BUTTON": "Отмена",
 			"PROCEED_TO_PAYMENT": "Перейти к оплате"
 		},
+		"notifications": {
+			"tooltip": "Уведомления",
+			"aria": {
+				"bellWithCount": "Уведомления ({n} непрочитанных)"
+			}
+		},
 		"dashboard": {
 			"TITLE": "Панель управления",
 			"WELCOME_BACK": "С возвращением, {name}! Вот обзор вашей активности.",
