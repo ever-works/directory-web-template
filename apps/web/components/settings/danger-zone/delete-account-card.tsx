@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import { useActionState, useEffect, useId, useState } from 'react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { AlertTriangle, Trash2, Eye, EyeOff, Loader2, Check, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { useForm } from 'react-hook-form';
@@ -14,6 +14,7 @@ import { Modal } from '@/components/ui/modal';
 import { Button } from '@/components/ui/button';
 import { useCurrentUser } from '@/hooks/use-current-user';
 import { cn } from '@/lib/utils';
+import { DEFAULT_LOCALE } from '@/lib/constants';
 
 const CLIENT_PASSWORD_MIN_LENGTH = 8;
 
@@ -109,6 +110,7 @@ interface DeleteAccountModalProps {
 function DeleteAccountModal({ isOpen, onClose }: DeleteAccountModalProps) {
 	const tModal = useTranslations('settings.DANGER_ZONE_PAGE.DELETE_ACCOUNT.CONFIRM_MODAL');
 	const tErrors = useTranslations('settings.DANGER_ZONE_PAGE.DELETE_ACCOUNT.ERRORS');
+	const locale = useLocale();
 
 	const { user } = useCurrentUser();
 	const userEmail = user?.email ?? '';
@@ -177,6 +179,17 @@ function DeleteAccountModal({ isOpen, onClose }: DeleteAccountModalProps) {
 			toast.error(state.error);
 		}
 	}, [state]);
+
+	// On success the server action signs the user out and reports where to go.
+	// Navigate with a full reload (not router.push) so the cleared session
+	// cookie is picked up by middleware before /auth/signin renders.
+	useEffect(() => {
+		if (!state?.success || !state.redirect) return;
+
+		const redirectPath = state.redirect as string;
+		const shouldPrefixLocale = locale !== DEFAULT_LOCALE && !redirectPath.startsWith(`/${locale}`);
+		window.location.href = shouldPrefixLocale ? `/${locale}${redirectPath}` : redirectPath;
+	}, [state, locale]);
 
 	const onValid = (data: FormValues) => {
 		if (!ready) return;
