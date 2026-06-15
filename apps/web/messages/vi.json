@@ -3770,6 +3770,12 @@
 			"CANCEL_BUTTON": "Hủy bỏ",
 			"PROCEED_TO_PAYMENT": "Tiến hành thanh toán"
 		},
+		"notifications": {
+			"tooltip": "Thông báo",
+			"aria": {
+				"bellWithCount": "Thông báo ({n} chưa đọc)"
+			}
+		},
 		"dashboard": {
 			"TITLE": "Trang tổng quan",
 			"WELCOME_BACK": "Chào mừng trở lại, {name}! ",
