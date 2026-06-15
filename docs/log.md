@@ -31,6 +31,24 @@ why** at a higher level than per-commit diffs.
 
 ---
 
+## 2026-06-15 — Fix: k8s deploy probe timeouts (startup/readiness/liveness)
+
+- spec-038: the k8s deploy manifest template `.deploy/k8s-platform/deployment.yaml`
+  defined `readinessProbe` / `livenessProbe` on `/` with no `timeoutSeconds`, so
+  both inherited Kubernetes' 1-second default. A server-rendered `/` on a small
+  shared node routinely exceeds 1s, so the liveness probe failed its default 3
+  attempts and kubelet killed the container in a permanent restart loop
+  (observed: 460+ restarts, `Exit Code: 143`, on the first k8s-deployed Work
+  `awesome-compliance-automation-website`). Added an explicit `startupProbe`
+  (≈5 min budget for first response before liveness/readiness apply) and set
+  `timeoutSeconds: 5` plus `failureThreshold` on readiness (3) and liveness (6).
+  No app code or image change; affects only deployed Works' pod health gating.
+  Propagation to existing per-repo `awesome-*` copies is tracked in the
+  Vercel→k8s migration runbook. See `docs/spec/038-k8s-deploy-probes/spec.md`.
+  (PR: pending)
+
+---
+
 ## 2026-05-27 — Perf: item-detail first paint — stream similar-items, persist + parallelize
 
 - spec-037: fixed blank/slow first paint on `/[locale]/items/[slug]`. The page

@@ -34,18 +34,27 @@ spec:
                   ports:
                       - containerPort: 3000
                         name: http
-                  readinessProbe:
-                      httpGet:
-                          path: /
-                          port: http
-                      periodSeconds: 5
-                      initialDelaySeconds: 5
-                  livenessProbe:
+                  startupProbe:
                       httpGet:
                           path: /
                           port: http
                       periodSeconds: 10
-                      initialDelaySeconds: 30
+                      timeoutSeconds: 5
+                      failureThreshold: 30
+                  readinessProbe:
+                      httpGet:
+                          path: /
+                          port: http
+                      periodSeconds: 10
+                      timeoutSeconds: 5
+                      failureThreshold: 3
+                  livenessProbe:
+                      httpGet:
+                          path: /
+                          port: http
+                      periodSeconds: 15
+                      timeoutSeconds: 5
+                      failureThreshold: 6
                   resources:
                       requests:
                           cpu: 100m
