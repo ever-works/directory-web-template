@@ -3649,6 +3649,12 @@
 			"EDIT_SUBMISSION_DESC": "更新您的提交详情",
 			"BULK_IMPORT": "批量导入"
 		},
+		"notifications": {
+			"tooltip": "通知",
+			"aria": {
+				"bellWithCount": "通知（{n} 条未读）"
+			}
+		},
 		"dashboard": {
 			"TITLE": "仪表盘",
 			"WELCOME_BACK": "欢迎回来，{name}！这是您的活动概览。",
