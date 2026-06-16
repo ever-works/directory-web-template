@@ -854,7 +854,8 @@
 				"RESTORE_3": "All your data, settings, and history are fully intact.",
 				"CTA_HELPER": "Reactivation is immediate — no approval required.",
 				"CTA": "Reactivate account",
-				"REACTIVATING": "Reactivating…"
+				"REACTIVATING": "Reactivating…",
+				"SUCCESS_TOAST": "Your account has been reactivated successfully."
 			},
 			"DELETE_ACCOUNT": {
 				"TITLE": "Delete this account",

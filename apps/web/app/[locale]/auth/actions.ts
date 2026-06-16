@@ -7,7 +7,7 @@ import type { AdapterAccountType } from 'next-auth/adapters';
 import { db } from '@/lib/db/drizzle';
 import { getTenantId } from '@/lib/auth/tenant';
 
-import { signOut } from '@/lib/auth';
+import { signOut, unstable_update } from '@/lib/auth';
 import { validatedAction, validatedActionWithUser } from '@/lib/auth/middleware';
 import { comparePasswords, hashPassword, AuthProviders, AuthErrorCode } from '@/lib/auth/credentials';
 import {
@@ -587,8 +587,8 @@ const reactivateAccountSchema = z.object({
 
 /**
  * Reactivate the signed-in user's previously deactivated account.
- * Clears deactivatedAt, restoring full account visibility. Signs the user out
- * so a fresh session (without the deactivated flag) is issued on next login.
+ * Clears deactivatedAt, restoring full account visibility. Updates the
+ * JWT in-place so the user stays on the current page with a clean session.
  */
 export const reactivateAccount = validatedActionWithUser(reactivateAccountSchema, async (_data, __, user) => {
 	const dbUser = await getUserByEmail(user.email!).catch(() => null);
@@ -603,9 +603,8 @@ export const reactivateAccount = validatedActionWithUser(reactivateAccountSchema
 	await reactivateUser(dbUser.id);
 	await logActivity(ActivityType.UPDATE_ACCOUNT, dbUser.id, 'user');
 
-	// Sign out so the old JWT (which may carry isDeactivated=true) is discarded.
-	// On next login the JWT callback will see deactivatedAt IS NULL and issue a
-	// clean token.
-	await signOut({ redirect: false });
-	return { success: true, redirect: '/auth/signin?reactivated=true' };
+	// Update the JWT in-place so isDeactivated is cleared without signing out.
+	// The user stays on the danger-zone page and the session is immediately fresh.
+	await unstable_update({ user: { isDeactivated: false } });
+	return { success: true };
 });

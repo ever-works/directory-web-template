@@ -1,17 +1,17 @@
 'use client';
 
 import { useActionState, useEffect } from 'react';
-import { useTranslations, useLocale } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import { PlayCircle, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
+import { useRouter } from 'next/navigation';
 import { reactivateAccount } from '@/app/[locale]/auth/actions';
 import type { ActionState } from '@/lib/auth/middleware';
 import { Button } from '@/components/ui/button';
-import { DEFAULT_LOCALE } from '@/lib/constants';
 
 export function ReactivateAccountCard() {
 	const t = useTranslations('settings.DANGER_ZONE_PAGE.REACTIVATE_ACCOUNT');
-	const locale = useLocale();
+	const router = useRouter();
 
 	const [state, formAction, isPending] = useActionState<ActionState, FormData>(reactivateAccount, {});
 
@@ -22,11 +22,10 @@ export function ReactivateAccountCard() {
 	}, [state]);
 
 	useEffect(() => {
-		if (!state?.success || !state.redirect) return;
-		const redirectPath = state.redirect as string;
-		const shouldPrefixLocale = locale !== DEFAULT_LOCALE && !redirectPath.startsWith(`/${locale}`);
-		window.location.href = shouldPrefixLocale ? `/${locale}${redirectPath}` : redirectPath;
-	}, [state, locale]);
+		if (!state?.success) return;
+		toast.success(t('SUCCESS_TOAST'));
+		router.refresh();
+	}, [state, router, t]);
 
 	const handleReactivate = () => {
 		const fd = new FormData();
