@@ -62,6 +62,10 @@ spec:
                       limits:
                           cpu: 500m
                           memory: 1Gi
+                  envFrom:
+                      - secretRef:
+                          name: ${WORK_SLUG}-runtime-env
+                          optional: true
                   env:
                       - name: NODE_ENV
                         value: production

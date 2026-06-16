@@ -227,6 +227,41 @@ jobs:
                       -n "$NAMESPACE" \
                       --dry-run=client -o yaml | kubectl apply -f -
 
+            - name: Provision runtime-env secret
+              # The deployed directory site needs its app runtime env — which
+              # Vercel supplied via project env + the Neon integration. The
+              # platform pushes these as repo secrets on a k8s deploy
+              # (DeployService.ensureRuntimeEnv); here we materialize them into
+              # a Secret the Deployment mounts via envFrom. NEXT_PUBLIC_APP_URL /
+              # COOKIE_DOMAIN are derived from the ingress host. Skipped cleanly
+              # when none are present (e.g. a Work without a configured DB).
+              env:
+                  NAMESPACE: ${{ secrets.K8S_NAMESPACE || 'ever-works' }}
+                  WORK_SLUG: ${{ github.event.repository.name }}
+                  AUTH_SECRET: ${{ secrets.AUTH_SECRET }}
+                  COOKIE_SECRET: ${{ secrets.COOKIE_SECRET }}
+                  COOKIE_SECURE: ${{ secrets.COOKIE_SECURE }}
+                  DATABASE_URL: ${{ secrets.DATABASE_URL }}
+                  INGRESS_HOST: ${{ secrets.K8S_INGRESS_HOST }}
+              run: |
+                  set -euo pipefail
+                  ARGS=()
+                  [[ -n "${AUTH_SECRET:-}" ]] && ARGS+=(--from-literal=AUTH_SECRET="$AUTH_SECRET")
+                  [[ -n "${COOKIE_SECRET:-}" ]] && ARGS+=(--from-literal=COOKIE_SECRET="$COOKIE_SECRET")
+                  [[ -n "${COOKIE_SECURE:-}" ]] && ARGS+=(--from-literal=COOKIE_SECURE="$COOKIE_SECURE")
+                  [[ -n "${DATABASE_URL:-}" ]] && ARGS+=(--from-literal=DATABASE_URL="$DATABASE_URL")
+                  if [[ -n "${INGRESS_HOST:-}" ]]; then
+                      ARGS+=(--from-literal=NEXT_PUBLIC_APP_URL="https://${INGRESS_HOST}")
+                      ARGS+=(--from-literal=COOKIE_DOMAIN="${INGRESS_HOST}")
+                  fi
+                  if [[ ${#ARGS[@]} -gt 0 ]]; then
+                      kubectl create secret generic "${WORK_SLUG}-runtime-env" -n "$NAMESPACE" \
+                          "${ARGS[@]}" --dry-run=client -o yaml | kubectl apply -f -
+                      echo "Provisioned ${WORK_SLUG}-runtime-env (${#ARGS[@]} keys)"
+                  else
+                      echo "No runtime-env secrets present; skipping ${WORK_SLUG}-runtime-env"
+                  fi
+
             - name: Render and apply manifests
               env:
                   IMAGE: ${{ steps.image.outputs.image }}
