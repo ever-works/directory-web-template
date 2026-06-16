@@ -4,8 +4,7 @@ import { ItemBreadcrumb } from './breadcrumb';
 import { ItemIcon } from './item-icon';
 import { getVideoEmbedUrl, toTitleCase, slugify, cn } from '@/lib/utils';
 // ShareButton and VoteButton replaced by compact, inline actions in this view
-import { Globe, Share2, ThumbsUp } from 'lucide-react';
-import { toast } from 'sonner';
+import { Globe, ThumbsUp } from 'lucide-react';
 import { useItemVote } from '@/hooks/use-item-vote';
 import { CommentsSection } from './comments-section';
 // VoteButton replaced by CompactVote in this file
@@ -37,6 +36,10 @@ import { useTagsEnabled } from '@/hooks/use-tags-enabled';
 import { ItemDetailSkeleton } from '@/components/ui/skeleton';
 import { Container, useContainerWidth } from '../ui/container';
 import { SidebarSponsor, useSponsorAdsContext } from '@/components/sponsor-ads';
+import { StickyMobileCTA } from './sticky-mobile-cta';
+import { SharePopover } from './share-popover';
+import { TableOfContents } from './table-of-contents';
+import type { TocHeading } from '@/lib/utils/extract-headings';
 
 export interface ItemDetailProps {
 	meta: {
@@ -65,9 +68,11 @@ export interface ItemDetailProps {
 	 * When absent, the component falls back to the eager `meta.allItems`.
 	 */
 	similarItemsPromise?: Promise<ItemData[]>;
+	/** Headings extracted from the MDX content for the Table of Contents sidebar card. */
+	headings?: TocHeading[];
 }
 
-function ItemDetailContent({ meta, renderedContent, categoryName, similarItemsPromise }: ItemDetailProps) {
+function ItemDetailContent({ meta, renderedContent, categoryName, similarItemsPromise, headings = [] }: ItemDetailProps) {
 	const t = useTranslations();
 	const params = useParams();
 	const locale = params.locale as string;
@@ -191,22 +196,7 @@ function ItemDetailContent({ meta, renderedContent, categoryName, similarItemsPr
 								className="w-9 h-9 p-0 rounded-lg border border-gray-200 dark:border-white/8 bg-white dark:bg-white/3 hover:bg-gray-50 dark:hover:bg-white/6 transition-colors"
 							/>
 
-							<button
-								type="button"
-								title={t('common.SHARE')}
-								onClick={async (e) => {
-									e.preventDefault();
-									try {
-										await navigator.clipboard.writeText(meta.source_url || window.location.href);
-										toast.success(t('common.LINK_COPIED'));
-									} catch {
-										toast.error(t('common.SHARE_ERROR'));
-									}
-								}}
-								className="w-9 h-9 inline-flex items-center justify-center rounded-lg bg-white dark:bg-white/3 text-gray-500 dark:text-gray-400 border border-gray-200 dark:border-white/8 hover:bg-gray-50 dark:hover:bg-white/6 hover:text-gray-700 dark:hover:text-gray-200 transition-colors duration-150"
-							>
-								<Share2 className="w-4 h-4" />
-							</button>
+							<SharePopover itemName={meta.name} />
 
 							<CompactVote itemId={meta.slug || meta.name} />
 						</div>
@@ -320,7 +310,7 @@ function ItemDetailContent({ meta, renderedContent, categoryName, similarItemsPr
 								)}
 								<div className="flex justify-between items-center py-3">
 									<span className="text-xs text-gray-600 dark:text-gray-400">
-										{t('itemDetail.PUBLISHED')}
+										{t('itemDetail.LAST_UPDATED')}
 									</span>
 									<span className="text-xs font-medium text-gray-900 dark:text-white">
 										{meta.updated_at
@@ -462,11 +452,18 @@ function ItemDetailContent({ meta, renderedContent, categoryName, similarItemsPr
 					)}
 				</Suspense>
 			</Container>
+
+			{/* Floating ToC — fixed to the right viewport edge, hidden on mobile */}
+			<div className="hidden lg:block">
+				<TableOfContents headings={headings} />
+			</div>
+
+			<StickyMobileCTA sourceUrl={meta.source_url} name={meta.name} />
 		</div>
 	);
 }
 
-export function ItemDetail({ meta, renderedContent, categoryName, similarItemsPromise }: ItemDetailProps) {
+export function ItemDetail({ meta, renderedContent, categoryName, similarItemsPromise, headings }: ItemDetailProps) {
 	return (
 		<Suspense fallback={<ItemDetailSkeleton />}>
 			<ItemDetailContent
@@ -474,6 +471,7 @@ export function ItemDetail({ meta, renderedContent, categoryName, similarItemsPr
 				renderedContent={renderedContent}
 				categoryName={categoryName}
 				similarItemsPromise={similarItemsPromise}
+				headings={headings}
 			/>
 		</Suspense>
 	);
