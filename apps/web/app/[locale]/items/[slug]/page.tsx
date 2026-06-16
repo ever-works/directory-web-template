@@ -14,6 +14,7 @@ import { type Locale } from '@/lib/constants';
 import { HydrationBoundary, dehydrate } from '@tanstack/react-query';
 import { getQueryClient } from '@/lib/query-client';
 import { getCommentsByItemId } from '@/lib/db/queries';
+import { extractHeadings } from '@/lib/utils/extract-headings';
 
 // Enable ISR with 10 minutes revalidation
 // Using dynamicParams allows on-demand generation without build-time MDX errors
@@ -180,6 +181,7 @@ export default async function ItemDetails({ params }: { params: Promise<{ slug: 
 
 		const { meta, content } = item;
 		const categoryName = getCategoriesName(meta.category);
+		const headings = extractHeadings(content ?? '');
 
 		// Similar items scan and score the *entire* catalogue, but only feed the
 		// "Similar Products" carousel at the very bottom of the page. We do NOT
@@ -212,6 +214,7 @@ export default async function ItemDetails({ params }: { params: Promise<{ slug: 
 							renderedContent={renderedContent}
 							categoryName={categoryName}
 							similarItemsPromise={similarItemsPromise}
+							headings={headings}
 						/>
 					</Container>
 				</div>
