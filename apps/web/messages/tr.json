@@ -740,44 +740,44 @@
 			"DESCRIPTION": "Permanent account actions"
 		},
 		"DANGER_ZONE_PAGE": {
-			"TITLE": "Danger zone",
-			"SUBTITLE": "Account actions that take effect immediately and cannot be undone.",
-			"BACK_TO_SETTINGS": "Back to settings",
-			"INTRO_LABEL": "Heads up",
-			"INTRO_BODY": "Every action in this section is permanent. We'll always ask you to confirm before anything is removed.",
-			"IRREVERSIBLE_BADGE": "Destructive",
+			"TITLE": "Tehlikeli bölge",
+			"SUBTITLE": "Hesap işlemleri hemen yürürlüğe girer ve geri alınamaz.",
+			"BACK_TO_SETTINGS": "Ayarlara dön",
+			"INTRO_LABEL": "Uyarı",
+			"INTRO_BODY": "Bu bölümdeki her işlem kalıcıdır. Herhangi bir şey kaldırılmadan önce sizden her zaman onay isteyeceğiz.",
+			"IRREVERSIBLE_BADGE": "Yıkıcı",
 			"DELETE_ACCOUNT": {
-				"TITLE": "Delete this account",
-				"DESCRIPTION": "Permanently remove this account and everything associated with it. This cannot be undone.",
-				"LOSS_TITLE": "What will be removed",
-				"LOSS_ITEM_1": "Sign-in credentials and account email",
-				"LOSS_ITEM_2": "Profile, portfolio, and uploaded images",
-				"LOSS_ITEM_3": "Submissions, drafts, and trashed items",
-				"LOSS_ITEM_4": "Sponsorships and billing references",
-				"LOSS_ITEM_5": "Comments, favourites, and activity history",
-				"CTA_HELPER": "Two-step confirmation required.",
-				"CTA": "Delete account…",
+				"TITLE": "Bu hesabı sil",
+				"DESCRIPTION": "Bu hesabı ve onunla ilişkili her şeyi kalıcı olarak kaldırın. Bu işlem geri alınamaz.",
+				"LOSS_TITLE": "Neler kaldırılacak",
+				"LOSS_ITEM_1": "Oturum açma bilgileri ve hesap e-posta adresi",
+				"LOSS_ITEM_2": "Profil, portföy ve yüklenen görseller",
+				"LOSS_ITEM_3": "Gönderiler, taslaklar ve çöp kutusundaki öğeler",
+				"LOSS_ITEM_4": "Sponsorluklar ve fatura bilgileri",
+				"LOSS_ITEM_5": "Yorumlar, favoriler ve etkinlik geçmişi",
+				"CTA_HELPER": "İki adımlı onay gerekir.",
+				"CTA": "Hesabı sil…",
 				"CONFIRM_MODAL": {
-					"TITLE": "Permanently delete your account",
-					"SUBTITLE": "Take a moment to confirm — this cannot be undone.",
-					"ACCOUNT_HEADING": "Account to delete",
-					"ACCOUNT_WARNING": "Everything tied to this account will be removed immediately. There is no recovery.",
-					"CONFIRMATION_HEADING": "Confirm it's really you",
-					"EMAIL_LABEL": "Type your email to confirm",
-					"EMAIL_HELPER": "Enter {email} exactly as shown above.",
-					"EMAIL_PLACEHOLDER": "you@example.com",
-					"PASSWORD_LABEL": "Your current password",
-					"PASSWORD_PLACEHOLDER": "Enter your password",
-					"CONFIRM_CTA": "Delete account permanently",
-					"DELETING": "Deleting account…",
-					"CANCEL_CTA": "Cancel"
+					"TITLE": "Hesabınızı kalıcı olarak silin",
+					"SUBTITLE": "Onaylamak için bir dakikanızı ayırın — bu işlem geri alınamaz.",
+					"ACCOUNT_HEADING": "Silinecek hesap",
+					"ACCOUNT_WARNING": "Bu hesapla ilişkili her şey hemen kaldırılacaktır. Geri alma mümkün değildir.",
+					"CONFIRMATION_HEADING": "Gerçekten siz olduğunuzu onaylayın",
+					"EMAIL_LABEL": "Onaylamak için e-posta adresinizi yazın",
+					"EMAIL_HELPER": "{email} adresini yukarıda gösterildiği şekilde tam olarak girin.",
+					"EMAIL_PLACEHOLDER": "john@example.com",
+					"PASSWORD_LABEL": "Mevcut şifreniz",
+					"PASSWORD_PLACEHOLDER": "Şifrenizi girin",
+					"CONFIRM_CTA": "Hesabı kalıcı olarak sil",
+					"DELETING": "Hesap siliniyor…",
+					"CANCEL_CTA": "İptal"
 				},
 				"ERRORS": {
-					"PASSWORD_REQUIRED": "Password is required.",
-					"PASSWORD_TOO_SHORT": "Password must be at least 8 characters.",
-					"EMAIL_REQUIRED": "Please type your email to confirm.",
-					"EMAIL_MISMATCH": "Email does not match the account above.",
-					"UNKNOWN": "Failed to delete account. Please try again."
+					"PASSWORD_REQUIRED": "Şifre gereklidir.",
+					"PASSWORD_TOO_SHORT": "Şifre en az 8 karakter olmalıdır.",
+					"EMAIL_REQUIRED": "Onaylamak için lütfen e-posta adresinizi yazın.",
+					"EMAIL_MISMATCH": "E-posta, yukarıdaki hesapla eşleşmiyor.",
+					"UNKNOWN": "Hesap silinemedi. Lütfen tekrar deneyin."
 				}
 			}
 		}
@@ -3752,6 +3752,12 @@
 			"RENEW_REDIRECT_INFO": "Yenilemeyi tamamlamak için ödeme sağlayıcımıza yönlendirileceksiniz.",
 			"CANCEL_BUTTON": "İptal",
 			"PROCEED_TO_PAYMENT": "Ödemeye Devam Et"
+		},
+		"notifications": {
+			"tooltip": "Bildirimler",
+			"aria": {
+				"bellWithCount": "Bildirimler ({n} okunmamış)"
+			}
 		},
 		"dashboard": {
 			"TITLE": "Kontrol Paneli",

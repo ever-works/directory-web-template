@@ -662,44 +662,44 @@
 			"DESCRIPTION": "Permanent account actions"
 		},
 		"DANGER_ZONE_PAGE": {
-			"TITLE": "Danger zone",
-			"SUBTITLE": "Account actions that take effect immediately and cannot be undone.",
-			"BACK_TO_SETTINGS": "Back to settings",
-			"INTRO_LABEL": "Heads up",
-			"INTRO_BODY": "Every action in this section is permanent. We'll always ask you to confirm before anything is removed.",
-			"IRREVERSIBLE_BADGE": "Destructive",
+			"TITLE": "Strefa zagrożenia",
+			"SUBTITLE": "Działania na koncie, które wchodzą w życie natychmiast i nie można ich odwrócić.",
+			"BACK_TO_SETTINGS": "Powrót do ustawień",
+			"INTRO_LABEL": "Uwaga",
+			"INTRO_BODY": "Każda czynność w tej sekcji jest trwała. Zawsze poprosimy o potwierdzenie przed usunięciem czegokolwiek.",
+			"IRREVERSIBLE_BADGE": "Destrukcyjne",
 			"DELETE_ACCOUNT": {
-				"TITLE": "Delete this account",
-				"DESCRIPTION": "Permanently remove this account and everything associated with it. This cannot be undone.",
-				"LOSS_TITLE": "What will be removed",
-				"LOSS_ITEM_1": "Sign-in credentials and account email",
-				"LOSS_ITEM_2": "Profile, portfolio, and uploaded images",
-				"LOSS_ITEM_3": "Submissions, drafts, and trashed items",
-				"LOSS_ITEM_4": "Sponsorships and billing references",
-				"LOSS_ITEM_5": "Comments, favourites, and activity history",
-				"CTA_HELPER": "Two-step confirmation required.",
-				"CTA": "Delete account…",
+				"TITLE": "Usuń to konto",
+				"DESCRIPTION": "Trwale usuń to konto i wszystko, co jest z nim powiązane. Tej czynności nie można odwrócić.",
+				"LOSS_TITLE": "Co zostanie usunięte",
+				"LOSS_ITEM_1": "Dane logowania i adres e-mail konta",
+				"LOSS_ITEM_2": "Profil, portfolio i przesłane obrazy",
+				"LOSS_ITEM_3": "Zgłoszenia, wersje robocze i elementy w koszu",
+				"LOSS_ITEM_4": "Sponsoringi i dane rozliczeniowe",
+				"LOSS_ITEM_5": "Komentarze, ulubione i historia aktywności",
+				"CTA_HELPER": "Wymagane jest dwuetapowe potwierdzenie.",
+				"CTA": "Usuń konto…",
 				"CONFIRM_MODAL": {
-					"TITLE": "Permanently delete your account",
-					"SUBTITLE": "Take a moment to confirm — this cannot be undone.",
-					"ACCOUNT_HEADING": "Account to delete",
-					"ACCOUNT_WARNING": "Everything tied to this account will be removed immediately. There is no recovery.",
-					"CONFIRMATION_HEADING": "Confirm it's really you",
-					"EMAIL_LABEL": "Type your email to confirm",
-					"EMAIL_HELPER": "Enter {email} exactly as shown above.",
-					"EMAIL_PLACEHOLDER": "you@example.com",
-					"PASSWORD_LABEL": "Your current password",
-					"PASSWORD_PLACEHOLDER": "Enter your password",
-					"CONFIRM_CTA": "Delete account permanently",
-					"DELETING": "Deleting account…",
-					"CANCEL_CTA": "Cancel"
+					"TITLE": "Trwałe usunięcie konta",
+					"SUBTITLE": "Poświęć chwilę na potwierdzenie — tej czynności nie można odwrócić.",
+					"ACCOUNT_HEADING": "Konto do usunięcia",
+					"ACCOUNT_WARNING": "Wszystko, co jest powiązane z tym kontem, zostanie natychmiast usunięte. Nie można tego odzyskać.",
+					"CONFIRMATION_HEADING": "Potwierdź, że to naprawdę Ty",
+					"EMAIL_LABEL": "Wpisz swój adres e-mail, aby potwierdzić",
+					"EMAIL_HELPER": "Wpisz {email} dokładnie tak, jak pokazano powyżej.",
+					"EMAIL_PLACEHOLDER": "john@example.com",
+					"PASSWORD_LABEL": "Twoje aktualne hasło",
+					"PASSWORD_PLACEHOLDER": "Wpisz swoje hasło",
+					"CONFIRM_CTA": "Trwale usuń konto",
+					"DELETING": "Usuwanie konta…",
+					"CANCEL_CTA": "Anuluj"
 				},
 				"ERRORS": {
-					"PASSWORD_REQUIRED": "Password is required.",
-					"PASSWORD_TOO_SHORT": "Password must be at least 8 characters.",
-					"EMAIL_REQUIRED": "Please type your email to confirm.",
-					"EMAIL_MISMATCH": "Email does not match the account above.",
-					"UNKNOWN": "Failed to delete account. Please try again."
+					"PASSWORD_REQUIRED": "Hasło jest wymagane.",
+					"PASSWORD_TOO_SHORT": "Hasło musi mieć co najmniej 8 znaków.",
+					"EMAIL_REQUIRED": "Wpisz swój adres e-mail, aby potwierdzić.",
+					"EMAIL_MISMATCH": "Adres e-mail nie zgadza się z kontem podanym powyżej.",
+					"UNKNOWN": "Nie udało się usunąć konta. Spróbuj ponownie."
 				}
 			}
 		}
@@ -3616,6 +3616,12 @@
 			"EDIT_SUBMISSION_TITLE": "Edytuj Zgłoszenie",
 			"EDIT_SUBMISSION_DESC": "Zaktualizuj szczegóły swojego zgłoszenia",
 			"BULK_IMPORT": "Import zbiorczy"
+		},
+		"notifications": {
+			"tooltip": "Powiadomienia",
+			"aria": {
+				"bellWithCount": "Powiadomienia ({n} nieprzeczytanych)"
+			}
 		},
 		"dashboard": {
 			"TITLE": "Panel",

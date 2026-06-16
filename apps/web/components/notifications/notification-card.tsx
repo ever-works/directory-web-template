@@ -45,7 +45,7 @@ export function NotificationCard({
 	const t = useTranslations('client.notifications.types');
 	const tActions = useTranslations('client.notifications.actions');
 	const { id, type, category, priority, title, message, data, isRead, createdAt } = notification;
-	const actionUrl = typeof data?.actionUrl === 'string' ? (data.actionUrl as string) : null;
+	const actionUrl = resolveActionUrl(type, data);
 
 	const handleNavigate = () => {
 		if (!isRead) onMarkRead?.(id);
@@ -192,12 +192,13 @@ export function NotificationCard({
 					{message}
 				</p>
 
-				{/* Footer: type pill fades, actions slide in, time stays */}
+				{/* Footer: type pill ↔ actions swap on hover (desktop); both
+				    visible on touch since there's no hover to reveal actions. */}
 				<div className="relative mt-auto flex items-center justify-between gap-2 pt-2 border-t border-gray-100 dark:border-white/8">
 					<span
 						className={cn(
-							'inline-flex items-center rounded-md bg-gray-100 dark:bg-white/6 px-1.5 h-5 text-[10px] font-medium text-gray-600 dark:text-gray-400',
-							'transition-opacity duration-150 group-hover/row:opacity-0 motion-reduce:opacity-100'
+							'hidden items-center rounded-md bg-gray-100 dark:bg-white/6 px-1.5 h-5 text-[10px] font-medium text-gray-600 dark:text-gray-400',
+							'sm:inline-flex transition-opacity duration-150 sm:group-hover/row:opacity-0 motion-reduce:opacity-100'
 						)}
 					>
 						{typeLabel}
@@ -205,10 +206,10 @@ export function NotificationCard({
 
 					<div
 						className={cn(
-							'absolute left-0 flex items-center gap-0.5',
-							'opacity-0 transition-opacity duration-150',
-							'group-hover/row:opacity-100 group-focus-within/row:opacity-100',
-							'motion-reduce:opacity-100'
+							'flex items-center gap-0.5',
+							'opacity-100 sm:absolute sm:left-0 sm:opacity-0 transition-opacity duration-150',
+							'sm:group-hover/row:opacity-100 sm:group-focus-within/row:opacity-100',
+							'group-focus-within/row:opacity-100 motion-reduce:opacity-100'
 						)}
 					>
 						{actions}
@@ -310,10 +311,12 @@ export function NotificationCard({
 					<div
 						className={cn(
 							'flex items-center gap-0.5 shrink-0',
-							'opacity-0 -translate-x-1 transition-all duration-150',
-							'group-hover/row:opacity-100 group-hover/row:translate-x-0',
-							'group-focus-within/row:opacity-100 group-focus-within/row:translate-x-0',
-							'motion-reduce:opacity-100 motion-reduce:translate-x-0'
+							// Hover-only reveal would leave touch users with no way to
+							// see (or reach) these actions, so they stay visible by
+							// default and only fade in on hover for pointer devices.
+							'opacity-100 sm:opacity-0 transition-opacity duration-150',
+							'sm:group-hover/row:opacity-100 sm:group-focus-within/row:opacity-100',
+							'group-focus-within/row:opacity-100 motion-reduce:opacity-100'
 						)}
 					>
 						{actions}
@@ -375,6 +378,21 @@ function shortRelative(input: string): string {
 		if (re.test(lower)) return lower.replace(re, repl).replace('about ', '').replace(' ago', '').trim();
 	}
 	return input;
+}
+
+/**
+ * Resolves the navigation target for a notification. Falls back to deriving
+ * a profile link for `user_followed` notifications stored before `actionUrl`
+ * was persisted on the notification's `data`.
+ */
+function resolveActionUrl(type: string, data: Record<string, unknown> | null): string | null {
+	if (typeof data?.actionUrl === 'string') return data.actionUrl;
+
+	if (type === 'user_followed' && typeof data?.followerUsername === 'string' && data.followerUsername) {
+		return `/client/profile/${data.followerUsername}`;
+	}
+
+	return null;
 }
 
 function humanise(type: string): string {

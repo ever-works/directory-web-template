@@ -662,44 +662,44 @@
 			"DESCRIPTION": "Permanent account actions"
 		},
 		"DANGER_ZONE_PAGE": {
-			"TITLE": "Danger zone",
-			"SUBTITLE": "Account actions that take effect immediately and cannot be undone.",
-			"BACK_TO_SETTINGS": "Back to settings",
-			"INTRO_LABEL": "Heads up",
-			"INTRO_BODY": "Every action in this section is permanent. We'll always ask you to confirm before anything is removed.",
-			"IRREVERSIBLE_BADGE": "Destructive",
+			"TITLE": "危険ゾーン",
+			"SUBTITLE": "ここでのアカウント操作はすぐに反映され、取り消すことはできません。",
+			"BACK_TO_SETTINGS": "設定に戻る",
+			"INTRO_LABEL": "ご注意ください",
+			"INTRO_BODY": "このセクションの操作はすべて永久的なものです。何かを削除する前には、必ず確認を求めます。",
+			"IRREVERSIBLE_BADGE": "破壊的操作",
 			"DELETE_ACCOUNT": {
-				"TITLE": "Delete this account",
-				"DESCRIPTION": "Permanently remove this account and everything associated with it. This cannot be undone.",
-				"LOSS_TITLE": "What will be removed",
-				"LOSS_ITEM_1": "Sign-in credentials and account email",
-				"LOSS_ITEM_2": "Profile, portfolio, and uploaded images",
-				"LOSS_ITEM_3": "Submissions, drafts, and trashed items",
-				"LOSS_ITEM_4": "Sponsorships and billing references",
-				"LOSS_ITEM_5": "Comments, favourites, and activity history",
-				"CTA_HELPER": "Two-step confirmation required.",
-				"CTA": "Delete account…",
+				"TITLE": "このアカウントを削除する",
+				"DESCRIPTION": "このアカウントとそれに関連するすべての情報を完全に削除します。この操作は取り消せません。",
+				"LOSS_TITLE": "削除される内容",
+				"LOSS_ITEM_1": "ログイン情報とアカウントのメールアドレス",
+				"LOSS_ITEM_2": "プロフィール、ポートフォリオ、アップロードした画像",
+				"LOSS_ITEM_3": "投稿内容、ドラフト、ゴミ箱内のアイテム",
+				"LOSS_ITEM_4": "スポンサーシップおよび請求関連情報",
+				"LOSS_ITEM_5": "コメント、お気に入り、アクティビティ履歴",
+				"CTA_HELPER": "2段階の確認が必要です。",
+				"CTA": "アカウントを削除…",
 				"CONFIRM_MODAL": {
-					"TITLE": "Permanently delete your account",
-					"SUBTITLE": "Take a moment to confirm — this cannot be undone.",
-					"ACCOUNT_HEADING": "Account to delete",
-					"ACCOUNT_WARNING": "Everything tied to this account will be removed immediately. There is no recovery.",
-					"CONFIRMATION_HEADING": "Confirm it's really you",
-					"EMAIL_LABEL": "Type your email to confirm",
-					"EMAIL_HELPER": "Enter {email} exactly as shown above.",
-					"EMAIL_PLACEHOLDER": "you@example.com",
-					"PASSWORD_LABEL": "Your current password",
-					"PASSWORD_PLACEHOLDER": "Enter your password",
-					"CONFIRM_CTA": "Delete account permanently",
-					"DELETING": "Deleting account…",
-					"CANCEL_CTA": "Cancel"
+					"TITLE": "アカウントを完全に削除",
+					"SUBTITLE": "少し時間をかけて確認してください。この操作は取り消せません。",
+					"ACCOUNT_HEADING": "削除するアカウント",
+					"ACCOUNT_WARNING": "このアカウントに関連するすべての情報がすぐに削除されます。復元することはできません。",
+					"CONFIRMATION_HEADING": "本人確認",
+					"EMAIL_LABEL": "確認のためメールアドレスを入力してください",
+					"EMAIL_HELPER": "上記に表示されている {email} を正確に入力してください。",
+					"EMAIL_PLACEHOLDER": "john@example.com",
+					"PASSWORD_LABEL": "現在のパスワード",
+					"PASSWORD_PLACEHOLDER": "パスワードを入力してください",
+					"CONFIRM_CTA": "アカウントを完全に削除する",
+					"DELETING": "アカウントを削除しています…",
+					"CANCEL_CTA": "キャンセル"
 				},
 				"ERRORS": {
-					"PASSWORD_REQUIRED": "Password is required.",
-					"PASSWORD_TOO_SHORT": "Password must be at least 8 characters.",
-					"EMAIL_REQUIRED": "Please type your email to confirm.",
-					"EMAIL_MISMATCH": "Email does not match the account above.",
-					"UNKNOWN": "Failed to delete account. Please try again."
+					"PASSWORD_REQUIRED": "パスワードを入力してください。",
+					"PASSWORD_TOO_SHORT": "パスワードは8文字以上で入力してください。",
+					"EMAIL_REQUIRED": "確認のためメールアドレスを入力してください。",
+					"EMAIL_MISMATCH": "メールアドレスが上記のアカウントと一致しません。",
+					"UNKNOWN": "アカウントの削除に失敗しました。もう一度お試しください。"
 				}
 			}
 		}
@@ -3621,6 +3621,12 @@
 			"EDIT_SUBMISSION_TITLE": "提出を編集",
 			"EDIT_SUBMISSION_DESC": "提出の詳細を更新",
 			"BULK_IMPORT": "一括インポート"
+		},
+		"notifications": {
+			"tooltip": "通知",
+			"aria": {
+				"bellWithCount": "通知（未読{n}件）"
+			}
 		},
 		"dashboard": {
 			"TITLE": "ダッシュボード",

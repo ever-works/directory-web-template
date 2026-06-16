@@ -662,44 +662,44 @@
 			"DESCRIPTION": "Permanent account actions"
 		},
 		"DANGER_ZONE_PAGE": {
-			"TITLE": "Danger zone",
-			"SUBTITLE": "Account actions that take effect immediately and cannot be undone.",
-			"BACK_TO_SETTINGS": "Back to settings",
-			"INTRO_LABEL": "Heads up",
-			"INTRO_BODY": "Every action in this section is permanent. We'll always ask you to confirm before anything is removed.",
-			"IRREVERSIBLE_BADGE": "Destructive",
+			"TITLE": "โซนอันตราย",
+			"SUBTITLE": "การดำเนินการกับบัญชีที่มีผลทันทีและไม่สามารถยกเลิกได้",
+			"BACK_TO_SETTINGS": "กลับไปที่การตั้งค่า",
+			"INTRO_LABEL": "ข้อควรทราบ",
+			"INTRO_BODY": "การดำเนินการทุกอย่างในส่วนนี้เป็นการดำเนินการแบบถาวร เราจะขอให้คุณยืนยันก่อนที่จะลบสิ่งใดเสมอ",
+			"IRREVERSIBLE_BADGE": "การดำเนินการที่ทำลายข้อมูล",
 			"DELETE_ACCOUNT": {
-				"TITLE": "Delete this account",
-				"DESCRIPTION": "Permanently remove this account and everything associated with it. This cannot be undone.",
-				"LOSS_TITLE": "What will be removed",
-				"LOSS_ITEM_1": "Sign-in credentials and account email",
-				"LOSS_ITEM_2": "Profile, portfolio, and uploaded images",
-				"LOSS_ITEM_3": "Submissions, drafts, and trashed items",
-				"LOSS_ITEM_4": "Sponsorships and billing references",
-				"LOSS_ITEM_5": "Comments, favourites, and activity history",
-				"CTA_HELPER": "Two-step confirmation required.",
-				"CTA": "Delete account…",
+				"TITLE": "ลบบัญชีนี้",
+				"DESCRIPTION": "ลบบัญชีนี้และทุกสิ่งที่เกี่ยวข้องกับบัญชีนี้อย่างถาวร การดำเนินการนี้ไม่สามารถยกเลิกได้",
+				"LOSS_TITLE": "สิ่งที่จะถูกลบ",
+				"LOSS_ITEM_1": "ข้อมูลเข้าสู่ระบบและอีเมลของบัญชี",
+				"LOSS_ITEM_2": "โปรไฟล์ พอร์ตโฟลิโอ และรูปภาพที่อัปโหลด",
+				"LOSS_ITEM_3": "การส่งข้อมูล แบบร่าง และรายการในถังขยะ",
+				"LOSS_ITEM_4": "การสนับสนุนและข้อมูลการเรียกเก็บเงิน",
+				"LOSS_ITEM_5": "ความคิดเห็น รายการที่ชอบ และประวัติกิจกรรม",
+				"CTA_HELPER": "ต้องมีการยืนยันสองขั้นตอน",
+				"CTA": "ลบบัญชี…",
 				"CONFIRM_MODAL": {
-					"TITLE": "Permanently delete your account",
-					"SUBTITLE": "Take a moment to confirm — this cannot be undone.",
-					"ACCOUNT_HEADING": "Account to delete",
-					"ACCOUNT_WARNING": "Everything tied to this account will be removed immediately. There is no recovery.",
-					"CONFIRMATION_HEADING": "Confirm it's really you",
-					"EMAIL_LABEL": "Type your email to confirm",
-					"EMAIL_HELPER": "Enter {email} exactly as shown above.",
-					"EMAIL_PLACEHOLDER": "you@example.com",
-					"PASSWORD_LABEL": "Your current password",
-					"PASSWORD_PLACEHOLDER": "Enter your password",
-					"CONFIRM_CTA": "Delete account permanently",
-					"DELETING": "Deleting account…",
-					"CANCEL_CTA": "Cancel"
+					"TITLE": "ลบบัญชีของคุณอย่างถาวร",
+					"SUBTITLE": "ใช้เวลาสักครู่เพื่อยืนยัน — การดำเนินการนี้ไม่สามารถยกเลิกได้",
+					"ACCOUNT_HEADING": "บัญชีที่จะลบ",
+					"ACCOUNT_WARNING": "ทุกสิ่งที่เกี่ยวข้องกับบัญชีนี้จะถูกลบทันที ไม่สามารถกู้คืนได้",
+					"CONFIRMATION_HEADING": "ยืนยันว่าเป็นคุณจริง ๆ",
+					"EMAIL_LABEL": "พิมพ์อีเมลของคุณเพื่อยืนยัน",
+					"EMAIL_HELPER": "ป้อน {email} ให้ตรงกับที่แสดงไว้ด้านบน",
+					"EMAIL_PLACEHOLDER": "john@example.com",
+					"PASSWORD_LABEL": "รหัสผ่านปัจจุบันของคุณ",
+					"PASSWORD_PLACEHOLDER": "ป้อนรหัสผ่านของคุณ",
+					"CONFIRM_CTA": "ลบบัญชีอย่างถาวร",
+					"DELETING": "กำลังลบบัญชี…",
+					"CANCEL_CTA": "ยกเลิก"
 				},
 				"ERRORS": {
-					"PASSWORD_REQUIRED": "Password is required.",
-					"PASSWORD_TOO_SHORT": "Password must be at least 8 characters.",
-					"EMAIL_REQUIRED": "Please type your email to confirm.",
-					"EMAIL_MISMATCH": "Email does not match the account above.",
-					"UNKNOWN": "Failed to delete account. Please try again."
+					"PASSWORD_REQUIRED": "ต้องระบุรหัสผ่าน",
+					"PASSWORD_TOO_SHORT": "รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร",
+					"EMAIL_REQUIRED": "กรุณาพิมพ์อีเมลของคุณเพื่อยืนยัน",
+					"EMAIL_MISMATCH": "อีเมลไม่ตรงกับบัญชีด้านบน",
+					"UNKNOWN": "ลบบัญชีไม่สำเร็จ กรุณาลองอีกครั้ง"
 				}
 			}
 		}
@@ -3555,6 +3555,12 @@
 			"EDIT_SUBMISSION_TITLE": "แก้ไขการส่ง",
 			"EDIT_SUBMISSION_DESC": "อัปเดตรายละเอียดการส่งของคุณ",
 			"BULK_IMPORT": "นำเข้าจำนวนมาก"
+		},
+		"notifications": {
+			"tooltip": "การแจ้งเตือน",
+			"aria": {
+				"bellWithCount": "การแจ้งเตือน ({n} ยังไม่อ่าน)"
+			}
 		},
 		"dashboard": {
 			"ITEMS_MAP": {

@@ -3,7 +3,7 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { apiUtils, serverClient } from '@/lib/api/server-api-client';
-import type { NotificationListQuery, NotificationListResponse } from '@/lib/notifications/types';
+import type { NotificationListQuery, NotificationListResponse, NotificationStatsResponse } from '@/lib/notifications/types';
 
 export const CLIENT_NOTIFICATION_KEYS = {
 	all: ['client', 'notifications'] as const,
@@ -21,6 +21,63 @@ function stableHash(input: object): string {
 		sorted[k] = v;
 	}
 	return JSON.stringify(sorted);
+}
+
+/** Recovers the `NotificationListQuery` filters encoded in a list query key by `CLIENT_NOTIFICATION_KEYS.list`. */
+export function getListQueryFilters(queryKey: readonly unknown[]): NotificationListQuery {
+	const raw = queryKey[3];
+	if (typeof raw !== 'string') return {};
+	try {
+		return JSON.parse(raw) as NotificationListQuery;
+	} catch {
+		return {};
+	}
+}
+
+/** Tab a cached list query targets — defaults to `'all'` when the filter was omitted. */
+export function getQueryTab(queryKey: readonly unknown[]): NotificationListQuery['tab'] {
+	return getListQueryFilters(queryKey).tab ?? 'all';
+}
+
+/** True when a cached list query has no extra filters beyond tab/page/limit (e.g. the dropdown's plain views). */
+export function isPlainListQuery(queryKey: readonly unknown[]): boolean {
+	const filters = getListQueryFilters(queryKey);
+	return !filters.q && !filters.type && !filters.priority && !filters.dateFrom && !filters.dateTo;
+}
+
+/**
+ * Optimistically adjusts the cached unread stats (bell badge, tab dot
+ * indicators) by `delta` so they update instantly instead of waiting on a
+ * refetch. Pass `system: true` when the affected notification also counts
+ * toward the System tab's unread total.
+ */
+export function adjustStatsCache(
+	qc: ReturnType<typeof useQueryClient>,
+	delta: number,
+	options: { system?: boolean } = {}
+) {
+	qc.setQueryData<NotificationStatsResponse>(CLIENT_NOTIFICATION_KEYS.stats(), (current) => {
+		if (!current) return current;
+		const unread = Math.max(0, current.unread + delta);
+		return {
+			...current,
+			unread,
+			byTab: {
+				...current.byTab,
+				all: unread,
+				unread,
+				system: options.system ? Math.max(0, current.byTab.system + delta) : current.byTab.system
+			}
+		};
+	});
+}
+
+/** Zeroes out the cached unread stats — used by "mark all read". */
+export function resetStatsCache(qc: ReturnType<typeof useQueryClient>) {
+	qc.setQueryData<NotificationStatsResponse>(CLIENT_NOTIFICATION_KEYS.stats(), (current) => {
+		if (!current) return current;
+		return { ...current, unread: 0, byTab: { ...current.byTab, all: 0, unread: 0, system: 0 } };
+	});
 }
 
 function toQueryString(filters: NotificationListQuery): string {

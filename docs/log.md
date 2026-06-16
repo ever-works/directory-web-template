@@ -49,6 +49,14 @@ why** at a higher level than per-commit diffs.
 
 ---
 
+## 2026-06-13 — Docs: Neon database integration in the Vercel deploy guide
+
+- docs/deployment: documented setting up the database via the Neon Vercel
+  Marketplace integration in `deployment/vercel.md`, with the recommended
+  integration settings (env var prefix `DATABASE`, Production branch on,
+  **Preview branch off**) and a warning that per-preview database branches
+  can balloon into hundreds of branches and a large bill.
+
 ## 2026-05-27 — Perf: item-detail first paint — stream similar-items, persist + parallelize
 
 - spec-037: fixed blank/slow first paint on `/[locale]/items/[slug]`. The page

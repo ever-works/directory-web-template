@@ -11,7 +11,7 @@ export default async function DangerZoneSettingsPage() {
 	return (
 		<div className="min-h-screen bg-neutral-50 dark:bg-[#0a0a0a]">
 			<Container maxWidth="7xl" padding="default" useGlobalWidth>
-				<div className="py-10 max-w-3xl space-y-8">
+				<div className="py-10 max-w-3xl mx-auto space-y-8">
 					{/* Back link */}
 					<Link
 						href="/client/settings"

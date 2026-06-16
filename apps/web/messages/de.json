@@ -674,44 +674,44 @@
 			"DESCRIPTION": "Permanent account actions"
 		},
 		"DANGER_ZONE_PAGE": {
-			"TITLE": "Danger zone",
-			"SUBTITLE": "Account actions that take effect immediately and cannot be undone.",
-			"BACK_TO_SETTINGS": "Back to settings",
-			"INTRO_LABEL": "Heads up",
-			"INTRO_BODY": "Every action in this section is permanent. We'll always ask you to confirm before anything is removed.",
-			"IRREVERSIBLE_BADGE": "Destructive",
+			"TITLE": "Gefahrenzone",
+			"SUBTITLE": "Kontoaktionen, die sofort wirksam werden und nicht widerrufen werden können.",
+			"BACK_TO_SETTINGS": "Zurück zu den Einstellungen",
+			"INTRO_LABEL": "Achtung",
+			"INTRO_BODY": "Jede Aktion in diesem Bereich ist endgültig. Wir bitten Sie immer um eine Bestätigung, bevor etwas entfernt wird.",
+			"IRREVERSIBLE_BADGE": "Destruktiv",
 			"DELETE_ACCOUNT": {
-				"TITLE": "Delete this account",
-				"DESCRIPTION": "Permanently remove this account and everything associated with it. This cannot be undone.",
-				"LOSS_TITLE": "What will be removed",
-				"LOSS_ITEM_1": "Sign-in credentials and account email",
-				"LOSS_ITEM_2": "Profile, portfolio, and uploaded images",
-				"LOSS_ITEM_3": "Submissions, drafts, and trashed items",
-				"LOSS_ITEM_4": "Sponsorships and billing references",
-				"LOSS_ITEM_5": "Comments, favourites, and activity history",
-				"CTA_HELPER": "Two-step confirmation required.",
-				"CTA": "Delete account…",
+				"TITLE": "Dieses Konto löschen",
+				"DESCRIPTION": "Entfernen Sie dieses Konto und alles, was damit verbunden ist, dauerhaft. Dies kann nicht rückgängig gemacht werden.",
+				"LOSS_TITLE": "Was entfernt wird",
+				"LOSS_ITEM_1": "Anmeldedaten und Konto-E-Mail",
+				"LOSS_ITEM_2": "Profil, Portfolio und hochgeladene Bilder",
+				"LOSS_ITEM_3": "Einreichungen, Entwürfe und Elemente im Papierkorb",
+				"LOSS_ITEM_4": "Sponsoring- und Abrechnungsreferenzen",
+				"LOSS_ITEM_5": "Kommentare, Favoriten und Aktivitätsverlauf",
+				"CTA_HELPER": "Eine zweistufige Bestätigung ist erforderlich.",
+				"CTA": "Konto löschen…",
 				"CONFIRM_MODAL": {
-					"TITLE": "Permanently delete your account",
-					"SUBTITLE": "Take a moment to confirm — this cannot be undone.",
-					"ACCOUNT_HEADING": "Account to delete",
-					"ACCOUNT_WARNING": "Everything tied to this account will be removed immediately. There is no recovery.",
-					"CONFIRMATION_HEADING": "Confirm it's really you",
-					"EMAIL_LABEL": "Type your email to confirm",
-					"EMAIL_HELPER": "Enter {email} exactly as shown above.",
-					"EMAIL_PLACEHOLDER": "you@example.com",
-					"PASSWORD_LABEL": "Your current password",
-					"PASSWORD_PLACEHOLDER": "Enter your password",
-					"CONFIRM_CTA": "Delete account permanently",
-					"DELETING": "Deleting account…",
-					"CANCEL_CTA": "Cancel"
+					"TITLE": "Konto dauerhaft löschen",
+					"SUBTITLE": "Nehmen Sie sich einen Moment Zeit zur Bestätigung – dies kann nicht widerrufen werden.",
+					"ACCOUNT_HEADING": "Zu löschendes Konto",
+					"ACCOUNT_WARNING": "Alles, was mit diesem Konto verbunden ist, wird sofort entfernt. Eine Wiederherstellung ist nicht möglich.",
+					"CONFIRMATION_HEADING": "Bestätigen Sie, dass es sich wirklich um Sie handelt",
+					"EMAIL_LABEL": "Geben Sie Ihre E-Mail-Adresse zur Bestätigung ein",
+					"EMAIL_HELPER": "Geben Sie {email} genau wie oben angezeigt ein.",
+					"EMAIL_PLACEHOLDER": "max@example.com",
+					"PASSWORD_LABEL": "Ihr aktuelles Passwort",
+					"PASSWORD_PLACEHOLDER": "Geben Sie Ihr Passwort ein",
+					"CONFIRM_CTA": "Konto dauerhaft löschen",
+					"DELETING": "Konto wird gelöscht…",
+					"CANCEL_CTA": "Abbrechen"
 				},
 				"ERRORS": {
-					"PASSWORD_REQUIRED": "Password is required.",
-					"PASSWORD_TOO_SHORT": "Password must be at least 8 characters.",
-					"EMAIL_REQUIRED": "Please type your email to confirm.",
-					"EMAIL_MISMATCH": "Email does not match the account above.",
-					"UNKNOWN": "Failed to delete account. Please try again."
+					"PASSWORD_REQUIRED": "Passwort ist erforderlich.",
+					"PASSWORD_TOO_SHORT": "Das Passwort muss mindestens 8 Zeichen lang sein.",
+					"EMAIL_REQUIRED": "Bitte geben Sie Ihre E-Mail-Adresse zur Bestätigung ein.",
+					"EMAIL_MISMATCH": "Die E-Mail-Adresse stimmt nicht mit dem oben genannten Konto überein.",
+					"UNKNOWN": "Konto konnte nicht gelöscht werden. Bitte versuchen Sie es erneut."
 				}
 			}
 		}
@@ -3654,6 +3654,12 @@
 			"EDIT_SUBMISSION_TITLE": "Einreichung bearbeiten",
 			"EDIT_SUBMISSION_DESC": "Aktualisieren Sie die Details Ihrer Einreichung",
 			"BULK_IMPORT": "Massenimport"
+		},
+		"notifications": {
+			"tooltip": "Benachrichtigungen",
+			"aria": {
+				"bellWithCount": "Benachrichtigungen ({n} ungelesen)"
+			}
 		},
 		"dashboard": {
 			"TITLE": "Dashboard",

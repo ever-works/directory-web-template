@@ -740,44 +740,44 @@
 			"DESCRIPTION": "Permanent account actions"
 		},
 		"DANGER_ZONE_PAGE": {
-			"TITLE": "Danger zone",
-			"SUBTITLE": "Account actions that take effect immediately and cannot be undone.",
-			"BACK_TO_SETTINGS": "Back to settings",
-			"INTRO_LABEL": "Heads up",
-			"INTRO_BODY": "Every action in this section is permanent. We'll always ask you to confirm before anything is removed.",
-			"IRREVERSIBLE_BADGE": "Destructive",
+			"TITLE": "Zona berbahaya",
+			"SUBTITLE": "Tindakan akun yang langsung berlaku dan tidak dapat dibatalkan.",
+			"BACK_TO_SETTINGS": "Kembali ke pengaturan",
+			"INTRO_LABEL": "Perhatian",
+			"INTRO_BODY": "Setiap tindakan di bagian ini bersifat permanen. Kami akan selalu meminta konfirmasi Anda sebelum sesuatu dihapus.",
+			"IRREVERSIBLE_BADGE": "Destruktif",
 			"DELETE_ACCOUNT": {
-				"TITLE": "Delete this account",
-				"DESCRIPTION": "Permanently remove this account and everything associated with it. This cannot be undone.",
-				"LOSS_TITLE": "What will be removed",
-				"LOSS_ITEM_1": "Sign-in credentials and account email",
-				"LOSS_ITEM_2": "Profile, portfolio, and uploaded images",
-				"LOSS_ITEM_3": "Submissions, drafts, and trashed items",
-				"LOSS_ITEM_4": "Sponsorships and billing references",
-				"LOSS_ITEM_5": "Comments, favourites, and activity history",
-				"CTA_HELPER": "Two-step confirmation required.",
-				"CTA": "Delete account…",
+				"TITLE": "Hapus akun ini",
+				"DESCRIPTION": "Hapus akun ini dan semua yang terkait dengannya secara permanen. Tindakan ini tidak dapat dibatalkan.",
+				"LOSS_TITLE": "Apa yang akan dihapus",
+				"LOSS_ITEM_1": "Kredensial masuk dan email akun",
+				"LOSS_ITEM_2": "Profil, portofolio, dan gambar yang diunggah",
+				"LOSS_ITEM_3": "Kiriman, draf, dan item di tempat sampah",
+				"LOSS_ITEM_4": "Sponsorship dan referensi penagihan",
+				"LOSS_ITEM_5": "Komentar, favorit, dan riwayat aktivitas",
+				"CTA_HELPER": "Diperlukan konfirmasi dua langkah.",
+				"CTA": "Hapus akun…",
 				"CONFIRM_MODAL": {
-					"TITLE": "Permanently delete your account",
-					"SUBTITLE": "Take a moment to confirm — this cannot be undone.",
-					"ACCOUNT_HEADING": "Account to delete",
-					"ACCOUNT_WARNING": "Everything tied to this account will be removed immediately. There is no recovery.",
-					"CONFIRMATION_HEADING": "Confirm it's really you",
-					"EMAIL_LABEL": "Type your email to confirm",
-					"EMAIL_HELPER": "Enter {email} exactly as shown above.",
-					"EMAIL_PLACEHOLDER": "you@example.com",
-					"PASSWORD_LABEL": "Your current password",
-					"PASSWORD_PLACEHOLDER": "Enter your password",
-					"CONFIRM_CTA": "Delete account permanently",
-					"DELETING": "Deleting account…",
-					"CANCEL_CTA": "Cancel"
+					"TITLE": "Hapus akun Anda secara permanen",
+					"SUBTITLE": "Luangkan waktu sejenak untuk konfirmasi — tindakan ini tidak dapat dibatalkan.",
+					"ACCOUNT_HEADING": "Akun yang akan dihapus",
+					"ACCOUNT_WARNING": "Semua yang terkait dengan akun ini akan segera dihapus. Tidak ada pemulihan yang memungkinkan.",
+					"CONFIRMATION_HEADING": "Konfirmasi bahwa ini benar-benar Anda",
+					"EMAIL_LABEL": "Ketik email Anda untuk konfirmasi",
+					"EMAIL_HELPER": "Masukkan {email} persis seperti yang ditampilkan di atas.",
+					"EMAIL_PLACEHOLDER": "john@example.com",
+					"PASSWORD_LABEL": "Kata sandi Anda saat ini",
+					"PASSWORD_PLACEHOLDER": "Masukkan kata sandi Anda",
+					"CONFIRM_CTA": "Hapus akun secara permanen",
+					"DELETING": "Menghapus akun…",
+					"CANCEL_CTA": "Batal"
 				},
 				"ERRORS": {
-					"PASSWORD_REQUIRED": "Password is required.",
-					"PASSWORD_TOO_SHORT": "Password must be at least 8 characters.",
-					"EMAIL_REQUIRED": "Please type your email to confirm.",
-					"EMAIL_MISMATCH": "Email does not match the account above.",
-					"UNKNOWN": "Failed to delete account. Please try again."
+					"PASSWORD_REQUIRED": "Kata sandi wajib diisi.",
+					"PASSWORD_TOO_SHORT": "Kata sandi harus terdiri dari minimal 8 karakter.",
+					"EMAIL_REQUIRED": "Silakan ketik email Anda untuk konfirmasi.",
+					"EMAIL_MISMATCH": "Email tidak cocok dengan akun di atas.",
+					"UNKNOWN": "Gagal menghapus akun. Silakan coba lagi."
 				}
 			}
 		}
@@ -3753,6 +3753,12 @@
 			"RENEW_REDIRECT_INFO": "Anda akan dialihkan ke penyedia pembayaran kami untuk menyelesaikan perpanjangan.",
 			"CANCEL_BUTTON": "Batal",
 			"PROCEED_TO_PAYMENT": "Lanjutkan ke Pembayaran"
+		},
+		"notifications": {
+			"tooltip": "Notifikasi",
+			"aria": {
+				"bellWithCount": "Notifikasi ({n} belum dibaca)"
+			}
 		},
 		"dashboard": {
 			"TITLE": "Dasbor",
