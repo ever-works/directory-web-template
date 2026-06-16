@@ -1,6 +1,6 @@
 import { and, eq, desc, asc, lte, sql, isNull, or, gte, countDistinct, type SQL } from 'drizzle-orm';
 import { db } from '../drizzle';
-import { clientProfiles, accounts, userRoles, roles, type ClientProfile, type NewClientProfile } from '../schema';
+import { clientProfiles, accounts, userRoles, roles, users, type ClientProfile, type NewClientProfile } from '../schema';
 import type { AdapterAccountType } from 'next-auth/adapters';
 import type { ClientStatus, ClientPlan, ClientAccountType, ClientProfileWithAuth, ClientAccount } from './types';
 import { extractUsernameFromEmail, ensureUniqueUsername } from './utils';
@@ -119,8 +119,9 @@ export async function searchPublicProfiles(params: {
 
 	const whereConditions: SQL[] = [
 		eq(clientProfiles.tenantId, tenantId),
-		// Only show active accounts
-		eq(clientProfiles.status, 'active')
+		// Only show active, non-deactivated accounts
+		eq(clientProfiles.status, 'active'),
+		isNull(users.deactivatedAt)
 	];
 
 	if (params.query && params.query.trim()) {
@@ -142,6 +143,7 @@ export async function searchPublicProfiles(params: {
 	const [countResult] = await db
 		.select({ count: sql<number>`count(distinct ${clientProfiles.id})::int` })
 		.from(clientProfiles)
+		.innerJoin(users, eq(users.id, clientProfiles.userId))
 		.leftJoin(userRoles, eq(userRoles.userId, clientProfiles.userId))
 		.leftJoin(roles, and(eq(userRoles.roleId, roles.id), eq(roles.isAdmin, true)))
 		.where(and(whereClause, excludeAdmins));
@@ -160,6 +162,7 @@ export async function searchPublicProfiles(params: {
 			location: clientProfiles.location
 		})
 		.from(clientProfiles)
+		.innerJoin(users, eq(users.id, clientProfiles.userId))
 		.leftJoin(userRoles, eq(userRoles.userId, clientProfiles.userId))
 		.leftJoin(roles, and(eq(userRoles.roleId, roles.id), eq(roles.isAdmin, true)))
 		.where(and(whereClause, excludeAdmins))
@@ -189,7 +192,8 @@ export async function getClientProfileByUsername(username: string): Promise<Clie
 		.where(
 			and(
 				sql`lower(${clientProfiles.username}) = ${normalized}`,
-				eq(clientProfiles.tenantId, tenantId)
+				eq(clientProfiles.tenantId, tenantId),
+				sql`EXISTS (SELECT 1 FROM users WHERE id = ${clientProfiles.userId} AND deactivated_at IS NULL)`
 			)
 		)
 		.limit(1);
