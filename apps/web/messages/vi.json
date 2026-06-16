@@ -746,6 +746,51 @@
 			"INTRO_LABEL": "Lưu ý",
 			"INTRO_BODY": "Mọi hành động trong phần này đều là vĩnh viễn. Chúng tôi sẽ luôn yêu cầu bạn xác nhận trước khi xóa bất cứ thứ gì.",
 			"IRREVERSIBLE_BADGE": "Hành động phá hủy",
+			"DEACTIVATE_ACCOUNT": {
+				"TITLE": "Vô hiệu hóa tài khoản",
+				"REVERSIBLE_BADGE": "Có thể hoàn tác",
+				"DESCRIPTION": "Tạm dừng tài khoản của bạn. Bạn có thể kích hoạt lại bất cứ lúc nào bằng cách đăng nhập lại.",
+				"EFFECTS_TITLE": "Điều gì xảy ra khi bạn vô hiệu hóa",
+				"EFFECT_1": "Hồ sơ và danh sách của bạn sẽ bị ẩn khỏi thư mục.",
+				"EFFECT_2": "Bạn sẽ đăng xuất khỏi tất cả các phiên đang hoạt động.",
+				"EFFECT_3": "Email và thông báo đã lên lịch sẽ bị tạm dừng.",
+				"EFFECT_4": "Dữ liệu của bạn được bảo quản an toàn và không có gì bị xóa.",
+				"CTA_HELPER": "Bạn có thể kích hoạt lại bất cứ lúc nào.",
+				"CTA": "Vô hiệu hóa tài khoản…",
+				"CONFIRM_MODAL": {
+					"TITLE": "Vô hiệu hóa tài khoản của bạn",
+					"SUBTITLE": "Dữ liệu của bạn sẽ được giữ lại — bạn có thể kích hoạt lại bất cứ lúc nào.",
+					"EFFECTS_HEADING": "Vô hiệu hóa có nghĩa là gì",
+					"EFFECT_1": "Hồ sơ và danh sách của bạn sẽ bị ẩn khỏi thư mục.",
+					"EFFECT_2": "Bạn sẽ đăng xuất khỏi tất cả các phiên đang hoạt động.",
+					"EFFECT_3": "Email và thông báo đã lên lịch sẽ bị tạm dừng.",
+					"EFFECT_4": "Dữ liệu của bạn được bảo quản an toàn và không có gì bị xóa.",
+					"REACTIVATION_NOTE": "Để kích hoạt lại, chỉ cần đăng nhập lại bằng thông tin đăng nhập của bạn.",
+					"CONFIRMATION_HEADING": "Xác nhận đây thực sự là bạn",
+					"PASSWORD_LABEL": "Mật khẩu hiện tại của bạn",
+					"PASSWORD_PLACEHOLDER": "Nhập mật khẩu",
+					"CANCEL_CTA": "Hủy",
+					"CONFIRM_CTA": "Vô hiệu hóa tài khoản",
+					"DEACTIVATING": "Đang vô hiệu hóa…"
+				},
+				"ERRORS": {
+					"PASSWORD_REQUIRED": "Mật khẩu là bắt buộc.",
+					"PASSWORD_TOO_SHORT": "Mật khẩu phải có ít nhất 8 ký tự."
+				}
+			},
+			"REACTIVATE_ACCOUNT": {
+				"STATUS_BADGE": "Tài khoản đã bị vô hiệu hóa",
+				"TITLE": "Kích hoạt lại tài khoản của bạn",
+				"DESCRIPTION": "Khôi phục toàn quyền truy cập vào tài khoản của bạn và làm cho hồ sơ của bạn hiển thị trở lại.",
+				"RESTORE_TITLE": "Những gì kích hoạt lại sẽ khôi phục",
+				"RESTORE_1": "Hồ sơ và danh sách của bạn sẽ hiển thị trở lại trong thư mục.",
+				"RESTORE_2": "Tất cả thông báo và email đã lên lịch sẽ được tiếp tục.",
+				"RESTORE_3": "Tất cả dữ liệu, cài đặt và lịch sử của bạn đều nguyên vẹn hoàn toàn.",
+				"CTA_HELPER": "Kích hoạt lại ngay lập tức — không cần phê duyệt.",
+				"CTA": "Kích hoạt lại tài khoản",
+				"REACTIVATING": "Đang kích hoạt lại…",
+				"SUCCESS_TOAST": "Tài khoản của bạn đã được kích hoạt lại thành công."
+			},
 			"DELETE_ACCOUNT": {
 				"TITLE": "Xóa tài khoản này",
 				"DESCRIPTION": "Xóa vĩnh viễn tài khoản này và mọi thứ liên quan đến nó. Hành động này không thể hoàn tác.",

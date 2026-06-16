@@ -670,6 +670,51 @@
 			"INTRO_LABEL": "Atención",
 			"INTRO_BODY": "Cada acción de esta sección es permanente. Siempre te pediremos que confirmes antes de eliminar algo.",
 			"IRREVERSIBLE_BADGE": "Destructivo",
+			"DEACTIVATE_ACCOUNT": {
+				"TITLE": "Desactivar cuenta",
+				"REVERSIBLE_BADGE": "Reversible",
+				"DESCRIPTION": "Pausa temporalmente tu cuenta. Puedes reactivarla en cualquier momento volviendo a iniciar sesión.",
+				"EFFECTS_TITLE": "Qué ocurre cuando desactivas",
+				"EFFECT_1": "Tu perfil y listados quedarán ocultos del directorio.",
+				"EFFECT_2": "Serás desconectado de todas las sesiones activas.",
+				"EFFECT_3": "Los correos y notificaciones programados quedarán en pausa.",
+				"EFFECT_4": "Tus datos se guardan de forma segura y no se elimina nada.",
+				"CTA_HELPER": "Puedes reactivar en cualquier momento.",
+				"CTA": "Desactivar cuenta…",
+				"CONFIRM_MODAL": {
+					"TITLE": "Desactivar tu cuenta",
+					"SUBTITLE": "Tus datos se conservarán — puedes reactivar en cualquier momento.",
+					"EFFECTS_HEADING": "Qué significa la desactivación",
+					"EFFECT_1": "Tu perfil y listados quedarán ocultos del directorio.",
+					"EFFECT_2": "Serás desconectado de todas las sesiones activas.",
+					"EFFECT_3": "Los correos y notificaciones programados quedarán en pausa.",
+					"EFFECT_4": "Tus datos se guardan de forma segura y no se elimina nada.",
+					"REACTIVATION_NOTE": "Para reactivar, simplemente inicia sesión de nuevo con tus credenciales.",
+					"CONFIRMATION_HEADING": "Confirma que realmente eres tú",
+					"PASSWORD_LABEL": "Tu contraseña actual",
+					"PASSWORD_PLACEHOLDER": "Introduce tu contraseña",
+					"CANCEL_CTA": "Cancelar",
+					"CONFIRM_CTA": "Desactivar cuenta",
+					"DEACTIVATING": "Desactivando…"
+				},
+				"ERRORS": {
+					"PASSWORD_REQUIRED": "La contraseña es obligatoria.",
+					"PASSWORD_TOO_SHORT": "La contraseña debe tener al menos 8 caracteres."
+				}
+			},
+			"REACTIVATE_ACCOUNT": {
+				"STATUS_BADGE": "Cuenta desactivada",
+				"TITLE": "Reactivar tu cuenta",
+				"DESCRIPTION": "Restaura el acceso completo a tu cuenta y haz que tu perfil sea visible de nuevo.",
+				"RESTORE_TITLE": "Qué restaura la reactivación",
+				"RESTORE_1": "Tu perfil y listados serán visibles de nuevo en el directorio.",
+				"RESTORE_2": "Se reanudarán todas las notificaciones y correos programados.",
+				"RESTORE_3": "Todos tus datos, configuraciones e historial están completamente intactos.",
+				"CTA_HELPER": "La reactivación es inmediata — no se requiere aprobación.",
+				"CTA": "Reactivar cuenta",
+				"REACTIVATING": "Reactivando…",
+				"SUCCESS_TOAST": "Tu cuenta ha sido reactivada con éxito."
+			},
 			"DELETE_ACCOUNT": {
 				"TITLE": "Eliminar esta cuenta",
 				"DESCRIPTION": "Elimina permanentemente esta cuenta y todo lo asociado a ella. Esta acción no se puede deshacer.",

@@ -669,6 +669,51 @@
 			"INTRO_LABEL": "Attention",
 			"INTRO_BODY": "Chaque action de cette section est permanente. Nous vous demanderons toujours de confirmer avant toute suppression.",
 			"IRREVERSIBLE_BADGE": "Destructif",
+			"DEACTIVATE_ACCOUNT": {
+				"TITLE": "Désactiver le compte",
+				"REVERSIBLE_BADGE": "Réversible",
+				"DESCRIPTION": "Mettez temporairement votre compte en pause. Vous pouvez le réactiver à tout moment en vous reconnectant.",
+				"EFFECTS_TITLE": "Ce qui se passe lors de la désactivation",
+				"EFFECT_1": "Votre profil et vos annonces seront masqués de l'annuaire.",
+				"EFFECT_2": "Vous serez déconnecté de toutes les sessions actives.",
+				"EFFECT_3": "Les e-mails et notifications planifiés seront mis en pause.",
+				"EFFECT_4": "Vos données sont conservées en sécurité et rien n'est supprimé.",
+				"CTA_HELPER": "Vous pouvez réactiver à tout moment.",
+				"CTA": "Désactiver le compte…",
+				"CONFIRM_MODAL": {
+					"TITLE": "Désactiver votre compte",
+					"SUBTITLE": "Vos données seront conservées — vous pouvez réactiver à tout moment.",
+					"EFFECTS_HEADING": "Ce que signifie la désactivation",
+					"EFFECT_1": "Votre profil et vos annonces seront masqués de l'annuaire.",
+					"EFFECT_2": "Vous serez déconnecté de toutes les sessions actives.",
+					"EFFECT_3": "Les e-mails et notifications planifiés seront mis en pause.",
+					"EFFECT_4": "Vos données sont conservées en sécurité et rien n'est supprimé.",
+					"REACTIVATION_NOTE": "Pour réactiver, reconnectez-vous simplement avec vos identifiants.",
+					"CONFIRMATION_HEADING": "Confirmez que c'est bien vous",
+					"PASSWORD_LABEL": "Votre mot de passe actuel",
+					"PASSWORD_PLACEHOLDER": "Entrez votre mot de passe",
+					"CANCEL_CTA": "Annuler",
+					"CONFIRM_CTA": "Désactiver le compte",
+					"DEACTIVATING": "Désactivation…"
+				},
+				"ERRORS": {
+					"PASSWORD_REQUIRED": "Le mot de passe est requis.",
+					"PASSWORD_TOO_SHORT": "Le mot de passe doit comporter au moins 8 caractères."
+				}
+			},
+			"REACTIVATE_ACCOUNT": {
+				"STATUS_BADGE": "Compte désactivé",
+				"TITLE": "Réactiver votre compte",
+				"DESCRIPTION": "Restaurez l'accès complet à votre compte et rendez votre profil à nouveau visible.",
+				"RESTORE_TITLE": "Ce que la réactivation restaure",
+				"RESTORE_1": "Votre profil et vos annonces seront à nouveau visibles dans l'annuaire.",
+				"RESTORE_2": "Toutes les notifications et e-mails planifiés reprendront.",
+				"RESTORE_3": "Toutes vos données, paramètres et historiques sont entièrement intacts.",
+				"CTA_HELPER": "La réactivation est immédiate — aucune approbation requise.",
+				"CTA": "Réactiver le compte",
+				"REACTIVATING": "Réactivation…",
+				"SUCCESS_TOAST": "Votre compte a été réactivé avec succès."
+			},
 			"DELETE_ACCOUNT": {
 				"TITLE": "Supprimer ce compte",
 				"DESCRIPTION": "Supprimez définitivement ce compte et tout ce qui lui est associé. Cette action est irréversible.",

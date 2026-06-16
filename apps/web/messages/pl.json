@@ -668,6 +668,51 @@
 			"INTRO_LABEL": "Uwaga",
 			"INTRO_BODY": "Każda czynność w tej sekcji jest trwała. Zawsze poprosimy o potwierdzenie przed usunięciem czegokolwiek.",
 			"IRREVERSIBLE_BADGE": "Destrukcyjne",
+			"DEACTIVATE_ACCOUNT": {
+				"TITLE": "Dezaktywuj konto",
+				"REVERSIBLE_BADGE": "Odwracalne",
+				"DESCRIPTION": "Tymczasowo wstrzymaj swoje konto. Możesz je ponownie aktywować w dowolnym momencie, logując się ponownie.",
+				"EFFECTS_TITLE": "Co się dzieje po dezaktywacji",
+				"EFFECT_1": "Twój profil i ogłoszenia zostaną ukryte z katalogu.",
+				"EFFECT_2": "Zostaniesz wylogowany ze wszystkich aktywnych sesji.",
+				"EFFECT_3": "Zaplanowane e-maile i powiadomienia zostaną wstrzymane.",
+				"EFFECT_4": "Twoje dane są bezpiecznie przechowywane i nic nie zostanie usunięte.",
+				"CTA_HELPER": "Możesz ponownie aktywować w dowolnym momencie.",
+				"CTA": "Dezaktywuj konto…",
+				"CONFIRM_MODAL": {
+					"TITLE": "Dezaktywuj swoje konto",
+					"SUBTITLE": "Twoje dane zostaną zachowane — możesz ponownie aktywować w dowolnym momencie.",
+					"EFFECTS_HEADING": "Co oznacza dezaktywacja",
+					"EFFECT_1": "Twój profil i ogłoszenia zostaną ukryte z katalogu.",
+					"EFFECT_2": "Zostaniesz wylogowany ze wszystkich aktywnych sesji.",
+					"EFFECT_3": "Zaplanowane e-maile i powiadomienia zostaną wstrzymane.",
+					"EFFECT_4": "Twoje dane są bezpiecznie przechowywane i nic nie zostanie usunięte.",
+					"REACTIVATION_NOTE": "Aby ponownie aktywować, po prostu zaloguj się ponownie swoimi danymi.",
+					"CONFIRMATION_HEADING": "Potwierdź, że to naprawdę Ty",
+					"PASSWORD_LABEL": "Twoje aktualne hasło",
+					"PASSWORD_PLACEHOLDER": "Wprowadź hasło",
+					"CANCEL_CTA": "Anuluj",
+					"CONFIRM_CTA": "Dezaktywuj konto",
+					"DEACTIVATING": "Dezaktywowanie…"
+				},
+				"ERRORS": {
+					"PASSWORD_REQUIRED": "Hasło jest wymagane.",
+					"PASSWORD_TOO_SHORT": "Hasło musi mieć co najmniej 8 znaków."
+				}
+			},
+			"REACTIVATE_ACCOUNT": {
+				"STATUS_BADGE": "Konto zdezaktywowane",
+				"TITLE": "Reaktywuj swoje konto",
+				"DESCRIPTION": "Przywróć pełny dostęp do konta i spraw, aby Twój profil był ponownie widoczny.",
+				"RESTORE_TITLE": "Co przywraca reaktywacja",
+				"RESTORE_1": "Twój profil i ogłoszenia będą ponownie widoczne w katalogu.",
+				"RESTORE_2": "Wszystkie powiadomienia i zaplanowane e-maile zostaną wznowione.",
+				"RESTORE_3": "Wszystkie Twoje dane, ustawienia i historia są w pełni nienaruszone.",
+				"CTA_HELPER": "Reaktywacja jest natychmiastowa — nie jest wymagana żadna zgoda.",
+				"CTA": "Reaktywuj konto",
+				"REACTIVATING": "Reaktywowanie…",
+				"SUCCESS_TOAST": "Twoje konto zostało pomyślnie reaktywowane."
+			},
 			"DELETE_ACCOUNT": {
 				"TITLE": "Usuń to konto",
 				"DESCRIPTION": "Trwale usuń to konto i wszystko, co jest z nim powiązane. Tej czynności nie można odwrócić.",
