@@ -54,7 +54,8 @@ export const users = pgTable(
 		passwordHash: text('password_hash'),
 		createdAt: timestamp('created_at').notNull().defaultNow(),
 		updatedAt: timestamp('updated_at').notNull().defaultNow(),
-		deletedAt: timestamp('deleted_at')
+		deletedAt: timestamp('deleted_at'),
+		deactivatedAt: timestamp('deactivated_at')
 	},
 	(table) => ({
 		createdAtIndex: index('users_created_at_idx').on(table.createdAt),
