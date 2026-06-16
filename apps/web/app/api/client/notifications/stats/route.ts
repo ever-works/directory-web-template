@@ -27,27 +27,32 @@ export async function GET() {
 			sql`${notifications.archivedAt} IS NULL`
 		);
 
+		const isSystemNotification = or(
+			eq(notifications.category, 'system'),
+			eq(notifications.category, 'account'),
+			eq(notifications.type, 'payment_failed')
+		);
+
 		const counts = await db
 			.select({
 				total: sql<number>`count(*)::int`,
 				unread: sql<number>`count(*) filter (where ${notifications.isRead} = false)::int`,
-				system: sql<number>`count(*) filter (where ${or(
-					eq(notifications.category, 'system'),
-					eq(notifications.category, 'account'),
-					eq(notifications.type, 'payment_failed')
-				)})::int`
+				systemUnread: sql<number>`count(*) filter (where ${notifications.isRead} = false and (${isSystemNotification}))::int`
 			})
 			.from(notifications)
 			.where(baseScope);
 
 		const row = counts[0];
+		const unread = row?.unread ?? 0;
 		const body: NotificationStatsResponse = {
 			total: row?.total ?? 0,
-			unread: row?.unread ?? 0,
+			unread,
+			// byTab is an "has unread" signal per tab — the UI renders a dot
+			// indicator (not a number) when a value here is > 0.
 			byTab: {
-				all: row?.total ?? 0,
-				unread: row?.unread ?? 0,
-				system: row?.system ?? 0
+				all: unread,
+				unread,
+				system: row?.systemUnread ?? 0
 			}
 		};
 		return NextResponse.json({ success: true, data: body });

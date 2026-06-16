@@ -3617,6 +3617,12 @@
 			"EDIT_SUBMISSION_DESC": "Werk de details van uw inzending bij",
 			"BULK_IMPORT": "Bulk importeren"
 		},
+		"notifications": {
+			"tooltip": "Meldingen",
+			"aria": {
+				"bellWithCount": "Meldingen ({n} ongelezen)"
+			}
+		},
 		"dashboard": {
 			"TITLE": "Dashboard",
 			"WELCOME_BACK": "Welkom terug, {name}! Hier is uw activiteitenoverzicht.",

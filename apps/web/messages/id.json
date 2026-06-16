@@ -3754,6 +3754,12 @@
 			"CANCEL_BUTTON": "Batal",
 			"PROCEED_TO_PAYMENT": "Lanjutkan ke Pembayaran"
 		},
+		"notifications": {
+			"tooltip": "Notifikasi",
+			"aria": {
+				"bellWithCount": "Notifikasi ({n} belum dibaca)"
+			}
+		},
 		"dashboard": {
 			"TITLE": "Dasbor",
 			"WELCOME_BACK": "Selamat datang kembali, {name}! Ini ikhtisar aktivitas Anda.",

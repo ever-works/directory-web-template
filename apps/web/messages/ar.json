@@ -3639,6 +3639,12 @@
 			"EDIT_SUBMISSION_DESC": "تحديث تفاصيل تقديمك",
 			"BULK_IMPORT": "استيراد مجمع"
 		},
+		"notifications": {
+			"tooltip": "الإشعارات",
+			"aria": {
+				"bellWithCount": "الإشعارات ({n} غير مقروءة)"
+			}
+		},
 		"dashboard": {
 			"TITLE": "لوحة التحكم",
 			"WELCOME_BACK": "مرحباً بعودتك، {name}! إليك نظرة عامة على نشاطك.",

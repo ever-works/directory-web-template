@@ -3599,6 +3599,12 @@
 			"ITEMS_PER_PAGE": "Елементів на сторінці",
 			"BULK_IMPORT": "Масовий імпорт"
 		},
+		"notifications": {
+			"tooltip": "Сповіщення",
+			"aria": {
+				"bellWithCount": "Сповіщення ({n} непрочитаних)"
+			}
+		},
 		"dashboard": {
 			"ITEMS_MAP": {
 				"TITLE": "Карта ваших елементів",

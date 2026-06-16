@@ -3622,6 +3622,12 @@
 			"EDIT_SUBMISSION_DESC": "提出の詳細を更新",
 			"BULK_IMPORT": "一括インポート"
 		},
+		"notifications": {
+			"tooltip": "通知",
+			"aria": {
+				"bellWithCount": "通知（未読{n}件）"
+			}
+		},
 		"dashboard": {
 			"TITLE": "ダッシュボード",
 			"WELCOME_BACK": "おかえりなさい、{name}さん！活動の概要はこちらです。",

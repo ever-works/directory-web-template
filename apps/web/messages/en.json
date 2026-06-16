@@ -4364,7 +4364,8 @@
 				"aria": "Notification filters",
 				"all": "All",
 				"unread": "Unread",
-				"system": "System"
+				"system": "System",
+				"hasNew": "Has new"
 			},
 			"sections": {
 				"today": "Today",
