@@ -1,5 +1,31 @@
 import { MDX } from "@/components/mdx";
 
+/** Inline rehype plugin: adds id attributes to h2/h3 elements so ToC anchor links work. */
+function rehypeAddHeadingIds() {
+	function textOf(node: any): string {
+		if (node.type === 'text') return node.value ?? '';
+		if (Array.isArray(node.children)) return node.children.map(textOf).join('');
+		return '';
+	}
+	function walk(node: any) {
+		if (node.type === 'element' && /^h[23]$/.test(node.tagName)) {
+			const text = textOf(node);
+			if (text) {
+				node.properties = node.properties ?? {};
+				node.properties.id = text
+					.toLowerCase()
+					.trim()
+					.replace(/\s+/g, '-')
+					.replace(/[^\w-]+/g, '')
+					.replace(/-{2,}/g, '-')
+					.replace(/^-+|-+$/g, '');
+			}
+		}
+		if (Array.isArray(node.children)) node.children.forEach(walk);
+	}
+	return (tree: any) => walk(tree);
+}
+
 interface ServerItemContentProps {
   content?: string | null;
   noContentMessage: string;
@@ -96,7 +122,10 @@ export function ServerItemContent({ content, noContentMessage }: ServerItemConte
             'prose-figcaption:mt-2 prose-figcaption:-mb-2',
           ].join(' ')}
         >
-          <MDX source={normalizedContent as string} />
+          <MDX
+						source={normalizedContent as string}
+						options={{ mdxOptions: { rehypePlugins: [rehypeAddHeadingIds] } }}
+					/>
         </div>
       ) : (
         <div className="flex flex-col items-center justify-center py-14 text-center">
