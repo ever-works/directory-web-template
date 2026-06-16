@@ -54,6 +54,49 @@ GOOGLE_CLIENT_SECRET=your-google-client-secret
 
 Click "Deploy" and Vercel will build and deploy your site automatically.
 
+## Database (Neon via the Vercel Marketplace)
+
+The directory needs a PostgreSQL database. The simplest production setup
+is to add **Neon** from the Vercel Marketplace — it provisions the
+database and injects the connection string into your project's
+environment variables for you.
+
+1. In your Vercel project: **Storage** (or **Integrations**) → **Add** →
+   **Neon** → connect it to this project.
+2. In the integration's **Configure** dialog, set the options below.
+
+### Integration settings that matter
+
+| Setting | Recommended value | Why |
+| ------- | ----------------- | --- |
+| **Custom Environment Variable Prefix** | **`DATABASE`** | Neon injects the connection string as `DATABASE_URL` (plus `DATABASE_URL_UNPOOLED`, etc.). The app reads `DATABASE_URL` — a different prefix means it can't find the database. |
+| **Create Database Branch for Deployment → Production** | **On** | Production deployments use/refresh the production database branch. |
+| **Create Database Branch for Deployment → Preview** | **Off** ⚠️ | See the warning below — leaving this on is the most common way to run up a surprise Neon bill. |
+| **Require Active Resource Before Deploy** | On | Fails the deploy early if the database isn't available, instead of shipping a broken site. |
+
+:::warning Preview branches multiply — and so does the cost
+When **"Create Database Branch for Deployment → Preview"** is enabled,
+Vercel asks Neon to create a **new database branch for every preview
+deployment** — i.e. one per pushed Git branch / pull request, named
+`preview/<branch>`. Each branch has its own compute endpoint that
+accrues compute-hours. On an active repo (many feature branches,
+Dependabot PRs, CI branches) this can balloon into **hundreds of
+branches** and a large bill very quickly. Unless you specifically need
+an isolated database per preview, **keep the Preview checkbox off** and
+let previews share the production (or a single dedicated) branch.
+
+If you have already accumulated stray preview branches, delete them in
+the Neon Console (**Branches**) or via the Neon API, keeping only the
+branches you actually use (e.g. `main` and any long-lived
+`preview/develop` / `preview/stage`).
+:::
+
+### Manual alternative
+
+If you bring your own PostgreSQL (Neon, Supabase, RDS, self-hosted,
+etc.), skip the integration and set `DATABASE_URL` yourself under
+**Settings → Environment Variables** (see step 3 above).
+
 ## Custom Domain
 
 ### 1. Add Domain
