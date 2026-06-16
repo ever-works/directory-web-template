@@ -31,6 +31,27 @@ why** at a higher level than per-commit diffs.
 
 ---
 
+## 2026-06-16 — Fix: CI-safe git-CMS writes + favorite-toggle e2e race
+
+- spec-039: the e2e suite's authenticated write-flow specs (admin create
+  collection, client submit item, favorite toggle) timed out at ~30s in CI.
+  Two causes: (1) `CollectionGitService`/`ItemGitService` `pull` on init and
+  `push` after each write hit the unreachable CI content remote with no HTTP
+  timeout, blocking the POST past the redirect/modal wait — added
+  `isContentGitRemoteDisabled()` (`apps/web/lib/services/content-git-offline.ts`,
+  gated on `CI`/`CONTENT_GIT_OFFLINE`) and guarded `syncWithRemote` + `push` in
+  both services; runtime (no `CI`) still pushes. Also added an in-flight
+  git-service init lock to `item.repository.ts`/`collection.repository.ts`
+  (parallel CI workers no longer init isomorphic-git on the same `.git` at
+  once). (2) Favorites are DB-backed; an early click before `useCurrentUser`
+  resolved opened the login modal whose backdrop then ate clicks — hardened
+  `clickFavorite()` in `apps/web-e2e/page-objects/public/item-detail.page.ts`
+  to dismiss the modal and only count a click that flips the label. No prod
+  behaviour change; no tests skipped. See `docs/spec/039-e2e-git-cms-ci-safe/spec.md`.
+  (PR: pending)
+
+---
+
 ## 2026-06-13 — Docs: Neon database integration in the Vercel deploy guide
 
 - docs/deployment: documented setting up the database via the Neon Vercel

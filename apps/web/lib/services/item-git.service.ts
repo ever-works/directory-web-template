@@ -4,6 +4,7 @@ import * as yaml from 'yaml';
 import { ItemData, CreateItemRequest, UpdateItemRequest, ReviewRequest } from '@/lib/types/item';
 import type { ItemExportData } from '@/lib/types/item-import-export';
 import { getLocationIndexService } from './location/location-index.service';
+import { isContentGitRemoteDisabled } from './content-git-offline';
 
 // Helper function to format date in the expected format for YAML files
 function formatDateForYaml(date: Date = new Date()): string {
@@ -49,6 +50,10 @@ export class ItemGitService {
   }
 
   private async syncWithRemote(): Promise<void> {
+    if (isContentGitRemoteDisabled()) {
+      console.log('⏭️  Skipping content git remote sync (CI / CONTENT_GIT_OFFLINE)');
+      return;
+    }
     try {
       const exists = await this.directoryExists(path.join(this.config.dataDir, '.git'));
       
@@ -471,7 +476,12 @@ export class ItemGitService {
         committer: committer,
       });
 
-      // Push to GitHub
+      // Push to GitHub — skipped when there is no reachable remote (CI/e2e).
+      // The local commit above is enough for reads; runtime (no CI) still pushes.
+      if (isContentGitRemoteDisabled()) {
+        console.log('⏭️  Skipping git push (CI / CONTENT_GIT_OFFLINE) — committed locally only');
+        return;
+      }
       const auth = this.getAuth();
       await git.push({
         onAuth: () => auth,
