@@ -31,6 +31,12 @@ why** at a higher level than per-commit diffs.
 
 ---
 
+## 2026-06-16 — Feat: k8s deploy provisions Work runtime env
+
+- spec-040: k8s-deployed directory sites 500 at first render (`[auth] AUTH_SECRET must be set in production`) because the Deployment only carried NODE_ENV/PORT/HOSTNAME. Added a `deploy_k8s.yaml` step that materializes a `${WORK_SLUG}-runtime-env` Secret from the AUTH_SECRET/COOKIE_SECRET/COOKIE_SECURE/DATABASE_URL secrets the platform pushes (+ NEXT_PUBLIC_APP_URL/COOKIE_DOMAIN from the ingress host), and `deployment.yaml` mounts it via `envFrom` (optional). Platform half: ever-works DeployService.ensureRuntimeEnv + WorkRuntimeEnvService. See `docs/spec/040-k8s-deploy-runtime-env/spec.md`. (PR: pending)
+
+---
+
 ## 2026-06-15 — Fix: k8s deploy probe timeouts (startup/readiness/liveness)
 
 - spec-038: the k8s deploy manifest template `.deploy/k8s-platform/deployment.yaml`
