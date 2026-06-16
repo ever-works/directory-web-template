@@ -7,7 +7,6 @@ import type { AdapterAccountType } from 'next-auth/adapters';
 import { db } from '@/lib/db/drizzle';
 import { getTenantId } from '@/lib/auth/tenant';
 
-import { redirect } from 'next/navigation';
 import { signOut } from '@/lib/auth';
 import { validatedAction, validatedActionWithUser } from '@/lib/auth/middleware';
 import { comparePasswords, hashPassword, AuthProviders, AuthErrorCode } from '@/lib/auth/credentials';
@@ -407,11 +406,13 @@ export const deleteAccount = validatedActionWithUser(deleteAccountSchema, async 
 	// Clear the session cookie without letting NextAuth issue its own redirect —
 	// its redirectTo path doesn't propagate reliably through useActionState, and
 	// the `await ... .signOut()` wrapper used to return undefined which made the
-	// caller's destructure throw before we ever reached redirect(). Call signOut
-	// with redirect:false, then issue the redirect ourselves so the client lands
-	// on /auth/signin every time.
+	// caller's destructure throw before we ever reached redirect(). Likewise,
+	// next/navigation's redirect() doesn't reliably propagate through
+	// useActionState either (the same reason signInAction leaves navigation to
+	// the client) — so report success and let the client navigate to
+	// /auth/signin once the cleared session cookie has taken effect.
 	await signOut({ redirect: false });
-	redirect('/auth/signin');
+	return { success: true, redirect: '/auth/signin' };
 });
 
 const updateAccountSchema = z.object({
