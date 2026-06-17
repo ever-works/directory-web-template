@@ -243,6 +243,7 @@ jobs:
               env:
                   NAMESPACE: ${{ secrets.K8S_NAMESPACE || 'ever-works' }}
                   WORK_SLUG: ${{ github.event.repository.name }}
+                  REPO_OWNER: ${{ github.repository_owner }}
                   INGRESS_HOST: ${{ secrets.K8S_INGRESS_HOST }}
                   ALL_SECRETS_JSON: ${{ toJSON(secrets) }}
               run: |
@@ -255,6 +256,7 @@ jobs:
                   # POSTHOG_*, NEXT_PUBLIC_*, TENANT_ID, CRON_SECRET, …) is
                   # forwarded to the running pod via envFrom.
                   SKIP_RE='^(K8S_|REGISTRY_|DOCKERHUB_|DIGITALOCEAN_|GITHUB_|github_token$)'
+                  REPO_OWNER_LC="$(printf '%s' "$REPO_OWNER" | tr '[:upper:]' '[:lower:]')"
                   ARGS=()
                   KEYS_FWD=()
                   while IFS= read -r key; do
@@ -262,6 +264,16 @@ jobs:
                       if [[ "$key" =~ $SKIP_RE ]]; then continue; fi
                       val="$(printf '%s' "$ALL_SECRETS_JSON" | jq -r --arg k "$key" '.[$k] // empty')"
                       [[ -z "$val" ]] && continue
+                      # DATA_REPOSITORY: the build-arg step composes a full URL
+                      # from a bare repo slug (`https://github.com/${owner}/${slug}`)
+                      # because the Dockerfile's clone step expects a URL. The
+                      # running app also expects a URL at runtime. Mirror the
+                      # same transformation here so the cluster Secret stays
+                      # consistent with the build. Pass through unchanged if
+                      # the secret already looks like a URL/ssh remote.
+                      if [[ "$key" == "DATA_REPOSITORY" && ! "$val" =~ ^(https?://|git@) ]]; then
+                          val="https://github.com/${REPO_OWNER_LC}/${val}"
+                      fi
                       ARGS+=(--from-literal="${key}=${val}")
                       KEYS_FWD+=("$key")
                   done < <(printf '%s' "$ALL_SECRETS_JSON" | jq -r 'keys[]')
