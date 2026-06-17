@@ -48,6 +48,29 @@ why** at a higher level than per-commit diffs.
   `clickFavorite()` in `apps/web-e2e/page-objects/public/item-detail.page.ts`
   to dismiss the modal and only count a click that flips the label. No prod
   behaviour change; no tests skipped. See `docs/spec/039-e2e-git-cms-ci-safe/spec.md`.
+
+---
+
+## 2026-06-16 — Feat: k8s deploy provisions Work runtime env
+
+- spec-040: k8s-deployed directory sites 500 at first render (`[auth] AUTH_SECRET must be set in production`) because the Deployment only carried NODE_ENV/PORT/HOSTNAME. Added a `deploy_k8s.yaml` step that materializes a `${WORK_SLUG}-runtime-env` Secret from the AUTH_SECRET/COOKIE_SECRET/COOKIE_SECURE/DATABASE_URL secrets the platform pushes (+ NEXT_PUBLIC_APP_URL/COOKIE_DOMAIN from the ingress host), and `deployment.yaml` mounts it via `envFrom` (optional). Platform half: ever-works DeployService.ensureRuntimeEnv + WorkRuntimeEnvService. See `docs/spec/040-k8s-deploy-runtime-env/spec.md`. (PR: pending)
+
+---
+
+## 2026-06-15 — Fix: k8s deploy probe timeouts (startup/readiness/liveness)
+
+- spec-038: the k8s deploy manifest template `.deploy/k8s-platform/deployment.yaml`
+  defined `readinessProbe` / `livenessProbe` on `/` with no `timeoutSeconds`, so
+  both inherited Kubernetes' 1-second default. A server-rendered `/` on a small
+  shared node routinely exceeds 1s, so the liveness probe failed its default 3
+  attempts and kubelet killed the container in a permanent restart loop
+  (observed: 460+ restarts, `Exit Code: 143`, on the first k8s-deployed Work
+  `awesome-compliance-automation-website`). Added an explicit `startupProbe`
+  (≈5 min budget for first response before liveness/readiness apply) and set
+  `timeoutSeconds: 5` plus `failureThreshold` on readiness (3) and liveness (6).
+  No app code or image change; affects only deployed Works' pod health gating.
+  Propagation to existing per-repo `awesome-*` copies is tracked in the
+  Vercel→k8s migration runbook. See `docs/spec/038-k8s-deploy-probes/spec.md`.
   (PR: pending)
 
 ---
