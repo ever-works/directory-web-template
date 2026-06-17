@@ -57,10 +57,7 @@ export function NotificationBell({ className }: NotificationBellProps) {
 	const unreadCount = stats.data?.unread ?? 0;
 	const tooltipLabel =
 		unreadCount > 0
-			? safeT(t, 'aria.bellWithCount', `Notifications (${unreadCount} unread)`).replace(
-					'{n}',
-					String(unreadCount)
-				)
+			? safeT(t, 'aria.bellWithCount', `Notifications (${unreadCount} unread)`, { n: unreadCount })
 			: safeT(t, 'tooltip', 'Notifications');
 
 	const showTooltip = () => {
@@ -100,7 +97,7 @@ export function NotificationBell({ className }: NotificationBellProps) {
 					)}
 				>
 					<Bell className="h-3.5 w-3.5 lg:h-4 lg:w-4" aria-hidden="true" />
-					{unreadCount > 0 && (
+					{unreadCount > 0 && !isOpen && (
 						<span
 							aria-hidden="true"
 							className="absolute -top-0.5 -right-0.5 min-w-4 h-4 px-1 inline-flex items-center justify-center rounded-full bg-red-500 text-white text-[10px] font-semibold leading-none tabular-nums ring-2 ring-white dark:ring-[#0a0a0a] animate-pulse"
@@ -129,9 +126,14 @@ export function NotificationBell({ className }: NotificationBellProps) {
 	);
 }
 
-function safeT(t: ReturnType<typeof useTranslations>, key: string, fallback: string): string {
+function safeT(
+	t: ReturnType<typeof useTranslations>,
+	key: string,
+	fallback: string,
+	values?: Record<string, string | number | Date>
+): string {
 	try {
-		const v = t(key);
+		const v = t(key, values);
 		return v && v !== key ? v : fallback;
 	} catch {
 		return fallback;

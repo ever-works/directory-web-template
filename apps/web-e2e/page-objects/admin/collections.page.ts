@@ -37,9 +37,15 @@ export class AdminCollectionsPage extends BasePage {
 		return this.page.locator('.fixed.inset-0.z-50').first();
 	}
 
-	/** Collection form ID input (uses HeroUI Input — target by placeholder). */
+	/**
+	 * Collection form ID input. In create mode there is no ID input — the ID
+	 * is auto-generated from the name and shown as a URL-slug hint. In edit
+	 * mode the ID is rendered read-only. The getter still returns a locator
+	 * (the read-only input in edit mode) so existing edit assertions work,
+	 * but create-mode tests should not try to fill it.
+	 */
 	get collectionIdInput() {
-		return this.collectionFormModal.getByPlaceholder(/frontend-frameworks/i);
+		return this.collectionFormModal.locator('input[readonly]').first();
 	}
 
 	/** Collection form name input. */
@@ -77,11 +83,15 @@ export class AdminCollectionsPage extends BasePage {
 		return this.collectionFormModal.getByRole('button', { name: /save changes/i });
 	}
 
-	/** Fill the collection form. */
+	/**
+	 * Fill the collection form. The `id` parameter is accepted for backwards
+	 * compatibility with existing tests but ignored — the form auto-generates
+	 * the ID (numeric timestamp) and a URL slug from the name. Tests pass
+	 * `id` only to make their data deterministic in their own scope (e.g.
+	 * computing the resulting collection name).
+	 */
 	async fillCollectionForm(data: { id?: string; name: string; description?: string }) {
-		if (data.id) {
-			await this.collectionIdInput.fill(data.id);
-		}
+		void data.id;
 		await this.collectionNameInput.fill(data.name);
 		if (data.description) {
 			await this.collectionDescriptionInput.fill(data.description);

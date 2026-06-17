@@ -164,6 +164,7 @@
 		"DESCRIPTION": "Description",
 		"DRAFT": "Brouillon",
 		"PUBLISHED": "Publié",
+		"LAST_UPDATED": "Dernière mise à jour",
 		"CLOSED": "Fermé",
 		"USER": "Utilisateur",
 		"ANONYMOUS": "Anonyme",
@@ -429,6 +430,8 @@
 		"PUBLISHER": "Éditeur",
 		"WEBSITE": "Site web",
 		"PUBLISHED": "Publié",
+		"LAST_UPDATED": "Dernière mise à jour",
+		"TABLE_OF_CONTENTS": "Sur cette page",
 		"NO_TAGS_AVAILABLE": "Aucune étiquette disponible",
 		"RATING": "Note",
 		"PROMO_CODE": "Code Promo",
@@ -557,6 +560,10 @@
 		"NO_CHECKOUT_PROVIDERS_CONFIGURED": "Aucun fournisseur de paiement n'est configuré. Les fonctionnalités de paiement ne seront pas disponibles.",
 		"PROVIDER_NOT_CONFIGURED": "Non configuré",
 		"NOT_CONFIGURED": "non configuré",
+		"ACTIVE": "Actif",
+		"SECTION_PROFILE": "Profil",
+		"SECTION_APPEARANCE": "Apparence",
+		"SECTION_CONTENT_AND_BILLING": "Contenu et facturation",
 		"SETTINGS_CARDS": {
 			"BASIC_INFO": {
 				"TITLE": "Informations de base",
@@ -659,44 +666,44 @@
 			"DESCRIPTION": "Permanent account actions"
 		},
 		"DANGER_ZONE_PAGE": {
-			"TITLE": "Danger zone",
-			"SUBTITLE": "Account actions that take effect immediately and cannot be undone.",
-			"BACK_TO_SETTINGS": "Back to settings",
-			"INTRO_LABEL": "Heads up",
-			"INTRO_BODY": "Every action in this section is permanent. We'll always ask you to confirm before anything is removed.",
-			"IRREVERSIBLE_BADGE": "Destructive",
+			"TITLE": "Zone de danger",
+			"SUBTITLE": "Actions sur le compte qui prennent effet immédiatement et ne peuvent pas être annulées.",
+			"BACK_TO_SETTINGS": "Retour aux paramètres",
+			"INTRO_LABEL": "Attention",
+			"INTRO_BODY": "Chaque action de cette section est permanente. Nous vous demanderons toujours de confirmer avant toute suppression.",
+			"IRREVERSIBLE_BADGE": "Destructif",
 			"DELETE_ACCOUNT": {
-				"TITLE": "Delete this account",
-				"DESCRIPTION": "Permanently remove this account and everything associated with it. This cannot be undone.",
-				"LOSS_TITLE": "What will be removed",
-				"LOSS_ITEM_1": "Sign-in credentials and account email",
-				"LOSS_ITEM_2": "Profile, portfolio, and uploaded images",
-				"LOSS_ITEM_3": "Submissions, drafts, and trashed items",
-				"LOSS_ITEM_4": "Sponsorships and billing references",
-				"LOSS_ITEM_5": "Comments, favourites, and activity history",
-				"CTA_HELPER": "Two-step confirmation required.",
-				"CTA": "Delete account…",
+				"TITLE": "Supprimer ce compte",
+				"DESCRIPTION": "Supprimez définitivement ce compte et tout ce qui lui est associé. Cette action est irréversible.",
+				"LOSS_TITLE": "Ce qui sera supprimé",
+				"LOSS_ITEM_1": "Identifiants de connexion et e-mail du compte",
+				"LOSS_ITEM_2": "Profil, portfolio et images téléchargées",
+				"LOSS_ITEM_3": "Soumissions, brouillons et éléments dans la corbeille",
+				"LOSS_ITEM_4": "Parrainages et références de facturation",
+				"LOSS_ITEM_5": "Commentaires, favoris et historique d'activité",
+				"CTA_HELPER": "Une confirmation en deux étapes est requise.",
+				"CTA": "Supprimer le compte…",
 				"CONFIRM_MODAL": {
-					"TITLE": "Permanently delete your account",
-					"SUBTITLE": "Take a moment to confirm — this cannot be undone.",
-					"ACCOUNT_HEADING": "Account to delete",
-					"ACCOUNT_WARNING": "Everything tied to this account will be removed immediately. There is no recovery.",
-					"CONFIRMATION_HEADING": "Confirm it's really you",
-					"EMAIL_LABEL": "Type your email to confirm",
-					"EMAIL_HELPER": "Enter {email} exactly as shown above.",
-					"EMAIL_PLACEHOLDER": "you@example.com",
-					"PASSWORD_LABEL": "Your current password",
-					"PASSWORD_PLACEHOLDER": "Enter your password",
-					"CONFIRM_CTA": "Delete account permanently",
-					"DELETING": "Deleting account…",
-					"CANCEL_CTA": "Cancel"
+					"TITLE": "Supprimer définitivement votre compte",
+					"SUBTITLE": "Prenez un moment pour confirmer : cette action est irréversible.",
+					"ACCOUNT_HEADING": "Compte à supprimer",
+					"ACCOUNT_WARNING": "Tout ce qui est lié à ce compte sera supprimé immédiatement. Aucune récupération n'est possible.",
+					"CONFIRMATION_HEADING": "Confirmez que c'est bien vous",
+					"EMAIL_LABEL": "Saisissez votre e-mail pour confirmer",
+					"EMAIL_HELPER": "Saisissez {email} exactement comme indiqué ci-dessus.",
+					"EMAIL_PLACEHOLDER": "jean@example.com",
+					"PASSWORD_LABEL": "Votre mot de passe actuel",
+					"PASSWORD_PLACEHOLDER": "Saisissez votre mot de passe",
+					"CONFIRM_CTA": "Supprimer définitivement le compte",
+					"DELETING": "Suppression du compte…",
+					"CANCEL_CTA": "Annuler"
 				},
 				"ERRORS": {
-					"PASSWORD_REQUIRED": "Password is required.",
-					"PASSWORD_TOO_SHORT": "Password must be at least 8 characters.",
-					"EMAIL_REQUIRED": "Please type your email to confirm.",
-					"EMAIL_MISMATCH": "Email does not match the account above.",
-					"UNKNOWN": "Failed to delete account. Please try again."
+					"PASSWORD_REQUIRED": "Le mot de passe est requis.",
+					"PASSWORD_TOO_SHORT": "Le mot de passe doit contenir au moins 8 caractères.",
+					"EMAIL_REQUIRED": "Veuillez saisir votre e-mail pour confirmer.",
+					"EMAIL_MISMATCH": "L'e-mail ne correspond pas au compte ci-dessus.",
+					"UNKNOWN": "Échec de la suppression du compte. Veuillez réessayer."
 				}
 			}
 		}
@@ -775,7 +782,7 @@
 			"REVIEW_AND_SUBMIT": "Réviser et Soumettre",
 			"EXTRACT": "Extraire",
 			"EXTRACTING": "Extraction...",
-				"URL_FORMAT_HINT": "L'URL doit commencer par https:// ou http://"
+			"URL_FORMAT_HINT": "L'URL doit commencer par https:// ou http://"
 		},
 		"PAYMENT": {
 			"TITLE": "Finalisez votre commande",
@@ -3708,6 +3715,12 @@
 			"EDIT_SUBMISSION_DESC": "Mettre à jour les détails de votre soumission",
 			"BULK_IMPORT": "Import en masse"
 		},
+		"notifications": {
+			"tooltip": "Notifications",
+			"aria": {
+				"bellWithCount": "Notifications ({n} non lues)"
+			}
+		},
 		"dashboard": {
 			"TITLE": "Tableau de Bord",
 			"WELCOME_BACK": "Bon retour, {name} ! Voici votre aperçu d'activité.",
@@ -3955,5 +3968,9 @@
 		"YOU_LABEL": "Vous",
 		"TOOL_RESULT_LABEL": "Résultat de l'outil",
 		"TOOL_RESULT_FROM": "Résultat de {tool}"
+	},
+	"usersDirectory": {
+		"HERO_TITLE": "Communauté",
+		"HERO_SUBTITLE": "Découvrez des personnes qui créent et partagent dans ce répertoire."
 	}
 }

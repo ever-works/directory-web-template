@@ -25,30 +25,19 @@ interface ChangePasswordError {
   }>;
 }
 
-// API function for changing password
-// Using fetch directly since our internal API doesn't follow the ApiResponse format
+// Strip the "HTTP 4xx: " prefix that serverClient prepends to error messages
+const cleanErrorMessage = (raw: string) => raw.replace(/^HTTP \d+: /, "");
+
 const changePasswordApi = async (data: ChangePasswordData): Promise<ChangePasswordResponse> => {
-  try {
-    const response = await serverClient.post<ChangePasswordResponse>("/api/auth/change-password", data);
-    if (!response.success) {
-      const error: ChangePasswordError = {
-        error: response.error || "Failed to change password",
-        details: (response as any).details,
-      };
-      console.error("Password change error:", error);
-      throw error;
-    }
-
-    return response.data || { success: true, message: "Password changed successfully" };
-  } catch (error: any) {
-    console.error("Network or server error:", error);
-    const changePasswordError: ChangePasswordError = {
-      error: error.message || "Network error occurred",
-      details: error.details,
+  const response = await serverClient.post<ChangePasswordResponse>("/api/auth/change-password", data);
+  if (!response.success) {
+    const error: ChangePasswordError = {
+      error: cleanErrorMessage(response.error || "Failed to change password"),
+      details: (response as any).details,
     };
-
-    throw changePasswordError;
+    throw error;
   }
+  return response.data || { success: true, message: "Password changed successfully" };
 };
 
 export function useChangePassword() {

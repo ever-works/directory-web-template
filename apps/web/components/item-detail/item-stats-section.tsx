@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { useLocale, useTranslations } from 'next-intl';
 import { Eye, ThumbsUp, Heart, MessageSquare, Star, Clock, BarChart3 } from 'lucide-react';
 import type { ItemActivityDay, ItemEngagementMetrics } from '@/lib/db/queries/engagement.queries';
@@ -174,30 +175,19 @@ interface ActivityPayload {
 export function ItemStatsSection({ itemSlug, publishedAt, days = 30 }: ItemStatsSectionProps) {
 	const t = useTranslations();
 	const locale = useLocale();
-	const [data, setData] = useState<ActivityPayload | null>(null);
-	const [loaded, setLoaded] = useState(false);
 	const [selected, setSelected] = useState<SeriesMetric>('views');
 
-	useEffect(() => {
-		if (!itemSlug) return;
-		let cancelled = false;
-		(async () => {
-			try {
-				const res = await fetch(`/api/items/${encodeURIComponent(itemSlug)}/activity?days=${days}`);
-				if (!res.ok) return;
-				const payload = (await res.json()) as ActivityPayload;
-				if (cancelled) return;
-				setData(payload);
-			} catch {
-				// Non-critical; leave placeholders.
-			} finally {
-				if (!cancelled) setLoaded(true);
-			}
-		})();
-		return () => {
-			cancelled = true;
-		};
-	}, [itemSlug, days]);
+	const { data, isSuccess: loaded } = useQuery<ActivityPayload>({
+		queryKey: ['item-activity', itemSlug, days],
+		queryFn: async () => {
+			const res = await fetch(`/api/items/${encodeURIComponent(itemSlug)}/activity?days=${days}`);
+			if (!res.ok) throw new Error('Failed to fetch activity');
+			return res.json() as Promise<ActivityPayload>;
+		},
+		enabled: !!itemSlug,
+		staleTime: 1000 * 60 * 5,
+		gcTime: 1000 * 60 * 30,
+	});
 
 	const totals = data?.totals;
 	const series = data?.series ?? [];

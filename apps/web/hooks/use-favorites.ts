@@ -91,6 +91,15 @@ export function useFavorites() {
 				return [...old, optimisticFavorite];
 			});
 
+			// Optimistically increment the Statistics card favorites count
+			queryClient.setQueriesData<{ totals: { favorites: number; [k: string]: any }; series: any[] }>(
+				{ queryKey: ['item-activity', newFavorite.itemSlug], exact: false },
+				(old) => {
+					if (!old) return old;
+					return { ...old, totals: { ...old.totals, favorites: old.totals.favorites + 1 } };
+				}
+			);
+
 			// Return a context object with the snapshotted value
 			return { previousFavorites };
 		},
@@ -99,9 +108,10 @@ export function useFavorites() {
 			if (context) {
 				queryClient.setQueryData(['favorites'], context.previousFavorites);
 			}
+			queryClient.invalidateQueries({ queryKey: ['item-activity', newFavorite.itemSlug] });
 			toast.error(err.message || 'Failed to add to favorites');
 		},
-		onSuccess: (newFavorite) => {
+		onSuccess: (newFavorite, variables) => {
 			// Update the cache with the real data - replace temp favorite or add if not found
 			queryClient.setQueryData<Favorite[]>(['favorites'], (old = []) => {
 				const hasTempFavorite = old.some(
@@ -125,10 +135,10 @@ export function useFavorites() {
 					}
 				}
 			});
+			// Sync Statistics card with authoritative server count
+			queryClient.invalidateQueries({ queryKey: ['item-activity', variables.itemSlug] });
 			toast.success('Added to favorites!');
 		}
-		// Removed onSettled invalidateQueries to prevent unnecessary refetch
-		// The optimistic update + onSuccess update is sufficient for immediate UI feedback
 	});
 
 	// Mutation for removing a favorite
@@ -146,6 +156,15 @@ export function useFavorites() {
 				return old.filter((fav) => fav.itemSlug !== itemSlug);
 			});
 
+			// Optimistically decrement the Statistics card favorites count
+			queryClient.setQueriesData<{ totals: { favorites: number; [k: string]: any }; series: any[] }>(
+				{ queryKey: ['item-activity', itemSlug], exact: false },
+				(old) => {
+					if (!old) return old;
+					return { ...old, totals: { ...old.totals, favorites: Math.max(0, old.totals.favorites - 1) } };
+				}
+			);
+
 			// Return a context object with the snapshotted value
 			return { previousFavorites };
 		},
@@ -154,13 +173,14 @@ export function useFavorites() {
 			if (context) {
 				queryClient.setQueryData(['favorites'], context.previousFavorites);
 			}
+			queryClient.invalidateQueries({ queryKey: ['item-activity', itemSlug] });
 			toast.error(err.message || 'Failed to remove from favorites');
 		},
-		onSuccess: () => {
+		onSuccess: (_, itemSlug) => {
+			// Sync Statistics card with authoritative server count
+			queryClient.invalidateQueries({ queryKey: ['item-activity', itemSlug] });
 			toast.success('Removed from favorites');
 		}
-		// Removed onSettled invalidateQueries to prevent unnecessary refetch
-		// The optimistic update in onMutate is sufficient for immediate UI feedback
 	});
 
 	// Helper function to check if an item is favorited

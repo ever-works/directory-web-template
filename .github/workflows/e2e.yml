@@ -1,13 +1,21 @@
 name: E2E Tests
 
+# Playwright e2e suite (4-shard parallel run across 300+ specs).
+#
+# Scope: only the release branches stage / main. PR and develop triggers
+# were removed in 2026-05-27 (see
+# Workspace/knowledge/runbooks/CI_RELEASE_GATES.md) — running 4 shards of
+# Playwright on every PR and every develop push was burning CI minutes
+# without protecting the release branches better than gating on
+# stage/main would. Lightweight CI (Web CI / Docs CI / CodeQL) still
+# runs on PRs to main/develop and catches the cheap failure modes.
+
 permissions:
   contents: read
 
 on:
   push:
-    branches: [main, develop, stage]
-  pull_request:
-    branches: [main, develop, stage]
+    branches: [stage, main]
   workflow_dispatch:
     inputs:
       project:

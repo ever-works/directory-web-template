@@ -7,37 +7,50 @@ import { itemAuditService, type AuditUser } from '@/lib/services/item-audit.serv
 
 export class ItemRepository {
   private gitService: ItemGitService | null = null;
+  // In-flight init lock: concurrent requests (e.g. 2 CI workers sharing one
+  // server) must share a SINGLE init so two isomorphic-git initializations
+  // don't run against the same `.content/.git` at once (not concurrency-safe).
+  private gitServiceInit: Promise<ItemGitService> | null = null;
 
   constructor() {}
 
   private async getGitService(): Promise<ItemGitService> {
-    if (!this.gitService) {
-      const dataRepo = coreConfig.content.dataRepository;
-      const token = coreConfig.content.ghToken;
-
-      if (!dataRepo || !token) {
-        throw new Error('DATA_REPOSITORY and GH_TOKEN environment variables are required');
-      }
-
-      // Parse DATA_REPOSITORY URL to extract owner and repo
-      const match = dataRepo.match(/https:\/\/github\.com\/([^\/]+)\/([^\/]+)/);
-      if (!match) {
-        throw new Error('Invalid DATA_REPOSITORY format. Expected: https://github.com/owner/repo');
-      }
-
-      const [, owner, repo] = match;
-      const config: ItemGitServiceConfig = {
-        owner,
-        repo,
-        token,
-        branch: coreConfig.content.githubBranch,
-        dataDir: getContentPath(), // Use dynamic path (local: .content, Vercel: /tmp/.content)
-        itemsDir: 'data',
-      };
-
-      this.gitService = await createItemGitService(config);
+    if (this.gitService) {
+      return this.gitService;
     }
-    return this.gitService;
+    if (!this.gitServiceInit) {
+      this.gitServiceInit = (async () => {
+        const dataRepo = coreConfig.content.dataRepository;
+        const token = coreConfig.content.ghToken;
+
+        if (!dataRepo || !token) {
+          throw new Error('DATA_REPOSITORY and GH_TOKEN environment variables are required');
+        }
+
+        // Parse DATA_REPOSITORY URL to extract owner and repo
+        const match = dataRepo.match(/https:\/\/github\.com\/([^\/]+)\/([^\/]+)/);
+        if (!match) {
+          throw new Error('Invalid DATA_REPOSITORY format. Expected: https://github.com/owner/repo');
+        }
+
+        const [, owner, repo] = match;
+        const config: ItemGitServiceConfig = {
+          owner,
+          repo,
+          token,
+          branch: coreConfig.content.githubBranch,
+          dataDir: getContentPath(), // Use dynamic path (local: .content, Vercel: /tmp/.content)
+          itemsDir: 'data',
+        };
+
+        const svc = await createItemGitService(config);
+        this.gitService = svc;
+        return svc;
+      })().finally(() => {
+        this.gitServiceInit = null;
+      });
+    }
+    return this.gitServiceInit;
   }
 
   async findAll(options: ItemListOptions = {}): Promise<ItemData[]> {
