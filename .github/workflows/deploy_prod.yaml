@@ -7,6 +7,11 @@ on:
 permissions:
   contents: read
   deployments: write
+  # packages: write is required by the called deploy_k8s.yaml to push
+  # the built image to GHCR. Reusable workflows cannot exceed their
+  # caller's granted permissions; declaring it here is what lets the
+  # K8s job's docker login + push succeed.
+  packages: write
 
 concurrency:
   group: ${{ github.ref }}-${{ github.workflow }}
