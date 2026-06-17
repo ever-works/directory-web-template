@@ -119,7 +119,12 @@ export function useItemVote(itemId: string) {
 				return;
 			}
 
-			await queryClient.cancelQueries({ queryKey: ['item-votes', itemId] });
+			// Cancel both query keys we're about to mutate so in-flight refetches
+			// can't overwrite the optimistic update after we've snapshotted.
+			await Promise.all([
+				queryClient.cancelQueries({ queryKey: ['item-votes', itemId] }),
+				queryClient.cancelQueries({ queryKey: [ITEM_ACTIVITY_QUERY_KEY, itemId] })
+			]);
 			const previousVotes = queryClient.getQueryData<ItemVoteResponse>(['item-votes', itemId]);
 			// Snapshot the activity cache so we can roll back on error without
 			// triggering a refetch flicker.
@@ -127,22 +132,27 @@ export function useItemVote(itemId: string) {
 				queryKey: [ITEM_ACTIVITY_QUERY_KEY, itemId]
 			});
 
-			// Mirror the same diff formula the vote count uses, then apply the
-			// signed delta to the activity cache so the Statistics card updates
-			// on the same frame as the vote button.
-			const prevUserVote = previousVotes?.userVote ?? null;
-			const countDiff = prevUserVote === type ? -1 : prevUserVote === null ? 1 : 2;
-			const signedDelta = type === 'up' ? countDiff : -countDiff;
-
+			// Derive the signed delta from the SAME snapshot we used to feed the
+			// item-votes cache update — so the value patched into the activity
+			// cache stays consistent with what we wrote into item-votes.
+			let appliedDelta = 0;
 			queryClient.setQueryData<ItemVoteResponse>(['item-votes', itemId], (old) => {
-				if (!old) return { count: type === 'up' ? 1 : -1, userVote: type };
+				if (!old) {
+					const seedCount = type === 'up' ? 1 : -1;
+					appliedDelta = seedCount;
+					return { count: seedCount, userVote: type };
+				}
+				const oldUserVote = old.userVote;
+				const countDiff = oldUserVote === type ? -1 : oldUserVote === null ? 1 : 2;
+				const delta = type === 'up' ? countDiff : -countDiff;
+				appliedDelta = delta;
 				return {
-					count: old.count + signedDelta,
-					userVote: old.userVote === type ? null : type
+					count: old.count + delta,
+					userVote: oldUserVote === type ? null : type
 				};
 			});
 
-			patchActivityForVoteDelta(queryClient, itemId, signedDelta);
+			patchActivityForVoteDelta(queryClient, itemId, appliedDelta);
 
 			return { previousVotes, previousActivity };
 		},
@@ -204,25 +214,31 @@ export function useItemVote(itemId: string) {
 				return;
 			}
 
-			await queryClient.cancelQueries({ queryKey: ['item-votes', itemId] });
+			await Promise.all([
+				queryClient.cancelQueries({ queryKey: ['item-votes', itemId] }),
+				queryClient.cancelQueries({ queryKey: [ITEM_ACTIVITY_QUERY_KEY, itemId] })
+			]);
 			const previousVotes = queryClient.getQueryData<ItemVoteResponse>(['item-votes', itemId]);
 			const previousActivity = queryClient.getQueriesData<ItemActivityPayload>({
 				queryKey: [ITEM_ACTIVITY_QUERY_KEY, itemId]
 			});
 
-			const prevUserVote = previousVotes?.userVote ?? null;
-			// Removing a vote inverts whichever direction it was.
-			const signedDelta = prevUserVote === 'up' ? -1 : prevUserVote === 'down' ? 1 : 0;
-
+			// Derive the signed delta from the SAME `old` snapshot we hand to
+			// setQueryData so the activity patch stays consistent with the
+			// item-votes update.
+			let appliedDelta = 0;
 			queryClient.setQueryData<ItemVoteResponse>(['item-votes', itemId], (old) => {
 				if (!old) return { count: 0, userVote: null };
+				const oldUserVote = old.userVote;
+				const delta = oldUserVote === 'up' ? -1 : oldUserVote === 'down' ? 1 : 0;
+				appliedDelta = delta;
 				return {
-					count: old.count + signedDelta,
+					count: old.count + delta,
 					userVote: null
 				};
 			});
 
-			patchActivityForVoteDelta(queryClient, itemId, signedDelta);
+			patchActivityForVoteDelta(queryClient, itemId, appliedDelta);
 
 			return { previousVotes, previousActivity };
 		},
