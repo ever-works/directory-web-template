@@ -683,6 +683,51 @@
 			"INTRO_LABEL": "Achtung",
 			"INTRO_BODY": "Jede Aktion in diesem Bereich ist endgültig. Wir bitten Sie immer um eine Bestätigung, bevor etwas entfernt wird.",
 			"IRREVERSIBLE_BADGE": "Destruktiv",
+			"DEACTIVATE_ACCOUNT": {
+				"TITLE": "Konto deaktivieren",
+				"REVERSIBLE_BADGE": "Rückgängig machbar",
+				"DESCRIPTION": "Pausieren Sie Ihr Konto vorübergehend. Sie können es jederzeit durch erneutes Anmelden reaktivieren.",
+				"EFFECTS_TITLE": "Was passiert, wenn Sie deaktivieren",
+				"EFFECT_1": "Ihr Profil und Ihre Einträge werden aus dem Verzeichnis ausgeblendet.",
+				"EFFECT_2": "Sie werden von allen aktiven Sitzungen abgemeldet.",
+				"EFFECT_3": "Geplante E-Mails und Benachrichtigungen werden pausiert.",
+				"EFFECT_4": "Ihre Daten sind sicher und es wird nichts gelöscht.",
+				"CTA_HELPER": "Sie können jederzeit reaktivieren.",
+				"CTA": "Konto deaktivieren…",
+				"CONFIRM_MODAL": {
+					"TITLE": "Ihr Konto deaktivieren",
+					"SUBTITLE": "Ihre Daten bleiben erhalten — Sie können jederzeit reaktivieren.",
+					"EFFECTS_HEADING": "Was Deaktivierung bedeutet",
+					"EFFECT_1": "Ihr Profil und Ihre Einträge werden aus dem Verzeichnis ausgeblendet.",
+					"EFFECT_2": "Sie werden von allen aktiven Sitzungen abgemeldet.",
+					"EFFECT_3": "Geplante E-Mails und Benachrichtigungen werden pausiert.",
+					"EFFECT_4": "Ihre Daten sind sicher und es wird nichts gelöscht.",
+					"REACTIVATION_NOTE": "Um zu reaktivieren, melden Sie sich einfach erneut mit Ihren Zugangsdaten an.",
+					"CONFIRMATION_HEADING": "Bestätigen Sie, dass Sie es wirklich sind",
+					"PASSWORD_LABEL": "Ihr aktuelles Passwort",
+					"PASSWORD_PLACEHOLDER": "Passwort eingeben",
+					"CANCEL_CTA": "Abbrechen",
+					"CONFIRM_CTA": "Konto deaktivieren",
+					"DEACTIVATING": "Wird deaktiviert…"
+				},
+				"ERRORS": {
+					"PASSWORD_REQUIRED": "Passwort ist erforderlich.",
+					"PASSWORD_TOO_SHORT": "Das Passwort muss mindestens 8 Zeichen lang sein."
+				}
+			},
+			"REACTIVATE_ACCOUNT": {
+				"STATUS_BADGE": "Konto deaktiviert",
+				"TITLE": "Ihr Konto reaktivieren",
+				"DESCRIPTION": "Stellen Sie den vollen Zugang zu Ihrem Konto wieder her und machen Sie Ihr Profil wieder sichtbar.",
+				"RESTORE_TITLE": "Was die Reaktivierung wiederherstellt",
+				"RESTORE_1": "Ihr Profil und Ihre Einträge werden wieder im Verzeichnis sichtbar sein.",
+				"RESTORE_2": "Alle Benachrichtigungen und geplanten E-Mails werden wieder aufgenommen.",
+				"RESTORE_3": "Alle Ihre Daten, Einstellungen und der Verlauf sind vollständig intakt.",
+				"CTA_HELPER": "Die Reaktivierung erfolgt sofort — keine Genehmigung erforderlich.",
+				"CTA": "Konto reaktivieren",
+				"REACTIVATING": "Wird reaktiviert…",
+				"SUCCESS_TOAST": "Ihr Konto wurde erfolgreich reaktiviert."
+			},
 			"DELETE_ACCOUNT": {
 				"TITLE": "Dieses Konto löschen",
 				"DESCRIPTION": "Entfernen Sie dieses Konto und alles, was damit verbunden ist, dauerhaft. Dies kann nicht rückgängig gemacht werden.",

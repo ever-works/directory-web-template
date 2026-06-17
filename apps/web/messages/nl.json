@@ -671,6 +671,51 @@
 			"INTRO_LABEL": "Let op",
 			"INTRO_BODY": "Elke actie in deze sectie is permanent. We vragen je altijd om bevestiging voordat er iets wordt verwijderd.",
 			"IRREVERSIBLE_BADGE": "Destructief",
+			"DEACTIVATE_ACCOUNT": {
+				"TITLE": "Account deactiveren",
+				"REVERSIBLE_BADGE": "Omkeerbaar",
+				"DESCRIPTION": "Pauzeer uw account tijdelijk. U kunt het op elk moment opnieuw activeren door u opnieuw aan te melden.",
+				"EFFECTS_TITLE": "Wat er gebeurt wanneer u deactiveert",
+				"EFFECT_1": "Uw profiel en vermeldingen worden verborgen uit de directory.",
+				"EFFECT_2": "U wordt afgemeld bij alle actieve sessies.",
+				"EFFECT_3": "Geplande e-mails en meldingen worden gepauzeerd.",
+				"EFFECT_4": "Uw gegevens worden veilig bewaard en er wordt niets verwijderd.",
+				"CTA_HELPER": "U kunt op elk moment opnieuw activeren.",
+				"CTA": "Account deactiveren…",
+				"CONFIRM_MODAL": {
+					"TITLE": "Uw account deactiveren",
+					"SUBTITLE": "Uw gegevens worden bewaard — u kunt op elk moment opnieuw activeren.",
+					"EFFECTS_HEADING": "Wat deactivering betekent",
+					"EFFECT_1": "Uw profiel en vermeldingen worden verborgen uit de directory.",
+					"EFFECT_2": "U wordt afgemeld bij alle actieve sessies.",
+					"EFFECT_3": "Geplande e-mails en meldingen worden gepauzeerd.",
+					"EFFECT_4": "Uw gegevens worden veilig bewaard en er wordt niets verwijderd.",
+					"REACTIVATION_NOTE": "Om opnieuw te activeren, meldt u zich gewoon opnieuw aan met uw inloggegevens.",
+					"CONFIRMATION_HEADING": "Bevestig dat u het echt bent",
+					"PASSWORD_LABEL": "Uw huidige wachtwoord",
+					"PASSWORD_PLACEHOLDER": "Voer uw wachtwoord in",
+					"CANCEL_CTA": "Annuleren",
+					"CONFIRM_CTA": "Account deactiveren",
+					"DEACTIVATING": "Deactiveren…"
+				},
+				"ERRORS": {
+					"PASSWORD_REQUIRED": "Wachtwoord is vereist.",
+					"PASSWORD_TOO_SHORT": "Wachtwoord moet minimaal 8 tekens bevatten."
+				}
+			},
+			"REACTIVATE_ACCOUNT": {
+				"STATUS_BADGE": "Account gedeactiveerd",
+				"TITLE": "Uw account opnieuw activeren",
+				"DESCRIPTION": "Herstel volledige toegang tot uw account en maak uw profiel opnieuw zichtbaar.",
+				"RESTORE_TITLE": "Wat reactivering herstelt",
+				"RESTORE_1": "Uw profiel en vermeldingen zijn weer zichtbaar in de directory.",
+				"RESTORE_2": "Alle meldingen en geplande e-mails worden hervat.",
+				"RESTORE_3": "Al uw gegevens, instellingen en geschiedenis zijn volledig intact.",
+				"CTA_HELPER": "Reactivering is onmiddellijk — geen goedkeuring vereist.",
+				"CTA": "Account opnieuw activeren",
+				"REACTIVATING": "Opnieuw activeren…",
+				"SUCCESS_TOAST": "Uw account is succesvol opnieuw geactiveerd."
+			},
 			"DELETE_ACCOUNT": {
 				"TITLE": "Dit account verwijderen",
 				"DESCRIPTION": "Verwijder dit account en alles wat erbij hoort permanent. Dit kan niet ongedaan worden gemaakt.",

@@ -1,6 +1,6 @@
 import { DefaultSession, DefaultUser } from 'next-auth';
 
-// Extend NextAuth session and user types to include isAdmin
+// Extend NextAuth session and user types to include isAdmin and isDeactivated
 
 declare module 'next-auth' {
 	interface Session {
@@ -11,6 +11,8 @@ declare module 'next-auth' {
 			isAdmin?: boolean;
 			customerId?: string;
 			tenantId?: string;
+			/** True when the user's account has a non-null deactivatedAt timestamp. */
+			isDeactivated?: boolean;
 		} & DefaultSession['user'];
 	}
 	interface User extends DefaultUser {
@@ -30,5 +32,7 @@ declare module 'next-auth/jwt' {
 		isAdmin?: boolean;
 		customerId?: string;
 		tenantId?: string;
+		/** True when the user's account has a non-null deactivatedAt timestamp. */
+		isDeactivated?: boolean;
 	}
 }
