@@ -31,6 +31,26 @@ why** at a higher level than per-commit diffs.
 
 ---
 
+## 2026-06-16 — Fix: CI-safe git-CMS writes + favorite-toggle e2e race
+
+- spec-039: the e2e suite's authenticated write-flow specs (admin create
+  collection, client submit item, favorite toggle) timed out at ~30s in CI.
+  Two causes: (1) `CollectionGitService`/`ItemGitService` `pull` on init and
+  `push` after each write hit the unreachable CI content remote with no HTTP
+  timeout, blocking the POST past the redirect/modal wait — added
+  `isContentGitRemoteDisabled()` (`apps/web/lib/services/content-git-offline.ts`,
+  gated on `CI`/`CONTENT_GIT_OFFLINE`) and guarded `syncWithRemote` + `push` in
+  both services; runtime (no `CI`) still pushes. Also added an in-flight
+  git-service init lock to `item.repository.ts`/`collection.repository.ts`
+  (parallel CI workers no longer init isomorphic-git on the same `.git` at
+  once). (2) Favorites are DB-backed; an early click before `useCurrentUser`
+  resolved opened the login modal whose backdrop then ate clicks — hardened
+  `clickFavorite()` in `apps/web-e2e/page-objects/public/item-detail.page.ts`
+  to dismiss the modal and only count a click that flips the label. No prod
+  behaviour change; no tests skipped. See `docs/spec/039-e2e-git-cms-ci-safe/spec.md`.
+
+---
+
 ## 2026-06-16 — Feat: k8s deploy provisions Work runtime env
 
 - spec-040: k8s-deployed directory sites 500 at first render (`[auth] AUTH_SECRET must be set in production`) because the Deployment only carried NODE_ENV/PORT/HOSTNAME. Added a `deploy_k8s.yaml` step that materializes a `${WORK_SLUG}-runtime-env` Secret from the AUTH_SECRET/COOKIE_SECRET/COOKIE_SECURE/DATABASE_URL secrets the platform pushes (+ NEXT_PUBLIC_APP_URL/COOKIE_DOMAIN from the ingress host), and `deployment.yaml` mounts it via `envFrom` (optional). Platform half: ever-works DeployService.ensureRuntimeEnv + WorkRuntimeEnvService. See `docs/spec/040-k8s-deploy-runtime-env/spec.md`. (PR: pending)

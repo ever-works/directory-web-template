@@ -12,36 +12,50 @@ import { ItemData, UpdateItemRequest } from '@/lib/types/item';
 
 export class CollectionRepository {
   private gitService: CollectionGitService | null = null;
+  // In-flight init lock: under parallel requests (e.g. 2 CI workers sharing
+  // one server) concurrent callers must share a SINGLE init, otherwise two
+  // isomorphic-git initializations run against the same `.content/.git` at
+  // once — which is not concurrency-safe and can stall the request.
+  private gitServiceInit: Promise<CollectionGitService> | null = null;
   private itemRepository = new ItemRepository();
 
   private async getGitService(): Promise<CollectionGitService> {
-    if (!this.gitService) {
-      const dataRepo = process.env.DATA_REPOSITORY;
-      if (!dataRepo) {
-        throw new Error('DATA_REPOSITORY not configured. Please set DATA_REPOSITORY environment variable.');
-      }
+    if (this.gitService) {
+      return this.gitService;
+    }
+    if (!this.gitServiceInit) {
+      this.gitServiceInit = (async () => {
+        const dataRepo = process.env.DATA_REPOSITORY;
+        if (!dataRepo) {
+          throw new Error('DATA_REPOSITORY not configured. Please set DATA_REPOSITORY environment variable.');
+        }
 
-      const match = dataRepo.match(/https:\/\/github\.com\/([^\/]+)\/([^\/]+)/);
-      if (!match) {
-        throw new Error('Invalid DATA_REPOSITORY format. Expected: https://github.com/owner/repo');
-      }
+        const match = dataRepo.match(/https:\/\/github\.com\/([^\/]+)\/([^\/]+)/);
+        if (!match) {
+          throw new Error('Invalid DATA_REPOSITORY format. Expected: https://github.com/owner/repo');
+        }
 
-      const [, owner, repo] = match;
-      const gitConfig = {
-        owner,
-        repo,
-        token: process.env.GH_TOKEN || process.env.GITHUB_TOKEN || '',
-        branch: process.env.GITHUB_BRANCH || 'main',
-      };
+        const [, owner, repo] = match;
+        const gitConfig = {
+          owner,
+          repo,
+          token: process.env.GH_TOKEN || process.env.GITHUB_TOKEN || '',
+          branch: process.env.GITHUB_BRANCH || 'main',
+        };
 
-      if (!gitConfig.token) {
-        throw new Error('GitHub token not configured. Please set GH_TOKEN (or GITHUB_TOKEN) for collection sync.');
-      }
+        if (!gitConfig.token) {
+          throw new Error('GitHub token not configured. Please set GH_TOKEN (or GITHUB_TOKEN) for collection sync.');
+        }
 
-      this.gitService = await createCollectionGitService(gitConfig);
+        const svc = await createCollectionGitService(gitConfig);
+        this.gitService = svc;
+        return svc;
+      })().finally(() => {
+        this.gitServiceInit = null;
+      });
     }
 
-    return this.gitService;
+    return this.gitServiceInit;
   }
 
   async findAll(options: CollectionListOptions = {}): Promise<Collection[]> {
