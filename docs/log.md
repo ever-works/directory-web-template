@@ -31,6 +31,30 @@ why** at a higher level than per-commit diffs.
 
 ---
 
+## 2026-06-17 — Feat: deploy_k8s.yaml multi-host Ingress (K8S_EXTRA_HOSTS)
+
+- spec-041: EW-741 (ever-works PR #1322) made `DeployService` push a new
+  `K8S_EXTRA_HOSTS` repo secret on every k8s deploy — comma-separated,
+  lowercased, deduped list of `WorkCustomDomain` rows for the Work — but
+  `deploy_k8s.yaml` was still rendering a single `spec.rules` entry +
+  `spec.tls` block for the primary `K8S_INGRESS_HOST`. Adding a custom
+  domain in the Deploy tab therefore had no observable effect after
+  redeploy; the cluster Ingress only knew the managed `*.ever.works`
+  subdomain.
+- "Render and apply manifests" step now builds a `HOSTS=()` array (primary
+  first, then split `K8S_EXTRA_HOSTS` by `,`, lowercased + deduped by a
+  `seen` set), loops the array when emitting `spec.rules`, and loops it
+  again when emitting `spec.tls` so cert-manager issues a separate cert
+  per host. Per-host TLS `secretName` uses the same
+  `tr -c 'a-z0-9' '-' | sed …` collapse the original single-host path
+  used, so the managed `*.ever.works` host's existing TLS secret keeps its
+  name and cert-manager does not re-issue.
+- "Deployment summary" step now also echoes one `Also serving https://…`
+  line per extra host so multi-host deploys are discoverable in the
+  Actions run log.
+- Backwards-compatible: when `K8S_EXTRA_HOSTS` is empty / unset the
+  rendered Ingress is byte-identical to pre-EW-741 output.
+
 ## 2026-06-17 — Feat: instant sparkline bump + flicker-free rollback on upvote
 
 - spec-037: the item-detail Statistics card already tracked total votes
@@ -134,7 +158,7 @@ why** at a higher level than per-commit diffs.
   ('node:crypto') which is not supported in the Edge Runtime" and the resulting
   `Ecmascript file had an error` blocked the `[locale]/submit` page from
   rendering — which in turn failed the `client can submit a new item via the
-  submit form` Playwright test (button never appeared, hence
+submit form` Playwright test (button never appeared, hence
   `missing-required-fields="<unreadable>"`). Spec 024's plan.md:90 already
   prescribed `crypto.randomUUID()`; the original import was a deviation. Web
   Crypto's `randomUUID` is available in Node 20+ (this repo's minimum) and the
@@ -188,8 +212,8 @@ why** at a higher level than per-commit diffs.
   opens advanced filters; payment-card Download → `invoiceUrl`; LemonSqueezy
   Cancel Plan → `POST /api/lemonsqueezy/cancel` via existing
   `useSubscriptionActions` (confirm + toast + refresh; removed `console.log`
-  + orphan modal state); Modify Plan → `/pricing`; View Details → details
-  disclosure; Contact Support → `mailto:`. No new API routes.
+    - orphan modal state); Modify Plan → `/pricing`; View Details → details
+      disclosure; Contact Support → `mailto:`. No new API routes.
 
 ## 2026-05-26 — Spec 034: Client Billing page UI consistency
 
@@ -207,6 +231,7 @@ why** at a higher level than per-commit diffs.
   `RENEWS_ON`, `UPGRADE_UNLOCK_FEATURES`, `DAYS_LEFT`, `DAYS_TOTAL` in
   `messages/en.json`; non-English locales fall back via the existing
   `deepmerge` config). No functional/data changes.
+
 ## 2026-05-25 — Spec 033: Client profile Security & Billing blocks
 
 - spec-033: drafted `docs/spec/033-client-profile-security-billing/spec.md`
@@ -232,15 +257,15 @@ why** at a higher level than per-commit diffs.
 ## 2026-05-24 — /submit: fix step-1 progress jumping to 100%
 
 - `apps/web/components/directory/details-form/components/step-indicator.tsx`
-  + `.../validation/form-validators.ts`: step 1's progress bar/checkmark
-  jumped straight to 100% once Product Name + URL were filled, because the
-  connector fill short-circuited to 100% on the navigation-gate fields
-  (`['name','link']`). Reworked it to be proportional to the actually-tracked
-  fields and reset step 1's `progressFields` to the five visible inputs
-  (`link`, `name`, `category`, `tags`, `description`). Category/Tags are
-  filtered out of the count when those features are disabled in settings, so
-  the bar can still reach 100%. The step is now marked complete only when all
-  applicable tracked fields are filled.
+    - `.../validation/form-validators.ts`: step 1's progress bar/checkmark
+      jumped straight to 100% once Product Name + URL were filled, because the
+      connector fill short-circuited to 100% on the navigation-gate fields
+      (`['name','link']`). Reworked it to be proportional to the actually-tracked
+      fields and reset step 1's `progressFields` to the five visible inputs
+      (`link`, `name`, `category`, `tags`, `description`). Category/Tags are
+      filtered out of the count when those features are disabled in settings, so
+      the bar can still reach 100%. The step is now marked complete only when all
+      applicable tracked fields are filled.
 
 ## 2026-05-24 — /submit: hide pricing-only promo sections in payment step
 
@@ -290,17 +315,17 @@ why** at a higher level than per-commit diffs.
   the implementation in the same PR. Replaces the bare **Icon (emoji or URL)**
   input on the `/admin/collections` Create / Edit modal with a co-located
   `EmojiIconInput` (`apps/web/components/admin/collections/emoji-icon-input.tsx`
-  + curated `emoji-data.ts`). Typing `:` opens a GitHub-/Discord-style
-  suggestion popover with keyboard nav (arrows, Enter/Tab, Esc, Home/End),
-  debounced-via-`useDeferredValue` search, exact-shortname auto-replace on
-  trailing space, a recent-picks chip backed by a versioned-key
-  `localStorage` store (`evw_admin_collections_recent_emojis_v1`,
-  16-entry cap), and a 40×40 preview tile that renders the value as an emoji
-  glyph or, for `https://…` / `/relative` / `data:image/…` values, an
-  `<img>`. Existing URL paste behaviour is unchanged and the underlying
-  `icon_url` field still stores a single Unicode glyph or a raw URL — no
-  backend changes. Zero new dependencies: the curated dataset is ~300
-  entries inline. Jira: EW-646. PR: #920.
+    - curated `emoji-data.ts`). Typing `:` opens a GitHub-/Discord-style
+      suggestion popover with keyboard nav (arrows, Enter/Tab, Esc, Home/End),
+      debounced-via-`useDeferredValue` search, exact-shortname auto-replace on
+      trailing space, a recent-picks chip backed by a versioned-key
+      `localStorage` store (`evw_admin_collections_recent_emojis_v1`,
+      16-entry cap), and a 40×40 preview tile that renders the value as an emoji
+      glyph or, for `https://…` / `/relative` / `data:image/…` values, an
+      `<img>`. Existing URL paste behaviour is unchanged and the underlying
+      `icon_url` field still stores a single Unicode glyph or a raw URL — no
+      backend changes. Zero new dependencies: the curated dataset is ~300
+      entries inline. Jira: EW-646. PR: #920.
 
 ---
 
@@ -330,14 +355,14 @@ why** at a higher level than per-commit diffs.
 - Owner-only "Preview public view" toggle on the profile page
   (`?preview=public`) renders the page exactly as a visitor sees it.
 - Privacy hardening on the public profile render:
-  - Stopped leaking email local-part as username/displayName fallback.
-  - `RecentActivitySection` (comments, favourites, follow ledger) is
-    now owner-only — matches LinkedIn/GitHub/Upwork.
-  - Free-form `location` text now respects `locationPrivacy` ('private'
-    hides it from non-owners, same as lat/long).
-  - New `toPublicClientProfile()` projection in `client.queries.ts`
-    drops `email`, `phone`, `notes`, `tags`, `tenantId`, `twoFactorEnabled`,
-    moderation flags, billing flags and raw geo from the page payload.
+    - Stopped leaking email local-part as username/displayName fallback.
+    - `RecentActivitySection` (comments, favourites, follow ledger) is
+      now owner-only — matches LinkedIn/GitHub/Upwork.
+    - Free-form `location` text now respects `locationPrivacy` ('private'
+      hides it from non-owners, same as lat/long).
+    - New `toPublicClientProfile()` projection in `client.queries.ts`
+      drops `email`, `phone`, `notes`, `tags`, `tenantId`, `twoFactorEnabled`,
+      moderation flags, billing flags and raw geo from the page payload.
 - Owners always see their own profile regardless of setting.
 - Spec doc deferred per request — feature ships PR-only.
 
@@ -348,7 +373,7 @@ why** at a higher level than per-commit diffs.
   cursor-based infinite scroll.
 - API: `GET /api/client/notifications` and `GET /api/admin/notifications`
   switched to offset/limit and return `{notifications, total, page,
-  totalPages, unreadCount}`. Defaults: limit 25, max 100 (client) / 200
+totalPages, unreadCount}`. Defaults: limit 25, max 100 (client) / 200
   (admin). Unread count still uses base scope so the header pill is
   stable while filters narrow.
 - Hooks: `useNotifications` swaps `useInfiniteQuery` → `useQuery` with
@@ -379,19 +404,23 @@ Round 17 of the rolling e2e coverage buildout. 8 new spec files added on
 `develop` only (no cascade per operator instructions). Focus areas:
 
 URL / host security:
+
 - `public/listing-with-multiple-leading-slashes.spec.ts` — `//host` no off-site redirect.
 - `public/listing-with-fake-host-header.spec.ts` — Host header spoof no echo.
 
 HTML hygiene:
+
 - `public/listing-href-not-empty-or-hash.spec.ts` — few `href=""/href="#"`.
 - `public/listing-html-no-script-no-src.spec.ts` — no empty inline scripts.
 - `public/listing-no-deprecated-link-rel.spec.ts` — advisory: deprecated rel.
 - `public/listing-no-broken-anchor-content.spec.ts` — no `{{...}}`/`${...}` in anchors.
 
 Pages:
+
 - `public/client-settings-preferences-anonymous.spec.ts` — Spec 029 preferences gate.
 
 API:
+
 - `api/admin-mixed-method-flood.spec.ts` — verb flood × sponsor-ads/comments/etc.
 
 Branch: `feat/e2e-coverage-1779217016`. Admin-merged once CI passes. No
@@ -405,24 +434,30 @@ Round 16 of the rolling e2e coverage buildout. 10 new spec files added on
 `develop` only (no cascade per operator instructions). Focus areas:
 
 URL / encoding edges:
+
 - `public/listing-with-multiple-locale-prefixes.spec.ts` — `/en/fr/about` stacks.
 - `public/listing-bom-and-control-chars.spec.ts` — BOM/null/DEL/control chars.
 
 HTML hygiene:
+
 - `public/listing-overall-page-error-state.spec.ts` — no "undefined"/"NaN"/[object Object] visible.
 - `public/listing-no-deprecated-noscript-block.spec.ts` — noscript < 5KB.
 - `public/listing-form-submit-without-fields.spec.ts` — empty submit no crash.
 
 Perf + budgets:
+
 - `public/listing-network-resource-budgets.spec.ts` — total JS bytes budget.
 
 Pages:
+
 - `public/admin-survey-deep-anonymous.spec.ts` — admin survey edit/preview/responses + locale + RSC.
 
 API rejection:
+
 - `api/admin-collections-deeper.spec.ts` — collections + items nested CRUD.
 
 Icons / manifest:
+
 - `public/link-favicon-and-apple-touch-icon-shape.spec.ts` — icon hrefs well-formed.
 - `public/manifest-shape.spec.ts` — manifest valid JSON with name.
 
@@ -437,21 +472,25 @@ Round 15 of the rolling e2e coverage buildout. 10 new spec files added on
 `develop` only (no cascade per operator instructions). Focus areas:
 
 URL malforms:
+
 - `public/listing-with-double-question-mark.spec.ts` — `?a=b?c=d` tolerance.
 - `public/listing-with-percent-encoded-slash.spec.ts` — `%2F` in segments.
 - `public/listing-with-multi-percent.spec.ts` — double-encoded + emoji segments.
 - `public/paging-overflow-large-pages.spec.ts` — page=10000 on listings.
 
 Client settings deeper:
+
 - `public/theme-colors-page-protected.spec.ts` — theme-colors anon + RSC + locale.
 - `public/submissions-trash-protected.spec.ts` — trash anon + RSC + locale.
 
 API rejection:
+
 - `api/admin-clients-search-shapes.spec.ts` — advanced-search anonymous.
 - `api/webhook-content-type-deeper.spec.ts` — webhooks wrong CT / multipart / empty.
 - `api/admin-export-deeper.spec.ts` — items export format/limit variants anon.
 
 HTML hygiene:
+
 - `public/listing-no-trailing-comma-anchor.spec.ts` — no `<a href="/foo,">`.
 
 Branch: `feat/e2e-coverage-1779202525`. Admin-merged once CI passes. No
@@ -465,11 +504,13 @@ Round 14 of the rolling e2e coverage buildout. 14 new spec files added on
 `develop` only (no cascade per operator instructions). Focus areas:
 
 Locale × RSC bounce:
-- `public/admin-i18n-rsc-bounce.spec.ts` — locale × admin × _rsc anonymous.
-- `public/client-i18n-rsc-bounce.spec.ts` — locale × client × _rsc anonymous.
-- `public/sponsor-checkout-rsc-bounce.spec.ts` — /sponsor + _rsc tolerance.
+
+- `public/admin-i18n-rsc-bounce.spec.ts` — locale × admin × \_rsc anonymous.
+- `public/client-i18n-rsc-bounce.spec.ts` — locale × client × \_rsc anonymous.
+- `public/sponsor-checkout-rsc-bounce.spec.ts` — /sponsor + \_rsc tolerance.
 
 Perf + CLS + a11y:
+
 - `public/listing-aspect-ratio-images.spec.ts` — img dimensions vs aspect-ratio.
 - `public/listing-no-cls-from-late-fonts.spec.ts` — no font-display:block/auto.
 - `public/listing-no-dialog-open-without-trigger.spec.ts` — no auto-open dialog.
@@ -478,6 +519,7 @@ Perf + CLS + a11y:
 - `public/auth-pages-input-attributes.spec.ts` — auth inputs email+password.
 
 API + responses:
+
 - `public/listing-response-status-text.spec.ts` — 200 responses declare CT.
 - `api/auth-session-no-pii-leak.spec.ts` — anon session no hashes/tokens.
 - `api/admin-comments-deeper.spec.ts` — comments CRUD rejection.
@@ -495,16 +537,19 @@ Round 13 of the rolling e2e coverage buildout. 13 new spec files added on
 `develop` only (no cascade per operator instructions). Focus areas:
 
 Sitemap / SEO:
+
 - `public/sitemap-index-shape.spec.ts` — nested sitemap URLs absolute non-5xx.
 - `public/sitemap-images-and-news.spec.ts` — image/news/video sitemap variants.
 - `public/sitemap-images-and-news-extras.spec.ts` — sitemap alias paths.
 - `public/listing-meta-canonical-not-trailing-slash.spec.ts` — canonical host.
 
 Error rendering:
+
 - `public/error-status-content-types.spec.ts` — 404 returns HTML + body.
 - `public/listing-redirect-status.spec.ts` — redirect chains end non-5xx.
 
 HTML hygiene:
+
 - `public/listing-html-validity-essentials.spec.ts` — no script src=undefined, no [object Object], few >null<.
 - `public/listing-css-no-display-none-on-h1.spec.ts` — h1 attached to DOM.
 - `public/listing-no-render-blocking-js.spec.ts` — head scripts async/defer.
@@ -512,6 +557,7 @@ HTML hygiene:
 - `public/listing-favicon-ico-content-type.spec.ts` — favicon image content-type.
 
 Admin / API:
+
 - `public/admin-api-non-2xx-on-options.spec.ts` — admin OPTIONS no wildcard CORS.
 - `api/admin-twentycrm-deeper.spec.ts` — twenty-crm config/test-connection rejection.
 
@@ -526,6 +572,7 @@ Round 12 of the rolling e2e coverage buildout. 16 new spec files added on
 `develop` only (no cascade per operator instructions). Focus areas:
 
 a11y deeper:
+
 - `public/listing-form-labels.spec.ts` — auth inputs have label/aria/placeholder.
 - `public/listing-tabindex-non-negative.spec.ts` — no positive tabindex.
 - `public/listing-aria-hidden-conflict.spec.ts` — aria-hidden no focusable.
@@ -537,6 +584,7 @@ a11y deeper:
 - `public/listing-document-language-set.spec.ts` — html.lang non-empty.
 
 HTML sanity:
+
 - `public/listing-skeleton-renders.spec.ts` — listing body has content <2s.
 - `public/listing-no-deprecated-html.spec.ts` — no <font/center/marquee/etc.
 - `public/listing-multiple-h1.spec.ts` — at most 3 h1 elements per page.
@@ -544,6 +592,7 @@ HTML sanity:
 - `public/listing-css-no-blocking-fonts.spec.ts` — no font-display:block.
 
 API shape:
+
 - `api/stripe-products-shape.spec.ts` — products read + HEAD/OPTIONS.
 - `api/auth-callback-cookie-shape.spec.ts` — wrong-csrf no session cookie.
 
@@ -558,6 +607,7 @@ Round 11 of the rolling e2e coverage buildout. 17 new spec files added on
 `develop` only (no cascade per operator instructions). Focus areas:
 
 Locale prefix sweep:
+
 - `public/auth-locale-prefix-tolerance.spec.ts` — every locale × auth path.
 - `public/items-locale-prefix-tolerance.spec.ts` — detail routes × locale.
 - `public/pricing-locale-prefix.spec.ts` — /<loc>/pricing + sponsor.
@@ -566,18 +616,21 @@ Locale prefix sweep:
 - `api/admin-i18n-locale-prefix.spec.ts` — API endpoints with locale prefix.
 
 SEO/cache headers:
+
 - `public/hreflang-consistency.spec.ts` — well-formed hreflang.
 - `public/stale-while-revalidate-shape.spec.ts` — directive form parses.
 - `public/listing-resp-vary-header.spec.ts` — Vary tokens valid.
 - `public/listing-prefetch-not-blocking.spec.ts` — prefetch hrefs non-5xx.
 
 Cookie + storage hygiene:
+
 - `public/listing-set-cookie-flags.spec.ts` — session cookies HttpOnly/Secure.
 - `public/listing-no-localstorage-leak-on-load.spec.ts` — no token/secret keys.
 - `public/service-worker-control.spec.ts` — sw.js JS content-type.
 - `public/non-existent-image-route.spec.ts` — fake image paths non-5xx.
 
 Admin API deeper:
+
 - `api/admin-clients-and-bulk-deeper.spec.ts` — clients + bulk + dashboard.
 - `api/admin-navigation-and-location-deeper.spec.ts` — navigation/location/analytics.
 - `api/sponsor-ads-checkout-shapes.spec.ts` — sponsor-ads malformed payloads.
@@ -593,12 +646,14 @@ Round 10 of the rolling e2e coverage buildout. 23 new spec files added on
 `develop` only (no cascade per operator instructions). Focus areas:
 
 Tracking + framework:
+
 - `public/listing-with-utm-tracking.spec.ts` — UTM/gclid/fbclid/etc.
 - `public/nextjs-built-in-routes-tolerance.spec.ts` — `_next/*` probes.
 - `public/opengraph-image-routes.spec.ts` — App-Router OG image conventions.
 - `public/favicons-and-pwa-icons-deeper.spec.ts` — mstile/maskable.
 
 Security / hygiene:
+
 - `public/listing-no-iframe-without-sandbox.spec.ts` — 3p iframes sandbox.
 - `public/listing-no-dangerous-protocols.spec.ts` — no javascript:/data: hrefs.
 - `public/common-attack-paths.spec.ts` — wp-config/aws/cgi-bin/etc not 200.
@@ -606,24 +661,28 @@ Security / hygiene:
 - `public/nextjs-error-boundary-rendering.spec.ts` — no raw stack on errors.
 
 Headers / shape:
+
 - `public/listing-content-type-encoding.spec.ts` — Content-Type charset.
 - `public/range-requests.spec.ts` — Range header tolerance.
 - `public/if-modified-since.spec.ts` — If-Modified-Since / If-None-Match.
 - `public/listing-meta-author-and-keywords.spec.ts` — meta author presence.
 
 Routes + URL:
+
 - `public/dynamic-route-segments-tolerance.spec.ts` — unusual URL chars.
 - `public/listing-search-redirect-to-detail.spec.ts` — /search /s aliases.
 - `public/listing-with-anchor-fragment.spec.ts` — #fragment tolerance.
 - `public/listing-deep-state-restoration.spec.ts` — back-button history.
 
 a11y + layout:
+
 - `public/listing-keyboard-navigation.spec.ts` — Tab focuses interactive.
 - `public/listing-favorite-button-shape.spec.ts` — buttons exist on listings.
 - `public/listing-render-on-tablet-viewport.spec.ts` — iPad Mini no overflow.
 - `public/listing-form-input-counts.spec.ts` — auth forms have inputs.
 
 API content types:
+
 - `api/admin-import-content-types.spec.ts` — content-type matrix anonymous.
 - `api/admin-export-content-types.spec.ts` — Accept header matrix.
 
@@ -638,6 +697,7 @@ Round 9 of the rolling e2e coverage buildout. 26 new spec files added on
 `develop` only (no cascade per operator instructions). Focus areas:
 
 Performance budgets:
+
 - `public/time-to-first-paint-budget.spec.ts` — DOMContentLoaded < 15s.
 - `public/page-bytes-budget.spec.ts` — HTML payload < 1.5MB.
 - `public/inline-styles-bandwidth.spec.ts` — no 500KB inline <style>.
@@ -645,20 +705,23 @@ Performance budgets:
 - `public/listing-on-mobile-viewport.spec.ts` — iPhone 12 no horiz overflow.
 
 Console / runtime hygiene:
+
 - `public/listing-no-console-errors.spec.ts` — no uncaught JS errors.
 - `public/listing-no-failed-requests.spec.ts` — no unexpected 4xx/5xx in nav.
 - `public/listing-image-lazy-loading.spec.ts` — off-fold img loading=lazy.
 - `public/third-party-script-domains.spec.ts` — no http:// scripts.
 
 Sweeps + flood:
-- `public/client-protected-pages-flood.spec.ts` — every /client/* anon.
-- `public/dashboard-protected-pages-flood.spec.ts` — every /dashboard/* anon.
+
+- `public/client-protected-pages-flood.spec.ts` — every /client/\* anon.
+- `public/dashboard-protected-pages-flood.spec.ts` — every /dashboard/\* anon.
 - `public/detail-routes-flood.spec.ts` — all detail × sample/missing slugs.
-- `public/admin-non-existent-paths.spec.ts` — bogus /admin/* paths.
-- `public/api-non-existent-paths.spec.ts` — bogus /api/* paths not 200.
+- `public/admin-non-existent-paths.spec.ts` — bogus /admin/\* paths.
+- `public/api-non-existent-paths.spec.ts` — bogus /api/\* paths not 200.
 - `public/sponsorship-prefix-flow.spec.ts` — /sponsor with providers.
 
 Listing edges:
+
 - `public/listing-grid-and-list-toggle.spec.ts` — view=grid/list/map/compact.
 - `public/listing-sort-options-tolerance.spec.ts` — every common sort option.
 - `public/listing-filter-clear.spec.ts` — empty filter values tolerance.
@@ -667,9 +730,11 @@ Listing edges:
 - `public/listing-on-detail-page.spec.ts` — detail page renders w/o broken img.
 
 Auth flow shape:
+
 - `public/signout-flow-shape.spec.ts` — GET/POST signout non-5xx, with csrf.
 
 Error / shape:
+
 - `public/error-response-json-shape.spec.ts` — 4xx JSON parses as JSON.
 - `public/listing-search-via-url-not-leak-secrets.spec.ts` — no env names leaked.
 - `api/oauth-providers-shape.spec.ts` — providers id/name/type contract.
@@ -686,10 +751,12 @@ Round 8 of the rolling e2e coverage buildout. 29 new spec files added on
 `develop` only (no cascade per operator instructions). Focus areas:
 
 Auth + CSRF wire:
+
 - `public/auth-csrf-flow-shape.spec.ts` — POST credentials with csrf, non-5xx.
 - `public/auth-with-bogus-cookies.spec.ts` — every common bogus auth cookie.
 
 SEO shape + listing edges:
+
 - `public/sitemap-listing-shape.spec.ts` — <loc> URLs, no /admin/ leak.
 - `public/listing-q-injection-shapes.spec.ts` — SQLi/JNDI/log4shell probes.
 - `public/listing-empty-state-page-shape.spec.ts` — empty filter still 200.
@@ -700,20 +767,24 @@ SEO shape + listing edges:
 - `public/json-cache-tags-immutability.spec.ts` — public JSON Cache-Control.
 
 Detail / RSC:
-- `public/rsc-suffix-on-detail.spec.ts` — locale × _rsc on detail routes.
-- `public/admin-rsc-suffix.spec.ts` — /admin/* anonymous bounce + _rsc.
-- `public/client-rsc-suffix.spec.ts` — /client/* anonymous bounce + _rsc.
-- `public/admin-detail-survey-edit-rsc.spec.ts` — admin survey + _rsc.
+
+- `public/rsc-suffix-on-detail.spec.ts` — locale × \_rsc on detail routes.
+- `public/admin-rsc-suffix.spec.ts` — /admin/\* anonymous bounce + \_rsc.
+- `public/client-rsc-suffix.spec.ts` — /client/\* anonymous bounce + \_rsc.
+- `public/admin-detail-survey-edit-rsc.spec.ts` — admin survey + \_rsc.
 
 i18n locale prefix deeper:
+
 - `public/client-i18n-routes-deeper.spec.ts` — locale × client/dashboard.
 - `public/admin-i18n-routes-deeper.spec.ts` — locale × admin sweep.
 
 Trailing slashes / links:
+
 - `public/trailing-slash-canonicalization.spec.ts` — /about/ no 5xx.
-- `public/links-rel-noopener-noreferrer.spec.ts` — _blank links carry rel.
+- `public/links-rel-noopener-noreferrer.spec.ts` — \_blank links carry rel.
 
 API rejection:
+
 - `public/favorites-api-routes-deeper.spec.ts` — favorites verbs anonymous.
 - `public/admin-method-flood.spec.ts` — every verb × top admin endpoints.
 - `api/featured-items-deeper.spec.ts` — featured items query shapes.
@@ -726,6 +797,7 @@ API rejection:
 - `api/stripe-portal-and-products-edges.spec.ts` — stripe portal variants.
 
 Image / SEO:
+
 - `public/image-with-srcset-shape.spec.ts` — srcset entries well-formed.
 
 Branch: `feat/e2e-coverage-1779166258`. Admin-merged once CI passes. No
@@ -739,6 +811,7 @@ Round 7 of the rolling e2e coverage buildout. 30 new spec files added on
 `develop` only (no cascade per operator instructions). Focus areas:
 
 SEO + link shape:
+
 - `public/rel-next-prev-listing.spec.ts` — rel=next/prev hrefs sane.
 - `public/canonical-link-presence.spec.ts` — canonical href non-empty.
 - `public/robots-disallow-shape.spec.ts` — admin/internal protected.
@@ -747,23 +820,27 @@ SEO + link shape:
 - `public/listing-pagination-link-validity.spec.ts` — pagination links internal.
 
 Detail routes deeper:
+
 - `public/item-detail-deeper-tolerance.spec.ts` — /items/[slug] weird inputs.
 - `public/collections-detail-deeper.spec.ts` — /collections/[slug] weird.
 - `public/surveys-detail-deeper.spec.ts` — /surveys/[slug] weird.
 - `public/detail-page-rsc-tolerance.spec.ts` — RSC prefetch on detail pages.
 
 i18n / locale prefix:
+
 - `public/multiple-locale-meta.spec.ts` — each locale title + /about + /discover.
 - `public/admin-locale-prefix.spec.ts` — /<loc>/admin bounces anonymous.
 - `public/client-area-locale-prefix.spec.ts` — /<loc>/client + /<loc>/dashboard.
 
 Header tolerance:
+
 - `public/fetch-with-priority-hints.spec.ts` — Save-Data, Priority, DPR.
-- `public/dnt-tolerance.spec.ts` — DNT/Sec-GPC/Sec-Fetch-* tolerance.
+- `public/dnt-tolerance.spec.ts` — DNT/Sec-GPC/Sec-Fetch-\* tolerance.
 - `public/theme-class-tolerance.spec.ts` — html class no "undefined".
 - `public/dom-no-react-errors.spec.ts` — no error overlay text in HTML.
 
 Listing edges:
+
 - `public/listing-deep-link-share.spec.ts` — bookmarked filter URLs.
 - `public/ai-chat-toggle-tolerance.spec.ts` — ?chat=open/closed survives.
 - `public/listing-prefetch-burst-paths.spec.ts` — parallel burst across routes.
@@ -771,6 +848,7 @@ Listing edges:
 - `public/submit-and-extract-anon.spec.ts` — /submit anonymous behavior.
 
 JSON / discovery / health:
+
 - `public/swagger-and-openapi-shape.spec.ts` — no secrets in openapi docs.
 - `public/health-shape.spec.ts` — /api/health no DB URL leak.
 - `public/agent-and-crawl-discovery.spec.ts` — agents.json/ai.txt non-5xx.
@@ -778,6 +856,7 @@ JSON / discovery / health:
 - `public/public-listing-json-mirror-deeper.spec.ts` — .json mirrors parse.
 
 Admin API sweep + deeper:
+
 - `public/admin-prefix-api-rejection.spec.ts` — every admin GET 4xx.
 - `public/client-prefix-api-rejection.spec.ts` — every client GET 4xx.
 - `api/admin-settings-deeper.spec.ts` — settings PUT/PATCH/DELETE/OPTIONS.
@@ -800,11 +879,13 @@ Round 6 of the rolling e2e coverage buildout. 35 new spec files added on
 `develop` only (no cascade per operator instructions). Focus areas:
 
 OG / SEO / feeds:
+
 - `public/og-image-and-twitter-card.spec.ts` — og:title/desc + twitter:card.
 - `public/rss-atom-feed-shape.spec.ts` — feed XML/JSON shape contracts.
 - `public/listing-jsonld-itemlist.spec.ts` — listing pages json-ld parses.
 
 Static assets / caching / image optimizer:
+
 - `public/nextjs-image-route-tolerance.spec.ts` — `/_next/image` hostile inputs.
 - `public/static-chunk-caching.spec.ts` — `/_next/static/*` immutable cache.
 - `public/favicon-detail.spec.ts` — all common favicon paths non-5xx.
@@ -813,6 +894,7 @@ Static assets / caching / image optimizer:
 - `public/image-domain-allowlist.spec.ts` — homepage `<img src>` resolve.
 
 HTTP method matrix / headers:
+
 - `public/webhook-method-coverage.spec.ts` — webhooks reject non-POST.
 - `public/options-method-tolerance.spec.ts` — preflight OPTIONS non-5xx.
 - `public/head-method-tolerance.spec.ts` — HEAD requests non-5xx.
@@ -821,6 +903,7 @@ HTTP method matrix / headers:
 - `public/custom-host-and-x-forwarded.spec.ts` — proxy header tolerance.
 
 Auth / form shape:
+
 - `public/login-modal-and-form-shape.spec.ts` — email/password inputs render.
 - `public/form-input-types.spec.ts` — type=email / type=password correctness.
 - `public/autocomplete-attributes.spec.ts` — password autocomplete not "off".
@@ -828,18 +911,21 @@ Auth / form shape:
 - `public/auth-callback-routes.spec.ts` — provider callback non-5xx.
 
 a11y deeper:
+
 - `public/heading-and-landmarks-quick.spec.ts` — main/nav/h1 presence.
 - `public/skip-link-and-focus.spec.ts` — skip link or main[id], Tab works.
 - `public/images-have-alt.spec.ts` — every <img> has alt attribute.
 - `public/html-charset-and-viewport.spec.ts` — meta charset + viewport.
 
 Inline / CSP / chat / extract:
+
 - `public/inline-script-csp-shape.spec.ts` — unsafe-inline requires nonce.
 - `public/chat-api-protection.spec.ts` — /api/chat anonymous, no key leak.
 - `public/extract-api-protection.spec.ts` — /api/extract SSRF tolerance.
 
 Listing / RSC / preview:
-- `public/listing-rsc-stream-tolerance.spec.ts` — RSC header + _rsc=.
+
+- `public/listing-rsc-stream-tolerance.spec.ts` — RSC header + \_rsc=.
 - `public/nextjs-prefetch-headers.spec.ts` — purpose=prefetch tolerance.
 - `public/listing-no-duplicates.spec.ts` — items.json no duplicate slugs.
 - `public/listing-aria-current-and-state.spec.ts` — weird filter survival.
@@ -853,11 +939,13 @@ Listing / RSC / preview:
 - `public/stripe-redirect-and-checkout-routes.spec.ts` — pricing/success vars.
 
 Settings / admin / page protection:
-- `public/settings-deep-paths-protected.spec.ts` — client/settings/* gate.
-- `public/admin-survey-routes-anonymous.spec.ts` — admin/surveys/* gate.
+
+- `public/settings-deep-paths-protected.spec.ts` — client/settings/\* gate.
+- `public/admin-survey-routes-anonymous.spec.ts` — admin/surveys/\* gate.
 - `public/admin-detail-pages-anonymous.spec.ts` — /admin/clients/[id] gate.
 
 API deeper:
+
 - `api/items-comments-rating-deeper.spec.ts` — nested comments/rating.
 - `api/admin-companies-and-comments-deeper.spec.ts` — admin orgs/comments.
 
@@ -872,6 +960,7 @@ Round 5 of the rolling e2e coverage buildout. 56 new spec files added on
 `develop` only (no cascade per operator instructions). Focus areas:
 
 Uncovered pages and deeper boundaries:
+
 - `public/comparisons-detail-public.spec.ts` — /comparisons/[slug].
 - `public/cms-pages-slug.spec.ts` — /pages/[slug] CMS bucket.
 - `public/categories-detail-tolerance.spec.ts` — /categories/[…] + nested catch-all.
@@ -894,6 +983,7 @@ Uncovered pages and deeper boundaries:
 - `public/favorites-anonymous-tolerance.spec.ts` — /favorites anonymous gate.
 
 Robust input + header tolerance:
+
 - `public/content-length-and-encoding.spec.ts` — JSON content-type + bogus
   accept-encoding.
 - `public/cookie-tolerance.spec.ts` — empty / malformed / oversize / bogus
@@ -903,6 +993,7 @@ Robust input + header tolerance:
 - `public/concurrent-rapid-navigation.spec.ts` — rapid navigation + reload x5.
 
 Security / SEO / a11y headers:
+
 - `public/error-page-status-codes.spec.ts` — bot-path 404s + wp-login, .env etc.
 - `public/sitemap-and-robots-shape.spec.ts` — sitemap.xml/robots.txt/llms.txt
   shape.
@@ -915,7 +1006,7 @@ Security / SEO / a11y headers:
 - `public/response-headers-deeper.spec.ts` — X-Powered-By, Server, frame
   protection.
 - `public/internal-and-internal-routes-protected.spec.ts` —
-  /api/internal/db-init + /api/__test__/* never 200.
+  /api/internal/db-init + /api/**test**/\* never 200.
 - `public/session-and-csrf-shape.spec.ts` — wire contracts for
   /api/auth/session / csrf / providers.
 - `public/language-locale-redirects.spec.ts` — locale prefix tolerance.
@@ -928,12 +1019,14 @@ Security / SEO / a11y headers:
   buttons.
 
 Client / dashboard:
+
 - `client/dashboard-items-surveys-protected.spec.ts` — /dashboard/items/[id]/surveys.
 - `client/client-users-and-sponsorships-protected.spec.ts` — anonymous gate.
 - `client/public-profile-deeper.spec.ts` — /client/profile/[u]/followers/following
   with weird usernames.
 
 API rejection deeper:
+
 - `api/admin-detail-deeper.spec.ts` — every admin detail endpoint anonymous.
 - `api/admin-bulk-and-import-rejection.spec.ts` — bulk/import/export endpoints.
 - `api/user-profile-deeper.spec.ts` — /api/user/profile/follow + portfolio.
@@ -962,6 +1055,7 @@ Round 4 of the rolling e2e coverage buildout. 22 new spec files added
 on `develop` only (no cascade per operator instructions). Focus areas:
 
 Payment providers + Stripe:
+
 - `api/polar-endpoints-rejection.spec.ts` — Polar user endpoints +
   webhook signature gate.
 - `api/lemonsqueezy-endpoints-rejection.spec.ts` — LemonSqueezy +
@@ -970,20 +1064,23 @@ Payment providers + Stripe:
   webhook signature gate.
 - `api/stripe-payment-methods-rejection.spec.ts` — Stripe payment
   method + subscription per-id endpoints reject anonymous.
-- `api/payment-account-rejection.spec.ts` — /api/payment/* +
+- `api/payment-account-rejection.spec.ts` — /api/payment/\* +
   sponsor-ads checkout reject anonymous.
 
 Items engagement:
+
 - `api/items-engagement-public.spec.ts` — votes/comments/views/
   activity public reads + anonymous mutation rejection.
 - `api/favorites-itemslug-rejection.spec.ts` — favorites slug-keyed
   mutations require auth.
 
 Client API:
-- `api/client-items-api-rejection.spec.ts` — /api/client/* endpoints
+
+- `api/client-items-api-rejection.spec.ts` — /api/client/\* endpoints
   reject anonymous (GET + mutating).
 
 Admin sub-systems:
+
 - `api/admin-roles-and-permissions.spec.ts` — roles + permissions
   graph endpoints.
 - `api/admin-users-and-validation.spec.ts` — users + check-email /
@@ -996,6 +1093,7 @@ Admin sub-systems:
   advanced-search + notifications.
 
 Public utility endpoints:
+
 - `api/location-and-geocode-public.spec.ts` — location/cities/
   countries/coordinates/search + geocode tolerance.
 - `api/public-misc-endpoints.spec.ts` — exists probes, featured-items,
@@ -1003,6 +1101,7 @@ Public utility endpoints:
   settings, config/features, /api/internal/db-init rejection.
 
 Public hardening:
+
 - `public/service-worker-and-pwa.spec.ts` — manifest + sw reachability.
 - `public/favicon-and-apple-touch.spec.ts` — browser icon assets
   reachable + advertised in <link>.
@@ -1024,6 +1123,7 @@ Public hardening:
   requests and parallel /discover searches don't 5xx.
 
 Auth:
+
 - `auth/oauth-error-page-tolerance.spec.ts` — `/auth/error?error=…`
   tolerates 16 different codes (including XSS / traversal payloads);
   /auth/signout + /auth/verify-request render.
@@ -1034,6 +1134,7 @@ Round 3 of the rolling e2e coverage buildout. 28 new spec files added
 on `develop` only (no cascade per operator instructions). Focus areas:
 
 API security matrices:
+
 - `api/stripe-endpoints-rejection.spec.ts` — Stripe surface + webhook
   signature rejection.
 - `api/surveys-api-rejection.spec.ts` — surveys read tolerance +
@@ -1053,6 +1154,7 @@ API security matrices:
   reject anonymous.
 
 Admin pages + deeper API:
+
 - `admin/admin-detail-and-survey-routes.spec.ts` — admin dynamic-segment
   routes for client and survey detail/create.
 - `admin/admin-mutating-api-deeper.spec.ts` — sweep of remaining admin
@@ -1062,12 +1164,14 @@ Admin pages + deeper API:
 - `admin/admin-i18n-locale.spec.ts` — admin pages in fr/es/de.
 
 Auth coverage:
+
 - `auth/new-password-flow-tokens.spec.ts` — token-gated auth pages
   tolerate garbage / SQL-shaped / missing tokens.
 - `auth/admin-signin-page.spec.ts` — `/admin/auth/signin` form +
   callbackUrl sanitization.
 
 Client coverage:
+
 - `client/settings-form-elements.spec.ts` — every settings sub-page
   exposes form elements.
 - `client/public-profile-view.spec.ts` — non-existent profile slugs
@@ -1075,6 +1179,7 @@ Client coverage:
 - `client/client-i18n-locale.spec.ts` — `/client/*` in fr/es/de.
 
 Public coverage:
+
 - `public/item-detail-and-survey.spec.ts` — item detail + .md mirror +
   collections/comparisons/pages slug tolerance.
 - `public/paging-deep-routes.spec.ts` — tags/collections paging edge
@@ -1103,7 +1208,7 @@ Public coverage:
   size on hot routes.
 - `public/fetch-cache-busting.spec.ts` — tracking params don't break
   caching.
-- `public/admin-api-prefix-rejection.spec.ts` — unknown /api/admin/*
+- `public/admin-api-prefix-rejection.spec.ts` — unknown /api/admin/\*
   paths reject cleanly.
 - `public/stripe-redirect-routes.spec.ts` — /pricing CTAs don't crash
   anonymously.
@@ -1145,65 +1250,65 @@ Files added (`apps/web-e2e/tests/...`):
   signout → signin → dashboard round-trip; bad-password error UI;
   duplicate-email error UI.
 - `auth/form-validation-comprehensive.spec.ts` — HTML5 required-field
-  + email-format validation across signin/register/forgot-password.
+    - email-format validation across signin/register/forgot-password.
 - `auth/callback-url-sanitization.spec.ts` — hostile `?callbackUrl=`
   values don't open-redirect.
 - `i18n/locale-coverage-matrix.spec.ts` — 6 locales × 6 core pages,
   assert non-5xx + heading + `<html lang>` matches URL.
 - `public/route-coverage-matrix.spec.ts` (round 1, already shipped),
   plus this round:
-  - `public/seo-meta-coverage.spec.ts` — title/description/canonical/
-    og:title/JSON-LD on every key page.
-  - `public/sitemap-feeds-shape.spec.ts` — sitemap.xml is XML+urlset,
-    rss/atom/json feeds parse, opengraph-image is an image.
-  - `public/hreflang-coverage.spec.ts` — alternates emitted on every
-    locale-aware page.
-  - `public/meta-rss-discovery.spec.ts` — feed autodiscovery links.
-  - `public/md-mirror-routes.spec.ts` — `.md` mirror of static info
-    pages serves Markdown.
-  - `public/header-footer-completeness.spec.ts` — header + footer
-    render on every sampled page.
-  - `public/security-headers.spec.ts` — nosniff, XFO, HSTS, CSP on
-    every page + API.
-  - `public/caching-headers.spec.ts` — home is CDN-cacheable;
-    auth endpoints aren't.
-  - `public/redirect-canonicalization.spec.ts` — trailing slash,
-    `/en/` prefix, case variants don't 5xx.
-  - `public/concurrent-anonymous-sessions.spec.ts` — two anonymous
-    contexts have independent sessions / CSRF tokens.
-  - `public/links-no-broken-internal.spec.ts` — sampled internal
-    links from every seed page resolve.
-  - `public/images-and-icons.spec.ts` — favicon, logo, accessibility
-    hints on logo.
-  - `public/noscript-fallback.spec.ts` — public pages render with
-    JavaScript disabled.
-  - `public/listing-filter-combinations.spec.ts` — listing filter
-    combinations (search × sort × page).
-  - `public/listing-pagination-edges.spec.ts` — non-numeric / negative
-    / huge page params don't 5xx.
-  - `public/listing-empty-state.spec.ts` — no-result search, empty
-    category, anonymous favorites.
-  - `public/404-and-error-recovery.spec.ts` — 404 renders nav,
-    home link works, non-existent slugs return 4xx not 5xx.
-  - `public/page-stability-fresh-cookies.spec.ts` — every public
-    page survives a completely empty cookie jar.
-  - `public/trailing-rsc-suffix.spec.ts` — `?_rsc=…` RSC prefetch
-    queries don't 5xx (the prefetch pattern Spec 027 caught in
-    network logs).
-  - `public/large-payload-handling.spec.ts` — 5000-char email /
-    1000-char name / 2000-char search query rejected with 4xx.
-  - `public/sponsor-pricing-success-redirect-loop.spec.ts` —
-    `/pricing/success` with no/garbage params doesn't loop.
-  - `public/theme-and-prefs-persistence.spec.ts` — theme toggle +
-    locale cookie persistence across navigation.
-  - `public/accessibility-quick-audit.spec.ts` — axe-core WCAG 2A/AA
-    on home + signin + register; fail on critical/serious only.
-  - `public/performance-budget-public.spec.ts` — total JS bytes
-    transferred on first load is under a generous ceiling; home
-    loads within 10s.
-  - `public/json-api-shapes.spec.ts` — minimum shape contract for
-    public JSON endpoints (version, items.json, csrf, providers,
-    session, current-user, currency).
+    - `public/seo-meta-coverage.spec.ts` — title/description/canonical/
+      og:title/JSON-LD on every key page.
+    - `public/sitemap-feeds-shape.spec.ts` — sitemap.xml is XML+urlset,
+      rss/atom/json feeds parse, opengraph-image is an image.
+    - `public/hreflang-coverage.spec.ts` — alternates emitted on every
+      locale-aware page.
+    - `public/meta-rss-discovery.spec.ts` — feed autodiscovery links.
+    - `public/md-mirror-routes.spec.ts` — `.md` mirror of static info
+      pages serves Markdown.
+    - `public/header-footer-completeness.spec.ts` — header + footer
+      render on every sampled page.
+    - `public/security-headers.spec.ts` — nosniff, XFO, HSTS, CSP on
+      every page + API.
+    - `public/caching-headers.spec.ts` — home is CDN-cacheable;
+      auth endpoints aren't.
+    - `public/redirect-canonicalization.spec.ts` — trailing slash,
+      `/en/` prefix, case variants don't 5xx.
+    - `public/concurrent-anonymous-sessions.spec.ts` — two anonymous
+      contexts have independent sessions / CSRF tokens.
+    - `public/links-no-broken-internal.spec.ts` — sampled internal
+      links from every seed page resolve.
+    - `public/images-and-icons.spec.ts` — favicon, logo, accessibility
+      hints on logo.
+    - `public/noscript-fallback.spec.ts` — public pages render with
+      JavaScript disabled.
+    - `public/listing-filter-combinations.spec.ts` — listing filter
+      combinations (search × sort × page).
+    - `public/listing-pagination-edges.spec.ts` — non-numeric / negative
+      / huge page params don't 5xx.
+    - `public/listing-empty-state.spec.ts` — no-result search, empty
+      category, anonymous favorites.
+    - `public/404-and-error-recovery.spec.ts` — 404 renders nav,
+      home link works, non-existent slugs return 4xx not 5xx.
+    - `public/page-stability-fresh-cookies.spec.ts` — every public
+      page survives a completely empty cookie jar.
+    - `public/trailing-rsc-suffix.spec.ts` — `?_rsc=…` RSC prefetch
+      queries don't 5xx (the prefetch pattern Spec 027 caught in
+      network logs).
+    - `public/large-payload-handling.spec.ts` — 5000-char email /
+      1000-char name / 2000-char search query rejected with 4xx.
+    - `public/sponsor-pricing-success-redirect-loop.spec.ts` —
+      `/pricing/success` with no/garbage params doesn't loop.
+    - `public/theme-and-prefs-persistence.spec.ts` — theme toggle +
+      locale cookie persistence across navigation.
+    - `public/accessibility-quick-audit.spec.ts` — axe-core WCAG 2A/AA
+      on home + signin + register; fail on critical/serious only.
+    - `public/performance-budget-public.spec.ts` — total JS bytes
+      transferred on first load is under a generous ceiling; home
+      loads within 10s.
+    - `public/json-api-shapes.spec.ts` — minimum shape contract for
+      public JSON endpoints (version, items.json, csrf, providers,
+      session, current-user, currency).
 
 All changes land on `develop` only via PR; per operator instruction,
 no cascade to stage/main this round. The hourly task #68 picks up
@@ -1345,6 +1450,7 @@ prevent the double-fire that originally motivated all of this.
   smoking gun: a second `signIn` fetch aborted by navigation, surfacing
   as `TypeError: Failed to fetch` in console and racing the cookie write
   against the dashboard's `auth()` call.
+
 ## 2026-05-19 — Spec 029: renumber from 027 → 029 after develop landed 027/028
 
 - `spec-029` Renumbered this spec from `027` → `029` when rebasing on `develop`, because `develop` had concurrently landed `spec-027-fix-post-register-autologin` and `spec-028-e2e-coverage-buildout`. Folder, frontmatter (`id`, `title`, `sidebar_label`), in-body header, and the README index row were rewritten from `027` → `029`. Earlier `spec-027` references in this log that belong to the Preferences-section work were rewritten to `spec-029` / `029-…`; references that belong to the post-register auto-login fix (also numbered 027 on `develop`) were left alone. No code changes in this commit. PR #850.
@@ -1400,7 +1506,7 @@ prevent the double-fire that originally motivated all of this.
   redesigned cards.
 - `spec-026` Replaced the cramped 3-slice pie in Submission Status with
   a horizontal stacked bar over a per-status row list (icon chip + count
-  + percent). Reads at a glance and scales better with future statuses.
+    - percent). Reads at a glance and scales better with future statuses.
 - `spec-026` Weekly Activity now flows all three series labels
   ("Submissions", "Views", "Engagement") through `useTranslations()` —
   previously hard-coded English bypassed the i18n layer entirely.
@@ -1456,14 +1562,14 @@ prevent the double-fire that originally motivated all of this.
   `docs/spec/README.md` as row 026.
 - `spec-026` API contract: `engagementChartData` items now use a typed
   `{ key, value, color }` shape (`'views' | 'votesReceived' |
-  'commentsReceived'`) instead of `{ name, value, color }`, and the
+'commentsReceived'`) instead of `{ name, value, color }`, and the
   `Shares` slice is removed. Swagger JSDoc on `GET
-  /api/client/dashboard/stats` updated; re-run `pnpm generate-docs`
+/api/client/dashboard/stats` updated; re-run `pnpm generate-docs`
   before release to refresh `public/openapi.json`.
 - `spec-026` Added 10 new strings under `client.dashboard.*`
   (`LOCATION_DISABLED_TITLE`, `LOCATION_DISABLED_DESC`,
   `ENGAGEMENT_CHART.{TITLE, VIEWS, VOTES_RECEIVED,
-  COMMENTS_RECEIVED}`, `TOP_ITEMS.{TITLE, ID, NO_DATA, NO_DATA_DESC}`)
+COMMENTS_RECEIVED}`, `TOP_ITEMS.{TITLE, ID, NO_DATA, NO_DATA_DESC}`)
   to all 21 locale files with real translations. Backfill script
   used once and removed.
 
@@ -2360,124 +2466,124 @@ pinning a tighter`[200, 500]` two-valid-status
   invariance contract that no prior per-source-
   file public-route GET smoke covers.
 
-                    `docs/plugins/admin-clients-query-spec.md`
-                    for the existing pre-landed e2e spec
-                    [`apps/web-e2e/tests/api/admin-clients-query.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/api/admin-clients-query.spec.ts)
-                    paired with the `GET` export of
-                    `apps/web/app/api/admin/clients/route.ts` --
-                    the **first per-source-file admin-tree GET smoke
-                    pinning the bare-message single-step-collapse
-                    `{ error: 'Unauthorized' }` 401 envelope** posture
-                    (matches the sibling `admin/comments` /
-                    `admin/companies` / `admin/users` routes; distinct
-                    from the canonical-longer-message family of
-                    `admin/categories` / `admin/items` /
-                    `admin/items/import` / `admin/items/import/validate`
-                    AND from the two-step-split-401-vs-403 family of
-                    `admin/notifications/[id]/read` /
-                    `admin/notifications/mark-all-read` /
-                    `admin/users/check-email` /
-                    `admin/users/check-username` /
-                    `admin/clients/bulk` AND from the auth-gate-
-                    divergence-finding posture of the un-gated
-                    `admin/roles` / `admin/roles/active` family).
-                    UNIQUE: every prior admin-tree query smoke pins
-                    one of three different gate postures; this is
-                    the FIRST per-source-file admin-tree GET smoke
-                    pinning the bare-message single-step-collapse
-                    envelope. The new page documents the
-                    **single-step `session?.user?.isAdmin` gate
-                    ahead of the shared
-                    `validatePaginationParams(searchParams)`
-                    helper** (the helper short-circuits with its
-                    `{ error, status }` 400 envelope on
-                    `?page=invalid` / `?limit=invalid` /
-                    `?page=-1` / `?limit=0` / `?limit=200`, but
-                    only on the AUTH branch -- the unauth branch
-                    hits 401 BEFORE the helper runs), the **six
-                    optional query-param reads, all AFTER the
-                    gate** (`?search=`, `?status=`, `?plan=`,
-                    `?accountType=`, `?provider=` -- parsed via
-                    raw `searchParams.get('…') || undefined`
-                    calls, NO inline enum coercion or Zod schema
-                    validation, distinct from the `admin/roles`
-                    route's narrow inline ternary enum coercion),
-                    the **legacy `getClientProfiles({…})` query
-                    helper** (distinct from the `admin/categories`
-                    route's `categoryRepository.findAllPaginated(...)`
-                    repository-pattern posture; the spec stays green
-                    if a future contributor refactors the route to
-                    a `clientRepository` abstraction), the
-                    **three-key `{ success, data: { clients }, meta }`
-                    success envelope** (the `data` key carries a
-                    single `clients: []` sub-key, distinct from the
-                    `admin/users` route's bare `{ success, data: [...],
+                        `docs/plugins/admin-clients-query-spec.md`
+                        for the existing pre-landed e2e spec
+                        [`apps/web-e2e/tests/api/admin-clients-query.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/api/admin-clients-query.spec.ts)
+                        paired with the `GET` export of
+                        `apps/web/app/api/admin/clients/route.ts` --
+                        the **first per-source-file admin-tree GET smoke
+                        pinning the bare-message single-step-collapse
+                        `{ error: 'Unauthorized' }` 401 envelope** posture
+                        (matches the sibling `admin/comments` /
+                        `admin/companies` / `admin/users` routes; distinct
+                        from the canonical-longer-message family of
+                        `admin/categories` / `admin/items` /
+                        `admin/items/import` / `admin/items/import/validate`
+                        AND from the two-step-split-401-vs-403 family of
+                        `admin/notifications/[id]/read` /
+                        `admin/notifications/mark-all-read` /
+                        `admin/users/check-email` /
+                        `admin/users/check-username` /
+                        `admin/clients/bulk` AND from the auth-gate-
+                        divergence-finding posture of the un-gated
+                        `admin/roles` / `admin/roles/active` family).
+                        UNIQUE: every prior admin-tree query smoke pins
+                        one of three different gate postures; this is
+                        the FIRST per-source-file admin-tree GET smoke
+                        pinning the bare-message single-step-collapse
+                        envelope. The new page documents the
+                        **single-step `session?.user?.isAdmin` gate
+                        ahead of the shared
+                        `validatePaginationParams(searchParams)`
+                        helper** (the helper short-circuits with its
+                        `{ error, status }` 400 envelope on
+                        `?page=invalid` / `?limit=invalid` /
+                        `?page=-1` / `?limit=0` / `?limit=200`, but
+                        only on the AUTH branch -- the unauth branch
+                        hits 401 BEFORE the helper runs), the **six
+                        optional query-param reads, all AFTER the
+                        gate** (`?search=`, `?status=`, `?plan=`,
+                        `?accountType=`, `?provider=` -- parsed via
+                        raw `searchParams.get('…') || undefined`
+                        calls, NO inline enum coercion or Zod schema
+                        validation, distinct from the `admin/roles`
+                        route's narrow inline ternary enum coercion),
+                        the **legacy `getClientProfiles({…})` query
+                        helper** (distinct from the `admin/categories`
+                        route's `categoryRepository.findAllPaginated(...)`
+                        repository-pattern posture; the spec stays green
+                        if a future contributor refactors the route to
+                        a `clientRepository` abstraction), the
+                        **three-key `{ success, data: { clients }, meta }`
+                        success envelope** (the `data` key carries a
+                        single `clients: []` sub-key, distinct from the
+                        `admin/users` route's bare `{ success, data: [...],
 
-                pagination: {…} }` shape), the **`POST`branch
-                with environment-flag-gated CRM sync** (out of
-                scope for this GET-only spec but documented so
-                future contributors who add a`POST`smoke must
-                defend against the synchronous
+                    pagination: {…} }` shape), the **`POST`branch
+                    with environment-flag-gated CRM sync** (out of
+                    scope for this GET-only spec but documented so
+                    future contributors who add a`POST`smoke must
+                    defend against the synchronous
 
-            `createTwentyCrmSyncServiceFromEnv()`upsert via
-            `TWENTY_CRM_ENABLED=false`environment override),
-            the at-a-glance scenario tree (one bulk-loop
-            walk over ~60 paths + eleven hand-written
-            scenarios pinning: the strict 401-on-no-arg-
-            baseline + bare`{ error: 'Unauthorized' }` envelope; status invariance across stacked-key
-            permutations; per-key isolation walks for
-            `?asAdmin=`/`?as=`/`?asUser=`/
-            `?impersonate=`admin-impersonation,`?token=`/
-            `?secret=`/`?api_key=`/`?authorization=`/
-            `?session=`/`?adminToken=`magic-token,
-            `?bypass=`/`?admin=`/`?override=`/
-            `?force=`admin-override,`?status=`and
-            `?provider=`filter-bypass;`Accept`header
-            isolation; repeated-key walk; the bare-message
-            envelope assertion pinning`body.error ===
-            'Unauthorized'`AND`body.error !==
-            'Unauthorized. Admin access required.'`AND
-            `body.error !== 'Forbidden'`), the cross-
-            references to the neighbouring per-id sibling
-            [`admin-clients-clientid-method-spec.md`](admin-clients-clientid-method-spec.md),
-            the neighbouring bulk sibling
-            [`admin-clients-bulk-method-spec.md`](admin-clients-bulk-method-spec.md),
-            the neighbouring create sibling
-            [`admin-clients-create-body-spec.md`](admin-clients-create-body-spec.md)
-            (the two per-source-file specs together pin
-            both the `POST`body surface and the`GET`
-            query surface on the SAME route file), the
-            shared admin-clients page-object driver
-            [`admin-clients-page-object.md`](admin-clients-page-object.md),
-            the prior per-source-file admin-tree GET
-            smokes
-            [`admin-roles-query-spec.md`](admin-roles-query-spec.md),
-            [`admin-roles-active-query-spec.md`](admin-roles-active-query-spec.md),
-            [`admin-sponsor-ads-query-spec.md`](admin-sponsor-ads-query-spec.md),
-            [`admin-twenty-crm-config-query-spec.md`](admin-twenty-crm-config-query-spec.md),
-            [`admin-settings-map-status-query-spec.md`](admin-settings-map-status-query-spec.md),
-            [`admin-tags-all-query-spec.md`](admin-tags-all-query-spec.md),
-            the admin-protected coverage spec
-            [`admin-protected-extra.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/api/admin-protected-extra.spec.ts)
-            (covers this route at the broad `< 500`level;
-            this per-source-file spec adds the deep query-
-            surface walk on top), and the change protocol
-            (update this page in the same PR that touches
-            the source spec, update`docs/log.md`, run
-            `pnpm tsc --noEmit`in`apps/web-e2e`). With
-            this entry the **per-spec-file docs rollout
-            extends to 118-of-N** and the **`tests/api/` per-spec-file sub-rollout extends to
-            115-of-many**, and the **first per-source-file
-            admin-tree GET smoke pinning the bare-message
-            single-step-collapse`{ error: 'Unauthorized' }` 401 envelope** lands -- pinning a single-step
-            `session?.user?.isAdmin`gate ahead of the
-            `validatePaginationParams(...)`helper, six
-            gate-protected optional query-param reads with
-            no inline enum coercion or Zod validation, the
-            legacy`getClientProfiles({…})` query helper
-            posture, and the bare 401 envelope shape
-            distinct from both the canonical-longer-message
-            family and the two-step-split family.
+                `createTwentyCrmSyncServiceFromEnv()`upsert via
+                `TWENTY_CRM_ENABLED=false`environment override),
+                the at-a-glance scenario tree (one bulk-loop
+                walk over ~60 paths + eleven hand-written
+                scenarios pinning: the strict 401-on-no-arg-
+                baseline + bare`{ error: 'Unauthorized' }` envelope; status invariance across stacked-key
+                permutations; per-key isolation walks for
+                `?asAdmin=`/`?as=`/`?asUser=`/
+                `?impersonate=`admin-impersonation,`?token=`/
+                `?secret=`/`?api_key=`/`?authorization=`/
+                `?session=`/`?adminToken=`magic-token,
+                `?bypass=`/`?admin=`/`?override=`/
+                `?force=`admin-override,`?status=`and
+                `?provider=`filter-bypass;`Accept`header
+                isolation; repeated-key walk; the bare-message
+                envelope assertion pinning`body.error ===
+                'Unauthorized'`AND`body.error !==
+                'Unauthorized. Admin access required.'`AND
+                `body.error !== 'Forbidden'`), the cross-
+                references to the neighbouring per-id sibling
+                [`admin-clients-clientid-method-spec.md`](admin-clients-clientid-method-spec.md),
+                the neighbouring bulk sibling
+                [`admin-clients-bulk-method-spec.md`](admin-clients-bulk-method-spec.md),
+                the neighbouring create sibling
+                [`admin-clients-create-body-spec.md`](admin-clients-create-body-spec.md)
+                (the two per-source-file specs together pin
+                both the `POST`body surface and the`GET`
+                query surface on the SAME route file), the
+                shared admin-clients page-object driver
+                [`admin-clients-page-object.md`](admin-clients-page-object.md),
+                the prior per-source-file admin-tree GET
+                smokes
+                [`admin-roles-query-spec.md`](admin-roles-query-spec.md),
+                [`admin-roles-active-query-spec.md`](admin-roles-active-query-spec.md),
+                [`admin-sponsor-ads-query-spec.md`](admin-sponsor-ads-query-spec.md),
+                [`admin-twenty-crm-config-query-spec.md`](admin-twenty-crm-config-query-spec.md),
+                [`admin-settings-map-status-query-spec.md`](admin-settings-map-status-query-spec.md),
+                [`admin-tags-all-query-spec.md`](admin-tags-all-query-spec.md),
+                the admin-protected coverage spec
+                [`admin-protected-extra.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/api/admin-protected-extra.spec.ts)
+                (covers this route at the broad `< 500`level;
+                this per-source-file spec adds the deep query-
+                surface walk on top), and the change protocol
+                (update this page in the same PR that touches
+                the source spec, update`docs/log.md`, run
+                `pnpm tsc --noEmit`in`apps/web-e2e`). With
+                this entry the **per-spec-file docs rollout
+                extends to 118-of-N** and the **`tests/api/` per-spec-file sub-rollout extends to
+                115-of-many**, and the **first per-source-file
+                admin-tree GET smoke pinning the bare-message
+                single-step-collapse`{ error: 'Unauthorized' }` 401 envelope** lands -- pinning a single-step
+                `session?.user?.isAdmin`gate ahead of the
+                `validatePaginationParams(...)`helper, six
+                gate-protected optional query-param reads with
+                no inline enum coercion or Zod validation, the
+                legacy`getClientProfiles({…})` query helper
+                posture, and the bare 401 envelope shape
+                distinct from both the canonical-longer-message
+                family and the two-step-split family.
 
 - `apps/docs` `apps/web`
   Added Vercel build-cost controls to both Vercel-deployed
@@ -2733,264 +2839,264 @@ in to continue.'` longer-message TWO-key 401
   #723 and #724 land that add those per-source-
   file landing pages on develop.
 
-                    spec-file docs rollout extends to 118-of-N**
-                    and the **`tests/api/` per-spec-file sub-
-                    rollout extends to 115-of-many**, and the
-                    **first per-source-file GET smoke pinning a
-                    `requireClientAuth()`-gated zero-argument
-                    geo-stats handler\*\* lands -- pinning a
-                    discriminated-union auth-gate contract, a
-                    spread-geo-stats success envelope, a
-                    `getClientItemRepository().getGeoStatsByUser
+                        spec-file docs rollout extends to 118-of-N**
+                        and the **`tests/api/` per-spec-file sub-
+                        rollout extends to 115-of-many**, and the
+                        **first per-source-file GET smoke pinning a
+                        `requireClientAuth()`-gated zero-argument
+                        geo-stats handler\*\* lands -- pinning a
+                        discriminated-union auth-gate contract, a
+                        spread-geo-stats success envelope, a
+                        `getClientItemRepository().getGeoStatsByUser
 
-                (userId)`singleton-factory repository-
-                delegation, a`serverErrorResponse('Failed to
-                fetch geographic statistics')`outer-catch,
-                and a six-bypass-prevention assertion battery
-                that no prior per-source-file GET smoke
-                covers. NOTE: cross-references to
+                    (userId)`singleton-factory repository-
+                    delegation, a`serverErrorResponse('Failed to
+                    fetch geographic statistics')`outer-catch,
+                    and a six-bypass-prevention assertion battery
+                    that no prior per-source-file GET smoke
+                    covers. NOTE: cross-references to
 
-            `client-dashboard-stats-query-spec.md` may
-            resolve as broken links until the parallel PR
-            #723 lands that adds the dashboard-stats
-            per-source-file landing page on develop.
+                `client-dashboard-stats-query-spec.md` may
+                resolve as broken links until the parallel PR
+                #723 lands that adds the dashboard-stats
+                per-source-file landing page on develop.
 
-                    `docs/plugins/client-dashboard-stats-query-spec.md`
-                    for the existing pre-landed e2e spec
-                    [`apps/web-e2e/tests/api/client-dashboard-stats-query.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/api/client-dashboard-stats-query.spec.ts)
-                    paired with the `GET` export of
-                    `apps/web/app/api/client/dashboard/stats/route.ts` --
-                    the **first per-source-file GET smoke** the docs
-                    tree publishes that pins a **`requireClientAuth()`-
-                    gated zero-argument handler** combining a
-                    **`getClientDashboardRepository().getStats(userId)`
-                    repository-delegation pattern**, a **spread-stats
-                    success envelope `{ success: true, ...stats }`**
-                    (NOT the `{ success: true, stats: <statsObject> }`
-                    nested shape used by the sibling
-                    `client-items-stats-query` spec), a
-                    **`serverErrorResponse(error, 'Failed to fetch
+                        `docs/plugins/client-dashboard-stats-query-spec.md`
+                        for the existing pre-landed e2e spec
+                        [`apps/web-e2e/tests/api/client-dashboard-stats-query.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/api/client-dashboard-stats-query.spec.ts)
+                        paired with the `GET` export of
+                        `apps/web/app/api/client/dashboard/stats/route.ts` --
+                        the **first per-source-file GET smoke** the docs
+                        tree publishes that pins a **`requireClientAuth()`-
+                        gated zero-argument handler** combining a
+                        **`getClientDashboardRepository().getStats(userId)`
+                        repository-delegation pattern**, a **spread-stats
+                        success envelope `{ success: true, ...stats }`**
+                        (NOT the `{ success: true, stats: <statsObject> }`
+                        nested shape used by the sibling
+                        `client-items-stats-query` spec), a
+                        **`serverErrorResponse(error, 'Failed to fetch
 
-                dashboard statistics')` outer catch**, and a
-                **five-bypass-prevention assertion battery**
-                (`?userId=…`admin-impersonation,`?token=…`    magic-token bypass,`?admin=…`query-admin-
-                override,`?from=…`date-range bypass, multi-
-                permutation shape stability) on top of the
-                standard query-string bulk-loop walk. UNIQUE:
-                every prior`requireClientAuth()`-gated GET smoke
-                (`client-items-stats-query`, `client-items-method`,
-                `client-items-id-method`, `client-items-import-
-                sample-query`) takes a `request: NextRequest`    argument; this is the SECOND`requireClientAuth()`    gate after`client-items-stats-query`and the
-                SECOND zero-argument handler in the
+                    dashboard statistics')` outer catch**, and a
+                    **five-bypass-prevention assertion battery**
+                    (`?userId=…`admin-impersonation,`?token=…`    magic-token bypass,`?admin=…`query-admin-
+                    override,`?from=…`date-range bypass, multi-
+                    permutation shape stability) on top of the
+                    standard query-string bulk-loop walk. UNIQUE:
+                    every prior`requireClientAuth()`-gated GET smoke
+                    (`client-items-stats-query`, `client-items-method`,
+                    `client-items-id-method`, `client-items-import-
+                    sample-query`) takes a `request: NextRequest`    argument; this is the SECOND`requireClientAuth()`    gate after`client-items-stats-query`and the
+                    SECOND zero-argument handler in the
 
-            `requireClientAuth()`family, AND the FIRST per-
-            source-file GET smoke pinning the spread-stats
-            success envelope shape. The new page documents
-            the discriminated-union auth-gate contract, the
-            spread-stats success envelope, the`getClient
-            DashboardRepository()`singleton-factory
-            repository-delegation, the`serverErrorResponse
-            ('Failed to fetch dashboard statistics')`outer-
-            catch, the five-bypass-prevention assertion
-            battery, the at-a-glance scenario tree (a single
-            query-string bulk-loop walk covering ~60
-            permutations -- no-arg baseline, admin-
-            impersonation keys, client-terminology variants,
-            magic-auth keys, date-range filter keys, time-
-            window keys, pagination keys, projection keys,
-            cache-busting keys, content-negotiation, i18n
-            keys, filter keys, sort-override keys, multi-
-            tenancy keys, admin-override keys, empty values,
-            repeated keys, special-character values, 500-
-            character long values, bogus / typo'd query keys,
-            all asserting`< 500`, plus EIGHT hand-written
-            tests pinning the canonical 401 envelope shape,
-            the bogus-parameter status invariance, the
-            `?userId=…`session-gate-bypass-prevention, the
-            `?token=…`query-token-auth-bypass-prevention,
-            the`?admin=…`query-admin-override-prevention,
-            the`?from=…`date-range-bypass-prevention, and
-            the multi-permutation shape stability across
-            three different parameter sets), the cross-
-            references to the neighbouring
-            `requireClientAuth()`-gated GET sibling
-            `client-items-stats-query-spec.md`(pairs with
-            `client-items-stats-query.spec.ts`and pins the
-            `{ success: true, stats: ... }`nested-stats
-            success envelope on the auth branch vs the
-            spread-stats`{ success: true, ...stats }`shape
-            this spec pins), the neighbouring
-            `requireClientAuth()`-gated client family specs
-            (`client-items-method-spec.md`, `client-items-id-
-            method-spec.md`, `client-items-import-method-
-            spec.md`, `client-items-import-validate-method-
-            spec.md`, `client-items-import-sample-query-
-            spec.md`), the cross-cutting `client-protected.
-            spec.ts`(covers the broader auth-protected
-            client surface that this dashboard-stats endpoint
-            sits within), the neighbouring sibling`client-
-            geo-stats-query.spec.ts`(covers the`/api/
-            client/geo-stats`companion endpoint that
-            returns geographic-distribution stats with a
-            parallel`requireClientAuth()`gate -- no per-
-            source-file landing page yet for the geo-stats
-            sibling), and the Spec 010 (E2E Test Coverage)
-            governance anchor. Matching`docs/index.md` entry added at the agent-discovery cluster
-            (just above the`agent-discovery-spec`entry)
-            of the per-source-file rollout list. The
-            corresponding e2e spec file is unchanged --
-            this run lands the docs landing page that was
-            missing.
-            `docs/plugins/auth-change-password-spec.md`
-            for the existing pre-landed e2e spec
-            [`apps/web-e2e/tests/api/auth-change-password.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/api/auth-change-password.spec.ts)
-            paired with the `POST`export of
-            `apps/web/app/api/auth/change-password/route.ts` --
-            the **bare-baseline companion** to the already-
-            documented
-            [`auth-change-password-body-spec.md`](plugins/auth-change-password-body-spec.md)
-            landing page (paired with the rich-permutation
-            `auth-change-password-body.spec.ts`). The body
-            sibling pins the rate-limit-FIRST gate posture, the
-            canonical 401 / 400 / 429 envelopes, the bulk-loop
-            header / body walks, and the gate-before-Zod /
-            gate-before-tenant / gate-before-user-DB /
-            gate-before-OAuth-guard / gate-before-bcrypt-
-            current / gate-before-bcrypt-duplicate / gate-
-            before-DB-update invariants; this sibling pins
-            ONLY the bare two-test `< 500`no-server-error
-            contract on the bare two-test smoke companion --
-            the`POST /api/auth/change-password without a
-            session does not 5xx`test on a fully-shaped
-            body and the`POST /api/auth/change-password with
-            empty body does not 5xx`test on`{}`-- both
-            asserting`expect(response.status()).toBeLessThan(500)`.
-            UNIQUE within the auth-change-password spec pair:
-            this is the **bare-baseline** member of the pair.
-            Every prior per-source-file landing page in the
-            docs tree pairs to a SINGLE source spec; this is
-            the **first per-source-file landing page that
-            documents one HALF of a two-spec pair covering
-            the same route**. The new page documents the
-            body-sibling-vs-bare-baseline matrix (this spec
-            vs the body sibling at `auth-change-password-body
-            -spec.md`-- now with bulk-loop column +
-            envelope-shape column + gate-ordering column +
-            cross-method column + side-channel column),
-            the at-a-glance scenario tree (two hand-written
-            tests covering the well-shaped-body and empty-
-            body shapes -- both asserting`< 500` and both
-            expected to land on the unauth 401 branch under
-            the rate-limit-not-tripped-yet posture), the
-            cross-references to the rich-permutation body
-            sibling, the page-level forgot / reset password
-            smokes (`auth/forgot-password.spec.ts`+
-            `auth/new-password.spec.ts`), the Spec 003 (Auth
-            Providers) governance anchor, and the Spec 010
-            (E2E Test Coverage) governance anchor. Matching
-            `docs/index.md`entry added at the agent-
-            discovery cluster (just above the`agent-
-            discovery-spec`entry) of the per-source-file
-            rollout list. The corresponding e2e spec file
-            is unchanged -- this run lands the docs landing
-            page that was missing.
-            `docs/plugins/surveys-exists-query-spec.md`
-            for the existing pre-landed e2e spec
-            [`apps/web-e2e/tests/api/surveys-exists-query.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/api/surveys-exists-query.spec.ts)
-            paired with the `GET`export of
-            `apps/web/app/api/surveys/exists/route.ts`-- the
-            **third member of the public-existence-probe trio**
-            alongside the previously-documented
-            `categories-exists-query-spec.md`(catch-and-200
-            Git-CMS sibling) and the still-undocumented DB-backed
-            `collections-exists-query.spec.ts`(catch-and-500
-            sibling). UNIQUE within the trio: this is the
-            **catch-and-no-count** member -- same catch-and-200
-            posture as the categories-exists sibling but the
-            response envelope is the leaner`{ exists }`shape
-            with NO`count`field (since the route's`limit: 1` short-circuit makes the count uninformative anyway).
-            Distinct from every other public-existence probe the
-            docs tree publishes: the route lives above a
-            **DB-backed`surveyService.getMany`** call that
-            selects published surveys from the configured
-            database (vs the categories-exists sibling's Git-CMS
-            `fetchItems`reader and the collections-exists
-            sibling's`collectionRepository.findAll` DB-repository
-            reader), reads a **`?type=`query param** rather than
-            `?locale=`(and uses a strict byte-for-byte
-            `typeParam === SurveyTypeEnum.ITEM` ternary that
-            maps every non-`'item'`value --`null`for the
-            absent key,`''`for the empty value,`'global'`for
-            the explicit value, every typo / unknown /
-            case-variant -- to the same GLOBAL branch), and is
-            silent in the catch branch on every environment
-            (distinct from the categories-exists sibling which
-            logs to`console.error`in development mode and from
-            the collections-exists sibling which logs
-            unconditionally). The new page documents the
-            cross-route exists-probe matrix (this route vs
-            `/api/categories/exists`vs`/api/collections/exists`),
-            the at-a-glance scenario tree (~50-path bulk-loop
-            walk + five hand-written invariants including the
-            UNIQUE `typeParam === SurveyTypeEnum.ITEM` fallback-semantics walk pinning that the no-arg, the
-            explicit`?type=global`, the unknown `?type=unknown`,
-            the case-variant `?type=ITEM`, and the empty
-            `?type=`paths all land in the same GLOBAL branch and
-            return the same status, plus the branch-split
-            shape-invariance walk pinning that the ITEM branch
-            and the GLOBAL branch return the same envelope
-            shape), the cross-references to the catch-and-200
-            Git-CMS-backed sibling, the catch-and-500 DB-backed
-            sibling, the cross-cutting`feature-existence.spec.ts` no-arg-baseline sibling, the survey-detail GET / PUT
-            / DELETE sibling, the per-survey-responses GET / POST
-            sibling, the per-response-detail GET sibling, and the
-            Spec 010 / Spec 005 governance anchors. Matching
-            `docs/index.md`entry added at the surveys cluster
-            (just above the`surveys-id-responses-method-spec` entry) of the per-source-file rollout list. The
-            corresponding e2e spec file is unchanged -- this run
-            lands the docs landing page that was missing.
-            `docs/plugins/categories-exists-query-spec.md`
-            for the existing pre-landed e2e spec
-            [`apps/web-e2e/tests/api/categories-exists-query.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/api/categories-exists-query.spec.ts)
-            paired with the `GET`export of
-            `apps/web/app/api/categories/exists/route.ts`--
-            the **first per-source-file GET smoke** the docs tree
-            publishes that pins a **fully public Git-CMS-backed
-            existence probe whose catch branch ALSO returns
-            `200 OK`** (NOT `500`). Distinct from every other
-            public-route per-source-file GET smoke: the
-            companion `collections-exists-query.spec.ts`(sibling
-            existence probe served from
-            `apps/web/app/api/collections/exists/route.ts`) has a
-            **catch-and-500** posture; the
-            `items-popularity-scores-query-spec.md`sibling is
-            also no-auth-gate but does NOT surface a navigation-
-            shell-degradation contract. The categories-exists
-            route is the **catch-and-200 sibling** of the
-            collections-exists route — same`{ exists, count }` envelope, but the catch branch maps every thrown
-            error to a`200`with`{ exists: false, count: 0 }` rather than a`500`. The distinction is load-
-            bearing: the navigation shell hits both probes on
-            every render and must degrade quietly when the
-            content layer is unavailable rather than blocking
-            the whole page. The new page documents the cross-
-            route exists-probe matrix (this route vs
-            `/api/collections/exists`vs`/api/surveys/exists`),
-            the at-a-glance scenario tree (~50-path bulk-loop
-            walk + four hand-written invariants including the
-            UNIQUE `searchParams.get('locale') || 'en'`fallback-
-            semantics walk pinning that the no-arg, the empty-
-            string`?locale=`, and the explicit-`?locale=en` paths all land in the same branch and return the
-            same status), the cross-references to the catch-and-
-            500 DB-backed sibling, the surveys existence probe,
-            the Git-CMS-backed admin sibling, the DB-backed
-            admin sibling, the public-route per-source-file
-            popularity-scores spec, and the Spec 010 / Spec 005
-            governance anchors. Matching`docs/index.md`entry
-            added at the top of the per-source-file rollout list
-            (above the`admin-categories-all-query-spec` entry
-            from the previous run). The corresponding e2e spec
-            file is unchanged -- this run lands the docs landing
-            page that was missing.
+                `requireClientAuth()`family, AND the FIRST per-
+                source-file GET smoke pinning the spread-stats
+                success envelope shape. The new page documents
+                the discriminated-union auth-gate contract, the
+                spread-stats success envelope, the`getClient
+                DashboardRepository()`singleton-factory
+                repository-delegation, the`serverErrorResponse
+                ('Failed to fetch dashboard statistics')`outer-
+                catch, the five-bypass-prevention assertion
+                battery, the at-a-glance scenario tree (a single
+                query-string bulk-loop walk covering ~60
+                permutations -- no-arg baseline, admin-
+                impersonation keys, client-terminology variants,
+                magic-auth keys, date-range filter keys, time-
+                window keys, pagination keys, projection keys,
+                cache-busting keys, content-negotiation, i18n
+                keys, filter keys, sort-override keys, multi-
+                tenancy keys, admin-override keys, empty values,
+                repeated keys, special-character values, 500-
+                character long values, bogus / typo'd query keys,
+                all asserting`< 500`, plus EIGHT hand-written
+                tests pinning the canonical 401 envelope shape,
+                the bogus-parameter status invariance, the
+                `?userId=…`session-gate-bypass-prevention, the
+                `?token=…`query-token-auth-bypass-prevention,
+                the`?admin=…`query-admin-override-prevention,
+                the`?from=…`date-range-bypass-prevention, and
+                the multi-permutation shape stability across
+                three different parameter sets), the cross-
+                references to the neighbouring
+                `requireClientAuth()`-gated GET sibling
+                `client-items-stats-query-spec.md`(pairs with
+                `client-items-stats-query.spec.ts`and pins the
+                `{ success: true, stats: ... }`nested-stats
+                success envelope on the auth branch vs the
+                spread-stats`{ success: true, ...stats }`shape
+                this spec pins), the neighbouring
+                `requireClientAuth()`-gated client family specs
+                (`client-items-method-spec.md`, `client-items-id-
+                method-spec.md`, `client-items-import-method-
+                spec.md`, `client-items-import-validate-method-
+                spec.md`, `client-items-import-sample-query-
+                spec.md`), the cross-cutting `client-protected.
+                spec.ts`(covers the broader auth-protected
+                client surface that this dashboard-stats endpoint
+                sits within), the neighbouring sibling`client-
+                geo-stats-query.spec.ts`(covers the`/api/
+                client/geo-stats`companion endpoint that
+                returns geographic-distribution stats with a
+                parallel`requireClientAuth()`gate -- no per-
+                source-file landing page yet for the geo-stats
+                sibling), and the Spec 010 (E2E Test Coverage)
+                governance anchor. Matching`docs/index.md` entry added at the agent-discovery cluster
+                (just above the`agent-discovery-spec`entry)
+                of the per-source-file rollout list. The
+                corresponding e2e spec file is unchanged --
+                this run lands the docs landing page that was
+                missing.
+                `docs/plugins/auth-change-password-spec.md`
+                for the existing pre-landed e2e spec
+                [`apps/web-e2e/tests/api/auth-change-password.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/api/auth-change-password.spec.ts)
+                paired with the `POST`export of
+                `apps/web/app/api/auth/change-password/route.ts` --
+                the **bare-baseline companion** to the already-
+                documented
+                [`auth-change-password-body-spec.md`](plugins/auth-change-password-body-spec.md)
+                landing page (paired with the rich-permutation
+                `auth-change-password-body.spec.ts`). The body
+                sibling pins the rate-limit-FIRST gate posture, the
+                canonical 401 / 400 / 429 envelopes, the bulk-loop
+                header / body walks, and the gate-before-Zod /
+                gate-before-tenant / gate-before-user-DB /
+                gate-before-OAuth-guard / gate-before-bcrypt-
+                current / gate-before-bcrypt-duplicate / gate-
+                before-DB-update invariants; this sibling pins
+                ONLY the bare two-test `< 500`no-server-error
+                contract on the bare two-test smoke companion --
+                the`POST /api/auth/change-password without a
+                session does not 5xx`test on a fully-shaped
+                body and the`POST /api/auth/change-password with
+                empty body does not 5xx`test on`{}`-- both
+                asserting`expect(response.status()).toBeLessThan(500)`.
+                UNIQUE within the auth-change-password spec pair:
+                this is the **bare-baseline** member of the pair.
+                Every prior per-source-file landing page in the
+                docs tree pairs to a SINGLE source spec; this is
+                the **first per-source-file landing page that
+                documents one HALF of a two-spec pair covering
+                the same route**. The new page documents the
+                body-sibling-vs-bare-baseline matrix (this spec
+                vs the body sibling at `auth-change-password-body
+                -spec.md`-- now with bulk-loop column +
+                envelope-shape column + gate-ordering column +
+                cross-method column + side-channel column),
+                the at-a-glance scenario tree (two hand-written
+                tests covering the well-shaped-body and empty-
+                body shapes -- both asserting`< 500` and both
+                expected to land on the unauth 401 branch under
+                the rate-limit-not-tripped-yet posture), the
+                cross-references to the rich-permutation body
+                sibling, the page-level forgot / reset password
+                smokes (`auth/forgot-password.spec.ts`+
+                `auth/new-password.spec.ts`), the Spec 003 (Auth
+                Providers) governance anchor, and the Spec 010
+                (E2E Test Coverage) governance anchor. Matching
+                `docs/index.md`entry added at the agent-
+                discovery cluster (just above the`agent-
+                discovery-spec`entry) of the per-source-file
+                rollout list. The corresponding e2e spec file
+                is unchanged -- this run lands the docs landing
+                page that was missing.
+                `docs/plugins/surveys-exists-query-spec.md`
+                for the existing pre-landed e2e spec
+                [`apps/web-e2e/tests/api/surveys-exists-query.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/api/surveys-exists-query.spec.ts)
+                paired with the `GET`export of
+                `apps/web/app/api/surveys/exists/route.ts`-- the
+                **third member of the public-existence-probe trio**
+                alongside the previously-documented
+                `categories-exists-query-spec.md`(catch-and-200
+                Git-CMS sibling) and the still-undocumented DB-backed
+                `collections-exists-query.spec.ts`(catch-and-500
+                sibling). UNIQUE within the trio: this is the
+                **catch-and-no-count** member -- same catch-and-200
+                posture as the categories-exists sibling but the
+                response envelope is the leaner`{ exists }`shape
+                with NO`count`field (since the route's`limit: 1` short-circuit makes the count uninformative anyway).
+                Distinct from every other public-existence probe the
+                docs tree publishes: the route lives above a
+                **DB-backed`surveyService.getMany`** call that
+                selects published surveys from the configured
+                database (vs the categories-exists sibling's Git-CMS
+                `fetchItems`reader and the collections-exists
+                sibling's`collectionRepository.findAll` DB-repository
+                reader), reads a **`?type=`query param** rather than
+                `?locale=`(and uses a strict byte-for-byte
+                `typeParam === SurveyTypeEnum.ITEM` ternary that
+                maps every non-`'item'`value --`null`for the
+                absent key,`''`for the empty value,`'global'`for
+                the explicit value, every typo / unknown /
+                case-variant -- to the same GLOBAL branch), and is
+                silent in the catch branch on every environment
+                (distinct from the categories-exists sibling which
+                logs to`console.error`in development mode and from
+                the collections-exists sibling which logs
+                unconditionally). The new page documents the
+                cross-route exists-probe matrix (this route vs
+                `/api/categories/exists`vs`/api/collections/exists`),
+                the at-a-glance scenario tree (~50-path bulk-loop
+                walk + five hand-written invariants including the
+                UNIQUE `typeParam === SurveyTypeEnum.ITEM` fallback-semantics walk pinning that the no-arg, the
+                explicit`?type=global`, the unknown `?type=unknown`,
+                the case-variant `?type=ITEM`, and the empty
+                `?type=`paths all land in the same GLOBAL branch and
+                return the same status, plus the branch-split
+                shape-invariance walk pinning that the ITEM branch
+                and the GLOBAL branch return the same envelope
+                shape), the cross-references to the catch-and-200
+                Git-CMS-backed sibling, the catch-and-500 DB-backed
+                sibling, the cross-cutting`feature-existence.spec.ts` no-arg-baseline sibling, the survey-detail GET / PUT
+                / DELETE sibling, the per-survey-responses GET / POST
+                sibling, the per-response-detail GET sibling, and the
+                Spec 010 / Spec 005 governance anchors. Matching
+                `docs/index.md`entry added at the surveys cluster
+                (just above the`surveys-id-responses-method-spec` entry) of the per-source-file rollout list. The
+                corresponding e2e spec file is unchanged -- this run
+                lands the docs landing page that was missing.
+                `docs/plugins/categories-exists-query-spec.md`
+                for the existing pre-landed e2e spec
+                [`apps/web-e2e/tests/api/categories-exists-query.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/api/categories-exists-query.spec.ts)
+                paired with the `GET`export of
+                `apps/web/app/api/categories/exists/route.ts`--
+                the **first per-source-file GET smoke** the docs tree
+                publishes that pins a **fully public Git-CMS-backed
+                existence probe whose catch branch ALSO returns
+                `200 OK`** (NOT `500`). Distinct from every other
+                public-route per-source-file GET smoke: the
+                companion `collections-exists-query.spec.ts`(sibling
+                existence probe served from
+                `apps/web/app/api/collections/exists/route.ts`) has a
+                **catch-and-500** posture; the
+                `items-popularity-scores-query-spec.md`sibling is
+                also no-auth-gate but does NOT surface a navigation-
+                shell-degradation contract. The categories-exists
+                route is the **catch-and-200 sibling** of the
+                collections-exists route — same`{ exists, count }` envelope, but the catch branch maps every thrown
+                error to a`200`with`{ exists: false, count: 0 }` rather than a`500`. The distinction is load-
+                bearing: the navigation shell hits both probes on
+                every render and must degrade quietly when the
+                content layer is unavailable rather than blocking
+                the whole page. The new page documents the cross-
+                route exists-probe matrix (this route vs
+                `/api/collections/exists`vs`/api/surveys/exists`),
+                the at-a-glance scenario tree (~50-path bulk-loop
+                walk + four hand-written invariants including the
+                UNIQUE `searchParams.get('locale') || 'en'`fallback-
+                semantics walk pinning that the no-arg, the empty-
+                string`?locale=`, and the explicit-`?locale=en` paths all land in the same branch and return the
+                same status), the cross-references to the catch-and-
+                500 DB-backed sibling, the surveys existence probe,
+                the Git-CMS-backed admin sibling, the DB-backed
+                admin sibling, the public-route per-source-file
+                popularity-scores spec, and the Spec 010 / Spec 005
+                governance anchors. Matching`docs/index.md`entry
+                added at the top of the per-source-file rollout list
+                (above the`admin-categories-all-query-spec` entry
+                from the previous run). The corresponding e2e spec
+                file is unchanged -- this run lands the docs landing
+                page that was missing.
 
 - `docs/plugins` `docs/index`
   Added the dedicated per-source-file landing page
