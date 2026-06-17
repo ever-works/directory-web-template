@@ -69,24 +69,36 @@ export class ItemDetailPage extends BasePage {
 		return label === 'Remove upvote';
 	}
 
-	/** Click the favorite toggle button and wait for its aria-label to
-	 *  flip. React's onClick handler attaches at hydrate time — clicking
-	 *  too early on a cold-start server silently no-ops, leaving the
-	 *  label unchanged. Retry until the toggle actually fires (or give
-	 *  up after a generous timeout). */
+	/** Click the favorite toggle button and wait for its aria-label to flip.
+	 *  Two CI-specific hazards are handled here:
+	 *   1. The button's onClick reads the current user from `useCurrentUser`;
+	 *      if the `/api/current-user` fetch hasn't resolved yet, an early click
+	 *      opens the login modal *instead* of toggling. A click that opened the
+	 *      modal did not toggle, so we don't count it — we retry until the
+	 *      session is ready and the click actually flips the label.
+	 *   2. If a login modal did open, its full-screen `z-50` backdrop sits over
+	 *      the button and eats subsequent clicks; dismiss it (Escape) first. */
 	async clickFavorite() {
+		const loginDialog = this.page.locator('[role="dialog"][aria-modal="true"]');
 		const before = await this.favoriteButton.getAttribute('aria-label');
-		const deadline = Date.now() + 15_000;
+		const deadline = Date.now() + 20_000;
 		while (Date.now() < deadline) {
-			await this.favoriteButton.click({ trial: false }).catch(() => undefined);
+			// Clear a login modal opened by an earlier (pre-hydration) click so
+			// its backdrop stops blocking the favorite button.
+			if (await loginDialog.isVisible().catch(() => false)) {
+				await this.page.keyboard.press('Escape').catch(() => undefined);
+				await loginDialog.waitFor({ state: 'hidden', timeout: 2_000 }).catch(() => undefined);
+			}
+			await this.favoriteButton.click({ timeout: 2_000 }).catch(() => undefined);
 			// Wait briefly for the optimistic UI update / API roundtrip.
 			await this.page.waitForTimeout(500);
+			// A click that opened the login modal did NOT toggle — retry.
+			if (await loginDialog.isVisible().catch(() => false)) continue;
 			const after = await this.favoriteButton.getAttribute('aria-label');
 			if (after !== before) return;
 		}
-		// Last best-effort: if state never changed, throw the next assertion
-		// instead of returning a silent success. The caller asserts on the
-		// flipped label and will surface a clear failure.
+		// If the label never flipped, the caller's assertion on the flipped
+		// label surfaces a clear failure rather than a silent success.
 	}
 
 	/** Post a comment with the given text. */

@@ -164,6 +164,7 @@
 		"DESCRIPTION": "الوصف",
 		"DRAFT": "مسودة",
 		"PUBLISHED": "منشور",
+		"LAST_UPDATED": "آخر تحديث",
 		"CLOSED": "مغلق",
 		"USER": "المستخدم",
 		"ANONYMOUS": "مجهول",
@@ -427,6 +428,8 @@
 		"PUBLISHER": "الناشر",
 		"WEBSITE": "الموقع الإلكتروني",
 		"PUBLISHED": "تم النشر",
+		"LAST_UPDATED": "آخر تحديث",
+		"TABLE_OF_CONTENTS": "في هذه الصفحة",
 		"NO_TAGS_AVAILABLE": "لا توجد وسوم متاحة",
 		"RATING": "Rating",
 		"PROMO_CODE": "Promo Code",
@@ -555,6 +558,10 @@
 		"NO_CHECKOUT_PROVIDERS_CONFIGURED": "لم يتم تكوين أي مزودي دفع. لن تكون ميزات الدفع متاحة.",
 		"PROVIDER_NOT_CONFIGURED": "غير مكوّن",
 		"NOT_CONFIGURED": "غير مكوّن",
+		"ACTIVE": "نشط",
+		"SECTION_PROFILE": "الملف الشخصي",
+		"SECTION_APPEARANCE": "المظهر",
+		"SECTION_CONTENT_AND_BILLING": "المحتوى والفواتير",
 		"SETTINGS_CARDS": {
 			"BASIC_INFO": {
 				"TITLE": "المعلومات الأساسية",
@@ -657,44 +664,44 @@
 			"DESCRIPTION": "Permanent account actions"
 		},
 		"DANGER_ZONE_PAGE": {
-			"TITLE": "Danger zone",
-			"SUBTITLE": "Account actions that take effect immediately and cannot be undone.",
-			"BACK_TO_SETTINGS": "Back to settings",
-			"INTRO_LABEL": "Heads up",
-			"INTRO_BODY": "Every action in this section is permanent. We'll always ask you to confirm before anything is removed.",
-			"IRREVERSIBLE_BADGE": "Destructive",
+			"TITLE": "منطقة الخطر",
+			"SUBTITLE": "إجراءات الحساب التي تصبح نافذة فورًا ولا يمكن التراجع عنها.",
+			"BACK_TO_SETTINGS": "العودة إلى الإعدادات",
+			"INTRO_LABEL": "تنبيه",
+			"INTRO_BODY": "كل إجراء في هذا القسم نهائي. سنطلب منك دائمًا التأكيد قبل إزالة أي شيء.",
+			"IRREVERSIBLE_BADGE": "إجراء مدمر",
 			"DELETE_ACCOUNT": {
-				"TITLE": "Delete this account",
-				"DESCRIPTION": "Permanently remove this account and everything associated with it. This cannot be undone.",
-				"LOSS_TITLE": "What will be removed",
-				"LOSS_ITEM_1": "Sign-in credentials and account email",
-				"LOSS_ITEM_2": "Profile, portfolio, and uploaded images",
-				"LOSS_ITEM_3": "Submissions, drafts, and trashed items",
-				"LOSS_ITEM_4": "Sponsorships and billing references",
-				"LOSS_ITEM_5": "Comments, favourites, and activity history",
-				"CTA_HELPER": "Two-step confirmation required.",
-				"CTA": "Delete account…",
+				"TITLE": "حذف هذا الحساب",
+				"DESCRIPTION": "إزالة هذا الحساب وكل ما يرتبط به بشكل نهائي. لا يمكن التراجع عن هذا الإجراء.",
+				"LOSS_TITLE": "ما الذي سيتم حذفه",
+				"LOSS_ITEM_1": "بيانات تسجيل الدخول والبريد الإلكتروني للحساب",
+				"LOSS_ITEM_2": "الملف الشخصي ومعرض الأعمال والصور المرفوعة",
+				"LOSS_ITEM_3": "المشاركات والمسودات والعناصر في سلة المهملات",
+				"LOSS_ITEM_4": "الرعايات ومراجع الفواتير",
+				"LOSS_ITEM_5": "التعليقات والمفضلات وسجل النشاط",
+				"CTA_HELPER": "يتطلب التأكيد على خطوتين.",
+				"CTA": "حذف الحساب…",
 				"CONFIRM_MODAL": {
-					"TITLE": "Permanently delete your account",
-					"SUBTITLE": "Take a moment to confirm — this cannot be undone.",
-					"ACCOUNT_HEADING": "Account to delete",
-					"ACCOUNT_WARNING": "Everything tied to this account will be removed immediately. There is no recovery.",
-					"CONFIRMATION_HEADING": "Confirm it's really you",
-					"EMAIL_LABEL": "Type your email to confirm",
-					"EMAIL_HELPER": "Enter {email} exactly as shown above.",
-					"EMAIL_PLACEHOLDER": "you@example.com",
-					"PASSWORD_LABEL": "Your current password",
-					"PASSWORD_PLACEHOLDER": "Enter your password",
-					"CONFIRM_CTA": "Delete account permanently",
-					"DELETING": "Deleting account…",
-					"CANCEL_CTA": "Cancel"
+					"TITLE": "حذف حسابك نهائيًا",
+					"SUBTITLE": "خذ لحظة للتأكيد — لا يمكن التراجع عن هذا الإجراء.",
+					"ACCOUNT_HEADING": "الحساب المطلوب حذفه",
+					"ACCOUNT_WARNING": "سيتم حذف كل ما يتعلق بهذا الحساب فورًا. لا توجد إمكانية لاستعادته.",
+					"CONFIRMATION_HEADING": "تأكيد أن هذا أنت بالفعل",
+					"EMAIL_LABEL": "أدخل بريدك الإلكتروني للتأكيد",
+					"EMAIL_HELPER": "أدخل {email} كما هو موضح أعلاه بالضبط.",
+					"EMAIL_PLACEHOLDER": "ahmed@example.com",
+					"PASSWORD_LABEL": "كلمة مرورك الحالية",
+					"PASSWORD_PLACEHOLDER": "أدخل كلمة المرور",
+					"CONFIRM_CTA": "حذف الحساب نهائيًا",
+					"DELETING": "جاري حذف الحساب…",
+					"CANCEL_CTA": "إلغاء"
 				},
 				"ERRORS": {
-					"PASSWORD_REQUIRED": "Password is required.",
-					"PASSWORD_TOO_SHORT": "Password must be at least 8 characters.",
-					"EMAIL_REQUIRED": "Please type your email to confirm.",
-					"EMAIL_MISMATCH": "Email does not match the account above.",
-					"UNKNOWN": "Failed to delete account. Please try again."
+					"PASSWORD_REQUIRED": "كلمة المرور مطلوبة.",
+					"PASSWORD_TOO_SHORT": "يجب أن تتكون كلمة المرور من 8 أحرف على الأقل.",
+					"EMAIL_REQUIRED": "يرجى إدخال بريدك الإلكتروني للتأكيد.",
+					"EMAIL_MISMATCH": "البريد الإلكتروني لا يطابق الحساب المذكور أعلاه.",
+					"UNKNOWN": "فشل حذف الحساب. يرجى المحاولة مرة أخرى."
 				}
 			}
 		}
@@ -773,7 +780,7 @@
 			"REVIEW_AND_SUBMIT": "مراجعة وإرسال",
 			"EXTRACT": "استخراج",
 			"EXTRACTING": "جاري الاستخراج...",
-				"URL_FORMAT_HINT": "يجب أن يبدأ الرابط بـ https:// أو http://"
+			"URL_FORMAT_HINT": "يجب أن يبدأ الرابط بـ https:// أو http://"
 		},
 		"PAYMENT": {
 			"TITLE": "إتمام طلبك",
@@ -3635,6 +3642,12 @@
 			"EDIT_SUBMISSION_DESC": "تحديث تفاصيل تقديمك",
 			"BULK_IMPORT": "استيراد مجمع"
 		},
+		"notifications": {
+			"tooltip": "الإشعارات",
+			"aria": {
+				"bellWithCount": "الإشعارات ({n} غير مقروءة)"
+			}
+		},
 		"dashboard": {
 			"TITLE": "لوحة التحكم",
 			"WELCOME_BACK": "مرحباً بعودتك، {name}! إليك نظرة عامة على نشاطك.",
@@ -3882,5 +3895,9 @@
 		"YOU_LABEL": "أنت",
 		"TOOL_RESULT_LABEL": "نتيجة الأداة",
 		"TOOL_RESULT_FROM": "نتيجة من {tool}"
+	},
+	"usersDirectory": {
+		"HERO_TITLE": "المجتمع",
+		"HERO_SUBTITLE": "اكتشف الأشخاص الذين يبنون ويتشاركون في هذا الدليل."
 	}
 }

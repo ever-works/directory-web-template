@@ -164,6 +164,7 @@
 		"DESCRIPTION": "תיאור",
 		"DRAFT": "טיוטה",
 		"PUBLISHED": "פורסם",
+		"LAST_UPDATED": "עודכן לאחרונה",
 		"CLOSED": "סגור",
 		"USER": "משתמש",
 		"ANONYMOUS": "אנונימי",
@@ -427,6 +428,8 @@
 		"PUBLISHER": "מפרסם",
 		"WEBSITE": "אתר אינטרנט",
 		"PUBLISHED": "פורסם",
+		"LAST_UPDATED": "עודכן לאחרונה",
+		"TABLE_OF_CONTENTS": "בעמוד זה",
 		"NO_TAGS_AVAILABLE": "אין תגיות זמינות",
 		"RATING": "Rating",
 		"PROMO_CODE": "Promo Code",
@@ -555,6 +558,10 @@
 		"NO_CHECKOUT_PROVIDERS_CONFIGURED": "לא הוגדרו ספקי תשלומים. תכונות התשלום לא יהיו זמינות.",
 		"PROVIDER_NOT_CONFIGURED": "לא מוגדר",
 		"NOT_CONFIGURED": "לא מוגדר",
+		"ACTIVE": "פעיל",
+		"SECTION_PROFILE": "פרופיל",
+		"SECTION_APPEARANCE": "מראה",
+		"SECTION_CONTENT_AND_BILLING": "תוכן וחיוב",
 		"SETTINGS_CARDS": {
 			"BASIC_INFO": {
 				"TITLE": "Basic Information",
@@ -657,44 +664,44 @@
 			"DESCRIPTION": "Permanent account actions"
 		},
 		"DANGER_ZONE_PAGE": {
-			"TITLE": "Danger zone",
-			"SUBTITLE": "Account actions that take effect immediately and cannot be undone.",
-			"BACK_TO_SETTINGS": "Back to settings",
-			"INTRO_LABEL": "Heads up",
-			"INTRO_BODY": "Every action in this section is permanent. We'll always ask you to confirm before anything is removed.",
-			"IRREVERSIBLE_BADGE": "Destructive",
+			"TITLE": "אזור מסוכן",
+			"SUBTITLE": "פעולות חשבון שנכנסות לתוקף באופן מיידי ולא ניתן לבטל אותן.",
+			"BACK_TO_SETTINGS": "חזרה להגדרות",
+			"INTRO_LABEL": "שימו לב",
+			"INTRO_BODY": "כל פעולה באזור זה היא קבועה. נבקש מכם אישור לפני שמשהו יוסר.",
+			"IRREVERSIBLE_BADGE": "הרסני",
 			"DELETE_ACCOUNT": {
-				"TITLE": "Delete this account",
-				"DESCRIPTION": "Permanently remove this account and everything associated with it. This cannot be undone.",
-				"LOSS_TITLE": "What will be removed",
-				"LOSS_ITEM_1": "Sign-in credentials and account email",
-				"LOSS_ITEM_2": "Profile, portfolio, and uploaded images",
-				"LOSS_ITEM_3": "Submissions, drafts, and trashed items",
-				"LOSS_ITEM_4": "Sponsorships and billing references",
-				"LOSS_ITEM_5": "Comments, favourites, and activity history",
-				"CTA_HELPER": "Two-step confirmation required.",
-				"CTA": "Delete account…",
+				"TITLE": "מחיקת חשבון זה",
+				"DESCRIPTION": "הסרה לצמיתות של חשבון זה וכל מה שמשויך אליו. לא ניתן לבטל פעולה זו.",
+				"LOSS_TITLE": "מה יוסר",
+				"LOSS_ITEM_1": "פרטי התחברות וכתובת אימייל של החשבון",
+				"LOSS_ITEM_2": "פרופיל, תיק עבודות ותמונות שהועלו",
+				"LOSS_ITEM_3": "הגשות, טיוטות ופריטים באשפה",
+				"LOSS_ITEM_4": "חסויות והפניות לחיוב",
+				"LOSS_ITEM_5": "תגובות, מועדפים והיסטוריית פעילות",
+				"CTA_HELPER": "נדרש אישור בשני שלבים.",
+				"CTA": "מחיקת חשבון…",
 				"CONFIRM_MODAL": {
-					"TITLE": "Permanently delete your account",
-					"SUBTITLE": "Take a moment to confirm — this cannot be undone.",
-					"ACCOUNT_HEADING": "Account to delete",
-					"ACCOUNT_WARNING": "Everything tied to this account will be removed immediately. There is no recovery.",
-					"CONFIRMATION_HEADING": "Confirm it's really you",
-					"EMAIL_LABEL": "Type your email to confirm",
-					"EMAIL_HELPER": "Enter {email} exactly as shown above.",
-					"EMAIL_PLACEHOLDER": "you@example.com",
-					"PASSWORD_LABEL": "Your current password",
-					"PASSWORD_PLACEHOLDER": "Enter your password",
-					"CONFIRM_CTA": "Delete account permanently",
-					"DELETING": "Deleting account…",
-					"CANCEL_CTA": "Cancel"
+					"TITLE": "מחיקת החשבון שלך לצמיתות",
+					"SUBTITLE": "הקדישו רגע לאישור — לא ניתן לבטל פעולה זו.",
+					"ACCOUNT_HEADING": "חשבון למחיקה",
+					"ACCOUNT_WARNING": "כל מה שמשויך לחשבון זה יוסר באופן מיידי. אין אפשרות לשחזור.",
+					"CONFIRMATION_HEADING": "אשרו שזה אכן אתם",
+					"EMAIL_LABEL": "הקלידו את כתובת האימייל שלכם לאישור",
+					"EMAIL_HELPER": "הזינו {email} בדיוק כפי שמוצג למעלה.",
+					"EMAIL_PLACEHOLDER": "john@example.com",
+					"PASSWORD_LABEL": "הסיסמה הנוכחית שלכם",
+					"PASSWORD_PLACEHOLDER": "הזינו את הסיסמה שלכם",
+					"CONFIRM_CTA": "מחיקת החשבון לצמיתות",
+					"DELETING": "מוחק את החשבון…",
+					"CANCEL_CTA": "ביטול"
 				},
 				"ERRORS": {
-					"PASSWORD_REQUIRED": "Password is required.",
-					"PASSWORD_TOO_SHORT": "Password must be at least 8 characters.",
-					"EMAIL_REQUIRED": "Please type your email to confirm.",
-					"EMAIL_MISMATCH": "Email does not match the account above.",
-					"UNKNOWN": "Failed to delete account. Please try again."
+					"PASSWORD_REQUIRED": "נדרשת סיסמה.",
+					"PASSWORD_TOO_SHORT": "הסיסמה חייבת להיות באורך של 8 תווים לפחות.",
+					"EMAIL_REQUIRED": "יש להקליד את כתובת האימייל שלכם לאישור.",
+					"EMAIL_MISMATCH": "כתובת האימייל אינה תואמת לחשבון שמופיע מעלה.",
+					"UNKNOWN": "מחיקת החשבון נכשלה. נסו שוב."
 				}
 			}
 		}
@@ -773,7 +780,7 @@
 			"REVIEW_AND_SUBMIT": "Review & Submit",
 			"EXTRACT": "חלץ",
 			"EXTRACTING": "מחלץ...",
-				"URL_FORMAT_HINT": "כתובת URL חייבת להתחיל עם https:// או http://"
+			"URL_FORMAT_HINT": "כתובת URL חייבת להתחיל עם https:// או http://"
 		},
 		"PAYMENT": {
 			"TITLE": "Complete Your Order",
@@ -3550,6 +3557,12 @@
 			"EDIT_SUBMISSION_DESC": "עדכן את פרטי ההגשה שלך",
 			"BULK_IMPORT": "ייבוא מרובה"
 		},
+		"notifications": {
+			"tooltip": "התראות",
+			"aria": {
+				"bellWithCount": "התראות ({n} שלא נקראו)"
+			}
+		},
 		"dashboard": {
 			"ITEMS_MAP": {
 				"TITLE": "מפת הפריטים שלך",
@@ -3682,5 +3695,9 @@
 		"NAV_ARTICLE": "מאמר",
 		"FALLBACK_TITLE": "השוואה",
 		"VS": "מול"
+	},
+	"usersDirectory": {
+		"HERO_TITLE": "קהילה",
+		"HERO_SUBTITLE": "גלה אנשים שבונים ומשתפים בספריה זו."
 	}
 }

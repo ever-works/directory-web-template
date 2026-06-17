@@ -62,7 +62,7 @@ export default async function PricingPage({ params }: { params: Promise<{ locale
 					{ name: tPricing('CHOOSE_YOUR_PERFECT_PLAN') }
 				]}
 			/>
-			<Container maxWidth="7xl" padding="default" useGlobalWidth className="py-12">
+			<Container maxWidth="7xl" padding="default" useGlobalWidth className="py-16 sm:py-20 lg:py-24">
 				<PricingSection />
 			</Container>
 

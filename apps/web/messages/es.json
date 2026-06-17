@@ -164,6 +164,7 @@
 		"DESCRIPTION": "Descripción",
 		"DRAFT": "Borrador",
 		"PUBLISHED": "Publicado",
+		"LAST_UPDATED": "Última actualización",
 		"CLOSED": "Cerrado",
 		"USER": "Usuario",
 		"ANONYMOUS": "Anónimo",
@@ -429,6 +430,8 @@
 		"PUBLISHER": "Editor",
 		"WEBSITE": "Sitio web",
 		"PUBLISHED": "Publicado",
+		"LAST_UPDATED": "Última actualización",
+		"TABLE_OF_CONTENTS": "En esta página",
 		"NO_TAGS_AVAILABLE": "No hay etiquetas disponibles",
 		"RATING": "Rating",
 		"PROMO_CODE": "Promo Code",
@@ -558,6 +561,10 @@
 		"NO_CHECKOUT_PROVIDERS_CONFIGURED": "No hay proveedores de pago configurados. Las funciones de pago no estarán disponibles.",
 		"PROVIDER_NOT_CONFIGURED": "No configurado",
 		"NOT_CONFIGURED": "no configurado",
+		"ACTIVE": "Activo",
+		"SECTION_PROFILE": "Perfil",
+		"SECTION_APPEARANCE": "Apariencia",
+		"SECTION_CONTENT_AND_BILLING": "Contenido y facturación",
 		"SETTINGS_CARDS": {
 			"BASIC_INFO": {
 				"TITLE": "Información básica",
@@ -660,44 +667,44 @@
 			"DESCRIPTION": "Permanent account actions"
 		},
 		"DANGER_ZONE_PAGE": {
-			"TITLE": "Danger zone",
-			"SUBTITLE": "Account actions that take effect immediately and cannot be undone.",
-			"BACK_TO_SETTINGS": "Back to settings",
-			"INTRO_LABEL": "Heads up",
-			"INTRO_BODY": "Every action in this section is permanent. We'll always ask you to confirm before anything is removed.",
-			"IRREVERSIBLE_BADGE": "Destructive",
+			"TITLE": "Zona de peligro",
+			"SUBTITLE": "Acciones de la cuenta que tienen efecto inmediato y no se pueden deshacer.",
+			"BACK_TO_SETTINGS": "Volver a la configuración",
+			"INTRO_LABEL": "Atención",
+			"INTRO_BODY": "Cada acción de esta sección es permanente. Siempre te pediremos que confirmes antes de eliminar algo.",
+			"IRREVERSIBLE_BADGE": "Destructivo",
 			"DELETE_ACCOUNT": {
-				"TITLE": "Delete this account",
-				"DESCRIPTION": "Permanently remove this account and everything associated with it. This cannot be undone.",
-				"LOSS_TITLE": "What will be removed",
-				"LOSS_ITEM_1": "Sign-in credentials and account email",
-				"LOSS_ITEM_2": "Profile, portfolio, and uploaded images",
-				"LOSS_ITEM_3": "Submissions, drafts, and trashed items",
-				"LOSS_ITEM_4": "Sponsorships and billing references",
-				"LOSS_ITEM_5": "Comments, favourites, and activity history",
-				"CTA_HELPER": "Two-step confirmation required.",
-				"CTA": "Delete account…",
+				"TITLE": "Eliminar esta cuenta",
+				"DESCRIPTION": "Elimina permanentemente esta cuenta y todo lo asociado a ella. Esta acción no se puede deshacer.",
+				"LOSS_TITLE": "Qué se eliminará",
+				"LOSS_ITEM_1": "Credenciales de acceso y correo electrónico de la cuenta",
+				"LOSS_ITEM_2": "Perfil, portafolio e imágenes subidas",
+				"LOSS_ITEM_3": "Envíos, borradores y elementos en la papelera",
+				"LOSS_ITEM_4": "Patrocinios y referencias de facturación",
+				"LOSS_ITEM_5": "Comentarios, favoritos e historial de actividad",
+				"CTA_HELPER": "Se requiere confirmación en dos pasos.",
+				"CTA": "Eliminar cuenta…",
 				"CONFIRM_MODAL": {
-					"TITLE": "Permanently delete your account",
-					"SUBTITLE": "Take a moment to confirm — this cannot be undone.",
-					"ACCOUNT_HEADING": "Account to delete",
-					"ACCOUNT_WARNING": "Everything tied to this account will be removed immediately. There is no recovery.",
-					"CONFIRMATION_HEADING": "Confirm it's really you",
-					"EMAIL_LABEL": "Type your email to confirm",
-					"EMAIL_HELPER": "Enter {email} exactly as shown above.",
-					"EMAIL_PLACEHOLDER": "you@example.com",
-					"PASSWORD_LABEL": "Your current password",
-					"PASSWORD_PLACEHOLDER": "Enter your password",
-					"CONFIRM_CTA": "Delete account permanently",
-					"DELETING": "Deleting account…",
-					"CANCEL_CTA": "Cancel"
+					"TITLE": "Eliminar permanentemente tu cuenta",
+					"SUBTITLE": "Tómate un momento para confirmar: esto no se puede deshacer.",
+					"ACCOUNT_HEADING": "Cuenta a eliminar",
+					"ACCOUNT_WARNING": "Todo lo relacionado con esta cuenta se eliminará de inmediato. No hay forma de recuperarlo.",
+					"CONFIRMATION_HEADING": "Confirma que eres tú",
+					"EMAIL_LABEL": "Escribe tu correo electrónico para confirmar",
+					"EMAIL_HELPER": "Introduce {email} exactamente como se muestra arriba.",
+					"EMAIL_PLACEHOLDER": "juan@example.com",
+					"PASSWORD_LABEL": "Tu contraseña actual",
+					"PASSWORD_PLACEHOLDER": "Introduce tu contraseña",
+					"CONFIRM_CTA": "Eliminar cuenta permanentemente",
+					"DELETING": "Eliminando cuenta…",
+					"CANCEL_CTA": "Cancelar"
 				},
 				"ERRORS": {
-					"PASSWORD_REQUIRED": "Password is required.",
-					"PASSWORD_TOO_SHORT": "Password must be at least 8 characters.",
-					"EMAIL_REQUIRED": "Please type your email to confirm.",
-					"EMAIL_MISMATCH": "Email does not match the account above.",
-					"UNKNOWN": "Failed to delete account. Please try again."
+					"PASSWORD_REQUIRED": "La contraseña es obligatoria.",
+					"PASSWORD_TOO_SHORT": "La contraseña debe tener al menos 8 caracteres.",
+					"EMAIL_REQUIRED": "Escribe tu correo electrónico para confirmar.",
+					"EMAIL_MISMATCH": "El correo electrónico no coincide con la cuenta anterior.",
+					"UNKNOWN": "No se pudo eliminar la cuenta. Inténtalo de nuevo."
 				}
 			}
 		}
@@ -776,7 +783,7 @@
 			"REVIEW_AND_SUBMIT": "Revisar y Enviar",
 			"EXTRACT": "Extraer",
 			"EXTRACTING": "Extrayendo...",
-				"URL_FORMAT_HINT": "La URL debe comenzar con https:// o http://"
+			"URL_FORMAT_HINT": "La URL debe comenzar con https:// o http://"
 		},
 		"PAYMENT": {
 			"TITLE": "Completa tu pedido",
@@ -3640,6 +3647,12 @@
 			"EDIT_SUBMISSION_DESC": "Actualiza los detalles de tu envío",
 			"BULK_IMPORT": "Importación masiva"
 		},
+		"notifications": {
+			"tooltip": "Notificaciones",
+			"aria": {
+				"bellWithCount": "Notificaciones ({n} sin leer)"
+			}
+		},
 		"dashboard": {
 			"TITLE": "Panel de Control",
 			"WELCOME_BACK": "¡Bienvenido de nuevo, {name}! Aquí está tu resumen de actividad.",
@@ -3887,5 +3900,9 @@
 		"YOU_LABEL": "Tú",
 		"TOOL_RESULT_LABEL": "Resultado de la herramienta",
 		"TOOL_RESULT_FROM": "Resultado de {tool}"
+	},
+	"usersDirectory": {
+		"HERO_TITLE": "Comunidad",
+		"HERO_SUBTITLE": "Descubre personas que construyen y comparten en este directorio."
 	}
 }

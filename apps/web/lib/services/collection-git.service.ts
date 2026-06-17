@@ -5,6 +5,7 @@ import * as http from 'isomorphic-git/http/node';
 import git from 'isomorphic-git';
 import { Collection, CreateCollectionRequest, UpdateCollectionRequest } from '@/types/collection';
 import { getContentPath } from '@/lib/lib';
+import { isContentGitRemoteDisabled } from './content-git-offline';
 
 interface GitConfig {
   owner: string;
@@ -48,6 +49,10 @@ export class CollectionGitService {
   }
 
   private async syncWithRemote(): Promise<void> {
+    if (isContentGitRemoteDisabled()) {
+      console.log('⏭️  Skipping collection git remote sync (CI / CONTENT_GIT_OFFLINE)');
+      return;
+    }
     const gitExists = await this.directoryExists(path.join(this.config.dataDir, '.git'));
     try {
       if (gitExists) {
@@ -178,6 +183,10 @@ export class CollectionGitService {
           committer,
         });
 
+        if (isContentGitRemoteDisabled()) {
+          console.log('⏭️  [WRITE COLLECTIONS] Skipping git push (CI / CONTENT_GIT_OFFLINE) — committed locally only');
+          return;
+        }
         const auth = this.getAuth();
         await git.push({
           onAuth: () => auth,

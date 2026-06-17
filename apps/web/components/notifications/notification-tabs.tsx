@@ -49,15 +49,12 @@ export function NotificationTabs({ value, onChange, counts, variant = 'page', cl
 						<span>{safeT(t, tab, fallbackLabel(tab))}</span>
 						{typeof count === 'number' && count > 0 && (
 							<span
-								className={cn(
-									'inline-flex items-center justify-center rounded-full px-1.5 h-4 min-w-[16px] text-[10px] font-semibold tabular-nums',
-									active
-										? 'bg-neutral-900 dark:bg-white text-white dark:text-neutral-900'
-										: 'bg-neutral-200 dark:bg-white/10 text-neutral-700 dark:text-neutral-300'
-								)}
-							>
-								{count > 99 ? '99+' : count}
-							</span>
+								aria-hidden="true"
+								className="inline-block h-1.5 w-1.5 shrink-0 rounded-full bg-primary"
+							/>
+						)}
+						{typeof count === 'number' && count > 0 && (
+							<span className="sr-only">{safeT(t, 'hasNew', 'Has new')}</span>
 						)}
 						{active && (
 							<span

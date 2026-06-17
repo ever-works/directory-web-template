@@ -165,6 +165,7 @@
 		"DESCRIPTION": "Description",
 		"DRAFT": "Draft",
 		"PUBLISHED": "Published",
+		"LAST_UPDATED": "अंतिम अपडेट",
 		"CLOSED": "Closed",
 		"USER": "User",
 		"ANONYMOUS": "Anonymous",
@@ -428,6 +429,8 @@
 		"PUBLISHER": "Publisher",
 		"WEBSITE": "Website",
 		"PUBLISHED": "Published",
+		"LAST_UPDATED": "अंतिम अपडेट",
+		"TABLE_OF_CONTENTS": "इस पृष्ठ पर",
 		"NO_TAGS_AVAILABLE": "No tags available",
 		"RATING": "Rating",
 		"PROMO_CODE": "Promo Code",
@@ -556,6 +559,10 @@
 		"NO_CHECKOUT_PROVIDERS_CONFIGURED": "कोई भुगतान प्रदाता कॉन्फ़िगर नहीं है। भुगतान सुविधाएं उपलब्ध नहीं होंगी।",
 		"PROVIDER_NOT_CONFIGURED": "कॉन्फ़िगर नहीं है",
 		"NOT_CONFIGURED": "कॉन्फ़िगर नहीं है",
+		"ACTIVE": "सक्रिय",
+		"SECTION_PROFILE": "प्रोफ़ाइल",
+		"SECTION_APPEARANCE": "रूप",
+		"SECTION_CONTENT_AND_BILLING": "सामग्री और बिलिंग",
 		"SETTINGS_CARDS": {
 			"BASIC_INFO": {
 				"TITLE": "Basic Information",
@@ -658,44 +665,44 @@
 			"DESCRIPTION": "Permanent account actions"
 		},
 		"DANGER_ZONE_PAGE": {
-			"TITLE": "Danger zone",
-			"SUBTITLE": "Account actions that take effect immediately and cannot be undone.",
-			"BACK_TO_SETTINGS": "Back to settings",
-			"INTRO_LABEL": "Heads up",
-			"INTRO_BODY": "Every action in this section is permanent. We'll always ask you to confirm before anything is removed.",
-			"IRREVERSIBLE_BADGE": "Destructive",
+			"TITLE": "खतरे का क्षेत्र",
+			"SUBTITLE": "खाता क्रियाएं जो तुरंत प्रभावी हो जाती हैं और जिन्हें पूर्ववत नहीं किया जा सकता।",
+			"BACK_TO_SETTINGS": "सेटिंग्स पर वापस जाएं",
+			"INTRO_LABEL": "ध्यान दें",
+			"INTRO_BODY": "इस सेक्शन में हर क्रिया स्थायी है। कुछ भी हटाने से पहले हम हमेशा आपसे पुष्टि करने के लिए कहेंगे।",
+			"IRREVERSIBLE_BADGE": "विनाशकारी",
 			"DELETE_ACCOUNT": {
-				"TITLE": "Delete this account",
-				"DESCRIPTION": "Permanently remove this account and everything associated with it. This cannot be undone.",
-				"LOSS_TITLE": "What will be removed",
-				"LOSS_ITEM_1": "Sign-in credentials and account email",
-				"LOSS_ITEM_2": "Profile, portfolio, and uploaded images",
-				"LOSS_ITEM_3": "Submissions, drafts, and trashed items",
-				"LOSS_ITEM_4": "Sponsorships and billing references",
-				"LOSS_ITEM_5": "Comments, favourites, and activity history",
-				"CTA_HELPER": "Two-step confirmation required.",
-				"CTA": "Delete account…",
+				"TITLE": "इस खाते को हटाएं",
+				"DESCRIPTION": "इस खाते और इससे जुड़ी हर चीज़ को स्थायी रूप से हटा दें। इसे पूर्ववत नहीं किया जा सकता।",
+				"LOSS_TITLE": "क्या हटाया जाएगा",
+				"LOSS_ITEM_1": "साइन-इन क्रेडेंशियल और खाता ईमेल",
+				"LOSS_ITEM_2": "प्रोफ़ाइल, पोर्टफोलियो और अपलोड की गई इमेज",
+				"LOSS_ITEM_3": "सबमिशन, ड्राफ्ट और ट्रैश में मौजूद आइटम",
+				"LOSS_ITEM_4": "प्रायोजन और बिलिंग संदर्भ",
+				"LOSS_ITEM_5": "टिप्पणियां, पसंदीदा और एक्टिविटी हिस्ट्री",
+				"CTA_HELPER": "दो-चरणीय पुष्टि आवश्यक है।",
+				"CTA": "खाता हटाएं…",
 				"CONFIRM_MODAL": {
-					"TITLE": "Permanently delete your account",
-					"SUBTITLE": "Take a moment to confirm — this cannot be undone.",
-					"ACCOUNT_HEADING": "Account to delete",
-					"ACCOUNT_WARNING": "Everything tied to this account will be removed immediately. There is no recovery.",
-					"CONFIRMATION_HEADING": "Confirm it's really you",
-					"EMAIL_LABEL": "Type your email to confirm",
-					"EMAIL_HELPER": "Enter {email} exactly as shown above.",
-					"EMAIL_PLACEHOLDER": "you@example.com",
-					"PASSWORD_LABEL": "Your current password",
-					"PASSWORD_PLACEHOLDER": "Enter your password",
-					"CONFIRM_CTA": "Delete account permanently",
-					"DELETING": "Deleting account…",
-					"CANCEL_CTA": "Cancel"
+					"TITLE": "अपना खाता स्थायी रूप से हटाएं",
+					"SUBTITLE": "पुष्टि करने के लिए एक पल लें — इसे पूर्ववत नहीं किया जा सकता।",
+					"ACCOUNT_HEADING": "हटाने के लिए खाता",
+					"ACCOUNT_WARNING": "इस खाते से जुड़ी हर चीज़ तुरंत हटा दी जाएगी। इसे वापस पाना संभव नहीं है।",
+					"CONFIRMATION_HEADING": "पुष्टि करें कि यह वास्तव में आप ही हैं",
+					"EMAIL_LABEL": "पुष्टि के लिए अपना ईमेल टाइप करें",
+					"EMAIL_HELPER": "ऊपर दिखाए अनुसार ठीक वैसे ही {email} दर्ज करें।",
+					"EMAIL_PLACEHOLDER": "john@example.com",
+					"PASSWORD_LABEL": "आपका मौजूदा पासवर्ड",
+					"PASSWORD_PLACEHOLDER": "अपना पासवर्ड दर्ज करें",
+					"CONFIRM_CTA": "खाता स्थायी रूप से हटाएं",
+					"DELETING": "खाता हटाया जा रहा है…",
+					"CANCEL_CTA": "रद्द करें"
 				},
 				"ERRORS": {
-					"PASSWORD_REQUIRED": "Password is required.",
-					"PASSWORD_TOO_SHORT": "Password must be at least 8 characters.",
-					"EMAIL_REQUIRED": "Please type your email to confirm.",
-					"EMAIL_MISMATCH": "Email does not match the account above.",
-					"UNKNOWN": "Failed to delete account. Please try again."
+					"PASSWORD_REQUIRED": "पासवर्ड आवश्यक है।",
+					"PASSWORD_TOO_SHORT": "पासवर्ड कम से कम 8 अक्षरों का होना चाहिए।",
+					"EMAIL_REQUIRED": "पुष्टि के लिए कृपया अपना ईमेल टाइप करें।",
+					"EMAIL_MISMATCH": "ईमेल ऊपर दिए गए खाते से मेल नहीं खाता।",
+					"UNKNOWN": "खाता हटाने में विफल। कृपया पुनः प्रयास करें।"
 				}
 			}
 		}
@@ -774,7 +781,7 @@
 			"REVIEW_AND_SUBMIT": "Review & Submit",
 			"EXTRACT": "निकालें",
 			"EXTRACTING": "निकाला जा रहा है...",
-				"URL_FORMAT_HINT": "URL को https:// या http:// से शुरू होना चाहिए"
+			"URL_FORMAT_HINT": "URL को https:// या http:// से शुरू होना चाहिए"
 		},
 		"PAYMENT": {
 			"TITLE": "Complete Your Order",
@@ -3556,6 +3563,12 @@
 			"EDIT_SUBMISSION_DESC": "अपने सबमिशन का विवरण अपडेट करें",
 			"BULK_IMPORT": "बल्क आयात"
 		},
+		"notifications": {
+			"tooltip": "सूचनाएं",
+			"aria": {
+				"bellWithCount": "सूचनाएं ({n} अपठित)"
+			}
+		},
 		"dashboard": {
 			"ITEMS_MAP": {
 				"TITLE": "आपके आइटम का नक्शा",
@@ -3688,5 +3701,9 @@
 		"NAV_ARTICLE": "लेख",
 		"FALLBACK_TITLE": "तुलना",
 		"VS": "बनाम"
+	},
+	"usersDirectory": {
+		"HERO_TITLE": "समुदाय",
+		"HERO_SUBTITLE": "इस डायरेक्टरी में बनाने और साझा करने वाले लोगों की खोज करें।"
 	}
 }

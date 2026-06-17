@@ -189,6 +189,7 @@
 		"DESCRIPTION": "Описание",
 		"DRAFT": "Чернова",
 		"PUBLISHED": "Публикуван",
+		"LAST_UPDATED": "Последна актуализация",
 		"CLOSED": "Затворен",
 		"USER": "Потребител",
 		"ANONYMOUS": "Анонимен",
@@ -454,6 +455,8 @@
 		"PUBLISHER": "Издател",
 		"WEBSITE": "Уебсайт",
 		"PUBLISHED": "Публикувано",
+		"LAST_UPDATED": "Последна актуализация",
+		"TABLE_OF_CONTENTS": "На тази страница",
 		"NO_TAGS_AVAILABLE": "Няма налични етикети",
 		"RATING": "Рейтинг",
 		"PROMO_CODE": "Промо код",
@@ -582,6 +585,10 @@
 		"NO_CHECKOUT_PROVIDERS_CONFIGURED": "Няма конфигурирани доставчици на плащания. Функциите за плащане няма да са налични.",
 		"PROVIDER_NOT_CONFIGURED": "Не е конфигуриран",
 		"NOT_CONFIGURED": "не е конфигуриран",
+		"ACTIVE": "Активен",
+		"SECTION_PROFILE": "Профил",
+		"SECTION_APPEARANCE": "Външен вид",
+		"SECTION_CONTENT_AND_BILLING": "Съдържание и фактуриране",
 		"SETTINGS_CARDS": {
 			"BASIC_INFO": {
 				"TITLE": "Основна информация",
@@ -736,44 +743,44 @@
 			"DESCRIPTION": "Permanent account actions"
 		},
 		"DANGER_ZONE_PAGE": {
-			"TITLE": "Danger zone",
-			"SUBTITLE": "Account actions that take effect immediately and cannot be undone.",
-			"BACK_TO_SETTINGS": "Back to settings",
-			"INTRO_LABEL": "Heads up",
-			"INTRO_BODY": "Every action in this section is permanent. We'll always ask you to confirm before anything is removed.",
-			"IRREVERSIBLE_BADGE": "Destructive",
+			"TITLE": "Опасна зона",
+			"SUBTITLE": "Действия върху акаунта, които влизат в сила веднага и не могат да бъдат отменени.",
+			"BACK_TO_SETTINGS": "Назад към настройките",
+			"INTRO_LABEL": "Внимание",
+			"INTRO_BODY": "Всяко действие в този раздел е окончателно. Винаги ще поискаме потвърждение от вас, преди да премахнем нещо.",
+			"IRREVERSIBLE_BADGE": "Деструктивно",
 			"DELETE_ACCOUNT": {
-				"TITLE": "Delete this account",
-				"DESCRIPTION": "Permanently remove this account and everything associated with it. This cannot be undone.",
-				"LOSS_TITLE": "What will be removed",
-				"LOSS_ITEM_1": "Sign-in credentials and account email",
-				"LOSS_ITEM_2": "Profile, portfolio, and uploaded images",
-				"LOSS_ITEM_3": "Submissions, drafts, and trashed items",
-				"LOSS_ITEM_4": "Sponsorships and billing references",
-				"LOSS_ITEM_5": "Comments, favourites, and activity history",
-				"CTA_HELPER": "Two-step confirmation required.",
-				"CTA": "Delete account…",
+				"TITLE": "Изтриване на този акаунт",
+				"DESCRIPTION": "Премахнете завинаги този акаунт и всичко свързано с него. Това действие не може да бъде отменено.",
+				"LOSS_TITLE": "Какво ще бъде премахнато",
+				"LOSS_ITEM_1": "Данни за вход и имейл на акаунта",
+				"LOSS_ITEM_2": "Профил, портфолио и качени изображения",
+				"LOSS_ITEM_3": "Подадени материали, чернови и елементи в кошчето",
+				"LOSS_ITEM_4": "Спонсорства и данни за фактуриране",
+				"LOSS_ITEM_5": "Коментари, любими и история на активността",
+				"CTA_HELPER": "Изисква се потвърждение в две стъпки.",
+				"CTA": "Изтриване на акаунт…",
 				"CONFIRM_MODAL": {
-					"TITLE": "Permanently delete your account",
-					"SUBTITLE": "Take a moment to confirm — this cannot be undone.",
-					"ACCOUNT_HEADING": "Account to delete",
-					"ACCOUNT_WARNING": "Everything tied to this account will be removed immediately. There is no recovery.",
-					"CONFIRMATION_HEADING": "Confirm it's really you",
-					"EMAIL_LABEL": "Type your email to confirm",
-					"EMAIL_HELPER": "Enter {email} exactly as shown above.",
-					"EMAIL_PLACEHOLDER": "you@example.com",
-					"PASSWORD_LABEL": "Your current password",
-					"PASSWORD_PLACEHOLDER": "Enter your password",
-					"CONFIRM_CTA": "Delete account permanently",
-					"DELETING": "Deleting account…",
-					"CANCEL_CTA": "Cancel"
+					"TITLE": "Окончателно изтриване на вашия акаунт",
+					"SUBTITLE": "Отделете момент за потвърждение — това действие не може да бъде отменено.",
+					"ACCOUNT_HEADING": "Акаунт за изтриване",
+					"ACCOUNT_WARNING": "Всичко, свързано с този акаунт, ще бъде премахнато незабавно. Възстановяване не е възможно.",
+					"CONFIRMATION_HEADING": "Потвърдете, че наистина сте вие",
+					"EMAIL_LABEL": "Въведете своя имейл за потвърждение",
+					"EMAIL_HELPER": "Въведете {email} точно както е показано по-горе.",
+					"EMAIL_PLACEHOLDER": "john@example.com",
+					"PASSWORD_LABEL": "Текущата ви парола",
+					"PASSWORD_PLACEHOLDER": "Въведете своята парола",
+					"CONFIRM_CTA": "Окончателно изтриване на акаунта",
+					"DELETING": "Изтриване на акаунта…",
+					"CANCEL_CTA": "Отказ"
 				},
 				"ERRORS": {
-					"PASSWORD_REQUIRED": "Password is required.",
-					"PASSWORD_TOO_SHORT": "Password must be at least 8 characters.",
-					"EMAIL_REQUIRED": "Please type your email to confirm.",
-					"EMAIL_MISMATCH": "Email does not match the account above.",
-					"UNKNOWN": "Failed to delete account. Please try again."
+					"PASSWORD_REQUIRED": "Паролата е задължителна.",
+					"PASSWORD_TOO_SHORT": "Паролата трябва да съдържа поне 8 символа.",
+					"EMAIL_REQUIRED": "Моля, въведете своя имейл за потвърждение.",
+					"EMAIL_MISMATCH": "Имейлът не съответства на акаунта по-горе.",
+					"UNKNOWN": "Изтриването на акаунта не бе успешно. Моля, опитайте отново."
 				}
 			}
 		}
@@ -852,7 +859,7 @@
 			"REVIEW_AND_SUBMIT": "Преглед и изпращане",
 			"EXTRACT": "Извлечи",
 			"EXTRACTING": "Извличане...",
-				"URL_FORMAT_HINT": "URL адресът трябва да започва с https:// или http://"
+			"URL_FORMAT_HINT": "URL адресът трябва да започва с https:// или http://"
 		},
 		"PAYMENT": {
 			"TITLE": "Завършете вашата поръчка",
@@ -3751,6 +3758,12 @@
 			"CANCEL_BUTTON": "Отказ",
 			"PROCEED_TO_PAYMENT": "Продължете към плащането"
 		},
+		"notifications": {
+			"tooltip": "Известия",
+			"aria": {
+				"bellWithCount": "Известия ({n} непрочетени)"
+			}
+		},
 		"dashboard": {
 			"TITLE": "Табло",
 			"WELCOME_BACK": "Добре дошли отново, {name}! Ето прегледа на вашата активност.",
@@ -3977,5 +3990,9 @@
 		"NAV_ARTICLE": "Статия",
 		"FALLBACK_TITLE": "Сравнение",
 		"VS": "срещу"
+	},
+	"usersDirectory": {
+		"HERO_TITLE": "Общност",
+		"HERO_SUBTITLE": "Открийте хора, които изграждат и споделят в тази директория."
 	}
 }

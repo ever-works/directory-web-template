@@ -489,6 +489,8 @@
 		"PUBLISHER": "Publisher",
 		"WEBSITE": "Website",
 		"PUBLISHED": "Published",
+		"LAST_UPDATED": "Last updated",
+		"TABLE_OF_CONTENTS": "On this page",
 		"NO_TAGS_AVAILABLE": "No tags available",
 		"RATING": "Rating",
 		"PROMO_CODE": "Promo Code",
@@ -617,6 +619,10 @@
 		"NO_CHECKOUT_PROVIDERS_CONFIGURED": "No payment providers are configured. Payment features will be unavailable.",
 		"PROVIDER_NOT_CONFIGURED": "Not configured",
 		"NOT_CONFIGURED": "not configured",
+		"ACTIVE": "Active",
+		"SECTION_PROFILE": "Profile",
+		"SECTION_APPEARANCE": "Appearance",
+		"SECTION_CONTENT_AND_BILLING": "Content & Billing",
 		"SETTINGS_CARDS": {
 			"BASIC_INFO": {
 				"TITLE": "Basic Information",
@@ -4360,7 +4366,8 @@
 				"aria": "Notification filters",
 				"all": "All",
 				"unread": "Unread",
-				"system": "System"
+				"system": "System",
+				"hasNew": "Has new"
 			},
 			"sections": {
 				"today": "Today",

@@ -189,6 +189,7 @@
 		"DESCRIPTION": "설명",
 		"DRAFT": "초안",
 		"PUBLISHED": "게시됨",
+		"LAST_UPDATED": "마지막 업데이트",
 		"CLOSED": "종료됨",
 		"USER": "사용자",
 		"ANONYMOUS": "익명",
@@ -454,6 +455,8 @@
 		"PUBLISHER": "게시자",
 		"WEBSITE": "웹사이트",
 		"PUBLISHED": "게시일",
+		"LAST_UPDATED": "마지막 업데이트",
+		"TABLE_OF_CONTENTS": "이 페이지에서",
 		"NO_TAGS_AVAILABLE": "사용 가능한 태그 없음",
 		"RATING": "평점",
 		"PROMO_CODE": "프로모션 코드",
@@ -582,6 +585,10 @@
 		"NO_CHECKOUT_PROVIDERS_CONFIGURED": "결제 제공자가 구성되지 않았습니다. 결제 기능을 사용할 수 없습니다.",
 		"PROVIDER_NOT_CONFIGURED": "구성되지 않음",
 		"NOT_CONFIGURED": "구성되지 않음",
+		"ACTIVE": "활성",
+		"SECTION_PROFILE": "프로필",
+		"SECTION_APPEARANCE": "외관",
+		"SECTION_CONTENT_AND_BILLING": "콘텐츠 및 청구",
 		"SETTINGS_CARDS": {
 			"BASIC_INFO": {
 				"TITLE": "기본 정보",
@@ -736,44 +743,44 @@
 			"DESCRIPTION": "Permanent account actions"
 		},
 		"DANGER_ZONE_PAGE": {
-			"TITLE": "Danger zone",
-			"SUBTITLE": "Account actions that take effect immediately and cannot be undone.",
-			"BACK_TO_SETTINGS": "Back to settings",
-			"INTRO_LABEL": "Heads up",
-			"INTRO_BODY": "Every action in this section is permanent. We'll always ask you to confirm before anything is removed.",
-			"IRREVERSIBLE_BADGE": "Destructive",
+			"TITLE": "위험 구역",
+			"SUBTITLE": "이 영역의 계정 작업은 즉시 적용되며 취소할 수 없습니다.",
+			"BACK_TO_SETTINGS": "설정으로 돌아가기",
+			"INTRO_LABEL": "주의",
+			"INTRO_BODY": "이 섹션의 모든 작업은 영구적입니다. 무언가를 삭제하기 전에 항상 확인을 요청합니다.",
+			"IRREVERSIBLE_BADGE": "파괴적 작업",
 			"DELETE_ACCOUNT": {
-				"TITLE": "Delete this account",
-				"DESCRIPTION": "Permanently remove this account and everything associated with it. This cannot be undone.",
-				"LOSS_TITLE": "What will be removed",
-				"LOSS_ITEM_1": "Sign-in credentials and account email",
-				"LOSS_ITEM_2": "Profile, portfolio, and uploaded images",
-				"LOSS_ITEM_3": "Submissions, drafts, and trashed items",
-				"LOSS_ITEM_4": "Sponsorships and billing references",
-				"LOSS_ITEM_5": "Comments, favourites, and activity history",
-				"CTA_HELPER": "Two-step confirmation required.",
-				"CTA": "Delete account…",
+				"TITLE": "이 계정 삭제",
+				"DESCRIPTION": "이 계정과 관련된 모든 항목을 영구적으로 제거합니다. 이 작업은 취소할 수 없습니다.",
+				"LOSS_TITLE": "삭제되는 항목",
+				"LOSS_ITEM_1": "로그인 자격 증명 및 계정 이메일",
+				"LOSS_ITEM_2": "프로필, 포트폴리오 및 업로드된 이미지",
+				"LOSS_ITEM_3": "제출물, 초안 및 휴지통에 있는 항목",
+				"LOSS_ITEM_4": "스폰서십 및 결제 관련 정보",
+				"LOSS_ITEM_5": "댓글, 즐겨찾기 및 활동 기록",
+				"CTA_HELPER": "2단계 확인이 필요합니다.",
+				"CTA": "계정 삭제…",
 				"CONFIRM_MODAL": {
-					"TITLE": "Permanently delete your account",
-					"SUBTITLE": "Take a moment to confirm — this cannot be undone.",
-					"ACCOUNT_HEADING": "Account to delete",
-					"ACCOUNT_WARNING": "Everything tied to this account will be removed immediately. There is no recovery.",
-					"CONFIRMATION_HEADING": "Confirm it's really you",
-					"EMAIL_LABEL": "Type your email to confirm",
-					"EMAIL_HELPER": "Enter {email} exactly as shown above.",
-					"EMAIL_PLACEHOLDER": "you@example.com",
-					"PASSWORD_LABEL": "Your current password",
-					"PASSWORD_PLACEHOLDER": "Enter your password",
-					"CONFIRM_CTA": "Delete account permanently",
-					"DELETING": "Deleting account…",
-					"CANCEL_CTA": "Cancel"
+					"TITLE": "계정을 영구적으로 삭제",
+					"SUBTITLE": "잠시 시간을 내어 확인해 주세요. 이 작업은 취소할 수 없습니다.",
+					"ACCOUNT_HEADING": "삭제할 계정",
+					"ACCOUNT_WARNING": "이 계정과 관련된 모든 항목이 즉시 삭제됩니다. 복구할 수 없습니다.",
+					"CONFIRMATION_HEADING": "본인 확인",
+					"EMAIL_LABEL": "확인을 위해 이메일을 입력하세요",
+					"EMAIL_HELPER": "위에 표시된 대로 정확하게 {email}을(를) 입력하세요.",
+					"EMAIL_PLACEHOLDER": "john@example.com",
+					"PASSWORD_LABEL": "현재 비밀번호",
+					"PASSWORD_PLACEHOLDER": "비밀번호를 입력하세요",
+					"CONFIRM_CTA": "계정을 영구적으로 삭제",
+					"DELETING": "계정 삭제 중…",
+					"CANCEL_CTA": "취소"
 				},
 				"ERRORS": {
-					"PASSWORD_REQUIRED": "Password is required.",
-					"PASSWORD_TOO_SHORT": "Password must be at least 8 characters.",
-					"EMAIL_REQUIRED": "Please type your email to confirm.",
-					"EMAIL_MISMATCH": "Email does not match the account above.",
-					"UNKNOWN": "Failed to delete account. Please try again."
+					"PASSWORD_REQUIRED": "비밀번호를 입력해야 합니다.",
+					"PASSWORD_TOO_SHORT": "비밀번호는 8자 이상이어야 합니다.",
+					"EMAIL_REQUIRED": "확인을 위해 이메일을 입력하세요.",
+					"EMAIL_MISMATCH": "이메일이 위 계정과 일치하지 않습니다.",
+					"UNKNOWN": "계정을 삭제하지 못했습니다. 다시 시도해 주세요."
 				}
 			}
 		}
@@ -852,7 +859,7 @@
 			"REVIEW_AND_SUBMIT": "검토 및 제출",
 			"EXTRACT": "추출",
 			"EXTRACTING": "추출 중...",
-				"URL_FORMAT_HINT": "URL은 https:// 또는 http://로 시작해야 합니다"
+			"URL_FORMAT_HINT": "URL은 https:// 또는 http://로 시작해야 합니다"
 		},
 		"PAYMENT": {
 			"TITLE": "주문 완료",
@@ -3812,6 +3819,12 @@
 			"CANCEL_BUTTON": "취소",
 			"PROCEED_TO_PAYMENT": "결제 진행"
 		},
+		"notifications": {
+			"tooltip": "알림",
+			"aria": {
+				"bellWithCount": "알림 (읽지 않음 {n}개)"
+			}
+		},
 		"dashboard": {
 			"TITLE": "대시보드",
 			"WELCOME_BACK": "{name}님, 다시 오신 것을 환영합니다! 활동 개요입니다.",
@@ -4038,5 +4051,9 @@
 		"NAV_ARTICLE": "기사",
 		"FALLBACK_TITLE": "비교",
 		"VS": "vs"
+	},
+	"usersDirectory": {
+		"HERO_TITLE": "커뮤니티",
+		"HERO_SUBTITLE": "이 디렉토리에서 만들고 공유하는 사람들을 발견하세요."
 	}
 }

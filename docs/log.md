@@ -31,6 +31,77 @@ why** at a higher level than per-commit diffs.
 
 ---
 
+## 2026-06-16 — Fix: CI-safe git-CMS writes + favorite-toggle e2e race
+
+- spec-039: the e2e suite's authenticated write-flow specs (admin create
+  collection, client submit item, favorite toggle) timed out at ~30s in CI.
+  Two causes: (1) `CollectionGitService`/`ItemGitService` `pull` on init and
+  `push` after each write hit the unreachable CI content remote with no HTTP
+  timeout, blocking the POST past the redirect/modal wait — added
+  `isContentGitRemoteDisabled()` (`apps/web/lib/services/content-git-offline.ts`,
+  gated on `CI`/`CONTENT_GIT_OFFLINE`) and guarded `syncWithRemote` + `push` in
+  both services; runtime (no `CI`) still pushes. Also added an in-flight
+  git-service init lock to `item.repository.ts`/`collection.repository.ts`
+  (parallel CI workers no longer init isomorphic-git on the same `.git` at
+  once). (2) Favorites are DB-backed; an early click before `useCurrentUser`
+  resolved opened the login modal whose backdrop then ate clicks — hardened
+  `clickFavorite()` in `apps/web-e2e/page-objects/public/item-detail.page.ts`
+  to dismiss the modal and only count a click that flips the label. No prod
+  behaviour change; no tests skipped. See `docs/spec/039-e2e-git-cms-ci-safe/spec.md`.
+
+---
+
+## 2026-06-16 — Feat: k8s deploy provisions Work runtime env
+
+- spec-040: k8s-deployed directory sites 500 at first render (`[auth] AUTH_SECRET must be set in production`) because the Deployment only carried NODE_ENV/PORT/HOSTNAME. Added a `deploy_k8s.yaml` step that materializes a `${WORK_SLUG}-runtime-env` Secret from the AUTH_SECRET/COOKIE_SECRET/COOKIE_SECURE/DATABASE_URL secrets the platform pushes (+ NEXT_PUBLIC_APP_URL/COOKIE_DOMAIN from the ingress host), and `deployment.yaml` mounts it via `envFrom` (optional). Platform half: ever-works DeployService.ensureRuntimeEnv + WorkRuntimeEnvService. See `docs/spec/040-k8s-deploy-runtime-env/spec.md`. (PR: pending)
+
+---
+
+## 2026-06-15 — Fix: k8s deploy probe timeouts (startup/readiness/liveness)
+
+- spec-038: the k8s deploy manifest template `.deploy/k8s-platform/deployment.yaml`
+  defined `readinessProbe` / `livenessProbe` on `/` with no `timeoutSeconds`, so
+  both inherited Kubernetes' 1-second default. A server-rendered `/` on a small
+  shared node routinely exceeds 1s, so the liveness probe failed its default 3
+  attempts and kubelet killed the container in a permanent restart loop
+  (observed: 460+ restarts, `Exit Code: 143`, on the first k8s-deployed Work
+  `awesome-compliance-automation-website`). Added an explicit `startupProbe`
+  (≈5 min budget for first response before liveness/readiness apply) and set
+  `timeoutSeconds: 5` plus `failureThreshold` on readiness (3) and liveness (6).
+  No app code or image change; affects only deployed Works' pod health gating.
+  Propagation to existing per-repo `awesome-*` copies is tracked in the
+  Vercel→k8s migration runbook. See `docs/spec/038-k8s-deploy-probes/spec.md`.
+  (PR: pending)
+
+---
+
+## 2026-06-13 — Docs: Neon database integration in the Vercel deploy guide
+
+- docs/deployment: documented setting up the database via the Neon Vercel
+  Marketplace integration in `deployment/vercel.md`, with the recommended
+  integration settings (env var prefix `DATABASE`, Production branch on,
+  **Preview branch off**) and a warning that per-preview database branches
+  can balloon into hundreds of branches and a large bill.
+
+## 2026-05-27 — Perf: item-detail first paint — stream similar-items, persist + parallelize
+
+- spec-037: fixed blank/slow first paint on `/[locale]/items/[slug]`. The page
+  used to `await` the similar-items computation (a full-catalogue scan via
+  `fetchItems`) before returning any HTML, blocking first paint on a
+  below-the-fold carousel. Now the carousel is **streamed** behind its own
+  `<Suspense>` boundary in `components/item-detail/item-detail.tsx` (React 19
+  `use()` + a server-created `similarItemsPromise` passed down from the page),
+  so the hero/content/sidebar paint immediately and the rail arrives a beat
+  later with a skeleton. Also added `getCachedSimilarItems` in
+  `apps/web/lib/content.ts` (wraps `fetchSimilarItems` in `unstable_cache`,
+  keyed by slug + locale + maxResults, pinned to the content revision, tagged
+  `content`/`items`/`item:<slug>`) so the scored list survives serverless cold
+  starts / is shared across instances, and parallelized the page's item +
+  translations loads (`Promise.all`). Final markup and item ordering unchanged.
+  See `docs/spec/037-item-detail-perf/spec.md`. (PR: draft)
+
+---
+
 ## 2026-05-27 — Fix: Edge Runtime build break in activity-feed push client
 
 - spec-024: replaced the `import { randomUUID } from 'node:crypto'` at the top of
