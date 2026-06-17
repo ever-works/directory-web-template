@@ -682,6 +682,51 @@
 			"INTRO_LABEL": "请注意",
 			"INTRO_BODY": "本区域中的每个操作都是永久性的。在删除任何内容之前，我们都会要求您确认。",
 			"IRREVERSIBLE_BADGE": "破坏性操作",
+			"DEACTIVATE_ACCOUNT": {
+				"TITLE": "停用账户",
+				"REVERSIBLE_BADGE": "可撤销",
+				"DESCRIPTION": "暂时暂停您的账户。您可以随时通过重新登录来重新激活它。",
+				"EFFECTS_TITLE": "停用时会发生什么",
+				"EFFECT_1": "您的个人资料和列表将从目录中隐藏。",
+				"EFFECT_2": "您将从所有活动会话中退出。",
+				"EFFECT_3": "预定的电子邮件和通知将暂停。",
+				"EFFECT_4": "您的数据安全保存，不会删除任何内容。",
+				"CTA_HELPER": "您可以随时重新激活。",
+				"CTA": "停用账户…",
+				"CONFIRM_MODAL": {
+					"TITLE": "停用您的账户",
+					"SUBTITLE": "您的数据将被保留 — 您可以随时重新激活。",
+					"EFFECTS_HEADING": "停用意味着什么",
+					"EFFECT_1": "您的个人资料和列表将从目录中隐藏。",
+					"EFFECT_2": "您将从所有活动会话中退出。",
+					"EFFECT_3": "预定的电子邮件和通知将暂停。",
+					"EFFECT_4": "您的数据安全保存，不会删除任何内容。",
+					"REACTIVATION_NOTE": "要重新激活，只需使用您的凭据重新登录即可。",
+					"CONFIRMATION_HEADING": "确认您的身份",
+					"PASSWORD_LABEL": "您当前的密码",
+					"PASSWORD_PLACEHOLDER": "输入密码",
+					"CANCEL_CTA": "取消",
+					"CONFIRM_CTA": "停用账户",
+					"DEACTIVATING": "停用中…"
+				},
+				"ERRORS": {
+					"PASSWORD_REQUIRED": "密码为必填项。",
+					"PASSWORD_TOO_SHORT": "密码必须至少8个字符。"
+				}
+			},
+			"REACTIVATE_ACCOUNT": {
+				"STATUS_BADGE": "账户已停用",
+				"TITLE": "重新激活您的账户",
+				"DESCRIPTION": "恢复对账户的完全访问权限，让您的个人资料再次可见。",
+				"RESTORE_TITLE": "重新激活将恢复什么",
+				"RESTORE_1": "您的个人资料和列表将再次在目录中可见。",
+				"RESTORE_2": "所有通知和预定电子邮件将恢复。",
+				"RESTORE_3": "您的所有数据、设置和历史记录完全完好无损。",
+				"CTA_HELPER": "重新激活是即时的 — 无需审批。",
+				"CTA": "重新激活账户",
+				"REACTIVATING": "重新激活中…",
+				"SUCCESS_TOAST": "您的账户已成功重新激活。"
+			},
 			"DELETE_ACCOUNT": {
 				"TITLE": "删除此账户",
 				"DESCRIPTION": "永久删除此账户及与其关联的所有内容。此操作无法撤销。",

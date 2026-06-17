@@ -19,3 +19,19 @@ jobs:
         secrets: inherit
         with:
             environment: production
+
+    # Kubernetes deploy. Activated when the repo variable DEPLOY_PROVIDER is
+    # 'k8s' — mutually exclusive with the Vercel job above. Reuses the
+    # platform-grade deploy_k8s.yaml: build → push GHCR → envsubst manifests
+    # under .deploy/k8s-platform/ → kubectl apply → wait for rollout. Reads
+    # K8S_TOKEN / K8S_INGRESS_HOST / K8S_INGRESS_CLASS / K8S_NAMESPACE /
+    # (optional) K8S_TLS_ISSUER from repo secrets. For Ever Works' own
+    # k8s-works cluster, leave K8S_TLS_ISSUER unset — Cloudflare terminates
+    # TLS upstream and the workflow emits the matching nginx annotations
+    # (ssl-redirect: "false"), matching every other *.ever.works ingress.
+    K8s:
+        if: ${{ vars.DEPLOY_PROVIDER == 'k8s' }}
+        uses: ./.github/workflows/deploy_k8s.yaml
+        secrets: inherit
+        with:
+            environment: production

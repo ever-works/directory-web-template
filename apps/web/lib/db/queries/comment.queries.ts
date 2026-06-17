@@ -1,6 +1,6 @@
 import { and, eq, isNull, desc } from 'drizzle-orm';
 import { db } from '../drizzle';
-import { comments, clientProfiles, type NewComment } from '../schema';
+import { comments, clientProfiles, users, type NewComment } from '../schema';
 import type { CommentWithUser } from './types';
 import { getItemIdFromSlug } from './item.queries';
 import { getTenantId } from '@/lib/auth/tenant';
@@ -91,6 +91,7 @@ export async function getCommentsByItemId(itemSlug: string): Promise<CommentWith
 		})
 		.from(comments)
 		.innerJoin(clientProfiles, eq(comments.userId, clientProfiles.id))
+		.innerJoin(users, and(eq(users.id, clientProfiles.userId), isNull(users.deactivatedAt)))
 		.where(and(eq(comments.itemId, itemId), isNull(comments.deletedAt), eq(comments.tenantId, tenantId)))
 		.orderBy(desc(comments.createdAt));
 }
