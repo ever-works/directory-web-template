@@ -228,28 +228,46 @@ jobs:
                       --dry-run=client -o yaml | kubectl apply -f -
 
             - name: Provision runtime-env secret
-              # The deployed directory site needs its app runtime env — which
-              # Vercel supplied via project env + the Neon integration. The
-              # platform pushes these as repo secrets on a k8s deploy
-              # (DeployService.ensureRuntimeEnv); here we materialize them into
-              # a Secret the Deployment mounts via envFrom. NEXT_PUBLIC_APP_URL /
-              # COOKIE_DOMAIN are derived from the ingress host. Skipped cleanly
-              # when none are present (e.g. a Work without a configured DB).
+              # Materialize every repo secret as a Kubernetes Secret that the
+              # Deployment mounts via envFrom. The previous hardcoded list of 4
+              # keys (AUTH_SECRET / COOKIE_SECRET / COOKIE_SECURE / DATABASE_URL)
+              # silently dropped everything else the running app needs
+              # (DATA_REPOSITORY, GH_TOKEN, POLAR_*, STRIPE_*, TRIGGER_DEV_*,
+              # POSTHOG_*, RESEND_*, EMAIL_*, NEXT_PUBLIC_*, TENANT_ID,
+              # CRON_SECRET, …). Now we forward all secrets except a deny-list
+              # of workflow/CI-control names that are never runtime env.
+              #
+              # NEXT_PUBLIC_APP_URL / COOKIE_DOMAIN are still derived from the
+              # ingress host (overriding any repo-secret values so the cluster
+              # always serves its actual public hostname).
               env:
                   NAMESPACE: ${{ secrets.K8S_NAMESPACE || 'ever-works' }}
                   WORK_SLUG: ${{ github.event.repository.name }}
-                  AUTH_SECRET: ${{ secrets.AUTH_SECRET }}
-                  COOKIE_SECRET: ${{ secrets.COOKIE_SECRET }}
-                  COOKIE_SECURE: ${{ secrets.COOKIE_SECURE }}
-                  DATABASE_URL: ${{ secrets.DATABASE_URL }}
                   INGRESS_HOST: ${{ secrets.K8S_INGRESS_HOST }}
+                  ALL_SECRETS_JSON: ${{ toJSON(secrets) }}
               run: |
                   set -euo pipefail
+                  # Deny-list: workflow/CI-control secrets, never forwarded to
+                  # the running container. Anything else gets through.
+                  # Excludes: kubectl/registry/CI infra secrets. Everything
+                  # else (DATA_REPOSITORY, GH_TOKEN, DATABASE_*, AUTH_SECRET,
+                  # COOKIE_*, POLAR_*, RESEND_*, STRIPE_*, TRIGGER_DEV_*,
+                  # POSTHOG_*, NEXT_PUBLIC_*, TENANT_ID, CRON_SECRET, …) is
+                  # forwarded to the running pod via envFrom.
+                  SKIP_RE='^(K8S_|REGISTRY_|DOCKERHUB_|DIGITALOCEAN_|GITHUB_|github_token$)'
                   ARGS=()
-                  [[ -n "${AUTH_SECRET:-}" ]] && ARGS+=(--from-literal=AUTH_SECRET="$AUTH_SECRET")
-                  [[ -n "${COOKIE_SECRET:-}" ]] && ARGS+=(--from-literal=COOKIE_SECRET="$COOKIE_SECRET")
-                  [[ -n "${COOKIE_SECURE:-}" ]] && ARGS+=(--from-literal=COOKIE_SECURE="$COOKIE_SECURE")
-                  [[ -n "${DATABASE_URL:-}" ]] && ARGS+=(--from-literal=DATABASE_URL="$DATABASE_URL")
+                  KEYS_FWD=()
+                  while IFS= read -r key; do
+                      [[ -z "$key" ]] && continue
+                      if [[ "$key" =~ $SKIP_RE ]]; then continue; fi
+                      val="$(printf '%s' "$ALL_SECRETS_JSON" | jq -r --arg k "$key" '.[$k] // empty')"
+                      [[ -z "$val" ]] && continue
+                      ARGS+=(--from-literal="${key}=${val}")
+                      KEYS_FWD+=("$key")
+                  done < <(printf '%s' "$ALL_SECRETS_JSON" | jq -r 'keys[]')
+                  # Always derive these from the ingress host so the cluster's
+                  # public hostname is the source of truth (overrides any value
+                  # carried in repo secrets from a prior environment).
                   if [[ -n "${INGRESS_HOST:-}" ]]; then
                       ARGS+=(--from-literal=NEXT_PUBLIC_APP_URL="https://${INGRESS_HOST}")
                       ARGS+=(--from-literal=COOKIE_DOMAIN="${INGRESS_HOST}")
@@ -257,7 +275,10 @@ jobs:
                   if [[ ${#ARGS[@]} -gt 0 ]]; then
                       kubectl create secret generic "${WORK_SLUG}-runtime-env" -n "$NAMESPACE" \
                           "${ARGS[@]}" --dry-run=client -o yaml | kubectl apply -f -
-                      echo "Provisioned ${WORK_SLUG}-runtime-env (${#ARGS[@]} keys)"
+                      # Log keys (not values) so we have a paper trail of what
+                      # was forwarded on this deploy.
+                      printf 'Provisioned %s-runtime-env (%d keys): %s\n' \
+                          "$WORK_SLUG" "${#ARGS[@]}" "${KEYS_FWD[*]}"
                   else
                       echo "No runtime-env secrets present; skipping ${WORK_SLUG}-runtime-env"
                   fi
