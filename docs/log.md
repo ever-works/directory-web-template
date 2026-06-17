@@ -31,6 +31,27 @@ why** at a higher level than per-commit diffs.
 
 ---
 
+## 2026-06-17 — Feat: instant sparkline bump + flicker-free rollback on upvote
+
+- spec-037: the item-detail Statistics card already tracked total votes
+  optimistically via `useItemVote`'s `setQueryData(['item-votes', …])`, but
+  the sparkline (today's bar) and the activity totals lagged a full network
+  round-trip behind the vote button — and a failed mutation triggered a
+  cache refetch instead of a snapshot rollback, producing a brief flicker.
+- Exported `ITEM_ACTIVITY_QUERY_KEY` + `ItemActivityPayload` from
+  `apps/web/components/item-detail/item-stats-section.tsx` so mutators can
+  surgically patch the activity cache without restating the cache key.
+- `apps/web/hooks/use-item-vote.ts` now `cancelQueries` for both
+  `['item-votes', id]` and `[ITEM_ACTIVITY_QUERY_KEY, id]` before
+  snapshotting, derives the signed delta inside `setQueryData(old)` so the
+  count + userVote + activity bump stay consistent under concurrent
+  refetches, applies that same delta to the activity totals + today's
+  sparkline point on the same frame as the vote, and on error restores
+  the snapshot via `setQueryData(key, value)` to avoid the refetch flicker.
+  `onSuccess` still invalidates the activity query so the next render
+  reconciles with the authoritative server count.
+- Credits @joel-kalema (rebased from #945 onto fresh develop). PR #961.
+
 ## 2026-06-16 — Fix: CI-safe git-CMS writes + favorite-toggle e2e race
 
 - spec-039: the e2e suite's authenticated write-flow specs (admin create

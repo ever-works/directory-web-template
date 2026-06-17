@@ -5,10 +5,46 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { useCurrentUser } from './use-current-user';
 import { serverClient, apiUtils } from '@/lib/api/server-api-client';
+import {
+	ITEM_ACTIVITY_QUERY_KEY,
+	type ItemActivityPayload
+} from '@/components/item-detail/item-stats-section';
 
 interface ItemVoteResponse {
 	count: number;
 	userVote: 'up' | 'down' | null;
+}
+
+/**
+ * Apply a signed delta to every cached activity payload for an item (the
+ * cache has one entry per `days` window). Bumps both `totals.votes` and
+ * today's sparkline point so the sidebar Statistics card visibly moves on
+ * the same frame as the vote button.
+ */
+function patchActivityForVoteDelta(
+	queryClient: ReturnType<typeof useQueryClient>,
+	itemId: string,
+	delta: number
+) {
+	if (delta === 0) return;
+	queryClient.setQueriesData<ItemActivityPayload>(
+		{ queryKey: [ITEM_ACTIVITY_QUERY_KEY, itemId] },
+		(old) => {
+			if (!old) return old;
+			const lastIdx = old.series.length - 1;
+			const newSeries =
+				lastIdx >= 0
+					? [
+							...old.series.slice(0, lastIdx),
+							{ ...old.series[lastIdx], votes: (old.series[lastIdx]?.votes ?? 0) + delta }
+						]
+					: old.series;
+			return {
+				totals: { ...old.totals, votes: (old.totals?.votes ?? 0) + delta },
+				series: newSeries
+			};
+		}
+	);
 }
 
 export function useItemVote(itemId: string) {
@@ -83,32 +119,42 @@ export function useItemVote(itemId: string) {
 				return;
 			}
 
-			await queryClient.cancelQueries({ queryKey: ['item-votes', itemId] });
+			// Cancel both query keys we're about to mutate so in-flight refetches
+			// can't overwrite the optimistic update after we've snapshotted.
+			await Promise.all([
+				queryClient.cancelQueries({ queryKey: ['item-votes', itemId] }),
+				queryClient.cancelQueries({ queryKey: [ITEM_ACTIVITY_QUERY_KEY, itemId] })
+			]);
 			const previousVotes = queryClient.getQueryData<ItemVoteResponse>(['item-votes', itemId]);
+			// Snapshot the activity cache so we can roll back on error without
+			// triggering a refetch flicker.
+			const previousActivity = queryClient.getQueriesData<ItemActivityPayload>({
+				queryKey: [ITEM_ACTIVITY_QUERY_KEY, itemId]
+			});
 
+			// Derive the signed delta from the SAME snapshot we used to feed the
+			// item-votes cache update — so the value patched into the activity
+			// cache stays consistent with what we wrote into item-votes.
+			let appliedDelta = 0;
 			queryClient.setQueryData<ItemVoteResponse>(['item-votes', itemId], (old) => {
-				if (!old) return { count: type === 'up' ? 1 : -1, userVote: type };
-
-				const countDiff = old.userVote === type ? -1 : old.userVote === null ? 1 : 2;
+				if (!old) {
+					const seedCount = type === 'up' ? 1 : -1;
+					appliedDelta = seedCount;
+					return { count: seedCount, userVote: type };
+				}
+				const oldUserVote = old.userVote;
+				const countDiff = oldUserVote === type ? -1 : oldUserVote === null ? 1 : 2;
+				const delta = type === 'up' ? countDiff : -countDiff;
+				appliedDelta = delta;
 				return {
-					count: old.count + (type === 'up' ? countDiff : -countDiff),
-					userVote: old.userVote === type ? null : type
+					count: old.count + delta,
+					userVote: oldUserVote === type ? null : type
 				};
 			});
 
-			// Optimistically update the Statistics card so upvotes appear instantly
-			const prevVote = previousVotes?.userVote ?? null;
-			const voteChange = prevVote === type ? -1 : prevVote === null ? 1 : 2;
-			const voteDelta = type === 'up' ? voteChange : -voteChange;
-			queryClient.setQueriesData<{ totals: { votes: number; [k: string]: any }; series: any[] }>(
-				{ queryKey: ['item-activity', itemId], exact: false },
-				(old) => {
-					if (!old) return old;
-					return { ...old, totals: { ...old.totals, votes: old.totals.votes + voteDelta } };
-				}
-			);
+			patchActivityForVoteDelta(queryClient, itemId, appliedDelta);
 
-			return { previousVotes };
+			return { previousVotes, previousActivity };
 		},
 		onSuccess: (data) => {
 			// Update cache with server data to ensure consistency
@@ -117,14 +163,17 @@ export function useItemVote(itemId: string) {
 				queryClient.setQueryData<ItemVoteResponse>(['item-votes', itemId], data);
 			}
 			// Sync the Statistics card with the authoritative server count
-			queryClient.invalidateQueries({ queryKey: ['item-activity', itemId] });
+			queryClient.invalidateQueries({ queryKey: [ITEM_ACTIVITY_QUERY_KEY, itemId] });
 		},
 		onError: (error, _, context) => {
 			if (context?.previousVotes) {
 				queryClient.setQueryData(['item-votes', itemId], context.previousVotes);
 			}
-			// Revert the optimistic Statistics update
-			queryClient.invalidateQueries({ queryKey: ['item-activity', itemId] });
+			if (context?.previousActivity) {
+				for (const [key, value] of context.previousActivity) {
+					queryClient.setQueryData(key, value);
+				}
+			}
 
 			// Don't show error toast if user is not logged in (handled by login modal)
 			if (!error.message.includes('sign in') && !error.message.includes('Authentication required')) {
@@ -165,29 +214,33 @@ export function useItemVote(itemId: string) {
 				return;
 			}
 
-			await queryClient.cancelQueries({ queryKey: ['item-votes', itemId] });
+			await Promise.all([
+				queryClient.cancelQueries({ queryKey: ['item-votes', itemId] }),
+				queryClient.cancelQueries({ queryKey: [ITEM_ACTIVITY_QUERY_KEY, itemId] })
+			]);
 			const previousVotes = queryClient.getQueryData<ItemVoteResponse>(['item-votes', itemId]);
+			const previousActivity = queryClient.getQueriesData<ItemActivityPayload>({
+				queryKey: [ITEM_ACTIVITY_QUERY_KEY, itemId]
+			});
 
+			// Derive the signed delta from the SAME `old` snapshot we hand to
+			// setQueryData so the activity patch stays consistent with the
+			// item-votes update.
+			let appliedDelta = 0;
 			queryClient.setQueryData<ItemVoteResponse>(['item-votes', itemId], (old) => {
 				if (!old) return { count: 0, userVote: null };
+				const oldUserVote = old.userVote;
+				const delta = oldUserVote === 'up' ? -1 : oldUserVote === 'down' ? 1 : 0;
+				appliedDelta = delta;
 				return {
-					count: old.count + (old.userVote === 'up' ? -1 : old.userVote === 'down' ? 1 : 0),
+					count: old.count + delta,
 					userVote: null
 				};
 			});
 
-			// Optimistically update the Statistics card
-			const prevVote = previousVotes?.userVote ?? null;
-			const voteDelta = prevVote === 'up' ? -1 : prevVote === 'down' ? 1 : 0;
-			queryClient.setQueriesData<{ totals: { votes: number; [k: string]: any }; series: any[] }>(
-				{ queryKey: ['item-activity', itemId], exact: false },
-				(old) => {
-					if (!old) return old;
-					return { ...old, totals: { ...old.totals, votes: old.totals.votes + voteDelta } };
-				}
-			);
+			patchActivityForVoteDelta(queryClient, itemId, appliedDelta);
 
-			return { previousVotes };
+			return { previousVotes, previousActivity };
 		},
 		onSuccess: (data) => {
 			// Update cache with server data to ensure consistency
@@ -196,14 +249,17 @@ export function useItemVote(itemId: string) {
 				queryClient.setQueryData<ItemVoteResponse>(['item-votes', itemId], data);
 			}
 			// Sync the Statistics card with the authoritative server count
-			queryClient.invalidateQueries({ queryKey: ['item-activity', itemId] });
+			queryClient.invalidateQueries({ queryKey: [ITEM_ACTIVITY_QUERY_KEY, itemId] });
 		},
 		onError: (error, _, context) => {
 			if (context?.previousVotes) {
 				queryClient.setQueryData(['item-votes', itemId], context.previousVotes);
 			}
-			// Revert the optimistic Statistics update
-			queryClient.invalidateQueries({ queryKey: ['item-activity', itemId] });
+			if (context?.previousActivity) {
+				for (const [key, value] of context.previousActivity) {
+					queryClient.setQueryData(key, value);
+				}
+			}
 			toast.error(error.message || 'An error occurred while removing your vote');
 		}
 	});
