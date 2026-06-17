@@ -272,6 +272,16 @@ jobs:
                   INGRESS_HOST: ${{ secrets.K8S_INGRESS_HOST }}
                   INGRESS_CLASS: ${{ secrets.K8S_INGRESS_CLASS }}
                   TLS_ISSUER: ${{ secrets.K8S_TLS_ISSUER }}
+                  # EW-741 — additional Ingress hosts the platform reconciles
+                  # alongside the primary `K8S_INGRESS_HOST` (the managed
+                  # `*.ever.works` subdomain). Lower-cased, comma-separated,
+                  # deduped by the API's DeployService before the secret is
+                  # pushed. Each host becomes an extra `spec.rules` entry +
+                  # its own `spec.tls` block so cert-manager issues a
+                  # separate cert per host (mixing hosts into one TLS block
+                  # only works when a single wildcard covers them all, which
+                  # we can't assume for customer-supplied custom domains).
+                  EXTRA_HOSTS: ${{ secrets.K8S_EXTRA_HOSTS }}
               run: |
                   set -euo pipefail
 
@@ -322,6 +332,30 @@ jobs:
                               ;;
                       esac
 
+                      # EW-741 — primary host (managed `*.ever.works` subdomain
+                      # or whatever the platform pushed via K8S_INGRESS_HOST)
+                      # plus any custom domains the platform reconciles via
+                      # `K8S_EXTRA_HOSTS` (comma-separated). Each host gets
+                      # its own `rules` entry and its own `tls` block. Lower-
+                      # case + dedupe defensively even though the platform
+                      # already normalises the value.
+                      HOSTS=()
+                      seen=" "
+                      add_host() {
+                          local h
+                          h="$(echo "$1" | tr '[:upper:]' '[:lower:]' | tr -d '[:space:]')"
+                          [[ -z "$h" ]] && return 0
+                          [[ "$seen" == *" $h "* ]] && return 0
+                          HOSTS+=("$h")
+                          seen="${seen}$h "
+                      }
+                      add_host "$INGRESS_HOST"
+                      if [[ -n "${EXTRA_HOSTS:-}" ]]; then
+                          IFS=',' read -r -a extras <<<"$EXTRA_HOSTS"
+                          for h in "${extras[@]}"; do add_host "$h"; done
+                      fi
+                      echo "Ingress hosts (${#HOSTS[@]}): ${HOSTS[*]}"
+
                       # Render Ingress YAML with proper indentation. Each
                       # annotation gets exactly 8 spaces, matching the
                       # `metadata.annotations:` parent indent.
@@ -347,22 +381,26 @@ jobs:
                               echo "    ingressClassName: ${INGRESS_CLASS}"
                           fi
                           echo "    rules:"
-                          echo "        - host: ${INGRESS_HOST}"
-                          echo "          http:"
-                          echo "              paths:"
-                          echo "                  - path: /"
-                          echo "                    pathType: Prefix"
-                          echo "                    backend:"
-                          echo "                        service:"
-                          echo "                            name: ${WORK_SLUG}"
-                          echo "                            port:"
-                          echo "                                number: 80"
+                          for host in "${HOSTS[@]}"; do
+                              echo "        - host: ${host}"
+                              echo "          http:"
+                              echo "              paths:"
+                              echo "                  - path: /"
+                              echo "                    pathType: Prefix"
+                              echo "                    backend:"
+                              echo "                        service:"
+                              echo "                            name: ${WORK_SLUG}"
+                              echo "                            port:"
+                              echo "                                number: 80"
+                          done
                           if [[ -n "$TLS_ISSUER" ]]; then
-                              TLS_SECRET_NAME="$(echo "$INGRESS_HOST" | tr -c 'a-z0-9' '-' | sed 's/--*/-/g; s/^-//; s/-$//')-tls"
                               echo "    tls:"
-                              echo "        - hosts:"
-                              echo "              - ${INGRESS_HOST}"
-                              echo "          secretName: ${TLS_SECRET_NAME}"
+                              for host in "${HOSTS[@]}"; do
+                                  TLS_SECRET_NAME="$(echo "$host" | tr -c 'a-z0-9' '-' | sed 's/--*/-/g; s/^-//; s/-$//')-tls"
+                                  echo "        - hosts:"
+                                  echo "              - ${host}"
+                                  echo "          secretName: ${TLS_SECRET_NAME}"
+                              done
                           fi
                       } | kubectl apply -f -
                   fi
@@ -378,11 +416,19 @@ jobs:
               if: success()
               env:
                   INGRESS_HOST: ${{ secrets.K8S_INGRESS_HOST }}
+                  EXTRA_HOSTS: ${{ secrets.K8S_EXTRA_HOSTS }}
                   WORK_SLUG: ${{ github.event.repository.name }}
                   NAMESPACE: ${{ secrets.K8S_NAMESPACE || 'ever-works' }}
               run: |
                   if [[ -n "$INGRESS_HOST" ]]; then
                       echo "Deployed to https://${INGRESS_HOST}"
+                      if [[ -n "${EXTRA_HOSTS:-}" ]]; then
+                          IFS=',' read -r -a extras <<<"$EXTRA_HOSTS"
+                          for h in "${extras[@]}"; do
+                              h_clean="$(echo "$h" | tr -d '[:space:]')"
+                              [[ -n "$h_clean" ]] && echo "Also serving https://${h_clean}"
+                          done
+                      fi
                   else
                       echo "Deployed in cluster: kubectl port-forward svc/${WORK_SLUG} 8080:80 -n ${NAMESPACE}"
                   fi
