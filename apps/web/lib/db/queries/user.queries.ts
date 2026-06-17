@@ -179,6 +179,34 @@ export async function softDeleteUser(userId: string) {
 }
 
 /**
+ * Deactivate a user account (reversible soft-pause).
+ * Sets deactivatedAt to the current timestamp. The user's email and credentials
+ * remain intact so they can log back in and reactivate. This is separate from
+ * softDeleteUser / hardDeleteUser which are not reversible.
+ */
+export async function deactivateUser(userId: string) {
+	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
+	return db
+		.update(users)
+		.set({ deactivatedAt: sql`CURRENT_TIMESTAMP`, updatedAt: new Date() })
+		.where(and(eq(users.id, userId), eq(users.tenantId, tenantId)));
+}
+
+/**
+ * Reactivate a previously deactivated user account.
+ * Clears deactivatedAt, restoring the account to active status.
+ */
+export async function reactivateUser(userId: string) {
+	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
+	return db
+		.update(users)
+		.set({ deactivatedAt: null, updatedAt: new Date() })
+		.where(and(eq(users.id, userId), eq(users.tenantId, tenantId)));
+}
+
+/**
  * Update client profile name
  * @param userId - User ID
  * @param name - New name

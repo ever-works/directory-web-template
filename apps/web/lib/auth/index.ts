@@ -231,15 +231,32 @@ export const { handlers, auth, signIn, signOut, unstable_update } = NextAuth({
 						token.tenantIdChecked = true;
 
 						const [dbUser] = await getDrizzleInstance()
-							.select({ tenantId: users.tenantId })
+							.select({ tenantId: users.tenantId, deactivatedAt: users.deactivatedAt })
 							.from(users)
 							.where(eq(users.id, token.userId))
 							.limit(1);
 						if (dbUser?.tenantId) {
 							token.tenantId = dbUser.tenantId;
 						}
+						// Propagate deactivation state into the JWT on sign-in.
+						token.isDeactivated = dbUser?.deactivatedAt != null;
 					} catch (error) {
 						console.error('[auth][jwt] Error resolving tenantId:', error);
+					}
+				}
+
+				// On subsequent JWT refreshes (no user object), sync deactivation state
+				// from the DB so a reactivation takes effect without requiring a new login.
+				if (!user && token.userId && isDatabaseAvailable) {
+					try {
+						const [dbUser] = await getDrizzleInstance()
+							.select({ deactivatedAt: users.deactivatedAt })
+							.from(users)
+							.where(eq(users.id, token.userId))
+							.limit(1);
+						token.isDeactivated = dbUser?.deactivatedAt != null;
+					} catch {
+						// Non-critical — keep existing token value on DB error
 					}
 				}
 
@@ -295,6 +312,7 @@ export const { handlers, auth, signIn, signOut, unstable_update } = NextAuth({
 				if (typeof token.tenantId === 'string') {
 					session.user.tenantId = token.tenantId;
 				}
+				session.user.isDeactivated = token.isDeactivated === true;
 			}
 
 			// Debug (dev only): trace session payload without PII

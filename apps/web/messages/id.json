@@ -749,6 +749,51 @@
 			"INTRO_LABEL": "Perhatian",
 			"INTRO_BODY": "Setiap tindakan di bagian ini bersifat permanen. Kami akan selalu meminta konfirmasi Anda sebelum sesuatu dihapus.",
 			"IRREVERSIBLE_BADGE": "Destruktif",
+			"DEACTIVATE_ACCOUNT": {
+				"TITLE": "Nonaktifkan akun",
+				"REVERSIBLE_BADGE": "Dapat dipulihkan",
+				"DESCRIPTION": "Jeda akun Anda untuk sementara. Anda dapat mengaktifkannya kembali kapan saja dengan masuk kembali.",
+				"EFFECTS_TITLE": "Apa yang terjadi saat Anda menonaktifkan",
+				"EFFECT_1": "Profil dan daftar Anda akan disembunyikan dari direktori.",
+				"EFFECT_2": "Anda akan keluar dari semua sesi aktif.",
+				"EFFECT_3": "Email dan notifikasi terjadwal akan dijeda.",
+				"EFFECT_4": "Data Anda tersimpan aman dan tidak ada yang dihapus.",
+				"CTA_HELPER": "Anda dapat mengaktifkan kembali kapan saja.",
+				"CTA": "Nonaktifkan akun…",
+				"CONFIRM_MODAL": {
+					"TITLE": "Nonaktifkan akun Anda",
+					"SUBTITLE": "Data Anda akan disimpan — Anda dapat mengaktifkan kembali kapan saja.",
+					"EFFECTS_HEADING": "Apa arti penonaktifan",
+					"EFFECT_1": "Profil dan daftar Anda akan disembunyikan dari direktori.",
+					"EFFECT_2": "Anda akan keluar dari semua sesi aktif.",
+					"EFFECT_3": "Email dan notifikasi terjadwal akan dijeda.",
+					"EFFECT_4": "Data Anda tersimpan aman dan tidak ada yang dihapus.",
+					"REACTIVATION_NOTE": "Untuk mengaktifkan kembali, cukup masuk kembali dengan kredensial Anda.",
+					"CONFIRMATION_HEADING": "Konfirmasi bahwa ini benar-benar Anda",
+					"PASSWORD_LABEL": "Kata sandi Anda saat ini",
+					"PASSWORD_PLACEHOLDER": "Masukkan kata sandi",
+					"CANCEL_CTA": "Batal",
+					"CONFIRM_CTA": "Nonaktifkan akun",
+					"DEACTIVATING": "Menonaktifkan…"
+				},
+				"ERRORS": {
+					"PASSWORD_REQUIRED": "Kata sandi diperlukan.",
+					"PASSWORD_TOO_SHORT": "Kata sandi harus terdiri dari minimal 8 karakter."
+				}
+			},
+			"REACTIVATE_ACCOUNT": {
+				"STATUS_BADGE": "Akun dinonaktifkan",
+				"TITLE": "Aktifkan kembali akun Anda",
+				"DESCRIPTION": "Pulihkan akses penuh ke akun Anda dan jadikan profil Anda terlihat lagi.",
+				"RESTORE_TITLE": "Apa yang dipulihkan aktivasi ulang",
+				"RESTORE_1": "Profil dan daftar Anda akan terlihat kembali di direktori.",
+				"RESTORE_2": "Semua notifikasi dan email terjadwal akan dilanjutkan.",
+				"RESTORE_3": "Semua data, pengaturan, dan riwayat Anda sepenuhnya utuh.",
+				"CTA_HELPER": "Aktivasi ulang berlangsung segera — tidak perlu persetujuan.",
+				"CTA": "Aktifkan kembali akun",
+				"REACTIVATING": "Mengaktifkan kembali…",
+				"SUCCESS_TOAST": "Akun Anda telah berhasil diaktifkan kembali."
+			},
 			"DELETE_ACCOUNT": {
 				"TITLE": "Hapus akun ini",
 				"DESCRIPTION": "Hapus akun ini dan semua yang terkait dengannya secara permanen. Tindakan ini tidak dapat dibatalkan.",

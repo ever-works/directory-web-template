@@ -3,10 +3,30 @@ import { FiArrowLeft } from 'react-icons/fi';
 import { ShieldAlert, Info } from 'lucide-react';
 import { Link } from '@/i18n/navigation';
 import { getTranslations } from 'next-intl/server';
+import { auth } from '@/lib/auth';
+import { getUserById } from '@/lib/db/queries';
 import { DeleteAccountCard } from '@/components/settings/danger-zone/delete-account-card';
+import { DeactivateAccountCard } from '@/components/settings/danger-zone/deactivate-account-card';
+import { ReactivateAccountCard } from '@/components/settings/danger-zone/reactivate-account-card';
 
 export default async function DangerZoneSettingsPage() {
 	const t = await getTranslations('settings.DANGER_ZONE_PAGE');
+
+	// Read current deactivation state from DB so the page always reflects the
+	// live value — the JWT may lag one refresh cycle after reactivation.
+	const session = await auth();
+	const userId = session?.user?.id;
+	let isDeactivated = false;
+
+	if (userId) {
+		try {
+			const dbUser = await getUserById(userId);
+			isDeactivated = dbUser?.deactivatedAt != null;
+		} catch {
+			// Non-critical — fall back to session value
+			isDeactivated = session?.user?.isDeactivated ?? false;
+		}
+	}
 
 	return (
 		<div className="min-h-screen bg-neutral-50 dark:bg-[#0a0a0a]">
@@ -39,7 +59,7 @@ export default async function DangerZoneSettingsPage() {
 						</p>
 					</header>
 
-					{/* Calm intro banner — neutral surface, just sets expectations */}
+					{/* Calm intro banner */}
 					<aside
 						role="note"
 						className="flex items-start gap-3 rounded-lg border border-gray-200 dark:border-white/8 bg-white dark:bg-[#111111] px-4 py-3 shadow-sm"
@@ -53,7 +73,14 @@ export default async function DangerZoneSettingsPage() {
 						</div>
 					</aside>
 
-					{/* Destructive actions */}
+					{/* Deactivation section — shown conditionally */}
+					{isDeactivated ? (
+						<ReactivateAccountCard />
+					) : (
+						<DeactivateAccountCard />
+					)}
+
+					{/* Permanent delete — always shown */}
 					<DeleteAccountCard />
 				</div>
 			</Container>

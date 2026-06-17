@@ -671,6 +671,51 @@
 			"INTRO_LABEL": "Attenzione",
 			"INTRO_BODY": "Ogni azione in questa sezione è permanente. Ti chiederemo sempre una conferma prima di rimuovere qualcosa.",
 			"IRREVERSIBLE_BADGE": "Distruttivo",
+			"DEACTIVATE_ACCOUNT": {
+				"TITLE": "Disattiva account",
+				"REVERSIBLE_BADGE": "Reversibile",
+				"DESCRIPTION": "Sospendi temporaneamente il tuo account. Puoi riattivarlo in qualsiasi momento effettuando nuovamente l'accesso.",
+				"EFFECTS_TITLE": "Cosa succede quando disattivi",
+				"EFFECT_1": "Il tuo profilo e gli annunci saranno nascosti dalla directory.",
+				"EFFECT_2": "Verrai disconnesso da tutte le sessioni attive.",
+				"EFFECT_3": "Le email e le notifiche programmate verranno sospese.",
+				"EFFECT_4": "I tuoi dati sono al sicuro e non viene eliminato nulla.",
+				"CTA_HELPER": "Puoi riattivare in qualsiasi momento.",
+				"CTA": "Disattiva account…",
+				"CONFIRM_MODAL": {
+					"TITLE": "Disattiva il tuo account",
+					"SUBTITLE": "I tuoi dati saranno conservati — puoi riattivare in qualsiasi momento.",
+					"EFFECTS_HEADING": "Cosa significa la disattivazione",
+					"EFFECT_1": "Il tuo profilo e gli annunci saranno nascosti dalla directory.",
+					"EFFECT_2": "Verrai disconnesso da tutte le sessioni attive.",
+					"EFFECT_3": "Le email e le notifiche programmate verranno sospese.",
+					"EFFECT_4": "I tuoi dati sono al sicuro e non viene eliminato nulla.",
+					"REACTIVATION_NOTE": "Per riattivare, accedi semplicemente di nuovo con le tue credenziali.",
+					"CONFIRMATION_HEADING": "Conferma che sei davvero tu",
+					"PASSWORD_LABEL": "La tua password attuale",
+					"PASSWORD_PLACEHOLDER": "Inserisci la password",
+					"CANCEL_CTA": "Annulla",
+					"CONFIRM_CTA": "Disattiva account",
+					"DEACTIVATING": "Disattivazione in corso…"
+				},
+				"ERRORS": {
+					"PASSWORD_REQUIRED": "La password è obbligatoria.",
+					"PASSWORD_TOO_SHORT": "La password deve contenere almeno 8 caratteri."
+				}
+			},
+			"REACTIVATE_ACCOUNT": {
+				"STATUS_BADGE": "Account disattivato",
+				"TITLE": "Riattiva il tuo account",
+				"DESCRIPTION": "Ripristina l'accesso completo al tuo account e rendi di nuovo visibile il tuo profilo.",
+				"RESTORE_TITLE": "Cosa ripristina la riattivazione",
+				"RESTORE_1": "Il tuo profilo e gli annunci saranno di nuovo visibili nella directory.",
+				"RESTORE_2": "Tutte le notifiche e le email programmate riprenderanno.",
+				"RESTORE_3": "Tutti i tuoi dati, impostazioni e cronologia sono completamente intatti.",
+				"CTA_HELPER": "La riattivazione è immediata — nessuna approvazione richiesta.",
+				"CTA": "Riattiva account",
+				"REACTIVATING": "Riattivazione in corso…",
+				"SUCCESS_TOAST": "Il tuo account è stato riattivato con successo."
+			},
 			"DELETE_ACCOUNT": {
 				"TITLE": "Elimina questo account",
 				"DESCRIPTION": "Rimuovi definitivamente questo account e tutto ciò che è associato ad esso. Questa azione non può essere annullata.",

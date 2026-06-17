@@ -7,7 +7,7 @@ import type { AdapterAccountType } from 'next-auth/adapters';
 import { db } from '@/lib/db/drizzle';
 import { getTenantId } from '@/lib/auth/tenant';
 
-import { signOut } from '@/lib/auth';
+import { signOut, unstable_update } from '@/lib/auth';
 import { validatedAction, validatedActionWithUser } from '@/lib/auth/middleware';
 import { comparePasswords, hashPassword, AuthProviders, AuthErrorCode } from '@/lib/auth/credentials';
 import {
@@ -18,6 +18,8 @@ import {
 	getVerificationTokenByToken,
 	getVerificationTokenByEmail,
 	hardDeleteUser,
+	deactivateUser,
+	reactivateUser,
 	logActivity,
 	updateUser,
 	updateUserPassword,
@@ -535,5 +537,74 @@ export const newPasswordAction = validatedAction(newPasswordSchema, async (data)
 
 	await logActivity(ActivityType.UPDATE_PASSWORD, result.userId, 'user');
 
+	return { success: true };
+});
+
+// ─── Account Deactivation ─────────────────────────────────────────────────────
+
+const deactivateAccountSchema = z.object({
+	password: z.string().min(PASSWORD_MIN_LENGTH).max(100),
+	provider: z.enum(authProviderTypes).default('next-auth')
+});
+
+/**
+ * Temporarily deactivate the signed-in user's account.
+ * Sets deactivatedAt on the users row and signs the user out.
+ * The account (credentials, profile, listings) is fully preserved and can be
+ * restored at any time via reactivateAccount.
+ */
+export const deactivateAccount = validatedActionWithUser(deactivateAccountSchema, async (data, _, user) => {
+	const { password } = data;
+	const dbUser = await getUserByEmail(user.email!).catch(() => null);
+	if (!dbUser) {
+		return { error: 'User not found' };
+	}
+
+	if (dbUser.deactivatedAt) {
+		return { error: 'Account is already deactivated.' };
+	}
+
+	// Mirror the same dual-path password check used by deleteAccount.
+	const isClientPasswordValid = await verifyClientPassword(user.email!, password);
+	const isPasswordValid =
+		isClientPasswordValid || (await comparePasswords(password, dbUser.passwordHash));
+	if (!isPasswordValid) {
+		return { error: 'Incorrect password. Account deactivation failed.' };
+	}
+
+	await deactivateUser(dbUser.id);
+	await logActivity(ActivityType.UPDATE_ACCOUNT, dbUser.id, 'user');
+
+	// Sign the user out so the stale (active) session is cleared. The client
+	// then navigates to /auth/signin where they can log back in and reactivate.
+	await signOut({ redirect: false });
+	return { success: true, redirect: '/auth/signin?deactivated=true' };
+});
+
+const reactivateAccountSchema = z.object({
+	provider: z.enum(authProviderTypes).default('next-auth').optional()
+});
+
+/**
+ * Reactivate the signed-in user's previously deactivated account.
+ * Clears deactivatedAt, restoring full account visibility. Updates the
+ * JWT in-place so the user stays on the current page with a clean session.
+ */
+export const reactivateAccount = validatedActionWithUser(reactivateAccountSchema, async (_data, __, user) => {
+	const dbUser = await getUserByEmail(user.email!).catch(() => null);
+	if (!dbUser) {
+		return { error: 'User not found' };
+	}
+
+	if (!dbUser.deactivatedAt) {
+		return { error: 'Account is not deactivated.' };
+	}
+
+	await reactivateUser(dbUser.id);
+	await logActivity(ActivityType.UPDATE_ACCOUNT, dbUser.id, 'user');
+
+	// Update the JWT in-place so isDeactivated is cleared without signing out.
+	// The user stays on the danger-zone page and the session is immediately fresh.
+	await unstable_update({ user: { isDeactivated: false } });
 	return { success: true };
 });

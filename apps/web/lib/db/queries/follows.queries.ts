@@ -1,6 +1,6 @@
-import { and, desc, eq, inArray, sql } from 'drizzle-orm';
+import { and, desc, eq, inArray, isNull, sql } from 'drizzle-orm';
 import { db } from '../drizzle';
-import { clientProfiles, notifications, userFollows, type NewUserFollow, type UserFollow } from '../schema';
+import { clientProfiles, notifications, userFollows, users, type NewUserFollow, type UserFollow } from '../schema';
 import { getTenantId } from '@/lib/auth/tenant';
 
 /**
@@ -183,6 +183,7 @@ export async function listFollowers(
 		})
 		.from(userFollows)
 		.innerJoin(clientProfiles, eq(clientProfiles.userId, userFollows.followerId))
+		.innerJoin(users, and(eq(users.id, userFollows.followerId), isNull(users.deactivatedAt)))
 		.where(and(eq(userFollows.followingId, userId), eq(userFollows.tenantId, tenantId)))
 		.orderBy(desc(userFollows.createdAt))
 		.limit(limit)
@@ -209,6 +210,7 @@ export async function listFollowing(userId: string, limit = 30, offset = 0): Pro
 		})
 		.from(userFollows)
 		.innerJoin(clientProfiles, eq(clientProfiles.userId, userFollows.followingId))
+		.innerJoin(users, and(eq(users.id, userFollows.followingId), isNull(users.deactivatedAt)))
 		.where(and(eq(userFollows.followerId, userId), eq(userFollows.tenantId, tenantId)))
 		.orderBy(desc(userFollows.createdAt))
 		.limit(limit)

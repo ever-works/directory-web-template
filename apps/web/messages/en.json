@@ -814,6 +814,51 @@
 			"INTRO_LABEL": "Heads up",
 			"INTRO_BODY": "Every action in this section is permanent. We'll always ask you to confirm before anything is removed.",
 			"IRREVERSIBLE_BADGE": "Destructive",
+			"DEACTIVATE_ACCOUNT": {
+				"TITLE": "Deactivate account",
+				"REVERSIBLE_BADGE": "Reversible",
+				"DESCRIPTION": "Temporarily pause your account. You can reactivate it at any time by signing back in.",
+				"EFFECTS_TITLE": "What happens when you deactivate",
+				"EFFECT_1": "Your profile and listings will be hidden from the directory.",
+				"EFFECT_2": "You will be signed out of all active sessions.",
+				"EFFECT_3": "Scheduled emails and notifications will be paused.",
+				"EFFECT_4": "Your data is kept safe and nothing is deleted.",
+				"CTA_HELPER": "You can reactivate at any time.",
+				"CTA": "Deactivate account…",
+				"CONFIRM_MODAL": {
+					"TITLE": "Deactivate your account",
+					"SUBTITLE": "Your data will be kept — you can reactivate at any time.",
+					"EFFECTS_HEADING": "What deactivation means",
+					"EFFECT_1": "Your profile and listings will be hidden from the directory.",
+					"EFFECT_2": "You will be signed out of all active sessions.",
+					"EFFECT_3": "Scheduled emails and notifications will be paused.",
+					"EFFECT_4": "Your data is kept safe and nothing is deleted.",
+					"REACTIVATION_NOTE": "To reactivate, simply sign back in with your credentials.",
+					"CONFIRMATION_HEADING": "Confirm it's really you",
+					"PASSWORD_LABEL": "Your current password",
+					"PASSWORD_PLACEHOLDER": "Enter your password",
+					"CANCEL_CTA": "Cancel",
+					"CONFIRM_CTA": "Deactivate account",
+					"DEACTIVATING": "Deactivating…"
+				},
+				"ERRORS": {
+					"PASSWORD_REQUIRED": "Password is required.",
+					"PASSWORD_TOO_SHORT": "Password must be at least 8 characters."
+				}
+			},
+			"REACTIVATE_ACCOUNT": {
+				"STATUS_BADGE": "Account deactivated",
+				"TITLE": "Reactivate your account",
+				"DESCRIPTION": "Restore full access to your account and make your profile visible again.",
+				"RESTORE_TITLE": "What reactivation restores",
+				"RESTORE_1": "Your profile and listings will be visible in the directory again.",
+				"RESTORE_2": "All notifications and scheduled emails will resume.",
+				"RESTORE_3": "All your data, settings, and history are fully intact.",
+				"CTA_HELPER": "Reactivation is immediate — no approval required.",
+				"CTA": "Reactivate account",
+				"REACTIVATING": "Reactivating…",
+				"SUCCESS_TOAST": "Your account has been reactivated successfully."
+			},
 			"DELETE_ACCOUNT": {
 				"TITLE": "Delete this account",
 				"DESCRIPTION": "Permanently remove this account and everything associated with it. This cannot be undone.",

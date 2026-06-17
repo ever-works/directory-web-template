@@ -749,6 +749,51 @@
 			"INTRO_LABEL": "주의",
 			"INTRO_BODY": "이 섹션의 모든 작업은 영구적입니다. 무언가를 삭제하기 전에 항상 확인을 요청합니다.",
 			"IRREVERSIBLE_BADGE": "파괴적 작업",
+			"DEACTIVATE_ACCOUNT": {
+				"TITLE": "계정 비활성화",
+				"REVERSIBLE_BADGE": "복원 가능",
+				"DESCRIPTION": "계정을 일시적으로 중지합니다. 언제든지 다시 로그인하여 재활성화할 수 있습니다.",
+				"EFFECTS_TITLE": "비활성화 시 발생하는 일",
+				"EFFECT_1": "프로필과 목록이 디렉토리에서 숨겨집니다.",
+				"EFFECT_2": "모든 활성 세션에서 로그아웃됩니다.",
+				"EFFECT_3": "예약된 이메일과 알림이 일시 중지됩니다.",
+				"EFFECT_4": "데이터는 안전하게 보관되며 아무것도 삭제되지 않습니다.",
+				"CTA_HELPER": "언제든지 재활성화할 수 있습니다.",
+				"CTA": "계정 비활성화…",
+				"CONFIRM_MODAL": {
+					"TITLE": "계정을 비활성화합니다",
+					"SUBTITLE": "데이터는 보존됩니다 — 언제든지 재활성화할 수 있습니다.",
+					"EFFECTS_HEADING": "비활성화의 의미",
+					"EFFECT_1": "프로필과 목록이 디렉토리에서 숨겨집니다.",
+					"EFFECT_2": "모든 활성 세션에서 로그아웃됩니다.",
+					"EFFECT_3": "예약된 이메일과 알림이 일시 중지됩니다.",
+					"EFFECT_4": "데이터는 안전하게 보관되며 아무것도 삭제되지 않습니다.",
+					"REACTIVATION_NOTE": "재활성화하려면 자격 증명으로 다시 로그인하기만 하면 됩니다.",
+					"CONFIRMATION_HEADING": "본인 확인",
+					"PASSWORD_LABEL": "현재 비밀번호",
+					"PASSWORD_PLACEHOLDER": "비밀번호 입력",
+					"CANCEL_CTA": "취소",
+					"CONFIRM_CTA": "계정 비활성화",
+					"DEACTIVATING": "비활성화 중…"
+				},
+				"ERRORS": {
+					"PASSWORD_REQUIRED": "비밀번호가 필요합니다.",
+					"PASSWORD_TOO_SHORT": "비밀번호는 최소 8자여야 합니다."
+				}
+			},
+			"REACTIVATE_ACCOUNT": {
+				"STATUS_BADGE": "계정이 비활성화됨",
+				"TITLE": "계정 재활성화",
+				"DESCRIPTION": "계정에 대한 전체 액세스를 복원하고 프로필을 다시 표시합니다.",
+				"RESTORE_TITLE": "재활성화로 복원되는 항목",
+				"RESTORE_1": "프로필과 목록이 디렉토리에 다시 표시됩니다.",
+				"RESTORE_2": "모든 알림과 예약된 이메일이 재개됩니다.",
+				"RESTORE_3": "모든 데이터, 설정 및 기록이 완전히 보존됩니다.",
+				"CTA_HELPER": "재활성화는 즉시 이루어집니다 — 승인이 필요하지 않습니다.",
+				"CTA": "계정 재활성화",
+				"REACTIVATING": "재활성화 중…",
+				"SUCCESS_TOAST": "계정이 성공적으로 재활성화되었습니다."
+			},
 			"DELETE_ACCOUNT": {
 				"TITLE": "이 계정 삭제",
 				"DESCRIPTION": "이 계정과 관련된 모든 항목을 영구적으로 제거합니다. 이 작업은 취소할 수 없습니다.",

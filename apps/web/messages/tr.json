@@ -749,6 +749,51 @@
 			"INTRO_LABEL": "Uyarı",
 			"INTRO_BODY": "Bu bölümdeki her işlem kalıcıdır. Herhangi bir şey kaldırılmadan önce sizden her zaman onay isteyeceğiz.",
 			"IRREVERSIBLE_BADGE": "Yıkıcı",
+			"DEACTIVATE_ACCOUNT": {
+				"TITLE": "Hesabı devre dışı bırak",
+				"REVERSIBLE_BADGE": "Geri alınabilir",
+				"DESCRIPTION": "Hesabınızı geçici olarak duraklatın. İstediğiniz zaman tekrar giriş yaparak yeniden etkinleştirebilirsiniz.",
+				"EFFECTS_TITLE": "Devre dışı bıraktığınızda ne olur",
+				"EFFECT_1": "Profiliniz ve listeleriniz dizinden gizlenir.",
+				"EFFECT_2": "Tüm aktif oturumlardan çıkış yapılır.",
+				"EFFECT_3": "Zamanlanmış e-postalar ve bildirimler duraklatılır.",
+				"EFFECT_4": "Verileriniz güvenle saklanır ve hiçbir şey silinmez.",
+				"CTA_HELPER": "İstediğiniz zaman yeniden etkinleştirebilirsiniz.",
+				"CTA": "Hesabı devre dışı bırak…",
+				"CONFIRM_MODAL": {
+					"TITLE": "Hesabınızı devre dışı bırakın",
+					"SUBTITLE": "Verileriniz korunacak — istediğiniz zaman yeniden etkinleştirebilirsiniz.",
+					"EFFECTS_HEADING": "Devre dışı bırakmanın anlamı",
+					"EFFECT_1": "Profiliniz ve listeleriniz dizinden gizlenir.",
+					"EFFECT_2": "Tüm aktif oturumlardan çıkış yapılır.",
+					"EFFECT_3": "Zamanlanmış e-postalar ve bildirimler duraklatılır.",
+					"EFFECT_4": "Verileriniz güvenle saklanır ve hiçbir şey silinmez.",
+					"REACTIVATION_NOTE": "Yeniden etkinleştirmek için kimlik bilgilerinizle tekrar giriş yapmanız yeterlidir.",
+					"CONFIRMATION_HEADING": "Gerçekten siz olduğunuzu onaylayın",
+					"PASSWORD_LABEL": "Mevcut şifreniz",
+					"PASSWORD_PLACEHOLDER": "Şifrenizi girin",
+					"CANCEL_CTA": "İptal",
+					"CONFIRM_CTA": "Hesabı devre dışı bırak",
+					"DEACTIVATING": "Devre dışı bırakılıyor…"
+				},
+				"ERRORS": {
+					"PASSWORD_REQUIRED": "Şifre gereklidir.",
+					"PASSWORD_TOO_SHORT": "Şifre en az 8 karakter olmalıdır."
+				}
+			},
+			"REACTIVATE_ACCOUNT": {
+				"STATUS_BADGE": "Hesap devre dışı",
+				"TITLE": "Hesabınızı yeniden etkinleştirin",
+				"DESCRIPTION": "Hesabınıza tam erişimi geri yükleyin ve profilinizi yeniden görünür hale getirin.",
+				"RESTORE_TITLE": "Yeniden etkinleştirmenin geri yükledikleri",
+				"RESTORE_1": "Profiliniz ve listeleriniz dizinde yeniden görünür olacak.",
+				"RESTORE_2": "Tüm bildirimler ve zamanlanmış e-postalar devam edecek.",
+				"RESTORE_3": "Tüm verileriniz, ayarlarınız ve geçmişiniz tamamen sağlamdır.",
+				"CTA_HELPER": "Yeniden etkinleştirme anında gerçekleşir — onay gerekmez.",
+				"CTA": "Hesabı yeniden etkinleştir",
+				"REACTIVATING": "Yeniden etkinleştiriliyor…",
+				"SUCCESS_TOAST": "Hesabınız başarıyla yeniden etkinleştirildi."
+			},
 			"DELETE_ACCOUNT": {
 				"TITLE": "Bu hesabı sil",
 				"DESCRIPTION": "Bu hesabı ve onunla ilişkili her şeyi kalıcı olarak kaldırın. Bu işlem geri alınamaz.",
