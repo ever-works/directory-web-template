@@ -56,19 +56,22 @@ export const getOnlineStatus = (): PresenceStatus => {
 };
 
 /**
- * Builds stable, URL-safe profile path with proper encoding
+ * Builds stable, URL-safe profile path with proper encoding.
+ * Falls back to the basic-info settings page when no username is set,
+ * so the user is prompted to complete their profile rather than hitting a 404.
  */
-export const getProfilePath = (user: { 
-  username?: string; 
-  clientProfile?: { username?: string }; 
-  email?: string | null; 
+export const getProfilePath = (user: {
+  username?: string;
+  clientProfile?: { username?: string };
 } | null): string => {
   const username =
     user?.username ||
-    user?.clientProfile?.username ||
-    (user?.email ? user.email.split("@")[0] : undefined) ||
-    "profile";
-  
+    user?.clientProfile?.username;
+
+  if (!username) {
+    return '/client/settings/profile/basic-info';
+  }
+
   return `/client/profile/${encodeURIComponent(username)}`;
 };
 
