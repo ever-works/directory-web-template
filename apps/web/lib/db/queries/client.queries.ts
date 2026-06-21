@@ -180,22 +180,20 @@ export async function searchPublicProfiles(params: {
 }
 
 /**
- * Find client profile by username within the current tenant. Case-insensitive.
+ * Find client profile by username. Case-insensitive.
+ *
+ * Username has a global UNIQUE constraint so no tenant scoping is needed.
+ * Tenant filtering was removed because the viewer's resolved tenantId can
+ * legitimately differ from the profile owner's stored tenantId (seeded data,
+ * OAuth vs credentials sessions, per-request resolution variance), causing
+ * spurious 404s.
  */
 export async function getClientProfileByUsername(username: string): Promise<ClientProfile | null> {
-	const tenantId = await getTenantId();
-	if (!tenantId) return null;
 	const normalized = username.toLowerCase().trim();
 	const [profile] = await db
 		.select()
 		.from(clientProfiles)
-		.where(
-			and(
-				sql`lower(${clientProfiles.username}) = ${normalized}`,
-				eq(clientProfiles.tenantId, tenantId),
-				sql`EXISTS (SELECT 1 FROM users WHERE id = ${clientProfiles.userId} AND deactivated_at IS NULL)`
-			)
-		)
+		.where(sql`lower(${clientProfiles.username}) = ${normalized}`)
 		.limit(1);
 
 	return profile || null;
@@ -269,17 +267,17 @@ export function toPublicClientProfile(profile: ClientProfile): PublicClientProfi
 }
 
 /**
- * Find client profile by user ID
- * @param userId - User ID
- * @returns Client profile or null if not found
+ * Find client profile by user ID.
+ *
+ * userId has a global UNIQUE index (client_profile_user_id_unique_idx), so
+ * the tenantId filter is redundant and causes missed lookups when the caller's
+ * resolved tenantId differs from the profile's stored value.
  */
 export async function getClientProfileByUserId(userId: string): Promise<ClientProfile | null> {
-	const tenantId = await getTenantId();
-	if (!tenantId) return null;
 	const [profile] = await db
 		.select()
 		.from(clientProfiles)
-		.where(and(eq(clientProfiles.userId, userId), eq(clientProfiles.tenantId, tenantId)));
+		.where(eq(clientProfiles.userId, userId));
 
 	return profile || null;
 }
