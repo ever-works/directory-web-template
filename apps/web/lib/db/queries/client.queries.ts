@@ -187,6 +187,9 @@ export async function searchPublicProfiles(params: {
  * legitimately differ from the profile owner's stored tenantId (seeded data,
  * OAuth vs credentials sessions, per-request resolution variance), causing
  * spurious 404s.
+ *
+ * No deactivation filter: deactivated owners' profiles still resolve and render
+ * like any other profile (intentional — the page should not 404 for them).
  */
 export async function getClientProfileByUsername(username: string): Promise<ClientProfile | null> {
 	const normalized = username.toLowerCase().trim();
