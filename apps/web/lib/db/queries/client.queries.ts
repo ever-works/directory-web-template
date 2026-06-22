@@ -180,20 +180,30 @@ export async function searchPublicProfiles(params: {
 }
 
 /**
- * Find client profile by username. Case-insensitive.
+ * Find client profile by username within the current tenant. Case-insensitive.
  *
- * Username has a global UNIQUE constraint so no tenant scoping is needed.
- * Tenant filtering was removed because the viewer's resolved tenantId can
- * legitimately differ from the profile owner's stored tenantId (seeded data,
- * OAuth vs credentials sessions, per-request resolution variance), causing
- * spurious 404s.
+ * Tenant scoping is applied when getTenantId() resolves a value. When it
+ * cannot (seeded data, OAuth vs credentials sessions, per-request variance),
+ * the filter is skipped rather than returning null, preventing spurious 404s
+ * on valid profiles. The deactivated_at guard is always applied.
  */
 export async function getClientProfileByUsername(username: string): Promise<ClientProfile | null> {
+	const tenantId = await getTenantId();
 	const normalized = username.toLowerCase().trim();
+
+	const conditions: SQL[] = [
+		sql`lower(${clientProfiles.username}) = ${normalized}`,
+		sql`EXISTS (SELECT 1 FROM users WHERE id = ${clientProfiles.userId} AND deactivated_at IS NULL)`,
+	];
+
+	if (tenantId) {
+		conditions.push(eq(clientProfiles.tenantId, tenantId));
+	}
+
 	const [profile] = await db
 		.select()
 		.from(clientProfiles)
-		.where(sql`lower(${clientProfiles.username}) = ${normalized}`)
+		.where(and(...conditions))
 		.limit(1);
 
 	return profile || null;
@@ -269,15 +279,24 @@ export function toPublicClientProfile(profile: ClientProfile): PublicClientProfi
 /**
  * Find client profile by user ID.
  *
- * userId has a global UNIQUE index (client_profile_user_id_unique_idx), so
- * the tenantId filter is redundant and causes missed lookups when the caller's
- * resolved tenantId differs from the profile's stored value.
+ * Tenant scoping is applied when getTenantId() resolves a value. When it
+ * cannot (seeded data, OAuth vs credentials sessions, per-request variance),
+ * the filter is skipped rather than returning null, preventing missed lookups
+ * on valid profiles.
  */
 export async function getClientProfileByUserId(userId: string): Promise<ClientProfile | null> {
+	const tenantId = await getTenantId();
+
+	const conditions: SQL[] = [eq(clientProfiles.userId, userId)];
+
+	if (tenantId) {
+		conditions.push(eq(clientProfiles.tenantId, tenantId));
+	}
+
 	const [profile] = await db
 		.select()
 		.from(clientProfiles)
-		.where(eq(clientProfiles.userId, userId));
+		.where(and(...conditions));
 
 	return profile || null;
 }
