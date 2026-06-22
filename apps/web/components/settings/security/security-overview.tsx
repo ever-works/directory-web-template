@@ -4,8 +4,10 @@ import React from "react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useSecuritySettings, useSecurityCache } from "@/hooks/use-security-settings";
-import { Shield, Clock, Monitor, Smartphone, AlertTriangle, CheckCircle2, XCircle, RefreshCw } from "lucide-react";
+import { Shield, Clock, Monitor, Smartphone, AlertTriangle, CheckCircle2, XCircle, RefreshCw, Mail } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useTranslations } from "next-intl";
+import { EmailVerificationDialog } from "@/components/profile/sections/email-verification-dialog";
 
 // ─── Skeleton ──────────────────────────────────────────────────────────────────
 
@@ -120,6 +122,7 @@ function MetricRow({ icon, label, description, badge }: MetricRowProps) {
 export function SecurityOverview() {
 	const { data: settings, isLoading, error, refetch, isRefetching } = useSecuritySettings();
 	const { invalidateSecuritySettings } = useSecurityCache();
+	const t = useTranslations("profile");
 
 	const handleRefresh = () => {
 		invalidateSecuritySettings();
@@ -162,6 +165,7 @@ export function SecurityOverview() {
 		: null;
 
 	const scorePoints = [
+		settings.emailVerified,
 		!settings.accountLocked && settings.loginAttemptsCount <= 3,
 		settings.twoFactorEnabled,
 		daysOld !== null && daysOld <= 90,
@@ -189,7 +193,19 @@ export function SecurityOverview() {
 		? { status: "warning", label: `${settings.activeSessionsCount} sessions` }
 		: { status: "good",    label: `${settings.activeSessionsCount} session${settings.activeSessionsCount !== 1 ? "s" : ""}` };
 
+	const emailBadge: { status: Status; label: string } = settings.emailVerified
+		? { status: "good",    label: "Verified" }
+		: { status: "warning", label: "Unverified" };
+
 	const rows: MetricRowProps[] = [
+		{
+			icon: <Mail className="w-3.5 h-3.5" />,
+			label: "Email verification",
+			description: settings.emailVerified
+				? "Your email address is verified"
+				: "Verify your email to secure your account",
+			badge: emailBadge,
+		},
 		{
 			icon: <Shield className="w-3.5 h-3.5" />,
 			label: "Account status",
@@ -236,13 +252,13 @@ export function SecurityOverview() {
 						Security overview
 					</p>
 					<p className="text-xs text-neutral-400 dark:text-neutral-500 mt-0.5">
-						{score === 4
+						{score === 5
 							? "All checks passed"
-							: `${4 - score} item${4 - score !== 1 ? "s" : ""} need${4 - score === 1 ? "s" : ""} attention`}
+							: `${5 - score} item${5 - score !== 1 ? "s" : ""} need${5 - score === 1 ? "s" : ""} attention`}
 					</p>
 				</div>
 				<div className="flex items-center gap-1.5">
-					<ScoreRing score={score} />
+					<ScoreRing score={score} total={5} />
 					<button
 						onClick={handleRefresh}
 						disabled={isRefetching}
@@ -258,6 +274,23 @@ export function SecurityOverview() {
 			{rows.map((row) => (
 				<MetricRow key={row.label} {...row} />
 			))}
+
+			{/* Email verification CTA — visible only when unverified */}
+			{!settings.emailVerified && (
+				<EmailVerificationDialog
+					labelTrigger={t("EMAIL_VERIFY_TRIGGER")}
+					labelTitle={t("EMAIL_VERIFY_DIALOG_TITLE")}
+					labelDesc={t("EMAIL_VERIFY_DIALOG_DESC")}
+					labelSend={t("EMAIL_VERIFY_DIALOG_SEND")}
+					labelSending={t("EMAIL_VERIFY_DIALOG_SENDING")}
+					labelCancel={t("EMAIL_VERIFY_DIALOG_CANCEL")}
+					labelSuccessTitle={t("EMAIL_VERIFY_DIALOG_SUCCESS_TITLE")}
+					labelSuccessDesc={t("EMAIL_VERIFY_DIALOG_SUCCESS_DESC")}
+					labelClose={t("EMAIL_VERIFY_DIALOG_CLOSE")}
+					labelErrorTitle={t("EMAIL_VERIFY_DIALOG_ERROR_TITLE")}
+					labelTryAgain={t("EMAIL_VERIFY_DIALOG_TRY_AGAIN")}
+				/>
+			)}
 
 			{/* Password expiry notice */}
 			{settings.passwordExpiresAt && (
