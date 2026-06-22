@@ -21,12 +21,20 @@ export interface EmailNovuConfig {
   backendUrl?: string;
 }
 
+export interface EmailSmtpConfig {
+  host?: string;
+  port?: number;
+  user?: string;
+  password?: string;
+}
+
 export interface EmailServiceConfig {
   provider: string;
   defaultFrom: string;
   apiKeys: Record<string, string>;
   domain: string;
   novu?: EmailNovuConfig;
+  smtp?: EmailSmtpConfig;
 }
 
 export class EmailService {
@@ -37,8 +45,12 @@ export class EmailService {
 
   constructor(config: EmailServiceConfig) {
     try {
-      // Check if required API keys are present
-      const hasApiKey = Object.values(config.apiKeys).some(key => key && key.trim() !== '');
+      // Providers that generate their own credentials at runtime (no env key needed)
+      const selfCredentialedProviders = ['ethereal'];
+      const providerName = config.provider.toLowerCase();
+      const hasApiKey =
+        selfCredentialedProviders.includes(providerName) ||
+        Object.values(config.apiKeys).some(key => key && key.trim() !== '');
 
       if (!hasApiKey) {
         console.warn('⚠️  Email service: No API keys configured. Email features will be disabled.');
@@ -244,6 +256,14 @@ const emailConfig: EmailServiceConfig = {
 		resend: globalEmailConfig.resend.apiKey || '',
 		novu: globalEmailConfig.novu.apiKey || '',
 	},
+	smtp: globalEmailConfig.smtp?.enabled
+		? {
+				host: globalEmailConfig.smtp.host,
+				port: globalEmailConfig.smtp.port,
+				user: globalEmailConfig.smtp.user,
+				password: globalEmailConfig.smtp.password,
+		  }
+		: undefined,
 };
 
 async function mailService() {
