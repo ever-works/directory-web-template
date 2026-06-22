@@ -39,7 +39,7 @@ export async function GET() {
 		const userId = session.user.id;
 
 		const [user] = await db
-			.select({ updatedAt: users.updatedAt, passwordHash: users.passwordHash })
+			.select({ updatedAt: users.updatedAt, passwordHash: users.passwordHash, emailVerified: users.emailVerified })
 			.from(users)
 			.where(and(eq(users.id, userId), eq(users.tenantId, tenantId)))
 			.limit(1);
@@ -62,6 +62,7 @@ export async function GET() {
 		return NextResponse.json({
 			success: true,
 			data: {
+				emailVerified: !!user.emailVerified,
 				twoFactorEnabled: profile?.twoFactorEnabled ?? false,
 				lastPasswordChange: user.passwordHash ? user.updatedAt?.toISOString() ?? null : null,
 				activeSessionsCount,
