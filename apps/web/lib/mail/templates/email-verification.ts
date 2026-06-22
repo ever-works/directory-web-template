@@ -17,411 +17,147 @@ export const getEmailVerificationTemplate = (data: EmailVerificationData) => {
     userName
   } = data;
 
-  const subject = `🔐 Verify your email address - ${companyName}`;
+  const subject = `Verify your email – ${companyName}`;
 
-  const html = `
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Verify Your Email Address</title>
-      <style>
-        * {
-          margin: 0;
-          padding: 0;
-          box-sizing: border-box;
-        }
-        
-        body {
-          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-          line-height: 1.6;
-          color: #333;
-          background-color: #f8fafc;
-        }
-        
-        .container {
-          max-width: 600px;
-          margin: 0 auto;
-          background-color: #ffffff;
-          border-radius: 12px;
-          overflow: hidden;
-          box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-        }
-        
-        .header {
-          background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-          padding: 40px 30px;
-          text-align: center;
-          color: white;
-        }
-        
-        .header h1 {
-          font-size: 28px;
-          font-weight: 700;
-          margin-bottom: 10px;
-          letter-spacing: -0.5px;
-        }
-        
-        .header p {
-          font-size: 16px;
-          opacity: 0.9;
-          font-weight: 400;
-        }
-        
-        .verification-icon {
-          width: 60px;
-          height: 60px;
-          background: rgba(255, 255, 255, 0.2);
-          border-radius: 50%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          margin: 0 auto 20px;
-          font-size: 30px;
-        }
-        
-        .content {
-          padding: 40px 30px;
-        }
-        
-        .verification-message {
-          text-align: center;
-          margin-bottom: 40px;
-        }
-        
-        .verification-message h2 {
-          font-size: 24px;
-          color: #1f2937;
-          margin-bottom: 16px;
-          font-weight: 600;
-        }
-        
-        .verification-message p {
-          font-size: 16px;
-          color: #6b7280;
-          line-height: 1.7;
-          margin-bottom: 8px;
-        }
-        
-        .email-details {
-          background-color: #eff6ff;
-          border: 1px solid #bfdbfe;
-          border-radius: 8px;
-          padding: 20px;
-          margin: 30px 0;
-        }
-        
-        .email-details h3 {
-          font-size: 18px;
-          color: #1e40af;
-          margin-bottom: 15px;
-          font-weight: 600;
-          text-align: center;
-        }
-        
-        .detail-item {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          padding: 8px 0;
-          border-bottom: 1px solid #dbeafe;
-        }
-        
-        .detail-item:last-child {
-          border-bottom: none;
-        }
-        
-        .detail-label {
-          font-weight: 500;
-          color: #1e40af;
-        }
-        
-        .detail-value {
-          font-weight: 600;
-          color: #1d4ed8;
-        }
-        
-        .verification-steps {
-          background-color: #f9fafb;
-          border-radius: 8px;
-          padding: 30px;
-          margin: 30px 0;
-        }
-        
-        .verification-steps h3 {
-          font-size: 18px;
-          color: #1f2937;
-          margin-bottom: 20px;
-          font-weight: 600;
-          text-align: center;
-        }
-        
-        .step-item {
-          display: flex;
-          align-items: center;
-          margin-bottom: 16px;
-          padding: 12px;
-          background-color: white;
-          border-radius: 6px;
-          border-left: 4px solid #3b82f6;
-        }
-        
-        .step-number {
-          width: 24px;
-          height: 24px;
-          background-color: #3b82f6;
-          border-radius: 50%;
-          margin-right: 12px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          color: white;
-          font-size: 12px;
-          font-weight: bold;
-        }
-        
-        .step-text {
-          font-size: 14px;
-          color: #374151;
-          font-weight: 500;
-        }
-        
-        .cta-section {
-          text-align: center;
-          margin: 40px 0;
-        }
-        
-        .cta-button {
-          display: inline-block;
-          background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-          color: white;
-          text-decoration: none;
-          padding: 16px 32px;
-          border-radius: 8px;
-          font-weight: 600;
-          font-size: 16px;
-          transition: all 0.3s ease;
-          box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.3);
-          margin: 0 8px 8px 0;
-        }
-        
-        .cta-button:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 8px 15px -3px rgba(59, 130, 246, 0.4);
-        }
-        
-        .cta-button.secondary {
-          background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
-          box-shadow: 0 4px 6px -1px rgba(107, 114, 128, 0.3);
-        }
-        
-        .cta-button.secondary:hover {
-          box-shadow: 0 8px 15px -3px rgba(107, 114, 128, 0.4);
-        }
-        
-        .footer {
-          background-color: #f9fafb;
-          padding: 30px;
-          text-align: center;
-          border-top: 1px solid #e5e7eb;
-        }
-        
-        .footer p {
-          font-size: 14px;
-          color: #6b7280;
-          margin-bottom: 8px;
-        }
-        
-        .footer a {
-          color: #3b82f6;
-          text-decoration: none;
-          font-weight: 500;
-        }
-        
-        .footer a:hover {
-          text-decoration: underline;
-        }
-        
-        .security-note {
-          background-color: #fef3c7;
-          border: 1px solid #fcd34d;
-          border-radius: 8px;
-          padding: 15px;
-          margin: 20px 0;
-          text-align: center;
-        }
-        
-        .security-note p {
-          font-size: 14px;
-          color: #92400e;
-          margin: 0;
-        }
-        
-        .link-fallback {
-          background-color: #f3f4f6;
-          border: 1px solid #d1d5db;
-          border-radius: 8px;
-          padding: 15px;
-          margin: 20px 0;
-          word-break: break-all;
-        }
-        
-        .link-fallback p {
-          font-size: 12px;
-          color: #6b7280;
-          margin: 0;
-        }
-        
-        .link-fallback a {
-          color: #3b82f6;
-          text-decoration: none;
-        }
-        
-        @media (max-width: 600px) {
-          .container {
-            margin: 10px;
-            border-radius: 8px;
-          }
-          
-          .header {
-            padding: 30px 20px;
-          }
-          
-          .header h1 {
-            font-size: 24px;
-          }
-          
-          .content {
-            padding: 30px 20px;
-          }
-          
-          .verification-steps {
-            padding: 20px;
-          }
-          
-          .footer {
-            padding: 20px;
-          }
-          
-          .cta-button {
-            display: block;
-            margin: 8px 0;
-          }
-        }
-      </style>
-    </head>
-    <body>
-      <div class="container">
-        <div class="header">
-          <div class="verification-icon">🔐</div>
-          <h1>Verify Your Email</h1>
-          <p>Complete your account setup</p>
-        </div>
-        
-        <div class="content">
-          <div class="verification-message">
-            <h2>${userName ? `Hello ${userName}!` : 'Hello!'}</h2>
-            <p>Thank you for signing up with ${companyName}!</p>
-            <p>To complete your account setup and start using all our features, please verify your email address by clicking the button below.</p>
-          </div>
-          
-          <div class="email-details">
-            <h3>📧 Email to Verify</h3>
-            <div class="detail-item">
-              <span class="detail-label">Email Address:</span>
-              <span class="detail-value">${userEmail}</span>
-            </div>
-            <div class="detail-item">
-              <span class="detail-label">Status:</span>
-              <span class="detail-value">⏳ Pending Verification</span>
-            </div>
-          </div>
-          
-          <div class="verification-steps">
-            <h3>🚀 What happens next:</h3>
-            <div class="step-item">
-              <div class="step-number">1</div>
-              <div class="step-text">Click the "Verify Email" button below</div>
-            </div>
-            <div class="step-item">
-              <div class="step-number">2</div>
-              <div class="step-text">You'll be redirected to our secure verification page</div>
-            </div>
-            <div class="step-item">
-              <div class="step-number">3</div>
-              <div class="step-text">Your email will be verified and your account activated</div>
-            </div>
-            <div class="step-item">
-              <div class="step-number">4</div>
-              <div class="step-text">Start enjoying all our features!</div>
-            </div>
-          </div>
-          
-          <div class="cta-section">
-            <a href="${verificationLink}" class="cta-button">
-              Verify Email Address
-            </a>
-          </div>
-          
-          <div class="link-fallback">
-            <p>If the button doesn't work, copy and paste this link into your browser:</p>
-            <a href="${verificationLink}">${verificationLink}</a>
-          </div>
-          
-          <div class="security-note">
-            <p>🔒 This verification link will expire in 24 hours for security reasons.</p>
-          </div>
-        </div>
-        
-        <div class="footer">
-          <p>This email was sent to <strong>${userEmail}</strong></p>
-          <p>If you didn't create an account with ${companyName}, you can safely ignore this email.</p>
-          <p>If you have any questions, contact us at <a href="mailto:${supportEmail}">${supportEmail}</a></p>
-          <p>© ${new Date().getFullYear()} ${companyName}. All rights reserved.</p>
-          <p><a href="${companyUrl}">Visit our website</a> | <a href="${companyUrl}/privacy">Privacy Policy</a> | <a href="${companyUrl}/terms">Terms of Service</a></p>
-        </div>
-      </div>
-    </body>
-    </html>
-  `;
+  const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>Verify your email &#8211; ${companyName}</title>
+</head>
+<body style="margin:0;padding:0;background-color:#f4f4f5;-webkit-font-smoothing:antialiased;mso-line-height-rule:exactly;">
 
-  const text = `
-Verify Your Email Address - ${companyName}
+  <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color:#f4f4f5;">
+    <tr>
+      <td align="center" style="padding:48px 16px 56px;">
+        <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="max-width:520px;">
 
-${userName ? `Hello ${userName}!` : 'Hello!'}
+          <!-- Brand -->
+          <tr>
+            <td align="center" style="padding-bottom:24px;">
+              <a href="${companyUrl}" style="display:inline-block;text-decoration:none;">
+                <img src="${companyUrl}/logo-dark.png" alt="${companyName}" height="36" style="display:block;height:36px;width:auto;max-width:160px;border:0;outline:none;" />
+              </a>
+            </td>
+          </tr>
 
-Thank you for signing up with ${companyName}!
+          <!-- Card -->
+          <tr>
+            <td style="background-color:#ffffff;border-radius:12px;border:1px solid #e4e4e7;overflow:hidden;">
+              <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
 
-To complete your account setup and start using all our features, please verify your email address.
+                <!-- Top accent bar -->
+                <tr>
+                  <td style="height:3px;background-color:#2563eb;border-radius:12px 12px 0 0;font-size:0;line-height:0;">&nbsp;</td>
+                </tr>
 
-Email to Verify: ${userEmail}
-Status: Pending Verification
+                <!-- Main content -->
+                <tr>
+                  <td style="padding:44px 44px 36px;">
 
-What happens next:
-1. Click the verification link below
-2. You'll be redirected to our secure verification page
-3. Your email will be verified and your account activated
-4. Start enjoying all our features!
+                    <!-- Mail icon -->
+                    <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+                      <tr>
+                        <td style="width:44px;height:44px;background-color:#eff6ff;border-radius:10px;border:1px solid #dbeafe;text-align:center;vertical-align:middle;font-size:20px;padding:0;margin-bottom:24px;" width="44" height="44">
+                          &#9993;
+                        </td>
+                      </tr>
+                    </table>
 
-Verify your email: ${verificationLink}
+                    <div style="height:22px;line-height:22px;font-size:22px;">&nbsp;</div>
 
-If the link doesn't work, copy and paste it into your browser:
+                    <!-- Heading -->
+                    <h1 style="margin:0 0 12px;font-size:22px;font-weight:700;color:#09090b;letter-spacing:-0.4px;line-height:1.3;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;">
+                      Confirm your email address
+                    </h1>
+
+                    <!-- Body text -->
+                    <p style="margin:0 0 32px;font-size:15px;color:#52525b;line-height:1.7;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;">
+                      ${userName ? `Hi ${userName},<br><br>` : ""}We received a request to verify <strong style="color:#3f3f46;font-weight:600;">${userEmail}</strong>. Click the button below to confirm this address and activate your ${companyName} account.
+                    </p>
+
+                    <!-- CTA button -->
+                    <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+                      <tr>
+                        <td style="border-radius:8px;background-color:#2563eb;">
+                          <a href="${verificationLink}"
+                             style="display:inline-block;padding:14px 28px;font-size:14px;font-weight:600;color:#ffffff;text-decoration:none;border-radius:8px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;letter-spacing:0.1px;">
+                            Verify email address &nbsp;&rarr;
+                          </a>
+                        </td>
+                      </tr>
+                    </table>
+
+                    <!-- Expiry note -->
+                    <p style="margin:28px 0 0;font-size:13px;color:#a1a1aa;line-height:1.6;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;">
+                      This link expires in <span style="color:#71717a;font-weight:500;">1 hour</span>. If you didn&#8217;t request this, you can safely ignore this email &#8212; your account won&#8217;t be affected.
+                    </p>
+
+                  </td>
+                </tr>
+
+                <!-- Divider -->
+                <tr>
+                  <td style="padding:0 44px;font-size:0;line-height:0;">
+                    <div style="height:1px;background-color:#f4f4f5;">&nbsp;</div>
+                  </td>
+                </tr>
+
+                <!-- Fallback URL -->
+                <tr>
+                  <td style="padding:20px 44px 36px;">
+                    <p style="margin:0 0 6px;font-size:11px;font-weight:600;color:#a1a1aa;letter-spacing:0.6px;text-transform:uppercase;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;">
+                      Button not working?
+                    </p>
+                    <p style="margin:0;font-size:12px;color:#a1a1aa;line-height:1.6;word-break:break-all;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;">
+                      Copy and paste this URL into your browser:<br>
+                      <a href="${verificationLink}" style="color:#2563eb;text-decoration:none;">${verificationLink}</a>
+                    </p>
+                  </td>
+                </tr>
+
+              </table>
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td align="center" style="padding:28px 0 0;">
+              <p style="margin:0 0 6px;font-size:12px;color:#a1a1aa;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;">
+                Sent to ${userEmail}
+              </p>
+              <p style="margin:0;font-size:12px;color:#a1a1aa;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;">
+                <a href="${companyUrl}" style="color:#a1a1aa;text-decoration:none;">${companyName}</a>
+                &nbsp;&middot;&nbsp;
+                <a href="${companyUrl}/privacy" style="color:#a1a1aa;text-decoration:underline;">Privacy</a>
+                &nbsp;&middot;&nbsp;
+                <a href="mailto:${supportEmail}" style="color:#a1a1aa;text-decoration:underline;">Support</a>
+              </p>
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+
+</body>
+</html>`;
+
+  const text = `Verify your email – ${companyName}
+
+${userName ? `Hi ${userName},\n\n` : ""}We received a request to verify ${userEmail}. Click the link below to confirm this address and activate your ${companyName} account.
+
 ${verificationLink}
 
-Security Note: This verification link will expire in 24 hours for security reasons.
+This link expires in 1 hour. If you didn't request this, you can safely ignore this email.
 
-If you didn't create an account with ${companyName}, you can safely ignore this email.
+—
+${companyName}
+${companyUrl}
+Support: ${supportEmail}`;
 
-If you have any questions, contact us at ${supportEmail}
-
-© ${new Date().getFullYear()} ${companyName}. All rights reserved.
-Visit our website: ${companyUrl}
-  `;
-
-  return {
-    subject,
-    html,
-    text
-  };
+  return { subject, html, text };
 };

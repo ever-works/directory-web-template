@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useTransition } from 'react';
-import { FiMail, FiCheckCircle, FiAlertCircle, FiRefreshCw, FiSend } from 'react-icons/fi';
+import { FiMail, FiCheckCircle, FiAlertCircle, FiRefreshCw, FiSend, FiArrowRight } from 'react-icons/fi';
 import { Modal, ModalBody, ModalFooter } from '@/components/ui/modal';
 import { Button } from '@/components/ui/button';
 import { resendVerificationEmailAction } from '@/app/[locale]/auth/actions';
@@ -55,14 +55,10 @@ export function EmailVerificationDialog({
 			<button
 				type="button"
 				onClick={() => setOpen(true)}
-				className="group w-full flex items-center gap-2.5 px-4 py-2.5 text-left hover:bg-amber-50/70 dark:hover:bg-amber-500/5 transition-colors"
+				className="w-full flex items-center gap-1.5 px-4 py-3 text-xs font-semibold text-theme-primary-600 dark:text-theme-primary-400 hover:text-theme-primary-700 dark:hover:text-theme-primary-300 transition-colors"
 			>
-				<span className="shrink-0 w-6 h-6 rounded-md bg-amber-100 dark:bg-amber-500/15 flex items-center justify-center">
-					<FiSend className="w-3 h-3 text-amber-600 dark:text-amber-400" aria-hidden="true" />
-				</span>
-				<span className="text-xs font-semibold text-amber-700 dark:text-amber-400 group-hover:text-amber-800 dark:group-hover:text-amber-300 transition-colors">
-					{labelTrigger}
-				</span>
+				{labelTrigger}
+				<FiArrowRight className="w-3 h-3" aria-hidden="true" />
 			</button>
 
 			<Modal isOpen={open} onClose={handleClose} size="sm" title={status === 'idle' ? labelTitle : undefined} hideCloseButton={false}>
