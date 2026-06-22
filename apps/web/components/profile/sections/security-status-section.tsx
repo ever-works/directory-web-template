@@ -9,6 +9,7 @@ import {
 	FiClock,
 	FiArrowRight,
 } from "react-icons/fi";
+import { EmailVerificationDialog } from "./email-verification-dialog";
 
 type AccountStatus = "active" | "inactive" | "suspended" | "banned" | "trial";
 
@@ -108,6 +109,21 @@ export async function SecurityStatusSection({
 					value={emailVerified ? t("EMAIL_VERIFIED") : t("EMAIL_UNVERIFIED")}
 					tone={emailVerified ? "good" : "warning"}
 				/>
+				{!emailVerified && (
+					<EmailVerificationDialog
+						labelTrigger={t("EMAIL_VERIFY_TRIGGER")}
+						labelTitle={t("EMAIL_VERIFY_DIALOG_TITLE")}
+						labelDesc={t("EMAIL_VERIFY_DIALOG_DESC")}
+						labelSend={t("EMAIL_VERIFY_DIALOG_SEND")}
+						labelSending={t("EMAIL_VERIFY_DIALOG_SENDING")}
+						labelCancel={t("EMAIL_VERIFY_DIALOG_CANCEL")}
+						labelSuccessTitle={t("EMAIL_VERIFY_DIALOG_SUCCESS_TITLE")}
+						labelSuccessDesc={t("EMAIL_VERIFY_DIALOG_SUCCESS_DESC")}
+						labelClose={t("EMAIL_VERIFY_DIALOG_CLOSE")}
+						labelErrorTitle={t("EMAIL_VERIFY_DIALOG_ERROR_TITLE")}
+						labelTryAgain={t("EMAIL_VERIFY_DIALOG_TRY_AGAIN")}
+					/>
+				)}
 				<StatusRow
 					icon={twoFactorEnabled
 						? <FiLock className="w-3.5 h-3.5" />
@@ -132,7 +148,7 @@ export async function SecurityStatusSection({
 			</div>
 
 			{/* Footer */}
-			<div className="px-4 py-3 border-t border-neutral-100 dark:border-white/6 bg-neutral-50/60 dark:bg-white/[0.02]">
+			<div className="px-4 py-3 border-t border-neutral-100 dark:border-white/6 bg-neutral-50/60 dark:bg-white/2">
 				<Link
 					href="/client/settings/security"
 					className="inline-flex items-center gap-1.5 text-xs font-semibold text-theme-primary-600 dark:text-theme-primary-400 hover:text-theme-primary-700 dark:hover:text-theme-primary-300 transition-colors"
