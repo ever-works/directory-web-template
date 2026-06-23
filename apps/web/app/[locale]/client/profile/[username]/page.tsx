@@ -6,6 +6,7 @@ import { Link } from '@/i18n/navigation';
 import { FiChevronRight, FiUser, FiBarChart2, FiLock, FiEye, FiArrowLeft } from 'react-icons/fi';
 import {
 	getClientProfileByUsername,
+	isUserAccountDeactivated,
 	listPortfolioProjectsForProfile,
 	getProfileStats,
 	isFollowing,
@@ -49,6 +50,14 @@ export default async function ClientProfilePage({
 	const session = await auth();
 	const viewerUserId = session?.user?.id ?? null;
 	const isOwn = !!viewerUserId && viewerUserId === rawProfile.userId;
+
+	// A deactivated owner may still view their own profile, but it must be hidden
+	// from everyone else — matching the directory, which already excludes
+	// deactivated accounts. The lookup itself returns deactivated owners so this
+	// owner-aware check can run here rather than 404ing the owner too.
+	if (!isOwn && (await isUserAccountDeactivated(rawProfile.userId))) {
+		notFound();
+	}
 
 	// Project to the public-safe column set BEFORE any rendering. Owner and
 	// non-owner alike render the same fields here, and the type system now

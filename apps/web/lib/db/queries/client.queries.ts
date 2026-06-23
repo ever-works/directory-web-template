@@ -182,17 +182,34 @@ export async function searchPublicProfiles(params: {
 /**
  * Find client profile by username. Case-insensitive.
  *
- * Username has a global UNIQUE constraint so no tenant scoping is needed.
- * Tenant filtering was removed because the viewer's resolved tenantId can
- * legitimately differ from the profile owner's stored tenantId (seeded data,
- * OAuth vs credentials sessions, per-request resolution variance), causing
- * spurious 404s.
+ * Resolves tenant-scoped first (the common case), then falls back to a global
+ * username match. The fallback exists because the viewer's resolved tenantId
+ * can legitimately differ from the profile owner's stored tenantId (seeded
+ * data, OAuth vs credentials sessions, per-request resolution variance), which
+ * otherwise produces spurious 404s. `username` carries a global UNIQUE
+ * constraint, so the fallback still resolves a single deterministic row.
  *
- * No deactivation filter: deactivated owners' profiles still resolve and render
- * like any other profile (intentional — the page should not 404 for them).
+ * No deactivation filter: an account-deactivated owner's profile still resolves
+ * and renders like any other — the page must not 404 for them. Deactivated
+ * accounts remain undiscoverable because `searchPublicProfiles` keeps its own
+ * `isNull(users.deactivatedAt)` filter; they are only reachable by direct URL.
  */
 export async function getClientProfileByUsername(username: string): Promise<ClientProfile | null> {
+	const tenantId = await getTenantId();
 	const normalized = username.toLowerCase().trim();
+
+	// Primary: tenant-scoped match when the viewer's tenant resolves.
+	if (tenantId) {
+		const [scoped] = await db
+			.select()
+			.from(clientProfiles)
+			.where(and(sql`lower(${clientProfiles.username}) = ${normalized}`, eq(clientProfiles.tenantId, tenantId)))
+			.limit(1);
+		if (scoped) return scoped;
+	}
+
+	// Fallback: global username match (username is globally UNIQUE) so a
+	// cross-tenant viewer resolves the profile instead of 404ing.
 	const [profile] = await db
 		.select()
 		.from(clientProfiles)
@@ -200,6 +217,25 @@ export async function getClientProfileByUsername(username: string): Promise<Clie
 		.limit(1);
 
 	return profile || null;
+}
+
+/**
+ * Whether the given user's account is deactivated (users.deactivated_at set).
+ *
+ * The profile lookup intentionally returns deactivated owners so the owner can
+ * still view their own profile. Callers that render to the public (e.g. the
+ * profile page) use this to hide a deactivated owner's profile from everyone
+ * except the owner themselves, matching `searchPublicProfiles`, which already
+ * excludes deactivated accounts from discovery.
+ */
+export async function isUserAccountDeactivated(userId: string): Promise<boolean> {
+	const [row] = await db
+		.select({ deactivatedAt: users.deactivatedAt })
+		.from(users)
+		.where(eq(users.id, userId))
+		.limit(1);
+
+	return row?.deactivatedAt != null;
 }
 
 /**
@@ -272,15 +308,34 @@ export function toPublicClientProfile(profile: ClientProfile): PublicClientProfi
 /**
  * Find client profile by user ID.
  *
- * userId has a global UNIQUE index (client_profile_user_id_unique_idx), so
- * the tenantId filter is redundant and causes missed lookups when the caller's
- * resolved tenantId differs from the profile's stored value.
+ * Tenant-scoped first, then a global fallback on the globally-UNIQUE userId
+ * (client_profile_user_id_unique_idx). The fallback prevents spurious misses
+ * when the caller's resolved tenantId differs from the profile's stored value
+ * (seeded data, OAuth vs credentials sessions), which would otherwise break a
+ * signed-in user's own dashboard / votes / comments lookups.
+ *
+ * @param userId - User ID
+ * @returns Client profile or null if not found
  */
 export async function getClientProfileByUserId(userId: string): Promise<ClientProfile | null> {
+	const tenantId = await getTenantId();
+
+	// Primary: tenant-scoped match when the caller's tenant resolves.
+	if (tenantId) {
+		const [scoped] = await db
+			.select()
+			.from(clientProfiles)
+			.where(and(eq(clientProfiles.userId, userId), eq(clientProfiles.tenantId, tenantId)))
+			.limit(1);
+		if (scoped) return scoped;
+	}
+
+	// Fallback: global userId match (userId is globally UNIQUE).
 	const [profile] = await db
 		.select()
 		.from(clientProfiles)
-		.where(eq(clientProfiles.userId, userId));
+		.where(eq(clientProfiles.userId, userId))
+		.limit(1);
 
 	return profile || null;
 }
