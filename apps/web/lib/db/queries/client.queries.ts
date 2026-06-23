@@ -189,27 +189,37 @@ export async function searchPublicProfiles(params: {
  * otherwise produces spurious 404s. `username` carries a global UNIQUE
  * constraint, so the fallback still resolves a single deterministic row.
  *
- * No deactivation filter: an account-deactivated owner's profile still resolves
- * and renders like any other — the page must not 404 for them. Deactivated
- * accounts remain undiscoverable because `searchPublicProfiles` keeps its own
- * `isNull(users.deactivatedAt)` filter; they are only reachable by direct URL.
+ * Primary path keeps the original tenant-scoped, active-only query (same tenant
+ * + owner not deactivated). When that misses — a cross-tenant viewer, or the
+ * deactivated owner viewing their own profile — it falls back to a global match
+ * on the globally-UNIQUE username so the page never 404s a resolvable profile.
+ * The view layer (see `isUserAccountDeactivated`) decides whether a deactivated
+ * owner's profile is shown to the current viewer; deactivated accounts stay
+ * undiscoverable via `searchPublicProfiles`, which keeps its own filter.
  */
 export async function getClientProfileByUsername(username: string): Promise<ClientProfile | null> {
 	const tenantId = await getTenantId();
 	const normalized = username.toLowerCase().trim();
 
-	// Primary: tenant-scoped match when the viewer's tenant resolves.
+	// Primary: tenant-scoped, active-only match when the viewer's tenant resolves.
 	if (tenantId) {
 		const [scoped] = await db
 			.select()
 			.from(clientProfiles)
-			.where(and(sql`lower(${clientProfiles.username}) = ${normalized}`, eq(clientProfiles.tenantId, tenantId)))
+			.where(
+				and(
+					sql`lower(${clientProfiles.username}) = ${normalized}`,
+					eq(clientProfiles.tenantId, tenantId),
+					sql`EXISTS (SELECT 1 FROM users WHERE id = ${clientProfiles.userId} AND deactivated_at IS NULL)`
+				)
+			)
 			.limit(1);
 		if (scoped) return scoped;
 	}
 
 	// Fallback: global username match (username is globally UNIQUE) so a
-	// cross-tenant viewer resolves the profile instead of 404ing.
+	// cross-tenant viewer — or the deactivated owner viewing their own profile —
+	// still resolves instead of 404ing.
 	const [profile] = await db
 		.select()
 		.from(clientProfiles)
