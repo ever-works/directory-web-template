@@ -1,0 +1,46 @@
+# Dockerfile.everk8s — @ever-works/docs (Docusaurus static site) for ever-k8s
+#
+# NOTE: This build MUST run from the repository ROOT context (not apps/docs),
+# because apps/docs/docusaurus.config.ts reads content from `../../docs` and
+# `../../docs/assets` (the repo-root docs/ folder). Restricting the build to
+# apps/docs would break those relative paths. Kaniko therefore runs this with
+# --context = repo root and NO --context-sub-path.
+
+# ---- builder ---------------------------------------------------------------
+FROM node:20-alpine AS builder
+WORKDIR /app
+
+# Docusaurus / node-gyp build prerequisites
+RUN apk add --no-cache git python3 make g++ libc6-compat
+
+# pnpm via corepack, pinned to the repo's packageManager version
+ENV PNPM_HOME=/pnpm
+ENV PATH=$PNPM_HOME:$PATH
+RUN corepack enable && corepack prepare pnpm@10.31.0 --activate
+
+ENV CI=true
+ENV NODE_ENV=production
+ENV NODE_OPTIONS="--max-old-space-size=4096"
+
+# Copy the whole monorepo (repo-root context). A project-local
+# .dockerignore.everk8s is not used by Kaniko; instead we rely on the fact
+# that node_modules/build artifacts are absent from the git context Kaniko
+# fetches, so a plain COPY is safe and reproducible.
+COPY . .
+
+# Install only the docs workspace and its dependencies. --frozen-lockfile
+# keeps it reproducible against pnpm-lock.yaml.
+RUN pnpm install --frozen-lockfile --filter @ever-works/docs...
+
+# Build the Docusaurus site. Output: apps/docs/build
+RUN pnpm --filter @ever-works/docs run build
+
+# ---- runtime (nginx static) ------------------------------------------------
+FROM nginx:alpine AS runtime
+
+# Docusaurus emits a multi-page static site; default nginx config is correct
+# (each route is a real directory with index.html). No SPA fallback needed.
+COPY --from=builder /app/apps/docs/build /usr/share/nginx/html
+
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]
