@@ -32,8 +32,15 @@ COPY . .
 # keeps it reproducible against pnpm-lock.yaml.
 RUN pnpm install --frozen-lockfile --filter @ever-works/docs...
 
-# Build the Docusaurus site. Output: apps/docs/build
-RUN pnpm --filter @ever-works/docs run build
+# Build the Docusaurus site (default/en locale only). Output: apps/docs/build
+#
+# The repo's default `build` script compiles ALL 13 configured locales
+# (en, fr, ar, bg, zh, nl, de, he, it, pl, pt, ru, es), each a separate
+# webpack client+server compile — that takes well over an hour and is not
+# appropriate for a dev image. The repo ships a `build:en` script
+# (`docusaurus build --locale en`) for exactly this single-locale case;
+# a single-locale build still emits to apps/docs/build.
+RUN pnpm --filter @ever-works/docs run build:en
 
 # ---- runtime (nginx static) ------------------------------------------------
 FROM nginx:alpine AS runtime
