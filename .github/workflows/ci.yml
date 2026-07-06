@@ -15,7 +15,7 @@ concurrency:
 jobs:
   lint-and-build:
     name: Lint and Build Web
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.RUNNER_LINUX_X64_4 || 'ubuntu-latest' }}
 
     env:
       NEXT_PUBLIC_APP_URL: http://localhost:3000
