@@ -4,6 +4,7 @@ import { apiUtils, serverClient } from "@/lib/api/server-api-client";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 
 interface SecuritySettings {
+  emailVerified: boolean;
   twoFactorEnabled: boolean;
   lastPasswordChange: string | null;
   activeSessionsCount: number;
