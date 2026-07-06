@@ -216,7 +216,7 @@ export function SettingsContent() {
 					</h1>
 
 					{/* User identity card */}
-					<Link href={`/client/profile/${user?.username}`} className="block">
+					<Link href={user?.username ? `/client/profile/${user.username}` : '/client/settings/profile/basic-info'} className="block">
 						<UserIdentityCard user={user} isLoading={isLoading} />
 					</Link>
 
