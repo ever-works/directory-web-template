@@ -37,6 +37,19 @@ RUN apk add --no-cache git libc6-compat python3 make g++ pkgconfig
 COPY --from=pruner /app/out/json/ .
 COPY --from=pruner /app/out/pnpm-lock.yaml ./pnpm-lock.yaml
 
+# Configure the npm registry: prefer the internal Verdaccio cache (VERDACCIO_REGISTRY
+# build-arg, anonymous) so CI installs pull through our in-cluster mirror instead of
+# public npm. Empty (e.g. a fork, or any build that doesn't set it) → public npm,
+# leaving existing behavior unchanged. The pnpm-lock.yaml rewrite is best-effort
+# (non-fatal): a path mismatch degrades to public downloads rather than breaking the
+# build, and pnpm still verifies integrity hashes, so Verdaccio (a transparent proxy)
+# resolves to byte-identical tarballs.
+ARG VERDACCIO_REGISTRY=""
+RUN if [ -n "$VERDACCIO_REGISTRY" ]; then \
+        echo "registry=${VERDACCIO_REGISTRY}" >> /app/.npmrc && \
+        { sed -i "s|https://registry.npmjs.org|${VERDACCIO_REGISTRY%/}|g" /app/pnpm-lock.yaml 2>/dev/null || true; }; \
+    fi
+
 RUN --mount=type=cache,id=pnpm-store,target=/root/.local/share/pnpm/store \
     pnpm install --frozen-lockfile
 

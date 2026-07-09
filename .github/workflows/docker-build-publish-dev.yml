@@ -117,6 +117,7 @@ jobs:
             DATA_REPOSITORY=${{ secrets.DATA_REPOSITORY != '' && format('https://github.com/{0}/{1}', github.repository_owner, secrets.DATA_REPOSITORY) || '' }}
             GITHUB_REPOSITORY=${{ github.repository }}
             GITHUB_SHA=${{ github.sha }}
+            VERDACCIO_REGISTRY=${{ vars.VERDACCIO_REGISTRY }}
           secrets: |
             gh_token=${{ secrets.GH_TOKEN }}
           provenance: false
