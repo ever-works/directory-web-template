@@ -7,7 +7,7 @@ import type { AdapterAccountType } from 'next-auth/adapters';
 import { db } from '@/lib/db/drizzle';
 import { getTenantId } from '@/lib/auth/tenant';
 
-import { signOut, unstable_update } from '@/lib/auth';
+import { auth, signOut, unstable_update } from '@/lib/auth';
 import { validatedAction, validatedActionWithUser } from '@/lib/auth/middleware';
 import { comparePasswords, hashPassword, AuthProviders, AuthErrorCode } from '@/lib/auth/credentials';
 import {
@@ -15,6 +15,7 @@ import {
 	deleteVerificationToken,
 	getPasswordResetTokenByToken,
 	getUserByEmail,
+	getUserById,
 	getVerificationTokenByToken,
 	getVerificationTokenByEmail,
 	hardDeleteUser,
@@ -29,7 +30,7 @@ import {
 	verifyClientPassword,
 	isUserAdmin
 } from '@/lib/db/queries';
-import { generatePasswordResetToken } from '@/lib/db/tokens';
+import { generatePasswordResetToken, generateVerificationToken } from '@/lib/db/tokens';
 import { sendPasswordResetEmail, sendVerificationEmailWithTemplate } from '@/lib/mail';
 import { authServiceFactory } from '@/lib/auth/services';
 import { ratelimit } from '@/lib/utils/rate-limit';
@@ -491,6 +492,40 @@ export const verifyEmailAction = async (token: string) => {
 	]);
 
 	await logActivity(ActivityType.VERIFY_EMAIL, existingUser.id, 'user');
+
+	return { success: true };
+};
+
+export const resendVerificationEmailAction = async () => {
+	const session = await auth();
+	if (!session?.user?.id) {
+		return { error: 'Not authenticated' };
+	}
+
+	const user = await getUserById(session.user.id);
+	if (!user || !user.email) {
+		return { error: 'User not found' };
+	}
+
+	if (user.emailVerified) {
+		return { error: 'Email is already verified' };
+	}
+
+	const verificationToken = await generateVerificationToken(user.email);
+	if (!verificationToken) {
+		return { error: 'Failed to generate verification token' };
+	}
+
+	try {
+		const result = await sendVerificationEmailWithTemplate(user.email, verificationToken.token);
+		if (result && 'skipped' in result && result.skipped) {
+			console.warn('[ResendVerification] Email service not configured — token generated but email not sent');
+			return { error: 'Email service is not configured. Please contact support.' };
+		}
+	} catch (err) {
+		console.error('[ResendVerification] Failed to send email:', err);
+		return { error: 'Failed to send verification email. Please try again.' };
+	}
 
 	return { success: true };
 };

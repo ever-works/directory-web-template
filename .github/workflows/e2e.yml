@@ -35,7 +35,7 @@ concurrency:
 jobs:
   e2e:
     name: Playwright (${{ matrix.shard }}/${{ matrix.total }})
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.RUNNER_LINUX_X64_4 || 'ubuntu-latest' }}
     timeout-minutes: 60
 
     strategy:
@@ -268,7 +268,7 @@ jobs:
     name: E2E summary
     needs: e2e
     if: always()
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.RUNNER_LINUX_X64_4 || 'ubuntu-latest' }}
     timeout-minutes: 5
     steps:
       - name: Aggregate result
