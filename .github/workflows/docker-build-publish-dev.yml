@@ -32,6 +32,7 @@ jobs:
           DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
           DIGITALOCEAN_ACCESS_TOKEN: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
           DIGITALOCEAN_REGISTRY: ${{ vars.DIGITALOCEAN_REGISTRY || 'ever' }}
+          DO_ENABLED: ${{ vars.DO_ENABLED }}
         run: |
           set -euo pipefail
 
@@ -57,7 +58,10 @@ jobs:
           fi
 
           digitalocean_enabled=false
-          if [[ -n "$DIGITALOCEAN_ACCESS_TOKEN" && -n "$DIGITALOCEAN_REGISTRY" ]]; then
+          # DigitalOcean image pushes are opt-in: gated behind vars.DO_ENABLED == 'true'
+          # so the registry.digitalocean.com tag is never added (and buildx never pushes
+          # to DO) unless DO is explicitly enabled. DO code is kept, just skipped by default.
+          if [[ "${DO_ENABLED:-}" == "true" && -n "$DIGITALOCEAN_ACCESS_TOKEN" && -n "$DIGITALOCEAN_REGISTRY" ]]; then
             do_registry="$(printf '%s' "$DIGITALOCEAN_REGISTRY" | tr '[:upper:]' '[:lower:]')"
             tags+=(
               "registry.digitalocean.com/${do_registry}/${image_name}:latest"
@@ -89,13 +93,13 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Install doctl
-        if: steps.meta.outputs.digitalocean_enabled == 'true'
+        if: ${{ steps.meta.outputs.digitalocean_enabled == 'true' && vars.DO_ENABLED == 'true' }}
         uses: digitalocean/action-doctl@v2
         with:
           token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
 
       - name: Login to DigitalOcean Container Registry
-        if: steps.meta.outputs.digitalocean_enabled == 'true'
+        if: ${{ steps.meta.outputs.digitalocean_enabled == 'true' && vars.DO_ENABLED == 'true' }}
         run: doctl registry login --expiry-seconds 3600
 
       - name: Set up Docker Buildx
