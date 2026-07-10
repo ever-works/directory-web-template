@@ -4,7 +4,13 @@ import { auth } from '@/lib/auth';
 import { Container } from '@/components/ui/container';
 import { Link } from '@/i18n/navigation';
 import { FiArrowLeft, FiChevronLeft, FiChevronRight, FiUserCheck } from 'react-icons/fi';
-import { getClientProfileByUsername, getFollowingCount, getFollowingSubset, listFollowing } from '@/lib/db/queries';
+import {
+	getClientProfileByUsername,
+	getFollowingCount,
+	getFollowingSubset,
+	isUserAccountDeactivated,
+	listFollowing
+} from '@/lib/db/queries';
 import { FOLLOW_LIST_PAGE_SIZE, parsePageParam } from '../_follow-list-shared';
 import { FollowPersonCard } from '../_follow-person-card';
 
@@ -26,6 +32,11 @@ export default async function ProfileFollowingPage({
 
 	const session = await auth();
 	const viewerUserId = session?.user?.id ?? null;
+
+	// Hide a deactivated owner's follow lists from everyone except the owner.
+	if (viewerUserId !== profile.userId && (await isUserAccountDeactivated(profile.userId))) {
+		notFound();
+	}
 
 	const [total, following] = await Promise.all([
 		getFollowingCount(profile.userId),
