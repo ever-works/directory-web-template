@@ -48,7 +48,11 @@ COPY --from=pruner /app/out/full/ .
 # non-workspace dirs, so copy it in explicitly (resolves to /app/docs -> apps/docs/../../docs).
 COPY docs/ ./docs/
 
-RUN pnpm --filter @ever-works/docs build
+# English-only build. The full multi-locale SSG (build) renders every locale (en/es/fr/pt/…)
+# of the large API docs, which on the ARC RAM-disk runner runs for ~2h and then dies with
+# ENOSPC. `build:en` (docusaurus build --locale en) is a fraction of the size/time and fits.
+# TODO: re-enable full-locale once the docs image builds on a disk-backed runner.
+RUN pnpm --filter @ever-works/docs build:en
 
 # ---- runtime: nginx serving the static build ------------------------------
 FROM nginx:1.27-alpine
