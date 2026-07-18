@@ -10,7 +10,7 @@ import { dirExists, fsExists, getContentPath } from './lib';
 import { getContentConfigPaths, mergeConfigObjects } from './content-config-file';
 import { unstable_cache } from 'next/cache';
 import { PaymentInterval, PaymentProvider } from './constants';
-import { CACHE_TAGS, CACHE_TTL as CONTENT_CACHE_TTL } from './cache-config';
+import { CACHE_TAGS, CACHE_TTL as CONTENT_CACHE_TTL, DATA_CACHE_MAX_ITEMS } from './cache-config';
 import { Collection } from '@/types/collection';
 import type { ComparisonData, ComparisonDetail, ComparisonDimension } from '@/types/comparison';
 import type { ItemLocationData } from '@/lib/types/item';
@@ -2131,9 +2131,26 @@ export async function fetchHeroContent(source: string, locale: string = 'en'): P
 // Listings: short-TTL unstable_cache keyed by content revision so cold starts
 // don't re-walk the YAML tree. Single-item / page reads keep the longer TTL.
 
+/**
+ * A listing may only be persisted in Next's Data Cache (`unstable_cache`) if it fits the 2MB
+ * per-entry ceiling. Beyond it, `unstable_cache` silently discards the entry and recomputes +
+ * re-serializes the whole payload on EVERY request (`items over 2MB can not be cached`), which
+ * pegs CPU on large directories. When a listing is too big we skip the persistent layer and let
+ * the in-memory `fetchItemsCache` (10-min TTL, cleared on content sync) serve it instead.
+ * See {@link DATA_CACHE_MAX_ITEMS}.
+ */
+const canPersistListing = (itemCount: number): boolean => itemCount <= DATA_CACHE_MAX_ITEMS;
+
 export const getCachedItems = async (options: FetchOptions = {}) => {
 	if (!CONTENT_CACHE_ENABLED) {
 		return fetchItems(options);
+	}
+
+	// `fetchItems` is in-memory cached, so this is cheap on the hot path and lets us size-gate
+	// the (2MB-capped) Data Cache layer before paying to serialize an oversized catalogue.
+	const result = await fetchItems(options);
+	if (!canPersistListing(result.items.length)) {
+		return result;
 	}
 
 	const locale = options.lang || 'en';
@@ -2290,6 +2307,11 @@ export const getCachedItemsByCategory = async (raw: string, options: FetchOption
 		return fetchByCategory(raw, options);
 	}
 
+	const result = await fetchByCategory(raw, options);
+	if (!canPersistListing(result.items.length)) {
+		return result;
+	}
+
 	const locale = options.lang || 'en';
 	const revision = await getContentRevision();
 	const optionsKey = JSON.stringify(options);
@@ -2308,6 +2330,11 @@ export const getCachedItemsByTag = async (raw: string, options: FetchOptions = {
 		return fetchByTag(raw, options);
 	}
 
+	const result = await fetchByTag(raw, options);
+	if (!canPersistListing(result.items.length)) {
+		return result;
+	}
+
 	const locale = options.lang || 'en';
 	const revision = await getContentRevision();
 	const optionsKey = JSON.stringify(options);
@@ -2324,6 +2351,11 @@ export const getCachedItemsByTag = async (raw: string, options: FetchOptions = {
 export const getCachedItemsByCategoryAndTag = async (category: string, tag: string, options: FetchOptions = {}) => {
 	if (!CONTENT_CACHE_ENABLED) {
 		return fetchByCategoryAndTag(category, tag, options);
+	}
+
+	const result = await fetchByCategoryAndTag(category, tag, options);
+	if (!canPersistListing(result.items.length)) {
+		return result;
 	}
 
 	const locale = options.lang || 'en';
