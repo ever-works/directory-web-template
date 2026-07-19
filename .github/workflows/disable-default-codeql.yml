@@ -10,7 +10,7 @@ concurrency:
 jobs:
   disable-default:
     name: Disable Default CodeQL Configuration
-    runs-on: ubuntu-latest
+    runs-on: ${{ vars.RUNNER_LINUX_X64_4 || 'ubuntu-latest' }}
     permissions:
       security-events: write
       actions: read
