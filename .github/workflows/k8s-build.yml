@@ -15,11 +15,15 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        # REPO-AGNOSTIC on purpose. `suffix` (not a literal image name) is what
+        # keeps this file correct after the platform force-pushes it verbatim
+        # into every Work repo — the image is always the repo's OWN package,
+        # which is the only one that repo's GITHUB_TOKEN can write.
         include:
-          - image: directory-web-template
+          - suffix: ''
             dockerfile: Dockerfile
             context: .
-          - image: directory-web-template-docs
+          - suffix: '-docs'
             dockerfile: apps/docs/Dockerfile
             context: .
     steps:
@@ -38,13 +42,24 @@ jobs:
             main|master) echo "tag=prod" >> "$GITHUB_OUTPUT" ;;
             *) echo "tag=${GITHUB_REF_NAME//\//-}" >> "$GITHUB_OUTPUT" ;;
           esac
+      # Not every repo generated from this template carries apps/docs, so the
+      # `-docs` matrix leg must skip cleanly rather than fail the workflow.
+      - id: present
+        run: |
+          if [ -f "${{ matrix.dockerfile }}" ]; then
+            echo "found=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "found=false" >> "$GITHUB_OUTPUT"
+            echo "No ${{ matrix.dockerfile }} in this repo — skipping this image."
+          fi
       - uses: docker/build-push-action@v7
+        if: steps.present.outputs.found == 'true'
         with:
           context: ${{ matrix.context }}
           file: ${{ matrix.dockerfile }}
           push: true
           tags: |
-            ghcr.io/${{ github.repository_owner }}/${{ matrix.image }}:${{ steps.t.outputs.tag }}
-            ghcr.io/${{ github.repository_owner }}/${{ matrix.image }}:sha-${{ github.sha }}
-          cache-from: type=registry,ref=ghcr.io/${{ github.repository_owner }}/${{ matrix.image }}:buildcache
-          cache-to: type=registry,ref=ghcr.io/${{ github.repository_owner }}/${{ matrix.image }}:buildcache,mode=max
+            ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}${{ matrix.suffix }}:${{ steps.t.outputs.tag }}
+            ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}${{ matrix.suffix }}:sha-${{ github.sha }}
+          cache-from: type=registry,ref=ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}${{ matrix.suffix }}:buildcache
+          cache-to: type=registry,ref=ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}${{ matrix.suffix }}:buildcache,mode=max
