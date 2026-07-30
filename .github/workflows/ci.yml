@@ -14,6 +14,14 @@ concurrency:
 
 jobs:
   lint-and-build:
+    # Template-only. Every repo generated from this template receives this
+    # workflow verbatim (the platform force-pushes template branches), and
+    # running the full web lint+build in each of them burned self-hosted
+    # runners without gating anything a Work owner acts on. Gated rather than
+    # deleted so the template keeps its own CI and a sync can never "restore"
+    # a version that runs everywhere. Instance default branches are
+    # unprotected, so a skipped job cannot leave a required check pending.
+    if: github.repository == 'ever-works/directory-web-template'
     name: Lint and Build Web
     runs-on: ${{ vars.RUNNER_LINUX_X64_4 || 'ubuntu-latest' }}
 
