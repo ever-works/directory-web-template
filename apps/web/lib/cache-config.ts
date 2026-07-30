@@ -68,3 +68,21 @@ export const CACHE_TAGS = {
 	/** Comparisons by locale */
 	COMPARISONS_LOCALE: (locale: string) => `comparisons:${locale}`
 } as const;
+
+/**
+ * Max number of items a *listing* may contain to still be persisted in Next's Data Cache
+ * (`unstable_cache`).
+ *
+ * `unstable_cache` hard-caps a single entry at 2MB and *silently drops* anything larger — the
+ * entry is then recomputed AND re-serialized on every request (`Failed to set Next.js data cache …
+ * items over 2MB can not be cached`). On a large directory this pegs CPU. Listing items are
+ * metadata-only (the markdown body is stripped in `fetchItems`, ~0.8KB/item), so ~2000 items
+ * ≈ 1.6MB stays safely under the 2MB ceiling. Bigger catalogues skip the persistent layer and
+ * fall back to the in-memory `fetchItems` cache (10-min TTL, cleared on content sync) instead.
+ *
+ * Override with the `CONTENT_DATA_CACHE_MAX_ITEMS` env var if your items are unusually large/small.
+ */
+export const DATA_CACHE_MAX_ITEMS: number = (() => {
+	const raw = Number(process.env.CONTENT_DATA_CACHE_MAX_ITEMS);
+	return Number.isFinite(raw) && raw > 0 ? Math.floor(raw) : 2000;
+})();
