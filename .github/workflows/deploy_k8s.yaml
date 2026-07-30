@@ -36,6 +36,25 @@ env:
 
 jobs:
     build-and-deploy:
+        # Platform-managed deploys do NOT run here.
+        #
+        # The Ever Works platform deploys server-side: it holds the cluster
+        # kubeconfig itself and applies manifests directly, so no cluster
+        # credential ever reaches a repo and no runner needs network access to
+        # the API server. Two hard reasons this job cannot do the job for a
+        # platform-managed Work:
+        #   * our self-hosted ARC runners have NO egress to the cluster API
+        #     (192.168.1.0/24 is unreachable from runner pods — verified), and
+        #   * a customer repo runs on GitHub-hosted runners, which can never
+        #     reach a private RFC1918 API endpoint at all.
+        # Left un-gated it just fails on every push, which is exactly what it
+        # has been doing.
+        #
+        # Kept, not deleted (no-removal rule): a FORK pointing at its own
+        # reachable cluster is a legitimate use. Set the repo/org variable
+        # GHA_K8S_DEPLOY_ENABLED=true to turn it back on, same shape as
+        # DO_ENABLED for the DigitalOcean steps.
+        if: ${{ vars.GHA_K8S_DEPLOY_ENABLED == 'true' }}
         runs-on: ${{ vars.RUNNER_LINUX_X64_4 || 'ubuntu-latest' }}
         env:
             # K8S_REGISTRY_KIND drives every per-registry conditional below.
