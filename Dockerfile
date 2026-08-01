@@ -90,9 +90,16 @@ COPY --from=installer --chown=node:node /app/apps/web/messages ./apps/web/messag
 
 VOLUME /app/apps/web/.next/cache
 
+# Sizes --max-old-space-size from the cgroup limit at start-up. The BUILD stage
+# above already pins a heap; the runtime stage did not, so V8 fell back to ~half
+# the container limit (a 2Gi pod got ~1005MB) and large catalogues died with
+# "Reached heap limit" + exit 139 — which presents as a crash loop, not an OOM.
+COPY --chmod=755 docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+
 USER node
 WORKDIR /app/apps/web
 
 EXPOSE 3000
 
+ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
 CMD ["node", "server.js"]
