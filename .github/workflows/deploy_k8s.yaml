@@ -239,12 +239,22 @@ jobs:
                   # the chain for back-compat with older platform pushes.
                   REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD || secrets.GITHUB_READ_PACKAGES_TOKEN || secrets.GITHUB_TOKEN }}
               run: |
+                  # 🛑 --server-side is REQUIRED here, do not "simplify" it back to a plain
+                  # `kubectl apply -f -`. Client-side apply stamps the ENTIRE object into a
+                  # `kubectl.kubernetes.io/last-applied-configuration` annotation — for a Secret
+                  # that means a second, cleartext-base64 copy of the registry credential in the
+                  # object's METADATA, where it leaks through `-o yaml` dumps, Velero snapshots
+                  # and any tool that redacts `data:` but renders annotations verbatim.
+                  # Found across 109 secrets on ever-k8s, 2026-08-07. Server-side apply records
+                  # ownership in `.metadata.managedFields` instead and writes no annotation.
+                  # `replace --force` also avoids the annotation but deletes and recreates the
+                  # object, leaving a window where a starting pod finds no pull secret.
                   kubectl create secret docker-registry "${WORK_SLUG}-pull" \
                       --docker-server="$REGISTRY_HOST" \
                       --docker-username="$REGISTRY_USERNAME" \
                       --docker-password="$REGISTRY_PASSWORD" \
                       -n "$NAMESPACE" \
-                      --dry-run=client -o yaml | kubectl apply -f -
+                      --dry-run=client -o yaml | kubectl apply --server-side --force-conflicts -f -
 
             - name: Provision runtime-env secret
               # Materialize every repo secret as a Kubernetes Secret that the
@@ -304,8 +314,13 @@ jobs:
                       ARGS+=(--from-literal=COOKIE_DOMAIN="${INGRESS_HOST}")
                   fi
                   if [[ ${#ARGS[@]} -gt 0 ]]; then
+                      # 🛑 --server-side is REQUIRED here — see the note on the image-pull secret
+                      # above. This one matters even more: this Secret carries EVERY forwarded repo
+                      # secret (DATABASE_URL, AUTH_SECRET, COOKIE_SECRET, …), so a client-side
+                      # `apply` would duplicate the app's entire secret set in cleartext-base64 in
+                      # the object's metadata annotation, not just a registry credential.
                       kubectl create secret generic "${WORK_SLUG}-runtime-env" -n "$NAMESPACE" \
-                          "${ARGS[@]}" --dry-run=client -o yaml | kubectl apply -f -
+                          "${ARGS[@]}" --dry-run=client -o yaml | kubectl apply --server-side --force-conflicts -f -
                       # Log keys (not values) so we have a paper trail of what
                       # was forwarded on this deploy.
                       printf 'Provisioned %s-runtime-env (%d keys): %s\n' \
