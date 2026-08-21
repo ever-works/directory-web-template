@@ -46,6 +46,78 @@ jobs:
           node-version: "24"
           cache: pnpm
 
+      - name: Configure Registry
+        # Resolve npm packages through the internal Verdaccio cache instead of the public
+        # registry. The goal is TRAFFIC REDUCTION; the speed gain is a bonus.
+        #
+        # This repo is pnpm-only, so the shared ever-co/ever-gauzy composite action is NOT
+        # usable here: it opens with `git checkout -- .npmrc yarn.lock` and hard `exit 1`s
+        # when yarn.lock is absent. Its lockfile rewrite is unnecessary anyway -- unlike a
+        # yarn.lock/package-lock.json, pnpm-lock.yaml records NO registry host, so the
+        # `registry=` line below is what actually redirects the tarball downloads.
+        # Verified with a negative control: the same committed pnpm-lock.yaml plus a
+        # blackholed `registry=` makes pnpm exit 1, and pointing it at the VIP installs
+        # cleanly with --frozen-lockfile still satisfied.
+        #
+        # The VIP is a private LAN address, so the choice is made by PROBING it rather
+        # than by hardcoding a runner list: this job falls back to `ubuntu-latest` when
+        # the self-hosted pool is not configured, and a GitHub-hosted runner can never
+        # reach the VIP. Nothing is committed -- the edit lives only in this checkout.
+        shell: bash
+        env:
+          VERDACCIO_REGISTRY: ${{ vars.VERDACCIO_REGISTRY }}
+          EXPECT_VIP: ${{ vars.RUNNER_LINUX_X64_4 != '' }}
+        run: |
+          NPMRC_FILES=".npmrc apps/docs/.npmrc"
+
+          # Start from a known state. Self-hosted runners can reuse a checkout, so a
+          # registry line appended by a PREVIOUS run may still be on disk and would
+          # silently win over this run's decision. Not best-effort: if the reset fails
+          # we must not pick a registry from an unknown state.
+          for f in $NPMRC_FILES; do
+            if git ls-files --error-unmatch "$f" >/dev/null 2>&1; then
+              if ! git checkout -- "$f"; then
+                echo "::error title=Could not reset registry configuration::git checkout -- $f failed, so a previous run's registry settings may still be in place. Refusing to select a registry from an unknown state."
+                exit 1
+              fi
+            fi
+          done
+
+          REGISTRY=""
+          if [ "$EXPECT_VIP" = "true" ]; then ATTEMPTS=2; else ATTEMPTS=1; fi
+          if [ -n "$VERDACCIO_REGISTRY" ]; then
+            attempt=1
+            while [ "$attempt" -le "$ATTEMPTS" ]; do
+              if curl -fsS --connect-timeout 5 --max-time 15 -o /dev/null "${VERDACCIO_REGISTRY%/}/-/ping"; then
+                REGISTRY="${VERDACCIO_REGISTRY%/}/"
+                echo "Verdaccio VIP is reachable (attempt $attempt) - using the internal npm cache."
+                break
+              fi
+              attempt=$((attempt + 1))
+              if [ "$attempt" -le "$ATTEMPTS" ]; then sleep 3; fi
+            done
+          fi
+
+          if [ -n "$REGISTRY" ]; then
+            for f in $NPMRC_FILES; do
+              if [ -f "$f" ]; then
+                printf '%s\n' "" "registry=$REGISTRY" >> "$f"
+              fi
+            done
+          elif [ -z "$VERDACCIO_REGISTRY" ]; then
+            echo "No internal Verdaccio registry is configured (VERDACCIO_REGISTRY is empty) - resolving from the public npm registry."
+          else
+            echo "Verdaccio VIP did not answer - resolving from the public npm registry."
+            # An in-network runner that cannot reach the VIP means the internal cache is
+            # silently unavailable (this fleet has a recurring MetalLB speaker flap that
+            # presents exactly this way). Deliberately a warning, not a failure: a cache
+            # blip must never redden a pipeline that npmjs can serve correctly.
+            if [ "$EXPECT_VIP" = "true" ]; then
+              echo "::warning title=Verdaccio VIP unreachable from an in-network runner::${RUNNER_NAME:-unknown} fell back to the public npm registry; the internal cache was expected to be reachable here."
+            fi
+          fi
+          echo "Using npm registry: ${REGISTRY:-public npm (repo default)}"
+
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
