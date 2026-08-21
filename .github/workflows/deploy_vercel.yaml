@@ -46,8 +46,124 @@ jobs:
           node-version: "24"
           cache: pnpm
 
+      - name: Configure Registry
+        # Resolve npm packages through the internal Verdaccio cache instead of the public
+        # registry. The goal is TRAFFIC REDUCTION; the speed gain is a bonus.
+        #
+        # This repo is pnpm-only, so the shared ever-co/ever-gauzy composite action is NOT
+        # usable here: it opens with `git checkout -- .npmrc yarn.lock` and hard `exit 1`s
+        # when yarn.lock is absent. Its lockfile rewrite is unnecessary anyway -- unlike a
+        # yarn.lock/package-lock.json, pnpm-lock.yaml records NO registry host, so the
+        # `registry=` line below is what actually redirects the tarball downloads.
+        # Verified with a negative control: the same committed pnpm-lock.yaml plus a
+        # blackholed `registry=` makes pnpm exit 1, and pointing it at the VIP installs
+        # cleanly with --frozen-lockfile still satisfied.
+        #
+        # The VIP is a private LAN address, so the choice is made by PROBING it rather
+        # than by hardcoding a runner list: this job falls back to `ubuntu-latest` when
+        # the self-hosted pool is not configured, and a GitHub-hosted runner can never
+        # reach the VIP. Nothing is committed -- the edit lives only in this checkout,
+        # and the paired restore step below removes it again after the install.
+        shell: bash
+        env:
+          VERDACCIO_REGISTRY: ${{ vars.VERDACCIO_REGISTRY }}
+          EXPECT_VIP: ${{ vars.RUNNER_LINUX_X64_4 != '' }}
+        run: |
+          NPMRC_FILES=".npmrc apps/docs/.npmrc"
+
+          # Start from a known state. Self-hosted runners can reuse a checkout, so a
+          # registry line appended by a PREVIOUS run may still be on disk and would
+          # silently win over this run's decision. Not best-effort: if the reset fails
+          # we must not pick a registry from an unknown state.
+          rm -f .npmrc.ci-created
+          for f in $NPMRC_FILES; do
+            if git ls-files --error-unmatch "$f" >/dev/null 2>&1; then
+              if ! git checkout -- "$f"; then
+                echo "::error title=Could not reset registry configuration::git checkout -- $f failed, so a previous run's registry settings may still be in place. Refusing to select a registry from an unknown state."
+                exit 1
+              fi
+            fi
+          done
+
+          REGISTRY=""
+          if [ "$EXPECT_VIP" = "true" ]; then ATTEMPTS=2; else ATTEMPTS=1; fi
+          if [ -n "$VERDACCIO_REGISTRY" ]; then
+            attempt=1
+            while [ "$attempt" -le "$ATTEMPTS" ]; do
+              if curl -fsS --connect-timeout 5 --max-time 15 -o /dev/null "${VERDACCIO_REGISTRY%/}/-/ping"; then
+                REGISTRY="${VERDACCIO_REGISTRY%/}/"
+                echo "Verdaccio VIP is reachable (attempt $attempt) - using the internal npm cache."
+                break
+              fi
+              attempt=$((attempt + 1))
+              if [ "$attempt" -le "$ATTEMPTS" ]; then sleep 3; fi
+            done
+          fi
+
+          if [ -n "$REGISTRY" ]; then
+            for f in $NPMRC_FILES; do
+              if [ ! -f "$f" ]; then
+                # Only the workspace-root file is worth creating. Without this, a
+                # checkout that has no .npmrc would log "using the internal npm cache"
+                # while pnpm quietly resolved from the public registry - a silent
+                # failure of the entire point of this step. The marker tells the
+                # restore step to delete the file rather than leave a stray behind.
+                if [ "$f" != ".npmrc" ]; then continue; fi
+                : > "$f"
+                : > .npmrc.ci-created
+              fi
+              printf '%s\n' "" "registry=$REGISTRY" >> "$f"
+            done
+            echo "npm registry for this install: the internal Verdaccio cache."
+          else
+            if [ -z "$VERDACCIO_REGISTRY" ]; then
+              echo "No internal Verdaccio registry is configured (VERDACCIO_REGISTRY is empty)."
+            else
+              echo "Verdaccio VIP did not answer."
+              # An in-network runner that cannot reach the VIP means the internal cache is
+              # silently unavailable (this fleet has a recurring MetalLB speaker flap that
+              # presents exactly this way). Deliberately a warning, not a failure: a cache
+              # blip must never redden a pipeline the public registry can serve correctly.
+              if [ "$EXPECT_VIP" = "true" ]; then
+                echo "::warning title=Verdaccio VIP unreachable from an in-network runner::${RUNNER_NAME:-unknown} fell back to the committed npm configuration; the internal cache was expected to be reachable here."
+              fi
+            fi
+            # Deliberately no override: the committed .npmrc files decide. apps/docs/.npmrc
+            # pins the Yarn mirror, so naming npmjs here would misdirect anyone reading
+            # this log while investigating where the traffic actually went.
+            echo "npm registry for this install: the repository default, unchanged."
+          fi
+
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+
+      - name: Restore registry configuration
+        # The `registry=` line above is scoped to the install on THIS runner and must
+        # not outlive it, because later steps hand the working tree to builders that
+        # cannot reach a private LAN address:
+        #   - `vercel deploy --archive=tgz` uploads this checkout and re-installs on
+        #     Vercel infrastructure;
+        #   - `docker/build-push-action` ships it as the build context.
+        # Leaving the VIP in .npmrc would point those builds at an unreachable host.
+        # The in-image install is redirected separately and correctly, through the
+        # VERDACCIO_REGISTRY build-arg the Dockerfile already accepts.
+        #
+        # `always()` so a failed install still leaves the checkout clean - self-hosted
+        # runners reuse it.
+        if: always()
+        shell: bash
+        run: |
+          for f in .npmrc apps/docs/.npmrc; do
+            if git ls-files --error-unmatch "$f" >/dev/null 2>&1; then
+              git checkout -- "$f"
+            fi
+          done
+          if [ -f .npmrc.ci-created ]; then
+            # This step created the root .npmrc; it is not in the repo, so restoring
+            # means removing it rather than checking it out.
+            rm -f .npmrc .npmrc.ci-created
+          fi
+          echo "Tracked npm configuration restored to its committed state."
 
       - name: Install Vercel CLI
         run: pnpm add --global vercel@latest
