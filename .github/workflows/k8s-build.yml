@@ -58,6 +58,12 @@ jobs:
           context: ${{ matrix.context }}
           file: ${{ matrix.dockerfile }}
           push: true
+          # Route the in-image dependency install through the internal Verdaccio
+          # cache. The Dockerfile already accepts this build-arg and falls back to
+          # public npm when it is empty (forks, GitHub-hosted builds), so this is
+          # additive. Integrity hashes are still verified by pnpm.
+          build-args: |
+            VERDACCIO_REGISTRY=${{ vars.VERDACCIO_REGISTRY }}
           tags: |
             ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}${{ matrix.suffix }}:${{ steps.t.outputs.tag }}
             ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}${{ matrix.suffix }}:sha-${{ github.sha }}

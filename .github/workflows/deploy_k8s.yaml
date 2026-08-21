@@ -252,6 +252,7 @@ jobs:
                       DATA_REPOSITORY=https://github.com/${{ github.repository_owner }}/${{ secrets.DATA_REPOSITORY }}
                       GITHUB_REPOSITORY=${{ github.repository }}
                       GITHUB_SHA=${{ github.sha }}
+                      VERDACCIO_REGISTRY=${{ vars.VERDACCIO_REGISTRY }}
                   secrets: |
                       gh_token=${{ secrets.GH_TOKEN }}
                   # Disable provenance / SBOM attestation. With these on,
