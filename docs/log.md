@@ -31,6 +31,10 @@ why** at a higher level than per-commit diffs.
 
 ---
 
+## 2026-08-22
+
+- spec-042: site identity metadata — `<title>` / meta description / `og:site_name` / WebSite JSON-LD / OG images now resolve from the Work's `.works/works.yml` (`company_name`, `name`, `settings.homepage.hero_*`) via `lib/seo/site-identity.ts` when `NEXT_PUBLIC_SITE_*` are unset ([spec](spec/042-site-identity-metadata/spec.md))
+
 ## 2026-06-17 — Feat: deploy_k8s.yaml multi-host Ingress (K8S_EXTRA_HOSTS)
 
 - spec-041: EW-741 (ever-works PR #1322) made `DeployService` push a new

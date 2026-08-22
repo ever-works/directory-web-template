@@ -14,6 +14,7 @@ import { Suspense } from 'react';
 import Script from 'next/script';
 import { ConditionalLayout } from '@/components/layout/conditional-layout';
 import { siteConfig } from '@/lib/config';
+import { getSiteName, getSiteTagline, getSiteDescription } from '@/lib/seo/site-identity';
 import { generateOrganizationSchema, generateWebSiteSchema } from '@/lib/seo/schema';
 import { SpeedInsights } from './integration/speed-insights';
 import { Analytics, ThirdPartyAnalytics } from './integration/analytics';
@@ -64,10 +65,13 @@ export async function generateStaticParams() {
  */
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
 	const { locale } = await params;
+	const siteName = getSiteName();
+	const siteTitle = `${siteName} | ${getSiteTagline()}`;
+	const siteDescription = getSiteDescription();
 	return {
 		metadataBase: new URL(appUrl),
-		title: `${siteConfig.name} | ${siteConfig.tagline}`,
-		description: siteConfig.description,
+		title: siteTitle,
+		description: siteDescription,
 		keywords: siteConfig.keywords,
 		// Override the root layout's `robots: 'noindex'` (which is
 		// scoped to `not-found.tsx`) so public listing/detail pages
@@ -75,10 +79,10 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
 		// their own `robots` via their own `generateMetadata`.
 		robots: { index: true, follow: true },
 		openGraph: {
-			title: `${siteConfig.name} | ${siteConfig.tagline}`,
-			description: siteConfig.description,
+			title: siteTitle,
+			description: siteDescription,
 			type: 'website',
-			siteName: siteConfig.name
+			siteName
 		},
 		alternates: {
 			canonical: locale === DEFAULT_LOCALE ? '/' : `/${locale}`,
@@ -154,7 +158,7 @@ export default async function RootLayout({
 
 	// Generate structured data schemas for SEO
 	const organizationSchema = generateOrganizationSchema();
-	const websiteSchema = generateWebSiteSchema(locale);
+	const websiteSchema = generateWebSiteSchema(locale, { name: getSiteName(), description: getSiteDescription() });
 
 	// Determine if the current locale is RTL
 	return (

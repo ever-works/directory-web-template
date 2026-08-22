@@ -4,7 +4,7 @@ import { cn } from '@/lib/utils';
 import { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 import { generateHreflangAlternates, getLocalizedUrl } from '@/lib/seo/hreflang';
-import { siteConfig } from '@/lib/config';
+import { getSiteName } from '@/lib/seo/site-identity';
 import { Locale } from '@/lib/constants';
 
 export const revalidate = 600;
@@ -19,7 +19,7 @@ export async function generateMetadata({
     const tDirectory = await getTranslations({ locale, namespace: 'directory.DETAILS_FORM' });
 
 	const path = '/submit';
-	const title = `${t('SUBMIT')} | ${siteConfig.name}`;
+	const title = `${t('SUBMIT')} | ${getSiteName()}`;
 	const description = tDirectory('DESCRIPTION');
 
 	return {
@@ -30,7 +30,7 @@ export async function generateMetadata({
 			description,
 			type: 'website',
 			url: getLocalizedUrl(path, locale as Locale),
-			siteName: siteConfig.name
+			siteName: getSiteName()
 		},
 		alternates: {
 			canonical: getLocalizedUrl(path, locale as Locale),

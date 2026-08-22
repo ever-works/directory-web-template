@@ -2,7 +2,7 @@ import { AuthForm } from "../components/auth-form";
 import { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { generateHreflangAlternates, getLocalizedUrl } from "@/lib/seo/hreflang";
-import { siteConfig } from "@/lib/config";
+import { getSiteName } from '@/lib/seo/site-identity';
 import { Locale } from "@/lib/constants";
 
 export async function generateMetadata({
@@ -14,7 +14,7 @@ export async function generateMetadata({
   const t = await getTranslations({ locale, namespace: "auth" });
 
   const path = "/auth/signin";
-  const title = `${t("SIGN_IN")} | ${siteConfig.name}`;
+  const title = `${t("SIGN_IN")} | ${getSiteName()}`;
   const description = t("ENTER_YOUR_CREDENTIALS_HEADER");
 
   return {
@@ -25,7 +25,7 @@ export async function generateMetadata({
       description,
       type: "website",
       url: getLocalizedUrl(path, locale as Locale),
-      siteName: siteConfig.name,
+      siteName: getSiteName(),
     },
     alternates: {
         canonical: getLocalizedUrl(path, locale as Locale),

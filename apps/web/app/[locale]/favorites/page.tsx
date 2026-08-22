@@ -9,7 +9,7 @@ import { requireAuth } from '@/lib/auth/guards';
 import { getFeatureFlags } from '@/lib/config/feature-flags';
 import { notFound } from 'next/navigation';
 import { generateHreflangAlternates, getLocalizedUrl } from '@/lib/seo/hreflang';
-import { siteConfig } from '@/lib/config';
+import { getSiteName } from '@/lib/seo/site-identity';
 import { Locale } from '@/lib/constants';
 
 // Force dynamic rendering for authenticated pages to prevent auth bypasses
@@ -24,7 +24,7 @@ export async function generateMetadata({
     const t = await getTranslations({ locale, namespace: 'common' });
 
     const path = '/favorites';
-    const title = `${t('FAVORITES')} | ${siteConfig.name}`;
+    const title = `${t('FAVORITES')} | ${getSiteName()}`;
     const description = t('FAVORITES_DESCRIPTION');
 
     return {
@@ -38,7 +38,7 @@ export async function generateMetadata({
             description,
             type: 'website',
             url: getLocalizedUrl(path, locale as Locale),
-            siteName: siteConfig.name,
+            siteName: getSiteName(),
         },
         alternates: {
             canonical: getLocalizedUrl(path, locale as Locale),

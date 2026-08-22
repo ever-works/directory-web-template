@@ -4,7 +4,7 @@ import { DashboardContent } from "@/components/dashboard";
 import { getLocale, getTranslations } from "next-intl/server";
 import { Metadata } from "next";
 import { generateHreflangAlternates, getLocalizedUrl } from "@/lib/seo/hreflang";
-import { siteConfig } from "@/lib/config";
+import { getSiteName } from '@/lib/seo/site-identity';
 import { Locale } from "@/lib/constants";
 import { getClientProfileByUserId } from "@/lib/db/queries/client.queries";
 
@@ -20,7 +20,7 @@ export async function generateMetadata({
   const t = await getTranslations({ locale, namespace: "common" });
 
   const path = "/client/dashboard";
-  const title = `${t("DASHBOARD")} | ${siteConfig.name}`;
+  const title = `${t("DASHBOARD")} | ${getSiteName()}`;
   const description = t("DASHBOARD");
 
   return {
@@ -31,7 +31,7 @@ export async function generateMetadata({
       description,
       type: "website",
       url: getLocalizedUrl(path, locale as Locale),
-      siteName: siteConfig.name,
+      siteName: getSiteName(),
     },
     alternates: {
         canonical: getLocalizedUrl(path, locale as Locale),

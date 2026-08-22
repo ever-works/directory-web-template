@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
 import { getCachedItems } from '@/lib/content';
-import { siteConfig } from '@/lib/config';
+import { getSiteName } from '@/lib/seo/site-identity';
 import { generateListingMetadata } from '@/lib/seo/listing-metadata';
 import { getLocationEnabled } from '@/lib/utils/settings';
 import { MapPageClient } from './map-page-client';
@@ -18,7 +18,7 @@ export async function generateMetadata({
 	const { locale } = await params;
 	const t = await getTranslations({ locale, namespace: 'listing' });
 	return generateListingMetadata({
-		title: t('MAP_PAGE_TITLE', { name: siteConfig.name }),
+		title: t('MAP_PAGE_TITLE', { name: getSiteName() }),
 		description: t('MAP_PAGE_DESCRIPTION'),
 		path: '/map',
 		locale,

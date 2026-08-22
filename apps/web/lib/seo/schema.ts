@@ -179,12 +179,16 @@ export function generateOrganizationSchema() {
 /**
  * Generate WebSite schema with search action
  */
-export function generateWebSiteSchema(locale: string) {
+/**
+ * @param overrides - optional site identity resolved server-side (see lib/seo/site-identity.ts);
+ *                    defaults to the build-time `siteConfig` values so client callers keep working.
+ */
+export function generateWebSiteSchema(locale: string, overrides?: { name?: string; description?: string }) {
 	const localePrefix = locale === DEFAULT_LOCALE ? '' : `/${locale}`;
 	return {
 		'@context': 'https://schema.org',
 		'@type': 'WebSite',
-		name: siteConfig.name,
+		name: overrides?.name ?? siteConfig.name,
 		url: `${siteConfig.url}${localePrefix}`,
 		potentialAction: {
 			'@type': 'SearchAction',

@@ -1,5 +1,6 @@
 import { ImageResponse } from 'next/og';
 import { siteConfig } from '@/lib/config';
+import { getSiteName, getSiteTagline } from '@/lib/seo/site-identity';
 import { getCachedItem } from '@/lib/content';
 
 // Use Node.js runtime for file system access
@@ -43,7 +44,7 @@ export default async function Image({ params }: { params: Promise<{ slug: string
 								textAlign: 'center'
 							}}
 						>
-							{siteConfig.name}
+							{getSiteName()}
 						</div>
 						<div
 							style={{
@@ -53,7 +54,7 @@ export default async function Image({ params }: { params: Promise<{ slug: string
 								textAlign: 'center'
 							}}
 						>
-							{siteConfig.tagline}
+							{getSiteTagline()}
 						</div>
 					</div>
 				),
@@ -104,7 +105,7 @@ export default async function Image({ params }: { params: Promise<{ slug: string
 								borderRadius: '8px'
 							}}
 						>
-							{siteConfig.name}
+							{getSiteName()}
 						</div>
 					</div>
 
@@ -170,7 +171,7 @@ export default async function Image({ params }: { params: Promise<{ slug: string
 							textAlign: 'center'
 						}}
 					>
-						{siteConfig.name}
+						{getSiteName()}
 					</div>
 				</div>
 			),

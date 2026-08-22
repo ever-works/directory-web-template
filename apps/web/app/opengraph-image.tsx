@@ -1,6 +1,7 @@
 import { ImageResponse } from 'next/og';
 import { siteConfig } from '@/lib/config';
 
+import { getSiteName, getSiteTagline } from '@/lib/seo/site-identity';
 // Explicitly set Node.js runtime for consistency with dynamic OG images
 export const runtime = 'nodejs';
 export const alt = `${siteConfig.name} - ${siteConfig.tagline}`;
@@ -39,7 +40,7 @@ export default async function Image() {
 						letterSpacing: '-2px'
 					}}
 				>
-					{siteConfig.name}
+					{getSiteName()}
 				</div>
 
 				{/* Tagline */}
@@ -53,7 +54,7 @@ export default async function Image() {
 						fontWeight: 500
 					}}
 				>
-					{siteConfig.tagline}
+					{getSiteTagline()}
 				</div>
 
 				{/* Decorative element */}
