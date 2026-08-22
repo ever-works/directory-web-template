@@ -36,7 +36,6 @@ import { useContext, useMemo } from 'react';
 import { QueryClientContext, useQuery } from '@tanstack/react-query';
 import { getQueryClient } from '@/lib/query-client';
 import {
-	EMPTY_PUBLIC_PAYMENT_CONFIG,
 	mergePublicPaymentConfig,
 	readPublicPaymentConfigFromEnv,
 	type PublicPaymentConfig
@@ -84,9 +83,11 @@ async function fetchPublicPaymentConfig(): Promise<PublicPaymentConfig> {
 	}
 
 	// Normalise the shape defensively — an unexpected body (proxy HTML, partial JSON)
-	// must never poison the cache with a malformed config.
+	// must never poison the cache with a malformed config. Missing fields fall back
+	// to the build-time env (not to "false"/null), so a partial response can never
+	// switch off a flag the bundle was built with.
 	const body = (await response.json()) as Partial<PublicPaymentConfig>;
-	return mergePublicPaymentConfig(body, EMPTY_PUBLIC_PAYMENT_CONFIG);
+	return mergePublicPaymentConfig(body, getBuildTimeConfig());
 }
 
 /**

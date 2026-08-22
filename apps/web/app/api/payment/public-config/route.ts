@@ -47,7 +47,7 @@
  */
 
 import { NextResponse } from 'next/server';
-import { readPublicPaymentConfigFromEnv } from '@/lib/payment/public-config';
+import { readPublicPaymentConfigFromRuntimeEnv } from '@/lib/payment/public-config';
 
 // Must read the *runtime* environment on every request — never prerender / cache.
 export const dynamic = 'force-dynamic';
@@ -58,5 +58,5 @@ const NO_STORE_HEADERS = {
 } as const;
 
 export async function GET() {
-	return NextResponse.json(readPublicPaymentConfigFromEnv(), { headers: NO_STORE_HEADERS });
+	return NextResponse.json(readPublicPaymentConfigFromRuntimeEnv(), { headers: NO_STORE_HEADERS });
 }

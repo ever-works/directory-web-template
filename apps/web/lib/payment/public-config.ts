@@ -121,6 +121,46 @@ export function readPublicPaymentConfigFromEnv(): PublicPaymentConfig {
  * - Scalars: the primary value wins when it is present (non-empty string / boolean).
  * - `configuredProviders`: union, reported in canonical order; unknown values dropped.
  */
+/**
+ * Server-only reader that goes through `process.env[name]` (dynamic key access).
+ *
+ * Next inlines *static* `process.env.NEXT_PUBLIC_*` member expressions into every
+ * bundle — server ones included — for keys that were set at build time. A platform
+ * image built with a placeholder/other value would therefore keep answering with the
+ * build-time value from `readPublicPaymentConfigFromEnv()` no matter what the pod's
+ * runtime env says. Bracket access is never inlined, so this reader always reflects
+ * the runtime environment. Use it from route handlers / server code only; the static
+ * reader stays the browser-side fallback.
+ */
+export function readPublicPaymentConfigFromRuntimeEnv(): PublicPaymentConfig {
+	const env = process.env as Record<string, string | undefined>;
+	const read = (name: string): string | undefined => env[name];
+	const stripePublishableKey =
+		nonEmpty(read('NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY')) ?? nonEmpty(read('STRIPE_PUBLISHABLE_KEY'));
+	const providers: PublicPaymentProvider[] = [];
+	if (stripePublishableKey) providers.push('stripe');
+	if (
+		read('NEXT_PUBLIC_LEMONSQUEEZY_FREE_VARIANT_ID') ||
+		read('NEXT_PUBLIC_LEMONSQUEEZY_STANDARD_VARIANT_ID') ||
+		read('NEXT_PUBLIC_LEMONSQUEEZY_PREMIUM_VARIANT_ID')
+	) {
+		providers.push('lemonsqueezy');
+	}
+	if (
+		read('NEXT_PUBLIC_POLAR_FREE_PLAN_ID') ||
+		read('NEXT_PUBLIC_POLAR_STANDARD_PLAN_ID') ||
+		read('NEXT_PUBLIC_POLAR_PREMIUM_PLAN_ID')
+	) {
+		providers.push('polar');
+	}
+	return {
+		stripePublishableKey,
+		dynamicPricing: read('NEXT_PUBLIC_STRIPE_DYNAMIC_PRICING') === 'true',
+		demo: read('NEXT_PUBLIC_DEMO') === 'true',
+		configuredProviders: providers
+	};
+}
+
 export function mergePublicPaymentConfig(
 	primary: Partial<PublicPaymentConfig> | null | undefined,
 	fallback: Readonly<PublicPaymentConfig>
