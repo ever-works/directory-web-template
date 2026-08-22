@@ -12,6 +12,8 @@ export const size = {
 export const contentType = 'image/png';
 
 export default async function Image() {
+	const siteName = await getSiteName();
+	const siteTagline = await getSiteTagline();
 	const gradient = `linear-gradient(135deg, ${siteConfig.ogImage.gradientStart} 0%, ${siteConfig.ogImage.gradientEnd} 100%)`;
 
 	return new ImageResponse(
@@ -40,7 +42,7 @@ export default async function Image() {
 						letterSpacing: '-2px'
 					}}
 				>
-					{getSiteName()}
+					{siteName}
 				</div>
 
 				{/* Tagline */}
@@ -54,7 +56,7 @@ export default async function Image() {
 						fontWeight: 500
 					}}
 				>
-					{getSiteTagline()}
+					{siteTagline}
 				</div>
 
 				{/* Decorative element */}

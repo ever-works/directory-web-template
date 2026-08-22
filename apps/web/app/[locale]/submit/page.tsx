@@ -19,7 +19,7 @@ export async function generateMetadata({
     const tDirectory = await getTranslations({ locale, namespace: 'directory.DETAILS_FORM' });
 
 	const path = '/submit';
-	const title = `${t('SUBMIT')} | ${getSiteName()}`;
+	const title = `${t('SUBMIT')} | ${await getSiteName()}`;
 	const description = tDirectory('DESCRIPTION');
 
 	return {
@@ -30,7 +30,7 @@ export async function generateMetadata({
 			description,
 			type: 'website',
 			url: getLocalizedUrl(path, locale as Locale),
-			siteName: getSiteName()
+			siteName: await getSiteName()
 		},
 		alternates: {
 			canonical: getLocalizedUrl(path, locale as Locale),

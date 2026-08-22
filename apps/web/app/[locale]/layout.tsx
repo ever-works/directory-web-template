@@ -65,9 +65,9 @@ export async function generateStaticParams() {
  */
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
 	const { locale } = await params;
-	const siteName = getSiteName();
-	const siteTitle = `${siteName} | ${getSiteTagline()}`;
-	const siteDescription = getSiteDescription();
+	const siteName = await getSiteName();
+	const siteTitle = `${siteName} | ${await getSiteTagline()}`;
+	const siteDescription = await getSiteDescription();
 	return {
 		metadataBase: new URL(appUrl),
 		title: siteTitle,
@@ -158,7 +158,7 @@ export default async function RootLayout({
 
 	// Generate structured data schemas for SEO
 	const organizationSchema = generateOrganizationSchema();
-	const websiteSchema = generateWebSiteSchema(locale, { name: getSiteName(), description: getSiteDescription() });
+	const websiteSchema = generateWebSiteSchema(locale, { name: await getSiteName(), description: await getSiteDescription() });
 
 	// Determine if the current locale is RTL
 	return (

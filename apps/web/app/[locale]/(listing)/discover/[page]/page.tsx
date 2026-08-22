@@ -95,8 +95,8 @@ export async function generateMetadata({
     // thing here rather than leaving a bare fragment.
     description:
       pageNum === 1
-        ? `Browse all ${total} listings. ${getSiteDescription()}`
-        : `Browse page ${pageNum} of ${total} listings. ${getSiteDescription()}`,
+        ? `Browse all ${total} listings. ${await getSiteDescription()}`
+        : `Browse page ${pageNum} of ${total} listings. ${await getSiteDescription()}`,
     keywords: ["discover", "browse", "directory", "listings"],
   });
 }

@@ -24,7 +24,7 @@ export async function generateMetadata({
     const t = await getTranslations({ locale, namespace: 'common' });
 
     const path = '/favorites';
-    const title = `${t('FAVORITES')} | ${getSiteName()}`;
+    const title = `${t('FAVORITES')} | ${await getSiteName()}`;
     const description = t('FAVORITES_DESCRIPTION');
 
     return {
@@ -38,7 +38,7 @@ export async function generateMetadata({
             description,
             type: 'website',
             url: getLocalizedUrl(path, locale as Locale),
-            siteName: getSiteName(),
+            siteName: await getSiteName(),
         },
         alternates: {
             canonical: getLocalizedUrl(path, locale as Locale),

@@ -31,7 +31,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   // the translated label (e.g. "About Us") is short.
   return {
     metadataBase: new URL(appUrl),
-    title: `${tFooter('ABOUT_US')} | ${getSiteName()}`,
+    title: `${tFooter('ABOUT_US')} | ${await getSiteName()}`,
     description: tPages('ABOUT_PAGE_META_DESCRIPTION'),
     alternates: {
       canonical: getLocalizedUrl('/about', locale as Locale),

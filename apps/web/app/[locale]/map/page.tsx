@@ -18,7 +18,7 @@ export async function generateMetadata({
 	const { locale } = await params;
 	const t = await getTranslations({ locale, namespace: 'listing' });
 	return generateListingMetadata({
-		title: t('MAP_PAGE_TITLE', { name: getSiteName() }),
+		title: t('MAP_PAGE_TITLE', { name: await getSiteName() }),
 		description: t('MAP_PAGE_DESCRIPTION'),
 		path: '/map',
 		locale,

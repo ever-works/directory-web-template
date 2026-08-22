@@ -15,7 +15,7 @@ export async function generateMetadata({
   const tCommon = await getTranslations({ locale, namespace: "common" });
 
   const path = "/auth/register";
-  const title = `${t("CREATE_ACCOUNT")} | ${getSiteName()}`;
+  const title = `${t("CREATE_ACCOUNT")} | ${await getSiteName()}`;
   const description = tCommon("CREATE_ACCOUNT_DESC");
 
   return {
@@ -26,7 +26,7 @@ export async function generateMetadata({
       description,
       type: "website",
       url: getLocalizedUrl(path, locale as Locale),
-      siteName: getSiteName(),
+      siteName: await getSiteName(),
     },
     alternates: {
         canonical: getLocalizedUrl(path, locale as Locale),

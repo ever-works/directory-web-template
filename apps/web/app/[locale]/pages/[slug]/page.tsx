@@ -54,7 +54,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 			title,
 			description,
 			url: getLocalizedUrl(`/pages/${slug}`, locale as Locale),
-			siteName: getSiteName(),
+			siteName: await getSiteName(),
 			locale,
 			type: 'website'
 		},

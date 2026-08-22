@@ -14,7 +14,7 @@ export async function generateMetadata({
   const t = await getTranslations({ locale, namespace: "success" });
 
   const path = "/pricing/success";
-  const title = `${t("SUBMISSION_RECEIVED")} | ${getSiteName()}`;
+  const title = `${t("SUBMISSION_RECEIVED")} | ${await getSiteName()}`;
   const description = t("SUBMISSION_SUCCESS_MESSAGE");
 
   return {
@@ -25,7 +25,7 @@ export async function generateMetadata({
       description,
       type: "website",
       url: getLocalizedUrl(path, locale as Locale),
-      siteName: getSiteName(),
+      siteName: await getSiteName(),
     },
     alternates: {
         canonical: getLocalizedUrl(path, locale as Locale),

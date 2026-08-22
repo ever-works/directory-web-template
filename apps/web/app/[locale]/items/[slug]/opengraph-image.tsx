@@ -13,6 +13,8 @@ export const size = {
 export const contentType = 'image/png';
 
 export default async function Image({ params }: { params: Promise<{ slug: string; locale: string }> }) {
+	const siteName = await getSiteName();
+	const siteTagline = await getSiteTagline();
 	const { slug, locale } = await params;
 	const gradient = `linear-gradient(135deg, ${siteConfig.ogImage.gradientStart} 0%, ${siteConfig.ogImage.gradientEnd} 100%)`;
 
@@ -44,7 +46,7 @@ export default async function Image({ params }: { params: Promise<{ slug: string
 								textAlign: 'center'
 							}}
 						>
-							{getSiteName()}
+							{siteName}
 						</div>
 						<div
 							style={{
@@ -54,7 +56,7 @@ export default async function Image({ params }: { params: Promise<{ slug: string
 								textAlign: 'center'
 							}}
 						>
-							{getSiteTagline()}
+							{siteTagline}
 						</div>
 					</div>
 				),
@@ -105,7 +107,7 @@ export default async function Image({ params }: { params: Promise<{ slug: string
 								borderRadius: '8px'
 							}}
 						>
-							{getSiteName()}
+							{siteName}
 						</div>
 					</div>
 
@@ -171,7 +173,7 @@ export default async function Image({ params }: { params: Promise<{ slug: string
 							textAlign: 'center'
 						}}
 					>
-						{getSiteName()}
+						{siteName}
 					</div>
 				</div>
 			),

@@ -66,18 +66,25 @@ never read it for metadata.
 
 ## 4. Approach
 
-1. `apps/web/lib/seo/site-identity.ts` — three pure helpers on top of
-   `configManager.getNestedValue()` with try/catch so a missing
+1. `apps/web/lib/seo/site-identity.ts` — three **async** helpers on top of
+   `configManager.getNestedValue()`. Each awaits `ensureContentAvailable()`
+   first (unless an env override short-circuits) so metadata generated on a
+   cold container — Vercel `/tmp/.content`, a freshly started k8s pod — waits
+   for the content clone instead of emitting the template identity for the
+   first response; once initialised that await is a cheap existence check.
+   try/catch around both the clone and the config read so a missing
    `.works/works.yml` (CI, fresh clone) degrades to the template default.
-2. `apps/web/lib/seo/listing-metadata.ts` — `fullTitle` / `og.siteName` /
-   default description use the helpers.
+2. `apps/web/lib/seo/listing-metadata.ts` — `generateListingMetadata` becomes
+   async; `fullTitle` / `og.siteName` / default description use the helpers
+   (all callers already `return` it from an async `generateMetadata`).
 3. `apps/web/app/[locale]/layout.tsx` — root metadata title/description/OG use
    the helpers; WebSite JSON-LD gets the resolved name/description.
 4. Every server `generateMetadata` that built `"<Page> | ${siteConfig.name}"`
    (`about`, `help`, `submit`, `pricing`, `pricing/success`, `favorites`,
    `map`, `pages/[slug]`, `items/[slug]`, `client/dashboard`, the five
-   `auth/*` pages, the `(listing)/discover/[page]` description, root 404
-   title) now uses `getSiteName()` / `getSiteDescription()`.
+   `auth/*` pages, the `(listing)/discover/[page]` description) now awaits
+   `getSiteName()` / `getSiteDescription()`. The root `app/layout.tsx` 404
+   title stays on `siteConfig` (static `export const metadata`, cannot await).
 5. `app/opengraph-image.tsx` and `app/[locale]/items/[slug]/opengraph-image.tsx`
    (both `runtime = 'nodejs'`) render `getSiteName()` wherever they showed the brand
    name, and `getSiteTagline()` wherever they already showed the tagline (the root

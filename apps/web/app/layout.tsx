@@ -1,8 +1,8 @@
 import type { Metadata } from 'next';
+import { siteConfig } from '@/lib/config';
 import './tailwind.css';
 import './[locale]/globals.scss';
 import { LayoutProvider, ThemeProvider } from '@/components/providers';
-import { getSiteName } from '@/lib/seo/site-identity';
 import { ensureBackgroundJobsInitialized } from '@/app/api/cron/jobs/background-jobs-init';
 import { cleanUrl } from '@/lib/utils/url-cleaner';
 import { getLocale } from 'next-intl/server';
@@ -31,7 +31,7 @@ const appUrl = cleanUrl(rawUrl);
 // update those overrides.
 export const metadata: Metadata = {
 	metadataBase: new URL(appUrl),
-	title: `404 - Page Not Found | ${getSiteName()}`,
+	title: `404 - Page Not Found | ${siteConfig.name}`,
 	description: "The page you're looking for doesn't exist.",
 	robots: 'noindex'
 };

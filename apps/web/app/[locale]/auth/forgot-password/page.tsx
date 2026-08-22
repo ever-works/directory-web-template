@@ -14,7 +14,7 @@ export async function generateMetadata({
   const t = await getTranslations({ locale, namespace: "common" });
 
   const path = "/auth/forgot-password";
-  const title = `${t("PASSWORD_RECOVERY")} | ${getSiteName()}`;
+  const title = `${t("PASSWORD_RECOVERY")} | ${await getSiteName()}`;
   const description = t("PASSWORD_RECOVERY");
 
   return {
@@ -25,7 +25,7 @@ export async function generateMetadata({
       description,
       type: "website",
       url: getLocalizedUrl(path, locale as Locale),
-      siteName: getSiteName(),
+      siteName: await getSiteName(),
     },
     alternates: {
         canonical: getLocalizedUrl(path, locale as Locale),

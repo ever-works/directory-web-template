@@ -14,7 +14,7 @@ export async function generateMetadata({
   const t = await getTranslations({ locale, namespace: "auth" });
 
   const path = "/auth/signin";
-  const title = `${t("SIGN_IN")} | ${getSiteName()}`;
+  const title = `${t("SIGN_IN")} | ${await getSiteName()}`;
   const description = t("ENTER_YOUR_CREDENTIALS_HEADER");
 
   return {
@@ -25,7 +25,7 @@ export async function generateMetadata({
       description,
       type: "website",
       url: getLocalizedUrl(path, locale as Locale),
-      siteName: getSiteName(),
+      siteName: await getSiteName(),
     },
     alternates: {
         canonical: getLocalizedUrl(path, locale as Locale),
