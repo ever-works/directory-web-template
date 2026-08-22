@@ -31,6 +31,10 @@ why** at a higher level than per-commit diffs.
 
 ---
 
+## 2026-08-22
+
+- spec-043: `/docs` API reference embed fixed — route-scoped `X-Frame-Options: SAMEORIGIN` + CSP (`frame-ancestors 'self'`, `cdn.jsdelivr.net`) for `/api/reference` in `next.config.ts`; e2e asserts the headers and that the iframe document mounts ([spec](spec/043-docs-api-reference-embed/spec.md))
+
 ## 2026-06-17 — Feat: deploy_k8s.yaml multi-host Ingress (K8S_EXTRA_HOSTS)
 
 - spec-041: EW-741 (ever-works PR #1322) made `DeployService` push a new
