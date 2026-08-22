@@ -57,7 +57,16 @@ export default defineConfig({
 		cwd: path.resolve(__dirname, '../..'),
 		url: baseURL,
 		reuseExistingServer: !isCI,
-		timeout: isCI ? 300_000 : 120_000,
+		// In CI the command is a full production BUILD followed by `start`, so this
+		// budget has to cover the build, not just server boot. 300_000 did not:
+		// on the 2026-08-21 stage run (32510493419) shard 3 logged
+		// "Compiled successfully in 2.0min" and then "Ready in 396ms" at 18:07:53.397,
+		// and Playwright aborted with "Timed out waiting 300000ms" at 18:07:53.958 —
+		// 0.5s later. Shard 2 compiled in 4.3min and never reached ready at all.
+		// Every E2E run on stage/main has failed this way since at least 2026-07-30,
+		// with ZERO specs executed, so the suite has been silently gating nothing.
+		// 15min gives ~2x headroom over the slowest observed build.
+		timeout: isCI ? 900_000 : 120_000,
 		stdout: 'pipe',
 		stderr: 'pipe',
 	},

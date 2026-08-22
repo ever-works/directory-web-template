@@ -46,7 +46,12 @@ const LOCALE_TO_HREFLANG: Record<Locale, string> = {
  */
 export function getLocalizedUrl(path: string, locale: Locale): string {
 	const baseUrl = getBaseUrl().replace(/\/$/, ''); // Remove trailing slash if present
-	const cleanPath = path.startsWith('/') ? path : `/${path}`;
+	// The site root is "" for URL-building purposes, NOT "/". Normalising it to
+	// "/" appended `https://host/fr/` for every non-default locale, which
+	// 308-redirects under next.config.ts `trailingSlash: false` and disagrees
+	// with app/sitemap.ts (`${baseUrl}/${locale}`, no slash). Callers documented
+	// above as passing "/" or "" for root now both produce the slash-free form.
+	const cleanPath = !path || path === '/' ? '' : path.startsWith('/') ? path : `/${path}`;
 
 	if (locale === DEFAULT_LOCALE) {
 		// Default locale (en) has no prefix
