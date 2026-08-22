@@ -46,13 +46,27 @@ function configString(keyPath: string): string | undefined {
 	}
 }
 
-async function contentReady(): Promise<void> {
-	try {
-		await ensureContentAvailable();
-	} catch {
-		// No DATA_REPOSITORY / clone failed (build without content, CI): the helpers
-		// below degrade to the template defaults, exactly like before this module existed.
-	}
+// One hydration attempt shared by every helper call in the process. A layout render
+// calls these helpers several times; without this each call would re-enter
+// `ensureContentAvailable()` and, when the clone fails (DATA_REPOSITORY set but the
+// remote is unreachable), re-attempt it — blocking a single response for several
+// clone timeouts. After a failure we back off for RETRY_AFTER_MS before trying again.
+let contentReadyPromise: Promise<void> | null = null;
+let lastContentFailureAt = 0;
+const RETRY_AFTER_MS = 60_000;
+
+function contentReady(): Promise<void> {
+	if (contentReadyPromise) return contentReadyPromise;
+	if (Date.now() - lastContentFailureAt < RETRY_AFTER_MS) return Promise.resolve();
+	contentReadyPromise = ensureContentAvailable()
+		.then(() => undefined)
+		.catch(() => {
+			// No DATA_REPOSITORY / clone failed (build without content, CI): the helpers
+			// below degrade to the template defaults, exactly like before this module existed.
+			lastContentFailureAt = Date.now();
+			contentReadyPromise = null;
+		});
+	return contentReadyPromise;
 }
 
 /**
