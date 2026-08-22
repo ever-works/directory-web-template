@@ -189,6 +189,7 @@ export function generateWebSiteSchema(locale: string, overrides?: { name?: strin
 		'@context': 'https://schema.org',
 		'@type': 'WebSite',
 		name: overrides?.name ?? siteConfig.name,
+		description: overrides?.description ?? siteConfig.description,
 		url: `${siteConfig.url}${localePrefix}`,
 		potentialAction: {
 			'@type': 'SearchAction',

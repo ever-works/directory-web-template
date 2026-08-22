@@ -79,7 +79,23 @@ never read it for metadata.
    `auth/*` pages, the `(listing)/discover/[page]` description, root 404
    title) now uses `getSiteName()` / `getSiteDescription()`.
 5. `app/opengraph-image.tsx` and `app/[locale]/items/[slug]/opengraph-image.tsx`
-   (both `runtime = 'nodejs'`) render `getSiteName()` / `getSiteTagline()`.
+   (both `runtime = 'nodejs'`) render `getSiteName()` wherever they showed the brand
+   name, and `getSiteTagline()` wherever they already showed the tagline (the root
+   image and the item route's not-found variant; the item success/error variants
+   show the item title + brand only, unchanged).
+
+### Limitations (accepted)
+
+- Routes that are fully static (no `dynamic` / `revalidate`: `auth/*`, `help`,
+  `pricing/success`) compute their metadata once at `next build`. A build that
+  runs without `.content` (e.g. the website repos' `k8s-build.yml`, which passes
+  no `DATA_REPOSITORY`) therefore keeps the template identity for those pages
+  until the next build — exactly what they showed before this change, so no
+  regression. Listing / item / category / tag / about / pages routes are dynamic
+  or ISR and pick the Work identity up at request time. Forcing those static
+  pages dynamic is out of scope here.
+- The `export const alt` of the OG image routes is a module-level constant and
+  keeps using `siteConfig` (it cannot read the content config at import time).
 
 ## 5. Acceptance
 
