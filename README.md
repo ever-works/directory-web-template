@@ -791,7 +791,7 @@ You can also view a full list of our [contributors tracked by Github](https://gi
 
 ## ⭐ Star History
 
-[![Star History Chart](https://api.star-history.com/svg?repos=ever-co/directory-web-template&type=Date)](https://star-history.com/#ever-co/directory-web-template&Date)
+[![Star History Chart](https://stats-github.ever.works/svg?repos=ever-works/directory-web-template&type=Date)](https://stats-github.ever.works/#ever-works/directory-web-template&Date)
 
 ## ❤️ Powered By
 
