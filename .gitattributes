@@ -1,0 +1,7 @@
+# Files baked into the Linux container via Dockerfile COPY must stay LF: a Windows
+# checkout (core.autocrlf=true) turns '#!/bin/sh' into '#!/bin/sh\r' and the container dies
+# with 'exec /usr/local/bin/docker-entrypoint.sh: no such file or directory'.
+docker-entrypoint.sh text eol=lf
+*.sh text eol=lf
+Dockerfile text eol=lf
+apps/docs/Dockerfile text eol=lf
