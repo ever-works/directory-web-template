@@ -1,6 +1,6 @@
 import { useMemo, useState, useEffect } from 'react';
 import { useLayoutTheme } from '@/components/context';
-import { isDemoMode } from '@/lib/utils';
+import { usePublicPaymentConfig } from './use-public-payment-config';
 
 /**
  * Payment availability information based on environment and configuration
@@ -43,8 +43,11 @@ const DEFAULT_STATE: PaymentAvailability = {
  * - DEMO mode (DEMO=true) + no payment configured → Show all plans, warning visible
  * - Payment configured → Normal behavior in both modes
  *
- * Note: Returns default state (all plans visible) during SSR to prevent hydration mismatch.
- * The actual computed values are applied after client-side hydration.
+ * Note: Returns default state (all plans visible) during SSR to prevent hydration mismatch,
+ * and keeps it until the runtime public payment config (spec 044, `/api/payment/public-config`)
+ * has been fetched once — so a platform-deployed k8s build (no inlined NEXT_PUBLIC_*) does not
+ * flash "FREE only" before the server-provided provider list arrives. The actual computed values
+ * are applied after client-side hydration + first fetch (success or error).
  *
  * @returns PaymentAvailability object with display logic flags
  *
@@ -63,6 +66,10 @@ const DEFAULT_STATE: PaymentAvailability = {
  */
 export function usePaymentAvailability(): PaymentAvailability {
 	const { configuredProviders } = useLayoutTheme();
+	// Runtime public payment config (spec 044): `demo` is the server's NEXT_PUBLIC_DEMO with the
+	// build-time value as fallback; `isResolved` flips once the first fetch settled (success or error).
+	const { config: publicPaymentConfig, isResolved: isPaymentConfigResolved } = usePublicPaymentConfig();
+	const isDemo = publicPaymentConfig.demo;
 
 	// Use state to track hydration and avoid SSR mismatch
 	const [isHydrated, setIsHydrated] = useState(false);
@@ -74,7 +81,6 @@ export function usePaymentAvailability(): PaymentAvailability {
 
 	return useMemo(() => {
 		// Compute actual state first
-		const isDemo = isDemoMode();
 		const isPaymentConfigured = configuredProviders.length > 0;
 
 		const computedState: PaymentAvailability = {
@@ -88,10 +94,10 @@ export function usePaymentAvailability(): PaymentAvailability {
 			isHydrated: true
 		};
 
-		if (!isHydrated) {
+		if (!isHydrated || !isPaymentConfigResolved) {
 			return DEFAULT_STATE;
 		}
 
 		return computedState;
-	}, [configuredProviders, isHydrated]);
+	}, [configuredProviders, isHydrated, isDemo, isPaymentConfigResolved]);
 }

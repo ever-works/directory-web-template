@@ -44,6 +44,17 @@ NEXT_PUBLIC_PRODUCT_PRICE_FREE=0.00
 Never commit your secret keys to version control. Keep `.env.local` in your `.gitignore` file.
 :::
 
+:::tip Publishable key from the runtime environment
+The browser does **not** need `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` to be inlined at build time. At request
+time the client fetches `GET /api/payment/public-config`, which returns the publishable key
+(`NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`, falling back to `STRIPE_PUBLISHABLE_KEY`), the
+`NEXT_PUBLIC_STRIPE_DYNAMIC_PRICING` / `NEXT_PUBLIC_DEMO` flags and the list of configured checkout
+providers from the server's runtime environment — never `STRIPE_SECRET_KEY` or `STRIPE_WEBHOOK_SECRET`.
+Platform-deployed (k8s) directories rely on this because their image is built once without per-site env;
+builds that do inline `NEXT_PUBLIC_*` (Vercel, local) render from the inlined values on first paint and the
+fetch simply confirms them. See [Spec 044](../spec/044-public-payment-config/spec.md).
+:::
+
 ## Stripe Dashboard Configuration
 
 ### Step 1: Create Products
