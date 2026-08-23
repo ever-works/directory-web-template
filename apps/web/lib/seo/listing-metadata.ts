@@ -1,5 +1,5 @@
 import { Metadata } from 'next';
-import { siteConfig } from '@/lib/config';
+import { getSiteName, getSiteDescription } from '@/lib/seo/site-identity';
 import { DEFAULT_LOCALE } from '@/lib/constants';
 import { generateHreflangAlternates } from './hreflang';
 import { getBaseUrl } from '@/lib/utils/url-cleaner';
@@ -20,7 +20,7 @@ interface ListingMetadataOptions {
 	hasMarkdownMirror?: boolean;
 }
 
-export function generateListingMetadata({
+export async function generateListingMetadata({
 	title,
 	description,
 	path,
@@ -29,11 +29,12 @@ export function generateListingMetadata({
 	keywords,
 	imageUrl,
 	hasMarkdownMirror,
-}: ListingMetadataOptions): Metadata {
+}: ListingMetadataOptions): Promise<Metadata> {
 	const appUrl = getBaseUrl();
-	const fullTitle = `${title} | ${siteConfig.name}`;
+	const siteName = await getSiteName();
+	const fullTitle = `${title} | ${siteName}`;
 	const metaDescription =
-		description || `Browse ${itemCount ? `${itemCount} ` : ''}${title.toLowerCase()}. ${siteConfig.description}`;
+		description || `Browse ${itemCount ? `${itemCount} ` : ''}${title.toLowerCase()}. ${await getSiteDescription()}`;
 	const canonicalUrl = `${appUrl}${locale === DEFAULT_LOCALE ? '' : `/${locale}`}${path}`;
 
 	return {
@@ -44,7 +45,7 @@ export function generateListingMetadata({
 			title: fullTitle,
 			description: metaDescription,
 			type: 'website',
-			siteName: siteConfig.name,
+			siteName,
 			url: canonicalUrl,
 			...(imageUrl && { images: [{ url: imageUrl }] }),
 		},

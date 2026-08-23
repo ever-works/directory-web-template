@@ -8,6 +8,7 @@ import { Container } from '@/components/ui/container';
 import { ItemViewTracker } from '@/components/tracking/item-view-tracker';
 import { Metadata } from 'next';
 import { siteConfig } from '@/lib/config';
+import { getSiteName } from '@/lib/seo/site-identity';
 import { getBaseUrl } from '@/lib/utils/url-cleaner';
 import { generateItemHreflangAlternates, getLocalizedUrl } from '@/lib/seo/hreflang';
 import { type Locale } from '@/lib/constants';
@@ -40,7 +41,7 @@ export async function generateMetadata({
 	if (slug.length > 255) {
 		return {
 			metadataBase: new URL(appUrl),
-			title: `Not Found | ${siteConfig.name}`,
+			title: `Not Found | ${await getSiteName()}`,
 			description: '',
 			robots: { index: false, follow: false }
 		};
@@ -52,7 +53,7 @@ export async function generateMetadata({
 		if (!item) {
 			return {
 				metadataBase: new URL(appUrl),
-				title: `Item Not Found | ${siteConfig.name}`,
+				title: `Item Not Found | ${await getSiteName()}`,
 				description: "The item you're looking for doesn't exist.",
 				robots: {
 					index: false,
@@ -74,7 +75,7 @@ export async function generateMetadata({
 			? meta.description.length > MAX_DESCRIPTION_LENGTH
 				? `${meta.description.slice(0, MAX_DESCRIPTION_LENGTH - 3)}...`
 				: meta.description
-			: `Discover ${meta.name} on ${siteConfig.name}`;
+			: `Discover ${meta.name} on ${await getSiteName()}`;
 
 		// Use dynamic OG image endpoint, with fallback to icon or logo
 		const ogImageUrl = new URL(`/${locale}/items/${slug}/opengraph-image`, appUrl).toString();
@@ -82,7 +83,7 @@ export async function generateMetadata({
 
 		return {
 			metadataBase: new URL(appUrl),
-			title: `${meta.name} | ${siteConfig.name}`,
+			title: `${meta.name} | ${await getSiteName()}`,
 			description: metaDescription,
 			keywords,
 			openGraph: {
@@ -101,7 +102,7 @@ export async function generateMetadata({
 					}
 				],
 				type: 'website',
-				siteName: siteConfig.name,
+				siteName: await getSiteName(),
 				url: getLocalizedUrl(`/items/${slug}`, locale as Locale)
 			},
 			twitter: {
@@ -122,7 +123,7 @@ export async function generateMetadata({
 		console.error(`Failed to generate metadata for item ${slug}:`, error);
 		return {
 			metadataBase: new URL(appUrl),
-			title: `Error | ${siteConfig.name}`,
+			title: `Error | ${await getSiteName()}`,
 			description: 'An error occurred while loading this page.',
 			robots: {
 				index: false,

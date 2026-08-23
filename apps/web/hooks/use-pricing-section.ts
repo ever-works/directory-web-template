@@ -22,7 +22,8 @@ import { getCurrencySymbol, formatAmountWithSymbol } from '@/lib/utils/currency-
 import { useSetupIntent } from './use-setup-intent';
 import { useSubscription } from './use-subscription';
 import { usePaymentAvailability } from './use-payment-availability';
-import { useStripeProducts, isStripeDynamicPricingEnabled } from './use-stripe-products';
+import { useStripeProducts } from './use-stripe-products';
+import { useStripeDynamicPricingEnabled } from './use-public-payment-config';
 import { mapStripeProductsToPricingPlans } from '@/lib/services/stripe-products.service';
 import { collectPaymentModeConfig } from '@/lib/config/schemas/payment.schema';
 import { useRouter } from '@/i18n/navigation';
@@ -223,8 +224,9 @@ export function usePricingSection(params: UsePricingSectionParams = {}): UsePric
 	// Determine payment provider: User selection takes precedence over config
 	const paymentProvider = usePaymentProvider(getActiveProvider, config.pricing);
 
-	// Fetch dynamic products from Stripe if enabled
-	const isDynamicPricingEnabled = paymentProvider === PaymentProvider.STRIPE && isStripeDynamicPricingEnabled();
+	// Fetch dynamic products from Stripe if enabled (runtime flag from /api/payment/public-config, spec 044)
+	const stripeDynamicPricingEnabled = useStripeDynamicPricingEnabled();
+	const isDynamicPricingEnabled = paymentProvider === PaymentProvider.STRIPE && stripeDynamicPricingEnabled;
 	const { data: stripeProductsData } = useStripeProducts({
 		enabled: isDynamicPricingEnabled && !isReview
 	});

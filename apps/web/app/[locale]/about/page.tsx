@@ -10,8 +10,8 @@ import { getBaseUrl } from '@/lib/utils/url-cleaner';
 import { generateHreflangAlternates, getLocalizedUrl } from '@/lib/seo/hreflang';
 import { Locale, DEFAULT_LOCALE } from '@/lib/constants';
 import { BreadcrumbJsonLd } from '@/components/seo/breadcrumb-json-ld';
-import { siteConfig } from '@/lib/config';
 
+import { getSiteName } from '@/lib/seo/site-identity';
 interface PageProps {
   params: Promise<{ locale: string }>;
 }
@@ -31,7 +31,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   // the translated label (e.g. "About Us") is short.
   return {
     metadataBase: new URL(appUrl),
-    title: `${tFooter('ABOUT_US')} | ${siteConfig.name}`,
+    title: `${tFooter('ABOUT_US')} | ${await getSiteName()}`,
     description: tPages('ABOUT_PAGE_META_DESCRIPTION'),
     alternates: {
       canonical: getLocalizedUrl('/about', locale as Locale),

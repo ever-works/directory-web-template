@@ -1,5 +1,6 @@
 import { ImageResponse } from 'next/og';
 import { siteConfig } from '@/lib/config';
+import { getSiteName, getSiteTagline } from '@/lib/seo/site-identity';
 import { getCachedItem } from '@/lib/content';
 
 // Use Node.js runtime for file system access
@@ -12,6 +13,8 @@ export const size = {
 export const contentType = 'image/png';
 
 export default async function Image({ params }: { params: Promise<{ slug: string; locale: string }> }) {
+	const siteName = await getSiteName();
+	const siteTagline = await getSiteTagline();
 	const { slug, locale } = await params;
 	const gradient = `linear-gradient(135deg, ${siteConfig.ogImage.gradientStart} 0%, ${siteConfig.ogImage.gradientEnd} 100%)`;
 
@@ -43,7 +46,7 @@ export default async function Image({ params }: { params: Promise<{ slug: string
 								textAlign: 'center'
 							}}
 						>
-							{siteConfig.name}
+							{siteName}
 						</div>
 						<div
 							style={{
@@ -53,7 +56,7 @@ export default async function Image({ params }: { params: Promise<{ slug: string
 								textAlign: 'center'
 							}}
 						>
-							{siteConfig.tagline}
+							{siteTagline}
 						</div>
 					</div>
 				),
@@ -104,7 +107,7 @@ export default async function Image({ params }: { params: Promise<{ slug: string
 								borderRadius: '8px'
 							}}
 						>
-							{siteConfig.name}
+							{siteName}
 						</div>
 					</div>
 
@@ -170,7 +173,7 @@ export default async function Image({ params }: { params: Promise<{ slug: string
 							textAlign: 'center'
 						}}
 					>
-						{siteConfig.name}
+						{siteName}
 					</div>
 				</div>
 			),

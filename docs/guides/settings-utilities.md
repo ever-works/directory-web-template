@@ -394,3 +394,35 @@ The defaults are chosen for backward compatibility -- if a setting is not config
 - [Config System](/template/configuration/config-system) -- How the config manager works
 - [Map Configuration](/template/configuration/map-config) -- Detailed map provider setup
 - [Sponsorship System](/template/guides/sponsorship-system) -- Sponsor ad placement guide
+
+## Site Identity (name / tagline / description for SEO metadata)
+
+`siteConfig` in `lib/config.ts` is a client-safe constant that only knows the
+`NEXT_PUBLIC_SITE_NAME` / `NEXT_PUBLIC_SITE_TAGLINE` /
+`NEXT_PUBLIC_SITE_DESCRIPTION` build-time env vars. Server code that builds
+metadata (`generateMetadata`, `lib/seo/listing-metadata.ts`, the WebSite
+JSON-LD, the nodejs-runtime OG image routes) should use the helpers in
+`lib/seo/site-identity.ts` instead, which fall back to the content config:
+
+| Function               | Resolution order                                                                                                   |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| `getSiteName()`        | `NEXT_PUBLIC_SITE_NAME` → `company_name` → `name` → `siteConfig.name`                                              |
+| `getSiteTagline()`     | `NEXT_PUBLIC_SITE_TAGLINE` → `settings.homepage.hero_title` + `hero_title_gradient` → `hero_badge_text` → `siteConfig.tagline` |
+| `getSiteDescription()` | `NEXT_PUBLIC_SITE_DESCRIPTION` → `settings.homepage.hero_description` → `siteConfig.description`                   |
+
+```ts
+import { getSiteName, getSiteDescription } from "@/lib/seo/site-identity";
+
+export async function generateMetadata(): Promise<Metadata> {
+  return {
+    title: `${t("ABOUT_US")} | ${getSiteName()}`,
+    description: getSiteDescription(),
+  };
+}
+```
+
+Explicit env vars always win, so template users who customised them see no
+change; directories deployed straight from a data repository get a per-site
+title/description with no extra configuration. Do not import this module from
+client components — it reads `.works/works.yml` from disk. See
+[spec 042](../spec/042-site-identity-metadata/spec.md).
