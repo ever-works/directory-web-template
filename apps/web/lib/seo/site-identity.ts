@@ -1,6 +1,6 @@
 import { configManager } from '@/lib/config-manager';
 import { siteConfig } from '@/lib/config';
-import { access } from 'fs/promises';
+import { access, constants as fsConstants } from 'fs/promises';
 import { ensureContentAvailable } from '@/lib/lib';
 import { getPrimaryContentConfigPath } from '@/lib/content-config-file';
 
@@ -62,11 +62,14 @@ function contentReady(): Promise<void> {
 	if (Date.now() - lastContentFailureAt < RETRY_AFTER_MS) return Promise.resolve();
 	contentReadyPromise = (async () => {
 		// `ensureContentAvailable()` swallows clone failures and still resolves with the
-		// content path, so "resolved" is not "usable". Only a readable `.works/works.yml`
+		// content path, so "resolved" is not "usable". Only a READABLE `.works/works.yml`
 		// counts as hydrated; anything else is treated as a failed attempt (backoff below)
-		// so a later request retries once the repository becomes reachable.
+		// so a later request retries once the repository becomes reachable. A works.yml
+		// left behind by an earlier sync is deliberately accepted: the directory's own
+		// (possibly slightly stale) identity beats the generic template identity, and
+		// repository freshness is `ensureContentAvailable()`'s concern, not this module's.
 		const contentPath = await ensureContentAvailable();
-		await access(getPrimaryContentConfigPath(contentPath));
+		await access(getPrimaryContentConfigPath(contentPath), fsConstants.R_OK);
 	})().catch(() => {
 		// No DATA_REPOSITORY / clone failed (build without content, CI): the helpers
 		// below degrade to the template defaults, exactly like before this module existed.
