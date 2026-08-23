@@ -2,7 +2,7 @@ import HelpPageClient from "./help-client";
 import { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { generateHreflangAlternates, getLocalizedUrl } from "@/lib/seo/hreflang";
-import { siteConfig } from "@/lib/config";
+import { getSiteName } from '@/lib/seo/site-identity';
 import { Locale, DEFAULT_LOCALE } from "@/lib/constants";
 import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-json-ld";
 
@@ -15,7 +15,7 @@ export async function generateMetadata({
   const t = await getTranslations({ locale, namespace: "help" });
 
   const path = "/help";
-  const title = `${t("INTERACTIVE_GUIDE")} | ${siteConfig.name}`;
+  const title = `${t("INTERACTIVE_GUIDE")} | ${await getSiteName()}`;
   const description = t("INTERACTIVE_GUIDE_DESC");
 
   return {
@@ -26,7 +26,7 @@ export async function generateMetadata({
       description,
       type: "website",
       url: getLocalizedUrl(path, locale as Locale),
-      siteName: siteConfig.name,
+      siteName: await getSiteName(),
     },
     alternates: {
         canonical: getLocalizedUrl(path, locale as Locale),

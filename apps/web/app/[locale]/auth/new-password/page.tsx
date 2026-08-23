@@ -2,7 +2,7 @@ import NewPasswordPageClient from "./new-password-client";
 import { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { generateHreflangAlternates, getLocalizedUrl } from "@/lib/seo/hreflang";
-import { siteConfig } from "@/lib/config";
+import { getSiteName } from '@/lib/seo/site-identity';
 import { Locale } from "@/lib/constants";
 
 export async function generateMetadata({
@@ -14,7 +14,7 @@ export async function generateMetadata({
   const t = await getTranslations({ locale, namespace: "admin.NEW_PASSWORD_PAGE" });
 
   const path = "/auth/new-password";
-  const title = `${t("TITLE")} | ${siteConfig.name}`;
+  const title = `${t("TITLE")} | ${await getSiteName()}`;
   const description = t("SUBTITLE");
 
   return {
@@ -25,7 +25,7 @@ export async function generateMetadata({
       description,
       type: "website",
       url: getLocalizedUrl(path, locale as Locale),
-      siteName: siteConfig.name,
+      siteName: await getSiteName(),
     },
     alternates: {
         canonical: getLocalizedUrl(path, locale as Locale),

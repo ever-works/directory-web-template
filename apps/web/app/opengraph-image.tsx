@@ -1,6 +1,7 @@
 import { ImageResponse } from 'next/og';
 import { siteConfig } from '@/lib/config';
 
+import { getSiteName, getSiteTagline } from '@/lib/seo/site-identity';
 // Explicitly set Node.js runtime for consistency with dynamic OG images
 export const runtime = 'nodejs';
 export const alt = `${siteConfig.name} - ${siteConfig.tagline}`;
@@ -11,6 +12,8 @@ export const size = {
 export const contentType = 'image/png';
 
 export default async function Image() {
+	const siteName = await getSiteName();
+	const siteTagline = await getSiteTagline();
 	const gradient = `linear-gradient(135deg, ${siteConfig.ogImage.gradientStart} 0%, ${siteConfig.ogImage.gradientEnd} 100%)`;
 
 	return new ImageResponse(
@@ -39,7 +42,7 @@ export default async function Image() {
 						letterSpacing: '-2px'
 					}}
 				>
-					{siteConfig.name}
+					{siteName}
 				</div>
 
 				{/* Tagline */}
@@ -53,7 +56,7 @@ export default async function Image() {
 						fontWeight: 500
 					}}
 				>
-					{siteConfig.tagline}
+					{siteTagline}
 				</div>
 
 				{/* Decorative element */}

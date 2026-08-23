@@ -4,7 +4,7 @@ import { cn } from '@/lib/utils';
 import { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 import { generateHreflangAlternates, getLocalizedUrl } from '@/lib/seo/hreflang';
-import { siteConfig } from '@/lib/config';
+import { getSiteName } from '@/lib/seo/site-identity';
 import { Locale, DEFAULT_LOCALE } from '@/lib/constants';
 import { BreadcrumbJsonLd } from '@/components/seo/breadcrumb-json-ld';
 
@@ -20,7 +20,7 @@ export async function generateMetadata({
 	const t = await getTranslations({ locale, namespace: 'pricing' });
 
 	const path = '/pricing';
-	const title = `${t('CHOOSE_YOUR_PERFECT_PLAN')} | ${siteConfig.name}`;
+	const title = `${t('CHOOSE_YOUR_PERFECT_PLAN')} | ${await getSiteName()}`;
 	const description = t('DESCRIPTION');
 
 	return {
@@ -31,7 +31,7 @@ export async function generateMetadata({
 			description,
 			type: 'website',
 			url: getLocalizedUrl(path, locale as Locale),
-			siteName: siteConfig.name
+			siteName: await getSiteName()
 		},
 		alternates: {
 			canonical: getLocalizedUrl(path, locale as Locale),

@@ -7,7 +7,7 @@ import { MDX } from '@/components/mdx';
 import { getCachedPageContent } from '@/lib/content';
 import { getBaseUrl } from '@/lib/utils/url-cleaner';
 import { formatDisplayName } from '@/components/filters/utils/text-utils';
-import { siteConfig } from '@/lib/config';
+import { getSiteName } from '@/lib/seo/site-identity';
 import { generatePageHreflangAlternates, getLocalizedUrl } from '@/lib/seo/hreflang';
 import { type Locale, DEFAULT_LOCALE } from '@/lib/constants';
 import { BreadcrumbJsonLd } from '@/components/seo/breadcrumb-json-ld';
@@ -54,7 +54,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 			title,
 			description,
 			url: getLocalizedUrl(`/pages/${slug}`, locale as Locale),
-			siteName: siteConfig.name,
+			siteName: await getSiteName(),
 			locale,
 			type: 'website'
 		},
