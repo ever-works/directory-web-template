@@ -140,6 +140,28 @@ const nextConfig: NextConfig = {
 							.trim()
 					}
 				]
+			},
+			{
+				// Scalar API reference. `/docs` embeds it in a same-origin <iframe> and the
+				// @scalar/nextjs-api-reference handler loads its browser bundle from jsDelivr.
+				// The global policy above (X-Frame-Options: DENY, frame-ancestors 'none', no
+				// CDN in script-src) blocked both, so /docs rendered an empty blocked frame and
+				// /api/reference a blank page. Next.js applies matching entries in order and
+				// the last value wins per header key, so this entry narrows the policy for
+				// this one route only: same-origin framing + the Scalar CDN.
+				source: '/api/reference',
+				headers: [
+					{
+						key: 'X-Frame-Options',
+						value: 'SAMEORIGIN'
+					},
+					{
+						key: 'Content-Security-Policy',
+						value: `default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; img-src 'self' data: https:; font-src 'self' data: https://cdn.jsdelivr.net https://fonts.gstatic.com; connect-src 'self' https:; worker-src 'self' blob:; frame-ancestors 'self';`
+							.replace(/\s+/g, ' ')
+							.trim()
+					}
+				]
 			}
 		];
 	}
