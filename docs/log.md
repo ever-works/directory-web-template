@@ -31,6 +31,9 @@ why** at a higher level than per-commit diffs.
 
 ---
 
+## 2026-08-22
+
+- spec-043: `/docs` API reference embed fixed — route-scoped `X-Frame-Options: SAMEORIGIN` + CSP (`frame-ancestors 'self'`, `cdn.jsdelivr.net`) for `/api/reference` in `next.config.ts`; e2e asserts the headers and that the iframe document mounts ([spec](spec/043-docs-api-reference-embed/spec.md))
 ## 2026-08-22 — Feat: public payment config served at runtime (spec 044)
 
 - spec-044: platform-deployed k8s Works are built once by `k8s-build.yml` with
