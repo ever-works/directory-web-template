@@ -33,6 +33,7 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-08-22
 
+- spec-042: site identity metadata — `<title>` / meta description / `og:site_name` / WebSite JSON-LD / OG images now resolve from the Work's `.works/works.yml` (`company_name`, `name`, `settings.homepage.hero_*`) via `lib/seo/site-identity.ts` when `NEXT_PUBLIC_SITE_*` are unset ([spec](spec/042-site-identity-metadata/spec.md), #1019)
 - spec-043: `/docs` API reference embed fixed — route-scoped `X-Frame-Options: SAMEORIGIN` + CSP (`frame-ancestors 'self'`, `cdn.jsdelivr.net`) for `/api/reference` in `next.config.ts`; e2e asserts the headers and that the iframe document mounts ([spec](spec/043-docs-api-reference-embed/spec.md))
 ## 2026-08-22 — Feat: public payment config served at runtime (spec 044)
 

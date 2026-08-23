@@ -1,8 +1,8 @@
 import type { Metadata } from 'next';
+import { siteConfig } from '@/lib/config';
 import './tailwind.css';
 import './[locale]/globals.scss';
 import { LayoutProvider, ThemeProvider } from '@/components/providers';
-import { siteConfig } from '@/lib/config';
 import { ensureBackgroundJobsInitialized } from '@/app/api/cron/jobs/background-jobs-init';
 import { cleanUrl } from '@/lib/utils/url-cleaner';
 import { getLocale } from 'next-intl/server';

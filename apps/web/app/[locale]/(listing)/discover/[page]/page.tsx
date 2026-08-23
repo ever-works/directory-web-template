@@ -2,7 +2,7 @@ import { Metadata } from "next";
 import { getCachedItems } from "@/lib/content";
 import { paginateMeta, PER_PAGE } from "@/lib/paginate";
 import { generateListingMetadata } from "@/lib/seo/listing-metadata";
-import { siteConfig } from "@/lib/config";
+import { getSiteDescription } from "@/lib/seo/site-identity";
 import { filterItems } from "@/lib/utils";
 import { sortItems, parseCsv } from "@/lib/listing-server";
 import Listing from "../../listing";
@@ -95,8 +95,8 @@ export async function generateMetadata({
     // thing here rather than leaving a bare fragment.
     description:
       pageNum === 1
-        ? `Browse all ${total} listings. ${siteConfig.description}`
-        : `Browse page ${pageNum} of ${total} listings. ${siteConfig.description}`,
+        ? `Browse all ${total} listings. ${await getSiteDescription()}`
+        : `Browse page ${pageNum} of ${total} listings. ${await getSiteDescription()}`,
     keywords: ["discover", "browse", "directory", "listings"],
   });
 }
