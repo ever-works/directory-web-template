@@ -7,6 +7,7 @@ import { StripeElementsWrapper } from '@/lib/payment/ui/stripe/stripe-elements';
 import { PolarElementsWrapper } from '@/lib/payment/ui/polar/polar-elements';
 import { LemonSqueezyElementsWrapper } from '@/lib/payment/ui/lemonsqueezy/lemonsqueezy-elements';
 import { Modal, ModalBody, ModalContent, ModalHeader } from '../ui/modal';
+import { usePublicPaymentConfig } from '@/hooks/use-public-payment-config';
 
 import { PaymentProvider } from '@/lib/constants';
 
@@ -65,7 +66,10 @@ export function PaymentFormModal({
 }: PaymentFormModalProps) {
 	const t = useTranslations('payment');
 	const locale = useLocale();
-	const stripePublicKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY || '';
+	// Runtime publishable key (spec 044) with build-time env fallback — k8s builds have no inlined
+	// NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY, so the key arrives from /api/payment/public-config.
+	const { config: publicPaymentConfig, isFetching: isPaymentConfigFetching } = usePublicPaymentConfig();
+	const stripePublicKey = publicPaymentConfig.stripePublishableKey ?? '';
 
 	const handleSuccess = useCallback(
 		(paymentMethodId: string) => {
@@ -88,12 +92,17 @@ export function PaymentFormModal({
 			: localizedSuccessPath;
 
 	useEffect(() => {
+		// Only react while the modal is actually open — a closed modal mounted on e.g. /pricing must
+		// never toast — and wait for the runtime config fetch to settle so the key has a chance to
+		// arrive before we give up.
+		if (!isOpen || isPaymentConfigFetching) return;
+
 		if (provider === PaymentProvider.STRIPE && !stripePublicKey) {
 			console.error('Stripe publishable key is not configured');
 			onError(new Error('Payment system is not configured. Please contact support.'));
 			onClose();
 		}
-	}, [stripePublicKey, onError, onClose, provider]);
+	}, [isOpen, isPaymentConfigFetching, stripePublicKey, onError, onClose, provider]);
 
 	if (provider === PaymentProvider.STRIPE && !stripePublicKey) {
 		return null;

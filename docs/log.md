@@ -34,6 +34,40 @@ why** at a higher level than per-commit diffs.
 ## 2026-08-22
 
 - spec-043: `/docs` API reference embed fixed — route-scoped `X-Frame-Options: SAMEORIGIN` + CSP (`frame-ancestors 'self'`, `cdn.jsdelivr.net`) for `/api/reference` in `next.config.ts`; e2e asserts the headers and that the iframe document mounts ([spec](spec/043-docs-api-reference-embed/spec.md))
+## 2026-08-22 — Feat: public payment config served at runtime (spec 044)
+
+- spec-044: platform-deployed k8s Works are built once by `k8s-build.yml` with
+  no per-Work env, so `NEXT_PUBLIC_*` is never inlined into the browser bundle.
+  Client code that read `process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` /
+  `NEXT_PUBLIC_STRIPE_DYNAMIC_PRICING` / `NEXT_PUBLIC_DEMO` directly
+  (`LayoutThemeContext.getConfiguredProviders`, `stripe-payment-modal`,
+  `add-payment-method-modal`, `use-stripe-products`, `use-payment-availability`)
+  therefore saw `undefined` even when the server had `STRIPE_SECRET_KEY` et al. —
+  every platform-deployed `/pricing` rendered only the FREE card plus a "Payment
+  failed: Payment system is not configured" toast on load.
+  ([spec](spec/044-public-payment-config/spec.md))
+- New `GET /api/payment/public-config` (`force-dynamic`, `Cache-Control: no-store`)
+  returns `{ stripePublishableKey, dynamicPricing, demo, configuredProviders }`
+  from the server's runtime env — public values only, never secrets. Shared pure
+  reader `apps/web/lib/payment/public-config.ts`; new React Query hook
+  `apps/web/hooks/use-public-payment-config.ts` (`initialData` from build-time
+  `process.env`, 5-min stale, works without a `QueryClientProvider` by falling
+  back to the shared browser client) layers runtime values over the inlined ones,
+  so Vercel/demo builds keep first-paint behaviour and an unavailable route
+  degrades to pre-044.
+- Consumers switched: `LayoutThemeContext` (`configuredProviders`),
+  `PaymentFormModal` (key from hook; the "not configured" error effect now only
+  fires while `isOpen` and after the fetch settled — a closed modal never toasts),
+  `AddPaymentMethodModal` (`loadStripe` from the runtime key instead of a
+  module-level `loadStripe(process.env…!)`), `useStripeProducts` /
+  `useDynamicPricingStatus` / `usePricingSection` (`useStripeDynamicPricingEnabled()`),
+  `usePaymentAvailability` (`demo` from hook; SSR default kept until the first
+  fetch settles). e2e: `apps/web-e2e/tests/api/payment-public-config.spec.ts`.
+  Docs: `docs/payment/stripe.md` runtime-key tip, `.env.example` note.
+  PR #1023.
+- questions: added Q-044a — should `[locale]/layout.tsx` also seed the public
+  payment config as a server prop (zero-request first paint)? Default: route +
+  hook only.
 
 ## 2026-06-17 — Feat: deploy_k8s.yaml multi-host Ingress (K8S_EXTRA_HOSTS)
 

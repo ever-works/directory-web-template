@@ -496,6 +496,33 @@ confirm, override, or refine.
 
 ---
 
+## Spec 044 — Public payment config served at runtime
+
+### Q-044a Should `[locale]/layout.tsx` also pass the public payment config as a server prop?
+
+- **Context.** Spec 044 serves the browser-safe payment config from
+  `GET /api/payment/public-config` and a React Query hook whose
+  `initialData` is the build-time env. On platform-deployed k8s builds the
+  bundle has no inlined `NEXT_PUBLIC_*`, so the first client render sees an
+  empty config and the UI updates once the fetch settles (one round-trip;
+  `usePaymentAvailability` hides the flip by keeping its SSR default until
+  then). Threading the server-computed config through
+  `[locale]/layout.tsx` → `Providers` would remove that round-trip and make
+  SSR + first client render identical in every deployment mode.
+- **Options.**
+  - **Route + hook only (current).** One tiny fetch per page load, same
+    pattern as `useStripeProducts`, and it also serves modals/hooks rendered
+    outside the locale tree (root `app/layout.tsx`).
+  - Route + hook **and** a server prop seeded into the hook's `initialData`
+    via `Providers`. Zero-request first paint; slightly more plumbing and two
+    sources to keep consistent.
+- **Default.** **Route + hook only.** Revisit if the post-fetch re-render is
+  visible in the field.
+- **Owner.** Template maintainers.
+- **Status.** `open`.
+
+---
+
 ## How to add a question
 
 1. Pick the next available `Q-NNN…` id under the relevant spec.

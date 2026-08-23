@@ -3,6 +3,8 @@ import React, { createContext, useContext, useEffect, useState, useMemo, useCall
 import { LayoutKey, layoutComponents } from "@/components/layouts";
 import { applyThemeWithPalettes } from "@/lib/theme-color-manager";
 import { ContainerWidthProvider } from "@/components/ui/container";
+import { usePublicPaymentConfig } from "@/hooks/use-public-payment-config";
+import { getConfiguredProvidersFromEnv, type PublicPaymentProvider } from "@/lib/payment/public-config";
 
 // Config defaults interface
 interface ConfigDefaults {
@@ -24,7 +26,7 @@ export type PaginationType = "standard" | "infinite";
 
 export type ContainerWidth = "fixed" | "fluid";
 export type DatabaseSimulationMode = "enabled" | "disabled";
-export type CheckoutProvider = "stripe" | "lemonsqueezy" | "polar" | "solidgate";
+export type CheckoutProvider = PublicPaymentProvider;
 
 const DEFAULT_DATABASE_SIMULATION_MODE: DatabaseSimulationMode = "enabled";
 const DEFAULT_LAYOUT_HOME: LayoutHome = LayoutHome.HOME_ONE;
@@ -188,30 +190,14 @@ const isValidDatabaseSimulationMode = (mode: string): mode is DatabaseSimulation
 };
 
 /**
- * Detect which checkout providers are configured via environment variables
+ * Detect which checkout providers are configured via build-time environment variables.
+ * Browser-only (returns [] during SSR). Runtime (server-provided) providers are layered
+ * on top by `useCheckoutProviderManager` through `usePublicPaymentConfig` (spec 044),
+ * which is what platform-deployed k8s builds without inlined NEXT_PUBLIC_* rely on.
  */
 const getConfiguredProviders = (): CheckoutProvider[] => {
-  const providers: CheckoutProvider[] = [];
-
-  if (typeof window !== "undefined" && process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY) {
-    providers.push("stripe");
-  }
-
-  if (typeof window !== "undefined" &&
-      (process.env.NEXT_PUBLIC_LEMONSQUEEZY_FREE_VARIANT_ID ||
-       process.env.NEXT_PUBLIC_LEMONSQUEEZY_STANDARD_VARIANT_ID ||
-       process.env.NEXT_PUBLIC_LEMONSQUEEZY_PREMIUM_VARIANT_ID)) {
-    providers.push("lemonsqueezy");
-  }
-
-  if (typeof window !== "undefined" &&
-      (process.env.NEXT_PUBLIC_POLAR_FREE_PLAN_ID ||
-       process.env.NEXT_PUBLIC_POLAR_STANDARD_PLAN_ID ||
-       process.env.NEXT_PUBLIC_POLAR_PREMIUM_PLAN_ID)) {
-    providers.push("polar");
-  }
-
-  return providers;
+  if (typeof window === "undefined") return [];
+  return getConfiguredProvidersFromEnv();
 };
 
 const isValidCheckoutProvider = (provider: string): provider is CheckoutProvider => {
@@ -441,7 +427,11 @@ const useContainerWidthManager = () => {
 
 // Custom hook for checkout provider management
 const useCheckoutProviderManager = () => {
-  const [configuredProviders] = useState<CheckoutProvider[]>(getConfiguredProviders());
+  // Build-time env on first paint, then confirmed/extended by GET /api/payment/public-config
+  // (spec 044). `config` is referentially stable between fetches, so the dependent memo/effects
+  // below only re-run when the provider list actually changes.
+  const { config: publicPaymentConfig } = usePublicPaymentConfig();
+  const configuredProviders: CheckoutProvider[] = publicPaymentConfig.configuredProviders;
 
   const effectiveDefault = useMemo(() => {
     const saved = safeLocalStorage.getItem(STORAGE_KEYS.CHECKOUT_PROVIDER);
