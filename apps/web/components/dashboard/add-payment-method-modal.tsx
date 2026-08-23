@@ -11,6 +11,7 @@ import {
   useElements
 } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
+import { usePublicPaymentConfig } from '@/hooks/use-public-payment-config';
 import { usePaymentMethods } from '@/hooks/use-payment-methods';
 import { useCreateSetupIntentWithCustomParams } from '@/hooks/use-setup-intent';
 import {
@@ -25,7 +26,9 @@ import {
 // CONSTANTS & CONFIGURATION
 // ============================================================================
 
-const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
+// Stripe.js is loaded per modal instance from the runtime publishable key (spec 044) — see
+// AddPaymentMethodModal. A module-level loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!)
+// would bake in `undefined` on k8s builds, where NEXT_PUBLIC_* is not inlined into the bundle.
 
 
 
@@ -313,6 +316,14 @@ function StripePaymentForm({ onClose, onSuccess }: StripePaymentFormProps) {
 // Composant principal avec Elements wrapper
 export function AddPaymentMethodModal({ isOpen, onClose, onSuccess }: AddPaymentMethodModalProps) {
   const t = useTranslations('billing');
+  const { config: publicPaymentConfig } = usePublicPaymentConfig();
+  const stripePublishableKey = publicPaymentConfig.stripePublishableKey;
+
+  // `null` keeps <Elements> inert until a key is known instead of calling loadStripe(undefined).
+  const stripePromise = useMemo(
+    () => (stripePublishableKey ? loadStripe(stripePublishableKey) : null),
+    [stripePublishableKey]
+  );
 
   return (
     <Modal isOpen={isOpen} onClose={onClose}>

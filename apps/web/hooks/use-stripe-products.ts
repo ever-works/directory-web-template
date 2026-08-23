@@ -18,6 +18,7 @@
  */
 
 import { useQuery } from '@tanstack/react-query';
+import { useStripeDynamicPricingEnabled } from './use-public-payment-config';
 import type { StripeProductsResponse } from '@/lib/services/stripe-products.service';
 import type { PlanConfig } from '@/lib/config/billing';
 
@@ -29,7 +30,8 @@ export interface StripeProductsApiResponse extends StripeProductsResponse {
 interface UseStripeProductsOptions {
 	/**
 	 * Whether to enable fetching products
-	 * @default true if NEXT_PUBLIC_STRIPE_DYNAMIC_PRICING is 'true'
+	 * @default true if dynamic pricing is enabled — runtime value from `/api/payment/public-config`,
+	 * falling back to the build-time NEXT_PUBLIC_STRIPE_DYNAMIC_PRICING (see `useStripeDynamicPricingEnabled`)
 	 */
 	enabled?: boolean;
 
@@ -41,7 +43,11 @@ interface UseStripeProductsOptions {
 }
 
 /**
- * Check if Stripe dynamic pricing is enabled (client-side)
+ * Check if Stripe dynamic pricing is enabled from the build-time env (client-side).
+ *
+ * Prefer `useStripeDynamicPricingEnabled()` (hooks/use-public-payment-config.ts) inside React: it also
+ * honours the runtime value served by GET /api/payment/public-config (spec 044), which platform-deployed
+ * k8s builds rely on because nothing is inlined into their client bundle.
  */
 export function isStripeDynamicPricingEnabled(): boolean {
 	return process.env.NEXT_PUBLIC_STRIPE_DYNAMIC_PRICING === 'true';
@@ -72,7 +78,8 @@ async function fetchStripeProducts(): Promise<StripeProductsApiResponse> {
  * Returns products, prices, sponsorAds, and stripeConfig (multi-currency price IDs)
  */
 export function useStripeProducts(options: UseStripeProductsOptions = {}) {
-	const { enabled = isStripeDynamicPricingEnabled(), staleTime = 5 * 60 * 1000 } = options;
+	const dynamicPricingEnabled = useStripeDynamicPricingEnabled();
+	const { enabled = dynamicPricingEnabled, staleTime = 5 * 60 * 1000 } = options;
 
 	return useQuery<StripeProductsApiResponse, Error>({
 		queryKey: ['stripe-products'],
@@ -90,12 +97,13 @@ export function useStripeProducts(options: UseStripeProductsOptions = {}) {
  * Returns true only if dynamic pricing is enabled AND products were fetched successfully
  */
 export function useDynamicPricingStatus() {
+	const dynamicPricingEnabled = useStripeDynamicPricingEnabled();
 	const { data, isSuccess } = useStripeProducts({
-		enabled: isStripeDynamicPricingEnabled()
+		enabled: dynamicPricingEnabled
 	});
 
 	return {
-		isDynamicPricingActive: isStripeDynamicPricingEnabled() && isSuccess && !!data?.products?.length,
+		isDynamicPricingActive: dynamicPricingEnabled && isSuccess && !!data?.products?.length,
 		hasProducts: !!data?.products?.length,
 		hasSponsorPricing: !!(data?.sponsorAds?.weekly && data?.sponsorAds?.monthly),
 		hasStripeConfig: !!data?.stripeConfig
