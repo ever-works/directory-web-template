@@ -1,4 +1,6 @@
 import Stripe from 'stripe';
+import { stampWorkId } from '../../work-metadata';
+import { mapStripeEventToWebhookResult } from './stripe-event-map';
 import React from 'react';
 import { User } from '@supabase/supabase-js';
 import {
@@ -346,7 +348,7 @@ export class StripeProvider implements PaymentProviderInterface {
 				stripeParams.customer = customerId;
 			}
 
-			const paymentIntent = await this.stripe.paymentIntents.create(stripeParams);
+			const paymentIntent = await this.stripe.paymentIntents.create(stampWorkId(stripeParams));
 
 			return {
 				id: paymentIntent.id,
@@ -466,7 +468,7 @@ export class StripeProvider implements PaymentProviderInterface {
 				subscriptionParams.trial_period_days = trialPeriodDays;
 			}
 
-			const subscription = await this.stripe.subscriptions.create(subscriptionParams);
+			const subscription = await this.stripe.subscriptions.create(stampWorkId(subscriptionParams));
 
 			// Get the payment_intent_id if available
 			let paymentIntentId: string | undefined;
@@ -619,54 +621,7 @@ export class StripeProvider implements PaymentProviderInterface {
 		try {
 			const event = this.stripe.webhooks.constructEvent(payload, signature, this.webhookSecret);
 
-			let eventType: string;
-			let eventData: any = {};
-
-			// Map Stripe event types to generic types
-			switch (event.type) {
-				case 'payment_intent.succeeded':
-					eventType = 'payment_succeeded';
-					eventData = event.data.object;
-					break;
-				case 'payment_intent.payment_failed':
-					eventType = 'payment_failed';
-					eventData = event.data.object;
-					break;
-				case 'customer.subscription.created':
-					eventType = 'subscription_created';
-					eventData = event.data.object;
-					break;
-				case 'customer.subscription.updated':
-					eventType = 'subscription_updated';
-					eventData = event.data.object;
-					break;
-				case 'customer.subscription.deleted':
-					eventType = 'subscription_cancelled';
-					eventData = event.data.object;
-					break;
-				case 'customer.subscription.trial_will_end':
-					eventType = 'subscription_trial_ending';
-					eventData = event.data.object;
-					break;
-				case 'invoice.payment_succeeded':
-					eventType = 'subscription_payment_succeeded';
-					eventData = event.data.object;
-					break;
-				case 'invoice.payment_failed':
-					eventType = 'subscription_payment_failed';
-					eventData = event.data.object;
-					break;
-				default:
-					eventType = event.type;
-					eventData = event.data.object;
-			}
-
-			return {
-				received: true,
-				type: eventType,
-				id: event.id,
-				data: eventData
-			};
+			return mapStripeEventToWebhookResult(event);
 		} catch (error) {
 			console.error('Stripe webhook handling error:', error);
 			throw error;

@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { stampWorkId } from '@/lib/payment/work-metadata';
 import { auth, getOrCreateStripeProvider } from '@/lib/auth';
 import { buildCheckoutLineItems, createBaseCheckoutParams, applySubscriptionConfig } from './helpers';
 import { safeErrorMessage } from '@/lib/utils/api-error';
@@ -227,7 +228,7 @@ export async function POST(request: NextRequest) {
 			});
 		}
 
-		const checkoutSession = await stripe.checkout.sessions.create(checkoutParams);
+		const checkoutSession = await stripe.checkout.sessions.create(stampWorkId(checkoutParams));
 
 		return NextResponse.json({
 			data: {
