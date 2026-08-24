@@ -54,17 +54,23 @@ export function withWorkMetadata<T extends Record<string, string> | undefined>(
  * Applied at the call site so every object this directory creates is routable,
  * without touching each individual metadata literal.
  */
-export function stampWorkId<T extends Record<string, unknown>>(params: T): T {
+export function stampWorkId<T extends object>(params: T): T {
 	const workId = getWorkId();
 	if (!workId) return params;
 
+	// Stripe's params types (e.g. `CheckoutSessionParams`) are declared interfaces
+	// with no index signature, so they are not assignable to `Record<string, unknown>`.
+	// Constrain on `object` and read through a local view instead — this keeps every
+	// typed call site working while still returning `T` unchanged to the caller.
+	const source = params as unknown as Record<string, unknown>;
+
 	const stamped: Record<string, unknown> = {
-		...params,
-		metadata: withWorkMetadata(params.metadata as Record<string, string> | undefined)
+		...source,
+		metadata: withWorkMetadata(source.metadata as Record<string, string> | undefined)
 	};
 
 	for (const nested of ['subscription_data', 'payment_intent_data'] as const) {
-		const value = params[nested];
+		const value = source[nested];
 		// Only extend a bag the caller already builds: adding `subscription_data`
 		// to a `mode: 'payment'` session (or vice versa) is a Stripe 400.
 		if (value && typeof value === 'object') {
