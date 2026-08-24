@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { stampWorkId } from '@/lib/payment/work-metadata';
 import { auth } from '@/lib/auth';
 import { sponsorAdService } from '@/lib/services/sponsor-ad.service';
 import { SponsorAdStatus, SponsorAdInterval } from '@/lib/db/schema';
@@ -337,7 +338,7 @@ async function createStripeRenewalCheckout(
 		}
 	};
 
-	const checkoutSession = await stripe.checkout.sessions.create(checkoutParams);
+	const checkoutSession = await stripe.checkout.sessions.create(stampWorkId(checkoutParams));
 
 	return {
 		id: checkoutSession.id,

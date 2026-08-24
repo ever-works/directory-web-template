@@ -1,4 +1,5 @@
 import Stripe from 'stripe';
+import { stampWorkId } from '../../work-metadata';
 import React from 'react';
 import { User } from '@supabase/supabase-js';
 import {
@@ -346,7 +347,7 @@ export class StripeProvider implements PaymentProviderInterface {
 				stripeParams.customer = customerId;
 			}
 
-			const paymentIntent = await this.stripe.paymentIntents.create(stripeParams);
+			const paymentIntent = await this.stripe.paymentIntents.create(stampWorkId(stripeParams));
 
 			return {
 				id: paymentIntent.id,
@@ -466,7 +467,7 @@ export class StripeProvider implements PaymentProviderInterface {
 				subscriptionParams.trial_period_days = trialPeriodDays;
 			}
 
-			const subscription = await this.stripe.subscriptions.create(subscriptionParams);
+			const subscription = await this.stripe.subscriptions.create(stampWorkId(subscriptionParams));
 
 			// Get the payment_intent_id if available
 			let paymentIntentId: string | undefined;
