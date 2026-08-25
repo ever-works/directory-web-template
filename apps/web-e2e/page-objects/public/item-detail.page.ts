@@ -130,14 +130,14 @@ export class ItemDetailPage extends BasePage {
 
 	/** Hover over a comment to reveal edit/delete buttons, then click edit. */
 	async editComment(commentText: string) {
-		const commentEl = this.getComment(commentText).locator('..');
+		const commentEl = this.page.locator('div.group').filter({ hasText: commentText }).first();
 		await commentEl.hover();
 		await commentEl.getByRole('button', { name: /^edit$/i }).click();
 	}
 
 	/** Hover over a comment to reveal delete button, then click delete. */
 	async deleteComment(commentText: string) {
-		const commentEl = this.getComment(commentText).locator('..');
+		const commentEl = this.page.locator('div.group').filter({ hasText: commentText }).first();
 		await commentEl.hover();
 		await commentEl.getByRole('button', { name: /^delete$/i }).click();
 	}
