@@ -7,6 +7,10 @@ sidebar_position: 99
 
 # Documentation & Specs Change Log
 
+## 2026-08-25
+
+- `spec-045`: documented and hardened the shared handler/`POST /api/stripe/platform-webhook` path, including HMAC fail-closed coverage, formatted payment amounts, and retry-safe event coordination ([spec 045](spec/045-shared-stripe-webhook-relay/spec.md), PR #1037).
+
 A running log of meaningful changes to documentation, specs, and the
 project's living-document set (constitution, agent rules, plans). One
 line per change, newest at the top. Every line follows the form:

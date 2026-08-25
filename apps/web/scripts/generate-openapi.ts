@@ -120,6 +120,7 @@ const swaggerOptions = {
 	apis: [
 		'./app/api/**/route.ts',
 		'./app/api/**/*.ts',
+		'./lib/payment/**/*.ts', // Shared webhook annotations moved out of route handlers
 		'./lib/types/**/*.ts' // For TypeScript schemas
 	]
 };
