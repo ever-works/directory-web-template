@@ -4,6 +4,7 @@ import type Stripe from 'stripe';
 
 import { verifyPlatformSignature } from '@/lib/services/platform-activity-feed/hmac';
 import { mapStripeEventToWebhookResult } from '@/lib/payment/lib/providers/stripe-event-map';
+import { dispatchWebhookEvent } from '@/lib/payment/webhook-dispatch';
 
 /**
  * Inbound endpoint for the Ever Works **shared Stripe webhook relay**.
@@ -34,6 +35,9 @@ import { mapStripeEventToWebhookResult } from '@/lib/payment/lib/providers/strip
  *
  * 🛑 The raw body must be signed and verified byte-for-byte. Re-serialising the
  * JSON changes the digest and every request fails.
+ *
+ * Fulfilment is shared with the direct route via `lib/payment/webhook-dispatch.ts`,
+ * so both delivery paths run one definition of the payment handlers.
  */
 
 /** Status codes follow the activity-feed convention so the platform can classify. */
@@ -119,21 +123,16 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
 	const result = mapStripeEventToWebhookResult(event);
 
-	// ⚠️ TRANSPORT ONLY — business dispatch is deliberately NOT wired yet.
+	// The Stripe signature was verified once, centrally, by the platform before it
+	// relayed this event; the request's authenticity was established above by the
+	// platform HMAC. From here the event is fulfilled by EXACTLY the same code as a
+	// direct Stripe delivery — a subscription activated via the relay is activated
+	// by the same handler as one activated directly.
 	//
-	// The per-event handlers (`handleSubscriptionCreated`, …) are module-private
-	// to `app/api/stripe/webhook/route.ts`, and Next restricts what a `route.ts`
-	// may export, so sharing them means lifting ~500 lines of payment handlers
-	// into `lib/`. That is a separate, reviewable change; doing it here would
-	// bury a large refactor of live payment code inside a transport commit.
-	//
-	// Until that lands this endpoint is unreachable in practice: no Stripe
-	// endpoint points at it and the platform relay does not yet forward here.
-	// It answers 200 so that, once wired, a relay probe with an unknown event
-	// type is a safe liveness check.
-	console.log(
-		`[relay] verified event ${event.id} (${event.type} -> ${result.type}) for work ${workId}; dispatch not yet wired`
-	);
+	// `dispatchWebhookEvent` never throws (each handler owns its try/catch), so a
+	// failing side-effect cannot turn a delivered event into a 500 and make the
+	// relay retry an event that was already partly fulfilled.
+	await dispatchWebhookEvent(result);
 
-	return NextResponse.json({ received: true, type: result.type, dispatched: false });
+	return NextResponse.json({ received: true, type: result.type, dispatched: true });
 }
