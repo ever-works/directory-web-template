@@ -40,6 +40,7 @@ import { getEmailConfig } from '@/lib/config/server-config';
 import { coreConfig, emailConfig as globalEmailConfig } from '@/lib/config/config-service';
 import { WebhookSubscriptionService } from '@/lib/services/webhook-subscription.service';
 import { sponsorAdService } from '@/lib/services/sponsor-ad.service';
+import { buildPaymentSucceededBaseEmailData } from '@/lib/payment/webhook-email-data';
 const webhookSubscriptionService = new WebhookSubscriptionService();
 
 const appUrl = coreConfig.APP_URL || 'https://demo.ever.works';
@@ -195,58 +196,54 @@ function createEmailData(baseData: any, emailConfig: Awaited<ReturnType<typeof g
 /**
  * Runs the fulfilment side-effects for one already-authenticated webhook event.
  *
- * Never throws: each handler owns its own try/catch (unchanged from the original),
- * so one failing side-effect cannot turn a delivered event into a 500 that makes
- * Stripe retry an event that was already partly fulfilled.
+ * Never throws. A false return tells the relay route to request a retry, while
+ * the legacy direct route may preserve its existing acknowledgement behavior.
  */
-export async function dispatchWebhookEvent(webhookResult: WebhookResult): Promise<void> {
-	switch (webhookResult.type) {
-		case WebhookEventType.SUBSCRIPTION_CREATED:
-			await handleSubscriptionCreated(webhookResult.data);
-			break;
-		case WebhookEventType.SUBSCRIPTION_UPDATED:
-			console.log('Subscription updated:', webhookResult.data);
-			await handleSubscriptionUpdated(webhookResult.data);
-			break;
-		case WebhookEventType.SUBSCRIPTION_CANCELLED:
-			await handleSubscriptionCancelled(webhookResult.data);
-			break;
-		case WebhookEventType.PAYMENT_SUCCEEDED:
-			await handlePaymentSucceeded(webhookResult.data);
-			break;
-		case WebhookEventType.SUBSCRIPTION_PAYMENT_SUCCEEDED:
-			await handleSubscriptionPaymentSucceeded(webhookResult.data);
-			break;
-		case WebhookEventType.SUBSCRIPTION_PAYMENT_FAILED:
-			await handleSubscriptionPaymentFailed(webhookResult.data);
-			break;
-		case WebhookEventType.PAYMENT_FAILED:
-			await handlePaymentFailed(webhookResult.data);
-			break;
-		case WebhookEventType.SUBSCRIPTION_TRIAL_ENDING:
-			await handleSubscriptionTrialEnding(webhookResult.data);
-			break;
-		case WebhookEventType.BILLING_PORTAL_SESSION_UPDATED:
-			console.log('Billing portal session updated:', webhookResult.data);
-			break;
-		default:
-			console.log(`Unhandled webhook event: ${webhookResult.type}`);
+export async function dispatchWebhookEvent(webhookResult: WebhookResult): Promise<boolean> {
+	try {
+		switch (webhookResult.type) {
+			case WebhookEventType.SUBSCRIPTION_CREATED:
+				await handleSubscriptionCreated(webhookResult.data);
+				break;
+			case WebhookEventType.SUBSCRIPTION_UPDATED:
+				console.log('Subscription updated:', webhookResult.data);
+				await handleSubscriptionUpdated(webhookResult.data);
+				break;
+			case WebhookEventType.SUBSCRIPTION_CANCELLED:
+				await handleSubscriptionCancelled(webhookResult.data);
+				break;
+			case WebhookEventType.PAYMENT_SUCCEEDED:
+				await handlePaymentSucceeded(webhookResult.data);
+				break;
+			case WebhookEventType.SUBSCRIPTION_PAYMENT_SUCCEEDED:
+				await handleSubscriptionPaymentSucceeded(webhookResult.data);
+				break;
+			case WebhookEventType.SUBSCRIPTION_PAYMENT_FAILED:
+				await handleSubscriptionPaymentFailed(webhookResult.data);
+				break;
+			case WebhookEventType.PAYMENT_FAILED:
+				await handlePaymentFailed(webhookResult.data);
+				break;
+			case WebhookEventType.SUBSCRIPTION_TRIAL_ENDING:
+				await handleSubscriptionTrialEnding(webhookResult.data);
+				break;
+			case WebhookEventType.BILLING_PORTAL_SESSION_UPDATED:
+				console.log('Billing portal session updated:', webhookResult.data);
+				break;
+			default:
+				console.log(`Unhandled webhook event: ${webhookResult.type}`);
+		}
+		return true;
+	} catch (error) {
+		console.error('Webhook fulfilment failed:', error);
+		return false;
 	}
 }
 
 async function handlePaymentSucceeded(data: any) {
 	try {
 		const emailConfig = await getEmailConfig();
-		const paymentMethod = formatPaymentMethod(data.payment_method);
-		const baseEmailData = {
-			customerName: data.customer_name,
-			customerEmail: data.customer_email,
-			amount: data.amount_due,
-			currency: data.currency,
-			paymentMethod: paymentMethod,
-			transactionId: data.id,
-			receiptUrl: data.receipt_url
-		};
+		const baseEmailData = buildPaymentSucceededBaseEmailData(data);
 
 		const emailData = createEmailData(baseEmailData, emailConfig);
 
@@ -260,6 +257,7 @@ async function handlePaymentSucceeded(data: any) {
 		}
 	} catch (error) {
 		console.error('❌ Error handling payment succeeded:', error);
+		throw error;
 	}
 }
 
@@ -302,6 +300,7 @@ async function handlePaymentFailed(data: any) {
 		}
 	} catch (error) {
 		console.error('❌ Error handling payment failed:', error);
+		throw error;
 	}
 }
 
@@ -354,6 +353,7 @@ async function handleSubscriptionCreated(data: any) {
 		}
 	} catch (error) {
 		console.error('❌ Error handling subscription created:', error);
+		throw error;
 	}
 }
 
@@ -399,6 +399,7 @@ async function handleSubscriptionUpdated(data: any) {
 		}
 	} catch (error) {
 		console.error('❌ Error handling subscription updated:', error);
+		throw error;
 	}
 }
 
@@ -447,6 +448,7 @@ async function handleSubscriptionCancelled(data: any) {
 		}
 	} catch (error) {
 		console.error('❌ Error handling subscription cancelled:', error);
+		throw error;
 	}
 }
 
@@ -504,6 +506,7 @@ async function handleSubscriptionPaymentSucceeded(data: any) {
 		}
 	} catch (error) {
 		console.error('❌ Error handling subscription payment succeeded:', error);
+		throw error;
 	}
 }
 
@@ -552,6 +555,7 @@ async function handleSubscriptionPaymentFailed(data: any) {
 		}
 	} catch (error) {
 		console.error('❌ Error handling subscription payment failed:', error);
+		throw error;
 	}
 }
 
@@ -596,6 +600,7 @@ async function handleSubscriptionTrialEnding(data: any) {
 		}
 	} catch (error) {
 		console.error('❌ Error handling subscription trial ending:', error);
+		throw error;
 	}
 }
 
@@ -689,6 +694,7 @@ async function handleSponsorAdActivation(data: Record<string, unknown>): Promise
 		}
 	} catch (error) {
 		console.error('❌ Error activating sponsor ad:', error);
+		throw error;
 	}
 }
 
@@ -716,6 +722,7 @@ async function handleSponsorAdCancellation(data: Record<string, unknown>): Promi
 		}
 	} catch (error) {
 		console.error('❌ Error cancelling sponsor ad:', error);
+		throw error;
 	}
 }
 
@@ -743,5 +750,6 @@ async function handleSponsorAdRenewal(data: Record<string, unknown>): Promise<vo
 		}
 	} catch (error) {
 		console.error('❌ Error renewing sponsor ad:', error);
+		throw error;
 	}
 }

@@ -5,6 +5,7 @@ import type Stripe from 'stripe';
 import { verifyPlatformSignature } from '@/lib/services/platform-activity-feed/hmac';
 import { mapStripeEventToWebhookResult } from '@/lib/payment/lib/providers/stripe-event-map';
 import { dispatchWebhookEvent } from '@/lib/payment/webhook-dispatch';
+import { RelayEventCoordinator } from '@/lib/payment/relay-event-coordinator';
 
 /**
  * Inbound endpoint for the Ever Works **shared Stripe webhook relay**.
@@ -52,18 +53,7 @@ const UNAUTHORIZED = 401; // any signature-related failure
  * the handlers must stay idempotent in their own right, which is the same
  * assumption the direct `/api/stripe/webhook` route already makes.
  */
-const seenEventIds = new Set<string>();
-const SEEN_LIMIT = 1000;
-
-function rememberEvent(id: string): boolean {
-	if (seenEventIds.has(id)) return false;
-	if (seenEventIds.size >= SEEN_LIMIT) {
-		// Bounded so a long-lived pod cannot grow this without limit.
-		seenEventIds.clear();
-	}
-	seenEventIds.add(id);
-	return true;
-}
+const relayEvents = new RelayEventCoordinator();
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
 	const secret = process.env.PLATFORM_SYNC_SECRET;
@@ -88,10 +78,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 		secret
 	});
 	if (!verdict.ok) {
-		return NextResponse.json(
-			{ error: 'unauthorized', reason: verdict.reason },
-			{ status: UNAUTHORIZED }
-		);
+		return NextResponse.json({ error: 'unauthorized', reason: verdict.reason }, { status: UNAUTHORIZED });
 	}
 
 	let event: Stripe.Event;
@@ -108,17 +95,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
 	// Reject an event routed to the wrong directory even if the signature checks
 	// out, so a platform-side routing bug cannot cross-contaminate two sites.
-	const eventWorkId = (event.data?.object as { metadata?: Record<string, string> })?.metadata
-		?.work_id;
+	const eventWorkId = (event.data?.object as { metadata?: Record<string, string> })?.metadata?.work_id;
 	if (eventWorkId && eventWorkId !== workId) {
-		return NextResponse.json(
-			{ error: 'event does not belong to this directory' },
-			{ status: 409 }
-		);
-	}
-
-	if (!rememberEvent(event.id)) {
-		return NextResponse.json({ received: true, duplicate: true });
+		return NextResponse.json({ error: 'event does not belong to this directory' }, { status: 409 });
 	}
 
 	const result = mapStripeEventToWebhookResult(event);
@@ -129,10 +108,16 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 	// direct Stripe delivery — a subscription activated via the relay is activated
 	// by the same handler as one activated directly.
 	//
-	// `dispatchWebhookEvent` never throws (each handler owns its try/catch), so a
-	// failing side-effect cannot turn a delivered event into a 500 and make the
-	// relay retry an event that was already partly fulfilled.
-	await dispatchWebhookEvent(result);
+	const outcome = await relayEvents.process(event.id, () => dispatchWebhookEvent(result));
+	if (outcome === 'duplicate') {
+		return NextResponse.json({ received: true, duplicate: true });
+	}
+	if (outcome === 'retry') {
+		// 503 is reserved for "platform sync not provisioned" and the relay
+		// intentionally treats that as non-retryable. Use 502 for a transient
+		// fulfilment failure so the platform propagates a retry back to Stripe.
+		return NextResponse.json({ received: false, retry: true }, { status: 502 });
+	}
 
 	return NextResponse.json({ received: true, type: result.type, dispatched: true });
 }
