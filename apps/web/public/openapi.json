@@ -23821,7 +23821,7 @@
           "Surveys"
         ],
         "summary": "Update survey",
-        "description": "Update a survey by ID or slug (admin only)",
+        "description": "Update a survey by ID (admin only)",
         "security": [
           {
             "sessionAuth": []
@@ -23887,7 +23887,7 @@
           "Surveys"
         ],
         "summary": "Delete survey",
-        "description": "Delete a survey by ID or slug (admin only)",
+        "description": "Delete a survey by ID (admin only)",
         "security": [
           {
             "sessionAuth": []
@@ -28541,6 +28541,88 @@
             "description": "Internal server error"
           }
         }
+      },
+      "post": {
+        "tags": [
+          "Client - Items"
+        ],
+        "summary": "Create a new item submission",
+        "description": "Creates a new item submission for the authenticated user. The item will be set to 'pending' status for admin review.",
+        "security": [
+          {
+            "sessionAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "Item name (3-100 characters)"
+                  },
+                  "description": {
+                    "type": "string",
+                    "description": "Item description (10-500 characters)"
+                  },
+                  "source_url": {
+                    "type": "string",
+                    "format": "uri",
+                    "description": "Main URL/link for the item"
+                  },
+                  "category": {
+                    "oneOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      }
+                    ],
+                    "description": "Item category or categories"
+                  },
+                  "tags": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "Item tags"
+                  },
+                  "icon_url": {
+                    "type": "string",
+                    "format": "uri",
+                    "description": "URL to item icon"
+                  }
+                },
+                "required": [
+                  "name",
+                  "description",
+                  "source_url"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Item created successfully"
+          },
+          "400": {
+            "description": "Bad request - Invalid input"
+          },
+          "401": {
+            "description": "Unauthorized - Authentication required"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
       }
     },
     "/api/client/items/stats": {
@@ -28721,7 +28803,7 @@
           "Admin - Sponsor Ads"
         ],
         "summary": "Approve sponsor ad",
-        "description": "Approves a pending sponsor ad submission. Only pending ads can be approved. Requires admin authentication.",
+        "description": "Approves and activates a sponsor ad. For pending_payment status, use forceApprove=true. Requires admin authentication.",
         "security": [
           {
             "sessionAuth": []
@@ -29182,7 +29264,7 @@
           "Sponsor Ads"
         ],
         "summary": "Get active sponsor ads",
-        "description": "Returns a list of currently active sponsor ads for public display. No authentication required.",
+        "description": "Returns a list of currently active sponsor ads with their associated item data for public display. No authentication required.",
         "parameters": [
           {
             "name": "limit",
@@ -29250,7 +29332,7 @@
           "Sponsor Ads - User"
         ],
         "summary": "Cancel user's sponsor ad",
-        "description": "Cancels a sponsor ad owned by the authenticated user. Can only cancel pending, approved, or active ads.",
+        "description": "Cancels a sponsor ad owned by the authenticated user. Can only cancel pending_payment, pending, or active ads.",
         "security": [
           {
             "sessionAuth": []
