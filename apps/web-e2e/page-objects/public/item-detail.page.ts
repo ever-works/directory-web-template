@@ -132,14 +132,14 @@ export class ItemDetailPage extends BasePage {
 	async editComment(commentText: string) {
 		const commentEl = this.getComment(commentText).locator('..');
 		await commentEl.hover();
-		await commentEl.locator('button[aria-label="Edit comment"]').click();
+		await commentEl.getByRole('button', { name: /^edit$/i }).click();
 	}
 
 	/** Hover over a comment to reveal delete button, then click delete. */
 	async deleteComment(commentText: string) {
 		const commentEl = this.getComment(commentText).locator('..');
 		await commentEl.hover();
-		await commentEl.locator('button[aria-label="Delete comment"]').click();
+		await commentEl.getByRole('button', { name: /^delete$/i }).click();
 	}
 
 	/** Get the delete comment confirmation dialog. */
