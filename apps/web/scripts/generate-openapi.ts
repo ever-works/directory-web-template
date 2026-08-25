@@ -239,8 +239,18 @@ function mergeOpenAPISpecs(existing: any, generated: any): any {
 					// Merge both versions (keep the best of both)
 					merged.paths[path] = mergeRouteDetails(existingRoute, generatedRoute);
 					log(`🔀 Merged route ${path} with existing documentation`);
+				} else {
+					// Preserve detailed existing schemas in this fallback, but still
+					// refresh descriptions supplied by current code annotations and
+					// retain any newly annotated HTTP method.
+					const annotationRefresh = Object.fromEntries(
+						Object.entries(generatedRoute).flatMap(([method, details]: [string, any]) => {
+							if (!existingRoute[method]) return [[method, details]];
+							return details?.description ? [[method, { description: details.description }]] : [];
+						})
+					);
+					merged.paths[path] = mergeRouteDetails(existingRoute, annotationRefresh);
 				}
-				// Otherwise, keep existing (existingHasDetailedDocs && !generatedHasDetailedDocs)
 			} else {
 				// New route, add directly
 				merged.paths[path] = generatedRoute;
@@ -337,11 +347,9 @@ function mergeRouteDetails(existing: any, generated: any): any {
 			const generatedMethod = generated[method];
 			const existingMethod = existing[method];
 
-			// Keep the most detailed description
-			if (
-				generatedMethod.description &&
-				generatedMethod.description.length > (existingMethod.description?.length || 0)
-			) {
+			// Code annotations are the source of truth. Always refresh their
+			// description instead of retaining a longer, stale generated copy.
+			if (generatedMethod.description) {
 				merged[method].description = generatedMethod.description;
 			}
 
