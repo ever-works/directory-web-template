@@ -4,6 +4,9 @@ import type Stripe from 'stripe';
 
 import { verifyPlatformSignature } from '@/lib/services/platform-activity-feed/hmac';
 import { mapStripeEventToWebhookResult } from '@/lib/payment/lib/providers/stripe-event-map';
+import { dispatchWebhookEvent } from '@/lib/payment/webhook-dispatch';
+import { RelayEventCoordinator } from '@/lib/payment/relay-event-coordinator';
+import { extractRelayWorkId } from '@/lib/payment/relay-work-id';
 
 /**
  * Inbound endpoint for the Ever Works **shared Stripe webhook relay**.
@@ -34,6 +37,9 @@ import { mapStripeEventToWebhookResult } from '@/lib/payment/lib/providers/strip
  *
  * 🛑 The raw body must be signed and verified byte-for-byte. Re-serialising the
  * JSON changes the digest and every request fails.
+ *
+ * Fulfilment is shared with the direct route via `lib/payment/webhook-dispatch.ts`,
+ * so both delivery paths run one definition of the payment handlers.
  */
 
 /** Status codes follow the activity-feed convention so the platform can classify. */
@@ -48,18 +54,7 @@ const UNAUTHORIZED = 401; // any signature-related failure
  * the handlers must stay idempotent in their own right, which is the same
  * assumption the direct `/api/stripe/webhook` route already makes.
  */
-const seenEventIds = new Set<string>();
-const SEEN_LIMIT = 1000;
-
-function rememberEvent(id: string): boolean {
-	if (seenEventIds.has(id)) return false;
-	if (seenEventIds.size >= SEEN_LIMIT) {
-		// Bounded so a long-lived pod cannot grow this without limit.
-		seenEventIds.clear();
-	}
-	seenEventIds.add(id);
-	return true;
-}
+const relayEvents = new RelayEventCoordinator();
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
 	const secret = process.env.PLATFORM_SYNC_SECRET;
@@ -84,10 +79,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 		secret
 	});
 	if (!verdict.ok) {
-		return NextResponse.json(
-			{ error: 'unauthorized', reason: verdict.reason },
-			{ status: UNAUTHORIZED }
-		);
+		return NextResponse.json({ error: 'unauthorized', reason: verdict.reason }, { status: UNAUTHORIZED });
 	}
 
 	let event: Stripe.Event;
@@ -104,36 +96,32 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
 	// Reject an event routed to the wrong directory even if the signature checks
 	// out, so a platform-side routing bug cannot cross-contaminate two sites.
-	const eventWorkId = (event.data?.object as { metadata?: Record<string, string> })?.metadata
-		?.work_id;
-	if (eventWorkId && eventWorkId !== workId) {
+	const eventWorkId = extractRelayWorkId(event);
+	if (!eventWorkId || eventWorkId !== workId) {
 		return NextResponse.json(
-			{ error: 'event does not belong to this directory' },
+			{ error: eventWorkId ? 'event does not belong to this directory' : 'event has no ownership key' },
 			{ status: 409 }
 		);
 	}
 
-	if (!rememberEvent(event.id)) {
-		return NextResponse.json({ received: true, duplicate: true });
-	}
-
 	const result = mapStripeEventToWebhookResult(event);
 
-	// ⚠️ TRANSPORT ONLY — business dispatch is deliberately NOT wired yet.
+	// The Stripe signature was verified once, centrally, by the platform before it
+	// relayed this event; the request's authenticity was established above by the
+	// platform HMAC. From here the event is fulfilled by EXACTLY the same code as a
+	// direct Stripe delivery — a subscription activated via the relay is activated
+	// by the same handler as one activated directly.
 	//
-	// The per-event handlers (`handleSubscriptionCreated`, …) are module-private
-	// to `app/api/stripe/webhook/route.ts`, and Next restricts what a `route.ts`
-	// may export, so sharing them means lifting ~500 lines of payment handlers
-	// into `lib/`. That is a separate, reviewable change; doing it here would
-	// bury a large refactor of live payment code inside a transport commit.
-	//
-	// Until that lands this endpoint is unreachable in practice: no Stripe
-	// endpoint points at it and the platform relay does not yet forward here.
-	// It answers 200 so that, once wired, a relay probe with an unknown event
-	// type is a safe liveness check.
-	console.log(
-		`[relay] verified event ${event.id} (${event.type} -> ${result.type}) for work ${workId}; dispatch not yet wired`
-	);
+	const outcome = await relayEvents.process(event.id, () => dispatchWebhookEvent(result));
+	if (outcome === 'duplicate') {
+		return NextResponse.json({ received: true, duplicate: true });
+	}
+	if (outcome === 'retry') {
+		// 503 is reserved for "platform sync not provisioned". Use 502 here so
+		// operators can distinguish a transient fulfilment failure; the platform
+		// safely propagates every site 5xx as a Stripe retry.
+		return NextResponse.json({ received: false, retry: true }, { status: 502 });
+	}
 
-	return NextResponse.json({ received: true, type: result.type, dispatched: false });
+	return NextResponse.json({ received: true, type: result.type, dispatched: true });
 }
