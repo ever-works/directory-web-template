@@ -108,7 +108,7 @@ test.describe('Item Detail: Comments', () => {
 		await commentContainer.hover();
 
 		// Click the edit button
-		const editButton = commentContainer.locator('button[aria-label="Edit comment"]');
+		const editButton = commentContainer.getByRole('button', { name: /^edit$/i });
 		await editButton.click();
 
 		// The textarea should appear with the original text — update it
@@ -150,7 +150,7 @@ test.describe('Item Detail: Comments', () => {
 		await commentContainer.hover();
 
 		// Click the delete button
-		const deleteButton = commentContainer.locator('button[aria-label="Delete comment"]');
+		const deleteButton = commentContainer.getByRole('button', { name: /^delete$/i });
 		await deleteButton.click();
 
 		// Delete confirmation dialog should appear
