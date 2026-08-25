@@ -61,10 +61,12 @@ No visible UI or localisation change.
 ## 9. Data & API Surface
 
 `POST /api/stripe/platform-webhook` accepts the raw Stripe event JSON and requires
-`Authorization: Bearer <HMAC>` plus `x-platform-ts`. The signature covers the raw
-body digest and the directory Work id. Success returns 200; transient fulfilment
-failure returns 502 so the platform retries. Status 503 remains reserved for an
-unprovisioned platform-sync channel.
+`Authorization: Bearer <HMAC>` plus `x-platform-ts`. The HMAC input includes the
+timestamp from `x-platform-ts`, the raw-body SHA-256 digest, and the directory
+Work id. Success returns 200; an invalid HMAC returns 401; a missing or mismatched
+event Work id returns 409; transient fulfilment failure returns 502 so the
+platform retries. Status 503 remains reserved for an unprovisioned platform-sync
+channel.
 
 ## 10. Plugin / Adapter Impact
 

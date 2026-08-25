@@ -41,6 +41,7 @@ import { coreConfig, emailConfig as globalEmailConfig } from '@/lib/config/confi
 import { WebhookSubscriptionService } from '@/lib/services/webhook-subscription.service';
 import { sponsorAdService } from '@/lib/services/sponsor-ad.service';
 import { buildPaymentSucceededBaseEmailData } from '@/lib/payment/webhook-email-data';
+import { assertRelayFulfilment } from '@/lib/payment/relay-fulfilment';
 const webhookSubscriptionService = new WebhookSubscriptionService();
 
 const appUrl = coreConfig.APP_URL || 'https://demo.ever.works';
@@ -254,6 +255,7 @@ async function handlePaymentSucceeded(data: any) {
 			console.log('✅ Payment success email sent successfully');
 		} else {
 			console.error('❌ Failed to send payment success email:', emailResult.error);
+			assertRelayFulfilment(false, 'payment success email');
 		}
 	} catch (error) {
 		console.error('❌ Error handling payment succeeded:', error);
@@ -297,6 +299,7 @@ async function handlePaymentFailed(data: any) {
 			console.log('✅ Payment failed email sent successfully');
 		} else {
 			console.error('❌ Failed to send payment failed email:', emailResult.error);
+			assertRelayFulfilment(false, 'payment failed email');
 		}
 	} catch (error) {
 		console.error('❌ Error handling payment failed:', error);
@@ -350,6 +353,7 @@ async function handleSubscriptionCreated(data: any) {
 			console.log('✅ New subscription email sent successfully');
 		} else {
 			console.error('❌ Failed to send new subscription email:', emailResult.error);
+			assertRelayFulfilment(false, 'new subscription email');
 		}
 	} catch (error) {
 		console.error('❌ Error handling subscription created:', error);
@@ -396,6 +400,7 @@ async function handleSubscriptionUpdated(data: any) {
 			console.log('✅ Updated subscription email sent successfully');
 		} else {
 			console.error('❌ Failed to send updated subscription email:', emailResult.error);
+			assertRelayFulfilment(false, 'updated subscription email');
 		}
 	} catch (error) {
 		console.error('❌ Error handling subscription updated:', error);
@@ -445,6 +450,7 @@ async function handleSubscriptionCancelled(data: any) {
 			console.log('✅ Cancelled subscription email sent successfully');
 		} else {
 			console.error('❌ Failed to send cancelled subscription email:', emailResult.error);
+			assertRelayFulfilment(false, 'cancelled subscription email');
 		}
 	} catch (error) {
 		console.error('❌ Error handling subscription cancelled:', error);
@@ -503,6 +509,7 @@ async function handleSubscriptionPaymentSucceeded(data: any) {
 			console.log('✅ Subscription payment success email sent successfully');
 		} else {
 			console.error('❌ Failed to send subscription payment success email:', emailResult.error);
+			assertRelayFulfilment(false, 'subscription payment success email');
 		}
 	} catch (error) {
 		console.error('❌ Error handling subscription payment succeeded:', error);
@@ -552,6 +559,7 @@ async function handleSubscriptionPaymentFailed(data: any) {
 			console.log('✅ Subscription payment failed email sent successfully');
 		} else {
 			console.error('❌ Failed to send subscription payment failed email:', emailResult.error);
+			assertRelayFulfilment(false, 'subscription payment failed email');
 		}
 	} catch (error) {
 		console.error('❌ Error handling subscription payment failed:', error);
@@ -597,6 +605,7 @@ async function handleSubscriptionTrialEnding(data: any) {
 			console.log('✅ Trial ending email sent successfully');
 		} else {
 			console.error('❌ Failed to send trial ending email:', emailResult.error);
+			assertRelayFulfilment(false, 'trial ending email');
 		}
 	} catch (error) {
 		console.error('❌ Error handling subscription trial ending:', error);
@@ -676,7 +685,7 @@ async function handleSponsorAdActivation(data: Record<string, unknown>): Promise
 
 	if (!sponsorAdId) {
 		console.error('❌ Sponsor ad ID not found in subscription metadata');
-		return;
+		throw new Error('sponsor ad activation metadata missing');
 	}
 
 	try {
@@ -691,6 +700,7 @@ async function handleSponsorAdActivation(data: Record<string, unknown>): Promise
 			console.log(`✅ Sponsor ad payment confirmed, now pending admin review: ${sponsorAdId}`);
 		} else {
 			console.error(`❌ Failed to confirm sponsor ad payment: ${sponsorAdId}`);
+			assertRelayFulfilment(false, 'sponsor ad activation');
 		}
 	} catch (error) {
 		console.error('❌ Error activating sponsor ad:', error);
@@ -707,7 +717,7 @@ async function handleSponsorAdCancellation(data: Record<string, unknown>): Promi
 
 	if (!sponsorAdId) {
 		console.error('❌ Sponsor ad ID not found in subscription metadata');
-		return;
+		throw new Error('sponsor ad cancellation metadata missing');
 	}
 
 	try {
@@ -719,6 +729,7 @@ async function handleSponsorAdCancellation(data: Record<string, unknown>): Promi
 			console.log(`✅ Sponsor ad cancelled successfully: ${sponsorAdId}`);
 		} else {
 			console.error(`❌ Failed to cancel sponsor ad: ${sponsorAdId}`);
+			assertRelayFulfilment(false, 'sponsor ad cancellation');
 		}
 	} catch (error) {
 		console.error('❌ Error cancelling sponsor ad:', error);
@@ -735,7 +746,7 @@ async function handleSponsorAdRenewal(data: Record<string, unknown>): Promise<vo
 
 	if (!sponsorAdId) {
 		console.error('❌ Sponsor ad ID not found in subscription metadata');
-		return;
+		throw new Error('sponsor ad renewal metadata missing');
 	}
 
 	try {
@@ -747,6 +758,7 @@ async function handleSponsorAdRenewal(data: Record<string, unknown>): Promise<vo
 			console.log(`✅ Sponsor ad renewed successfully: ${sponsorAdId}`);
 		} else {
 			console.error(`❌ Failed to renew sponsor ad: ${sponsorAdId}`);
+			assertRelayFulfilment(false, 'sponsor ad renewal');
 		}
 	} catch (error) {
 		console.error('❌ Error renewing sponsor ad:', error);

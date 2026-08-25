@@ -6,6 +6,7 @@ import { verifyPlatformSignature } from '@/lib/services/platform-activity-feed/h
 import { mapStripeEventToWebhookResult } from '@/lib/payment/lib/providers/stripe-event-map';
 import { dispatchWebhookEvent } from '@/lib/payment/webhook-dispatch';
 import { RelayEventCoordinator } from '@/lib/payment/relay-event-coordinator';
+import { extractRelayWorkId } from '@/lib/payment/relay-work-id';
 
 /**
  * Inbound endpoint for the Ever Works **shared Stripe webhook relay**.
@@ -95,9 +96,12 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
 	// Reject an event routed to the wrong directory even if the signature checks
 	// out, so a platform-side routing bug cannot cross-contaminate two sites.
-	const eventWorkId = (event.data?.object as { metadata?: Record<string, string> })?.metadata?.work_id;
-	if (eventWorkId && eventWorkId !== workId) {
-		return NextResponse.json({ error: 'event does not belong to this directory' }, { status: 409 });
+	const eventWorkId = extractRelayWorkId(event);
+	if (!eventWorkId || eventWorkId !== workId) {
+		return NextResponse.json(
+			{ error: eventWorkId ? 'event does not belong to this directory' : 'event has no ownership key' },
+			{ status: 409 }
+		);
 	}
 
 	const result = mapStripeEventToWebhookResult(event);
@@ -113,9 +117,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 		return NextResponse.json({ received: true, duplicate: true });
 	}
 	if (outcome === 'retry') {
-		// 503 is reserved for "platform sync not provisioned" and the relay
-		// intentionally treats that as non-retryable. Use 502 for a transient
-		// fulfilment failure so the platform propagates a retry back to Stripe.
+		// 503 is reserved for "platform sync not provisioned". Use 502 here so
+		// operators can distinguish a transient fulfilment failure; the platform
+		// safely propagates every site 5xx as a Stripe retry.
 		return NextResponse.json({ received: false, retry: true }, { status: 502 });
 	}
 

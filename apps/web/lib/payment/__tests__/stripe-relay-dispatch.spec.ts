@@ -2,6 +2,8 @@ import assert from 'node:assert/strict';
 import { test } from 'node:test';
 
 import { RelayEventCoordinator } from '../relay-event-coordinator';
+import { assertRelayFulfilment } from '../relay-fulfilment';
+import { extractRelayWorkId } from '../relay-work-id';
 import { buildPaymentSucceededBaseEmailData } from '../webhook-email-data';
 
 test('payment success formats amount_due before the email boundary', () => {
@@ -39,4 +41,27 @@ test('a successfully fulfilled event is remembered as a duplicate', async () => 
 	assert.equal(await events.process('evt_completed', succeed), 'processed');
 	assert.equal(await events.process('evt_completed', succeed), 'duplicate');
 	assert.equal(attempts, 1);
+});
+
+test('invoice ownership is read from subscription details and line metadata', () => {
+	assert.equal(
+		extractRelayWorkId({
+			data: { object: { subscription_details: { metadata: { work_id: 'work-invoice' } } } }
+		}),
+		'work-invoice'
+	);
+	assert.equal(
+		extractRelayWorkId({
+			data: { object: { lines: { data: [{}, { metadata: { work_id: 'work-line' } }] } } }
+		}),
+		'work-line'
+	);
+});
+
+test('an event without a supported ownership key is not accepted', () => {
+	assert.equal(extractRelayWorkId({ data: { object: { metadata: {} } } }), null);
+});
+
+test('an unsuccessful service result becomes a retryable fulfilment failure', () => {
+	assert.throws(() => assertRelayFulfilment(false, 'payment success email'), /payment success email failed/);
 });

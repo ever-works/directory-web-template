@@ -43,7 +43,7 @@ flowchart LR
 The relay route is server-to-server only. It returns 200 after successful
 dispatch, 401 for invalid HMAC, 409 for a mismatched Work id, 503 when not
 provisioned, and 502 for transient fulfilment failure. The distinct 5xx statuses
-preserve the platform relay's retry classification.
+preserve diagnostics; the platform relay treats both as retryable.
 
 ## 5. Data Model Changes
 

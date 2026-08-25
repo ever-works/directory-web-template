@@ -9,7 +9,7 @@ sidebar_position: 99
 
 ## 2026-08-25
 
-- `stripe relay`: documented and hardened the shared handler/`POST /api/stripe/platform-webhook` path, including HMAC fail-closed coverage, formatted payment amounts, and retry-safe event coordination ([spec 045](spec/045-shared-stripe-webhook-relay/spec.md), PR #1037).
+- `spec-045`: documented and hardened the shared handler/`POST /api/stripe/platform-webhook` path, including HMAC fail-closed coverage, formatted payment amounts, and retry-safe event coordination ([spec 045](spec/045-shared-stripe-webhook-relay/spec.md), PR #1037).
 
 A running log of meaningful changes to documentation, specs, and the
 project's living-document set (constitution, agent rules, plans). One
