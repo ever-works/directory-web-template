@@ -14,7 +14,6 @@ import {
   getCancelledSubscriptionTemplate
 } from '@/lib/mail/templates/subscription-events';
 import { paymentConfig } from '@/lib/config/config-service';
-import { formatAmount, formatPaymentMethod } from '@/lib/payment/payment-format';
 
 export { formatAmount, formatPaymentMethod } from '@/lib/payment/payment-format';
 
