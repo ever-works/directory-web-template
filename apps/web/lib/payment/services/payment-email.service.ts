@@ -14,6 +14,9 @@ import {
   getCancelledSubscriptionTemplate
 } from '@/lib/mail/templates/subscription-events';
 import { paymentConfig } from '@/lib/config/config-service';
+import { formatAmount, formatPaymentMethod } from '@/lib/payment/payment-format';
+
+export { formatAmount, formatPaymentMethod } from '@/lib/payment/payment-format';
 
 // Simple template functions for new subscription management features
 const getSubscriptionCancellingTemplate = (data: SubscriptionCancellingEmailData) => ({
@@ -581,28 +584,6 @@ export const extractCustomerInfo = (stripeObject: any) => {
 };
 
 /**
- * Format amount from cents to currency
- */
-export const formatAmount = (amountInCents: number, currency: string = 'USD') => {
-  return (amountInCents / 100).toFixed(2) + " " + currency.toUpperCase();
-};
-
-/**
- * Format payment method information
- */
-export const formatPaymentMethod = (paymentMethod: any) => {
-  if (!paymentMethod) return 'Credit Card';
-  
-  const { type, card } = paymentMethod;
-  
-  if (type === 'card' && card) {
-    return `**** **** **** ${card.last4} (${card.brand?.toUpperCase()})`;
-  }
-  
-  return type || 'Credit Card';
-};
-
-/**
  * Format billing date from timestamp
  */
 export const formatBillingDate = (timestamp: number) => {
@@ -659,4 +640,4 @@ export const getBillingPeriod = (interval: string) => {
 // ============================================================================
 
 // Singleton instance of the service
-export const paymentEmailService = new PaymentEmailService(); 
+export const paymentEmailService = new PaymentEmailService();

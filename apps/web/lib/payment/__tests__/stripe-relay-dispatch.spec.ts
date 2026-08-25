@@ -46,6 +46,16 @@ test('a successfully fulfilled event is remembered as a duplicate', async () => 
 test('invoice ownership is read from subscription details and line metadata', () => {
 	assert.equal(
 		extractRelayWorkId({
+			data: {
+				object: {
+					parent: { subscription_details: { metadata: { work_id: 'work-invoice-v18' } } }
+				}
+			}
+		}),
+		'work-invoice-v18'
+	);
+	assert.equal(
+		extractRelayWorkId({
 			data: { object: { subscription_details: { metadata: { work_id: 'work-invoice' } } } }
 		}),
 		'work-invoice'

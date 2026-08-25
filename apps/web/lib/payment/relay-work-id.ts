@@ -11,6 +11,15 @@ export function extractRelayWorkId(event: RelayEventLike): string | null {
 	const direct = read((object as { metadata?: unknown }).metadata);
 	if (direct) return direct;
 
+	const parentSubscriptionDetails = read(
+		(
+			object as {
+				parent?: { subscription_details?: { metadata?: unknown } };
+			}
+		).parent?.subscription_details?.metadata
+	);
+	if (parentSubscriptionDetails) return parentSubscriptionDetails;
+
 	const subscriptionDetails = read(
 		(object as { subscription_details?: { metadata?: unknown } }).subscription_details?.metadata
 	);
