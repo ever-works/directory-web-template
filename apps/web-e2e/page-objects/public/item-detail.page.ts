@@ -33,9 +33,15 @@ export class ItemDetailPage extends BasePage {
 		this.favoriteButton = page.locator('button[aria-label*="favorites"]').first();
 
 		// Comments
-		this.commentsSection = page.locator('section, div').filter({ hasText: /^comments/i }).first();
+		this.commentsSection = page
+			.locator('section, div')
+			.filter({ hasText: /^comments/i })
+			.first();
 		this.commentTextarea = page.locator('#comment');
-		this.postCommentButton = page.getByRole('button', { name: /post comment/i });
+		this.postCommentButton = page
+			.locator('form')
+			.filter({ has: this.commentTextarea })
+			.getByRole('button', { name: /^post$/i });
 		this.signInToCommentButton = page.getByRole('button', { name: /sign in to comment/i });
 	}
 

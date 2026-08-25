@@ -337,11 +337,9 @@ function mergeRouteDetails(existing: any, generated: any): any {
 			const generatedMethod = generated[method];
 			const existingMethod = existing[method];
 
-			// Keep the most detailed description
-			if (
-				generatedMethod.description &&
-				generatedMethod.description.length > (existingMethod.description?.length || 0)
-			) {
+			// Code annotations are the source of truth. Always refresh their
+			// description instead of retaining a longer, stale generated copy.
+			if (generatedMethod.description) {
 				merged[method].description = generatedMethod.description;
 			}
 
