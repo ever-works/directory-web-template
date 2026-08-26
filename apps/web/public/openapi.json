@@ -23821,7 +23821,7 @@
           "Surveys"
         ],
         "summary": "Update survey",
-        "description": "Update a survey by ID or slug (admin only)",
+        "description": "Update a survey by ID (admin only)",
         "security": [
           {
             "sessionAuth": []
@@ -23887,7 +23887,7 @@
           "Surveys"
         ],
         "summary": "Delete survey",
-        "description": "Delete a survey by ID or slug (admin only)",
+        "description": "Delete a survey by ID (admin only)",
         "security": [
           {
             "sessionAuth": []
@@ -28541,6 +28541,88 @@
             "description": "Internal server error"
           }
         }
+      },
+      "post": {
+        "tags": [
+          "Client - Items"
+        ],
+        "summary": "Create a new item submission",
+        "description": "Creates a new item submission for the authenticated user. The item will be set to 'pending' status for admin review.",
+        "security": [
+          {
+            "sessionAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string",
+                    "description": "Item name (3-100 characters)"
+                  },
+                  "description": {
+                    "type": "string",
+                    "description": "Item description (10-500 characters)"
+                  },
+                  "source_url": {
+                    "type": "string",
+                    "format": "uri",
+                    "description": "Main URL/link for the item"
+                  },
+                  "category": {
+                    "oneOf": [
+                      {
+                        "type": "string"
+                      },
+                      {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      }
+                    ],
+                    "description": "Item category or categories"
+                  },
+                  "tags": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "Item tags"
+                  },
+                  "icon_url": {
+                    "type": "string",
+                    "format": "uri",
+                    "description": "URL to item icon"
+                  }
+                },
+                "required": [
+                  "name",
+                  "description",
+                  "source_url"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Item created successfully"
+          },
+          "400": {
+            "description": "Bad request - Invalid input"
+          },
+          "401": {
+            "description": "Unauthorized - Authentication required"
+          },
+          "500": {
+            "description": "Internal server error"
+          }
+        }
       }
     },
     "/api/client/items/stats": {
@@ -28721,7 +28803,7 @@
           "Admin - Sponsor Ads"
         ],
         "summary": "Approve sponsor ad",
-        "description": "Approves a pending sponsor ad submission. Only pending ads can be approved. Requires admin authentication.",
+        "description": "Approves and activates a sponsor ad. For pending_payment status, use forceApprove=true. Requires admin authentication.",
         "security": [
           {
             "sessionAuth": []
@@ -29182,7 +29264,7 @@
           "Sponsor Ads"
         ],
         "summary": "Get active sponsor ads",
-        "description": "Returns a list of currently active sponsor ads for public display. No authentication required.",
+        "description": "Returns a list of currently active sponsor ads with their associated item data for public display. No authentication required.",
         "parameters": [
           {
             "name": "limit",
@@ -29250,7 +29332,7 @@
           "Sponsor Ads - User"
         ],
         "summary": "Cancel user's sponsor ad",
-        "description": "Cancels a sponsor ad owned by the authenticated user. Can only cancel pending, approved, or active ads.",
+        "description": "Cancels a sponsor ad owned by the authenticated user. Can only cancel pending_payment, pending, or active ads.",
         "security": [
           {
             "sessionAuth": []
@@ -30054,7 +30136,7 @@
       },
       "delete": {
         "summary": "Delete a collection",
-        "description": "Deletes a collection by ID. Admin access required. Defaults to soft delete; pass permanent=true to permanently remove the collection.",
+        "description": "Permanently deletes a collection by ID. Admin access required.",
         "tags": [
           "Admin - Collections"
         ],
@@ -33741,6 +33823,83 @@
           },
           "500": {
             "description": "Internal server error"
+          }
+        }
+      }
+    },
+    "/api/payment/public-config": {
+      "get": {
+        "tags": [
+          "Payment - Public Config"
+        ],
+        "summary": "Get the public (browser-safe) payment configuration",
+        "description": "Returns the public payment configuration derived from the server's runtime environment so the browser can obtain it at request time (spec 044). Platform-deployed k8s Works are built without per-Work env, so NEXT_PUBLIC_* values are not inlined into the client bundle; this route is how the client learns the Stripe publishable key, the dynamic-pricing / demo flags and which checkout providers are configured. Only publishable values are returned; server-side credentials are never exposed. Always dynamic, never cached.",
+        "responses": {
+          "200": {
+            "description": "Public payment configuration",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "type": "string",
+                  "example": "no-store, no-cache, must-revalidate, private, max-age=0"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "stripePublishableKey": {
+                      "type": "string",
+                      "nullable": true,
+                      "description": "Stripe publishable key (NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY, falling back to STRIPE_PUBLISHABLE_KEY), or null",
+                      "example": "pk_test_51Example"
+                    },
+                    "dynamicPricing": {
+                      "type": "boolean",
+                      "description": "NEXT_PUBLIC_STRIPE_DYNAMIC_PRICING === 'true'",
+                      "example": false
+                    },
+                    "demo": {
+                      "type": "boolean",
+                      "description": "NEXT_PUBLIC_DEMO === 'true'",
+                      "example": false
+                    },
+                    "configuredProviders": {
+                      "type": "array",
+                      "description": "Checkout providers whose public identifiers are set, in canonical order",
+                      "items": {
+                        "type": "string",
+                        "enum": [
+                          "stripe",
+                          "lemonsqueezy",
+                          "polar",
+                          "solidgate"
+                        ]
+                      },
+                      "example": [
+                        "stripe"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "stripePublishableKey",
+                    "dynamicPricing",
+                    "demo",
+                    "configuredProviders"
+                  ]
+                },
+                "example": {
+                  "stripePublishableKey": "pk_test_51Example",
+                  "dynamicPricing": false,
+                  "demo": false,
+                  "configuredProviders": [
+                    "stripe"
+                  ]
+                }
+              }
+            }
           }
         }
       }

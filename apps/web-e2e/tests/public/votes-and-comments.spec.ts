@@ -108,18 +108,20 @@ test.describe('Item Detail: Comments', () => {
 		await commentContainer.hover();
 
 		// Click the edit button
-		const editButton = commentContainer.locator('button[aria-label="Edit comment"]');
+		const editButton = commentContainer.getByRole('button', { name: /^edit$/i });
 		await editButton.click();
 
-		// The textarea should appear with the original text — update it
-		const editTextarea = commentContainer.locator('textarea').first();
+		// Entering edit mode replaces the comment text that `commentContainer`
+		// was filtered by, so that live locator no longer matches. Locate the
+		// only edit textarea directly (the composer is the stable `#comment`).
+		const editTextarea = clientPage.locator('textarea:not(#comment)').first();
 		await expect(editTextarea).toBeVisible();
 		const updatedText = `${originalText} - updated`;
 		await editTextarea.clear();
 		await editTextarea.fill(updatedText);
 
 		// Save the edit — the component renders a button with text "Save" and a Check icon
-		const saveButton = commentContainer.getByRole('button', { name: /save/i });
+		const saveButton = clientPage.getByRole('button', { name: /^save$/i });
 		await saveButton.click();
 
 		// Updated comment should be visible
@@ -150,7 +152,7 @@ test.describe('Item Detail: Comments', () => {
 		await commentContainer.hover();
 
 		// Click the delete button
-		const deleteButton = commentContainer.locator('button[aria-label="Delete comment"]');
+		const deleteButton = commentContainer.getByRole('button', { name: /^delete$/i });
 		await deleteButton.click();
 
 		// Delete confirmation dialog should appear

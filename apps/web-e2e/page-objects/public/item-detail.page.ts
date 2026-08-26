@@ -33,9 +33,15 @@ export class ItemDetailPage extends BasePage {
 		this.favoriteButton = page.locator('button[aria-label*="favorites"]').first();
 
 		// Comments
-		this.commentsSection = page.locator('section, div').filter({ hasText: /^comments/i }).first();
+		this.commentsSection = page
+			.locator('section, div')
+			.filter({ hasText: /^comments/i })
+			.first();
 		this.commentTextarea = page.locator('#comment');
-		this.postCommentButton = page.getByRole('button', { name: /post comment/i });
+		this.postCommentButton = page
+			.locator('form')
+			.filter({ has: this.commentTextarea })
+			.getByRole('button', { name: /^post$/i });
 		this.signInToCommentButton = page.getByRole('button', { name: /sign in to comment/i });
 	}
 
@@ -124,16 +130,16 @@ export class ItemDetailPage extends BasePage {
 
 	/** Hover over a comment to reveal edit/delete buttons, then click edit. */
 	async editComment(commentText: string) {
-		const commentEl = this.getComment(commentText).locator('..');
+		const commentEl = this.page.locator('div.group').filter({ hasText: commentText }).first();
 		await commentEl.hover();
-		await commentEl.locator('button[aria-label="Edit comment"]').click();
+		await commentEl.getByRole('button', { name: /^edit$/i }).click();
 	}
 
 	/** Hover over a comment to reveal delete button, then click delete. */
 	async deleteComment(commentText: string) {
-		const commentEl = this.getComment(commentText).locator('..');
+		const commentEl = this.page.locator('div.group').filter({ hasText: commentText }).first();
 		await commentEl.hover();
-		await commentEl.locator('button[aria-label="Delete comment"]').click();
+		await commentEl.getByRole('button', { name: /^delete$/i }).click();
 	}
 
 	/** Get the delete comment confirmation dialog. */
