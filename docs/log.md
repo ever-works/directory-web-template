@@ -9,9 +9,9 @@ sidebar_position: 99
 
 ## 2026-09-03
 
-- `spec-046`: EW-131 — the optional `pricing:` block of `.works/works.yml` is now documented field by field and validated on read: new `docs/configuration/works-yml-pricing.md` + complete `docs/configuration/examples/works-pricing.example.yml`, new `apps/web/lib/config/schemas/works-pricing.schema.ts` called from `getConfig()`, `provider` accepts `stripe`/`lemonsqueezy`/`polar`/`solidgate`/`manual` and `PRO` aliases `STANDARD`; a malformed block is logged per field and falls back to the built-in plans instead of throwing ([spec 046](spec/046-works-yml-pricing-config/spec.md), PR #1041).
-- `docs/payment`: `payment.md` "Configure Pricing Plans" and `configuration/payment-config.md` now point at the full `works.yml` pricing reference and document `provider: manual` + the `PRO` alias ([spec 046](spec/046-works-yml-pricing-config/spec.md), PR #1041).
-- `questions`: added Q-046a (should `provider: manual` render its own pricing surface?) and Q-046b (should a malformed `pricing:` block ever be fatal?), both with chosen defaults ([spec 046](spec/046-works-yml-pricing-config/spec.md), PR #1041).
+- `spec-046`: EW-131 — the optional `pricing:` block of `.works/works.yml` is now documented field by field and validated on read: new `docs/configuration/works-yml-pricing.md` + complete `docs/configuration/examples/works-pricing.example.yml`, new `apps/web/lib/config/schemas/works-pricing.schema.ts` called from `getConfig()`, `provider` accepts `stripe`/`lemonsqueezy`/`polar`/`solidgate`/`manual` and `PRO` aliases `STANDARD`; a malformed block is logged per field and falls back to the built-in plans instead of throwing ([spec 046](spec/046-works-yml-pricing-config/spec.md), PR #1043).
+- `docs/payment`: `payment.md` "Configure Pricing Plans" and `configuration/payment-config.md` now point at the full `works.yml` pricing reference and document `provider: manual` + the `PRO` alias ([spec 046](spec/046-works-yml-pricing-config/spec.md), PR #1043).
+- `questions`: added Q-046a (should `provider: manual` render its own pricing surface?) and Q-046b (should a malformed `pricing:` block ever be fatal?), both with chosen defaults ([spec 046](spec/046-works-yml-pricing-config/spec.md), PR #1043).
 
 ## 2026-08-25
 
