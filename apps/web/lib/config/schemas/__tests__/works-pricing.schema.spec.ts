@@ -226,11 +226,20 @@ describe('works.yml pricing backward compatibility', () => {
 		const { pricing } = parseWorksPricingConfig({
 			...config,
 			futureRootKey: 'kept',
-			plans: { ...config.plans, FREE: { ...config.plans.FREE, futurePlanKey: 'kept too' } }
+			plans: {
+				...config.plans,
+				ENTERPRISE: { id: 'enterprise', name: 'Enterprise', price: 199 },
+				FREE: { ...config.plans.FREE, futurePlanKey: 'kept too' }
+			}
 		});
+
+		const plans = pricing?.plans as Record<string, unknown> | undefined;
 
 		assert.equal((pricing as Record<string, unknown> | undefined)?.futureRootKey, 'kept');
 		assert.equal((pricing?.plans.FREE as Record<string, unknown> | undefined)?.futurePlanKey, 'kept too');
+		// An unrecognised plan key round-trips like any other unknown key —
+		// only the consumed PRO alias is dropped.
+		assert.ok(plans?.ENTERPRISE, 'unknown plan keys must round-trip');
 	});
 
 	it('rejects a pricing block that is not a mapping', () => {

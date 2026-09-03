@@ -136,12 +136,17 @@ const plansSchema = plansBaseSchema
 		}
 	})
 	.transform((plans): PricingPlans => {
-		// superRefine above guarantees these are present by the time we get here.
-		const free = plans.FREE as PricingConfig;
-		const standard = (plans.STANDARD ?? plans.PRO) as PricingConfig;
-		const premium = plans.PREMIUM as PricingConfig;
+		const { FREE, STANDARD, PRO, PREMIUM, ...rest } = plans;
 
-		return { FREE: free, STANDARD: standard, PREMIUM: premium };
+		return {
+			// Plan keys this template does not know yet round-trip, like every
+			// other unrecognised key. Only the consumed alias is dropped.
+			...rest,
+			// superRefine above guarantees these are present by the time we get here.
+			FREE: FREE as PricingConfig,
+			STANDARD: (STANDARD ?? PRO) as PricingConfig,
+			PREMIUM: PREMIUM as PricingConfig
+		};
 	});
 
 const worksPricingConfigBaseSchema = z.looseObject({
