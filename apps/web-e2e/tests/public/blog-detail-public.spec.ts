@@ -31,6 +31,20 @@ test.describe('Public: Blog post detail', () => {
 			expect(response).toBeTruthy();
 			expect(response!.status(), route).toBeLessThan(500);
 		});
+
+		// Regression guard for a soft 404. A `loading.tsx` anywhere above a
+		// segment makes that segment stream, so Next flushes the shell with a
+		// 200 before the page runs and `notFound()` can then only swap the
+		// body — the page reads "Page Not Found" while the status stays 200,
+		// which invites crawlers to index unlimited nonexistent URLs. The
+		// listing skeleton lives in a `(index)` route group precisely so these
+		// routes are not streamed. Asserting the STATUS is the only way to
+		// catch a regression; the rendered body looks correct either way.
+		test(`${route} returns a real 404 status, not a soft 404`, async ({ page }) => {
+			const response = await page.goto(route, { waitUntil: 'domcontentloaded' });
+			expect(response, route).toBeTruthy();
+			expect(response!.status(), `${route} must answer 404, not a 200 "not found" body`).toBe(404);
+		});
 	}
 
 	test('a post page renders the title, header metadata and body', async ({ page }) => {

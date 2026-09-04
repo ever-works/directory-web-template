@@ -110,7 +110,8 @@ traffic; without a blog they either bolt on a separate CMS or drop the content.
 - [x] AC-16: the listing renders category and tag chip rows that toggle
       `?category=` / `?tag=` on the current path; clicking an active chip clears it.
 - [x] AC-17: `/blog/category/[slug]` and `/blog/tag/[slug]` render the same
-      listing with the term pinned, and return 404 for an unknown term.
+      listing with the term pinned, and return a real HTTP 404 (not a soft 404)
+      for an unknown term.
 - [x] AC-18: a post page shows its categories above the title and its tags below
       the body, each linking to the corresponding archive.
 - [x] AC-19: category and tag archives with at least one post appear in the
@@ -211,6 +212,17 @@ None. The blog is a reader surface over the existing Git content adapter.
   string, so a slug taken from the URL must never be interpolated into it — a
   `%s` in the slug would swallow the following argument. Slugs and filenames
   are passed as their own arguments throughout the posts loader.
+- **A `loading.tsx` turns `notFound()` into a soft 404 for every route beneath
+  it.** A segment with a `loading.tsx` is streamed, so Next flushes the shell
+  with a 200 before the page component runs and a later `notFound()` can only
+  replace the body, not the status. With the listing skeleton sitting directly
+  under `blog/`, every unknown `/blog/<slug>`, `/blog/category/<slug>` and
+  `/blog/tag/<slug>` returned a "Page Not Found" page as **HTTP 200** — a
+  soft 404, which invites crawlers to index unlimited nonexistent URLs. The
+  skeleton therefore lives in a `(index)` route group, which contributes no
+  path segment: `/blog` still resolves to it, while the detail and archive
+  routes stay unstreamed and return a real 404. This is verified by the e2e
+  suite, and the file carries a comment saying not to move it back up.
 
 ## 12. Acceptance Test Plan
 

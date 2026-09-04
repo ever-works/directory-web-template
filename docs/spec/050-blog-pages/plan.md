@@ -43,28 +43,28 @@ flowchart TD
 
 ## 3. Affected Packages and Files
 
-| Path                                                  | Change | Notes                                                        |
-| ----------------------------------------------------- | ------ | ------------------------------------------------------------ |
-| `apps/web/types/post.ts`                              | new    | post types, kept out of the `'use server'` content module    |
-| `apps/web/lib/blog/constants.ts`                      | new    | default and maximum posts-per-page                           |
-| `apps/web/lib/blog/urls.ts`                           | new    | URL builders, search-param parsing, date formatting          |
-| `apps/web/lib/content.ts`                             | modify | posts loader, taxonomies, adjacency, cached wrappers         |
-| `apps/web/lib/cache-config.ts`                        | modify | `POSTS`, `POST(slug)`, `POSTS_LOCALE(locale)` tags           |
-| `apps/web/lib/content-signals.ts`                     | modify | `hasPosts` signal                                            |
-| `apps/web/lib/seo/feeds.ts`                           | modify | `buildPostFeedEntries()`                                     |
-| `apps/web/components/providers/settings-provider.tsx` | modify | thread `hasPosts` to the client                              |
-| `apps/web/hooks/use-blog-exists.ts`                   | new    | mirrors `use-comparisons-exists`                             |
-| `apps/web/components/header/index.tsx`                | modify | Blog nav entry, gated on `hasPosts`                          |
-| `apps/web/components/header/more-menu.tsx`            | modify | drop the external blog shortcut when the site has its own    |
-| `apps/web/components/footer/*`                        | modify | Blog footer link, gated on `hasPosts`                        |
-| `apps/web/components/blog/*`                          | new    | listing, card, filters, pagination, search, highlight, image |
-| `apps/web/app/[locale]/blog/**`                       | new    | listing, loading skeleton, detail, category and tag archives |
-| `apps/web/app/blog/rss.xml/route.ts`                  | new    | blog RSS feed beside the existing site feed                  |
-| `apps/web/app/sitemap.ts`                             | modify | `/blog`, post and taxonomy entries                           |
-| `apps/web/messages/*.json`                            | modify | `common.BLOG` plus the `blog` namespace in all 21 locales    |
-| `apps/web-e2e/tests/public/blog*.spec.ts`             | new    | listing and detail coverage                                  |
-| `.github/workflows/e2e.yml`                           | modify | seed posts in the CI content fixture                         |
-| `README.md`                                           | modify | document the `.content/posts/` frontmatter contract          |
+| Path                                                  | Change | Notes                                                                                      |
+| ----------------------------------------------------- | ------ | ------------------------------------------------------------------------------------------ |
+| `apps/web/types/post.ts`                              | new    | post types, kept out of the `'use server'` content module                                  |
+| `apps/web/lib/blog/constants.ts`                      | new    | default and maximum posts-per-page                                                         |
+| `apps/web/lib/blog/urls.ts`                           | new    | URL builders, search-param parsing, date formatting                                        |
+| `apps/web/lib/content.ts`                             | modify | posts loader, taxonomies, adjacency, cached wrappers                                       |
+| `apps/web/lib/cache-config.ts`                        | modify | `POSTS`, `POST(slug)`, `POSTS_LOCALE(locale)` tags                                         |
+| `apps/web/lib/content-signals.ts`                     | modify | `hasPosts` signal                                                                          |
+| `apps/web/lib/seo/feeds.ts`                           | modify | `buildPostFeedEntries()`                                                                   |
+| `apps/web/components/providers/settings-provider.tsx` | modify | thread `hasPosts` to the client                                                            |
+| `apps/web/hooks/use-blog-exists.ts`                   | new    | mirrors `use-comparisons-exists`                                                           |
+| `apps/web/components/header/index.tsx`                | modify | Blog nav entry, gated on `hasPosts`                                                        |
+| `apps/web/components/header/more-menu.tsx`            | modify | drop the external blog shortcut when the site has its own                                  |
+| `apps/web/components/footer/*`                        | modify | Blog footer link, gated on `hasPosts`                                                      |
+| `apps/web/components/blog/*`                          | new    | listing, card, filters, pagination, search, highlight, image                               |
+| `apps/web/app/[locale]/blog/**`                       | new    | listing (in an `(index)` route group with its skeleton), detail, category and tag archives |
+| `apps/web/app/blog/rss.xml/route.ts`                  | new    | blog RSS feed beside the existing site feed                                                |
+| `apps/web/app/sitemap.ts`                             | modify | `/blog`, post and taxonomy entries                                                         |
+| `apps/web/messages/*.json`                            | modify | `common.BLOG` plus the `blog` namespace in all 21 locales                                  |
+| `apps/web-e2e/tests/public/blog*.spec.ts`             | new    | listing and detail coverage                                                                |
+| `.github/workflows/e2e.yml`                           | modify | seed posts in the CI content fixture                                                       |
+| `README.md`                                           | modify | document the `.content/posts/` frontmatter contract                                        |
 
 ## 4. Key Decisions
 
@@ -84,6 +84,12 @@ and paginated views are crawlable, shareable and work without JavaScript.
 **Highlighting splits in React.** `HighlightText` builds an escaped `RegExp` and
 renders `<mark>` elements; post content and the query never reach
 `dangerouslySetInnerHTML`.
+
+**The listing skeleton is scoped by a route group.** A `loading.tsx` applies
+to its whole subtree and makes those segments stream, which flushes a 200
+before `notFound()` can run — a soft 404 on every unknown post and archive
+slug. Putting the skeleton in `blog/(index)/` keeps `/blog` streaming while
+leaving the detail and archive routes able to answer with a real 404.
 
 **Missing content is not an error.** No posts directory means an empty list, a
 hidden nav entry and a graceful empty state — never a 500, and never a failed

@@ -113,6 +113,12 @@ sidebar_label: 050 Tasks
       inside the format string (CodeQL `js/tainted-format-string`).
 - [x] T-046: pluralise the result and post counts with ICU `plural` in every
       locale whose grammar inflects the counted noun.
+- [x] T-047: move the listing skeleton into a `(index)` route group so the
+      detail and archive routes are not streamed and return a real 404 instead
+      of a 200 "Page Not Found" body.
+- [x] T-048: assert the real 404 status for unknown post, category and tag
+      slugs in the e2e suite, so the soft-404 regression cannot come back
+      unnoticed.
 
 ## Acceptance Criteria to Task Map
 

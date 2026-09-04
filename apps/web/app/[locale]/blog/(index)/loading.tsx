@@ -6,6 +6,17 @@ import { Container } from '@/components/ui/container';
  * Rendered by the App Router while the server component streams — the layout
  * mirrors the real grid (search bar, chip row, card grid) so the page does not
  * shift when the posts arrive.
+ *
+ * It lives inside the `(index)` route group, and that placement is load-bearing.
+ * A `loading.tsx` applies to its segment AND every child segment, and a segment
+ * with one is streamed: Next flushes the shell with a 200 before the page
+ * component runs, so a later `notFound()` can only swap the body, not the
+ * status. Sitting directly under `blog/` it therefore turned every unknown
+ * `/blog/<slug>`, `/blog/category/<slug>` and `/blog/tag/<slug>` into a
+ * soft 404 — a "Page Not Found" body served as 200, which lets crawlers index
+ * unlimited nonexistent URLs. The route group contributes no path segment, so
+ * `/blog` still resolves here while the detail and archive routes stay
+ * unstreamed and return a real 404. Do not move this file up a level.
  */
 export default function BlogLoading() {
 	return (
