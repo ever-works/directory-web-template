@@ -43,10 +43,13 @@ export interface StaticPageMetadataOptions {
  * Reads a non-empty string field out of parsed frontmatter.
  *
  * Frontmatter is author-supplied YAML, so a key can legitimately be absent,
- * blank, or a non-string (`title: 2026`); each of those falls back rather than
- * emitting `"undefined"` or an empty `<title>`.
+ * blank, or a non-string (`title: 2026`, or a nested mapping that parses to an
+ * object); each of those falls back rather than emitting `"undefined"`, an
+ * empty `<title>`, or -- when the value reaches JSX -- a React "objects are not
+ * valid as a React child" crash. Exported so the page bodies resolve their
+ * `<h1>` and "last updated" chip with exactly the same rule as the `<head>`.
  */
-function frontmatterString(metadata: Record<string, unknown> | undefined, key: string): string | undefined {
+export function frontmatterString(metadata: Record<string, unknown> | undefined, key: string): string | undefined {
 	const value = metadata?.[key];
 	if (typeof value !== 'string') return undefined;
 	const trimmed = value.trim();

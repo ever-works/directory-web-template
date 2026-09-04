@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { PageContainer } from '@/components/ui/container';
 import { MDX } from '@/components/mdx';
 import { getCachedPageContent } from '@/lib/content';
-import { buildStaticPageMetadata } from '@/lib/seo/static-page-metadata';
+import { buildStaticPageMetadata, frontmatterString } from '@/lib/seo/static-page-metadata';
 import { DEFAULT_LOCALE } from '@/lib/constants';
 import { BreadcrumbJsonLd } from '@/components/seo/breadcrumb-json-ld';
 
@@ -48,8 +48,11 @@ export default async function TermsOfServicePage({ params }: PageProps) {
   const tFooter = await getTranslations({ locale, namespace: 'footer' });
   const tPages = await getTranslations({ locale, namespace: 'pages' });
 
-  const title = (metadata.title as string) || tFooter('TERMS_OF_SERVICE');
-  const lastUpdated = metadata.lastUpdated as string | undefined;
+  // Same non-empty-string rule as `generateMetadata`: frontmatter is
+  // author-supplied YAML, so `title:` can parse to a number or a mapping.
+  // A bare cast would hand React a non-string child and crash the route.
+  const title = frontmatterString(metadata, 'title') ?? tFooter('TERMS_OF_SERVICE');
+  const lastUpdated = frontmatterString(metadata, 'lastUpdated');
   const localePrefix = locale === DEFAULT_LOCALE ? '' : `/${locale}`;
 
   return (

@@ -97,7 +97,11 @@ slug, path, locale, fallbackTitle, fallbackDescription })`: - `getCachedPageCont
    there is no extra filesystem read.
 2. **Routes** — `terms-of-service/page.tsx` and `privacy-policy/page.tsx`
    `generateMetadata` return `buildStaticPageMetadata(...)`, passing the
-   existing i18n strings as fallbacks. Page bodies untouched.
+   existing i18n strings as fallbacks. Page layout and styling are untouched;
+   the only body change is that the `<h1>` and the "last updated" chip now read
+   their frontmatter through the same exported `frontmatterString()` guard, so
+   a `title:` that parses to a mapping falls back instead of reaching JSX as a
+   non-string child.
 3. **Loading states** — `loading.tsx` in both routes rendering the new
    `StaticPageSkeleton` (added to `components/ui/skeleton.tsx`), guarded by
    `useNavigation().isInitialLoad` like the sibling `loading.tsx` files so a
@@ -110,7 +114,12 @@ slug, path, locale, fallbackTitle, fallbackDescription })`: - `getCachedPageCont
    description already come from frontmatter), that og/twitter tags are
    populated, and that the markdown alternate contains exactly one URL scheme.
    The e2e workflow now seeds `.content/pages/{terms-of-service,privacy-policy}.en.md`
-   so CI exercises the frontmatter path rather than only the fallback.
+   so CI exercises the frontmatter path rather than only the fallback, and sets
+   `E2E_STATIC_PAGES_SEEDED=true` so the spec additionally asserts the EXACT
+   seeded frontmatter in the `<h1>`, the `<title>`, the meta description and the
+   `.md` mirror. The fixture titles are deliberately `CI Fixture …`, distinct
+   from the i18n labels, so passing proves the frontmatter won rather than the
+   fallback merely being non-empty.
 6. **Docs** — `docs/guides/static-page-content.md` documents the
    data-repository file layout the ticket asks for: the `pages/` directory,
    the `<slug>.<locale>.md` naming convention with its `en` fallback, the

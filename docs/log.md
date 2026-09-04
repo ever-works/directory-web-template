@@ -9,7 +9,7 @@ sidebar_position: 99
 
 ## 2026-09-04
 
-- `spec-046` `apps/web/lib/seo/static-page-metadata.ts` `apps/web/app/[locale]/{terms-of-service,privacy-policy}`: the two legal routes now build their SEO metadata from the data repository's Markdown frontmatter (`title` / `description`) through the new `buildStaticPageMetadata()` helper, with the i18n strings kept as the fallback; both routes gain a `loading.tsx`, and the doubled base URL in the `text/markdown` alternate is fixed here and in `about`, `cookies`, `items/[slug]` and `pages/[slug]`; the data-repository file layout is documented in the new `docs/guides/static-page-content.md` ([spec 046](spec/046-legal-pages-frontmatter-seo/spec.md), EW-17, PR #1045).
+- `spec-046` `apps/web/lib/seo/static-page-metadata.ts` `apps/web/app/[locale]/{terms-of-service,privacy-policy}`: the two legal routes now build their SEO metadata from the data repository's Markdown frontmatter (`title` / `description`) through the new `buildStaticPageMetadata()` helper, with the i18n strings kept as the fallback; both routes gain a `loading.tsx`, and the doubled base URL in the `text/markdown` alternate is fixed here and in `about`, `cookies`, `items/[slug]` and `pages/[slug]`; the data-repository file layout is documented in the new `docs/guides/static-page-content.md` ; the `<h1>` and "last updated" chip on both routes now share the same non-empty-string frontmatter guard ([spec 046](spec/046-legal-pages-frontmatter-seo/spec.md), EW-17, PR #1045).
 
 ## 2026-08-25
 

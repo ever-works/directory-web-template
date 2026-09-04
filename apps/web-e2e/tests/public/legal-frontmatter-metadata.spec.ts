@@ -17,11 +17,35 @@ import { test, expect } from '@playwright/test';
  * In both cases the SAME resolved title/description must reach the `<h1>`, the
  * `<title>`, the meta description, the Open Graph tags and the `.md` mirror —
  * which is exactly the drift this spec guards against.
+ *
+ * Where the fixture IS seeded, `E2E_STATIC_PAGES_SEEDED` unlocks the strict
+ * assertions: the exact frontmatter values must appear, and because the fixture
+ * titles ("CI Fixture …") differ from the i18n labels ("Terms of Service"),
+ * passing them proves the frontmatter actually won rather than the fallback
+ * merely being non-empty.
  */
 
+/**
+ * Set by `.github/workflows/e2e.yml` next to the `.content/pages/` seeding.
+ * Absent locally and on any environment whose data repository ships its own
+ * legal copy, where the exact strings are unknowable.
+ */
+const SEEDED = process.env.E2E_STATIC_PAGES_SEEDED === 'true';
+
+/** Must match the frontmatter written by the e2e workflow's seeding step. */
 const LEGAL_PAGES = [
-	{ path: '/privacy-policy', name: 'Privacy Policy' },
-	{ path: '/terms-of-service', name: 'Terms of Service' }
+	{
+		path: '/privacy-policy',
+		name: 'Privacy Policy',
+		seededTitle: 'CI Fixture Privacy Policy',
+		seededDescription: 'How this CI fixture directory collects, uses and protects your information'
+	},
+	{
+		path: '/terms-of-service',
+		name: 'Terms of Service',
+		seededTitle: 'CI Fixture Terms of Service',
+		seededDescription: 'Terms and conditions for using this CI fixture directory service'
+	}
 ] as const;
 
 /**
@@ -98,6 +122,30 @@ test.describe('Legal pages: SEO metadata comes from Markdown frontmatter', () =>
 
 			const twitterCard = await page.locator('meta[name="twitter:card"]').first().getAttribute('content');
 			expect(twitterCard, `${legalPage.path} twitter:card`).toBe('summary_large_image');
+
+			// Twitter tags must carry the same resolved values, not a second
+			// resolution of the same two fields.
+			const twitterTitle = await page.locator('meta[name="twitter:title"]').first().getAttribute('content');
+			expect(twitterTitle?.trim(), `${legalPage.path} twitter:title`).toBe(ogTitle!.trim());
+
+			const twitterDescription = await page
+				.locator('meta[name="twitter:description"]')
+				.first()
+				.getAttribute('content');
+			expect(twitterDescription?.trim(), `${legalPage.path} twitter:description`).toBe(description!.trim());
+
+			if (SEEDED) {
+				// The strict contract: the seeded frontmatter, not the i18n label
+				// ("Terms of Service") nor the i18n meta description.
+				expect(description!.trim(), `${legalPage.path} description is the frontmatter one`).toBe(
+					legalPage.seededDescription
+				);
+				expect((await page.title()).trim(), `${legalPage.path} <title> is the frontmatter one`).toContain(
+					legalPage.seededTitle
+				);
+				const heading = await page.getByRole('heading', { level: 1 }).first().innerText();
+				expect(heading.trim(), `${legalPage.path} <h1> is the frontmatter one`).toBe(legalPage.seededTitle);
+			}
 		});
 
 		test(`${legalPage.name} HTML metadata agrees with its .md mirror`, async ({ page, request }) => {
@@ -127,6 +175,17 @@ test.describe('Legal pages: SEO metadata comes from Markdown frontmatter', () =>
 			expect((await page.title()).trim(), `${legalPage.path} <title> should carry the mirror's title`).toContain(
 				expectedTitle!
 			);
+
+			if (SEEDED) {
+				// With the fixture in place the mirror's own header must be the
+				// seeded frontmatter too, so all three surfaces are pinned.
+				expect(expectedTitle, `${legalPage.path}.md heading is the frontmatter one`).toBe(
+					legalPage.seededTitle
+				);
+				expect(mirrorDescription(markdown), `${legalPage.path}.md blockquote is the frontmatter one`).toBe(
+					legalPage.seededDescription
+				);
+			}
 
 			const expectedDescription = mirrorDescription(markdown);
 			if (expectedDescription) {

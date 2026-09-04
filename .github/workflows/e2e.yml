@@ -68,6 +68,11 @@ jobs:
       NEXT_PUBLIC_APP_URL: http://localhost:3000
       BASE_URL: http://localhost:3000
       CONTENT_WARNINGS_SILENT: 'true'
+      # Tells legal-frontmatter-metadata.spec.ts that the `.content/pages/`
+      # fixtures below are in place, so it can assert the EXACT seeded
+      # frontmatter title/description instead of only the shape of the
+      # metadata. Keep the two in sync: change the fixture, change the spec.
+      E2E_STATIC_PAGES_SEEDED: 'true'
 
       # --- Database (matches the postgres service above) ---
       DATABASE_URL: postgresql://postgres:postgres@localhost:5432/postgres
@@ -330,7 +335,7 @@ jobs:
           mkdir -p apps/web/.content/pages
           cat > apps/web/.content/pages/terms-of-service.en.md <<'MD'
           ---
-          title: Terms of Service
+          title: CI Fixture Terms of Service
           description: Terms and conditions for using this CI fixture directory service
           lastUpdated: '2026-01-01'
           ---
@@ -347,7 +352,7 @@ jobs:
           MD
           cat > apps/web/.content/pages/privacy-policy.en.md <<'MD'
           ---
-          title: Privacy Policy
+          title: CI Fixture Privacy Policy
           description: How this CI fixture directory collects, uses and protects your information
           lastUpdated: '2026-01-01'
           ---

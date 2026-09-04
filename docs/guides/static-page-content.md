@@ -108,8 +108,9 @@ The pages are designed never to fail because of missing or malformed content:
 - **Cold cache**: `loading.tsx` on each route shows a skeleton while the first
   request after a deploy or a revalidation hydrates the content.
 
-Set `CONTENT_WARNINGS_SILENT=true` to suppress the expected "no data
-repository" warnings in CI logs.
+A missing page is logged once per slug and locale, and only outside
+production (`NODE_ENV !== 'production'`), so a Work that deliberately ships
+no `pages/` directory does not flood its production logs.
 
 ## Publishing a change
 
