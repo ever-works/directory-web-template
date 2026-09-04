@@ -189,9 +189,11 @@ function buildFeed(entries: ReadonlyArray<FeedEntry>, config: FeedConfig): Feed 
 		description: config.description,
 		// `feedLink` is the site root for the site-wide feeds and the section
 		// page (e.g. `/blog`) for a section feed, so two feeds from one site
-		// never share an identity.
+		// never share an identity. `id` keeps the trailing slash and `link`
+		// drops it, which for a root feed reproduces the previous
+		// `${siteUrl}/` + `siteUrl` pair exactly.
 		id: config.feedLink,
-		link: config.feedLink || undefined,
+		link: config.feedLink.replace(/\/+$/, '') || undefined,
 		language: 'en',
 		updated,
 		generator: 'Ever Works',
