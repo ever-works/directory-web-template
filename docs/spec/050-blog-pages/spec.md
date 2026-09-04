@@ -139,7 +139,11 @@ loader.
 ## 8. UX Notes
 
 Every visible string is localised into all 21 catalogues under
-`apps/web/messages/`. The blog uses the existing chip, card, hero and pagination
+`apps/web/messages/`. Result and post counts use ICU `plural` in the locales
+whose grammar inflects the counted noun (en, de, es, fr, he, it, nl, pt); the
+Slavic catalogues already phrase them count-agnostically ("Articles: N") and
+ja / ko / zh / th / vi / id / tr / hi / ar do not inflect after a numeral, so
+those are left in their simpler form. The blog uses the existing chip, card, hero and pagination
 visual language rather than introducing a new one, so a generated site looks the
 same with or without a blog.
 
@@ -203,6 +207,10 @@ None. The blog is a reader surface over the existing Git content adapter.
 - A section feed must advertise its own `atom:link rel="self"` and must not
   advertise formats it does not publish, or readers canonicalize blog
   subscribers onto the site-wide directory feed.
+- Node treats the first argument to `console.*` as a printf-style format
+  string, so a slug taken from the URL must never be interpolated into it — a
+  `%s` in the slug would swallow the following argument. Slugs and filenames
+  are passed as their own arguments throughout the posts loader.
 
 ## 12. Acceptance Test Plan
 

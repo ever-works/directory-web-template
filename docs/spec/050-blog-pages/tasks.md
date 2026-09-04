@@ -109,6 +109,10 @@ sidebar_label: 050 Tasks
       does not flash the listing grid skeleton.
 - [x] T-044: drop the legacy external blog entries from the footer resources
       column and the social icon row once the site publishes its own posts.
+- [x] T-045: pass slugs and filenames to `console.*` as arguments rather than
+      inside the format string (CodeQL `js/tainted-format-string`).
+- [x] T-046: pluralise the result and post counts with ICU `plural` in every
+      locale whose grammar inflects the counted noun.
 
 ## Acceptance Criteria to Task Map
 

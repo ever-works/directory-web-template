@@ -2662,7 +2662,7 @@ async function readPostAuthor(postsDir: string, rawAuthor: string): Promise<Post
 				url: pickPostString(metadata, ['url', 'website', 'link', 'profile'])
 			};
 		} catch (error) {
-			console.warn(`[CONTENT] Failed to read post author "${slug}":`, error);
+			console.warn('[CONTENT] Failed to read post author:', slug, error);
 		}
 	}
 
@@ -2802,7 +2802,7 @@ async function loadAllPosts(locale: string): Promise<PostDetail[]> {
 				try {
 					return await parsePostFile(postsDir, slug, ref, authorCache);
 				} catch (error) {
-					console.error(`[CONTENT] Failed to load post "${slug}":`, error);
+					console.error('[CONTENT] Failed to load post:', slug, error);
 					return null;
 				}
 			})
@@ -2918,7 +2918,16 @@ export async function fetchPosts(options: FetchPostsOptions = {}): Promise<Fetch
 	};
 }
 
-/** Fetch a single post (frontmatter + Markdown body), or `null` when absent. */
+/**
+ * Fetch a single post (frontmatter + Markdown body), or `null` when absent.
+ *
+ * NOTE on the logging below: `slug` arrives from the URL, and Node treats the
+ * FIRST argument to `console.*` as a printf-style format string. Interpolating
+ * a caller-supplied value there lets a slug containing `%s` swallow the next
+ * argument (the error) and generally hands an outsider control of format
+ * directives — CodeQL `js/tainted-format-string`. Pass such values as their
+ * own arguments, never inside the template literal.
+ */
 export async function fetchPost(slug: string, locale: string = 'en'): Promise<PostDetail | null> {
 	const { ensureContentAvailable } = await import('./lib');
 	await ensureContentAvailable();
@@ -2934,7 +2943,7 @@ export async function fetchPost(slug: string, locale: string = 'en'): Promise<Po
 		if (!ref) return null;
 		return await parsePostFile(postsDir, sanitizedSlug, ref, new Map());
 	} catch (error) {
-		console.error(`[CONTENT] Failed to load post "${slug}":`, error);
+		console.error('[CONTENT] Failed to load post:', slug, error);
 		return null;
 	}
 }
@@ -2984,7 +2993,7 @@ async function readDeclaredPostTerms(postsDir: string, kind: 'categories' | 'tag
 			}
 			return terms.filter((term) => Boolean(term.id));
 		} catch (error) {
-			console.warn(`[CONTENT] Failed to read blog ${kind} from ${filename}:`, error);
+			console.warn('[CONTENT] Failed to read blog taxonomy file:', kind, filename, error);
 		}
 	}
 	return [];
