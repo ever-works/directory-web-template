@@ -1,4 +1,4 @@
-import { and, count, desc, eq, gt, ilike, inArray, isNull, or, sql, type SQL } from 'drizzle-orm';
+import { and, count, desc, eq, gt, ilike, inArray, or, sql, type SQL } from 'drizzle-orm';
 import { db } from '../drizzle';
 import {
 	billingIssues,
@@ -6,6 +6,7 @@ import {
 	users,
 	BillingIssueStatus,
 	BillingIssueType,
+	OPEN_BILLING_ISSUE_STATUSES,
 	SubscriptionStatus,
 	type BillingIssue,
 	type BillingIssueStatusValues,
@@ -278,7 +279,7 @@ export async function getBillingIssueStats(): Promise<BillingIssueStats> {
 		db
 			.select({ total: sql<number>`coalesce(sum(${billingIssues.amount}), 0)` })
 			.from(billingIssues)
-			.where(and(scope, inArray(billingIssues.status, [BillingIssueStatus.OPEN, BillingIssueStatus.IN_REVIEW])))
+			.where(and(scope, inArray(billingIssues.status, OPEN_BILLING_ISSUE_STATUSES)))
 	]);
 
 	const byStatus: Record<string, number> = {};
@@ -472,23 +473,4 @@ export async function upsertBillingIssueForSubscription(input: {
 		.returning();
 
 	return row ?? null;
-}
-
-/** Issues that have never been triaged, oldest first — used by the dashboard badge. */
-export async function getUntriagedBillingIssues(limit = 5): Promise<BillingIssue[]> {
-	const tenantId = await getTenantId();
-	if (!tenantId) throw new Error('Tenant ID not found');
-
-	return await db
-		.select()
-		.from(billingIssues)
-		.where(
-			and(
-				eq(billingIssues.tenantId, tenantId),
-				eq(billingIssues.status, BillingIssueStatus.OPEN),
-				isNull(billingIssues.resolvedAt)
-			)
-		)
-		.orderBy(desc(billingIssues.createdAt))
-		.limit(limit);
 }

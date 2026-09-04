@@ -125,6 +125,39 @@ async function buildWhere(filters: PaymentReportFilters): Promise<SQL | undefine
 	return and(...conditions);
 }
 
+/** Columns the table and the export both project, so a CSV always matches the page. */
+const RECORD_COLUMNS = {
+	id: subscriptions.id,
+	userId: subscriptions.userId,
+	userEmail: users.email,
+	planId: subscriptions.planId,
+	status: subscriptions.status,
+	paymentProvider: subscriptions.paymentProvider,
+	subscriptionId: subscriptions.subscriptionId,
+	invoiceId: subscriptions.invoiceId,
+	amount: subscriptions.amount,
+	amountPaid: subscriptions.amountPaid,
+	amountDue: subscriptions.amountDue,
+	currency: subscriptions.currency,
+	interval: subscriptions.interval,
+	startDate: subscriptions.startDate,
+	endDate: subscriptions.endDate,
+	cancelledAt: subscriptions.cancelledAt,
+	createdAt: subscriptions.createdAt
+} as const;
+
+/** One page of records for an already-built `where`. */
+function selectRecords(where: SQL | undefined, limit: number, offset: number): Promise<PaymentReportRecord[]> {
+	return db
+		.select(RECORD_COLUMNS)
+		.from(subscriptions)
+		.leftJoin(users, eq(subscriptions.userId, users.id))
+		.where(where)
+		.orderBy(desc(subscriptions.createdAt))
+		.limit(limit)
+		.offset(offset);
+}
+
 /** Paginated payment records matching the filters, newest first. */
 export async function listPaymentRecords(params: PaymentReportListParams = {}): Promise<PaymentReportListResult> {
 	const page = Math.max(1, params.page ?? 1);
@@ -132,32 +165,7 @@ export async function listPaymentRecords(params: PaymentReportListParams = {}): 
 	const offset = (page - 1) * limit;
 	const where = await buildWhere(params);
 
-	const records = await db
-		.select({
-			id: subscriptions.id,
-			userId: subscriptions.userId,
-			userEmail: users.email,
-			planId: subscriptions.planId,
-			status: subscriptions.status,
-			paymentProvider: subscriptions.paymentProvider,
-			subscriptionId: subscriptions.subscriptionId,
-			invoiceId: subscriptions.invoiceId,
-			amount: subscriptions.amount,
-			amountPaid: subscriptions.amountPaid,
-			amountDue: subscriptions.amountDue,
-			currency: subscriptions.currency,
-			interval: subscriptions.interval,
-			startDate: subscriptions.startDate,
-			endDate: subscriptions.endDate,
-			cancelledAt: subscriptions.cancelledAt,
-			createdAt: subscriptions.createdAt
-		})
-		.from(subscriptions)
-		.leftJoin(users, eq(subscriptions.userId, users.id))
-		.where(where)
-		.orderBy(desc(subscriptions.createdAt))
-		.limit(limit)
-		.offset(offset);
+	const records = await selectRecords(where, limit, offset);
 
 	const [totalRow] = await db
 		.select({ value: count() })
@@ -184,17 +192,11 @@ export async function listAllPaymentRecords(
 	filters: PaymentReportFilters,
 	maxRows = 10_000
 ): Promise<PaymentReportRecord[]> {
-	const result = await listPaymentRecords({ ...filters, page: 1, limit: Math.min(200, maxRows) });
-	const records = [...result.records];
-
-	const pages = Math.min(result.totalPages, Math.ceil(maxRows / result.limit));
-	for (let page = 2; page <= pages; page += 1) {
-		const next = await listPaymentRecords({ ...filters, page, limit: result.limit });
-		records.push(...next.records);
-		if (records.length >= maxRows) break;
-	}
-
-	return records.slice(0, maxRows);
+	// One statement, not a paging loop: the cap belongs in the SQL `LIMIT`, so a
+	// 10k-row export costs one round trip instead of fifty (each of which would
+	// also have re-run the COUNT the paginated read needs and the export does not).
+	const where = await buildWhere(filters);
+	return await selectRecords(where, Math.max(1, maxRows), 0);
 }
 
 /** Revenue roll-ups for the same filter set the list uses. */

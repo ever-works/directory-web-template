@@ -65,8 +65,9 @@ rather than dropping the filter: a dropped bound widens a report instead of
 narrowing it, which is the failure mode most likely to be believed. A bare
 `YYYY-MM-DD` upper bound is pushed to `23:59:59.999Z` so the last day is included.
 
-`listAllPaymentRecords` pages through the same query for the export and is capped
-at 10,000 rows.
+`listAllPaymentRecords` runs the same projection as the table in ONE statement,
+capped at 10,000 rows by the SQL `LIMIT` — deliberately not a paging loop, which
+would have cost fifty round trips plus fifty needless `COUNT`s for a full export.
 
 ## 5. Export Design
 
