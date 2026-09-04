@@ -113,6 +113,40 @@ build. `generateStaticParams()` swallows loader failures and leans on
 
 ## 7. Rollback
 
-Remove the `/blog` routes and the nav entries. The loader is additive, reads a
-folder nothing else touches, and introduces no schema or data migration, so
-nothing else in the template depends on it.
+No schema, migration or data change is involved, so rollback is a code
+revert — but "delete the routes" is not sufficient on its own: the feature
+also threads a `hasPosts` signal through shared providers and edits shared
+navigation. Remove, in this order:
+
+1. **Routes and components** — `apps/web/app/[locale]/blog/**`,
+   `apps/web/app/blog/rss.xml/`, `apps/web/components/blog/**`.
+2. **Navigation** — the `blog` entry in `components/header/index.tsx`
+   `NAVIGATION_CONFIG` and its `hasPosts` filter branch; the `/blog` entry and
+   filter branch in `components/footer/social-links.tsx`; restore the
+   unconditional external blog entries there (the `resources` column and
+   `resolveSocialLinks`); drop the `hasLocalBlog` filter in
+   `components/header/more-menu.tsx`.
+3. **Signal plumbing** — `hooks/use-blog-exists.ts`; the `hasPosts` field in
+   `components/providers/settings-provider.tsx` (interface, props, context
+   value and the out-of-provider fallback); the destructure and prop in
+   `app/[locale]/layout.tsx`; `readPostsExists()` and the `hasPosts` field in
+   `lib/content-signals.ts`.
+4. **Loader and cache** — the posts section of `lib/content.ts` (including
+   `hasPublishedPosts()`, which `content-signals.ts` imports); `lib/blog/`;
+   `types/post.ts`; the `POSTS` / `POST` / `POSTS_LOCALE` tags in
+   `lib/cache-config.ts` and the `POSTS` line in `lib/cache-invalidation.ts`.
+5. **SEO** — the blog blocks in `app/sitemap.ts` (`generateBlogListingRoutes`,
+   `fetchAllPostsForSitemap`, the post and taxonomy entries, and the
+   `{ entries, hasPosts }` return shape of `generateDynamicRoutes`);
+   `buildPostFeedEntries()` in `lib/seo/feeds.ts`.
+6. **Content and docs** — the `blog` namespace and `common.BLOG` in all 21
+   files under `apps/web/messages/`; the post seeds in
+   `.github/workflows/e2e.yml`; `apps/web-e2e/tests/public/blog*.spec.ts`; the
+   `.content/posts/` section of `README.md`.
+
+Two pieces are deliberately generic and can stay: the optional `feedPath` /
+filename overrides on `resolveFeedConfig()` (they default to the previous
+site-wide behaviour) and the `PREFIXED_LOCALES` constant in `app/sitemap.ts`.
+
+Nothing outside this list depends on the blog, and a data repository that
+still ships `.content/posts/` is simply ignored again, exactly as before.

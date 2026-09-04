@@ -53,6 +53,19 @@ export const socialLinks = [
 	}
 ].filter((link) => link.href && link.href !== '');
 
+/**
+ * The social icon row, minus the external blog shortcut when the site
+ * publishes its own posts.
+ *
+ * Same reasoning as the footer "Resources" column: once `/blog` exists, an
+ * icon labelled "Blog" that opens a different site is a broken promise. The
+ * exported `socialLinks` constant is left untouched for any other caller.
+ */
+export function resolveSocialLinks(hasPosts: boolean) {
+	if (!hasPosts) return socialLinks;
+	return socialLinks.filter((link) => link.href !== siteConfig.social.blog);
+}
+
 export interface FooterNavigationOptions {
 	categoriesEnabled?: boolean;
 	tagsEnabled?: boolean;
@@ -141,13 +154,21 @@ export function footerNavigation(t: (key: string) => string, options: FooterNavi
 			}
 		],
 		resources: [
-			{
-				label: t('footer.BLOG'),
-				href: siteConfig.social.blog,
-				target: '_blank',
-				rel: 'noopener noreferrer',
-				isExternal: true
-			},
+			// The legacy external blog shortcut is dropped once the site publishes
+			// its own posts: two footer entries labelled "Blog" pointing at
+			// different destinations is worse than either one alone. Sites without
+			// posts keep it exactly as before.
+			...(hasPosts
+				? []
+				: [
+						{
+							label: t('footer.BLOG'),
+							href: siteConfig.social.blog,
+							target: '_blank',
+							rel: 'noopener noreferrer',
+							isExternal: true
+						}
+					]),
 			{ label: t('common.SUBMIT'), href: '/submit?step=details&plan=free' },
 			{ label: t('help.DOCS_PAGE_TITLE'), href: '/docs' }
 		] as Array<{

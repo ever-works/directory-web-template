@@ -8,7 +8,7 @@ import { BreadcrumbJsonLd } from '@/components/seo/breadcrumb-json-ld';
 import { BlogListing } from '@/components/blog/blog-listing';
 import { getCachedPostTaxonomies } from '@/lib/content';
 import { generateListingMetadata } from '@/lib/seo/listing-metadata';
-import { BLOG_BASE_PATH, buildTagHref, firstSearchParam, parsePageParam } from '@/lib/blog/urls';
+import { BLOG_BASE_PATH, buildTagHref, firstSearchParam, listingRobots, parsePageParam } from '@/lib/blog/urls';
 import { DEFAULT_LOCALE } from '@/lib/constants';
 
 export const revalidate = 600;
@@ -30,8 +30,8 @@ export async function generateStaticParams() {
 	}
 }
 
-export async function generateMetadata({ params }: TagPageProps): Promise<Metadata> {
-	const { slug, locale } = await params;
+export async function generateMetadata({ params, searchParams }: TagPageProps): Promise<Metadata> {
+	const [{ slug, locale }, resolvedSearchParams] = await Promise.all([params, searchParams]);
 	const [{ tags }, t] = await Promise.all([
 		getCachedPostTaxonomies(locale),
 		getTranslations({ locale, namespace: 'blog' })
@@ -40,7 +40,7 @@ export async function generateMetadata({ params }: TagPageProps): Promise<Metada
 	const tag = tags.find((entry) => entry.id === slug);
 	if (!tag) return {};
 
-	return generateListingMetadata({
+	const metadata = await generateListingMetadata({
 		title: t('TAG_TITLE', { name: tag.name }),
 		description: t('TAG_DESCRIPTION', { name: tag.name }),
 		path: buildTagHref(tag.id),
@@ -48,6 +48,14 @@ export async function generateMetadata({ params }: TagPageProps): Promise<Metada
 		itemCount: tag.count,
 		keywords: ['blog', 'tag', tag.name]
 	});
+
+	// Same thin-page policy as /blog: a searched or deeply paginated
+	// archive is a near-duplicate of the archive's first page.
+	const robots = listingRobots(
+		firstSearchParam(resolvedSearchParams.q)?.trim() ?? '',
+		parsePageParam(resolvedSearchParams.page)
+	);
+	return robots ? { ...metadata, robots } : metadata;
 }
 
 /** Per-tag archive (EW-28). Mirrors the category archive. */

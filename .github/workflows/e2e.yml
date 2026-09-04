@@ -299,11 +299,12 @@ jobs:
             name: E2E Collection
             description: Placeholder collection for CI
           YAML
-          # Blog posts (Spec 050). Three published posts across two
-          # categories and three tags, plus one draft that must stay
-          # hidden — enough for the blog listing, search, taxonomy and
-          # pagination specs to run their data-dependent branches instead
-          # of skipping. Newest first: alpha (Mar) > beta (Feb) > gamma (Jan).
+          # Blog posts (Spec 050). Three published posts, one per category
+          # (Product Updates / Tutorials / Industry Insights) across three
+          # tags, plus one draft that must stay hidden — enough for the blog
+          # listing, search, taxonomy and pagination specs to run their
+          # data-dependent branches instead of skipping. Newest first:
+          # alpha (Mar) > beta (Feb) > gamma (Jan).
           cat > apps/web/.content/posts/alpha-release-notes.en.md <<'MD'
           ---
           title: Alpha release notes

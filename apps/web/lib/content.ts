@@ -2741,6 +2741,45 @@ function comparePostsByDateDesc(a: PostSummary, b: PostSummary): number {
 	return a.title.localeCompare(b.title);
 }
 
+/**
+ * Whether the data repository ships at least one PUBLISHED post.
+ *
+ * This is the signal the Blog navigation entry is gated on, so it has to agree
+ * with what `/blog` will actually render. Two things it must not do:
+ *
+ * - It must not report "yes" from a directory `resolvePostsDir()` would never
+ *   read. Both use the same resolver, so the first existing candidate wins in
+ *   both places.
+ * - It must not count drafts. A repository whose posts are all `draft: true`
+ *   renders an empty listing, and a nav link to an empty page is exactly what
+ *   this gate exists to prevent.
+ *
+ * Only the frontmatter block of each file is parsed, and the scan stops at the
+ * first published post, so the common case reads one file.
+ */
+export async function hasPublishedPosts(): Promise<boolean> {
+	const postsDir = await resolvePostsDir();
+	if (!postsDir) return false;
+
+	try {
+		const index = await readPostFileIndex(postsDir);
+		for (const refs of index.values()) {
+			for (const ref of refs) {
+				try {
+					const raw = await safeReadFile(path.join(postsDir, sanitizeFilename(ref.filename)), postsDir);
+					if (!isPostHidden(parsePostFrontmatter(raw).metadata)) return true;
+				} catch {
+					// An unreadable file is not evidence of a published post.
+				}
+			}
+		}
+	} catch (error) {
+		console.error('[CONTENT] Failed to probe for published posts:', error);
+	}
+
+	return false;
+}
+
 /** Load every published post for a locale, newest first, bodies included. */
 async function loadAllPosts(locale: string): Promise<PostDetail[]> {
 	const { ensureContentAvailable } = await import('./lib');
@@ -2972,8 +3011,10 @@ export async function fetchPostTaxonomies(locale: string = 'en'): Promise<PostTa
 
 	const build = (declared: PostTerm[], pick: (post: PostDetail) => PostTerm[]): PostTermWithCount[] => {
 		const byId = new Map<string, PostTermWithCount>();
+		const declaredIds = new Set<string>();
 		for (const term of declared) {
 			byId.set(term.id, { ...term, count: 0 });
+			declaredIds.add(term.id);
 		}
 		for (const post of posts) {
 			for (const term of pick(post)) {
@@ -2985,7 +3026,22 @@ export async function fetchPostTaxonomies(locale: string = 'en'): Promise<PostTa
 				}
 			}
 		}
-		return [...byId.values()].sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
+
+		// A `categories.yml` / `tags.yml` in the data repository is an editorial
+		// decision, and its ORDER is part of that decision — sorting declared
+		// terms by post count would throw it away. Declared terms therefore keep
+		// their file order; terms that only appear in frontmatter are appended
+		// after them, most-used first.
+		const declaredTerms: PostTermWithCount[] = [];
+		for (const term of declared) {
+			const entry = byId.get(term.id);
+			if (entry) declaredTerms.push(entry);
+		}
+		const derivedTerms = [...byId.values()]
+			.filter((term) => !declaredIds.has(term.id))
+			.sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
+
+		return [...declaredTerms, ...derivedTerms];
 	};
 
 	return {

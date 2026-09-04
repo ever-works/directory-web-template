@@ -4,7 +4,7 @@ import { useTranslations } from 'next-intl';
 import { Newsletter } from './news-letter';
 import { BrandLink } from './brand-link';
 import { SocialLinks } from './social-link-item';
-import { footerNavigation, categoryLabels, socialLinks } from './social-links';
+import { footerNavigation, categoryLabels, resolveSocialLinks } from './social-links';
 import { FooterLinkGroup } from './footer-link-group';
 import { FooterBottom } from './footer-bottom';
 import { Container } from '../ui/container';
@@ -51,7 +51,7 @@ export function Footer() {
 							{/* Enhanced Brand and social section */}
 							<div className="lg:col-span-2 space-y-8">
 								<BrandLink t={t} />
-								<SocialLinks t={t} socialLinks={socialLinks} />
+								<SocialLinks t={t} socialLinks={resolveSocialLinks(hasPosts)} />
 								{footerSettings.subscribeEnabled && <Newsletter t={t} />}
 							</div>
 

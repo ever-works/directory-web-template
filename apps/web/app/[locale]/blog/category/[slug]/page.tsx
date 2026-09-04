@@ -8,7 +8,7 @@ import { BreadcrumbJsonLd } from '@/components/seo/breadcrumb-json-ld';
 import { BlogListing } from '@/components/blog/blog-listing';
 import { getCachedPostTaxonomies } from '@/lib/content';
 import { generateListingMetadata } from '@/lib/seo/listing-metadata';
-import { BLOG_BASE_PATH, buildCategoryHref, firstSearchParam, parsePageParam } from '@/lib/blog/urls';
+import { BLOG_BASE_PATH, buildCategoryHref, firstSearchParam, listingRobots, parsePageParam } from '@/lib/blog/urls';
 import { DEFAULT_LOCALE } from '@/lib/constants';
 
 export const revalidate = 600;
@@ -30,8 +30,8 @@ export async function generateStaticParams() {
 	}
 }
 
-export async function generateMetadata({ params }: CategoryPageProps): Promise<Metadata> {
-	const { slug, locale } = await params;
+export async function generateMetadata({ params, searchParams }: CategoryPageProps): Promise<Metadata> {
+	const [{ slug, locale }, resolvedSearchParams] = await Promise.all([params, searchParams]);
 	const [{ categories }, t] = await Promise.all([
 		getCachedPostTaxonomies(locale),
 		getTranslations({ locale, namespace: 'blog' })
@@ -40,7 +40,7 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
 	const category = categories.find((entry) => entry.id === slug);
 	if (!category) return {};
 
-	return generateListingMetadata({
+	const metadata = await generateListingMetadata({
 		title: t('CATEGORY_TITLE', { name: category.name }),
 		description: t('CATEGORY_DESCRIPTION', { name: category.name }),
 		path: buildCategoryHref(category.id),
@@ -48,6 +48,14 @@ export async function generateMetadata({ params }: CategoryPageProps): Promise<M
 		itemCount: category.count,
 		keywords: ['blog', 'category', category.name]
 	});
+
+	// Same thin-page policy as /blog: a searched or deeply paginated
+	// archive is a near-duplicate of the archive's first page.
+	const robots = listingRobots(
+		firstSearchParam(resolvedSearchParams.q)?.trim() ?? '',
+		parsePageParam(resolvedSearchParams.page)
+	);
+	return robots ? { ...metadata, robots } : metadata;
 }
 
 /**

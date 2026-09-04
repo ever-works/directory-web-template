@@ -1,6 +1,7 @@
 import { MetadataRoute } from 'next';
 import { getCachedComparisons, getCachedItems, getCachedPostTaxonomies, getCachedPosts } from '@/lib/content';
 import { MAX_POSTS_PER_PAGE } from '@/lib/blog/constants';
+import type { PostSummary } from '@/types/post';
 
 // Types
 interface RouteConfig {
@@ -75,11 +76,6 @@ const STATIC_ROUTES: RouteConfig[] = [
 	},
 	{
 		path: '/comparisons',
-		priority: DEFAULT_PRIORITIES.MAIN,
-		changeFrequency: DEFAULT_CHANGE_FREQUENCIES.WEEKLY
-	},
-	{
-		path: '/blog',
 		priority: DEFAULT_PRIORITIES.MAIN,
 		changeFrequency: DEFAULT_CHANGE_FREQUENCIES.WEEKLY
 	},
@@ -159,6 +155,29 @@ const generateStaticRoutes = (baseUrl: string): SitemapEntry[] => {
 	}));
 };
 
+/**
+ * The blog listing route, in the default locale and every prefixed one.
+ *
+ * Deliberately NOT a `STATIC_ROUTES` entry: the blog only exists when the data
+ * repository actually ships posts, and a sitemap that advertises `/blog` on a
+ * directory with none sends crawlers to an empty-state page. Emitted only when
+ * `generateDynamicRoutes()` found at least one post.
+ */
+const generateBlogListingRoutes = (baseUrl: string): SitemapEntry[] => [
+	{
+		url: `${baseUrl}/blog`,
+		lastModified: new Date(),
+		changeFrequency: DEFAULT_CHANGE_FREQUENCIES.WEEKLY,
+		priority: DEFAULT_PRIORITIES.MAIN
+	},
+	...PREFIXED_LOCALES.map((locale) => ({
+		url: `${baseUrl}/${locale}/blog`,
+		lastModified: new Date(),
+		changeFrequency: DEFAULT_CHANGE_FREQUENCIES.WEEKLY,
+		priority: DEFAULT_PRIORITIES.MAIN
+	}))
+];
+
 const generatePaginationRoutes = (baseUrl: string): SitemapEntry[] => {
 	return PAGINATION_ROUTES.map((route) => ({
 		url: `${baseUrl}${route}`,
@@ -168,8 +187,11 @@ const generatePaginationRoutes = (baseUrl: string): SitemapEntry[] => {
 	}));
 };
 
+/** Locales that carry a URL prefix (the default locale is served unprefixed). */
+const PREFIXED_LOCALES = ['fr', 'es', 'de', 'ar', 'zh'];
+
 const generateLocaleRoutes = (baseUrl: string): SitemapEntry[] => {
-	const locales = ['en', 'fr', 'es', 'de', 'ar', 'zh'];
+	const locales = ['en', ...PREFIXED_LOCALES];
 	const routes: SitemapEntry[] = [];
 
 	locales.forEach((locale) => {
@@ -189,19 +211,49 @@ const generateLocaleRoutes = (baseUrl: string): SitemapEntry[] => {
 	return routes;
 };
 
-const generateDynamicRoutes = async (baseUrl: string): Promise<SitemapEntry[]> => {
-	try {
-		const [{ items, categories, tags, collections }, { comparisons }, { posts }, postTaxonomies] =
-			await Promise.all([
-				getCachedItems(),
-				getCachedComparisons(),
-				// The blog is optional: a data repository without a posts folder
-				// resolves to an empty list rather than failing the sitemap.
-				getCachedPosts({ perPage: MAX_POSTS_PER_PAGE }).catch(() => ({ posts: [] })),
-				getCachedPostTaxonomies().catch(() => ({ categories: [], tags: [] }))
-			]);
+/**
+ * Every published post, across all pages.
+ *
+ * `getCachedPosts()` is paginated and capped at `MAX_POSTS_PER_PAGE`, so a
+ * single call silently truncates the sitemap for any blog with more posts than
+ * that — the exact URLs a sitemap exists to advertise. Walk the pages instead,
+ * with a hard iteration bound so a loader bug can never spin here.
+ */
+const SITEMAP_MAX_POST_PAGES = 200;
 
-		return [
+const fetchAllPostsForSitemap = async (): Promise<PostSummary[]> => {
+	const all: PostSummary[] = [];
+
+	try {
+		let page = 1;
+		let totalPages = 1;
+
+		do {
+			const result = await getCachedPosts({ page, perPage: MAX_POSTS_PER_PAGE });
+			all.push(...result.posts);
+			totalPages = result.totalPages;
+			page += 1;
+		} while (page <= totalPages && page <= SITEMAP_MAX_POST_PAGES);
+	} catch {
+		// A directory without a posts folder simply contributes no blog URLs.
+		return all;
+	}
+
+	return all;
+};
+
+const generateDynamicRoutes = async (baseUrl: string): Promise<{ entries: SitemapEntry[]; hasPosts: boolean }> => {
+	try {
+		const [{ items, categories, tags, collections }, { comparisons }, posts, postTaxonomies] = await Promise.all([
+			getCachedItems(),
+			getCachedComparisons(),
+			// The blog is optional: a data repository without a posts folder
+			// resolves to an empty list rather than failing the sitemap.
+			fetchAllPostsForSitemap(),
+			getCachedPostTaxonomies().catch(() => ({ categories: [], tags: [] }))
+		]);
+
+		const entries: SitemapEntry[] = [
 			// Items - validate and sanitize slugs, include images for items with icon_url
 			...items
 				.filter((item) => item.slug && validateSlug(item.slug))
@@ -258,7 +310,11 @@ const generateDynamicRoutes = async (baseUrl: string): Promise<SitemapEntry[]> =
 				.map((post) => {
 					const lastModified = post.date ? new Date(post.date) : new Date();
 					const entry: SitemapEntry = {
-						url: `${baseUrl}/blog/${sanitizeSlug(post.slug)}`,
+						// NOT `sanitizeSlug()`: it lowercases, and the post loader looks
+						// slugs up against filenames case-sensitively, so a post file with
+						// an uppercase letter would be advertised at a URL that 404s.
+						// `validateSlug()` above already proved the slug is URL-safe.
+						url: `${baseUrl}/blog/${post.slug}`,
 						lastModified: Number.isNaN(lastModified.getTime()) ? new Date() : lastModified,
 						changeFrequency: DEFAULT_CHANGE_FREQUENCIES.MONTHLY,
 						priority: DEFAULT_PRIORITIES.SECONDARY
@@ -272,11 +328,13 @@ const generateDynamicRoutes = async (baseUrl: string): Promise<SitemapEntry[]> =
 					return entry;
 				}),
 			// Blog taxonomy archives — only terms that actually have posts, so
-			// the sitemap never advertises an empty archive.
+			// the sitemap never advertises an empty archive. As with post slugs,
+			// the validated term id is used verbatim: the archive routes match it
+			// exactly, so any rewriting here would advertise a URL that 404s.
 			...postTaxonomies.categories
 				.filter((category) => category.count > 0 && validateSlug(category.id))
 				.map((category) => ({
-					url: `${baseUrl}/blog/category/${sanitizeSlug(category.id)}`,
+					url: `${baseUrl}/blog/category/${category.id}`,
 					lastModified: new Date(),
 					changeFrequency: DEFAULT_CHANGE_FREQUENCIES.WEEKLY,
 					priority: DEFAULT_PRIORITIES.TERTIARY
@@ -284,15 +342,23 @@ const generateDynamicRoutes = async (baseUrl: string): Promise<SitemapEntry[]> =
 			...postTaxonomies.tags
 				.filter((tag) => tag.count > 0 && validateSlug(tag.id))
 				.map((tag) => ({
-					url: `${baseUrl}/blog/tag/${sanitizeSlug(tag.id)}`,
+					url: `${baseUrl}/blog/tag/${tag.id}`,
 					lastModified: new Date(),
 					changeFrequency: DEFAULT_CHANGE_FREQUENCIES.WEEKLY,
 					priority: DEFAULT_PRIORITIES.TERTIARY
 				}))
 		];
+
+		// The blog listing URL rides along here rather than in STATIC_ROUTES so
+		// it is advertised only when the data repository actually ships posts.
+		const hasPosts = posts.length > 0;
+		return {
+			entries: hasPosts ? [...entries, ...generateBlogListingRoutes(baseUrl)] : entries,
+			hasPosts
+		};
 	} catch (error) {
 		console.error('Failed to generate dynamic routes:', error);
-		return [];
+		return { entries: [], hasPosts: false };
 	}
 };
 
@@ -308,7 +374,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 			generateDynamicRoutes(baseUrl)
 		]);
 
-		return [...staticRoutes, ...dynamicRoutes, ...paginationRoutes, ...localeRoutes];
+		return [...staticRoutes, ...dynamicRoutes.entries, ...paginationRoutes, ...localeRoutes];
 	} catch (error) {
 		console.error('Error generating sitemap:', error);
 		// Return basic sitemap with static routes in case of error

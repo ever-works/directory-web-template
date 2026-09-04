@@ -6,7 +6,7 @@ import { PageContainer } from '@/components/ui/container';
 import { Breadcrumb, type BreadcrumbItem } from '@/components/ui/breadcrumb';
 import { BreadcrumbJsonLd } from '@/components/seo/breadcrumb-json-ld';
 import { MDX } from '@/components/mdx';
-import { PostImage } from '@/components/blog/post-image';
+import { PostImage, hasRenderablePostImage } from '@/components/blog/post-image';
 import { getCachedAdjacentPosts, getCachedPost, getCachedPosts } from '@/lib/content';
 import { getSiteName } from '@/lib/seo/site-identity';
 import { getLocalizedUrl } from '@/lib/seo/hreflang';
@@ -185,7 +185,7 @@ export default async function BlogPostPage({ params }: PostPageProps) {
 					</div>
 				</header>
 
-				{post.image ? (
+				{hasRenderablePostImage(post.image) ? (
 					<figure className="relative mb-10 aspect-16/9 w-full overflow-hidden rounded-lg bg-gray-100 dark:bg-white/5">
 						<PostImage src={post.image} alt={post.title} sizes="(max-width: 768px) 100vw, 768px" priority />
 					</figure>

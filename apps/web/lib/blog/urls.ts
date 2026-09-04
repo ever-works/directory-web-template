@@ -41,19 +41,32 @@ export function buildBlogListingHref(basePath: string, query: BlogListingQuery =
 	return search ? `${basePath}?${search}` : basePath;
 }
 
+/**
+ * Encode a value as ONE URL path segment.
+ *
+ * Post slugs come from filenames in the data repository, which may legally
+ * contain `?`, `#`, `%` or a space. Interpolated raw, such a slug would turn
+ * the rest of the path into a query string or fragment and the link would
+ * point somewhere else entirely. `encodeURIComponent` also escapes `/`, which
+ * is what we want: a slug is never allowed to introduce a new path segment.
+ */
+function encodeSegment(value: string): string {
+	return encodeURIComponent(value);
+}
+
 /** Path of a single post. */
 export function buildPostHref(slug: string): string {
-	return `${BLOG_BASE_PATH}/${slug}`;
+	return `${BLOG_BASE_PATH}/${encodeSegment(slug)}`;
 }
 
 /** Path of a category archive. */
 export function buildCategoryHref(id: string): string {
-	return `${BLOG_BASE_PATH}/category/${id}`;
+	return `${BLOG_BASE_PATH}/category/${encodeSegment(id)}`;
 }
 
 /** Path of a tag archive. */
 export function buildTagHref(id: string): string {
-	return `${BLOG_BASE_PATH}/tag/${id}`;
+	return `${BLOG_BASE_PATH}/tag/${encodeSegment(id)}`;
 }
 
 /**
@@ -93,4 +106,21 @@ export function toDateTimeAttribute(iso: string): string | undefined {
 	const date = new Date(iso);
 	if (Number.isNaN(date.getTime())) return undefined;
 	return date.toISOString();
+}
+
+/**
+ * Robots directives for a listing view, or `undefined` to leave the route's
+ * default metadata alone.
+ *
+ * A search result and a deep pagination page are thin, near-duplicate views of
+ * the canonical first page: worth crawling for the post links they contain,
+ * not worth indexing in their own right. All three listing surfaces (`/blog`
+ * and the category / tag archives) share this policy so a search on an archive
+ * is not quietly indexable when the same search on `/blog` is not.
+ */
+export function listingRobots(query: string, page: number): { index: false; follow: true } | undefined {
+	if (query.trim() || page > 1) {
+		return { index: false, follow: true };
+	}
+	return undefined;
 }

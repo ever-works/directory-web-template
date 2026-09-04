@@ -7,7 +7,7 @@ import { BreadcrumbJsonLd } from '@/components/seo/breadcrumb-json-ld';
 import { BlogListing } from '@/components/blog/blog-listing';
 import { getCachedPosts } from '@/lib/content';
 import { generateListingMetadata } from '@/lib/seo/listing-metadata';
-import { BLOG_BASE_PATH, buildBlogListingHref, firstSearchParam, parsePageParam } from '@/lib/blog/urls';
+import { BLOG_BASE_PATH, buildBlogListingHref, firstSearchParam, listingRobots, parsePageParam } from '@/lib/blog/urls';
 import { DEFAULT_LOCALE } from '@/lib/constants';
 
 // ISR: the blog listing is content-driven and changes only when the data
@@ -45,11 +45,8 @@ export async function generateMetadata({ params, searchParams }: BlogPageProps):
 	// Search-result and deep pagination pages are thin duplicates of the
 	// canonical listing — keep them out of the index while still letting
 	// crawlers follow the post links.
-	if (query) {
-		return { ...metadata, robots: { index: false, follow: true } };
-	}
-
-	return metadata;
+	const robots = listingRobots(query, page);
+	return robots ? { ...metadata, robots } : metadata;
 }
 
 export default async function BlogPage({ params, searchParams }: BlogPageProps) {

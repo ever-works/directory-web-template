@@ -91,6 +91,24 @@ sidebar_label: 050 Tasks
 - [x] T-036: give the blog feed its own self URL and canonical page via
       `resolveFeedConfig` overrides, publish only the formats it actually
       serves, and exclude undated posts so they are not re-announced as new.
+- [x] T-037: base the `hasPosts` nav gate on at least one PUBLISHED post via a
+      shared `hasPublishedPosts()` in `lib/content.ts`, so the signal, the
+      listing and the More-menu fallback all agree on the same directory and
+      the same definition of "has posts".
+- [x] T-038: preserve the declared order of `categories.yml` / `tags.yml`
+      terms, appending frontmatter-only terms after them.
+- [x] T-039: encode post slugs and term ids as single URL path segments.
+- [x] T-040: match `next.config.ts` `remotePatterns` on protocol, host AND
+      path before asking for image optimization, and share one renderability
+      predicate so an unusable image never reserves blank card space.
+- [x] T-041: apply the same `noindex, follow` policy to searched and deeply
+      paginated views on all three listing surfaces via `listingRobots()`.
+- [x] T-042: emit EVERY post in the sitemap by walking all loader pages, keep
+      post slug case intact, and advertise `/blog` only when posts exist.
+- [x] T-043: add a post-shaped `loading.tsx` under `blog/[slug]` so a post
+      does not flash the listing grid skeleton.
+- [x] T-044: drop the legacy external blog entries from the footer resources
+      column and the social icon row once the site publishes its own posts.
 
 ## Acceptance Criteria to Task Map
 

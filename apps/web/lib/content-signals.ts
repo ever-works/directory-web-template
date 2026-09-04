@@ -16,12 +16,6 @@ export interface ContentSignals {
 	hasPosts: boolean;
 }
 
-/**
- * Directories searched for blog posts, in priority order, relative to the
- * content root. Kept in sync with `POSTS_DIR_CANDIDATES` in `lib/content.ts`.
- */
-const POSTS_DIR_CANDIDATES = [['posts'], ['blog', 'posts'], ['blog']] as const;
-
 async function readCollectionExists(type: 'categories' | 'tags' | 'collections'): Promise<boolean> {
 	const filePath = path.join(getContentPath(), `${type}.yml`);
 	if (!(await fsExists(filePath))) {
@@ -54,27 +48,21 @@ async function readComparisonsExists(): Promise<boolean> {
 }
 
 /**
- * True when the data repository ships at least one Markdown file under a
- * posts directory. Intentionally a cheap `readdir` rather than a full parse —
- * this only gates whether the Blog nav entry renders; the listing page does
- * the real filtering (drafts, locales) when someone actually visits it.
+ * True when the data repository ships at least one PUBLISHED post.
+ *
+ * Delegates to `lib/content.ts` rather than re-walking the filesystem here, so
+ * this signal and the `/blog` listing can never disagree about which posts
+ * directory is authoritative or about what counts as a post. Getting that
+ * wrong shows a Blog nav entry that leads to an empty page.
  */
 async function readPostsExists(): Promise<boolean> {
-	for (const segments of POSTS_DIR_CANDIDATES) {
-		const postsDir = path.join(getContentPath(), ...segments);
-		if (!(await dirExists(postsDir))) continue;
-
-		try {
-			const entries = await fsp.readdir(postsDir, { withFileTypes: true });
-			if (entries.some((entry) => entry.isFile() && /\.mdx?$/i.test(entry.name))) {
-				return true;
-			}
-		} catch (error) {
-			console.error('[CONTENT] Failed to read posts existence:', error);
-		}
+	try {
+		const { hasPublishedPosts } = await import('./content');
+		return await hasPublishedPosts();
+	} catch (error) {
+		console.error('[CONTENT] Failed to read posts existence:', error);
+		return false;
 	}
-
-	return false;
 }
 
 async function fetchContentSignals(): Promise<ContentSignals> {

@@ -2,7 +2,7 @@ import { Link } from '@/i18n/navigation';
 import type { PostSummary } from '@/types/post';
 import { buildCategoryHref, buildPostHref, formatPostDate, toDateTimeAttribute } from '@/lib/blog/urls';
 import { HighlightText } from './highlight-text';
-import { PostImage } from './post-image';
+import { PostImage, hasRenderablePostImage } from './post-image';
 
 interface PostCardLabels {
 	readMore: string;
@@ -32,7 +32,9 @@ export function PostCard({ post, locale, labels, query }: PostCardProps) {
 
 	return (
 		<article className="group relative flex h-full flex-col overflow-hidden rounded-sm bg-white/80 shadow-md ring-1 ring-gray-200/50 transition-all duration-500 hover:shadow-xl hover:ring-theme-primary/70 dark:bg-white/3 dark:ring-white/6 dark:hover:ring-white/40">
-			{post.image ? (
+			{/* Gated on the same predicate `PostImage` uses: an unusable frontmatter
+			    image would otherwise reserve a blank 16:9 band on the card. */}
+			{hasRenderablePostImage(post.image) ? (
 				<div className="relative aspect-16/9 w-full overflow-hidden bg-gray-100 dark:bg-white/5">
 					<PostImage
 						src={post.image}

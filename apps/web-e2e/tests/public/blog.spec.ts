@@ -12,6 +12,24 @@ import { test, expect } from '@playwright/test';
 
 const PAGE_READY_TIMEOUT = 15_000;
 
+/**
+ * Escape RegExp metacharacters.
+ *
+ * The keyword is taken from a real post title in the content fixture, so it
+ * can contain `.`, `(`, `+` and friends — "Node.js Tips" being the obvious
+ * case. Interpolated raw into `toHaveURL(new RegExp(...))`, such a keyword
+ * either throws on an invalid pattern or matches far too loosely, which makes
+ * the assertion flaky in a way that looks like a product bug.
+ *
+ * `encodeURIComponent` does not solve this on its own: it leaves the
+ * unreserved characters `. - _ ~ ! * ' ( )` untouched, and every one of those
+ * except `-`, `_`, `~` and `!` is a RegExp metacharacter. So escape after
+ * encoding. The app's own `HighlightText` escapes for exactly this reason.
+ */
+function escapeRegExp(value: string): string {
+	return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
 /** True when the CI fixture seeded at least one post. */
 async function hasPosts(page: import('@playwright/test').Page): Promise<boolean> {
 	return (await page.locator('[data-testid="blog-post-grid"] article').count()) > 0;
@@ -59,7 +77,7 @@ test.describe('Public: Blog listing', () => {
 		const keyword = firstTitle.split(/\s+/)[0];
 
 		await page.getByTestId('blog-search-input').fill(keyword);
-		await expect(page).toHaveURL(new RegExp(`[?&]q=${encodeURIComponent(keyword)}`, 'i'), {
+		await expect(page).toHaveURL(new RegExp(`[?&]q=${escapeRegExp(encodeURIComponent(keyword))}`, 'i'), {
 			timeout: PAGE_READY_TIMEOUT
 		});
 		await expect(page.getByTestId('blog-result-count')).toBeVisible({ timeout: PAGE_READY_TIMEOUT });

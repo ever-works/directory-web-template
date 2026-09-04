@@ -61,13 +61,19 @@ traffic; without a blog they either bolt on a separate CMS or drop the content.
 
 - [x] AC-1: `Blog` appears in the header navigation and the footer product
       column, using the localised `common.BLOG` key, and is hidden when the data
-      repository ships no posts.
+      repository ships no PUBLISHED post. A repository whose posts are all
+      drafts is treated as having none, and the legacy external blog links in
+      the More menu, the footer resources column and the social icon row are
+      dropped only once the site has its own posts — never leaving two "Blog"
+      links pointing at different destinations.
 - [x] AC-2: `/blog` (and `/<locale>/blog`) renders with the site's `Hero` +
       `Container` + `DecorativeBg` layout, responsive from mobile to desktop.
 - [x] AC-3: the listing emits a title, description, canonical URL, OpenGraph and
       Twitter metadata through the shared `generateListingMetadata()` helper.
-- [x] AC-4: `/blog` is present in `sitemap.xml`, and `BreadcrumbJsonLd` describes
-      the Home to Blog trail.
+- [x] AC-4: `/blog` is present in `sitemap.xml` — but only when posts exist, so
+      the sitemap never advertises an empty-state page — and `BreadcrumbJsonLd`
+      describes the Home to Blog trail. Every post is listed, across all loader
+      pages, at its exact-case slug.
 
 ### EW-26 — listing with pagination
 
@@ -107,7 +113,9 @@ traffic; without a blog they either bolt on a separate CMS or drop the content.
       listing with the term pinned, and return 404 for an unknown term.
 - [x] AC-18: a post page shows its categories above the title and its tags below
       the body, each linking to the corresponding archive.
-- [x] AC-19: category and tag archives with at least one post appear in the sitemap.
+- [x] AC-19: category and tag archives with at least one post appear in the
+      sitemap, and a `categories.yml` / `tags.yml` declaration keeps its file
+      order (frontmatter-only terms are appended after it, most-used first).
 
 ### EW-29 — search
 
@@ -117,7 +125,8 @@ traffic; without a blog they either bolt on a separate CMS or drop the content.
 - [x] AC-22: matches are highlighted with `<mark>` in card titles and excerpts,
       built by splitting in React — never `dangerouslySetInnerHTML`.
 - [x] AC-23: a result count and a clear control are shown while a filter is
-      active, and search pages are `noindex, follow`.
+      active, and searched or deeply paginated views are `noindex, follow` on
+      all three listing surfaces (`/blog` and both archive types).
 - [x] AC-24: a query with no matches renders a dedicated no-results message.
 
 ## 7. Out-of-Scope Considerations
