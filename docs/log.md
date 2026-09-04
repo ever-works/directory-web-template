@@ -19,16 +19,16 @@ sidebar_position: 99
   via a new dependency-free `apps/web/lib/i18n/locales.ts` that
   `lib/constants.ts` re-exports, and unknown category/tag slugs now 404 like
   their HTML pages
-  ([spec 046](spec/046-md-mirror-route-reachability/spec.md), PR #PRNUM).
+  ([spec 046](spec/046-md-mirror-route-reachability/spec.md), PR #1050).
 - `apps/web-e2e`: `md-mirror-routes.spec.ts` rewritten from `status < 500` (which
   a 404 satisfied, which is why the breakage above shipped and stayed) to the
   real contract — exactly 200, `text/markdown`, `X-Robots-Tag: noindex`, a body
   that names the canonical page it mirrors — across the static info pages, a
   discovered item / category / tag, a non-default locale, the unknown-slug 404s,
-  and the advertised alternate href actually resolving (PR #PRNUM).
+  and the advertised alternate href actually resolving (PR #1050).
 - `questions`: added Q-046a (internal `/md` segment left publicly reachable
   behind `noindex`) and Q-046b (doubled origin still present on the item and CMS
-  page `text/markdown` alternates) (PR #PRNUM).
+  page `text/markdown` alternates) (PR #1050).
 
 ## 2026-08-25
 
