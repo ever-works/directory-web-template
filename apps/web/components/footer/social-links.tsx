@@ -60,6 +60,7 @@ export interface FooterNavigationOptions {
 	hasTags?: boolean;
 	hasCollections?: boolean;
 	hasComparisons?: boolean;
+	hasPosts?: boolean;
 	customFooterItems?: CustomNavigationItem[];
 }
 
@@ -71,12 +72,14 @@ export function footerNavigation(t: (key: string) => string, options: FooterNavi
 		hasTags = true,
 		hasCollections = true,
 		hasComparisons = true,
+		hasPosts = false,
 		customFooterItems = []
 	} = options;
 
 	const productLinks = [
 		{ label: t('common.COLLECTION'), href: '/collections' },
 		{ label: t('common.COMPARISONS'), href: '/comparisons' },
+		{ label: t('common.BLOG'), href: '/blog' },
 		{ label: t('common.CATEGORY'), href: '/categories' },
 		{ label: t('common.TAG'), href: '/tags' },
 		{ label: t('common.PRICING'), href: '/pricing' },
@@ -87,6 +90,8 @@ export function footerNavigation(t: (key: string) => string, options: FooterNavi
 		// Hide collections link if no collections exist
 		if (link.href === '/collections' && !hasCollections) return false;
 		if (link.href === '/comparisons' && !hasComparisons) return false;
+		// Hide the blog link when the data repository ships no posts
+		if (link.href === '/blog' && !hasPosts) return false;
 		// Hide categories link when categories are disabled or no categories exist
 		if (link.href === '/categories' && (!categoriesEnabled || !hasCategories)) return false;
 		// Hide tags link when tags are disabled or no tags exist

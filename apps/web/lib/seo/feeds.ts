@@ -13,6 +13,7 @@
 
 import { Feed } from 'feed';
 import type { ItemData } from '@/lib/content';
+import type { PostSummary } from '@/types/post';
 
 /** A single feed entry, derived from an `ItemData`. */
 export interface FeedEntry {
@@ -94,6 +95,27 @@ export function buildFeedEntries(items: ReadonlyArray<ItemData>, config: FeedCon
 		pubDate: item.updated_at,
 		guid: `${siteUrl}/items/${item.slug}`,
 		category: categoryName(item.category)
+	}));
+}
+
+/**
+ * Convert blog posts into normalized feed entries (Spec 050).
+ *
+ * Posts arrive from `fetchPosts()` already sorted newest-first, so this only
+ * caps the list at `config.limit` and maps to absolute `/blog/<slug>` URLs.
+ * An undated post falls back to "now" the same way {@link buildFeed} does for
+ * an unparseable date, so it still appears in the feed.
+ */
+export function buildPostFeedEntries(posts: ReadonlyArray<PostSummary>, config: FeedConfig): FeedEntry[] {
+	const siteUrl = config.siteUrl.replace(/\/+$/, '');
+
+	return posts.slice(0, config.limit).map((post) => ({
+		title: post.title,
+		link: `${siteUrl}/blog/${post.slug}`,
+		description: post.description,
+		pubDate: post.date || new Date().toISOString(),
+		guid: `${siteUrl}/blog/${post.slug}`,
+		category: post.categories[0]?.name
 	}));
 }
 

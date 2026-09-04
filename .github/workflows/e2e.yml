@@ -252,7 +252,7 @@ jobs:
         # minimal items so the admin list/filter UI tests have something to
         # render against.
         run: |
-          mkdir -p apps/web/.content/.works apps/web/.content/data
+          mkdir -p apps/web/.content/.works apps/web/.content/data apps/web/.content/posts/authors
           cat > apps/web/.content/.works/works.yml <<'YAML'
           company_name: E2E
           item_name: Item
@@ -265,6 +265,12 @@ jobs:
             # multi-page output — the discover pagination test asserts
             # `<nav aria-label="pagination">` is rendered.
             itemsPerPage: 2
+          # Blog posts-per-page (Spec 050). Two, so the three-post seed
+          # below produces a second page and the blog pagination spec has
+          # a `Next` control to click.
+          blog:
+            pagination:
+              per_page: 2
           auth:
             credentials: true
           settings:
@@ -293,6 +299,67 @@ jobs:
             name: E2E Collection
             description: Placeholder collection for CI
           YAML
+          # Blog posts (Spec 050). Three published posts across two
+          # categories and three tags, plus one draft that must stay
+          # hidden — enough for the blog listing, search, taxonomy and
+          # pagination specs to run their data-dependent branches instead
+          # of skipping. Newest first: alpha (Mar) > beta (Feb) > gamma (Jan).
+          cat > apps/web/.content/posts/alpha-release-notes.en.md <<'MD'
+          ---
+          title: Alpha release notes
+          description: What shipped in the alpha release.
+          author: E2E Author
+          date: 2026-03-01
+          category: Product Updates
+          tags:
+            - release
+            - e2e
+          ---
+
+          The alpha release adds pagination, search and taxonomy pages.
+          MD
+          cat > apps/web/.content/posts/beta-tutorial.en.md <<'MD'
+          ---
+          title: Beta tutorial for authors
+          description: A short tutorial for content authors.
+          author: E2E Author
+          date: 2026-02-01
+          category: Tutorials
+          tags:
+            - guide
+          ---
+
+          This tutorial explains how to write a post with frontmatter.
+          MD
+          cat > apps/web/.content/posts/gamma-industry-notes.en.md <<'MD'
+          ---
+          title: Gamma industry notes
+          excerpt: Observations from the wider industry.
+          author: E2E Author
+          publishedAt: 2026-01-05 09:00
+          categories:
+            - Industry Insights
+          tags:
+            - e2e
+          ---
+
+          Industry notes body copy, long enough to produce a reading time.
+          MD
+          cat > apps/web/.content/posts/delta-draft.en.md <<'MD'
+          ---
+          title: Delta draft that must stay hidden
+          draft: true
+          date: 2026-04-01
+          ---
+
+          This draft must never appear on the listing.
+          MD
+          cat > apps/web/.content/posts/authors/e2e-author.md <<'MD'
+          ---
+          name: E2E Author
+          url: https://example.com/e2e-author
+          ---
+          MD
           # Two approved items + one pending so the items-review spec has
           # something to approve/reject without falling back to its skip
           # branch on empty content. Every renderable field is set so

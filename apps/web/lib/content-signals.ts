@@ -13,7 +13,14 @@ export interface ContentSignals {
 	hasTags: boolean;
 	hasCollections: boolean;
 	hasComparisons: boolean;
+	hasPosts: boolean;
 }
+
+/**
+ * Directories searched for blog posts, in priority order, relative to the
+ * content root. Kept in sync with `POSTS_DIR_CANDIDATES` in `lib/content.ts`.
+ */
+const POSTS_DIR_CANDIDATES = [['posts'], ['blog', 'posts'], ['blog']] as const;
 
 async function readCollectionExists(type: 'categories' | 'tags' | 'collections'): Promise<boolean> {
 	const filePath = path.join(getContentPath(), `${type}.yml`);
@@ -46,22 +53,48 @@ async function readComparisonsExists(): Promise<boolean> {
 	}
 }
 
+/**
+ * True when the data repository ships at least one Markdown file under a
+ * posts directory. Intentionally a cheap `readdir` rather than a full parse —
+ * this only gates whether the Blog nav entry renders; the listing page does
+ * the real filtering (drafts, locales) when someone actually visits it.
+ */
+async function readPostsExists(): Promise<boolean> {
+	for (const segments of POSTS_DIR_CANDIDATES) {
+		const postsDir = path.join(getContentPath(), ...segments);
+		if (!(await dirExists(postsDir))) continue;
+
+		try {
+			const entries = await fsp.readdir(postsDir, { withFileTypes: true });
+			if (entries.some((entry) => entry.isFile() && /\.mdx?$/i.test(entry.name))) {
+				return true;
+			}
+		} catch (error) {
+			console.error('[CONTENT] Failed to read posts existence:', error);
+		}
+	}
+
+	return false;
+}
+
 async function fetchContentSignals(): Promise<ContentSignals> {
 	const { ensureContentAvailable } = await import('./lib');
 	await ensureContentAvailable();
 
-	const [hasCategories, hasTags, hasCollections, hasComparisons] = await Promise.all([
+	const [hasCategories, hasTags, hasCollections, hasComparisons, hasPosts] = await Promise.all([
 		readCollectionExists('categories'),
 		readCollectionExists('tags'),
 		readCollectionExists('collections'),
-		readComparisonsExists()
+		readComparisonsExists(),
+		readPostsExists()
 	]);
 
 	return {
 		hasCategories,
 		hasTags,
 		hasCollections,
-		hasComparisons
+		hasComparisons,
+		hasPosts
 	};
 }
 
@@ -79,8 +112,10 @@ export const getCachedContentSignals = async (locale: string = 'en') => {
 				CACHE_TAGS.TAGS,
 				CACHE_TAGS.COLLECTIONS,
 				CACHE_TAGS.COMPARISONS,
+				CACHE_TAGS.POSTS,
 				CACHE_TAGS.ITEMS_LOCALE(locale),
-				CACHE_TAGS.COMPARISONS_LOCALE(locale)
+				CACHE_TAGS.COMPARISONS_LOCALE(locale),
+				CACHE_TAGS.POSTS_LOCALE(locale)
 			]
 		}
 	)();

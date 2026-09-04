@@ -1,5 +1,6 @@
 import { MetadataRoute } from 'next';
-import { getCachedComparisons, getCachedItems } from '@/lib/content';
+import { getCachedComparisons, getCachedItems, getCachedPostTaxonomies, getCachedPosts } from '@/lib/content';
+import { MAX_POSTS_PER_PAGE } from '@/lib/blog/constants';
 
 // Types
 interface RouteConfig {
@@ -74,6 +75,11 @@ const STATIC_ROUTES: RouteConfig[] = [
 	},
 	{
 		path: '/comparisons',
+		priority: DEFAULT_PRIORITIES.MAIN,
+		changeFrequency: DEFAULT_CHANGE_FREQUENCIES.WEEKLY
+	},
+	{
+		path: '/blog',
 		priority: DEFAULT_PRIORITIES.MAIN,
 		changeFrequency: DEFAULT_CHANGE_FREQUENCIES.WEEKLY
 	},
@@ -185,10 +191,15 @@ const generateLocaleRoutes = (baseUrl: string): SitemapEntry[] => {
 
 const generateDynamicRoutes = async (baseUrl: string): Promise<SitemapEntry[]> => {
 	try {
-		const [{ items, categories, tags, collections }, { comparisons }] = await Promise.all([
-			getCachedItems(),
-			getCachedComparisons()
-		]);
+		const [{ items, categories, tags, collections }, { comparisons }, { posts }, postTaxonomies] =
+			await Promise.all([
+				getCachedItems(),
+				getCachedComparisons(),
+				// The blog is optional: a data repository without a posts folder
+				// resolves to an empty list rather than failing the sitemap.
+				getCachedPosts({ perPage: MAX_POSTS_PER_PAGE }).catch(() => ({ posts: [] })),
+				getCachedPostTaxonomies().catch(() => ({ categories: [], tags: [] }))
+			]);
 
 		return [
 			// Items - validate and sanitize slugs, include images for items with icon_url
@@ -240,6 +251,43 @@ const generateDynamicRoutes = async (baseUrl: string): Promise<SitemapEntry[]> =
 					lastModified: new Date(comparison.generated_at),
 					changeFrequency: DEFAULT_CHANGE_FREQUENCIES.WEEKLY,
 					priority: DEFAULT_PRIORITIES.SECONDARY
+				})),
+			// Blog posts (Spec 050)
+			...posts
+				.filter((post) => post.slug && validateSlug(post.slug))
+				.map((post) => {
+					const lastModified = post.date ? new Date(post.date) : new Date();
+					const entry: SitemapEntry = {
+						url: `${baseUrl}/blog/${sanitizeSlug(post.slug)}`,
+						lastModified: Number.isNaN(lastModified.getTime()) ? new Date() : lastModified,
+						changeFrequency: DEFAULT_CHANGE_FREQUENCIES.MONTHLY,
+						priority: DEFAULT_PRIORITIES.SECONDARY
+					};
+
+					const absoluteImageUrl = toAbsoluteImageUrl(post.image, baseUrl);
+					if (absoluteImageUrl) {
+						entry.images = [absoluteImageUrl];
+					}
+
+					return entry;
+				}),
+			// Blog taxonomy archives — only terms that actually have posts, so
+			// the sitemap never advertises an empty archive.
+			...postTaxonomies.categories
+				.filter((category) => category.count > 0 && validateSlug(category.id))
+				.map((category) => ({
+					url: `${baseUrl}/blog/category/${sanitizeSlug(category.id)}`,
+					lastModified: new Date(),
+					changeFrequency: DEFAULT_CHANGE_FREQUENCIES.WEEKLY,
+					priority: DEFAULT_PRIORITIES.TERTIARY
+				})),
+			...postTaxonomies.tags
+				.filter((tag) => tag.count > 0 && validateSlug(tag.id))
+				.map((tag) => ({
+					url: `${baseUrl}/blog/tag/${sanitizeSlug(tag.id)}`,
+					lastModified: new Date(),
+					changeFrequency: DEFAULT_CHANGE_FREQUENCIES.WEEKLY,
+					priority: DEFAULT_PRIORITIES.TERTIARY
 				}))
 		];
 	} catch (error) {

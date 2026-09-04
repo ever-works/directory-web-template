@@ -13,6 +13,7 @@ import { useTagsEnabled } from '@/hooks/use-tags-enabled';
 import { useCategoriesExists } from '@/hooks/use-categories-exists';
 import { useCollectionsExists } from '@/hooks/use-collections-exists';
 import { useComparisonsExists } from '@/hooks/use-comparisons-exists';
+import { useBlogExists } from '@/hooks/use-blog-exists';
 import { useTagsExists } from '@/hooks/use-tags-exists';
 import { useFooterSettings } from '@/hooks/use-footer-settings';
 
@@ -24,6 +25,7 @@ export function Footer() {
 	const { data: categoriesData } = useCategoriesExists();
 	const { data: collectionsData } = useCollectionsExists();
 	const { data: comparisonsData } = useComparisonsExists();
+	const { data: blogData } = useBlogExists();
 	const { data: tagsData } = useTagsExists();
 	const { settings: footerSettings } = useFooterSettings();
 
@@ -31,6 +33,7 @@ export function Footer() {
 	const hasCategories = categoriesData?.exists ?? false;
 	const hasCollections = collectionsData?.exists ?? false;
 	const hasComparisons = comparisonsData?.exists ?? false;
+	const hasPosts = blogData?.exists ?? false;
 	const hasTags = tagsData?.exists ?? false;
 
 	return (
@@ -62,6 +65,7 @@ export function Footer() {
 										hasTags,
 										hasCollections,
 										hasComparisons,
+										hasPosts,
 										customFooterItems: config.custom_footer || []
 									})
 								).map(([category, links]) => (
