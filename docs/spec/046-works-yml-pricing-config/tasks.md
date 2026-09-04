@@ -60,7 +60,7 @@ sidebar_label: 046 Tasks
 ## Verification
 
 ```bash
-pnpm --filter @ever-works/web test:unit   # 44 assertions, 31 of them new
+pnpm --filter @ever-works/web test:unit   # 45 tests pass; 28 of them new (20 + 8)
 pnpm run lint
 pnpm --filter @ever-works/web exec tsc --noEmit
 pnpm run build:web

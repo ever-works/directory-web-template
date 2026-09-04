@@ -283,12 +283,17 @@ export function parseWorksPricingConfig(raw: unknown): WorksPricingParseResult {
 		};
 	}
 
-	const warnings = collectWarnings(raw);
 	const result = worksPricingConfigSchema.safeParse(raw);
 
 	if (!result.success) {
-		return { errors: formatIssues(result.error), warnings };
+		// No warnings on the failure path. They describe what the ACCEPTED block
+		// does ("manual means no in-site checkout", "PRO was read as STANDARD"),
+		// and a rejected block does none of it - the caller drops it and the
+		// built-in plans, with their own provider resolution, render instead.
+		// Emitting them here would tell the operator their site is in a state it
+		// is not.
+		return { errors: formatIssues(result.error), warnings: [] };
 	}
 
-	return { pricing: result.data, errors: [], warnings };
+	return { pricing: result.data, errors: [], warnings: collectWarnings(raw) };
 }

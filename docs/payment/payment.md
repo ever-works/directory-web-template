@@ -192,10 +192,12 @@ pricing:
         - "API access"
 ```
 
-`provider` accepts `stripe`, `lemonsqueezy`, `polar`, `solidgate` or
-`manual` (prices are displayed, no in-site checkout is started, and payment is
-collected outside the template — which is different from omitting `provider`,
-where the Stripe default applies).
+`provider` sets the site's default. It accepts `stripe`, `lemonsqueezy`,
+`polar`, `solidgate` or `manual` — with `manual`, prices are displayed but the
+site starts no checkout of its own, so payment is collected outside the
+template. That is different from omitting `provider`, which falls back to
+Stripe. Both statements describe the default: a signed-in user who has picked a
+provider under Settings gets that one instead.
 Plan keys are `FREE`, `STANDARD` and `PREMIUM`; `PRO` is accepted as an alias
 for `STANDARD`.
 

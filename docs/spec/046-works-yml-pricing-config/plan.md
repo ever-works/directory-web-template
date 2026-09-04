@@ -50,7 +50,7 @@ flowchart LR
 | Path                                                                                                                             | Change | Notes                                                                    |
 | -------------------------------------------------------------------------------------------------------------------------------- | ------ | ------------------------------------------------------------------------ |
 | `apps/web/lib/config/schemas/works-pricing.schema.ts`                                                                            | new    | schema, `manual` / `PRO` normalization, `parseWorksPricingConfig`        |
-| `apps/web/lib/config/schemas/__tests__/works-pricing.schema.spec.ts`                                                             | new    | 23 `node:test` cases, parses the published example                       |
+| `apps/web/lib/config/schemas/__tests__/works-pricing.schema.spec.ts`                                                             | new    | 20 `node:test` cases, parses the published example                       |
 | `apps/web/lib/utils/__tests__/payment-provider.spec.ts`                                                                          | new    | 8 `node:test` cases for `manual` vs "unset" resolution                   |
 | `apps/web/lib/content.ts`                                                                                                        | modify | `applyPricingValidation()` in `getConfig()`                              |
 | `apps/web/lib/constants/payment.ts`, `apps/web/lib/constants.ts`                                                                 | modify | `MANUAL_PAYMENT_PROVIDER`, `PricingProvider`                             |

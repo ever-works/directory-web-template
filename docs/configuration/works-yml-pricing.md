@@ -55,10 +55,11 @@ It is **not** the same as omitting `provider`. An omitted provider means
 "nothing was declared", and resolution falls back to the Stripe default.
 `manual` means the operator declared that this site has **no** gateway, so
 the value is carried through resolution and the plan buttons never start an
-in-site checkout — clicking one logs
+in-site checkout — clicking one writes this to the **visitor's browser
+console** (it is a client-side hook, so it does not appear in server logs)
 
 ```text
-[PRICING] works.yml sets pricing.provider: manual — no in-site checkout is started for plan "standard".
+[PRICING] works.yml sets pricing.provider: manual — no in-site checkout is started for plan "standard". Payment must be collected outside this site.
 ```
 
 and nothing else happens. Which plan cards render is unchanged: that is still
@@ -78,7 +79,10 @@ only names gateways `PaymentProviderFactory` can instantiate and the
 
 Whatever the block says, a signed-in user's own choice under
 **Settings → Checkout provider** still takes precedence — that picker only
-lists gateways the deployment actually configured.
+lists gateways the deployment actually configured, so such a user checks out
+through the gateway they picked even on a `manual` site. Everything above
+describes the site's default, which is what an anonymous or never-configured
+visitor gets.
 
 `manual` does not yet render its own call to action (a "Contact us" button, a
 per-plan external URL); that is recorded as Q-046a in
@@ -191,7 +195,8 @@ must not take a directory offline.
   followed by one `pricing.<path>: <message>` line per problem, and the block
   is dropped so the built-in plans render.
 - **Accepted with a note** — a `[CONTENT]` warning for the `PRO` alias or for
-  `provider: manual`.
+  `provider: manual`. These describe what the accepted block does, so they are
+  emitted only when the block validates; a rejected block reports errors only.
 
 A typical failure:
 

@@ -18,8 +18,8 @@ pricing:
   #   stripe | lemonsqueezy | polar | solidgate | manual
   # `manual` means "show the prices, handle payment outside the template":
   # the site starts no checkout of its own, so a plan button does nothing
-  # beyond a server-side log. Omitting `provider` is NOT the same thing --
-  # that falls back to the Stripe default.
+  # beyond a warning in the visitor's browser console. Omitting `provider` is
+  # NOT the same thing -- that falls back to the Stripe default.
   # A user's own choice in Settings -> Checkout provider still wins.
   provider: stripe
 

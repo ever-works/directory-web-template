@@ -131,6 +131,22 @@ describe('works.yml pricing provider', () => {
 		assert.equal(pricing?.provider, 'lemonsqueezy');
 	});
 
+	it('🛑 stays silent about `manual` when the block is rejected', () => {
+		// The warnings describe what the ACCEPTED block does. A rejected block
+		// is dropped and the built-in plans render with their own provider
+		// resolution, so claiming "no in-site checkout" would be false.
+		const config = minimalPricing();
+		const { pricing, errors, warnings } = parseWorksPricingConfig({
+			...config,
+			provider: MANUAL_PRICING_PROVIDER,
+			plans: { ...config.plans, STANDARD: { ...config.plans.STANDARD, price: '19' } }
+		});
+
+		assert.equal(pricing, undefined);
+		assert.equal(errors.length, 1);
+		assert.deepEqual(warnings, []);
+	});
+
 	it('rejects an unknown provider with a path-prefixed message', () => {
 		const { pricing, errors } = parseWorksPricingConfig({ ...minimalPricing(), provider: 'paypal' });
 
