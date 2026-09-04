@@ -150,7 +150,10 @@ rows that expired more than a day ago so the table cannot grow without bound.
   from the in-memory `ratelimit()` map, because a process-local counter would
   let a multi-instance deployment issue `6 × instances` codes per window. That
   is why issuing marks earlier codes consumed rather than deleting them — a
-  deleted row cannot be counted.
+  deleted row cannot be counted. Count-then-insert is a read-modify-write, so
+  it runs inside a transaction that first takes a per-user
+  `pg_advisory_xact_lock`; otherwise concurrent issues would all read the
+  same under-limit count and all insert, and the cap would not hold at all.
 - **The password budget is reserved, not checked-then-charged.** The sign-in
   action calls `ratelimit()` up front for every submission (an atomic map
   read-and-write with no `await` inside) and hands the slot back with

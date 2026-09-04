@@ -64,6 +64,12 @@ sidebar_label: 046 Tasks
       feed; show the OAuth notice only for genuinely OAuth-only accounts; clear
       the spent captcha token and the rejected code in the sign-in form; and
       clear the `serverClient` GET cache after a 2FA mutation.
+- [x] T-017 (review follow-up): serialize per-user code issuance behind a
+      `pg_advisory_xact_lock` inside a transaction, so the database-backed
+      issuance cap holds under concurrency; and consult the per-address resend
+      budget only after the account, password and 2FA flag have checked out, so
+      its 429 cannot signal that an address exists and has had recent
+      authenticated activity.
 
 ## Acceptance Criteria → Task Map
 

@@ -241,6 +241,26 @@ const ISSUE_LIMIT = 6;
 const ISSUE_WINDOW_MS = 10 * 60 * 1000;
 
 /**
+ * Stable 32-bit key for `pg_advisory_xact_lock`, derived from a user id.
+ *
+ * Computed here rather than with Postgres' `hashtext()` so the value does not
+ * depend on an undocumented internal function, and as a 32-bit signed int
+ * rather than a BigInt because this package targets ES2017 (no BigInt
+ * literals). Collisions are harmless: two different users sharing a key merely
+ * serialize against each other, which costs a little concurrency and changes
+ * no outcome.
+ */
+function advisoryLockKey(userId: string): number {
+	// FNV-1a, 32-bit. `Math.imul` keeps the multiply in 32-bit space.
+	let hash = 0x811c9dc5;
+	for (let i = 0; i < userId.length; i++) {
+		hash ^= userId.charCodeAt(i);
+		hash = Math.imul(hash, 0x01000193);
+	}
+	return hash | 0;
+}
+
+/**
  * Mint a one-time code, store only its hash, and email the plaintext
  * (EW-138 / EW-140).
  *
@@ -257,13 +277,49 @@ export async function issueTwoFactorCode(params: {
 }): Promise<IssuedTwoFactorCode> {
 	const { userId, email, tenantId, userName } = params;
 
-	const windowStart = new Date(Date.now() - ISSUE_WINDOW_MS);
-	const [{ issued } = { issued: 0 }] = await db
-		.select({ issued: sql<number>`count(*)::int` })
-		.from(twoFactorCodes)
-		.where(and(eq(twoFactorCodes.userId, userId), gt(twoFactorCodes.createdAt, windowStart)));
+	const code = generateTwoFactorCode();
+	const codeHash = hashTwoFactorCode(code);
+	const expiresAt = twoFactorCodeExpiry();
 
-	if (issued >= ISSUE_LIMIT) {
+	// Count-then-insert is a read-modify-write, so it runs inside a transaction
+	// that first takes a per-user advisory lock. Without it, concurrent issues
+	// would every one of them read the same under-limit count and every one of
+	// them insert — the inbox-bombing cap this exists to enforce would simply
+	// not hold, and several live codes could be left behind. The lock is
+	// transaction-scoped, so it is released on commit or rollback either way.
+	const throttled = await db.transaction(async (tx) => {
+		await tx.execute(sql`SELECT pg_advisory_xact_lock(${advisoryLockKey(userId)})`);
+
+		const windowStart = new Date(Date.now() - ISSUE_WINDOW_MS);
+		const [{ issued } = { issued: 0 }] = await tx
+			.select({ issued: sql<number>`count(*)::int` })
+			.from(twoFactorCodes)
+			.where(and(eq(twoFactorCodes.userId, userId), gt(twoFactorCodes.createdAt, windowStart)));
+
+		if (issued >= ISSUE_LIMIT) return true;
+
+		// Rotate: any previous code for this user becomes inert immediately.
+		// Marked consumed rather than deleted so it still counts towards the
+		// issuance budget above; `verifyTwoFactorCode` only ever looks at rows
+		// where `consumedAt IS NULL`, so a consumed row can never be satisfied.
+		await tx
+			.update(twoFactorCodes)
+			.set({ consumedAt: new Date() })
+			.where(and(eq(twoFactorCodes.userId, userId), isNull(twoFactorCodes.consumedAt)));
+
+		await tx.insert(twoFactorCodes).values({
+			userId,
+			email: email.toLowerCase().trim(),
+			codeHash,
+			expires: expiresAt,
+			attempts: 0,
+			tenantId: tenantId ?? null
+		});
+
+		return false;
+	});
+
+	if (throttled) {
 		return {
 			expiresAt: twoFactorCodeExpiry(),
 			expiresInMinutes: TWO_FACTOR_CODE_TTL_MINUTES,
@@ -272,31 +328,14 @@ export async function issueTwoFactorCode(params: {
 		};
 	}
 
-	const code = generateTwoFactorCode();
-	const codeHash = hashTwoFactorCode(code);
-	const expiresAt = twoFactorCodeExpiry();
-
-	// Rotate: any previous code for this user becomes inert immediately.
-	// Marked consumed rather than deleted so it still counts towards the
-	// issuance budget above; `verifyTwoFactorCode` only ever looks at rows
-	// where `consumedAt IS NULL`, so a consumed row can never be satisfied.
-	await db
-		.update(twoFactorCodes)
-		.set({ consumedAt: new Date() })
-		.where(and(eq(twoFactorCodes.userId, userId), isNull(twoFactorCodes.consumedAt)));
-
 	// Opportunistic housekeeping so the table cannot grow without bound on a
-	// busy directory: drop anything that expired more than a day ago.
-	await db.delete(twoFactorCodes).where(lt(twoFactorCodes.expires, new Date(Date.now() - 24 * 60 * 60 * 1000)));
-
-	await db.insert(twoFactorCodes).values({
-		userId,
-		email: email.toLowerCase().trim(),
-		codeHash,
-		expires: expiresAt,
-		attempts: 0,
-		tenantId: tenantId ?? null
-	});
+	// busy directory: drop anything that expired more than a day ago. Outside
+	// the transaction on purpose — it must never widen the lock's scope, and a
+	// failure here is cosmetic.
+	await db
+		.delete(twoFactorCodes)
+		.where(lt(twoFactorCodes.expires, new Date(Date.now() - 24 * 60 * 60 * 1000)))
+		.catch(() => {});
 
 	// `sendTwoFactorTokenEmail` returns `{ skipped: true }` when the mail
 	// service is unconfigured but RETHROWS transport errors (a dead SMTP host,

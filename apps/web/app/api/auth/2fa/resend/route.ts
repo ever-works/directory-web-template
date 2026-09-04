@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { getClientAccountByEmail, getClientProfileByUserId, verifyClientPassword } from '@/lib/db/queries';
 import { issueTwoFactorCode } from '@/lib/auth/two-factor';
 import { TWO_FACTOR_CODE_TTL_MINUTES } from '@/lib/auth/two-factor-code';
-import { getRateLimitStatus, ratelimit } from '@/lib/utils/rate-limit';
+import { ratelimit } from '@/lib/utils/rate-limit';
 import { comparePasswords } from '@/lib/auth/credentials';
 
 /**
@@ -20,9 +20,10 @@ const DUMMY_PASSWORD_HASH = '$2b$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJ
  * sends mail: without it, a stranger who knows an address could use it
  * to bomb that inbox. Both keys are checked so neither a single noisy
  * IP nor a distributed attempt on one address gets a free pass — but the
- * per-address budget is only SPENT once the password has been verified,
- * otherwise wrong-password requests from a stranger would lock the real
- * owner out of their own resends.
+ * per-address budget is only CONSULTED once the account, password and 2FA
+ * flag have all checked out. Consulting it earlier would both let a stranger
+ * lock the real owner out of their own resends and turn its 429 into an
+ * enumeration signal.
  */
 const RESEND_LIMIT = 3;
 const RESEND_WINDOW_MS = 10 * 60 * 1000;
@@ -113,14 +114,13 @@ export async function POST(request: NextRequest) {
 			return tooManyRequests(ipBudget.retryAfter);
 		}
 
-		// The EMAIL bucket is only READ here and spent further down, after the
-		// password checks out. Spending it up front would hand a stranger a
-		// denial of service: three wrong-password requests against a known
-		// address would lock its owner out of resends for ten minutes.
+		// The EMAIL bucket is neither read nor spent here. It is checked ONLY
+		// after the account, the password and the 2FA flag have all checked out,
+		// for two reasons: spending it up front would let a stranger deny the
+		// real owner their resends with three wrong-password requests, and even
+		// *reading* it up front would turn a 429 into a signal that the address
+		// exists and has had recent authenticated activity.
 		const emailBudgetKey = `2fa-resend:email:${email}`;
-		if (getRateLimitStatus(emailBudgetKey, RESEND_LIMIT).remaining <= 0) {
-			return tooManyRequests();
-		}
 
 		// Generic success envelope used for every non-rate-limited outcome so
 		// the response body never reveals whether the address exists, whether
