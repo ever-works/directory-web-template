@@ -14,6 +14,40 @@ export interface TwoFactorCodeEmailData {
 }
 
 /**
+ * Same helper the payment templates use. Display names and email
+ * addresses reach this template straight from the database, so they are
+ * escaped before being interpolated into markup — a member who sets
+ * their display name to `<img onerror=…>` must not have it rendered by
+ * whichever client opens the mail.
+ */
+function escapeHtml(unsafe: string): string {
+	return unsafe
+		.replace(/&/g, '&amp;')
+		.replace(/</g, '&lt;')
+		.replace(/>/g, '&gt;')
+		.replace(/"/g, '&quot;')
+		.replace(/'/g, '&#039;');
+}
+
+/**
+ * Keep only `http:` / `https:` values out of the `href` attributes, and
+ * fall back to the safe default otherwise. Same guard the payment
+ * templates apply — the URLs are configuration-derived, so a misconfigured
+ * `NEXT_PUBLIC_APP_URL` must not be able to plant a `javascript:` link in
+ * an email this template tells the reader to trust.
+ */
+const DEFAULT_COMPANY_URL = 'https://ever.works';
+
+function safeUrl(url: string, fallback: string): string {
+	try {
+		const parsed = new URL(url);
+		return parsed.protocol === 'http:' || parsed.protocol === 'https:' ? url : fallback;
+	} catch {
+		return fallback;
+	}
+}
+
+/**
  * Branded sign-in verification email for email two-factor authentication
  * (EW-138).
  *
@@ -28,17 +62,29 @@ export interface TwoFactorCodeEmailData {
  */
 export const getTwoFactorCodeTemplate = (data: TwoFactorCodeEmailData) => {
 	const {
-		code,
-		customerEmail,
-		userName,
+		code: rawCode,
+		customerEmail: rawCustomerEmail,
+		userName: rawUserName,
 		expiresInMinutes,
-		companyName = 'Ever Works',
-		companyUrl = 'https://ever.works',
-		supportEmail = 'support@ever.works',
-		securityUrl = `${companyUrl}/client/settings/security`
+		companyName: rawCompanyName = 'Ever Works',
+		companyUrl: rawCompanyUrl = DEFAULT_COMPANY_URL,
+		supportEmail: rawSupportEmail = 'support@ever.works',
+		securityUrl: rawSecurityUrl = `${rawCompanyUrl}/client/settings/security`
 	} = data;
 
-	const subject = `${code} is your ${companyName} verification code`;
+	// Validated for the plain-text body; escaped again for the href attributes.
+	const companyUrl = safeUrl(rawCompanyUrl, DEFAULT_COMPANY_URL);
+	const securityUrl = safeUrl(rawSecurityUrl, `${DEFAULT_COMPANY_URL}/client/settings/security`);
+	const companyUrlAttr = escapeHtml(companyUrl);
+	const securityUrlAttr = escapeHtml(securityUrl);
+	const code = escapeHtml(rawCode);
+	const customerEmail = escapeHtml(rawCustomerEmail);
+	const userName = rawUserName ? escapeHtml(rawUserName) : rawUserName;
+	const companyName = escapeHtml(rawCompanyName);
+	const supportEmail = escapeHtml(rawSupportEmail);
+
+	// The subject is plain text, so it uses the unescaped values.
+	const subject = `${rawCode} is your ${rawCompanyName} verification code`;
 
 	const html = `
     <!DOCTYPE html>
@@ -97,7 +143,7 @@ export const getTwoFactorCodeTemplate = (data: TwoFactorCodeEmailData) => {
 
           <!-- Button -->
           <div style="text-align: center; margin: 30px 0;">
-            <a href="${securityUrl}" style="display: inline-block; background-color: #333; color: white; text-decoration: none; padding: 12px 24px; border: 1px solid #333;">
+            <a href="${securityUrlAttr}" style="display: inline-block; background-color: #333; color: white; text-decoration: none; padding: 12px 24px; border: 1px solid #333;">
               Review Security Settings
             </a>
           </div>
@@ -110,7 +156,7 @@ export const getTwoFactorCodeTemplate = (data: TwoFactorCodeEmailData) => {
             This email was sent to <strong>${customerEmail}</strong>
           </p>
           <p style="margin: 0; font-size: 12px; color: #666;">
-            &copy; ${new Date().getFullYear()} <a href="${companyUrl}" style="color: #333; text-decoration: underline;">${companyName}</a>. All rights reserved.
+            &copy; ${new Date().getFullYear()} <a href="${companyUrlAttr}" style="color: #333; text-decoration: underline;">${companyName}</a>. All rights reserved.
           </p>
         </div>
 
@@ -120,24 +166,27 @@ export const getTwoFactorCodeTemplate = (data: TwoFactorCodeEmailData) => {
     </html>
   `;
 
+	// The plain-text alternative is not markup, so it carries the RAW values —
+	// escaping here would show a member called "O'Neill" their own name as
+	// "O&#039;Neill".
 	const text = `
-Your ${companyName} verification code
+Your ${rawCompanyName} verification code
 
-Hello${userName ? ` ${userName}` : ''},
+Hello${rawUserName ? ` ${rawUserName}` : ''},
 
-Enter this code to finish signing in to your ${companyName} account:
+Enter this code to finish signing in to your ${rawCompanyName} account:
 
-    ${code}
+    ${rawCode}
 
 This code expires in ${expiresInMinutes} minutes and can be used once.
 
 DIDN'T TRY TO SIGN IN? Someone may have your password. Do not share this code with
-anyone — ${companyName} will never ask you for it. Change your password and review
+anyone — ${rawCompanyName} will never ask you for it. Change your password and review
 your security settings right away: ${securityUrl}
 
-Need help? Contact us at ${supportEmail}
+Need help? Contact us at ${rawSupportEmail}
 
-© ${new Date().getFullYear()} ${companyName}. All rights reserved.
+© ${new Date().getFullYear()} ${rawCompanyName}. All rights reserved.
 ${companyUrl}
   `;
 
