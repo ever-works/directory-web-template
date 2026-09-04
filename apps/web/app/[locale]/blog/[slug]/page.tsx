@@ -7,7 +7,7 @@ import { Breadcrumb, type BreadcrumbItem } from '@/components/ui/breadcrumb';
 import { BreadcrumbJsonLd } from '@/components/seo/breadcrumb-json-ld';
 import { MDX } from '@/components/mdx';
 import { PostImage, hasRenderablePostImage } from '@/components/blog/post-image';
-import { getCachedAdjacentPosts, getCachedPost, getCachedPosts } from '@/lib/content';
+import { getCachedAdjacentPosts, getCachedAllPostSummaries, getCachedPost } from '@/lib/content';
 import { getSiteName } from '@/lib/seo/site-identity';
 import { getLocalizedUrl } from '@/lib/seo/hreflang';
 import { getBaseUrl } from '@/lib/utils/url-cleaner';
@@ -20,7 +20,6 @@ import {
 	toDateTimeAttribute
 } from '@/lib/blog/urls';
 import { DEFAULT_LOCALE, type Locale } from '@/lib/constants';
-import { MAX_POSTS_PER_PAGE } from '@/lib/blog/constants';
 
 // ISR, matching the other content-driven detail routes. `dynamicParams` lets a
 // post added to the data repository after the build render on demand.
@@ -34,12 +33,12 @@ interface PostPageProps {
 /**
  * Pre-render the posts that exist at build time.
  *
- * `perPage` is pinned to the loader's ceiling rather than the configured page
- * size: this is the static-generation manifest, not a rendered page.
+ * Uses the unpaginated loader: this is the static-generation manifest, not a
+ * rendered page, so it must not be truncated by the listing's page size.
  */
 export async function generateStaticParams() {
 	try {
-		const { posts } = await getCachedPosts({ perPage: MAX_POSTS_PER_PAGE });
+		const posts = await getCachedAllPostSummaries();
 		return posts.map((post) => ({ slug: post.slug }));
 	} catch {
 		// A missing / unclonable data repository must not fail the build —

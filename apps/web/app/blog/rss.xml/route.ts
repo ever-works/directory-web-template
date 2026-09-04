@@ -7,17 +7,18 @@
  */
 
 import { NextResponse } from 'next/server';
-import { getCachedConfig, getCachedPosts } from '@/lib/content';
-import { MAX_POSTS_PER_PAGE } from '@/lib/blog/constants';
+import { getCachedAllPostSummaries, getCachedConfig } from '@/lib/content';
 import { getBaseUrl } from '@/lib/utils/url-cleaner';
 import { buildPostFeedEntries, generateRss, resolveFeedConfig } from '@/lib/seo/feeds';
 
 export const revalidate = 600;
 
 export async function GET(): Promise<NextResponse> {
-	const [config, result] = await Promise.all([
+	const [config, posts] = await Promise.all([
 		getCachedConfig(),
-		getCachedPosts({ perPage: MAX_POSTS_PER_PAGE }).catch(() => ({ posts: [] }))
+		// The unpaginated loader, so the feed is capped by `config.limit` alone
+		// rather than by whatever the listing's page size happens to be.
+		getCachedAllPostSummaries().catch(() => [])
 	]);
 
 	const companyName = (config as { company_name?: string }).company_name ?? 'Ever Works';
@@ -42,7 +43,7 @@ export async function GET(): Promise<NextResponse> {
 		jsonFeedFilename: null
 	});
 
-	const xml = generateRss(buildPostFeedEntries(result.posts, feedConfig), feedConfig);
+	const xml = generateRss(buildPostFeedEntries(posts, feedConfig), feedConfig);
 
 	return new NextResponse(xml, {
 		status: 200,

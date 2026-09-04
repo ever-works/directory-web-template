@@ -1,7 +1,12 @@
 import { MetadataRoute } from 'next';
-import { getCachedComparisons, getCachedItems, getCachedPostTaxonomies, getCachedPosts } from '@/lib/content';
-import { MAX_POSTS_PER_PAGE } from '@/lib/blog/constants';
+import {
+	getCachedAllPostSummaries,
+	getCachedComparisons,
+	getCachedItems,
+	getCachedPostTaxonomies
+} from '@/lib/content';
 import type { PostSummary } from '@/types/post';
+import { buildCategoryHref, buildPostHref, buildTagHref } from '@/lib/blog/urls';
 
 // Types
 interface RouteConfig {
@@ -212,34 +217,21 @@ const generateLocaleRoutes = (baseUrl: string): SitemapEntry[] => {
 };
 
 /**
- * Every published post, across all pages.
+ * Every published post.
  *
- * `getCachedPosts()` is paginated and capped at `MAX_POSTS_PER_PAGE`, so a
- * single call silently truncates the sitemap for any blog with more posts than
- * that — the exact URLs a sitemap exists to advertise. Walk the pages instead,
- * with a hard iteration bound so a loader bug can never spin here.
+ * Uses the unpaginated loader rather than walking `getCachedPosts()` page by
+ * page: that loader re-reads and re-parses the entire posts directory on every
+ * call, so paging through it would cost O(posts x pages) and would also need
+ * an arbitrary page cap that silently truncates a large blog. One pass, no cap,
+ * every post.
  */
-const SITEMAP_MAX_POST_PAGES = 200;
-
 const fetchAllPostsForSitemap = async (): Promise<PostSummary[]> => {
-	const all: PostSummary[] = [];
-
 	try {
-		let page = 1;
-		let totalPages = 1;
-
-		do {
-			const result = await getCachedPosts({ page, perPage: MAX_POSTS_PER_PAGE });
-			all.push(...result.posts);
-			totalPages = result.totalPages;
-			page += 1;
-		} while (page <= totalPages && page <= SITEMAP_MAX_POST_PAGES);
+		return await getCachedAllPostSummaries();
 	} catch {
 		// A directory without a posts folder simply contributes no blog URLs.
-		return all;
+		return [];
 	}
-
-	return all;
 };
 
 const generateDynamicRoutes = async (baseUrl: string): Promise<{ entries: SitemapEntry[]; hasPosts: boolean }> => {
@@ -313,8 +305,10 @@ const generateDynamicRoutes = async (baseUrl: string): Promise<{ entries: Sitema
 						// NOT `sanitizeSlug()`: it lowercases, and the post loader looks
 						// slugs up against filenames case-sensitively, so a post file with
 						// an uppercase letter would be advertised at a URL that 404s.
-						// `validateSlug()` above already proved the slug is URL-safe.
-						url: `${baseUrl}/blog/${post.slug}`,
+						// `buildPostHref()` is the same builder the in-app links use, so
+						// the sitemap can never advertise a different URL than the site
+						// links to.
+						url: `${baseUrl}${buildPostHref(post.slug)}`,
 						lastModified: Number.isNaN(lastModified.getTime()) ? new Date() : lastModified,
 						changeFrequency: DEFAULT_CHANGE_FREQUENCIES.MONTHLY,
 						priority: DEFAULT_PRIORITIES.SECONDARY
@@ -334,7 +328,7 @@ const generateDynamicRoutes = async (baseUrl: string): Promise<{ entries: Sitema
 			...postTaxonomies.categories
 				.filter((category) => category.count > 0 && validateSlug(category.id))
 				.map((category) => ({
-					url: `${baseUrl}/blog/category/${category.id}`,
+					url: `${baseUrl}${buildCategoryHref(category.id)}`,
 					lastModified: new Date(),
 					changeFrequency: DEFAULT_CHANGE_FREQUENCIES.WEEKLY,
 					priority: DEFAULT_PRIORITIES.TERTIARY
@@ -342,7 +336,7 @@ const generateDynamicRoutes = async (baseUrl: string): Promise<{ entries: Sitema
 			...postTaxonomies.tags
 				.filter((tag) => tag.count > 0 && validateSlug(tag.id))
 				.map((tag) => ({
-					url: `${baseUrl}/blog/tag/${tag.id}`,
+					url: `${baseUrl}${buildTagHref(tag.id)}`,
 					lastModified: new Date(),
 					changeFrequency: DEFAULT_CHANGE_FREQUENCIES.WEEKLY,
 					priority: DEFAULT_PRIORITIES.TERTIARY

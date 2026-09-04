@@ -119,6 +119,18 @@ sidebar_label: 050 Tasks
 - [x] T-048: assert the real 404 status for unknown post, category and tag
       slugs in the e2e suite, so the soft-404 regression cannot come back
       unnoticed.
+- [x] T-049: add an unpaginated `fetchAllPostSummaries()` for the sitemap so
+      collecting every post costs one pass instead of O(posts x pages), and
+      drop the arbitrary page cap that truncated very large blogs.
+- [x] T-050: scope the published-post probe to the locale the listing will
+      render, so a slug that is a draft in one locale and published in another
+      cannot light up the nav for the locale that sees nothing.
+- [x] T-051: deduplicate declared taxonomy ids that slugify to the same value.
+- [x] T-052: build sitemap and feed post URLs with the shared `buildPostHref()`
+      / `buildCategoryHref()` / `buildTagHref()` helpers, so every surface
+      encodes a slug identically.
+- [x] T-053: identify the footer's external blog entry by its label rather than
+      its URL, so a site that reuses that URL elsewhere keeps its other icons.
 
 ## Acceptance Criteria to Task Map
 

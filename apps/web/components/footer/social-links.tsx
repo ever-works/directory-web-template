@@ -63,7 +63,10 @@ export const socialLinks = [
  */
 export function resolveSocialLinks(hasPosts: boolean) {
 	if (!hasPosts) return socialLinks;
-	return socialLinks.filter((link) => link.href !== siteConfig.social.blog);
+	// Match on the entry's own label, not on its href: a site that points
+	// `social.blog` at the same URL as, say, its GitHub or LinkedIn profile
+	// would otherwise lose that icon too.
+	return socialLinks.filter((link) => link.label !== 'Blog');
 }
 
 export interface FooterNavigationOptions {

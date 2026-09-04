@@ -22,7 +22,13 @@ function hostnameMatches(pattern: string, hostname: string): boolean {
 	return p === h;
 }
 
-/** Match a `remotePatterns` pathname glob (`/a/**`, `/**`, or a literal path). */
+/**
+ * Match a `remotePatterns` pathname glob (`/a/**`, `/**`, or a literal path).
+ *
+ * The `/**` prefix comparison keeps the pattern's trailing slash — `'/a/**'`
+ * slices to `'/a/'`, not `'/a'` — so it matches on a path-segment boundary:
+ * `/a/b` matches `/a/**` while `/abc` and `/ab/c` do not.
+ */
 function pathnameMatches(pattern: string, pathname: string): boolean {
 	if (pattern.endsWith('/**')) return pathname.startsWith(pattern.slice(0, -2));
 	if (pattern.endsWith('/*')) {

@@ -2757,20 +2757,27 @@ function comparePostsByDateDesc(a: PostSummary, b: PostSummary): number {
  * Only the frontmatter block of each file is parsed, and the scan stops at the
  * first published post, so the common case reads one file.
  */
-export async function hasPublishedPosts(): Promise<boolean> {
+export async function hasPublishedPosts(locale: string = 'en'): Promise<boolean> {
 	const postsDir = await resolvePostsDir();
 	if (!postsDir) return false;
+
+	const lang = validateLanguageCode(locale) ? locale : 'en';
 
 	try {
 		const index = await readPostFileIndex(postsDir);
 		for (const refs of index.values()) {
-			for (const ref of refs) {
-				try {
-					const raw = await safeReadFile(path.join(postsDir, sanitizeFilename(ref.filename)), postsDir);
-					if (!isPostHidden(parsePostFrontmatter(raw).metadata)) return true;
-				} catch {
-					// An unreadable file is not evidence of a published post.
-				}
+			// Test the file the LISTING would pick for this locale, not every
+			// translation of the slug. Scanning all refs would report "yes" from a
+			// published translation while `loadAllPosts()` selects — and hides —
+			// the draft for the requested locale, leaving that locale with a Blog
+			// link to an empty listing.
+			const ref = pickPostFileForLocale(refs, lang);
+			if (!ref) continue;
+			try {
+				const raw = await safeReadFile(path.join(postsDir, sanitizeFilename(ref.filename)), postsDir);
+				if (!isPostHidden(parsePostFrontmatter(raw).metadata)) return true;
+			} catch {
+				// An unreadable file is not evidence of a published post.
 			}
 		}
 	} catch (error) {
@@ -2919,6 +2926,18 @@ export async function fetchPosts(options: FetchPostsOptions = {}): Promise<Fetch
 }
 
 /**
+ * Every published post for a locale, newest first, without pagination.
+ *
+ * `fetchPosts()` re-reads and re-parses the whole posts directory on each
+ * call, so walking it page by page to assemble a complete list costs
+ * O(posts x pages). Consumers that genuinely need every post — the sitemap,
+ * the RSS feed — take this instead and pay for a single pass.
+ */
+export async function fetchAllPostSummaries(locale: string = 'en'): Promise<PostSummary[]> {
+	return (await loadAllPosts(locale)).map(toPostSummary);
+}
+
+/**
  * Fetch a single post (frontmatter + Markdown body), or `null` when absent.
  *
  * NOTE on the logging below: `slug` arrives from the URL, and Node treats the
@@ -3021,9 +3040,15 @@ export async function fetchPostTaxonomies(locale: string = 'en'): Promise<PostTa
 	const build = (declared: PostTerm[], pick: (post: PostDetail) => PostTerm[]): PostTermWithCount[] => {
 		const byId = new Map<string, PostTermWithCount>();
 		const declaredIds = new Set<string>();
+		// Two declarations can slugify to the same id ("Product Updates" and
+		// "product-updates"). Keep the first and drop the rest, or the listing
+		// grows duplicate chips that all point at the same archive.
+		const declaredOrder: PostTerm[] = [];
 		for (const term of declared) {
+			if (declaredIds.has(term.id)) continue;
 			byId.set(term.id, { ...term, count: 0 });
 			declaredIds.add(term.id);
+			declaredOrder.push(term);
 		}
 		for (const post of posts) {
 			for (const term of pick(post)) {
@@ -3042,7 +3067,7 @@ export async function fetchPostTaxonomies(locale: string = 'en'): Promise<PostTa
 		// their file order; terms that only appear in frontmatter are appended
 		// after them, most-used first.
 		const declaredTerms: PostTermWithCount[] = [];
-		for (const term of declared) {
+		for (const term of declaredOrder) {
 			const entry = byId.get(term.id);
 			if (entry) declaredTerms.push(entry);
 		}
@@ -3084,6 +3109,15 @@ export const getCachedPosts = async (options: FetchPostsOptions = {}) => {
 		revalidate: CONTENT_CACHE_TTL.LISTING,
 		tags: [CACHE_TAGS.CONTENT, CACHE_TAGS.POSTS, CACHE_TAGS.POSTS_LOCALE(locale)]
 	})(revision, optionsKey);
+};
+
+/** Cached version of {@link fetchAllPostSummaries}, pinned to the content revision. */
+export const getCachedAllPostSummaries = async (locale: string = 'en') => {
+	const revision = await getContentRevision();
+	return unstable_cache(async (_revision: string) => fetchAllPostSummaries(locale), ['posts-all', locale], {
+		revalidate: CONTENT_CACHE_TTL.LISTING,
+		tags: [CACHE_TAGS.CONTENT, CACHE_TAGS.POSTS, CACHE_TAGS.POSTS_LOCALE(locale)]
+	})(revision);
 };
 
 /** Cached version of {@link fetchPost}, pinned to the content revision. */

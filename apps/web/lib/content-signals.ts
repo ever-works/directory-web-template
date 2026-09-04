@@ -55,17 +55,17 @@ async function readComparisonsExists(): Promise<boolean> {
  * directory is authoritative or about what counts as a post. Getting that
  * wrong shows a Blog nav entry that leads to an empty page.
  */
-async function readPostsExists(): Promise<boolean> {
+async function readPostsExists(locale: string): Promise<boolean> {
 	try {
 		const { hasPublishedPosts } = await import('./content');
-		return await hasPublishedPosts();
+		return await hasPublishedPosts(locale);
 	} catch (error) {
 		console.error('[CONTENT] Failed to read posts existence:', error);
 		return false;
 	}
 }
 
-async function fetchContentSignals(): Promise<ContentSignals> {
+async function fetchContentSignals(locale: string): Promise<ContentSignals> {
 	const { ensureContentAvailable } = await import('./lib');
 	await ensureContentAvailable();
 
@@ -74,7 +74,9 @@ async function fetchContentSignals(): Promise<ContentSignals> {
 		readCollectionExists('tags'),
 		readCollectionExists('collections'),
 		readComparisonsExists(),
-		readPostsExists()
+		// Locale-scoped: a slug can be a draft in one locale and published in
+		// another, and the nav gate must agree with the listing THIS visitor sees.
+		readPostsExists(locale)
 	]);
 
 	return {
@@ -89,7 +91,7 @@ async function fetchContentSignals(): Promise<ContentSignals> {
 export const getCachedContentSignals = async (locale: string = 'en') => {
 	return unstable_cache(
 		async () => {
-			return await fetchContentSignals();
+			return await fetchContentSignals(locale);
 		},
 		['content-signals', locale],
 		{

@@ -14,6 +14,7 @@
 import { Feed } from 'feed';
 import type { ItemData } from '@/lib/content';
 import type { PostSummary } from '@/types/post';
+import { buildPostHref } from '@/lib/blog/urls';
 
 /** A single feed entry, derived from an `ItemData`. */
 export interface FeedEntry {
@@ -157,14 +158,22 @@ export function buildPostFeedEntries(posts: ReadonlyArray<PostSummary>, config: 
 			return !Number.isNaN(new Date(post.date).getTime());
 		})
 		.slice(0, config.limit)
-		.map((post) => ({
-			title: post.title,
-			link: `${siteUrl}/blog/${post.slug}`,
-			description: post.description,
-			pubDate: post.date,
-			guid: `${siteUrl}/blog/${post.slug}`,
-			category: post.categories[0]?.name
-		}));
+		.map((post) => {
+			// `buildPostHref()` is the builder the in-app links use, and it
+			// percent-encodes the slug as one path segment. Interpolating the raw
+			// slug here would let a filename containing `?` or `#` turn a feed
+			// link into a query or fragment — and, because `guid` is how readers
+			// identify an item, would also break deduplication for that post.
+			const url = `${siteUrl}${buildPostHref(post.slug)}`;
+			return {
+				title: post.title,
+				link: url,
+				description: post.description,
+				pubDate: post.date,
+				guid: url,
+				category: post.categories[0]?.name
+			};
+		});
 }
 
 /** Parse an ISO-ish string into a `Date`, falling back to `now`. */
