@@ -9,7 +9,7 @@ sidebar_position: 99
 
 ## 2026-09-04
 
-- `spec-046` `apps/web/lib/seo/static-page-metadata.ts` `apps/web/app/[locale]/{terms-of-service,privacy-policy}`: the two legal routes now build their SEO metadata from the data repository's Markdown frontmatter (`title` / `description`) through the new `buildStaticPageMetadata()` helper, with the i18n strings kept as the fallback; both routes gain a `loading.tsx`, and the doubled base URL in the `text/markdown` alternate is fixed here and in `about`, `cookies`, `items/[slug]` and `pages/[slug]`; the data-repository file layout is documented in the new `docs/guides/static-page-content.md` ; the `<h1>` and "last updated" chip on both routes now share the same non-empty-string frontmatter guard ([spec 046](spec/046-legal-pages-frontmatter-seo/spec.md), EW-17, PR #1045).
+- `spec-046` `apps/web/lib/seo/static-page-metadata.ts` `apps/web/app/[locale]/{terms-of-service,privacy-policy}`: the two legal routes now build their SEO metadata from the data repository's Markdown frontmatter (`title` / `description`) through the new `buildStaticPageMetadata()` helper, with the i18n strings kept as the fallback; both routes gain a `loading.tsx`, and the doubled base URL in the `text/markdown` alternate is fixed here and in `about`, `cookies`, `items/[slug]` and `pages/[slug]`; the data-repository file layout is documented in the new `docs/guides/static-page-content.md` ; the `<h1>`, the "last updated" chip and `renderStaticPageMarkdown()` now share one non-empty-string frontmatter reader (`apps/web/lib/seo/frontmatter.ts`) with the `<head>` ([spec 046](spec/046-legal-pages-frontmatter-seo/spec.md), EW-17, PR #1045).
 
 ## 2026-08-25
 
@@ -41,7 +41,8 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-08-23 — Chore: force LF for container scripts (.gitattributes)
 
-- infra: `docker-entrypoint.sh`, `*.sh` and the Dockerfiles are now `text eol=lf` in `.gitattributes`. A Windows checkout (`core.autocrlf=true`) produced `#!/bin/sh` and the built site image died with `exec /usr/local/bin/docker-entrypoint.sh: no such file or directory` (2026-08-23, local image build while the CI runner pool was stalled). No runtime change for CI-built images. (PR: pending)
+- infra: `docker-entrypoint.sh`, `*.sh` and the Dockerfiles are now `text eol=lf` in `.gitattributes`. A Windows checkout (`core.autocrlf=true`) produced `#!/bin/sh
+` and the built site image died with `exec /usr/local/bin/docker-entrypoint.sh: no such file or directory` (2026-08-23, local image build while the CI runner pool was stalled). No runtime change for CI-built images. (PR: pending)
 
 ## 2026-08-22
 

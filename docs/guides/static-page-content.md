@@ -103,8 +103,10 @@ The pages are designed never to fail because of missing or malformed content:
   and the translated title/description. The page still returns `200`.
 - **Read failure** (permissions, a half-finished clone): the error is caught,
   logged with `console.error`, and the same placeholder path is taken.
-- **Invalid frontmatter**: parsing failures are logged with `console.warn` and
-  the body is rendered without metadata.
+- **Invalid frontmatter**: the YAML error is logged with `console.warn` and the
+  file is rendered verbatim — including the `---` fences, which will be visible
+  on the page. Fix the YAML rather than relying on this path; it is a
+  last-resort "show something" fallback, not a clean body-only recovery.
 - **Cold cache**: `loading.tsx` on each route shows a skeleton while the first
   request after a deploy or a revalidation hydrates the content.
 

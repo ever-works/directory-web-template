@@ -3,6 +3,7 @@ import { getCachedPageContent } from '@/lib/content';
 import { getBaseUrl } from '@/lib/utils/url-cleaner';
 import { getSiteName } from '@/lib/seo/site-identity';
 import { generateHreflangAlternates, getLocalizedUrl } from '@/lib/seo/hreflang';
+import { frontmatterString } from '@/lib/seo/frontmatter';
 import type { Locale } from '@/lib/constants';
 
 /**
@@ -37,23 +38,6 @@ export interface StaticPageMetadataOptions {
 	fallbackTitle: string;
 	/** Description used when the Markdown file has no `description` frontmatter. */
 	fallbackDescription: string;
-}
-
-/**
- * Reads a non-empty string field out of parsed frontmatter.
- *
- * Frontmatter is author-supplied YAML, so a key can legitimately be absent,
- * blank, or a non-string (`title: 2026`, or a nested mapping that parses to an
- * object); each of those falls back rather than emitting `"undefined"`, an
- * empty `<title>`, or -- when the value reaches JSX -- a React "objects are not
- * valid as a React child" crash. Exported so the page bodies resolve their
- * `<h1>` and "last updated" chip with exactly the same rule as the `<head>`.
- */
-export function frontmatterString(metadata: Record<string, unknown> | undefined, key: string): string | undefined {
-	const value = metadata?.[key];
-	if (typeof value !== 'string') return undefined;
-	const trimmed = value.trim();
-	return trimmed ? trimmed : undefined;
 }
 
 /**

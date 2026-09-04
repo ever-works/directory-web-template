@@ -6,7 +6,8 @@ import Link from 'next/link';
 import { PageContainer } from '@/components/ui/container';
 import { MDX } from '@/components/mdx';
 import { getCachedPageContent } from '@/lib/content';
-import { buildStaticPageMetadata, frontmatterString } from '@/lib/seo/static-page-metadata';
+import { buildStaticPageMetadata } from '@/lib/seo/static-page-metadata';
+import { frontmatterString } from '@/lib/seo/frontmatter';
 import { DEFAULT_LOCALE } from '@/lib/constants';
 import { BreadcrumbJsonLd } from '@/components/seo/breadcrumb-json-ld';
 

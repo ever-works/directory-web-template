@@ -82,33 +82,46 @@ Ticket: [EW-17](https://evertech.atlassian.net/browse/EW-17).
 
 ## 4. Approach
 
-1. **`apps/web/lib/seo/static-page-metadata.ts`** — `buildStaticPageMetadata({
-slug, path, locale, fallbackTitle, fallbackDescription })`: - `getCachedPageContent(slug, locale)` inside a `try`/`catch` so metadata
-   generation degrades to the fallbacks instead of failing the route
-   (`console.error` on the catch path); - `frontmatterString()` accepts only a non-empty string, so `title:` absent,
-   blank or non-string (`title: 2026`) falls back rather than emitting an
-   empty `<title>`; - document title suffixed with `await getSiteName()` (Spec 042) unless the
-   title already names the site, so a short frontmatter title still clears
-   the 10-character floor in `each-page-document-title-length.spec.ts`; - Open Graph (`title`, `description`, `url`, `siteName`, `locale`,
-   `type: website`) and Twitter (`summary_large_image`) mirroring
-   `pages/[slug]`; - `alternates` keeps `canonical`, `languages` and the markdown mirror.
-   The route body still reads `getCachedPageContent` for its `<h1>`; both calls
-   hit the same `unstable_cache` entry (`CONTENT_CACHE_TTL.PAGES`, 600 s), so
-   there is no extra filesystem read.
-2. **Routes** — `terms-of-service/page.tsx` and `privacy-policy/page.tsx`
+1. **`apps/web/lib/seo/frontmatter.ts`** — one pure `frontmatterString()`
+   reader shared by all three surfaces. It accepts only a non-empty string, so
+   `title:` absent, blank, numeric (`title: 2026`) or a nested mapping falls
+   back rather than emitting an empty `<title>` or handing React a non-string
+   child. The module has no server-only imports so the `.md` mirror renderer
+   can use it too.
+2. **`apps/web/lib/seo/static-page-metadata.ts`** —
+   `buildStaticPageMetadata({ slug, path, locale, fallbackTitle, fallbackDescription })`:
+    - reads `getCachedPageContent(slug, locale)` inside a `try`/`catch` so
+      metadata generation degrades to the fallbacks instead of failing the route
+      (`console.error` on the catch path);
+    - resolves title and description through `frontmatterString()`;
+    - suffixes the document title with `await getSiteName()` (Spec 042) unless
+      the title already names the site, so a short frontmatter title still
+      clears the 10-character floor in
+      `each-page-document-title-length.spec.ts`;
+    - adds Open Graph (`title`, `description`, `url`, `siteName`, `locale`,
+      `type: website`) and Twitter (`summary_large_image`) mirroring
+      `pages/[slug]`;
+    - keeps `alternates.canonical`, `alternates.languages` and the markdown
+      mirror link.
+
+    The route body still reads `getCachedPageContent` for its `<h1>`; both calls
+    hit the same `unstable_cache` entry (`CONTENT_CACHE_TTL.PAGES`, 600 s), so
+    there is no extra filesystem read.
+
+3. **Routes** — `terms-of-service/page.tsx` and `privacy-policy/page.tsx`
    `generateMetadata` return `buildStaticPageMetadata(...)`, passing the
    existing i18n strings as fallbacks. Page layout and styling are untouched;
    the only body change is that the `<h1>` and the "last updated" chip now read
-   their frontmatter through the same exported `frontmatterString()` guard, so
-   a `title:` that parses to a mapping falls back instead of reaching JSX as a
-   non-string child.
-3. **Loading states** — `loading.tsx` in both routes rendering the new
+   their frontmatter through `frontmatterString()` as well, and
+   `renderStaticPageMarkdown()` does the same — so the three surfaces cannot
+   disagree.
+4. **Loading states** — `loading.tsx` in both routes rendering the new
    `StaticPageSkeleton` (added to `components/ui/skeleton.tsx`), guarded by
    `useNavigation().isInitialLoad` like the sibling `loading.tsx` files so a
    client-side route change does not flash a skeleton.
-4. **Markdown alternate** — drop the duplicated base URL in the two legal
+5. **Markdown alternate** — drop the duplicated base URL in the two legal
    routes plus `about`, `cookies`, `items/[slug]` and `pages/[slug]`.
-5. **Tests** — `apps/web-e2e/tests/public/legal-frontmatter-metadata.spec.ts`
+6. **Tests** — `apps/web-e2e/tests/public/legal-frontmatter-metadata.spec.ts`
    asserts, content-agnostically, that the document title contains the rendered
    `<h1>`, that the HTML metadata agrees with the `.md` mirror (whose title and
    description already come from frontmatter), that og/twitter tags are
@@ -120,7 +133,7 @@ slug, path, locale, fallbackTitle, fallbackDescription })`: - `getCachedPageCont
    `.md` mirror. The fixture titles are deliberately `CI Fixture …`, distinct
    from the i18n labels, so passing proves the frontmatter won rather than the
    fallback merely being non-empty.
-6. **Docs** — `docs/guides/static-page-content.md` documents the
+7. **Docs** — `docs/guides/static-page-content.md` documents the
    data-repository file layout the ticket asks for: the `pages/` directory,
    the `<slug>.<locale>.md` naming convention with its `en` fallback, the
    frontmatter keys and what each one renders, the caching behaviour, and

@@ -76,6 +76,17 @@ function mirrorTitle(markdown: string): string | null {
 	return match ? match[1].trim() : null;
 }
 
+/**
+ * `renderStaticPageMarkdown` collapses newlines in the description
+ * (`description.replace(/\n+/g, ' ')`) so the blockquote stays one line, while
+ * the HTML `<meta>` keeps whatever the frontmatter had. Compare them in the
+ * mirror's normalised form so a legitimately multi-line `description:` does not
+ * fail this spec.
+ */
+function collapseWhitespace(value: string): string {
+	return value.replace(/\s+/g, ' ').trim();
+}
+
 /** `> quoted line` right after the heading is the resolved frontmatter description. */
 function mirrorDescription(markdown: string): string | null {
 	const match = /^>\s+(.+)$/.exec(mirrorHeaderLines(markdown)[2] ?? '');
@@ -192,9 +203,10 @@ test.describe('Legal pages: SEO metadata comes from Markdown frontmatter', () =>
 				// The mirror only emits the blockquote when the frontmatter has a
 				// `description`, so this branch is the real frontmatter assertion.
 				const description = await page.locator('meta[name="description"]').first().getAttribute('content');
-				expect(description?.trim(), `${legalPage.path} meta description from frontmatter`).toBe(
-					expectedDescription
-				);
+				expect(
+					description ? collapseWhitespace(description) : description,
+					`${legalPage.path} meta description from frontmatter`
+				).toBe(collapseWhitespace(expectedDescription));
 			}
 		});
 
