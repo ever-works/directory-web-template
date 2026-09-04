@@ -209,10 +209,17 @@ export function SecurityOverview() {
 		{
 			icon: <Shield className="w-3.5 h-3.5" />,
 			label: "Account status",
+			// Spec 046 made `accountLocked` / `loginAttemptsCount` real (they were
+			// hardcoded false / 0). The lock they now report is the TEMPORARY 2FA
+			// brute-force lockout, which lifts on its own at `accountLockedUntil` —
+			// so telling the user to contact support would be wrong whenever we
+			// know when it ends.
 			description: settings.accountLocked
-				? "Contact support to unlock"
+				? settings.accountLockedUntil
+					? `Verification is temporarily locked until ${new Date(settings.accountLockedUntil).toLocaleTimeString()}`
+					: "Contact support to unlock"
 				: settings.loginAttemptsCount > 3
-				? `${settings.loginAttemptsCount} failed login attempts`
+				? `${settings.loginAttemptsCount} failed verification attempts`
 				: "No issues detected",
 			badge: accountBadge,
 		},

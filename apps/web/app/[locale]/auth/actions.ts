@@ -26,10 +26,12 @@ import {
 	updateUserPassword,
 	updateUserVerification,
 	getClientAccountByEmail,
+	getClientProfileByUserId,
 	updateClientProfileName,
 	verifyClientPassword,
 	isUserAdmin
 } from '@/lib/db/queries';
+import { issueTwoFactorCode, verifyTwoFactorCode } from '@/lib/auth/two-factor';
 import { generatePasswordResetToken, generateVerificationToken } from '@/lib/db/tokens';
 import { sendPasswordResetEmail, sendVerificationEmailWithTemplate } from '@/lib/mail';
 import { authServiceFactory } from '@/lib/auth/services';
@@ -39,22 +41,37 @@ const PASSWORD_MIN_LENGTH = 8;
 // Rate limiting: 5 attempts per 15 minutes per email
 const AUTH_RATE_LIMIT = 5;
 const AUTH_RATE_WINDOW_MS = 15 * 60 * 1000;
+// Second sign-in leg (email 2FA code). Kept on its own key so submitting
+// codes does not consume the password budget — otherwise the sign-in
+// limiter would fire before the 5-attempt 2FA lockout it is meant to
+// complement, and the user would see "too many attempts" instead of the
+// lockout message. Deliberately looser than TWO_FACTOR_MAX_ATTEMPTS: the
+// authoritative brute-force guard is the per-account counter in
+// `lib/auth/two-factor.ts`; this is only a cheap circuit breaker.
+const TWO_FACTOR_VERIFY_RATE_LIMIT = 10;
 const authProviderTypes = ['supabase', 'next-auth', 'both'] as const;
 
 const signInSchema = z.object({
 	email: z.string().email().min(3).max(255),
 	password: z.string().min(PASSWORD_MIN_LENGTH).max(100),
 	authProvider: z.enum(authProviderTypes).default('next-auth'),
-	captchaToken: z.string().optional()
+	captchaToken: z.string().optional(),
+	// Email 2FA second factor (EW-139). Empty/absent on the first submit.
+	code: z.string().max(32).optional()
 });
 
 export const signInAction = validatedAction(signInSchema, async (data) => {
 	try {
 		const { email, password } = data;
+		const submittedCode = (data.code ?? '').trim();
 
 		// Rate limiting check (by email to prevent brute force on specific accounts)
-		const rateLimitKey = `signin:${email.toLowerCase()}`;
-		const rateLimitResult = await ratelimit(rateLimitKey, AUTH_RATE_LIMIT, AUTH_RATE_WINDOW_MS);
+		const rateLimitKey = submittedCode ? `2fa-verify:${email.toLowerCase()}` : `signin:${email.toLowerCase()}`;
+		const rateLimitResult = await ratelimit(
+			rateLimitKey,
+			submittedCode ? TWO_FACTOR_VERIFY_RATE_LIMIT : AUTH_RATE_LIMIT,
+			AUTH_RATE_WINDOW_MS
+		);
 		if (!rateLimitResult.success) {
 			return { error: AuthErrorCode.RATE_LIMITED, ...data };
 		}
@@ -87,6 +104,60 @@ export const signInAction = validatedAction(signInSchema, async (data) => {
 			const isValid = await verifyClientPassword(email, password);
 			if (!isValid) {
 				return { error: AuthErrorCode.INVALID_PASSWORD, ...data };
+			}
+
+			// ── Email two-factor step (EW-139 / EW-140 / EW-141) ──────────────
+			// Password is right but, with 2FA on, it is not sufficient. This
+			// pre-check exists for the same reason as the password pre-check
+			// above: NextAuth collapses everything `authorize` throws into a
+			// generic `CredentialsSignin`, so specific, translatable feedback
+			// ("code expired", "too many attempts") has to be produced here.
+			// The AUTHORITATIVE gate is still `authorize` in
+			// `lib/auth/credentials.ts` — this leg verifies WITHOUT consuming
+			// the code so that gate can consume it a moment later.
+			const clientProfile = await getClientProfileByUserId(clientAccount.userId);
+			if (clientProfile?.twoFactorEnabled) {
+				if (!submittedCode) {
+					const issued = await issueTwoFactorCode({
+						userId: clientProfile.userId,
+						email: clientProfile.email,
+						tenantId: clientProfile.tenantId,
+						userName: clientProfile.displayName || clientProfile.name
+					});
+					return {
+						error: issued.throttled
+							? AuthErrorCode.RATE_LIMITED
+							: issued.emailSent
+								? AuthErrorCode.TWO_FACTOR_REQUIRED
+								: AuthErrorCode.TWO_FACTOR_SEND_FAILED,
+						twoFactorRequired: true,
+						twoFactorExpiresAt: issued.expiresAt.toISOString(),
+						twoFactorExpiresInMinutes: issued.expiresInMinutes,
+						email: normalizedEmail
+					};
+				}
+
+				const verification = await verifyTwoFactorCode(clientProfile.userId, submittedCode, {
+					consume: false,
+					tenantId: clientProfile.tenantId
+				});
+
+				if (!verification.ok) {
+					const errorCode =
+						verification.reason === 'locked'
+							? AuthErrorCode.TWO_FACTOR_LOCKED
+							: verification.reason === 'expired' || verification.reason === 'not_found'
+								? AuthErrorCode.TWO_FACTOR_EXPIRED
+								: AuthErrorCode.TWO_FACTOR_INVALID;
+
+					return {
+						error: errorCode,
+						twoFactorRequired: true,
+						twoFactorRetryAfterSeconds: verification.retryAfterSeconds,
+						twoFactorRemainingAttempts: verification.remainingAttempts,
+						email: normalizedEmail
+					};
+				}
 			}
 		}
 		// OAuth-only user trying to use credentials form

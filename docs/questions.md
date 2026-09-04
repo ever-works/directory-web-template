@@ -523,6 +523,38 @@ confirm, override, or refine.
 
 ---
 
+## Spec 046 — Email two-factor authentication
+
+### Q-046a Should admin `users` rows be able to enable email 2FA as well?
+
+- **Context.** Spec 046 stores `two_factor_enabled`, the failed-attempt
+  counter and the lock timestamp on `client_profiles`, and surfaces the
+  toggle on `/client/settings/security`. An **admin** signs in through the
+  same credentials provider but has a `users` row with an admin role and no
+  client profile, so today the 2FA branch in
+  `lib/auth/credentials.ts` simply never fires for them. Admins are the
+  higher-value target, so the asymmetry is worth an explicit decision rather
+  than an accident of where the column happened to live.
+- **Options.**
+  - **Client profiles only (current).** One storage location, one settings
+    surface, no schema change to `users`. Admin accounts in this template are
+    few and typically operator-managed.
+  - Mirror the three columns onto `users`, add an admin-side settings card,
+    and branch on whichever row exists. Broader protection, but it doubles the
+    storage location for the same concept and needs a second settings surface
+    under `/admin`.
+  - Move the columns to `users` for **everyone** and read through the account
+    rather than the profile. Cleanest long-term shape, but it is a migration of
+    a column that already ships on `client_profiles` and is read by three admin
+    query projections and the admin advanced search.
+- **Default.** **Client profiles only.** Revisit together with any future
+  second factor (TOTP / WebAuthn), which would want a single `user`-level
+  factor registry anyway — that is the right moment to pay the migration.
+- **Owner.** Template maintainers.
+- **Status.** `open`.
+
+---
+
 ## How to add a question
 
 1. Pick the next available `Q-NNN…` id under the relevant spec.

@@ -123,13 +123,38 @@ export class EmailService {
     });
   }
 
-  async sendTwoFactorTokenEmail(email: string, token: string): Promise<any> {
+  /**
+   * Send the one-time sign-in code for email two-factor authentication
+   * (EW-138).
+   *
+   * Uses the branded `two-factor-code` template — code in a large
+   * monospaced block, explicit expiry, and a "you didn't try to sign in"
+   * warning — instead of the bare `<p>Your 2FA code</p>` this method sent
+   * before. `options` is optional so the previous two-argument signature
+   * keeps working.
+   */
+  async sendTwoFactorTokenEmail(
+    email: string,
+    token: string,
+    options?: { expiresInMinutes?: number; userName?: string }
+  ): Promise<any> {
     this.ensureAvailable();
+    const { getTwoFactorCodeTemplate } = await import("./templates");
+    const template = getTwoFactorCodeTemplate({
+      code: token,
+      customerEmail: email,
+      userName: options?.userName,
+      expiresInMinutes: options?.expiresInMinutes ?? 10,
+      companyUrl: this.domain,
+      securityUrl: `${this.domain}/client/settings/security`,
+    });
+
     return this.provider!.sendEmail({
       from: this.defaultFrom,
       to: email,
-      subject: "2FA Code",
-      html: `<p>Your 2FA code: ${token}</p>`,
+      subject: template.subject,
+      html: template.html,
+      text: template.text,
     });
   }
 
@@ -344,9 +369,13 @@ export const sendNewsletterUnsubscriptionEmail = async (email: string) => {
   );
 };
 
-export const sendTwoFactorTokenEmail = async (email: string, token: string) => {
+export const sendTwoFactorTokenEmail = async (
+  email: string,
+  token: string,
+  options?: { expiresInMinutes?: number; userName?: string }
+) => {
   return tryEmailOperation(
-    (service) => service.sendTwoFactorTokenEmail(email, token),
+    (service) => service.sendTwoFactorTokenEmail(email, token, options),
     'sendTwoFactorTokenEmail'
   );
 };
