@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { AlertTriangle, Calendar, CreditCard, Loader2, RotateCcw, User, X } from 'lucide-react';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { BillingIssueStatus, type BillingIssueStatusValues } from '@/lib/db/schema';
 import type {
 	AdminBillingIssue,
@@ -10,6 +10,7 @@ import type {
 	UpdateBillingIssueInput
 } from '@/hooks/use-admin-billing-issues';
 import { cn } from '@/lib/utils';
+import { currencyMinorUnitFactor, formatCurrency } from '@/lib/utils/currency-format';
 
 const INPUT_BASE = cn(
 	'w-full h-10 px-3 text-sm rounded-xl',
@@ -38,17 +39,13 @@ export interface BillingIssueActionDialogProps {
 	isPending: boolean;
 }
 
-/** Render an amount held in the smallest currency unit. */
-function formatAmount(amount: number | null, currency: string | null): string {
-	const value = (amount ?? 0) / 100;
-	try {
-		return new Intl.NumberFormat(undefined, {
-			style: 'currency',
-			currency: (currency || 'usd').toUpperCase()
-		}).format(value);
-	} catch {
-		return `${value.toFixed(2)} ${(currency || 'usd').toUpperCase()}`;
-	}
+/**
+ * Render an amount held in the smallest currency unit, through the template's
+ * shared formatter — it already handles the zero-decimal currencies (JPY, KRW, …)
+ * that a hard-coded `/ 100` would render a hundred times too small.
+ */
+function formatAmount(amount: number | null, currency: string | null, locale: string): string {
+	return formatCurrency(amount ?? 0, (currency || 'usd').toUpperCase(), locale);
 }
 
 export default function BillingIssueActionDialog({
@@ -61,6 +58,7 @@ export default function BillingIssueActionDialog({
 	isPending
 }: BillingIssueActionDialogProps) {
 	const t = useTranslations('admin.ADMIN_BILLING_ISSUES_PAGE');
+	const locale = useLocale();
 	const [status, setStatus] = useState<BillingIssueStatusValues>(
 		issue.status === BillingIssueStatus.REFUNDED ? BillingIssueStatus.RESOLVED : issue.status
 	);
@@ -87,7 +85,11 @@ export default function BillingIssueActionDialog({
 	const canRefund = !alreadyRefunded;
 	const refundReady = canRefund && trimmedReference.length > 0;
 
-	const parsedPartial = partialAmount.trim() ? Math.round(Number(partialAmount.trim()) * 100) : undefined;
+	// The admin types major units ("12.34"); the API speaks the smallest unit. The
+	// factor is per-currency — for JPY the two are the same, and multiplying by 100
+	// there would submit a refund a hundred times too large.
+	const minorUnitFactor = currencyMinorUnitFactor(issue.currency || 'usd');
+	const parsedPartial = partialAmount.trim() ? Math.round(Number(partialAmount.trim()) * minorUnitFactor) : undefined;
 	const partialIsInvalid =
 		partialAmount.trim() !== '' &&
 		(!Number.isFinite(parsedPartial) ||
@@ -95,7 +97,10 @@ export default function BillingIssueActionDialog({
 			Boolean(issue.amount && (parsedPartial ?? 0) > issue.amount));
 
 	const handleSaveStatus = async () => {
-		const ok = await onUpdate(issue.id, { status, resolutionNote: note.trim() || undefined });
+		// Always send the field, even empty: `undefined` means "leave the note as it
+		// is", so collapsing a cleared textarea onto it would make a stale note
+		// impossible to remove.
+		const ok = await onUpdate(issue.id, { status, resolutionNote: note.trim() });
 		if (ok) onClose();
 	};
 
@@ -104,7 +109,7 @@ export default function BillingIssueActionDialog({
 		const ok = await onRefund(issue.id, {
 			amount: parsedPartial,
 			providerPaymentId: trimmedReference,
-			note: note.trim() || undefined
+			note: note.trim()
 		});
 		if (ok) onClose();
 	};
@@ -172,7 +177,7 @@ export default function BillingIssueActionDialog({
 								{t('AMOUNT')}
 							</dt>
 							<dd className="text-gray-900 dark:text-white font-medium">
-								{formatAmount(issue.amount, issue.currency)}
+								{formatAmount(issue.amount, issue.currency, locale)}
 							</dd>
 						</div>
 						<div>
@@ -227,7 +232,7 @@ export default function BillingIssueActionDialog({
 									{t('REFUNDED_ON', { date: formatDate(issue.refundedAt) })}
 								</dt>
 								<dd className="text-emerald-800 dark:text-emerald-300 text-[11px] break-all">
-									{formatAmount(issue.refundAmount, issue.currency)}
+									{formatAmount(issue.refundAmount, issue.currency, locale)}
 									{issue.refundId ? ` · ${issue.refundId}` : ''}
 								</dd>
 							</div>
@@ -312,7 +317,7 @@ export default function BillingIssueActionDialog({
 								id="billing-issue-refund-amount"
 								type="number"
 								min="0"
-								step="0.01"
+								step={minorUnitFactor === 1 ? '1' : '0.01'}
 								inputMode="decimal"
 								value={partialAmount}
 								onChange={(event) => setPartialAmount(event.target.value)}
@@ -372,7 +377,7 @@ export default function BillingIssueActionDialog({
 								<RotateCcw className="w-3.5 h-3.5" />
 							)}
 							{t('CONFIRM_REFUND', {
-								amount: formatAmount(parsedPartial ?? issue.amount, issue.currency)
+								amount: formatAmount(parsedPartial ?? issue.amount, issue.currency, locale)
 							})}
 						</button>
 					)}

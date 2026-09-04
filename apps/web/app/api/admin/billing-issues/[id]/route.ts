@@ -99,7 +99,16 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
 
 		let body: Record<string, unknown>;
 		try {
-			body = (await request.json()) as Record<string, unknown>;
+			const parsed: unknown = await request.json();
+			// `null` is valid JSON: without this check the `body.status` read below
+			// throws and the caller gets a 500 where a 400 is the honest answer.
+			if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+				return NextResponse.json(
+					{ success: false, error: 'A JSON body with a status is required' },
+					{ status: 400 }
+				);
+			}
+			body = parsed as Record<string, unknown>;
 		} catch {
 			return NextResponse.json(
 				{ success: false, error: 'A JSON body with a status is required' },
@@ -118,13 +127,15 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
 			);
 		}
 
+		// An omitted field leaves the note alone; a supplied empty string clears it.
+		// Collapsing both onto `undefined` would make a stale note unremovable.
 		const note = typeof body.resolutionNote === 'string' ? body.resolutionNote.trim() : undefined;
 
 		const issue = await resolveBillingIssue({
 			issueId: id,
 			status,
 			adminId: session.user.id,
-			note: note || undefined
+			note
 		});
 
 		return NextResponse.json({ success: true, data: issue });

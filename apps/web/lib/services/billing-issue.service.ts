@@ -1,6 +1,8 @@
 import {
+	claimBillingIssueForRefund,
 	getBillingIssueById,
 	getBillingIssueRow,
+	releaseBillingIssueRefundClaim,
 	updateBillingIssue,
 	upsertBillingIssueForSubscription,
 	type BillingIssueWithContext
@@ -11,6 +13,7 @@ import { getTenantId } from '@/lib/auth/tenant';
 import { ActivityType, BillingIssueStatus, BillingIssueType, type BillingIssueStatusValues } from '@/lib/db/schema';
 import { getOrCreateProvider } from '@/lib/payment/config/payment-provider-manager';
 import type { PaymentProviderInterface } from '@/lib/payment/types/payment-types';
+import { fromMinorUnits, toMinorUnits } from '@/lib/utils/currency-format';
 
 /**
  * Billing-issue actions (Spec 046).
@@ -102,13 +105,17 @@ async function recordAdminActivity(type: ActivityType, adminId: string, tenantId
  * `solidgate-provider.ts`) and returns `refund.amount / 100` back in major units.
  * Passing cents straight through would refund 100x the intended amount, so the
  * conversion happens here, once, on both directions of the provider call.
+ *
+ * The factor is per-currency, not a hard-coded 100: for a zero-decimal currency
+ * such as JPY the smallest unit IS the major unit, and dividing by 100 there
+ * would refund a hundredth of what the admin asked for.
  */
-function toProviderAmount(minorUnits: number): number {
-	return minorUnits / 100;
+function toProviderAmount(minorUnits: number, currency: string | null): number {
+	return fromMinorUnits(minorUnits, currency || 'usd');
 }
 
-function fromProviderAmount(majorUnits: number): number {
-	return Math.round(majorUnits * 100);
+function fromProviderAmount(majorUnits: number, currency: string | null): number {
+	return toMinorUnits(majorUnits, currency || 'usd');
 }
 
 /** Read the refund id out of whatever shape the provider returned. */
@@ -126,12 +133,12 @@ function extractRefundId(result: unknown): string | null {
  * Read the refunded amount out of whatever shape the provider returned, converted
  * back into the smallest currency unit this feature stores.
  */
-function extractRefundAmount(result: unknown): number | null {
+function extractRefundAmount(result: unknown, currency: string | null): number | null {
 	if (!result || typeof result !== 'object') return null;
 	const record = result as Record<string, unknown>;
 	for (const key of ['amount', 'refundAmount', 'refunded_amount']) {
 		const value = record[key];
-		if (typeof value === 'number' && Number.isFinite(value)) return fromProviderAmount(value);
+		if (typeof value === 'number' && Number.isFinite(value)) return fromProviderAmount(value, currency);
 	}
 	return null;
 }
@@ -141,7 +148,13 @@ function extractRefundAmount(result: unknown): number | null {
  * then record the outcome on the issue and in the subscription history.
  *
  * The issue is only marked `refunded` after the provider call returns — a failed
- * provider call leaves the row untouched so the admin can retry.
+ * provider call leaves the status untouched so the admin can retry.
+ *
+ * Ordering matters here. Every validation that can reject the request runs before
+ * anything is written, and the LAST thing before the provider call is an atomic
+ * claim: a single conditional UPDATE that exactly one concurrent request can win.
+ * Without it, two admins pressing "refund" at the same moment would both read a
+ * non-refunded row and both reach the provider — two real refunds for one charge.
  */
 export async function refundBillingIssue(
 	input: RefundBillingIssueInput,
@@ -169,7 +182,17 @@ export async function refundBillingIssue(
 		if (!Number.isFinite(input.amount) || !Number.isInteger(input.amount) || input.amount <= 0) {
 			throw new BillingIssueActionError('Refund amount must be a positive integer in the smallest currency unit');
 		}
-		if (issue.amount && input.amount > issue.amount) {
+		// A zero / unknown charged amount cannot bound a partial refund, and a
+		// truthiness check would have skipped the cap entirely and let an admin
+		// refund an arbitrary sum. Full refunds stay available: the provider itself
+		// knows the charge and is the right authority for that case.
+		if (typeof issue.amount !== 'number' || issue.amount <= 0) {
+			throw new BillingIssueActionError(
+				'This billing issue has no recorded charge amount, so a partial refund cannot be bounded. Issue a full refund instead.',
+				409
+			);
+		}
+		if (input.amount > issue.amount) {
 			throw new BillingIssueActionError('Refund amount cannot exceed the charged amount');
 		}
 	}
@@ -187,13 +210,24 @@ export async function refundBillingIssue(
 		throw new BillingIssueActionError(`Payment provider "${issue.paymentProvider}" is not configured`, 409);
 	}
 
+	const claimed = await claimBillingIssueForRefund(issue.id);
+	if (!claimed) {
+		throw new BillingIssueActionError(
+			'This billing issue is already being refunded, or has just been refunded. Reload the page to see its current state.',
+			409
+		);
+	}
+
 	let providerResult: unknown;
 	try {
 		providerResult = await provider.refundPayment(
 			providerPaymentId,
-			input.amount === undefined ? undefined : toProviderAmount(input.amount)
+			input.amount === undefined ? undefined : toProviderAmount(input.amount, issue.currency)
 		);
 	} catch (error) {
+		// Hand the claim back so the admin can fix the reference and retry at once,
+		// rather than waiting out the claim TTL.
+		await releaseBillingIssueRefundClaim(issue.id);
 		const detail = error instanceof Error ? error.message : String(error);
 		console.error('[BillingIssueService] Provider refund failed:', detail);
 		throw new BillingIssueActionError(`The payment provider rejected the refund: ${detail}`, 502);
@@ -206,9 +240,9 @@ export async function refundBillingIssue(
 		// the same id the provider was given.
 		providerPaymentId,
 		refundId: extractRefundId(providerResult),
-		refundAmount: input.amount ?? extractRefundAmount(providerResult) ?? issue.amount ?? null,
+		refundAmount: input.amount ?? extractRefundAmount(providerResult, issue.currency) ?? issue.amount ?? null,
 		refundedAt: now,
-		resolutionNote: input.note ?? issue.resolutionNote,
+		resolutionNote: input.note === undefined ? issue.resolutionNote : input.note || null,
 		resolvedBy: input.adminId,
 		resolvedAt: now
 	});
@@ -276,14 +310,28 @@ export async function resolveBillingIssue(input: ResolveBillingIssueInput): Prom
 
 	const closing = input.status === BillingIssueStatus.RESOLVED || input.status === BillingIssueStatus.DISMISSED;
 
-	const updated = await updateBillingIssue(issue.id, {
-		status: input.status,
-		resolutionNote: input.note ?? issue.resolutionNote,
-		resolvedBy: closing ? input.adminId : null,
-		resolvedAt: closing ? new Date() : null
-	});
+	const updated = await updateBillingIssue(
+		issue.id,
+		{
+			status: input.status,
+			// `undefined` means "the caller did not touch the note"; an empty string
+			// means "the admin cleared it", and must survive as a real clear rather
+			// than silently restoring the stale note.
+			resolutionNote: input.note === undefined ? issue.resolutionNote : input.note || null,
+			resolvedBy: closing ? input.adminId : null,
+			resolvedAt: closing ? new Date() : null
+		},
+		// The status read above cannot bind a later write on its own: a refund may
+		// commit in between, and this update would then overwrite `refunded` after
+		// the provider already moved the money. The guard travels into the WHERE.
+		{ skipIfRefunded: true }
+	);
 
 	if (!updated) {
+		const current = await getBillingIssueRow(issue.id);
+		if (current?.status === BillingIssueStatus.REFUNDED) {
+			throw new BillingIssueActionError('A refunded billing issue cannot be moved to another status', 409);
+		}
 		throw new BillingIssueActionError('Billing issue not found', 404);
 	}
 
@@ -350,14 +398,21 @@ export async function openBillingIssueFromFailedPaymentWebhook(input: {
 		const tenantId = subscription.tenantId || (await getTenantId());
 		if (!tenantId) return false;
 
+		const currency = input.currency ?? subscription.currency ?? 'usd';
+
 		await upsertBillingIssueForSubscription({
 			subscriptionId: subscription.id,
 			userId: subscription.userId,
 			type: BillingIssueType.PAYMENT_FAILED,
 			paymentProvider: subscription.paymentProvider || input.paymentProvider,
 			providerPaymentId: input.providerPaymentId ?? subscription.invoiceId,
-			amount: input.amount ?? subscription.amountDue ?? subscription.amount ?? 0,
-			currency: input.currency ?? subscription.currency ?? 'usd',
+			// `input.amount` arrives from the provider payload already in the smallest
+			// unit; the subscription fallback does NOT — `subscriptions.amount*` are
+			// written through `convertCentsToDecimal`, so they are major units and have
+			// to be converted, or a webhook-created issue and a re-scan-created issue
+			// would disagree about what the same charge was worth.
+			amount: input.amount ?? toMinorUnits(subscription.amountDue ?? subscription.amount ?? 0, currency),
+			currency,
 			detectionReason: input.reason || `Payment failed webhook for subscription ${input.providerSubscriptionId}`,
 			tenantId
 		});

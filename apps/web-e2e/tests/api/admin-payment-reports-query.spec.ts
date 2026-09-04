@@ -227,4 +227,45 @@ test.describe('API: /api/admin/payment-reports (admin)', () => {
 			expect(buffer.subarray(0, 2).toString('latin1')).toBe('PK');
 		}
 	});
+
+	test('a calendar-invalid date is rejected on BOTH the list and the export', async ({ request }) => {
+		// `new Date('2026-02-30')` does not fail — it rolls over to 2 March. A plain
+		// isNaN check would therefore accept it and silently widen the report window
+		// past the range the admin selected, on both routes at once.
+		for (const value of ['2026-02-30', '2026-04-31', '2026-00-10']) {
+			const [list, exported] = await Promise.all([
+				request.get(`/api/admin/payment-reports?from=${value}`),
+				request.get(`/api/admin/payment-reports/export?format=csv&from=${value}`)
+			]);
+
+			if (list.status() !== 503) {
+				expect(list.status(), `list should reject from=${value}`).toBe(400);
+				expect(exported.status(), `export should reject from=${value}`).toBe(400);
+			}
+		}
+	});
+
+	test('fractional pagination is rejected instead of reaching the database', async ({ request }) => {
+		for (const query of ['page=1.5', 'limit=3.5', 'page=NaN']) {
+			const response = await request.get(`/api/admin/payment-reports?${query}`);
+
+			if (response.status() !== 503) {
+				expect(response.status(), `${query} should be rejected`).toBe(400);
+			}
+		}
+	});
+
+	test('the roll-ups carry their own currency, so no amount is mislabelled', async ({ request }) => {
+		const response = await request.get('/api/admin/payment-reports');
+
+		if (response.status() === 200) {
+			const body = await response.json();
+			for (const group of ['byPlan', 'byProvider', 'byStatus'] as const) {
+				for (const row of body.data.summary[group]) {
+					expect(typeof row.currency, `${group} row must name its currency`).toBe('string');
+					expect(row.currency.length).toBeGreaterThan(0);
+				}
+			}
+		}
+	});
 });

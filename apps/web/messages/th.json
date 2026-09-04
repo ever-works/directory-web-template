@@ -3556,6 +3556,7 @@
 			"NO_RECORDS_FOUND": "ไม่มีบันทึกการชำระเงิน",
 			"NO_RECORDS_DESCRIPTION": "ยังไม่มีการบันทึกการชำระเงิน",
 			"NO_RECORDS_FILTERED_DESCRIPTION": "ไม่มีบันทึกการชำระเงินที่ตรงกับตัวกรองปัจจุบัน",
+			"LOAD_FAILED": "ไม่สามารถโหลดรายงานได้",
 			"COLUMN_DATE": "วันที่",
 			"COLUMN_CUSTOMER": "ลูกค้า",
 			"COLUMN_PLAN": "แพ็กเกจ",

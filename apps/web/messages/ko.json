@@ -3730,6 +3730,7 @@
 			"NO_RECORDS_FOUND": "결제 기록 없음",
 			"NO_RECORDS_DESCRIPTION": "아직 기록된 결제가 없습니다.",
 			"NO_RECORDS_FILTERED_DESCRIPTION": "현재 필터와 일치하는 결제 기록이 없습니다.",
+			"LOAD_FAILED": "리포트를 불러오지 못했습니다",
 			"COLUMN_DATE": "날짜",
 			"COLUMN_CUSTOMER": "고객",
 			"COLUMN_PLAN": "요금제",

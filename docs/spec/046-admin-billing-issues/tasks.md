@@ -16,6 +16,8 @@ sidebar_label: 046 Tasks
 | T-4 | Add `billing-issue.service.ts` with the refund and resolve actions, provider resolution injected | Type-check; refund writes only after the provider call returns | done |
 | T-4a | Convert cents to the major units every provider adapter expects (and back on the way out) at the single provider-call boundary | Read `refundPayment` in the Stripe / Polar / Solidgate adapters: each does its own `* 100` | done |
 | T-4b | Let the refund request override and persist `providerPaymentId`, exposed as an editable field in the dialog | `apps/web-e2e/tests/admin/billing-issues.spec.ts` refund-reference test | done |
+| T-4c | Claim a refund atomically (`refund_claimed_at`) before the provider call, and carry the not-already-refunded condition into the status UPDATE's WHERE | Two concurrent refunds cannot both reach the provider; a PATCH racing a refund cannot overwrite `refunded` | done |
+| T-4d | Validate tenant ownership of `userId` / `subscriptionId` on manual create, and drop the tenant override from the query signature | `admin-billing-issues-query.spec.ts` out-of-tenant create test | done |
 | T-5 | Add the four admin API routes with swagger JSDoc and the admin guard | `apps/web-e2e/tests/api/admin-billing-issues-query.spec.ts` | done |
 | T-6 | Add `use-admin-billing-issues.ts` (React Query list/stats + update/refund/sync mutations) | Type-check; mutations invalidate the shared key | done |
 | T-7 | Add `/admin/billing-issues` page and the action dialog, reusing the admin shell | `apps/web-e2e/tests/admin/billing-issues.spec.ts` | done |

@@ -1,4 +1,4 @@
-import { and, count, desc, eq, gt, ilike, inArray, or, sql, type SQL } from 'drizzle-orm';
+import { and, count, desc, eq, gt, ilike, inArray, isNull, lt, ne, or, sql, type SQL } from 'drizzle-orm';
 import { db } from '../drizzle';
 import {
 	billingIssues,
@@ -7,6 +7,7 @@ import {
 	BillingIssueStatus,
 	BillingIssueType,
 	OPEN_BILLING_ISSUE_STATUSES,
+	REFUND_CLAIM_TTL_MS,
 	SubscriptionStatus,
 	type BillingIssue,
 	type BillingIssueStatusValues,
@@ -15,6 +16,7 @@ import {
 } from '../schema';
 import { PaymentProvider } from '@/lib/constants/payment';
 import { getTenantId } from '@/lib/auth/tenant';
+import { toMinorUnits } from '@/lib/utils/currency-format';
 
 /**
  * Billing-issue queries (Spec 046).
@@ -25,6 +27,14 @@ import { getTenantId } from '@/lib/auth/tenant';
  * `users` (who to contact), and the refund action resolves the provider from
  * `subscriptions.payment_provider`.
  */
+
+/** A related id the caller supplied does not exist inside the caller's tenant. */
+export class BillingIssueReferenceError extends Error {
+	constructor(message: string) {
+		super(message);
+		this.name = 'BillingIssueReferenceError';
+	}
+}
 
 /** A billing issue plus the subscription / user context an admin needs to act. */
 export interface BillingIssueWithContext {
@@ -80,8 +90,13 @@ export interface BillingIssueStats {
 	byStatus: Record<string, number>;
 	byType: Record<string, number>;
 	byProvider: Record<string, number>;
-	/** Sum of `amount` over issues that are still open, in the smallest currency unit. */
-	amountAtRisk: number;
+	/**
+	 * Sum of `amount` over issues that are still open, PER CURRENCY, in the
+	 * smallest currency unit. Deliberately not one scalar: adding 100 JPY to 100
+	 * USD produces a number that means nothing, and the page would have to invent
+	 * a currency label for it.
+	 */
+	amountAtRisk: Array<{ currency: string; amount: number }>;
 }
 
 /** Columns every list / detail read projects, so both stay in lockstep. */
@@ -212,12 +227,36 @@ export async function getBillingIssueRow(id: string): Promise<BillingIssue | nul
 	return row ?? null;
 }
 
-/** Create a billing issue. Used by the manual-create route and by detection. */
-export async function createBillingIssue(
-	data: Omit<NewBillingIssue, 'tenantId'> & { tenantId?: string }
-): Promise<BillingIssue> {
-	const tenantId = data.tenantId || (await getTenantId());
+/**
+ * Create a billing issue from the manual-create route.
+ *
+ * The tenant is always resolved from the request — it is deliberately NOT a
+ * parameter, so a caller can never aim an insert at another tenant. The `userId`
+ * and `subscriptionId` the admin supplied are checked against that same tenant
+ * before the insert, because an unchecked id here would let an admin of one
+ * tenant attach a refundable issue to another tenant's customer and payment.
+ */
+export async function createBillingIssue(data: Omit<NewBillingIssue, 'tenantId'>): Promise<BillingIssue> {
+	const tenantId = await getTenantId();
 	if (!tenantId) throw new Error('Tenant ID not found');
+
+	const [user] = await db
+		.select({ id: users.id })
+		.from(users)
+		.where(and(eq(users.id, data.userId), eq(users.tenantId, tenantId)))
+		.limit(1);
+	if (!user) throw new BillingIssueReferenceError('The user does not exist in this tenant');
+
+	if (data.subscriptionId) {
+		const [subscription] = await db
+			.select({ id: subscriptions.id })
+			.from(subscriptions)
+			.where(and(eq(subscriptions.id, data.subscriptionId), eq(subscriptions.tenantId, tenantId)))
+			.limit(1);
+		if (!subscription) {
+			throw new BillingIssueReferenceError('The subscription does not exist in this tenant');
+		}
+	}
 
 	const [row] = await db
 		.insert(billingIssues)
@@ -239,18 +278,85 @@ export interface UpdateBillingIssueData {
 	refundedAt?: Date | null;
 }
 
-/** Patch a billing issue in place. Returns null when the row is not in the tenant. */
-export async function updateBillingIssue(id: string, data: UpdateBillingIssueData): Promise<BillingIssue | null> {
+export interface UpdateBillingIssueOptions {
+	/**
+	 * Refuse the write if the row has meanwhile become `refunded`. The status check
+	 * in the service reads the row first, so without this guard a status change
+	 * racing a refund could overwrite `refunded` AFTER the provider took the money.
+	 * The condition therefore has to travel into the UPDATE's own WHERE clause.
+	 */
+	skipIfRefunded?: boolean;
+}
+
+/**
+ * Patch a billing issue in place. Returns null when the row is not in the tenant
+ * — or, with `skipIfRefunded`, when it has already been refunded.
+ */
+export async function updateBillingIssue(
+	id: string,
+	data: UpdateBillingIssueData,
+	options: UpdateBillingIssueOptions = {}
+): Promise<BillingIssue | null> {
 	const tenantId = await getTenantId();
 	if (!tenantId) throw new Error('Tenant ID not found');
+
+	const conditions: SQL[] = [eq(billingIssues.id, id), eq(billingIssues.tenantId, tenantId)];
+	if (options.skipIfRefunded) conditions.push(ne(billingIssues.status, BillingIssueStatus.REFUNDED));
 
 	const [row] = await db
 		.update(billingIssues)
 		.set({ ...data, updatedAt: new Date() })
-		.where(and(eq(billingIssues.id, id), eq(billingIssues.tenantId, tenantId)))
+		.where(and(...conditions))
 		.returning();
 
 	return row ?? null;
+}
+
+/**
+ * Take exclusive ownership of an issue's refund before any provider call.
+ *
+ * Two admins pressing "refund" at the same moment would otherwise both pass the
+ * `status !== 'refunded'` read and both reach the provider — two real refunds for
+ * one charge. This is a single conditional UPDATE, so exactly one of them wins:
+ * the row is claimable only while it is not already refunded and either
+ * unclaimed or claimed longer ago than `REFUND_CLAIM_TTL_MS` (so a crashed
+ * request cannot strand it forever).
+ *
+ * Returns the claimed row, or null if another request holds the claim.
+ */
+export async function claimBillingIssueForRefund(id: string): Promise<BillingIssue | null> {
+	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
+
+	const now = new Date();
+	const staleBefore = new Date(now.getTime() - REFUND_CLAIM_TTL_MS);
+	const claimable = or(isNull(billingIssues.refundClaimedAt), lt(billingIssues.refundClaimedAt, staleBefore));
+
+	const [row] = await db
+		.update(billingIssues)
+		.set({ refundClaimedAt: now, updatedAt: now })
+		.where(
+			and(
+				eq(billingIssues.id, id),
+				eq(billingIssues.tenantId, tenantId),
+				ne(billingIssues.status, BillingIssueStatus.REFUNDED),
+				claimable
+			)
+		)
+		.returning();
+
+	return row ?? null;
+}
+
+/** Hand the claim back when the provider refused, so the admin can retry at once. */
+export async function releaseBillingIssueRefundClaim(id: string): Promise<void> {
+	const tenantId = await getTenantId();
+	if (!tenantId) return;
+
+	await db
+		.update(billingIssues)
+		.set({ refundClaimedAt: null, updatedAt: new Date() })
+		.where(and(eq(billingIssues.id, id), eq(billingIssues.tenantId, tenantId)));
 }
 
 /** Counts and totals for the page header tabs and stat cards. */
@@ -277,9 +383,13 @@ export async function getBillingIssueStats(): Promise<BillingIssueStats> {
 			.where(scope)
 			.groupBy(billingIssues.paymentProvider),
 		db
-			.select({ total: sql<number>`coalesce(sum(${billingIssues.amount}), 0)` })
+			.select({
+				currency: sql<string>`coalesce(${billingIssues.currency}, 'usd')`,
+				total: sql<number>`coalesce(sum(${billingIssues.amount}), 0)`
+			})
 			.from(billingIssues)
 			.where(and(scope, inArray(billingIssues.status, OPEN_BILLING_ISSUE_STATUSES)))
+			.groupBy(sql`coalesce(${billingIssues.currency}, 'usd')`)
 	]);
 
 	const byStatus: Record<string, number> = {};
@@ -301,7 +411,7 @@ export async function getBillingIssueStats(): Promise<BillingIssueStats> {
 		byStatus,
 		byType,
 		byProvider,
-		amountAtRisk: Number(atRiskRows[0]?.total ?? 0)
+		amountAtRisk: atRiskRows.map((row) => ({ currency: row.currency, amount: Number(row.total ?? 0) }))
 	};
 }
 
@@ -370,13 +480,17 @@ export async function syncBillingIssuesFromSubscriptions(): Promise<SyncBillingI
 	const detected: DetectedIssue[] = [];
 
 	for (const subscription of candidates) {
+		const currency = subscription.currency || 'usd';
 		const base = {
 			subscriptionId: subscription.id,
 			userId: subscription.userId,
 			paymentProvider: subscription.paymentProvider || PaymentProvider.STRIPE,
 			providerPaymentId: subscription.invoiceId,
-			amount: subscription.amountDue || subscription.amount || 0,
-			currency: subscription.currency || 'usd'
+			// `subscriptions.amount*` hold MAJOR units — the webhook writer stores
+			// `convertCentsToDecimal(...)` into them — while a billing issue holds the
+			// smallest unit so a partial refund can carry cents. Convert, never copy.
+			amount: toMinorUnits(subscription.amountDue || subscription.amount || 0, currency),
+			currency
 		};
 
 		const failures = subscription.failedPaymentCount ?? 0;

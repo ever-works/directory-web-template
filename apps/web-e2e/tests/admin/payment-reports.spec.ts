@@ -41,17 +41,26 @@ test.describe('Admin payment reports — admin user', () => {
 		await expect(page.getByTestId('payment-report-export-xlsx')).toBeVisible();
 	});
 
-	test('applying a filter keeps the page rendering', async ({ page }) => {
+	test('applying a filter re-renders the report, never an error state', async ({ page }) => {
 		await page.goto('/admin/payment-reports', { waitUntil: 'domcontentloaded' });
 		await expect(page.locator('#payment-report-status')).toBeVisible({ timeout: 30_000 });
 
+		const response = page.waitForResponse(
+			(res) => res.url().includes('/api/admin/payment-reports') && res.url().includes('status=active'),
+			{ timeout: 30_000 }
+		);
 		await page.selectOption('#payment-report-status', 'active');
+		// Wait for the FILTERED request itself. Asserting on the page before the
+		// refetch lands would pass against the unfiltered render.
+		expect((await response).status()).toBeLessThan(500);
 
-		// Either the table or the empty state must survive the refetch; a page that
-		// renders neither means the filtered query threw.
-		await expect(page.getByTestId('payment-report-table').or(page.getByRole('heading').first())).toBeVisible({
+		// Exactly one of the two legitimate outcomes must be on screen. The heading
+		// is deliberately NOT part of this assertion: it renders unconditionally, so
+		// including it would make the check pass even if the filtered query threw.
+		await expect(page.getByTestId('payment-report-table').or(page.getByText(/no payment record/i))).toBeVisible({
 			timeout: 30_000
 		});
+		await expect(page.getByTestId('payment-report-error')).toHaveCount(0);
 	});
 
 	test('the CSV export downloads a file', async ({ page }) => {

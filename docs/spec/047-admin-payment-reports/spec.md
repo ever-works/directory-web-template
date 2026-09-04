@@ -12,6 +12,13 @@ An admin can filter the site's payment records by date range, plan, provider and
 status at `/admin/payment-reports`, see the revenue roll-ups for that filter set,
 and export exactly the same rows as CSV or XLSX.
 
+Amounts here are **major units** throughout: `subscriptions.amount*` are written
+through `convertCentsToDecimal`, so the report reads and exports them as stored.
+Revenue is `amount_paid` and falls back to the scheduled `amount` only when
+`amount_paid` is genuinely NULL — a paid amount of 0 is a real answer for a
+pending or failed subscription, and treating it as missing would book unpaid
+subscriptions as revenue.
+
 ## 2. Motivation
 
 The template had no way to answer "how much did we take last quarter, and on which
@@ -62,7 +69,13 @@ with a stakeholder who does not have admin access.
 - [x] AC-5: the JSON view and the export parse their filters through one shared
       validator, so an export always matches the table it came from.
 - [x] AC-6: an unsupported format (including `pdf`) is rejected with a 400 naming
-      the supported formats, never a 500 or an empty file.
+      the supported formats, never a 500 or an empty file; and an export whose
+      filters match more rows than the 10,000-row cap is refused with a 400 rather
+      than delivered silently truncated.
+- [x] AC-8: every roll-up is grouped BY currency and every amount is labelled with
+      its own, so a site charging in more than one currency never sees unlike
+      amounts added together; and a failed read renders as an error, never as an
+      empty report.
 - [x] AC-7: both routes are admin-gated, and the export additionally requires a
       resolved session because it records the download in the activity log.
 

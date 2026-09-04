@@ -26,9 +26,9 @@ export interface AdminPaymentRecord {
 export interface AdminPaymentReportSummary {
 	transactions: number;
 	totalsByCurrency: Array<{ currency: string; amount: number; transactions: number }>;
-	byPlan: Array<{ planId: string; transactions: number; amount: number }>;
-	byProvider: Array<{ provider: string; transactions: number; amount: number }>;
-	byStatus: Array<{ status: string; transactions: number; amount: number }>;
+	byPlan: Array<{ planId: string; currency: string; transactions: number; amount: number }>;
+	byProvider: Array<{ provider: string; currency: string; transactions: number; amount: number }>;
+	byStatus: Array<{ status: string; currency: string; transactions: number; amount: number }>;
 }
 
 export interface PaymentReportFilterValues {
@@ -90,7 +90,7 @@ export function useAdminPaymentReports(options: PaymentReportParams = {}) {
 		[page, limit, from, to, planId, status, provider, search]
 	);
 
-	const { data, isLoading, refetch } = useQuery({
+	const { data, isLoading, isError, error, refetch } = useQuery({
 		queryKey: paymentReportQueryKeys.list(queryParams),
 		queryFn: () => fetchReport(queryParams),
 		staleTime: 60 * 1000,
@@ -154,6 +154,11 @@ export function useAdminPaymentReports(options: PaymentReportParams = {}) {
 		records: data?.records ?? [],
 		summary: data?.summary ?? null,
 		isLoading,
+		// Surfaced so the page can say the report FAILED. Collapsing an error into an
+		// empty list would tell an admin "no payments" when the truth is "we could
+		// not read them" — the difference matters when the answer is revenue.
+		isError,
+		errorMessage: error instanceof Error ? error.message : null,
 		isExporting,
 		totalRecords: data?.pagination?.total ?? 0,
 		totalPages: data?.pagination?.totalPages ?? 1,

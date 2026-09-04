@@ -14,6 +14,8 @@ import {
 	type BillingIssueTypeValues
 } from '@/lib/db/schema';
 import { PaymentProvider } from '@/lib/constants/payment';
+import { validatePaginationParams } from '@/lib/utils/pagination-validation';
+import { BillingIssueReferenceError } from '@/lib/db/queries/billing-issue.queries';
 
 export const runtime = 'nodejs';
 
@@ -66,8 +68,16 @@ export async function GET(request: Request) {
 		if (authError) return authError;
 
 		const { searchParams } = new URL(request.url);
-		const page = Math.max(1, Number(searchParams.get('page')) || 1);
-		const limit = Math.min(100, Math.max(1, Number(searchParams.get('limit')) || 10));
+
+		// Shared validator rather than an inline clamp: `Number('1.5')` survives a
+		// clamp and reaches the database as a fractional OFFSET, which Postgres
+		// rejects with a 500 instead of the 400 the caller deserves.
+		const pagination = validatePaginationParams(searchParams);
+		if ('error' in pagination) {
+			return NextResponse.json({ success: false, error: pagination.error }, { status: pagination.status });
+		}
+		const { page, limit } = pagination;
+
 		const search = (searchParams.get('search') || '').trim();
 		const status = searchParams.get('status');
 		const type = searchParams.get('type');
@@ -163,7 +173,13 @@ export async function POST(request: Request) {
 
 		let body: Record<string, unknown> = {};
 		try {
-			body = (await request.json()) as Record<string, unknown>;
+			const parsed: unknown = await request.json();
+			// `null` and a bare array / string are valid JSON but not a payload; treat
+			// them as "no fields supplied" rather than letting a property read throw.
+			body =
+				parsed && typeof parsed === 'object' && !Array.isArray(parsed)
+					? (parsed as Record<string, unknown>)
+					: {};
 		} catch {
 			// An empty body means "sync" — the page's refresh button posts nothing.
 			body = { action: 'sync' };
@@ -196,8 +212,18 @@ export async function POST(request: Request) {
 			);
 		}
 
-		const amount =
-			typeof body.amount === 'number' && Number.isInteger(body.amount) && body.amount >= 0 ? body.amount : 0;
+		// A supplied-but-invalid amount is a caller mistake, not a reason to record a
+		// silent zero that would then understate the amount-at-risk totals.
+		let amount = 0;
+		if (body.amount !== undefined && body.amount !== null && body.amount !== '') {
+			if (typeof body.amount !== 'number' || !Number.isInteger(body.amount) || body.amount < 0) {
+				return NextResponse.json(
+					{ success: false, error: 'amount must be a non-negative integer in the smallest currency unit' },
+					{ status: 400 }
+				);
+			}
+			amount = body.amount;
+		}
 
 		const issue = await createBillingIssue({
 			userId,
@@ -217,6 +243,11 @@ export async function POST(request: Request) {
 
 		return NextResponse.json({ success: true, data: issue }, { status: 201 });
 	} catch (error) {
+		// A user / subscription id outside the caller's tenant is a bad request, not
+		// a server fault — and must never be reported as a successful create.
+		if (error instanceof BillingIssueReferenceError) {
+			return NextResponse.json({ success: false, error: error.message }, { status: 400 });
+		}
 		return safeErrorResponse(error, 'Failed to create billing issue');
 	}
 }

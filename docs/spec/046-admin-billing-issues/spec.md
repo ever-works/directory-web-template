@@ -65,7 +65,8 @@ knows what already happened.
 - [x] AC-4: an admin can mark an issue `in_review`, `resolved` or `dismissed`,
       with an optional note; the acting admin and timestamp are stored.
 - [x] AC-5: a refund is only recorded on the issue after the provider call
-      succeeds, and a refunded issue can never be moved to another status.
+      succeeds; a refunded issue can never be moved to another status; and two
+      concurrent refund requests for one issue can never both reach the provider.
 - [x] AC-6: the queue is populated from the stored payment records on demand
       (idempotently) and from the failed-payment webhook as it arrives.
 - [x] AC-7: every route is admin-gated; the refund route additionally requires a
@@ -97,15 +98,15 @@ All copy is `next-intl` under `admin.ADMIN_BILLING_ISSUES_PAGE`, present in all
 New table `billing_issues` (migration `0040_admin_billing_issues.sql`): references
 `users` and (nullably) `subscriptions`, with `type`, `status`, `payment_provider`,
 `provider_payment_id`, `amount`, `currency`, `detection_reason`, `source_key`,
-`refund_id`, `refund_amount`, `refunded_at`, `resolution_note`, `resolved_by`,
-`resolved_at`, `tenant_id`. A unique index on `(tenant_id, source_key)` makes
-detection idempotent.
+`refund_claimed_at`, `refund_id`, `refund_amount`, `refunded_at`,
+`resolution_note`, `resolved_by`, `resolved_at`, `tenant_id`. A unique index on
+`(tenant_id, source_key)` makes detection idempotent.
 
 | Route | Method | Purpose |
 | --- | --- | --- |
 | `/api/admin/billing-issues` | GET | Filtered, paginated list |
 | `/api/admin/billing-issues` | POST | `{action:'sync'}` re-scan, or create one manually |
-| `/api/admin/billing-issues/stats` | GET | Counts by status/type/provider + amount at risk |
+| `/api/admin/billing-issues/stats` | GET | Counts by status/type/provider + amount at risk, per currency |
 | `/api/admin/billing-issues/{id}` | GET | One issue with its payment context |
 | `/api/admin/billing-issues/{id}` | PATCH | Set status + resolution note |
 | `/api/admin/billing-issues/{id}/refund` | POST | Refund via the record's provider |
@@ -113,14 +114,32 @@ detection idempotent.
 `PATCH` deliberately rejects `status: 'refunded'`: only a successful provider call
 may set it, so the row can never claim a refund that did not happen.
 
-**Currency units.** Every amount this feature stores or accepts is in the smallest
-currency unit (integer cents), matching `subscriptions.amount`. Every
-`PaymentProviderInterface.refundPayment` implementation, however, takes a *major*
-unit amount and multiplies by 100 itself (`stripe-provider.ts` →
-`Math.round(amount * 100)`; the same in the Polar and Solidgate adapters) and
-returns `refund.amount / 100`. The conversion therefore happens once, at the
-provider call in `billing-issue.service.ts`; passing cents through unconverted
-would refund 100× the intended amount.
+**Currency units — the sharpest edge in this feature.** Three representations meet
+here and only one of them is obvious:
+
+| Where | Unit | Why |
+| --- | --- | --- |
+| `subscriptions.amount` / `amount_paid` / `amount_due` | **major** (dollars) | The webhook writer stores `convertCentsToDecimal(...)`, and the customer-facing `subscription-card.tsx` formats them with `formatCurrencyAmount` |
+| `billing_issues.amount` / `refund_amount`, the API body, the UI | **minor** (cents) | So a partial refund can carry cents at all |
+| `PaymentProviderInterface.refundPayment(id, amount)` | **major** | Every adapter does its own `Math.round(amount * 100)` and returns `amount / 100` |
+
+So intake converts major → minor when seeding an issue from a subscription, and
+the refund converts minor → major at the provider call and back on the way out.
+The factor is per-currency (`currencyMinorUnitFactor`), never a literal `100`: for
+a zero-decimal currency such as JPY the smallest unit IS the major unit. Getting
+any one of these wrong is a silent 100× money error, so the conversions live in
+exactly two places — `lib/utils/currency-format.ts` and the provider boundary in
+`billing-issue.service.ts` — and the display path goes through the template's
+shared `formatCurrency`.
+
+**Concurrency.** A refund is claimed before it is attempted. `refund_claimed_at`
+is set by a single conditional UPDATE that exactly one request can win, so two
+admins pressing "Refund" at the same moment cannot both reach the provider; the
+claim is released if the provider rejects, and is treated as stale after
+`REFUND_CLAIM_TTL_MS` so a crashed request cannot strand the issue. For the same
+reason the status-change path passes `skipIfRefunded`, which carries the "not
+already refunded" condition into the UPDATE's own `WHERE` — a status read taken
+before the write cannot bind a row that a concurrent refund has since changed.
 
 **Refund target.** `POST .../refund` accepts an optional `providerPaymentId` that
 overrides the reference stored on the issue and is persisted when the refund

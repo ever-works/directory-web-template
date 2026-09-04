@@ -3708,6 +3708,7 @@
 			"NO_RECORDS_FOUND": "Aucun enregistrement de paiement",
 			"NO_RECORDS_DESCRIPTION": "Aucun paiement n'a encore été enregistré.",
 			"NO_RECORDS_FILTERED_DESCRIPTION": "Aucun enregistrement de paiement ne correspond aux filtres actuels.",
+			"LOAD_FAILED": "Impossible de charger le rapport",
 			"COLUMN_DATE": "Date",
 			"COLUMN_CUSTOMER": "Client",
 			"COLUMN_PLAN": "Forfait",

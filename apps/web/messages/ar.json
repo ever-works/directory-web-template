@@ -3639,6 +3639,7 @@
 			"NO_RECORDS_FOUND": "لا توجد سجلات دفع",
 			"NO_RECORDS_DESCRIPTION": "لم يتم تسجيل أي دفعة بعد.",
 			"NO_RECORDS_FILTERED_DESCRIPTION": "لا يوجد سجل دفع يطابق عوامل التصفية الحالية.",
+			"LOAD_FAILED": "تعذّر تحميل التقرير",
 			"COLUMN_DATE": "التاريخ",
 			"COLUMN_CUSTOMER": "العميل",
 			"COLUMN_PLAN": "الخطة",

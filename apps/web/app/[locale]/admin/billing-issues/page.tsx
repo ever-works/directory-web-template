@@ -15,7 +15,7 @@ import {
 	Wallet,
 	XCircle
 } from 'lucide-react';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { Container } from '@/components/ui/container';
 import { UniversalPagination } from '@/components/universal-pagination';
 import { useAdminBillingIssues, type AdminBillingIssue } from '@/hooks/use-admin-billing-issues';
@@ -38,6 +38,7 @@ import {
 } from '@/lib/db/schema';
 import { PaymentProvider } from '@/lib/constants/payment';
 import { cn } from '@/lib/utils';
+import { formatCurrency } from '@/lib/utils/currency-format';
 
 type BillingIssueStatusFilter = BillingIssueStatusValues | '';
 
@@ -79,20 +80,19 @@ const TYPE_BADGE: Record<BillingIssueTypeValues, string> = {
 	other: 'bg-gray-100 text-gray-600 ring-gray-200 dark:bg-white/6 dark:text-gray-400 dark:ring-white/8'
 };
 
-function formatAmount(amount: number | null, currency: string | null): string {
-	const value = (amount ?? 0) / 100;
-	try {
-		return new Intl.NumberFormat(undefined, {
-			style: 'currency',
-			currency: (currency || 'usd').toUpperCase()
-		}).format(value);
-	} catch {
-		return `${value.toFixed(2)} ${(currency || 'usd').toUpperCase()}`;
-	}
+/**
+ * Amounts are stored in the smallest currency unit. `formatCurrency` is the
+ * template's shared formatter and already knows which currencies have no minor
+ * unit at all (JPY, KRW, …), where a hard-coded `/ 100` would show a hundredth
+ * of the real figure.
+ */
+function formatAmount(amount: number | null, currency: string | null, locale: string): string {
+	return formatCurrency(amount ?? 0, (currency || 'usd').toUpperCase(), locale);
 }
 
 export default function AdminBillingIssuesPage() {
 	const t = useTranslations('admin.ADMIN_BILLING_ISSUES_PAGE');
+	const locale = useLocale();
 	const [currentPage, setCurrentPage] = useState(1);
 
 	const {
@@ -261,7 +261,12 @@ export default function AdminBillingIssuesPage() {
 	const formatDate = (value: string) =>
 		new Date(value).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
 
-	const primaryCurrency = issues[0]?.currency ?? 'usd';
+	// One line per currency: a site charging in more than one cannot be summarised
+	// by a single number, and labelling a mixed sum with the first row's currency
+	// would be worse than showing nothing.
+	const amountAtRisk = stats?.amountAtRisk?.length
+		? stats.amountAtRisk.map((row) => formatAmount(row.amount, row.currency, locale)).join(' · ')
+		: formatAmount(0, 'usd', locale);
 
 	return (
 		<Container useGlobalWidth>
@@ -300,11 +305,7 @@ export default function AdminBillingIssuesPage() {
 						{ label: t('TOTAL_ISSUES'), value: String(stats.total), Icon: ShieldAlert },
 						{ label: t('OPEN'), value: String(stats.openCount), Icon: AlertTriangle },
 						{ label: t('REFUNDED'), value: String(stats.refundedCount), Icon: RotateCcw },
-						{
-							label: t('AMOUNT_AT_RISK'),
-							value: formatAmount(stats.amountAtRisk, primaryCurrency),
-							Icon: Wallet
-						}
+						{ label: t('AMOUNT_AT_RISK'), value: amountAtRisk, Icon: Wallet }
 					].map((card) => (
 						<div
 							key={card.label}
@@ -429,7 +430,7 @@ export default function AdminBillingIssuesPage() {
 												</span>
 											</div>
 											<p className="text-sm font-medium text-gray-900 dark:text-white truncate mb-1">
-												{formatAmount(issue.amount, issue.currency)}
+												{formatAmount(issue.amount, issue.currency, locale)}
 												{issue.planId ? ` · ${issue.planId}` : ''}
 											</p>
 											{issue.detectionReason && (

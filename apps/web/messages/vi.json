@@ -3668,6 +3668,7 @@
 			"NO_RECORDS_FOUND": "Không có bản ghi thanh toán",
 			"NO_RECORDS_DESCRIPTION": "Chưa có khoản thanh toán nào được ghi nhận.",
 			"NO_RECORDS_FILTERED_DESCRIPTION": "Không có bản ghi thanh toán nào khớp với bộ lọc hiện tại.",
+			"LOAD_FAILED": "Không thể tải báo cáo",
 			"COLUMN_DATE": "Ngày",
 			"COLUMN_CUSTOMER": "Khách hàng",
 			"COLUMN_PLAN": "Gói",

@@ -17,6 +17,32 @@ export const VALID_REPORT_STATUSES = Object.values(SubscriptionStatus) as string
 export const VALID_REPORT_PROVIDERS = Object.values(PaymentProvider) as string[];
 export const VALID_REPORT_PLANS = Object.values(PaymentPlan) as string[];
 
+/**
+ * Accept a date only if it is real.
+ *
+ * `new Date('2026-02-30')` does NOT fail — it rolls over to 2 March — so a plain
+ * `isNaN` check would silently shift the report window past the range the admin
+ * asked for and hand them numbers for days they did not select. A date-only value
+ * is therefore matched against the ISO shape and its calendar components are
+ * compared back against the parsed date.
+ */
+export function isValidReportDate(value: string): boolean {
+	const parsed = new Date(value);
+	if (Number.isNaN(parsed.getTime())) return false;
+
+	const dateOnly = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
+	if (dateOnly) {
+		const [, year, month, day] = dateOnly;
+		return (
+			parsed.getUTCFullYear() === Number(year) &&
+			parsed.getUTCMonth() + 1 === Number(month) &&
+			parsed.getUTCDate() === Number(day)
+		);
+	}
+
+	return true;
+}
+
 export type ParsedPaymentReportFilters = { filters: PaymentReportFilters } | { error: string };
 
 export function parsePaymentReportFilters(searchParams: URLSearchParams): ParsedPaymentReportFilters {
@@ -27,11 +53,11 @@ export function parsePaymentReportFilters(searchParams: URLSearchParams): Parsed
 	const provider = (searchParams.get('provider') || '').trim();
 	const search = (searchParams.get('search') || '').trim();
 
-	if (from && Number.isNaN(new Date(from).getTime())) {
+	if (from && !isValidReportDate(from)) {
 		return { error: 'Invalid from date. Use an ISO date such as 2026-01-01.' };
 	}
 
-	if (to && Number.isNaN(new Date(to).getTime())) {
+	if (to && !isValidReportDate(to)) {
 		return { error: 'Invalid to date. Use an ISO date such as 2026-01-31.' };
 	}
 

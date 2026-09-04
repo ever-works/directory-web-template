@@ -55,12 +55,31 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
 
 		const { id } = await params;
 
+		// A refund is irreversible, so an unreadable request must never be guessed at.
+		// Only a genuinely EMPTY body means "full refund"; malformed JSON, or JSON
+		// that is not an object, is a 400 — silently treating it as an omitted body
+		// would turn a typo in a partial-amount payload into a full refund.
 		let body: Record<string, unknown> = {};
-		try {
-			body = (await request.json()) as Record<string, unknown>;
-		} catch {
-			// No body means a full refund.
-			body = {};
+		const rawBody = (await request.text()).trim();
+		if (rawBody) {
+			let parsed: unknown;
+			try {
+				parsed = JSON.parse(rawBody);
+			} catch {
+				return NextResponse.json(
+					{ success: false, error: 'The request body must be valid JSON, or omitted for a full refund.' },
+					{ status: 400 }
+				);
+			}
+
+			if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+				return NextResponse.json(
+					{ success: false, error: 'The request body must be a JSON object, or omitted for a full refund.' },
+					{ status: 400 }
+				);
+			}
+
+			body = parsed as Record<string, unknown>;
 		}
 
 		let amount: number | undefined;

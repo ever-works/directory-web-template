@@ -4,6 +4,7 @@ import { checkDatabaseAvailability } from '@/lib/utils/database-check';
 import { safeErrorResponse } from '@/lib/utils/api-error';
 import { listPaymentRecords, summarizePayments } from '@/lib/db/queries/payment-report.queries';
 import { parsePaymentReportFilters } from '@/lib/services/payment-report-filters';
+import { validatePaginationParams } from '@/lib/utils/pagination-validation';
 
 export const runtime = 'nodejs';
 
@@ -22,7 +23,7 @@ export const runtime = 'nodejs';
  *         schema: { type: integer, minimum: 1, default: 1 }
  *       - name: "limit"
  *         in: "query"
- *         schema: { type: integer, minimum: 1, maximum: 200, default: 20 }
+ *         schema: { type: integer, minimum: 1, maximum: 100, default: 10 }
  *       - name: "from"
  *         in: "query"
  *         schema: { type: string, format: date }
@@ -64,8 +65,14 @@ export async function GET(request: Request) {
 			return NextResponse.json({ success: false, error: parsed.error }, { status: 400 });
 		}
 
-		const page = Math.max(1, Number(searchParams.get('page')) || 1);
-		const limit = Math.min(200, Math.max(1, Number(searchParams.get('limit')) || 20));
+		// Shared validator, not an inline clamp: `Number('1.5')` clamps to 1.5 and
+		// reaches Postgres as a fractional LIMIT / OFFSET, which is a 500 rather than
+		// the 400 a malformed query deserves.
+		const pagination = validatePaginationParams(searchParams);
+		if ('error' in pagination) {
+			return NextResponse.json({ success: false, error: pagination.error }, { status: pagination.status });
+		}
+		const { page, limit } = pagination;
 
 		const [list, summary] = await Promise.all([
 			listPaymentRecords({ ...parsed.filters, page, limit }),

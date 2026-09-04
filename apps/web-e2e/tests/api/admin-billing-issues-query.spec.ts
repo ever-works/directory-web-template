@@ -276,4 +276,64 @@ test.describe('API: /api/admin/billing-issues (admin)', () => {
 			expect(response.status()).toBe(404);
 		}
 	});
+
+	test('a malformed refund body is a 400, never a silent FULL refund', async ({ request }) => {
+		// The dangerous shape: a partial-refund payload with a typo in it. Treating
+		// an unparseable body as "no body" would turn that typo into a full refund,
+		// so the route must refuse instead of guessing.
+		for (const body of ['{"amount": 100', 'null', '"amount=100"', '[100]']) {
+			const response = await request.post('/api/admin/billing-issues/does-not-exist/refund', {
+				headers: { 'Content-Type': 'application/json' },
+				data: body
+			});
+
+			if (response.status() !== 503) {
+				expect(response.status(), `body ${body} should be rejected`).toBe(400);
+			}
+		}
+	});
+
+	test('a PATCH body of JSON null is a 400, not a 500', async ({ request }) => {
+		const response = await request.patch('/api/admin/billing-issues/does-not-exist', {
+			headers: { 'Content-Type': 'application/json' },
+			data: 'null'
+		});
+
+		if (response.status() !== 503) {
+			expect(response.status()).toBe(400);
+		}
+	});
+
+	test('fractional pagination is rejected instead of reaching the database', async ({ request }) => {
+		// `Number('1.5')` survives a clamp and becomes a fractional OFFSET, which
+		// Postgres answers with an error — a 500 where a 400 belongs.
+		for (const query of ['page=1.5', 'limit=2.5', 'page=NaN', 'limit=0']) {
+			const response = await request.get(`/api/admin/billing-issues?${query}`);
+
+			if (response.status() !== 503) {
+				expect(response.status(), `${query} should be rejected`).toBe(400);
+			}
+		}
+	});
+
+	test('a manual create with an out-of-tenant user is a 400, not a created issue', async ({ request }) => {
+		const response = await request.post('/api/admin/billing-issues', {
+			data: { userId: 'user-that-does-not-exist', type: 'refund_request' }
+		});
+
+		if (response.status() !== 503) {
+			expect(response.status()).toBe(400);
+			expect(await response.text()).not.toContain('"success":true');
+		}
+	});
+
+	test('a manual create with an invalid amount is rejected rather than stored as zero', async ({ request }) => {
+		const response = await request.post('/api/admin/billing-issues', {
+			data: { userId: 'someone', type: 'refund_request', amount: 'not-a-number' }
+		});
+
+		if (response.status() !== 503) {
+			expect(response.status()).toBe(400);
+		}
+	});
 });

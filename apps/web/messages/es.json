@@ -3640,6 +3640,7 @@
 			"NO_RECORDS_FOUND": "Sin registros de pago",
 			"NO_RECORDS_DESCRIPTION": "Todavía no se ha registrado ningún pago.",
 			"NO_RECORDS_FILTERED_DESCRIPTION": "Ningún registro de pago coincide con los filtros actuales.",
+			"LOAD_FAILED": "No se pudo cargar el informe",
 			"COLUMN_DATE": "Fecha",
 			"COLUMN_CUSTOMER": "Cliente",
 			"COLUMN_PLAN": "Plan",

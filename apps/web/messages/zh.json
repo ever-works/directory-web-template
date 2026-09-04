@@ -3649,6 +3649,7 @@
 			"NO_RECORDS_FOUND": "没有付款记录",
 			"NO_RECORDS_DESCRIPTION": "尚未记录任何付款。",
 			"NO_RECORDS_FILTERED_DESCRIPTION": "没有符合当前筛选条件的付款记录。",
+			"LOAD_FAILED": "无法加载报表",
 			"COLUMN_DATE": "日期",
 			"COLUMN_CUSTOMER": "客户",
 			"COLUMN_PLAN": "套餐",

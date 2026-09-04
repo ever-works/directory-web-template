@@ -3617,6 +3617,7 @@
 			"NO_RECORDS_FOUND": "支払い記録がありません",
 			"NO_RECORDS_DESCRIPTION": "まだ支払いは記録されていません。",
 			"NO_RECORDS_FILTERED_DESCRIPTION": "現在のフィルターに一致する支払い記録はありません。",
+			"LOAD_FAILED": "レポートを読み込めませんでした",
 			"COLUMN_DATE": "日付",
 			"COLUMN_CUSTOMER": "顧客",
 			"COLUMN_PLAN": "プラン",

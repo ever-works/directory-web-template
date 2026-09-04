@@ -3667,6 +3667,7 @@
 			"NO_RECORDS_FOUND": "Ödeme kaydı yok",
 			"NO_RECORDS_DESCRIPTION": "Henüz hiçbir ödeme kaydedilmedi.",
 			"NO_RECORDS_FILTERED_DESCRIPTION": "Geçerli filtrelere uyan ödeme kaydı yok.",
+			"LOAD_FAILED": "Rapor yüklenemedi",
 			"COLUMN_DATE": "Tarih",
 			"COLUMN_CUSTOMER": "Müşteri",
 			"COLUMN_PLAN": "Plan",

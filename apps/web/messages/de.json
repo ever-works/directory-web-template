@@ -3651,6 +3651,7 @@
 			"NO_RECORDS_FOUND": "Keine Zahlungsdatensätze",
 			"NO_RECORDS_DESCRIPTION": "Es wurde noch keine Zahlung erfasst.",
 			"NO_RECORDS_FILTERED_DESCRIPTION": "Kein Zahlungsdatensatz entspricht den aktuellen Filtern.",
+			"LOAD_FAILED": "Der Bericht konnte nicht geladen werden",
 			"COLUMN_DATE": "Datum",
 			"COLUMN_CUSTOMER": "Kunde",
 			"COLUMN_PLAN": "Tarif",

@@ -35,8 +35,8 @@ const COLUMNS: Array<{ header: string; key: string; get: (record: PaymentReportR
 	{ header: 'Plan', key: 'plan', get: (r) => r.planId },
 	{ header: 'Status', key: 'status', get: (r) => r.status },
 	{ header: 'Provider', key: 'provider', get: (r) => r.paymentProvider },
-	{ header: 'Amount', key: 'amount', get: (r) => toMajorUnits(r.amountPaid || r.amount) },
-	{ header: 'Amount Due', key: 'amountDue', get: (r) => toMajorUnits(r.amountDue) },
+	{ header: 'Amount', key: 'amount', get: (r) => toAmount(r.amountPaid ?? r.amount) },
+	{ header: 'Amount Due', key: 'amountDue', get: (r) => toAmount(r.amountDue) },
 	{ header: 'Currency', key: 'currency', get: (r) => (r.currency ?? 'usd').toUpperCase() },
 	{ header: 'Interval', key: 'interval', get: (r) => r.interval ?? '' },
 	{ header: 'Subscription ID', key: 'subscriptionId', get: (r) => r.subscriptionId ?? '' },
@@ -53,12 +53,14 @@ function toIsoDate(value: Date | string | null | undefined): string {
 }
 
 /**
- * Amounts are stored in the smallest currency unit (cents). The export shows
- * major units so a spreadsheet sum reads as money, not as an integer count.
+ * `subscriptions.amount*` are already MAJOR units — the webhook writer stores
+ * `convertCentsToDecimal(...)` into them — so the export must NOT divide again.
+ * Dividing here would have shipped every stakeholder a report showing 1% of the
+ * real revenue.
  */
-function toMajorUnits(value: number | null | undefined): number {
-	if (!value) return 0;
-	return Math.round(value) / 100;
+function toAmount(value: number | null | undefined): number {
+	if (!value || !Number.isFinite(value)) return 0;
+	return value;
 }
 
 function timestampSuffix(): string {
@@ -99,9 +101,13 @@ export async function buildPaymentReportXlsx(
 
 	if (summary) {
 		const summarySheet = workbook.addWorksheet('Summary');
+		// Currency is its own column, not an assumption: a roll-up row belongs to one
+		// currency, and a sheet that dropped the label would invite a reader to add
+		// yen to dollars down the Amount column.
 		summarySheet.columns = [
 			{ header: 'Group', key: 'group', width: 18 },
 			{ header: 'Value', key: 'value', width: 24 },
+			{ header: 'Currency', key: 'currency', width: 12 },
 			{ header: 'Transactions', key: 'transactions', width: 16 },
 			{ header: 'Amount', key: 'amount', width: 18 }
 		];
@@ -111,32 +117,36 @@ export async function buildPaymentReportXlsx(
 			summarySheet.addRow({
 				group: 'Currency',
 				value: row.currency.toUpperCase(),
+				currency: row.currency.toUpperCase(),
 				transactions: row.transactions,
-				amount: toMajorUnits(row.amount)
+				amount: toAmount(row.amount)
 			});
 		}
 		for (const row of summary.byPlan) {
 			summarySheet.addRow({
 				group: 'Plan',
 				value: row.planId,
+				currency: row.currency.toUpperCase(),
 				transactions: row.transactions,
-				amount: toMajorUnits(row.amount)
+				amount: toAmount(row.amount)
 			});
 		}
 		for (const row of summary.byProvider) {
 			summarySheet.addRow({
 				group: 'Provider',
 				value: row.provider,
+				currency: row.currency.toUpperCase(),
 				transactions: row.transactions,
-				amount: toMajorUnits(row.amount)
+				amount: toAmount(row.amount)
 			});
 		}
 		for (const row of summary.byStatus) {
 			summarySheet.addRow({
 				group: 'Status',
 				value: row.status,
+				currency: row.currency.toUpperCase(),
 				transactions: row.transactions,
-				amount: toMajorUnits(row.amount)
+				amount: toAmount(row.amount)
 			});
 		}
 	}

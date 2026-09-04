@@ -1603,6 +1603,13 @@ export const BillingIssueStatus = {
 
 export type BillingIssueStatusValues = (typeof BillingIssueStatus)[keyof typeof BillingIssueStatus];
 
+/**
+ * How long a refund claim is honoured before another request may take it over.
+ * Long enough that a slow provider call is never double-submitted, short enough
+ * that a crashed request does not strand the issue for an operator.
+ */
+export const REFUND_CLAIM_TTL_MS = 5 * 60 * 1000;
+
 /** Statuses that still need an admin — the default list view. */
 export const OPEN_BILLING_ISSUE_STATUSES: BillingIssueStatusValues[] = [
 	BillingIssueStatus.OPEN,
@@ -1646,14 +1653,27 @@ export const billingIssues = pgTable(
 		paymentProvider: text('payment_provider').notNull().default(PaymentProvider.STRIPE),
 		/** Provider-side charge / payment-intent id used as the refund target. */
 		providerPaymentId: text('provider_payment_id'),
-		/** Amount in the smallest currency unit, mirroring `subscriptions.amount`. */
+		/**
+		 * Amount in the SMALLEST currency unit (1234 = $12.34), converted from
+		 * `subscriptions.amount` at intake — that column holds MAJOR units, because
+		 * the webhook writer runs `convertCentsToDecimal` before storing it. Keeping
+		 * the issue in minor units is what lets a partial refund carry cents at all.
+		 */
 		amount: integer('amount').default(0),
 		currency: text('currency').default('usd'),
 		/** Short machine-written summary of why the issue was raised. */
 		detectionReason: text('detection_reason'),
 		/** `subscriptions.id`-scoped dedupe key so re-running detection never doubles a row. */
 		sourceKey: text('source_key'),
+		/**
+		 * Set by the one request that owns an in-flight refund, so two admins
+		 * clicking "refund" at the same time cannot both reach the provider. Cleared
+		 * again when the provider rejects, and treated as stale after
+		 * `REFUND_CLAIM_TTL_MS` so a crashed request cannot strand the issue.
+		 */
+		refundClaimedAt: timestamp('refund_claimed_at'),
 		refundId: text('refund_id'),
+		/** Refunded amount, in the same smallest currency unit as `amount`. */
 		refundAmount: integer('refund_amount'),
 		refundedAt: timestamp('refunded_at'),
 		resolutionNote: text('resolution_note'),

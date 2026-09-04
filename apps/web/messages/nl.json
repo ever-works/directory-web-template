@@ -3617,6 +3617,7 @@
 			"NO_RECORDS_FOUND": "Geen betalingsrecords",
 			"NO_RECORDS_DESCRIPTION": "Er is nog geen betaling vastgelegd.",
 			"NO_RECORDS_FILTERED_DESCRIPTION": "Geen betalingsrecord komt overeen met de huidige filters.",
+			"LOAD_FAILED": "Kan het rapport niet laden",
 			"COLUMN_DATE": "Datum",
 			"COLUMN_CUSTOMER": "Klant",
 			"COLUMN_PLAN": "Abonnement",

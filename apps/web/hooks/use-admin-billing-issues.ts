@@ -41,7 +41,8 @@ export interface AdminBillingIssueStats {
 	byStatus: Record<string, number>;
 	byType: Record<string, number>;
 	byProvider: Record<string, number>;
-	amountAtRisk: number;
+	/** Open + in-review totals PER currency, in the smallest currency unit. */
+	amountAtRisk: Array<{ currency: string; amount: number }>;
 }
 
 export interface BillingIssuesListParams {
@@ -101,6 +102,7 @@ const fetchStats = async (): Promise<AdminBillingIssueStats> => {
 
 export interface UpdateBillingIssueInput {
 	status: BillingIssueStatusValues;
+	/** Omit to leave the note alone; pass an empty string to clear it. */
 	resolutionNote?: string;
 }
 
@@ -141,6 +143,10 @@ export function useAdminBillingIssues(options: UseAdminBillingIssuesOptions = {}
 	});
 
 	const invalidate = useCallback(() => {
+		// `serverClient` keeps its OWN five-minute GET cache in front of React Query,
+		// so invalidating the query key alone refetches straight out of that cache and
+		// the list still shows the pre-mutation row. Clear it first.
+		serverClient.clearCache();
 		queryClient.invalidateQueries({ queryKey: billingIssuesQueryKeys.all });
 	}, [queryClient]);
 

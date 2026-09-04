@@ -3556,6 +3556,7 @@
 			"NO_RECORDS_FOUND": "कोई भुगतान रिकॉर्ड नहीं",
 			"NO_RECORDS_DESCRIPTION": "अभी तक कोई भुगतान दर्ज नहीं हुआ है।",
 			"NO_RECORDS_FILTERED_DESCRIPTION": "मौजूदा फ़िल्टर से मेल खाता कोई भुगतान रिकॉर्ड नहीं है।",
+			"LOAD_FAILED": "रिपोर्ट लोड नहीं हो सकी",
 			"COLUMN_DATE": "तारीख",
 			"COLUMN_CUSTOMER": "ग्राहक",
 			"COLUMN_PLAN": "योजना",

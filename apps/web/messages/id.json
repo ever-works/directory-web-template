@@ -3668,6 +3668,7 @@
 			"NO_RECORDS_FOUND": "Tidak ada catatan pembayaran",
 			"NO_RECORDS_DESCRIPTION": "Belum ada pembayaran yang tercatat.",
 			"NO_RECORDS_FILTERED_DESCRIPTION": "Tidak ada catatan pembayaran yang cocok dengan filter saat ini.",
+			"LOAD_FAILED": "Tidak dapat memuat laporan",
 			"COLUMN_DATE": "Tanggal",
 			"COLUMN_CUSTOMER": "Pelanggan",
 			"COLUMN_PLAN": "Paket",

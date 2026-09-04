@@ -1,14 +1,15 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { BarChart3, Download, FileSpreadsheet, Loader2, Receipt, TrendingUp, Users } from 'lucide-react';
-import { useTranslations } from 'next-intl';
+import { AlertTriangle, BarChart3, Download, FileSpreadsheet, Loader2, Receipt, TrendingUp, Users } from 'lucide-react';
+import { useLocale, useTranslations } from 'next-intl';
 import { Container } from '@/components/ui/container';
 import { UniversalPagination } from '@/components/universal-pagination';
 import { useAdminPaymentReports } from '@/hooks/use-admin-payment-reports';
 import { SubscriptionStatus } from '@/lib/db/schema';
 import { PaymentPlan, PaymentProvider } from '@/lib/constants/payment';
 import { cn } from '@/lib/utils';
+import { formatCurrencyAmount } from '@/lib/utils/currency-format';
 
 const PAGE_SIZE = 20;
 
@@ -21,20 +22,19 @@ const INPUT_BASE = cn(
 	'transition-all duration-150 disabled:opacity-50 appearance-none'
 );
 
-function formatAmount(amount: number, currency: string): string {
-	const value = (amount ?? 0) / 100;
-	try {
-		return new Intl.NumberFormat(undefined, {
-			style: 'currency',
-			currency: (currency || 'usd').toUpperCase()
-		}).format(value);
-	} catch {
-		return `${value.toFixed(2)} ${(currency || 'usd').toUpperCase()}`;
-	}
+/**
+ * Report amounts come straight from `subscriptions`, which stores MAJOR units
+ * (the webhook writer runs `convertCentsToDecimal` before saving). Dividing again
+ * would show 1% of the real revenue, so this uses the template's major-unit
+ * formatter — which also picks the right number of decimals per currency.
+ */
+function formatAmount(amount: number, currency: string, locale: string): string {
+	return formatCurrencyAmount(amount ?? 0, (currency || 'usd').toUpperCase(), locale);
 }
 
 export default function AdminPaymentReportsPage() {
 	const t = useTranslations('admin.ADMIN_PAYMENT_REPORTS_PAGE');
+	const locale = useLocale();
 
 	const [page, setPage] = useState(1);
 	const [from, setFrom] = useState('');
@@ -45,8 +45,8 @@ export default function AdminPaymentReportsPage() {
 
 	const resetToFirstPage = () => setPage(1);
 
-	const { records, summary, isLoading, isExporting, totalRecords, totalPages, exportReport } = useAdminPaymentReports(
-		{
+	const { records, summary, isLoading, isError, errorMessage, isExporting, totalRecords, totalPages, exportReport } =
+		useAdminPaymentReports({
 			page,
 			limit: PAGE_SIZE,
 			from: from || undefined,
@@ -54,14 +54,31 @@ export default function AdminPaymentReportsPage() {
 			planId: planId || undefined,
 			status: status || undefined,
 			provider: provider || undefined
-		}
-	);
+		});
 
 	const hasActiveFilters = Boolean(from || to || planId || status || provider);
 
-	const primaryTotal = useMemo(() => {
-		if (!summary?.totalsByCurrency?.length) return null;
-		return [...summary.totalsByCurrency].sort((a, b) => b.amount - a.amount)[0];
+	/**
+	 * Every currency, not the biggest number.
+	 *
+	 * Picking a "primary" currency by comparing raw amounts compares unlike units
+	 * and then hides every other currency's revenue from the headline total.
+	 * Rendering each currency on its own line is the only honest summary, and on
+	 * the overwhelmingly common single-currency site it looks exactly the same.
+	 */
+	const totalRevenue = useMemo(() => {
+		if (!summary?.totalsByCurrency?.length) return formatAmount(0, 'usd', locale);
+		return summary.totalsByCurrency.map((row) => formatAmount(row.amount, row.currency, locale)).join(' · ');
+	}, [summary, locale]);
+
+	/**
+	 * `plan_id` is free-form on `subscriptions` — a Work may define its own plans —
+	 * so an options list built only from the `PaymentPlan` enum would leave a custom
+	 * plan unfilterable. Merge in whatever the current roll-up actually contains.
+	 */
+	const planOptions = useMemo(() => {
+		const fromData = (summary?.byPlan ?? []).map((row) => row.planId).filter(Boolean);
+		return Array.from(new Set([...Object.values(PaymentPlan), ...fromData]));
 	}, [summary]);
 
 	const clearFilters = () => {
@@ -134,13 +151,7 @@ export default function AdminPaymentReportsPage() {
 			{/* Summary cards */}
 			<div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
 				{[
-					{
-						label: t('TOTAL_REVENUE'),
-						value: primaryTotal
-							? formatAmount(primaryTotal.amount, primaryTotal.currency)
-							: formatAmount(0, 'usd'),
-						Icon: TrendingUp
-					},
+					{ label: t('TOTAL_REVENUE'), value: totalRevenue, Icon: TrendingUp },
 					{ label: t('TRANSACTIONS'), value: String(summary?.transactions ?? 0), Icon: Receipt },
 					{ label: t('PLANS'), value: String(summary?.byPlan?.length ?? 0), Icon: Users },
 					{ label: t('PROVIDERS'), value: String(summary?.byProvider?.length ?? 0), Icon: BarChart3 }
@@ -226,7 +237,7 @@ export default function AdminPaymentReportsPage() {
 								className={INPUT_BASE}
 							>
 								<option value="">{t('ALL')}</option>
-								{Object.values(PaymentPlan).map((value) => (
+								{planOptions.map((value) => (
 									<option key={value} value={value}>
 										{value}
 									</option>
@@ -308,6 +319,30 @@ export default function AdminPaymentReportsPage() {
 							</div>
 						))}
 					</div>
+				) : isError ? (
+					/*
+					 * A failed read is NOT an empty report. Falling through to the empty
+					 * state would tell an admin "no payments in this range" when the truth
+					 * is "we could not read them" — and that difference is the whole point
+					 * of a revenue report.
+					 */
+					<div
+						role="alert"
+						data-testid="payment-report-error"
+						className="flex flex-col items-center justify-center px-6 py-20 text-center"
+					>
+						<div className="w-14 h-14 rounded-2xl bg-red-50 dark:bg-red-500/10 flex items-center justify-center mb-4 ring-1 ring-red-200 dark:ring-red-500/20">
+							<AlertTriangle className="w-6 h-6 text-red-500 dark:text-red-400" />
+						</div>
+						<h3 className="text-sm font-semibold text-gray-900 dark:text-white mb-1.5">
+							{t('LOAD_FAILED')}
+						</h3>
+						{errorMessage && (
+							<p className="text-sm text-gray-500 dark:text-gray-400 max-w-md leading-relaxed break-words">
+								{errorMessage}
+							</p>
+						)}
+					</div>
 				) : records.length === 0 ? (
 					<div className="flex flex-col items-center justify-center px-6 py-20 text-center">
 						<div className="w-14 h-14 rounded-2xl bg-gray-100 dark:bg-white/6 flex items-center justify-center mb-4 ring-1 ring-gray-200 dark:ring-white/8">
@@ -369,8 +404,9 @@ export default function AdminPaymentReportsPage() {
 										</td>
 										<td className="px-5 py-3 text-right font-medium text-gray-900 dark:text-white whitespace-nowrap">
 											{formatAmount(
-												record.amountPaid || record.amount || 0,
-												record.currency || 'usd'
+												record.amountPaid ?? record.amount ?? 0,
+												record.currency || 'usd',
+												locale
 											)}
 										</td>
 									</tr>
@@ -384,14 +420,14 @@ export default function AdminPaymentReportsPage() {
 				{summary && summary.byPlan.length > 0 && (
 					<div className="px-5 py-4 border-t border-gray-100 dark:border-white/6 grid grid-cols-1 sm:grid-cols-3 gap-4">
 						{[
-							{ title: t('BY_PLAN'), rows: summary.byPlan.map((row) => ({ label: row.planId, ...row })) },
+							{ title: t('BY_PLAN'), rows: summary.byPlan.map((row) => ({ ...row, label: row.planId })) },
 							{
 								title: t('BY_PROVIDER'),
-								rows: summary.byProvider.map((row) => ({ label: row.provider, ...row }))
+								rows: summary.byProvider.map((row) => ({ ...row, label: row.provider }))
 							},
 							{
 								title: t('BY_STATUS'),
-								rows: summary.byStatus.map((row) => ({ label: row.status, ...row }))
+								rows: summary.byStatus.map((row) => ({ ...row, label: row.status }))
 							}
 						].map((group) => (
 							<div key={group.title}>
@@ -401,13 +437,12 @@ export default function AdminPaymentReportsPage() {
 								<ul className="space-y-1">
 									{group.rows.map((row) => (
 										<li
-											key={`${group.title}-${row.label}`}
+											key={`${group.title}-${row.label}-${row.currency}`}
 											className="flex items-center justify-between gap-2 text-xs text-gray-600 dark:text-gray-300"
 										>
 											<span className="capitalize truncate">{row.label}</span>
 											<span className="font-medium text-gray-900 dark:text-white whitespace-nowrap">
-												{formatAmount(row.amount, primaryTotal?.currency || 'usd')} ·{' '}
-												{row.transactions}
+												{formatAmount(row.amount, row.currency, locale)} · {row.transactions}
 											</span>
 										</li>
 									))}

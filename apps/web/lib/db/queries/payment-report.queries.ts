@@ -57,13 +57,20 @@ export interface PaymentReportListResult {
 	totalPages: number;
 }
 
+/**
+ * Revenue roll-ups. Every row carries its own currency and every amount is in
+ * MAJOR units, matching what `subscriptions` stores.
+ *
+ * Currency is part of the grouping key, not a label chosen afterwards: a site
+ * charging in more than one currency would otherwise get one number that adds
+ * yen to dollars, and a UI with no honest way to label it.
+ */
 export interface PaymentReportSummary {
 	transactions: number;
-	/** Sum of `amount_paid` (falling back to `amount`) grouped by currency, smallest unit. */
 	totalsByCurrency: Array<{ currency: string; amount: number; transactions: number }>;
-	byPlan: Array<{ planId: string; transactions: number; amount: number }>;
-	byProvider: Array<{ provider: string; transactions: number; amount: number }>;
-	byStatus: Array<{ status: string; transactions: number; amount: number }>;
+	byPlan: Array<{ planId: string; currency: string; transactions: number; amount: number }>;
+	byProvider: Array<{ provider: string; currency: string; transactions: number; amount: number }>;
+	byStatus: Array<{ status: string; currency: string; transactions: number; amount: number }>;
 }
 
 /**
@@ -91,8 +98,20 @@ export function parseReportDate(value: string | undefined | null, boundary: 'fro
 	return parsed;
 }
 
-/** Amount actually collected for a row: `amount_paid` when set, else `amount`. */
-const PAID_AMOUNT = sql<number>`coalesce(nullif(${subscriptions.amountPaid}, 0), ${subscriptions.amount}, 0)`;
+/**
+ * Amount actually collected for a row, in MAJOR units — `subscriptions.amount*`
+ * are written through `convertCentsToDecimal`, so they already are.
+ *
+ * `amount_paid = 0` is a real answer, not a missing one: a pending or failed
+ * subscription has collected nothing. Falling back to the scheduled `amount`
+ * there would book unpaid subscriptions as revenue and inflate every summary, so
+ * the fallback fires only when `amount_paid` is genuinely NULL (a row written
+ * before the column existed).
+ */
+/** Grouping key for every roll-up, so a NULL currency does not become its own bucket. */
+const CURRENCY = sql<string>`coalesce(${subscriptions.currency}, 'usd')`;
+
+const PAID_AMOUNT = sql<number>`coalesce(${subscriptions.amountPaid}, ${subscriptions.amount}, 0)`;
 
 async function buildWhere(filters: PaymentReportFilters): Promise<SQL | undefined> {
 	const tenantId = await getTenantId();
@@ -184,9 +203,23 @@ export async function listPaymentRecords(params: PaymentReportListParams = {}): 
 	};
 }
 
+/** How many records match the filters — used to refuse an over-cap export. */
+export async function countPaymentRecords(filters: PaymentReportFilters = {}): Promise<number> {
+	const where = await buildWhere(filters);
+
+	const [row] = await db
+		.select({ value: count() })
+		.from(subscriptions)
+		.leftJoin(users, eq(subscriptions.userId, users.id))
+		.where(where);
+
+	return row?.value ?? 0;
+}
+
 /**
  * Every record matching the filters, for the export path. Capped so a bad filter
- * can never stream an unbounded result set into memory.
+ * can never stream an unbounded result set into memory; the export route checks
+ * the count first and refuses rather than handing back a silently short file.
  */
 export async function listAllPaymentRecords(
 	filters: PaymentReportFilters,
@@ -206,44 +239,47 @@ export async function summarizePayments(filters: PaymentReportFilters = {}): Pro
 	const [byCurrency, byPlan, byProvider, byStatus] = await Promise.all([
 		db
 			.select({
-				currency: sql<string>`coalesce(${subscriptions.currency}, 'usd')`,
+				currency: CURRENCY,
 				amount: sql<number>`coalesce(sum(${PAID_AMOUNT}), 0)`,
 				transactions: count()
 			})
 			.from(subscriptions)
 			.leftJoin(users, eq(subscriptions.userId, users.id))
 			.where(where)
-			.groupBy(sql`coalesce(${subscriptions.currency}, 'usd')`),
+			.groupBy(CURRENCY),
 		db
 			.select({
 				planId: subscriptions.planId,
+				currency: CURRENCY,
 				amount: sql<number>`coalesce(sum(${PAID_AMOUNT}), 0)`,
 				transactions: count()
 			})
 			.from(subscriptions)
 			.leftJoin(users, eq(subscriptions.userId, users.id))
 			.where(where)
-			.groupBy(subscriptions.planId),
+			.groupBy(subscriptions.planId, CURRENCY),
 		db
 			.select({
 				provider: subscriptions.paymentProvider,
+				currency: CURRENCY,
 				amount: sql<number>`coalesce(sum(${PAID_AMOUNT}), 0)`,
 				transactions: count()
 			})
 			.from(subscriptions)
 			.leftJoin(users, eq(subscriptions.userId, users.id))
 			.where(where)
-			.groupBy(subscriptions.paymentProvider),
+			.groupBy(subscriptions.paymentProvider, CURRENCY),
 		db
 			.select({
 				status: subscriptions.status,
+				currency: CURRENCY,
 				amount: sql<number>`coalesce(sum(${PAID_AMOUNT}), 0)`,
 				transactions: count()
 			})
 			.from(subscriptions)
 			.leftJoin(users, eq(subscriptions.userId, users.id))
 			.where(where)
-			.groupBy(subscriptions.status)
+			.groupBy(subscriptions.status, CURRENCY)
 	]);
 
 	const toNumber = <T extends { amount: number; transactions: number }>(row: T): T => ({

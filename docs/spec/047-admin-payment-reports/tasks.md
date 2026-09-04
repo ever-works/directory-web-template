@@ -22,3 +22,8 @@ sidebar_label: 047 Tasks
 | T-10 | Add both Playwright specs and register the routes in both coverage matrices | Specs run under `@ever-works/web-e2e` | done |
 | T-11 | Record the PDF decision as Q-047-1 with a chosen default | `docs/questions.md` | done |
 | T-12 | Spec, plan, tasks, `docs/spec/README.md` row, `docs/log.md` line | Definition of Done checklist in `AGENTS.md` §2 | done |
+| T-9 | Group every roll-up BY currency and label each amount with its own, in the API, the page and the XLSX Summary sheet | `admin-payment-reports-query.spec.ts` currency test | done |
+| T-10 | Book revenue from `amount_paid`, falling back to `amount` only when it is NULL | A pending subscription no longer counts its scheduled amount as collected | done |
+| T-11 | Refuse an export whose filters match more rows than the cap, instead of truncating it | `GET .../export` answers 400 naming the limit | done |
+| T-12 | Reject calendar-invalid dates (`2026-02-30`) and fractional pagination on both routes | `admin-payment-reports-query.spec.ts` date + pagination tests | done |
+| T-13 | Render a failed read as an error state rather than as an empty report | `LOAD_FAILED` in all 21 locales; `payment-report-error` test id | done |
