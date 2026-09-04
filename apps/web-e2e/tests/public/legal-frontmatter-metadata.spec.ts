@@ -215,16 +215,18 @@ test.describe('Legal pages: SEO metadata comes from Markdown frontmatter', () =>
 			expect(response!.status()).toBeLessThan(400);
 
 			const href = await page.locator('link[rel="alternate"][type="text/markdown"]').first().getAttribute('href');
-			if (href === null) return; // absence is covered by md-mirror-routes.spec.ts
+			// `buildStaticPageMetadata` always emits this alternate for these two
+			// routes, so its absence is a regression, not an environment quirk.
+			expect(href, `${legalPage.path} should advertise its .md mirror`).not.toBeNull();
 
 			// A single absolute URL — the base URL used to be concatenated twice,
 			// producing `https://hosthttps://host/terms-of-service.md`.
 			expect(href, `${legalPage.path} markdown alternate should end in .md`).toMatch(/\.md$/);
 			expect(
-				href.match(/https?:\/\//g)?.length ?? 0,
+				href!.match(/https?:\/\//g)?.length ?? 0,
 				`${legalPage.path} markdown alternate should contain exactly one scheme`
 			).toBe(1);
-			expect(() => new URL(href), `${legalPage.path} markdown alternate parses`).not.toThrow();
+			expect(() => new URL(href!), `${legalPage.path} markdown alternate parses`).not.toThrow();
 		});
 	}
 });
