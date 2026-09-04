@@ -409,11 +409,14 @@ export const passwordResetTokens = pgTable('passwordResetTokens', {
 /**
  * One-time email 2FA login codes (spec 046).
  *
- * **Only a hash of the code is stored** (`codeHash`, hex SHA-256 of the
- * plaintext). The plaintext exists solely inside the request that mints
- * it and inside the email that carries it — a database dump therefore
- * never yields a usable code. Verification re-hashes the submitted code
- * and compares the two digests in constant time.
+ * **Only a hash of the code is stored** (`codeHash`, hex HMAC-SHA256 of
+ * the plaintext under a server-only key). The plaintext exists solely
+ * inside the request that mints it and inside the email that carries it,
+ * and the key lives in the environment rather than the database — so a
+ * dump alone never yields a usable code, even though the six-digit space
+ * would be trivial to reverse against a bare digest. Verification
+ * re-hashes the submitted code and compares the two digests in constant
+ * time.
  *
  * Rotate-on-issue, like `verificationTokens` / `passwordResetTokens`:
  * issuing a code deletes every earlier unconsumed code for that user, so
@@ -435,7 +438,9 @@ export const twoFactorCodes = pgTable(
 			.notNull()
 			.references(() => users.id, { onDelete: 'cascade' }),
 		email: text('email').notNull(),
-		// Hex SHA-256 digest of the 6-digit code. Never the code itself.
+		// Hex HMAC-SHA256 digest of the 6-digit code, keyed by AUTH_SECRET (or
+		// TWO_FACTOR_CODE_SECRET). Never the code itself, and not reversible
+		// without that key.
 		codeHash: text('code_hash').notNull(),
 		expires: timestamp('expires', { mode: 'date' }).notNull(),
 		attempts: integer('attempts').notNull().default(0),

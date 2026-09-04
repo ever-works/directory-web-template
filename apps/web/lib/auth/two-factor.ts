@@ -94,10 +94,14 @@ export async function getTwoFactorAccountState(
 		.where(profileWhere)
 		.limit(1);
 
+	// Tenant-scoped exactly like the connected-accounts route's `hasPassword`.
+	// Account rows always carry a tenant (both credentials inserts set it), and
+	// without the scope a credentials account belonging to ANOTHER tenant would
+	// satisfy the OAuth gate for an OAuth-only profile in this one.
 	const linkedAccounts = await db
 		.select({ type: accounts.type, passwordHash: accounts.passwordHash })
 		.from(accounts)
-		.where(eq(accounts.userId, userId));
+		.where(tenantId ? and(eq(accounts.userId, userId), eq(accounts.tenantId, tenantId)) : eq(accounts.userId, userId));
 
 	// Client passwords live on `accounts` rows of type 'credentials' — a value
 	// outside next-auth's `AdapterAccountType` union, hence the cast. Same
@@ -395,22 +399,32 @@ export async function verifyTwoFactorCode(
 
 	// Constant-time digest comparison — never a plaintext equality check.
 	if (!verifyTwoFactorCodeHash(code, record.codeHash)) {
-		const outcome = registerFailedAttempt(failedAttempts, now);
-
 		await db
 			.update(twoFactorCodes)
 			.set({ attempts: sql`${twoFactorCodes.attempts} + 1` })
 			.where(eq(twoFactorCodes.id, record.id));
 
-		await db
+		// Increment IN THE DATABASE and read the serialized result back, rather
+		// than writing a count derived from the snapshot read at the top of this
+		// function: two guesses arriving together would otherwise both compute
+		// "1" from a stale 0 and one of the two failures would be forgotten,
+		// which is exactly the race a brute-forcer would exploit to buy extra
+		// attempts. `registerFailedAttempt` then decides the lock transition
+		// from the authoritative count.
+		const [counted] = await db
 			.update(clientProfiles)
-			.set({
-				twoFactorFailedAttempts: outcome.failedAttempts,
-				twoFactorLockedUntil: outcome.lockedUntil
-			})
-			.where(eq(clientProfiles.id, profile.id));
+			.set({ twoFactorFailedAttempts: sql`COALESCE(${clientProfiles.twoFactorFailedAttempts}, 0) + 1` })
+			.where(eq(clientProfiles.id, profile.id))
+			.returning({ failedAttempts: clientProfiles.twoFactorFailedAttempts });
+
+		const outcome = registerFailedAttempt((counted?.failedAttempts ?? failedAttempts + 1) - 1, now);
 
 		if (outcome.locked) {
+			await db
+				.update(clientProfiles)
+				.set({ twoFactorLockedUntil: outcome.lockedUntil })
+				.where(eq(clientProfiles.id, profile.id));
+
 			// Burn the code alongside the lock: whoever was guessing must wait
 			// AND request a fresh one.
 			await db.delete(twoFactorCodes).where(eq(twoFactorCodes.userId, userId));
@@ -439,16 +453,29 @@ export async function verifyTwoFactorCode(
 		};
 	}
 
-	// 5. Success: reset the budget; consume the code when this is the
-	//    authoritative check.
+	// 5. Success: consume the code when this is the authoritative check, then
+	//    reset the budget.
+	if (consume) {
+		// Conditional on the row still being unconsumed, so the "one-time" in
+		// one-time code holds under concurrency: two requests carrying the same
+		// valid code race here, and the UPDATE ... WHERE consumed_at IS NULL is
+		// serialized by the database so exactly one of them changes a row. The
+		// loser sees zero rows and is answered as if the code were already gone.
+		const consumed = await db
+			.update(twoFactorCodes)
+			.set({ consumedAt: now })
+			.where(and(eq(twoFactorCodes.id, record.id), isNull(twoFactorCodes.consumedAt)))
+			.returning({ id: twoFactorCodes.id });
+
+		if (consumed.length === 0) {
+			return { ok: false, reason: 'not_found' };
+		}
+	}
+
 	await db
 		.update(clientProfiles)
 		.set({ twoFactorFailedAttempts: 0, twoFactorLockedUntil: null })
 		.where(eq(clientProfiles.id, profile.id));
-
-	if (consume) {
-		await db.update(twoFactorCodes).set({ consumedAt: now }).where(eq(twoFactorCodes.id, record.id));
-	}
 
 	return { ok: true };
 }

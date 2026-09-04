@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { getTenantId } from '@/lib/auth/tenant';
 import { getTwoFactorAccountState, setTwoFactorEnabled } from '@/lib/auth/two-factor';
+import { isEmailServiceConfigured } from '@/lib/mail';
 import { logActivity } from '@/lib/db/queries/activity.queries';
 import { ActivityType } from '@/lib/db/schema';
 
@@ -30,6 +31,8 @@ export const OAUTH_ACCOUNT_MESSAGE = 'You cannot set up two-factor authenticatio
  *         description: "Tenant not found, or the account signed up with OAuth"
  *       404:
  *         description: "Client profile not found"
+ *       503:
+ *         description: "Email delivery is not configured, so codes could never be sent"
  *       500:
  *         description: "Internal server error"
  */
@@ -60,6 +63,22 @@ export async function POST() {
 			return NextResponse.json(
 				{ success: false, error: OAUTH_ACCOUNT_MESSAGE, code: 'OAUTH_ACCOUNT' },
 				{ status: 403 }
+			);
+		}
+
+		// Guard against the most complete way to lock yourself out: turning on a
+		// factor delivered by email on a deployment where no mail provider is
+		// configured. Every future sign-in would then ask for a code that can
+		// never arrive. Refuse the setting rather than accept one we cannot
+		// honour.
+		if (!(await isEmailServiceConfigured())) {
+			return NextResponse.json(
+				{
+					success: false,
+					error: 'Email delivery is not configured for this site, so two-factor codes cannot be sent.',
+					code: 'EMAIL_NOT_CONFIGURED'
+				},
+				{ status: 503 }
 			);
 		}
 

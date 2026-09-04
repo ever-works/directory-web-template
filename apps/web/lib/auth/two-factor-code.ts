@@ -6,17 +6,20 @@ import crypto from 'crypto';
  *
  * Everything here is deliberately free of database, mail, `next/headers`
  * and session imports so that it can be unit-tested directly (see
- * `apps/web-e2e/tests/unit/two-factor-code.spec.ts`) and imported from
- * both the Node and Edge runtimes. The stateful half — reading and
- * writing `twoFactorCodes` / `client_profiles` — lives in
- * `lib/auth/two-factor.ts`.
+ * `apps/web-e2e/tests/unit/two-factor-code.spec.ts`) without spinning up an
+ * app. It does use `node:crypto`, so it belongs to the Node runtime — every
+ * caller (the API routes, the server action, the NextAuth `authorize`
+ * callback) already runs there. The stateful half — reading and writing
+ * `twoFactorCodes` / `client_profiles` — lives in `lib/auth/two-factor.ts`.
  *
  * **The plaintext code is never persisted.** `issueTwoFactorCode` stores
- * only `hashTwoFactorCode(code)`; verification re-hashes the submitted
- * value and compares the two digests with
+ * only `hashTwoFactorCode(code)` — an HMAC-SHA256 under a server-only key,
+ * not a bare digest, because the six-digit code space is small enough to
+ * reverse a plain SHA-256 in about a second. Verification re-hashes the
+ * submitted value and compares the two digests with
  * {@link constantTimeEqualsHex}. A database dump therefore yields no
- * usable code, and comparison leaks no timing signal about how many
- * leading characters were right.
+ * usable code without the key, and comparison leaks no timing signal about
+ * how many leading characters were right.
  */
 
 /** Number of decimal digits in a generated code. */
@@ -64,9 +67,40 @@ export function generateTwoFactorCode(length: number = TWO_FACTOR_CODE_LENGTH): 
 	return String(crypto.randomInt(0, max)).padStart(length, '0');
 }
 
-/** Hex SHA-256 of a code. The only representation that reaches the database. */
-export function hashTwoFactorCode(code: string): string {
-	return crypto.createHash('sha256').update(normalizeTwoFactorCode(code)).digest('hex');
+/**
+ * The key the code digest is computed under.
+ *
+ * `TWO_FACTOR_CODE_SECRET` when set, otherwise `AUTH_SECRET` — which every
+ * deployment already has, because NextAuth refuses to start without it.
+ * Throwing rather than falling back to an unkeyed digest is deliberate: a
+ * silent fallback would leave the very property this key exists to provide
+ * (see {@link hashTwoFactorCode}) quietly absent in production.
+ */
+export function twoFactorCodeSecret(): string {
+	const secret = process.env.TWO_FACTOR_CODE_SECRET || process.env.AUTH_SECRET;
+	if (!secret) {
+		throw new Error(
+			'Two-factor codes require a server secret: set AUTH_SECRET (or TWO_FACTOR_CODE_SECRET) before enabling 2FA.'
+		);
+	}
+	return secret;
+}
+
+/**
+ * Hex HMAC-SHA256 of a code under a server-only key. The only
+ * representation that reaches the database.
+ *
+ * **Why keyed and not a plain digest.** The code space is only 10^6, so an
+ * unkeyed SHA-256 of a six-digit code is reversible by anyone who can read
+ * the table — a full rainbow table fits in a few megabytes and takes about
+ * a second to build. A keyed HMAC makes the digest useless without the
+ * server secret, which lives in the environment and not in the database, so
+ * a stolen dump alone yields nothing. A slow KDF would also work, but it
+ * would put a deliberate cost on a sign-in hot path for a secret that
+ * already expires in ten minutes and tolerates only five guesses.
+ */
+export function hashTwoFactorCode(code: string, secret: string = twoFactorCodeSecret()): string {
+	return crypto.createHmac('sha256', secret).update(normalizeTwoFactorCode(code)).digest('hex');
 }
 
 /**
@@ -104,9 +138,13 @@ export function constantTimeEqualsHex(a: string, b: string): boolean {
 }
 
 /** Verify a submitted plaintext code against a stored digest, in constant time. */
-export function verifyTwoFactorCodeHash(submittedCode: string, storedHash: string): boolean {
+export function verifyTwoFactorCodeHash(
+	submittedCode: string,
+	storedHash: string,
+	secret: string = twoFactorCodeSecret()
+): boolean {
 	if (!isWellFormedTwoFactorCode(submittedCode)) return false;
-	return constantTimeEqualsHex(hashTwoFactorCode(submittedCode), storedHash);
+	return constantTimeEqualsHex(hashTwoFactorCode(submittedCode, secret), storedHash);
 }
 
 /** Expiry instant for a code minted at `issuedAt`. */

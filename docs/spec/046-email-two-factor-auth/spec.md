@@ -27,7 +27,7 @@ and no sign-in path ever asked for anything beyond the password. The badge was,
 in effect, decoration.
 
 Email is the right first factor to add here because every client account already
-has a verified address and the template already ships a configured mail provider
+has an address on file and the template already ships a mail provider abstraction
 (Nodemailer / Resend behind `lib/mail`). It needs no new dependency, no new
 device, and no new enrolment ceremony.
 
@@ -41,7 +41,8 @@ device, and no new enrolment ceremony.
   five, then reset on success or expiry.
 - OAuth-only sign-ups cannot enable it and are told why, in the UI **and** at the
   API boundary.
-- The plaintext code is never persisted and never compared with `===`.
+- The plaintext code is never persisted, is stored only as a keyed digest, and
+  is never compared with `===`.
 
 ## 4. Non-Goals
 
@@ -82,9 +83,9 @@ tries without my intervention.
       `client_profiles.two_factor_enabled`, require a session, and refuse a
       non-credentials account.
 - [x] AC-3 (EW-138): with 2FA on, signing in mints a cryptographically random
-      six-digit code, stores **only its SHA-256 digest** with a timestamp and the
-      owning user, and emails the plaintext in a branded template that states the
-      expiry.
+      six-digit code, stores **only a keyed HMAC-SHA256 of it** with a timestamp
+      and the owning user, and emails the plaintext in a branded template that
+      states the expiry.
 - [x] AC-4 (EW-139): the sign-in form asks for that code after the password,
       issues no session until it verifies, offers a resend, and shows distinct
       messages for wrong / expired / locked.
@@ -97,6 +98,9 @@ tries without my intervention.
 - [x] AC-7 (EW-142): an OAuth-only account sees the switch disabled with "You
       cannot set up two-factor authentication because you signed up with OAuth."
       and the enable route answers `403` with `code: "OAUTH_ACCOUNT"`.
+- [x] AC-9: enabling is refused with `503` `EMAIL_NOT_CONFIGURED` when the
+      deployment has no mail provider, so a member cannot switch on a factor
+      whose codes could never be delivered.
 - [x] AC-8: every user-visible string exists in all 21 locale files under
       `apps/web/messages/`.
 

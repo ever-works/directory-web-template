@@ -17,6 +17,14 @@ import {
 } from '../../../web/lib/auth/two-factor-code';
 
 /**
+ * Codes are hashed under a server-only key (HMAC-SHA256), so every call
+ * here passes an explicit secret rather than depending on whatever
+ * AUTH_SECRET the runner happens to have — the point of these tests is the
+ * arithmetic, not the environment.
+ */
+const SECRET = 'unit-test-two-factor-secret';
+
+/**
  * Unit coverage for the pure half of email two-factor authentication
  * (spec 046 — EW-138 code generation, EW-140 expiry, EW-141 lockout).
  *
@@ -53,25 +61,36 @@ test.describe('Email 2FA: code generation (EW-138)', () => {
 		expect(generateTwoFactorCode(8)).toMatch(/^[0-9]{8}$/);
 	});
 
-	test('hashes to a hex SHA-256 digest that is not the code itself', () => {
+	test('hashes to a keyed hex digest that is not the code itself', () => {
 		const code = '024680';
-		const hash = hashTwoFactorCode(code);
+		const hash = hashTwoFactorCode(code, SECRET);
 
 		expect(hash).toMatch(/^[0-9a-f]{64}$/);
 		expect(hash).not.toContain(code);
 		// Same digest the database column is expected to hold.
-		expect(hash).toBe(crypto.createHash('sha256').update(code).digest('hex'));
+		expect(hash).toBe(crypto.createHmac('sha256', SECRET).update(code).digest('hex'));
+	});
+
+	test('the digest is KEYED — an unkeyed SHA-256 rainbow table does not reverse it', () => {
+		// The whole six-digit space is only 10^6 values, so a plain digest
+		// would be trivially reversible from a database dump. Two different
+		// keys must therefore produce two different digests for one code, and
+		// neither may equal the bare SHA-256 of that code.
+		const code = '135791';
+
+		expect(hashTwoFactorCode(code, SECRET)).not.toBe(hashTwoFactorCode(code, 'a-different-secret'));
+		expect(hashTwoFactorCode(code, SECRET)).not.toBe(crypto.createHash('sha256').update(code).digest('hex'));
 	});
 
 	test('hashing is deterministic and collision-free across neighbouring codes', () => {
-		expect(hashTwoFactorCode('123456')).toBe(hashTwoFactorCode('123456'));
-		expect(hashTwoFactorCode('123456')).not.toBe(hashTwoFactorCode('123457'));
+		expect(hashTwoFactorCode('123456', SECRET)).toBe(hashTwoFactorCode('123456', SECRET));
+		expect(hashTwoFactorCode('123456', SECRET)).not.toBe(hashTwoFactorCode('123457', SECRET));
 	});
 
 	test('normalises the separators people paste out of an email', () => {
 		expect(normalizeTwoFactorCode(' 123 456 ')).toBe('123456');
 		expect(normalizeTwoFactorCode('123-456')).toBe('123456');
-		expect(hashTwoFactorCode('123 456')).toBe(hashTwoFactorCode('123456'));
+		expect(hashTwoFactorCode('123 456', SECRET)).toBe(hashTwoFactorCode('123456', SECRET));
 	});
 
 	test('rejects malformed submissions before any hashing', () => {
@@ -86,13 +105,18 @@ test.describe('Email 2FA: code generation (EW-138)', () => {
 test.describe('Email 2FA: constant-time verification', () => {
 	test('accepts the matching code and rejects every near miss', () => {
 		const code = generateTwoFactorCode();
-		const stored = hashTwoFactorCode(code);
+		const stored = hashTwoFactorCode(code, SECRET);
 
-		expect(verifyTwoFactorCodeHash(code, stored)).toBe(true);
-		expect(verifyTwoFactorCodeHash(code.split('').reverse().join(''), stored)).toBe(
+		expect(verifyTwoFactorCodeHash(code, stored, SECRET)).toBe(true);
+		expect(verifyTwoFactorCodeHash(code.split('').reverse().join(''), stored, SECRET)).toBe(
 			code === code.split('').reverse().join('')
 		);
-		expect(verifyTwoFactorCodeHash('000000', hashTwoFactorCode('000001'))).toBe(false);
+		expect(verifyTwoFactorCodeHash('000000', hashTwoFactorCode('000001', SECRET), SECRET)).toBe(false);
+	});
+
+	test('a digest made under a different key never verifies', () => {
+		const code = generateTwoFactorCode();
+		expect(verifyTwoFactorCodeHash(code, hashTwoFactorCode(code, 'another-secret'), SECRET)).toBe(false);
 	});
 
 	test('never compares plaintext — a wrong-length or non-hex digest is refused', () => {
@@ -106,7 +130,7 @@ test.describe('Email 2FA: constant-time verification', () => {
 		// `hashTwoFactorCode('12345')` is a perfectly good digest, but the
 		// submitted value is not a well-formed code, so verification refuses
 		// it up front rather than admitting a short code.
-		expect(verifyTwoFactorCodeHash('12345', hashTwoFactorCode('12345'))).toBe(false);
+		expect(verifyTwoFactorCodeHash('12345', hashTwoFactorCode('12345', SECRET), SECRET)).toBe(false);
 	});
 });
 

@@ -50,6 +50,7 @@ All three settings are optional; the defaults match the specification.
 
 | Variable | Default | Meaning |
 | --- | --- | --- |
+| `TWO_FACTOR_CODE_SECRET` | `AUTH_SECRET` | Key the codes are hashed under; rotating it invalidates codes in flight |
 | `TWO_FACTOR_CODE_TTL_MS` | `600000` (10 min) | How long a code stays valid |
 | `TWO_FACTOR_MAX_ATTEMPTS` | `5` | Failed verifications before a lockout |
 | `TWO_FACTOR_LOCK_MS` | `900000` (15 min) | How long that lockout lasts |
@@ -107,13 +108,21 @@ directly to `/api/auth/callback/credentials`. Exceeding it answers
 
 ### Storage
 
-Only a **hex SHA-256 digest** of the code is written to `twoFactorCodes`; the
-plaintext exists solely in the issuing request and the email. Verification
-re-hashes the submitted value and compares digests with `crypto.timingSafeEqual`.
-The brute-force counter lives on `client_profiles`, not on the code row, so that
-requesting a new code cannot reset it.
+Only a **hex HMAC-SHA256 digest** of the code is written to `twoFactorCodes`,
+keyed by `TWO_FACTOR_CODE_SECRET` (falling back to `AUTH_SECRET`); the plaintext
+exists solely in the issuing request and the email. The keying matters because
+the six-digit space is small enough that a bare SHA-256 could be reversed from a
+database dump in about a second — the key lives in the environment, not the
+database. Verification re-hashes the submitted value and compares digests with
+`crypto.timingSafeEqual`. The brute-force counter lives on `client_profiles`,
+not on the code row, so that requesting a new code cannot reset it.
 
 Because there is no column holding a usable code, the e2e helper
 (`apps/web-e2e/helpers/two-factor-db.ts`) recovers one by hashing the six-digit
-space against the stored digest — which doubles as a standing assertion that the
-column really is a hash.
+space **under the same key** against the stored digest — which doubles as a
+standing assertion that the column really is a keyed hash: without the secret,
+the search finds nothing.
+
+Enabling 2FA is refused with `503` `EMAIL_NOT_CONFIGURED` on a deployment with
+no mail provider, because a code that can never be delivered would lock the
+member out at their next sign-in.

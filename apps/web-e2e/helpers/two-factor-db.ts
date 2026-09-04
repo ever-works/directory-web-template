@@ -1,15 +1,19 @@
 import postgres from 'postgres';
-import { hashTwoFactorCode } from '../../web/lib/auth/two-factor-code';
+import { hashTwoFactorCode, twoFactorCodeSecret } from '../../web/lib/auth/two-factor-code';
 
 /**
  * Test-only access to the `twoFactorCodes` table (spec 046).
  *
- * The application stores **only a SHA-256 hash** of each one-time code, so
- * there is no column to read the plaintext out of — {@link recoverTwoFactorCode}
- * therefore recovers it by hashing every value in the six-digit space until
- * one digest matches. That is ~10^6 SHA-256 operations (about a second in
- * Node) and it doubles as a live assertion that the column really is a
- * digest of a short numeric code and not the code itself.
+ * The application stores **only a keyed HMAC-SHA256** of each one-time code,
+ * so there is no column to read the plaintext out of —
+ * {@link recoverTwoFactorCode} therefore recovers it by hashing every value
+ * in the six-digit space under the SAME server key until one digest
+ * matches. That is ~10^6 HMAC operations (about a second in Node) and it
+ * doubles as a live assertion that the column really is a digest of a short
+ * numeric code and not the code itself. The key comes from
+ * `AUTH_SECRET` / `TWO_FACTOR_CODE_SECRET`, which `playwright.config.ts`
+ * loads out of `apps/web/.env.local` — a test run without it cannot
+ * recover a code, which is exactly the property the keying buys.
  *
  * `postgres` is not a declared dependency of this package; it is the driver
  * `apps/web` uses and the repo's `shamefully-hoist=true` puts it in the
@@ -105,9 +109,13 @@ export async function waitForTwoFactorCodeRow(email: string, timeoutMs = 20_000)
  * column is not a hash of a 6-digit code.
  */
 export function recoverTwoFactorCode(codeHash: string): string | null {
+	// Resolve the key once: it is the same for every candidate, and resolving
+	// it up front fails loudly when the runner has no AUTH_SECRET rather than
+	// silently exhausting the space and reporting "not a hash".
+	const secret = twoFactorCodeSecret();
 	for (let value = 0; value < 1_000_000; value++) {
 		const candidate = String(value).padStart(6, '0');
-		if (hashTwoFactorCode(candidate) === codeHash) return candidate;
+		if (hashTwoFactorCode(candidate, secret) === codeHash) return candidate;
 	}
 	return null;
 }

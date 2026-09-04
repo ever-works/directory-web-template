@@ -42,9 +42,15 @@ sidebar_label: 046 Tasks
       21 locale files.
 - [x] T-013: unit spec for the pure primitives; Playwright specs for the login
       flow and the API contract; the `two-factor-db` test helper.
-- [x] T-014: document the three env vars in `.env.example`,
+- [x] T-014: document the four env vars in `.env.example`,
       `docs/authentication/two-factor-auth.md`, this spec trio, the spec index,
-      `docs/log.md`, and Q-046a.
+      `docs/log.md`, and Q-046a / Q-046b.
+- [x] T-015 (review follow-up): key the code digest with an HMAC under
+      `TWO_FACTOR_CODE_SECRET` / `AUTH_SECRET` so a database dump cannot reverse
+      the 10^6 code space; scope the linked-account lookup by tenant; increment
+      the failure counter in the database and derive the lock from the
+      serialized result; consume the code conditionally on `consumed_at IS NULL`;
+      refuse to enable when no mail provider is configured.
 
 ## Acceptance Criteria → Task Map
 
@@ -58,6 +64,7 @@ sidebar_label: 046 Tasks
 | AC-6 | EW-141 | T-001, T-002, T-003, T-006, T-007 |
 | AC-7 | EW-142 | T-003, T-005, T-006, T-011 |
 | AC-8 | — | T-012 |
+| AC-9 | — | T-015 |
 
 ## Verification
 

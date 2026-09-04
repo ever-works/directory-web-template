@@ -16,7 +16,8 @@ without a database:
 - `apps/web/lib/auth/two-factor-code.ts` — **pure**: code generation, hashing,
   constant-time digest comparison, expiry and lockout arithmetic. No `db`, no
   mail, no `next/headers` imports, so it can be imported directly by a test file
-  and from either runtime.
+  without spinning up an app. It uses `node:crypto`, so it is Node-runtime code,
+  as every caller already is.
 - `apps/web/lib/auth/two-factor.ts` — **stateful**: reads and writes
   `twoFactorCodes` and the `client_profiles` 2FA columns, and dispatches the
   email.
@@ -80,7 +81,7 @@ sequenceDiagram
 | UI | `apps/web/app/[locale]/auth/actions.ts` | 2FA leg in `signInAction` |
 | Hooks | `apps/web/hooks/use-security-settings.ts` | `useEnableTwoFactor` / `useDisableTwoFactor` |
 | i18n | `apps/web/messages/*.json` (21) | `auth.TWO_FACTOR.*`, `settings.SECURITY_PAGE.TWO_FACTOR.*` |
-| Config | `apps/web/.env.example` | three documented, optional env vars |
+| Config | `apps/web/.env.example` | four documented, optional env vars |
 | Tests | `apps/web-e2e/tests/unit/two-factor-code.spec.ts` | pure-function unit coverage |
 | Tests | `apps/web-e2e/tests/auth/two-factor-login.spec.ts` | enable → challenge → disable, expiry, lockout |
 | Tests | `apps/web-e2e/tests/api/auth-2fa-routes.spec.ts` | auth / OAuth / resend contract |
@@ -93,7 +94,7 @@ twoFactorCodes
   id          text pk
   userId      text -> users.id  on delete cascade   (indexed)
   email       text
-  code_hash   text      -- hex SHA-256; NEVER the code
+  code_hash   text      -- hex HMAC-SHA256 under a server key; NEVER the code
   expires     timestamp                              (indexed)
   attempts    integer default 0
   consumed_at timestamp
@@ -113,11 +114,14 @@ rows that expired more than a day ago so the table cannot grow without bound.
 
 ## 5. Security Decisions
 
-- **Hash-only storage.** `code_hash` is a hex SHA-256 digest. A plain digest (not
-  bcrypt) is the right choice for a *high-entropy-per-second, short-lived*
-  secret that is checked on a hot path: the code lives ten minutes, only five
-  guesses are allowed against it, and an offline attacker who dumps the table has
-  at most that window before the row is gone. Comparison is
+- **Hash-only storage, and the hash is KEYED.** `code_hash` is a hex
+  HMAC-SHA256 under `TWO_FACTOR_CODE_SECRET` (falling back to `AUTH_SECRET`).
+  A bare digest would not do: the code space is 10^6, so a rainbow table of
+  every six-digit SHA-256 fits in a few megabytes and anyone with read access to
+  the table could recover live codes. The key lives in the environment, not the
+  database, so a dump alone yields nothing. A slow KDF would also close it but
+  would put a deliberate cost on a sign-in hot path for a secret that already
+  expires in ten minutes and tolerates only five guesses. Comparison is
   `crypto.timingSafeEqual` over the two digests, never `===`.
 - **Where the budget lives.** The enforcement counter is on `client_profiles`,
   not on the code row, precisely so that requesting a resend cannot clear it.
@@ -152,8 +156,18 @@ rows that expired more than a day ago so the table cannot grow without bound.
 - **Storing a "2FA pending" marker in the JWT.** Rejected: it would mean issuing
   a token before the second factor passed. Nothing is minted until `authorize`
   returns.
-- **bcrypt for the code hash.** Rejected: see above — it buys little for a
-  ten-minute, five-guess secret and costs a bcrypt round on a login hot path.
+- **bcrypt (or another slow KDF) for the code hash.** Rejected in favour of a
+  keyed HMAC: it closes the same rainbow-table hole, but costs a KDF round on a
+  login hot path for a secret that already expires in ten minutes and tolerates
+  only five guesses. A *bare* SHA-256 was rejected outright — 10^6 candidates is
+  not a search.
+- **Requiring a verified email address before 2FA may be enabled.** Rejected for
+  now: `client_profiles.email_verified` defaults to `false` and the sign-up flow
+  never flips it, so the guard would refuse essentially every account on a
+  default deployment. The lockout risk it addresses is instead handled by
+  refusing to enable when no mail provider is configured at all (`503`
+  `EMAIL_NOT_CONFIGURED`) — the case where a code could *never* arrive — plus
+  the documented operator unlock. Recorded as Q-046b.
 
 ## 7. Constitution Check
 

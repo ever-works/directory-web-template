@@ -1,9 +1,11 @@
 -- Email two-factor authentication (spec 046 — EW-135 … EW-142)
 --
 -- Adds:
---   * "twoFactorCodes" — one-time login codes. Only a SHA-256 HASH of the
---     6-digit code is stored ("code_hash"); the plaintext lives only in the
---     issuing request and in the email that carries it.
+--   * "twoFactorCodes" — one-time login codes. Only a KEYED HMAC-SHA256 of
+--     the 6-digit code is stored ("code_hash"), under AUTH_SECRET (or
+--     TWO_FACTOR_CODE_SECRET); the plaintext lives only in the issuing
+--     request and in the email that carries it, and the key never reaches
+--     the database.
 --   * client_profiles.two_factor_failed_attempts / two_factor_locked_until —
 --     the user-level brute-force budget, which deliberately survives code
 --     rotation so a resend cannot reset it.

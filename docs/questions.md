@@ -555,6 +555,35 @@ confirm, override, or refine.
 
 ---
 
+### Q-046b Should enabling email 2FA require a verified email address?
+
+- **Context.** Spec 046 lets any credentials account switch on email 2FA. If
+  the address on file is wrong or unreachable, the member locks themselves
+  out at their next sign-in. The obvious guard — refuse to enable until
+  `client_profiles.email_verified` is `true` — is unusable today because that
+  column defaults to `false` and the sign-up flow never flips it, so the
+  guard would refuse essentially every account on a default deployment.
+- **Options.**
+  - **Allow, and guard only the unrecoverable case (current).** Enabling is
+    refused with `503` `EMAIL_NOT_CONFIGURED` when the deployment has no mail
+    provider at all — the case where a code could *never* arrive — and the
+    operator unlock is documented in
+    [Email Two-Factor Authentication](authentication/two-factor-auth.md).
+  - Require `email_verified`, and make the sign-up flow actually set it.
+    Correct, but it is a change to registration and to every existing row,
+    which belongs in its own spec.
+  - Confirm the factor at enable time: send a code and require it before the
+    switch sticks. Proves deliverability without touching registration, at the
+    cost of an extra route and an extra UI step.
+- **Default.** **Allow, guarding only the unrecoverable case.** Revisit
+  together with any work that makes email verification mandatory at sign-up;
+  the enable-time confirmation is the natural follow-up if lockouts show up in
+  the field.
+- **Owner.** Template maintainers.
+- **Status.** `open`.
+
+---
+
 ## How to add a question
 
 1. Pick the next available `Q-NNN…` id under the relevant spec.

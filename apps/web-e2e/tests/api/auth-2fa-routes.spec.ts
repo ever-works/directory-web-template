@@ -33,6 +33,29 @@ const ENABLE = '/api/auth/security/2fa/enable';
 const DISABLE = '/api/auth/security/2fa/disable';
 const RESEND = '/api/auth/2fa/resend';
 
+/**
+ * The resend budget is keyed on the caller's IP as well as the email, and
+ * every request from this suite would otherwise land in the same `unknown`
+ * bucket — so the browsers running in parallel would spend each other's
+ * budget and the enumeration assertions would be skipped by a 429 rather
+ * than executed. Each test therefore claims its own forwarded address.
+ */
+let ipCounter = 0;
+// One random base per worker process. Playwright runs each browser project in
+// its own worker, so a bare counter would hand the same addresses to every
+// project; the random third octet keeps them apart.
+const ipBase = 1 + Math.floor(Math.random() * 250);
+function isolatedIp(): string {
+	ipCounter += 1;
+	// 198.18.0.0/15 is reserved for benchmarking (RFC 2544), so these can never
+	// collide with a real client address.
+	return `198.18.${ipBase}.${(ipCounter % 250) + 1}`;
+}
+
+function isolatedHeaders(): Record<string, string> {
+	return { 'x-forwarded-for': isolatedIp() };
+}
+
 test.describe('API: 2FA enable/disable are session-gated (EW-137)', () => {
 	for (const path of [ENABLE, DISABLE]) {
 		test(`POST ${path} rejects an unauthenticated caller with 401`, async ({ request }) => {
@@ -61,48 +84,52 @@ test.describe('API: 2FA enable/disable are session-gated (EW-137)', () => {
 
 test.describe('API: 2FA resend is enumeration-resistant (EW-138/EW-140)', () => {
 	test('rejects a malformed body with 400', async ({ request }) => {
-		const response = await request.post(RESEND, { data: { email: 'not-an-email' } });
-		expect([400, 429]).toContain(response.status());
-		if (response.status() === 400) {
-			const body = await response.json();
-			expect(body).toMatchObject({ success: false });
-		}
+		const response = await request.post(RESEND, {
+			headers: isolatedHeaders(),
+			data: { email: 'not-an-email' }
+		});
+
+		expect(response.status()).toBe(400);
+		expect(await response.json()).toMatchObject({ success: false });
 	});
 
 	test('requires a password — email alone is not a valid request', async ({ request }) => {
-		const response = await request.post(RESEND, { data: { email: 'someone@example.com' } });
-		expect([400, 429]).toContain(response.status());
+		const response = await request.post(RESEND, {
+			headers: isolatedHeaders(),
+			data: { email: `someone-${Date.now()}@test.local` }
+		});
+
+		expect(response.status()).toBe(400);
 	});
 
 	test('answers 200 for an unknown account, leaking nothing about it', async ({ request }) => {
 		const response = await request.post(RESEND, {
+			headers: isolatedHeaders(),
 			data: { email: `no-such-user-${Date.now()}@test.local`, password: 'not-the-password' }
 		});
 
-		// 429 is legitimate when a previous test in the same worker already
-		// spent the per-IP budget; both answers are enumeration-safe.
-		expect([200, 429]).toContain(response.status());
-		if (response.status() === 200) {
-			const body = await response.json();
-			expect(body.success).toBe(true);
-			// Nothing in the payload distinguishes a real account from a miss.
-			expect(Object.keys(body.data ?? {})).toEqual(['expiresInMinutes']);
-			expect(body.data.expiresInMinutes).toBeGreaterThan(0);
-		}
+		expect(response.status()).toBe(200);
+		const body = await response.json();
+		expect(body.success).toBe(true);
+		// Nothing in the payload distinguishes a real account from a miss.
+		expect(Object.keys(body.data ?? {})).toEqual(['expiresInMinutes']);
+		expect(body.data.expiresInMinutes).toBeGreaterThan(0);
 	});
 
 	test('spends its per-IP budget and then answers 429', async ({ request }) => {
 		const email = `rate-limit-probe-${Date.now()}@test.local`;
+		const headers = isolatedHeaders();
 		const statuses: number[] = [];
 
-		// The budget is 3 per 10 minutes per IP and per email; six attempts
-		// must therefore hit it regardless of what earlier tests consumed.
+		// The budget is 3 per 10 minutes per IP and per email. This test owns
+		// both keys (a fresh forwarded IP and a unique address), so the first
+		// three must pass and the rest must be refused.
 		for (let i = 0; i < 6; i++) {
-			const response = await request.post(RESEND, { data: { email, password: 'not-the-password' } });
+			const response = await request.post(RESEND, { headers, data: { email, password: 'not-the-password' } });
 			statuses.push(response.status());
 		}
 
-		expect(statuses).toContain(429);
-		expect(statuses.every((status) => status === 200 || status === 429)).toBe(true);
+		expect(statuses.slice(0, 3)).toEqual([200, 200, 200]);
+		expect(statuses.slice(3)).toEqual([429, 429, 429]);
 	});
 });

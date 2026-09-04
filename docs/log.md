@@ -11,7 +11,7 @@ sidebar_position: 99
 
 - `spec-046`: email two-factor authentication for client accounts — enable/disable card on `/client/settings/security`, hashed six-digit code emailed on every credentials sign-in, 10-minute expiry with resend, 5-failure / 15-minute database-tracked lockout, and OAuth-only accounts refused in the UI and at the API ([spec 046](spec/046-email-two-factor-auth/spec.md), [plan](spec/046-email-two-factor-auth/plan.md), [tasks](spec/046-email-two-factor-auth/tasks.md), Jira EW-135 … EW-142, PR #1048).
 - `docs/authentication`: added [Email Two-Factor Authentication](authentication/two-factor-auth.md) covering the member flow, the three `TWO_FACTOR_*` env vars, the operator unlock procedure, and the hash-only storage contract (PR #1048).
-- `questions`: added Q-046a — should admin `users` rows get email 2FA too? Default: no, client profiles only (PR #1048).
+- `questions`: added Q-046a — should admin `users` rows get email 2FA too? Default: no, client profiles only. Added Q-046b — should enabling 2FA require a verified email address? Default: allow, and guard only the unrecoverable no-mail-provider case (PR #1048).
 
 ## 2026-08-25
 
