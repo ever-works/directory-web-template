@@ -47,25 +47,32 @@ flowchart LR
 
 ## 3. Affected Packages & Files
 
-| Path                                                            | Change | Notes                                                       |
-| --------------------------------------------------------------- | ------ | ----------------------------------------------------------- |
-| `apps/web/lib/config/schemas/works-pricing.schema.ts`           | new    | schema, `manual` / `PRO` normalization, `parseWorksPricingConfig` |
-| `apps/web/lib/config/schemas/__tests__/works-pricing.schema.spec.ts` | new | 20 `node:test` cases, parses the published example          |
-| `apps/web/lib/content.ts`                                       | modify | `applyPricingValidation()` in `getConfig()`                 |
-| `apps/web/package.json`                                         | modify | `test:unit` script                                          |
-| `package.json`, `turbo.json`                                    | modify | root `test:unit` passthrough                                |
-| `.github/workflows/ci.yml`                                      | modify | run the unit specs                                          |
-| `docs/configuration/works-yml-pricing.md`                       | new    | full field reference                                        |
-| `docs/configuration/examples/works-pricing.example.yml`         | new    | canonical complete example                                  |
-| `docs/configuration/payment-config.md`, `docs/payment/payment.md` | modify | point at the reference, document `manual` / `PRO`           |
-| `apps/docs/sidebarsTemplate.ts`                                 | modify | list the new page under Configuration                       |
+| Path                                                                                                                             | Change | Notes                                                                    |
+| -------------------------------------------------------------------------------------------------------------------------------- | ------ | ------------------------------------------------------------------------ |
+| `apps/web/lib/config/schemas/works-pricing.schema.ts`                                                                            | new    | schema, `manual` / `PRO` normalization, `parseWorksPricingConfig`        |
+| `apps/web/lib/config/schemas/__tests__/works-pricing.schema.spec.ts`                                                             | new    | 23 `node:test` cases, parses the published example                       |
+| `apps/web/lib/utils/__tests__/payment-provider.spec.ts`                                                                          | new    | 8 `node:test` cases for `manual` vs "unset" resolution                   |
+| `apps/web/lib/content.ts`                                                                                                        | modify | `applyPricingValidation()` in `getConfig()`                              |
+| `apps/web/lib/constants/payment.ts`, `apps/web/lib/constants.ts`                                                                 | modify | `MANUAL_PAYMENT_PROVIDER`, `PricingProvider`                             |
+| `apps/web/lib/utils/payment-provider.ts`                                                                                         | modify | carry `manual`, add `isManualPaymentProvider` / `resolveGatewayProvider` |
+| `apps/web/hooks/use-pricing-section.ts`                                                                                          | modify | gate `handleCheckout` on `manual`, expose `isManualCheckout`             |
+| `apps/web/hooks/use-subscription.ts`, `use-auto-renewal.ts`, `app/[locale]/config.tsx`, `components/pricing/pricing-section.tsx` | modify | narrow to a gateway where one must be named                              |
+| `apps/web/package.json`                                                                                                          | modify | `test:unit` script                                                       |
+| `package.json`, `turbo.json`                                                                                                     | modify | root `test:unit` passthrough                                             |
+| `.github/workflows/ci.yml`                                                                                                       | modify | run the unit specs                                                       |
+| `docs/configuration/works-yml-pricing.md`                                                                                        | new    | full field reference                                                     |
+| `docs/configuration/examples/works-pricing.example.yml`                                                                          | new    | canonical complete example                                               |
+| `docs/configuration/payment-config.md`, `docs/payment/payment.md`                                                                | modify | point at the reference, document `manual` / `PRO`                        |
+| `apps/docs/sidebarsTemplate.ts`                                                                                                  | modify | list the new page under Configuration                                    |
 
 ## 4. Public API
 
-No HTTP surface. The module exports `parseWorksPricingConfig`,
+No HTTP surface. The schema module exports `parseWorksPricingConfig`,
 `worksPricingConfigSchema`, `worksPricingPlanSchema`,
 `MANUAL_PRICING_PROVIDER`, `STANDARD_PLAN_ALIAS` and
-`WORKS_PRICING_PROVIDERS`.
+`WORKS_PRICING_PROVIDERS`. `lib/constants` gains `MANUAL_PAYMENT_PROVIDER` and
+the `PricingProvider` type; `lib/utils/payment-provider` gains
+`isManualPaymentProvider()` and `resolveGatewayProvider()`.
 
 ## 5. Data Model Changes
 
@@ -73,13 +80,24 @@ None. No entity, no migration, no environment variable.
 
 ## 6. Key Decisions
 
-**`manual` is normalized away, not added to the enum.** `PaymentProvider` names
-gateways the factory instantiates and the `payment_provider` column stores;
-adding a member would leak a non-gateway into `determinePaymentProvider()`,
-`useProviderPayment()` and every provider switch. `manual` is instead accepted
-in YAML and resolved to "no provider", which is byte-identical to a block that
-names none — so the site renders through the existing no-provider / DEMO path
-(spec 044) with zero new branches. A warning names the choice in the logs.
+**`manual` is a separate constant, not a `PaymentProvider` member — and it is
+carried, not erased.** `PaymentProvider` names gateways the factory
+instantiates and the `payment_provider` column stores; adding a member would
+leak a non-gateway into every provider switch. So `manual` lives beside it as
+`MANUAL_PAYMENT_PROVIDER`, with `PricingProvider = PaymentProvider | 'manual'`
+as the type `works.yml` resolution speaks.
+
+The first draft of this spec normalized `manual` away to `undefined`, on the
+theory that "no gateway" and "nothing declared" are the same state. They are
+not: `determinePaymentProvider()` answers an undeclared provider with its
+Stripe default, so an operator who wrote `provider: manual` would have got a
+Stripe checkout — the exact thing they opted out of. `manual` is therefore
+carried through resolution, `handleCheckout()` returns early on it before any
+gateway branch, and the surfaces that must name a gateway for a subscription
+some gateway already created (auto-renewal, billing portal, built-in default
+plans) narrow it with `resolveGatewayProvider()`, which keeps the historical
+Stripe default. Which plan cards render is untouched — still spec 044's
+LIVE / DEMO logic. A `[CONTENT]` warning names the choice in the logs.
 
 **`PRO` is an alias, not a rename.** The shipped vocabulary is
 `PaymentPlan.STANDARD` (EW-160) across the DB, API and UI. EW-131's `PRO`
@@ -107,6 +125,10 @@ guard AC-1 needs, and something a runtime test cannot do.
   `PricingConfig` fields (AC-1, AC-2, AC-4);
 - every provider value, including `manual` and mixed case, and rejection of an
   unknown one (AC-3);
+- `manual` surviving parsing and resolution, an omitted provider staying
+  absent, and `resolveGatewayProvider()` mapping both to the historical Stripe
+  default (AC-3, AC-7), in
+  `apps/web/lib/utils/__tests__/payment-provider.spec.ts`;
 - the `PRO` alias, the both-present precedence, missing plans reported
   together (AC-4);
 - a quoted price and an unknown interval named by path (AC-5);

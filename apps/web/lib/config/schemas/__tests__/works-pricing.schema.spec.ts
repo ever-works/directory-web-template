@@ -91,7 +91,7 @@ describe('works.yml pricing provider', () => {
 		});
 	}
 
-	it(`accepts provider "${MANUAL_PRICING_PROVIDER}" and configures no gateway`, () => {
+	it(`accepts provider "${MANUAL_PRICING_PROVIDER}" and keeps it distinct from "unset"`, () => {
 		const { pricing, errors, warnings } = parseWorksPricingConfig({
 			...minimalPricing(),
 			provider: MANUAL_PRICING_PROVIDER
@@ -99,13 +99,29 @@ describe('works.yml pricing provider', () => {
 
 		assert.deepEqual(errors, []);
 		assert.ok(pricing);
-		// Left undefined on purpose: `manual` is not a gateway the payment
-		// factory can build, and an undefined provider is the shape every
-		// consumer already handles.
-		assert.equal(pricing.provider, undefined);
-		assert.ok(!('provider' in pricing));
+		// Carried through, NOT erased: dropping it would be indistinguishable
+		// from "no provider declared", which resolves to the Stripe default —
+		// exactly the checkout the operator opted out of.
+		assert.equal(pricing.provider, MANUAL_PRICING_PROVIDER);
 		assert.equal(warnings.length, 1);
 		assert.match(warnings[0], /manual/);
+	});
+
+	it(`accepts "${MANUAL_PRICING_PROVIDER}" in any case`, () => {
+		const { pricing, errors } = parseWorksPricingConfig({ ...minimalPricing(), provider: ' Manual ' });
+
+		assert.deepEqual(errors, []);
+		assert.equal(pricing?.provider, MANUAL_PRICING_PROVIDER);
+	});
+
+	it('leaves provider unset when works.yml declares none', () => {
+		const { plans } = minimalPricing();
+		const { pricing, errors, warnings } = parseWorksPricingConfig({ plans });
+
+		assert.deepEqual(errors, []);
+		assert.deepEqual(warnings, []);
+		assert.ok(pricing);
+		assert.ok(!('provider' in pricing), 'an undeclared provider must stay absent');
 	});
 
 	it('accepts provider values in any case', () => {
@@ -203,7 +219,13 @@ describe('works.yml pricing backward compatibility', () => {
 			provider: 'stripe',
 			currency: 'USD',
 			plans: {
-				FREE: { id: 'free', name: 'Free', description: 'Basic access', price: 0, features: ['List your product'] },
+				FREE: {
+					id: 'free',
+					name: 'Free',
+					description: 'Basic access',
+					price: 0,
+					features: ['List your product']
+				},
 				STANDARD: { id: 'standard', name: 'Standard', description: 'Enhanced', price: 9, annualDiscount: 20 },
 				PREMIUM: { id: 'premium', name: 'Premium', description: 'Full access', price: 29, annualDiscount: 25 }
 			}

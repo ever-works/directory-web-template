@@ -55,7 +55,10 @@ What was missing is everything around it:
 
 - Adding `manual` to the `PaymentProvider` enum. That enum names gateways
   `PaymentProviderFactory` can build and `payment_provider` DB values reference;
-  `manual` is the absence of one.
+  `manual` is the absence of one. It is carried as a separate constant
+  (`MANUAL_PAYMENT_PROVIDER`) and the union of the two is `PricingProvider`.
+- Rendering a manual-checkout call to action (a "Contact us" button, a per-plan
+  external URL). `manual` only suppresses the in-site checkout — see Q-046a.
 - Renaming the shipped `STANDARD` plan to `PRO`. `PaymentPlan.STANDARD`
   (EW-160) is the shipped vocabulary across the DB, the API and the UI; the
   ticket's `PRO` wording predates it and is honoured as an alias.
@@ -90,20 +93,32 @@ declare that in `works.yml` rather than leaving the provider blank.
       favour of the built-in defaults — never fatal.
 - [x] AC-6: a `works.yml` with no `pricing:` key, and blocks written against
       the previous shorter example, keep working unchanged.
+- [x] AC-7: `provider: manual` never starts an in-site checkout. It is distinct
+      from an omitted `provider`, which keeps the pre-existing Stripe default.
 
 ## 7. Out-of-Scope Considerations
 
-`provider: manual` resolves to "no gateway configured here", which is the same
-state as a `works.yml` that names no provider. Whether the pricing page should
-render a distinct manual-checkout call to action rather than the existing
-DEMO / not-configured surface (spec 044) is a UX question left open — see
-`docs/questions.md`.
+`provider: manual` declares "no gateway here", which is deliberately **not**
+the same as a `works.yml` that names no provider: an omitted provider keeps the
+pre-existing Stripe default, while `manual` is carried through resolution and
+gates every checkout branch off. Which plan cards render is untouched — that
+stays the LIVE / DEMO logic of spec 044.
+
+Whether the pricing page should additionally render a distinct manual-checkout
+call to action (a "Contact us" button, a per-plan external URL) is a UX
+question left open — see Q-046a in `docs/questions.md`.
 
 ## 8. UX Notes
 
-No visible UI change and no new user-facing strings, so no localisation work.
-The only new output is server-side `[CONTENT]` logging read by operators.
+No new user-facing strings, so no localisation work. The only new output is
+server-side `[CONTENT]` / `[PRICING]` logging read by operators.
+
+The one behavioural change a visitor could notice is confined to sites that
+opt in with `provider: manual`: a plan button no longer opens a gateway
+checkout. On every other configuration — including a `works.yml` with no
+`pricing:` block, and one that names a gateway — the pricing page behaves
+exactly as before.
 
 ## 9. Status
 
-Shipped — EW-131.
+In progress — EW-131. Marked shipped once the implementing PR merges (T-011).

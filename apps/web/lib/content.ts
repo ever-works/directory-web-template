@@ -10,7 +10,7 @@ import { dirExists, fsExists, getContentPath } from './lib';
 import { getContentConfigPaths, mergeConfigObjects, PRIMARY_CONTENT_CONFIG_FILENAME } from './content-config-file';
 import { parseWorksPricingConfig } from './config/schemas/works-pricing.schema';
 import { unstable_cache } from 'next/cache';
-import { PaymentInterval, PaymentProvider } from './constants';
+import { PaymentInterval, type PricingProvider } from './constants';
 import { CACHE_TAGS, CACHE_TTL as CONTENT_CACHE_TTL, DATA_CACHE_MAX_ITEMS } from './cache-config';
 import { Collection } from '@/types/collection';
 import type { ComparisonData, ComparisonDetail, ComparisonDimension } from '@/types/comparison';
@@ -339,7 +339,11 @@ export interface PricingPlans {
 }
 
 export interface PricingPlanConfig {
-	provider?: PaymentProvider;
+	/**
+	 * Default checkout gateway, or `manual` when `works.yml` declares that
+	 * payment is handled outside the template (spec 046, EW-131).
+	 */
+	provider?: PricingProvider;
 	plans: PricingPlans;
 	currency?: string;
 	lemonCheckoutUrl?: string;

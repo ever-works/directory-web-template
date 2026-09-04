@@ -16,7 +16,8 @@ sidebar_label: 046 Tasks
       `PricingPlanConfig`, with loose objects, minimal required fields and
       defaults for the two fields the previous published example omitted.
 - [x] T-002: accept `manual` alongside the shipped gateways, case-insensitively,
-      and normalize it to "no provider configured".
+      and carry it through parsing as a value distinct from "no provider
+      declared".
 - [x] T-003: accept `PRO` as an alias for the `STANDARD` plan key, preferring
       `STANDARD` when both are present.
 - [x] T-004: add the compile-time contract-coverage constant so a new interface
@@ -34,24 +35,32 @@ sidebar_label: 046 Tasks
       `payment.md`.
 - [x] T-010: record the open manual-checkout UX question in
       `docs/questions.md`.
+- [x] T-012: gate the checkout flow on `manual` — `MANUAL_PAYMENT_PROVIDER` /
+      `PricingProvider` in `lib/constants/payment.ts`, `determinePaymentProvider()`
+      carrying the value, `isManualPaymentProvider()` / `resolveGatewayProvider()`
+      in `lib/utils/payment-provider.ts`, an early return in `handleCheckout()`,
+      and gateway narrowing at the four surfaces that must name one.
+- [x] T-013: cover the resolution rules in
+      `apps/web/lib/utils/__tests__/payment-provider.spec.ts`.
 - [ ] T-011: merge the PR and, separately, add a `pricing:` block to the
       canonical data repositories if the operator wants one there.
 
 ## Acceptance Criteria → Task Map
 
-| AC          | Tasks                      |
-| ----------- | -------------------------- |
-| AC-1        | T-001, T-004, T-006, T-007 |
-| AC-2        | T-006, T-007, T-008        |
-| AC-3        | T-002, T-007, T-009        |
-| AC-4        | T-003, T-006, T-007, T-009 |
-| AC-5        | T-005, T-007, T-009        |
-| AC-6        | T-001, T-005, T-007        |
+| AC   | Tasks                      |
+| ---- | -------------------------- |
+| AC-1 | T-001, T-004, T-006, T-007 |
+| AC-2 | T-006, T-007, T-008        |
+| AC-3 | T-002, T-007, T-009        |
+| AC-4 | T-003, T-006, T-007, T-009 |
+| AC-5 | T-005, T-007, T-009        |
+| AC-6 | T-001, T-005, T-007        |
+| AC-7 | T-002, T-012, T-013        |
 
 ## Verification
 
 ```bash
-pnpm --filter @ever-works/web test:unit   # 34 assertions, 20 of them new
+pnpm --filter @ever-works/web test:unit   # 44 assertions, 31 of them new
 pnpm run lint
 pnpm --filter @ever-works/web exec tsc --noEmit
 pnpm run build:web

@@ -21,46 +21,68 @@ A ready-to-copy example listing every field lives at
 
 ## Where it is read
 
-| Step | Code |
-|------|------|
-| `.works/works.yml` is parsed | `getConfig()` — `apps/web/lib/content.ts` |
-| `pricing:` is validated | `parseWorksPricingConfig()` — `apps/web/lib/config/schemas/works-pricing.schema.ts` |
-| The result becomes `config.pricing` | `Config` — `apps/web/lib/content.ts` |
-| Defaults fill in when it is absent | `ConfigProvider` — `apps/web/app/[locale]/config.tsx` |
-| Plan cards are rendered | `useMemo` over `config.pricing?.plans` — `apps/web/hooks/use-pricing-section.ts` |
-| The provider is resolved | `determinePaymentProvider()` — `apps/web/lib/utils/payment-provider.ts` |
+| Step                                | Code                                                                                |
+| ----------------------------------- | ----------------------------------------------------------------------------------- |
+| `.works/works.yml` is parsed        | `getConfig()` — `apps/web/lib/content.ts`                                           |
+| `pricing:` is validated             | `parseWorksPricingConfig()` — `apps/web/lib/config/schemas/works-pricing.schema.ts` |
+| The result becomes `config.pricing` | `Config` — `apps/web/lib/content.ts`                                                |
+| Defaults fill in when it is absent  | `ConfigProvider` — `apps/web/app/[locale]/config.tsx`                               |
+| Plan cards are rendered             | `useMemo` over `config.pricing?.plans` — `apps/web/hooks/use-pricing-section.ts`    |
+| The provider is resolved            | `determinePaymentProvider()` — `apps/web/lib/utils/payment-provider.ts`             |
 
 ## Top-level fields
 
 ```yaml
 pricing:
-  provider: stripe
-  currency: USD
-  lemonCheckoutUrl: https://your-store.lemonsqueezy.com/checkout
-  plans: { ... }
+    provider: stripe
+    currency: USD
+    lemonCheckoutUrl: https://your-store.lemonsqueezy.com/checkout
+    plans: { ... }
 ```
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `provider` | enum | no | Default checkout gateway. `stripe`, `lemonsqueezy`, `polar`, `solidgate` or `manual`. Case-insensitive. |
-| `currency` | string | no | Currency symbol or ISO code shown next to prices (`USD`, `$`, `EUR`). |
-| `lemonCheckoutUrl` | string | no | LemonSqueezy hosted-checkout URL shared by all plans; a plan-level value wins. |
-| `plans` | mapping | **yes** | `FREE`, `STANDARD` and `PREMIUM` — see below. |
+| Field              | Type    | Required | Description                                                                                             |
+| ------------------ | ------- | -------- | ------------------------------------------------------------------------------------------------------- |
+| `provider`         | enum    | no       | Default checkout gateway. `stripe`, `lemonsqueezy`, `polar`, `solidgate` or `manual`. Case-insensitive. |
+| `currency`         | string  | no       | Currency symbol or ISO code shown next to prices (`USD`, `$`, `EUR`).                                   |
+| `lemonCheckoutUrl` | string  | no       | LemonSqueezy hosted-checkout URL shared by all plans; a plan-level value wins.                          |
+| `plans`            | mapping | **yes**  | `FREE`, `STANDARD` and `PREMIUM` — see below.                                                           |
 
 ### `provider: manual`
 
-`manual` says *"display the prices, take payment somewhere else."* It
-configures **no** gateway, so the parsed config carries no `provider` and the
-site behaves exactly as one whose `works.yml` never mentioned a provider —
-the DEMO / not-configured pricing page described in
+`manual` says _"display the prices, take payment somewhere else."_
+
+It is **not** the same as omitting `provider`. An omitted provider means
+"nothing was declared", and resolution falls back to the Stripe default.
+`manual` means the operator declared that this site has **no** gateway, so
+the value is carried through resolution and the plan buttons never start an
+in-site checkout — clicking one logs
+
+```text
+[PRICING] works.yml sets pricing.provider: manual — no in-site checkout is started for plan "standard".
+```
+
+and nothing else happens. Which plan cards render is unchanged: that is still
+decided by the LIVE / DEMO logic of
 [Spec 044](../spec/044-public-payment-config/spec.md).
 
+Surfaces that act on a subscription some gateway already created — auto-renewal,
+the billing portal, the built-in default plans — keep their pre-existing Stripe
+default, because `manual` carries no information about a subscription that
+already exists.
+
 `manual` is deliberately not a member of the `PaymentProvider` enum, which
-only names gateways `PaymentProviderFactory` can instantiate. See
+only names gateways `PaymentProviderFactory` can instantiate and the
+`payment_provider` column stores. It is a separate constant,
+`MANUAL_PAYMENT_PROVIDER`, and the union of the two is `PricingProvider`. See
 [Payment Configuration](./payment-config.md) for that enum.
 
 Whatever the block says, a signed-in user's own choice under
-**Settings → Checkout provider** still takes precedence.
+**Settings → Checkout provider** still takes precedence — that picker only
+lists gateways the deployment actually configured.
+
+`manual` does not yet render its own call to action (a "Contact us" button, a
+per-plan external URL); that is recorded as Q-046a in
+[Open questions](../questions.md).
 
 ## Plan fields
 
@@ -73,45 +95,45 @@ shorter example keep working.
 
 ### Identity and display
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `id` | string | **Required.** Plan identifier — use `free`, `standard`, `premium` to match `PaymentPlan`. |
-| `name` | string | **Required.** Card title. |
-| `description` | string | Card subtitle. Defaults to `''`. |
-| `price` | number | **Required.** Amount in the configured currency. Must be a YAML number: `19`, not `"19"`. |
-| `annualDiscount` | number | Percentage off the annual price, `0`–`100`. Defaults to `0`. |
-| `features` | string list | Bullet list rendered on the card. |
-| `interval` | enum | `daily`, `weekly`, `monthly`, `yearly`, `one-time` or `per-submission`. |
-| `popular` | boolean | Renders the "most popular" ribbon. |
-| `isPremium` | boolean | Marks the plan as a paid tier. |
-| `isActive` | boolean | Whether the plan can be subscribed to. |
-| `isFeatured` | boolean | Highlights the card. |
-| `disabled` | boolean | Renders the card but blocks checkout. |
-| `envKey` | string | Key used to correlate the plan with `*_PLAN` environment variables. |
+| Field            | Type        | Description                                                                               |
+| ---------------- | ----------- | ----------------------------------------------------------------------------------------- |
+| `id`             | string      | **Required.** Plan identifier — use `free`, `standard`, `premium` to match `PaymentPlan`. |
+| `name`           | string      | **Required.** Card title.                                                                 |
+| `description`    | string      | Card subtitle. Defaults to `''`.                                                          |
+| `price`          | number      | **Required.** Amount in the configured currency. Must be a YAML number: `19`, not `"19"`. |
+| `annualDiscount` | number      | Percentage off the annual price, `0`–`100`. Defaults to `0`.                              |
+| `features`       | string list | Bullet list rendered on the card.                                                         |
+| `interval`       | enum        | `daily`, `weekly`, `monthly`, `yearly`, `one-time` or `per-submission`.                   |
+| `popular`        | boolean     | Renders the "most popular" ribbon.                                                        |
+| `isPremium`      | boolean     | Marks the plan as a paid tier.                                                            |
+| `isActive`       | boolean     | Whether the plan can be subscribed to.                                                    |
+| `isFeatured`     | boolean     | Highlights the card.                                                                      |
+| `disabled`       | boolean     | Renders the card but blocks checkout.                                                     |
+| `envKey`         | string      | Key used to correlate the plan with `*_PLAN` environment variables.                       |
 
 ### Trial
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `trialPeriodDays` | number | Free-trial length in days. |
-| `trialAmountId` | string | Provider price ID charged as a trial authorisation. |
-| `trialAmount` | number | Amount of that authorisation. |
-| `isAuthorizedTrialAmount` | boolean | Whether the trial authorisation is collected. |
+| Field                     | Type    | Description                                         |
+| ------------------------- | ------- | --------------------------------------------------- |
+| `trialPeriodDays`         | number  | Free-trial length in days.                          |
+| `trialAmountId`           | string  | Provider price ID charged as a trial authorisation. |
+| `trialAmount`             | number  | Amount of that authorisation.                       |
+| `isAuthorizedTrialAmount` | boolean | Whether the trial authorisation is collected.       |
 
 ### Provider IDs
 
-| Field | Type | Provider |
-|-------|------|----------|
-| `stripeProductId` | string | Stripe product. |
-| `stripePriceId` | string | Stripe monthly price. |
-| `annualPriceId` | string | Stripe annual price. |
-| `lemonProductId` | string | LemonSqueezy product. |
-| `lemonVariantId` | string | LemonSqueezy variant. |
-| `lemonCheckoutUrl` | string | LemonSqueezy hosted checkout for this plan. |
-| `polarFreePlanId` | string | Polar plan ID for the free tier. |
-| `polarStandardPlanId` | string | Polar plan ID for the standard tier. |
-| `polarPremiumPlanId` | string | Polar plan ID for the premium tier. |
-| `polarProductId` | string | Polar product backing this plan. |
+| Field                 | Type   | Provider                                    |
+| --------------------- | ------ | ------------------------------------------- |
+| `stripeProductId`     | string | Stripe product.                             |
+| `stripePriceId`       | string | Stripe monthly price.                       |
+| `annualPriceId`       | string | Stripe annual price.                        |
+| `lemonProductId`      | string | LemonSqueezy product.                       |
+| `lemonVariantId`      | string | LemonSqueezy variant.                       |
+| `lemonCheckoutUrl`    | string | LemonSqueezy hosted checkout for this plan. |
+| `polarFreePlanId`     | string | Polar plan ID for the free tier.            |
+| `polarStandardPlanId` | string | Polar plan ID for the standard tier.        |
+| `polarPremiumPlanId`  | string | Polar plan ID for the premium tier.         |
+| `polarProductId`      | string | Polar product backing this plan.            |
 
 Keys the running template does not recognise are preserved rather than
 rejected, so a `works.yml` written for a newer template still loads.
@@ -128,35 +150,35 @@ both are present, `STANDARD` wins and `PRO` is ignored. Prefer `STANDARD`.
 
 ```yaml
 pricing:
-  provider: stripe
-  currency: USD
-  plans:
-    FREE:
-      id: free
-      name: Free Plan
-      description: Access basic features and submit content for free.
-      price: 0
-      interval: per-submission
-      features:
-        - List your product
-    STANDARD:
-      id: standard
-      name: Standard Plan
-      description: Get more visibility.
-      price: 19
-      interval: monthly
-      annualDiscount: 10
-      popular: true
-      stripePriceId: price_standard_monthly_xxx
-    PREMIUM:
-      id: premium
-      name: Premium Plan
-      description: Maximum exposure.
-      price: 49
-      interval: monthly
-      annualDiscount: 20
-      isPremium: true
-      stripePriceId: price_premium_monthly_xxx
+    provider: stripe
+    currency: USD
+    plans:
+        FREE:
+            id: free
+            name: Free Plan
+            description: Access basic features and submit content for free.
+            price: 0
+            interval: per-submission
+            features:
+                - List your product
+        STANDARD:
+            id: standard
+            name: Standard Plan
+            description: Get more visibility.
+            price: 19
+            interval: monthly
+            annualDiscount: 10
+            popular: true
+            stripePriceId: price_standard_monthly_xxx
+        PREMIUM:
+            id: premium
+            name: Premium Plan
+            description: Maximum exposure.
+            price: 49
+            interval: monthly
+            annualDiscount: 20
+            isPremium: true
+            stripePriceId: price_premium_monthly_xxx
 ```
 
 ## Validation and errors
@@ -167,7 +189,7 @@ must not take a directory offline.
 - **Valid** — used as-is.
 - **Invalid** — every problem is logged as
   `[CONTENT] Invalid "pricing" section in .works/works.yml; falling back to the
-  built-in pricing plans:` followed by one `pricing.<path>: <message>` line
+built-in pricing plans:` followed by one `pricing.<path>: <message>` line
   per problem, and the block is dropped so the built-in plans render.
 - **Accepted with a note** — a `[CONTENT]` warning for the `PRO` alias or for
   `provider: manual`.

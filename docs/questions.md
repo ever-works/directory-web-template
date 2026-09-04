@@ -529,20 +529,20 @@ confirm, override, or refine.
 
 - **Context.** EW-131 asks `works.yml` to accept `provider: manual` —
   "show the prices, take payment elsewhere". Spec 046 accepts the value and
-  resolves it to *no gateway configured*, which is the same state as a
-  `works.yml` that names no provider, so the page falls through to the
-  existing DEMO / not-configured surface from
-  [spec 044](spec/044-public-payment-config/spec.md). That is honest but
-  generic: a manual-checkout operator arguably wants a "Contact us" call to
-  action on the paid cards rather than a disabled checkout button.
+  suppresses the in-site checkout: `handleCheckout()` returns before any
+  gateway branch and logs the reason. Which cards render is unchanged — still
+  the LIVE / DEMO logic of
+  [spec 044](spec/044-public-payment-config/spec.md). That is safe but
+  silent: a manual-checkout operator arguably wants a "Contact us" call to
+  action on the paid cards rather than a button that does nothing.
 - **Options.**
-  - **Reuse the existing no-provider surface (current).** Zero new branches
-    in the pricing flow, no new strings, no new localisation work.
+  - **Suppress the checkout and render the existing cards (current).** One
+    guard in the pricing flow, no new strings, no new localisation work.
   - Add a manual-checkout mode: a per-plan contact URL in `works.yml` and a
     dedicated CTA on the card. Needs new i18n keys in all locales and a new
     branch in `use-pricing-section.ts`.
-- **Default.** **Reuse the existing no-provider surface.** The value is
-  accepted and documented now; the UX affordance can land on its own ticket
+- **Default.** **Suppress the checkout, keep the existing cards.** The value
+  is accepted and documented now; the UX affordance can land on its own ticket
   once someone actually runs manual checkout.
 - **Owner.** Template maintainers.
 - **Status.** `open`.

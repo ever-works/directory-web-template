@@ -28,22 +28,22 @@
  */
 
 import { z } from 'zod';
-import { PaymentInterval, PaymentProvider } from '../../constants/payment';
+import { MANUAL_PAYMENT_PROVIDER, PaymentInterval, PaymentProvider } from '../../constants/payment';
 import type { PricingConfig, PricingPlanConfig, PricingPlans } from '../../content';
 
 /**
  * `provider: manual` — the value EW-131 asks `works.yml` to accept for
- * "prices are shown, checkout is handled outside the template".
+ * "checkout is handled outside the template".
  *
  * It is deliberately NOT a member of the `PaymentProvider` enum: that enum
- * names gateways the `PaymentProviderFactory` can actually instantiate, and
- * every consumer (`determinePaymentProvider`, `useProviderPayment`,
- * `payment_provider` DB values) treats it as such. `manual` is normalized
- * away by {@link parseWorksPricingConfig}, which leaves `provider` undefined —
- * exactly the shape of a `works.yml` that declares no provider, so the site
- * renders through the existing no-provider / DEMO path (spec 044).
+ * names gateways `PaymentProviderFactory` can instantiate and the
+ * `payment_provider` column stores. It IS carried through parsing rather
+ * than erased, because dropping it would leave `provider` undefined and
+ * `determinePaymentProvider()` would fall through to its Stripe default —
+ * sending buyers into a checkout the operator explicitly opted out of. See
+ * `lib/utils/payment-provider.ts`.
  */
-export const MANUAL_PRICING_PROVIDER = 'manual';
+export const MANUAL_PRICING_PROVIDER = MANUAL_PAYMENT_PROVIDER;
 
 /**
  * Accepted values of `pricing.provider` in `works.yml`: every configurable
@@ -169,10 +169,11 @@ export const worksPricingConfigSchema = worksPricingConfigBaseSchema.transform((
 		plans,
 		...(currency === undefined ? {} : { currency }),
 		...(lemonCheckoutUrl === undefined ? {} : { lemonCheckoutUrl }),
-		// `manual` means "no gateway configured here" — see MANUAL_PRICING_PROVIDER.
-		...(provider === undefined || provider === MANUAL_PRICING_PROVIDER
-			? {}
-			: { provider: provider as PaymentProvider })
+		// `manual` is carried through, NOT erased: an absent provider means
+		// "nothing was declared" and resolves to the Stripe default, while
+		// `manual` means "the operator declared there is no gateway here".
+		// See MANUAL_PRICING_PROVIDER and lib/utils/payment-provider.ts.
+		...(provider === undefined ? {} : { provider })
 	};
 });
 
@@ -207,11 +208,13 @@ function isPlainObject(value: unknown): value is Record<string, unknown> {
 	return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
+/**
+ * Names the shape of a `pricing:` value that is not a mapping, for the error
+ * message. `null` never reaches here — `parseWorksPricingConfig` treats an
+ * empty `pricing:` key as "absent" and returns before this call.
+ */
 function describeType(value: unknown): string {
-	if (value === null) return 'null';
-	if (Array.isArray(value)) return 'a list';
-
-	return `a ${typeof value}`;
+	return Array.isArray(value) ? 'a list' : `a ${typeof value}`;
 }
 
 /**
@@ -225,8 +228,8 @@ function collectWarnings(raw: Record<string, unknown>): string[] {
 
 	if (typeof provider === 'string' && provider.trim().toLowerCase() === MANUAL_PRICING_PROVIDER) {
 		warnings.push(
-			`pricing.provider is "${MANUAL_PRICING_PROVIDER}": no checkout provider is configured from works.yml, ` +
-				'so plans are displayed but checkout falls back to whatever the environment configures.'
+			`pricing.provider is "${MANUAL_PRICING_PROVIDER}": plans are displayed but no in-site checkout is ` +
+				'started, so payment must be collected outside this site.'
 		);
 	}
 

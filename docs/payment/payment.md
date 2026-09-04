@@ -193,7 +193,9 @@ pricing:
 ```
 
 `provider` accepts `stripe`, `lemonsqueezy`, `polar`, `solidgate` or
-`manual` (prices are displayed, checkout is handled outside the template).
+`manual` (prices are displayed, no in-site checkout is started, and payment is
+collected outside the template — which is different from omitting `provider`,
+where the Stripe default applies).
 Plan keys are `FREE`, `STANDARD` and `PREMIUM`; `PRO` is accepted as an alias
 for `STANDARD`.
 

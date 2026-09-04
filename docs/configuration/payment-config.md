@@ -131,8 +131,10 @@ Omit the block and the built-in plans in `lib/types.ts`
 validated by `lib/config/schemas/works-pricing.schema.ts`; a malformed block
 is logged field by field and then ignored in favour of those defaults.
 
-`provider: manual` configures no gateway — prices are displayed and checkout
-is handled outside the template.
+`provider: manual` declares that this site has no gateway — prices are
+displayed and no in-site checkout is started, so payment is collected
+elsewhere. Omitting `provider` is not the same thing: that falls back to the
+Stripe default.
 
 Full field reference:
 [works.yml Pricing Configuration](./works-yml-pricing.md). Copy-ready example:

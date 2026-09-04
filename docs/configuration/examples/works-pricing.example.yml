@@ -17,8 +17,9 @@ pricing:
   # Which checkout gateway the site defaults to. One of:
   #   stripe | lemonsqueezy | polar | solidgate | manual
   # `manual` means "show the prices, handle payment outside the template":
-  # it configures no gateway, so checkout falls back to whatever the
-  # environment provides (the DEMO / not-configured pricing page).
+  # the site starts no checkout of its own, so a plan button does nothing
+  # beyond a server-side log. Omitting `provider` is NOT the same thing --
+  # that falls back to the Stripe default.
   # A user's own choice in Settings -> Checkout provider still wins.
   provider: stripe
 
