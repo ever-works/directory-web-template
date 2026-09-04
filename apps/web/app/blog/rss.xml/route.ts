@@ -26,10 +26,20 @@ export async function GET(): Promise<NextResponse> {
 		(config as { tagline?: string }).tagline ||
 		`Latest blog posts from ${companyName}.`;
 
+	// A section feed must advertise its OWN self URL and canonical page.
+	// Left on the defaults it would announce `/rss.xml` (the site-wide
+	// directory feed) as `atom:link rel="self"`, and readers would silently
+	// canonicalize blog subscribers onto that feed instead.
 	const feedConfig = resolveFeedConfig({
 		title: `${companyName} Blog`,
 		description,
-		siteUrl: getBaseUrl()
+		siteUrl: getBaseUrl(),
+		feedPath: 'blog',
+		rssFilename: 'blog/rss.xml',
+		// The blog ships RSS only; advertising Atom/JSON siblings would point
+		// readers at URLs that do not exist.
+		atomFilename: null,
+		jsonFeedFilename: null
 	});
 
 	const xml = generateRss(buildPostFeedEntries(result.posts, feedConfig), feedConfig);

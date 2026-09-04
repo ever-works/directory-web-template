@@ -42,6 +42,17 @@ export function BlogSearch({ basePath, initialQuery, labels }: BlogSearchProps) 
 	const [isPending, startTransition] = useTransition();
 	const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+	// The debounced navigation must build its query string from whatever the
+	// URL holds WHEN IT FIRES, not from the render that scheduled it. Between a
+	// keystroke and the 300 ms timeout the user can click a category chip or a
+	// pagination link; a callback closed over the old `searchParams` would
+	// serialize the pre-click state and silently drop that filter or page.
+	// Mirroring the value into a ref (assigned during render, never read during
+	// render) keeps the callback rebased on the current URL with no stale window.
+	const searchParamsString = searchParams?.toString() ?? '';
+	const searchParamsRef = useRef(searchParamsString);
+	searchParamsRef.current = searchParamsString;
+
 	// Keep the field in sync when the URL changes from elsewhere — a category
 	// chip, the "clear search" link, or the browser back button.
 	useEffect(() => {
@@ -55,7 +66,7 @@ export function BlogSearch({ basePath, initialQuery, labels }: BlogSearchProps) 
 	}, []);
 
 	const navigate = (nextQuery: string) => {
-		const params = new URLSearchParams(searchParams?.toString() ?? '');
+		const params = new URLSearchParams(searchParamsRef.current);
 		const trimmed = nextQuery.trim();
 
 		if (trimmed) {

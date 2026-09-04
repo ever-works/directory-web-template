@@ -85,6 +85,12 @@ sidebar_label: 050 Tasks
       content fixture so the data-dependent specs run instead of skipping.
 - [x] T-033: document the `.content/posts/` layout and frontmatter in `README.md`.
 - [x] T-034: write this spec, index it in `docs/spec/README.md`, and log the change.
+- [x] T-035: pin the post caches to the content revision and revalidate the
+      `POSTS` tag from `invalidateContentCaches()`, so a data-repository sync is
+      reflected even on an instance that cold-started after it.
+- [x] T-036: give the blog feed its own self URL and canonical page via
+      `resolveFeedConfig` overrides, publish only the formats it actually
+      serves, and exclude undated posts so they are not re-announced as new.
 
 ## Acceptance Criteria to Task Map
 

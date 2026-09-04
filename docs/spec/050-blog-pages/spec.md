@@ -183,6 +183,17 @@ None. The blog is a reader surface over the existing Git content adapter.
 - Cached listing payloads must stay under the Next.js Data Cache entry limit; the
   `MAX_POSTS_PER_PAGE` ceiling and the body-stripping `PostSummary` shape are
   what keep them small.
+- Post caches are pinned to the content revision as well as tagged. Tag
+  invalidation alone is not sufficient: `invalidateContentCaches()` is skipped
+  when a sync lands during a render phase, and a cold-started instance that
+  missed that call would keep serving a pre-sync post list until the TTL
+  expired. `getCachedItems()` already takes this precaution.
+- An undated post is deliberately excluded from `/blog/rss.xml`. Feed items need
+  a stable `pubDate`; stamping "now" would re-announce the same post as new on
+  every regeneration. Such posts still appear on `/blog` and at their own URL.
+- A section feed must advertise its own `atom:link rel="self"` and must not
+  advertise formats it does not publish, or readers canonicalize blog
+  subscribers onto the site-wide directory feed.
 
 ## 12. Acceptance Test Plan
 

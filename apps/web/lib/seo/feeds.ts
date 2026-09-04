@@ -34,10 +34,21 @@ export interface FeedConfig {
 	title: string;
 	description: string;
 	siteUrl: string;
+	/** Canonical HTML page this feed describes. Absolute URL. */
+	feedLink: string;
 	limit: number;
+	/** Path of the RSS document, relative to `siteUrl` (no leading slash). */
 	rssFilename: string;
-	atomFilename: string;
-	jsonFeedFilename: string;
+	/**
+	 * Path of the Atom document, relative to `siteUrl` (no leading slash).
+	 * `undefined` when this feed is not also published as Atom.
+	 */
+	atomFilename?: string;
+	/**
+	 * Path of the JSON Feed document, relative to `siteUrl` (no leading slash).
+	 * `undefined` when this feed is not also published as JSON Feed.
+	 */
+	jsonFeedFilename?: string;
 }
 
 const DEFAULTS = {
@@ -47,21 +58,47 @@ const DEFAULTS = {
 	jsonFeedFilename: 'feed.json'
 } as const;
 
-/** Produce a `FeedConfig` filled with defaults from a partial input. */
+/** `null` means "this feed has no sibling in that format"; `undefined` takes the default. */
+function normalizeFeedFilename(value: string | null | undefined, fallback: string): string | undefined {
+	if (value === null) return undefined;
+	return (value ?? fallback).replace(/^\/+/, '');
+}
+
+/**
+ * Produce a `FeedConfig` filled with defaults from a partial input.
+ *
+ * The filename and `feedLink` overrides exist so a *section* feed (the blog
+ * feed at `/blog/rss.xml`, Spec 050) can advertise its own self URL and its
+ * own canonical page. Without them every feed would announce `/rss.xml` as
+ * its `atom:link rel="self"`, and RSS clients would canonicalize subscribers
+ * onto the site-wide directory feed instead of the one they asked for.
+ * Omitting them reproduces the previous site-wide behaviour exactly.
+ */
 export function resolveFeedConfig(opts: {
 	title: string;
 	description: string;
 	siteUrl: string;
 	limit?: number;
+	/** Canonical HTML page for this feed, relative to `siteUrl` (e.g. `blog`). */
+	feedPath?: string;
+	rssFilename?: string;
+	/** Pass `null` when this feed has no Atom sibling (a section feed). */
+	atomFilename?: string | null;
+	/** Pass `null` when this feed has no JSON Feed sibling (a section feed). */
+	jsonFeedFilename?: string | null;
 }): FeedConfig {
+	const siteUrl = opts.siteUrl.replace(/\/+$/, '');
+	const feedPath = (opts.feedPath ?? '').replace(/^\/+|\/+$/g, '');
+
 	return {
 		title: opts.title,
 		description: opts.description,
-		siteUrl: opts.siteUrl.replace(/\/+$/, ''),
+		siteUrl,
+		feedLink: feedPath ? `${siteUrl}/${feedPath}` : `${siteUrl}/`,
 		limit: opts.limit ?? DEFAULTS.limit,
-		rssFilename: DEFAULTS.rssFilename,
-		atomFilename: DEFAULTS.atomFilename,
-		jsonFeedFilename: DEFAULTS.jsonFeedFilename
+		rssFilename: (opts.rssFilename ?? DEFAULTS.rssFilename).replace(/^\/+/, ''),
+		atomFilename: normalizeFeedFilename(opts.atomFilename, DEFAULTS.atomFilename),
+		jsonFeedFilename: normalizeFeedFilename(opts.jsonFeedFilename, DEFAULTS.jsonFeedFilename)
 	};
 }
 
@@ -103,20 +140,31 @@ export function buildFeedEntries(items: ReadonlyArray<ItemData>, config: FeedCon
  *
  * Posts arrive from `fetchPosts()` already sorted newest-first, so this only
  * caps the list at `config.limit` and maps to absolute `/blog/<slug>` URLs.
- * An undated post falls back to "now" the same way {@link buildFeed} does for
- * an unparseable date, so it still appears in the feed.
+ *
+ * Posts whose frontmatter carries no usable date are **skipped**. A feed item
+ * needs a stable `pubDate`: stamping "now" on an undated post would give it a
+ * new publication date on every regeneration, and readers would surface the
+ * same post as freshly published over and over. Such posts still appear on
+ * `/blog` and at their own URL — they are simply not announced to subscribers
+ * until the author gives them a date.
  */
 export function buildPostFeedEntries(posts: ReadonlyArray<PostSummary>, config: FeedConfig): FeedEntry[] {
 	const siteUrl = config.siteUrl.replace(/\/+$/, '');
 
-	return posts.slice(0, config.limit).map((post) => ({
-		title: post.title,
-		link: `${siteUrl}/blog/${post.slug}`,
-		description: post.description,
-		pubDate: post.date || new Date().toISOString(),
-		guid: `${siteUrl}/blog/${post.slug}`,
-		category: post.categories[0]?.name
-	}));
+	return posts
+		.filter((post) => {
+			if (!post.date) return false;
+			return !Number.isNaN(new Date(post.date).getTime());
+		})
+		.slice(0, config.limit)
+		.map((post) => ({
+			title: post.title,
+			link: `${siteUrl}/blog/${post.slug}`,
+			description: post.description,
+			pubDate: post.date,
+			guid: `${siteUrl}/blog/${post.slug}`,
+			category: post.categories[0]?.name
+		}));
 }
 
 /** Parse an ISO-ish string into a `Date`, falling back to `now`. */
@@ -139,16 +187,22 @@ function buildFeed(entries: ReadonlyArray<FeedEntry>, config: FeedConfig): Feed 
 	const feed = new Feed({
 		title: config.title,
 		description: config.description,
-		id: `${siteUrl}/`,
-		link: siteUrl || undefined,
+		// `feedLink` is the site root for the site-wide feeds and the section
+		// page (e.g. `/blog`) for a section feed, so two feeds from one site
+		// never share an identity.
+		id: config.feedLink,
+		link: config.feedLink || undefined,
 		language: 'en',
 		updated,
 		generator: 'Ever Works',
 		copyright: `© ${new Date().getFullYear()} ${config.title}`,
+		// Only advertise the formats this feed actually publishes: a section
+		// feed that ships RSS alone must not point readers at an Atom or JSON
+		// URL that would 404.
 		feedLinks: {
 			rss: `${siteUrl}/${config.rssFilename}`,
-			atom: `${siteUrl}/${config.atomFilename}`,
-			json: `${siteUrl}/${config.jsonFeedFilename}`
+			...(config.atomFilename ? { atom: `${siteUrl}/${config.atomFilename}` } : {}),
+			...(config.jsonFeedFilename ? { json: `${siteUrl}/${config.jsonFeedFilename}` } : {})
 		}
 	});
 

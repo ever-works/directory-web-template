@@ -2996,10 +2996,17 @@ export async function fetchPostTaxonomies(locale: string = 'en'): Promise<PostTa
 
 /**
  * Cached version of {@link fetchPosts}.
- * Keyed by locale plus the active filters, tagged so a content sync clears it.
+ *
+ * Keyed by locale, the active filters AND the content revision. The revision
+ * pin matters because a data-repository sync only clears the tag-based caches
+ * when `invalidateContentCaches()` actually runs in a non-render phase; a
+ * cold-started instance that missed that call would otherwise keep serving a
+ * pre-sync post list until the TTL expired. Same reasoning as
+ * {@link getCachedItems}.
  */
 export const getCachedPosts = async (options: FetchPostsOptions = {}) => {
 	const locale = options.lang || 'en';
+	const revision = await getContentRevision();
 	const optionsKey = JSON.stringify({
 		page: options.page ?? 1,
 		perPage: options.perPage ?? null,
@@ -3008,32 +3015,39 @@ export const getCachedPosts = async (options: FetchPostsOptions = {}) => {
 		q: options.q ?? ''
 	});
 
-	return unstable_cache(async (_optionsKey: string) => fetchPosts(options), ['posts', locale], {
+	return unstable_cache(async (_revision: string, _optionsKey: string) => fetchPosts(options), ['posts', locale], {
 		revalidate: CONTENT_CACHE_TTL.LISTING,
 		tags: [CACHE_TAGS.CONTENT, CACHE_TAGS.POSTS, CACHE_TAGS.POSTS_LOCALE(locale)]
-	})(optionsKey);
+	})(revision, optionsKey);
 };
 
-/** Cached version of {@link fetchPost}. */
+/** Cached version of {@link fetchPost}, pinned to the content revision. */
 export const getCachedPost = async (slug: string, locale: string = 'en') => {
-	return unstable_cache(async () => fetchPost(slug, locale), ['post', slug, locale], {
+	const revision = await getContentRevision();
+	return unstable_cache(async (_revision: string) => fetchPost(slug, locale), ['post', slug, locale], {
 		revalidate: CONTENT_CACHE_TTL.ITEM,
 		tags: [CACHE_TAGS.CONTENT, CACHE_TAGS.POSTS, CACHE_TAGS.POST(slug)]
-	})();
+	})(revision);
 };
 
-/** Cached version of {@link fetchAdjacentPosts}. */
+/** Cached version of {@link fetchAdjacentPosts}, pinned to the content revision. */
 export const getCachedAdjacentPosts = async (slug: string, locale: string = 'en') => {
-	return unstable_cache(async () => fetchAdjacentPosts(slug, locale), ['post-adjacent', slug, locale], {
-		revalidate: CONTENT_CACHE_TTL.ITEM,
-		tags: [CACHE_TAGS.CONTENT, CACHE_TAGS.POSTS, CACHE_TAGS.POST(slug)]
-	})();
+	const revision = await getContentRevision();
+	return unstable_cache(
+		async (_revision: string) => fetchAdjacentPosts(slug, locale),
+		['post-adjacent', slug, locale],
+		{
+			revalidate: CONTENT_CACHE_TTL.ITEM,
+			tags: [CACHE_TAGS.CONTENT, CACHE_TAGS.POSTS, CACHE_TAGS.POST(slug)]
+		}
+	)(revision);
 };
 
-/** Cached version of {@link fetchPostTaxonomies}. */
+/** Cached version of {@link fetchPostTaxonomies}, pinned to the content revision. */
 export const getCachedPostTaxonomies = async (locale: string = 'en') => {
-	return unstable_cache(async () => fetchPostTaxonomies(locale), ['post-taxonomies', locale], {
+	const revision = await getContentRevision();
+	return unstable_cache(async (_revision: string) => fetchPostTaxonomies(locale), ['post-taxonomies', locale], {
 		revalidate: CONTENT_CACHE_TTL.CONTENT,
 		tags: [CACHE_TAGS.CONTENT, CACHE_TAGS.POSTS, CACHE_TAGS.POSTS_LOCALE(locale)]
-	})();
+	})(revision);
 };
