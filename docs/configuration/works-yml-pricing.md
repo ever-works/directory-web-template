@@ -187,10 +187,9 @@ The block is validated on read. It is **never fatal**: bad pricing metadata
 must not take a directory offline.
 
 - **Valid** — used as-is.
-- **Invalid** — every problem is logged as
-  `[CONTENT] Invalid "pricing" section in .works/works.yml; falling back to the
-built-in pricing plans:` followed by one `pricing.<path>: <message>` line
-  per problem, and the block is dropped so the built-in plans render.
+- **Invalid** — a `[CONTENT] Invalid "pricing" section …` line is logged,
+  followed by one `pricing.<path>: <message>` line per problem, and the block
+  is dropped so the built-in plans render.
 - **Accepted with a note** — a `[CONTENT]` warning for the `PRO` alias or for
   `provider: manual`.
 
