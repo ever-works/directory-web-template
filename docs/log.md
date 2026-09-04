@@ -7,6 +7,12 @@ sidebar_position: 99
 
 # Documentation & Specs Change Log
 
+## 2026-09-03
+
+- `spec-046`: admin **Billing Issues** queue at `/admin/billing-issues` — payment problems derived from the payment records the site already stores (failed charges, disputed/refund cases, subscriptions stuck pending or expired-while-renewing), with mark-resolved/dismissed and a refund issued through the provider named on the underlying subscription. Adds the `billing_issues` triage table (migration `0040`) and wires the previously caller-less `PaymentProviderInterface.refundPayment` seam; money state stays on `subscriptions` ([spec 046](spec/046-admin-billing-issues/spec.md), Jira EW-116, PR #1041).
+- `spec-047`: admin **Payment Reports** at `/admin/payment-reports` — the stored payment records filtered by date range, plan, provider and status, with roll-ups by currency/plan/provider/status and CSV + XLSX export sharing one filter validator with the JSON view. PDF deliberately not shipped; see Q-047-1 ([spec 047](spec/047-admin-payment-reports/spec.md), Jira EW-117, PR #1041).
+- `questions`: added Q-047-1 — should the payment report also export PDF? Default: CSV + XLSX only, no new dependency.
+
 ## 2026-08-25
 
 - `spec-045`: documented and hardened the shared handler/`POST /api/stripe/platform-webhook` path, including HMAC fail-closed coverage, formatted payment amounts, and retry-safe event coordination ([spec 045](spec/045-shared-stripe-webhook-relay/spec.md), PR #1037).

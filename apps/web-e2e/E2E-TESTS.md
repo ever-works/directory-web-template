@@ -1,8 +1,8 @@
 # E2E Test Coverage
 
-Complete listing of all E2E tests added across 4 PRs.
+Complete listing of all E2E tests added across 5 PRs.
 
-**Total: 165 new test cases across 43 new spec files** (excluding
+**Total: 182 new test cases across 47 new spec files** (excluding
 continual-improvement smoke specs listed below — those are tracked
 separately and add ~346 additional tests across 49 spec files).
 
@@ -346,6 +346,45 @@ valid states (e.g. `/sponsor` may redirect or 404 depending on env).
 156. GET /api/current-user returns user data when authenticated
 157. GET /api/current-user returns 401 when unauthenticated
 
+## PR #1041 — Admin billing issues & payment reports (17 new tests)
+
+Specs 046 / 047 (Jira EW-116, EW-117). Two admin surfaces over the payment
+records the site already stores. The API specs carry most of the weight here
+because these are the only routes in the template that move money or emit a file
+full of customer data — the gate, not the happy path, is the invariant.
+
+### Admin Billing Issues (`tests/admin/billing-issues.spec.ts`)
+158. page loads with its heading for an admin
+159. shows the status tabs, the search box and the re-scan control
+160. either lists issues or renders the empty state, never a crash
+161. opening a row shows the action dialog when an issue exists
+162. the refund control stays disabled until a payment reference is present
+163. rejects an authenticated non-admin
+164. gates an anonymous visitor
+
+### Admin Payment Reports (`tests/admin/payment-reports.spec.ts`)
+165. page loads with its heading for an admin
+166. exposes every documented filter control (date range, plan, status, provider)
+167. exposes both export controls (CSV, XLSX)
+168. applying a filter keeps the page rendering
+169. the CSV export downloads a file
+170. rejects an authenticated non-admin
+171. gates an anonymous visitor
+
+### API: Admin Billing Issues (`tests/api/admin-billing-issues-query.spec.ts`)
+172. the refund route never lets an anonymous caller move money
+173. PATCH rejects the `refunded` status, which only a successful provider call may set
+174. the refund route rejects a non-positive or fractional amount
+
+### API: Admin Payment Reports (`tests/api/admin-payment-reports-query.spec.ts`)
+175. the export never leaks a file to an anonymous caller
+176. list and export reject the same malformed date range (one shared validator)
+177. `?format=pdf` is a 400 naming the supported formats; CSV carries a header row and XLSX is a real ZIP
+
+> The counts above name the load-bearing assertions. Both API specs also sweep
+> their full query-param surface (~50 and ~45 URLs) for "never 5xx, never bypass
+> the gate", in the same shape as `admin-reports-query.spec.ts`.
+
 ---
 
 ## Coverage by Area
@@ -389,7 +428,11 @@ valid states (e.g. `/sponsor` may redirect or 404 depending on env).
 | Form Validation | 4 | #630 |
 | i18n Locales & RTL | 11 | #628 |
 | API Contracts | 4 | #630 |
-| **Total** | **165** | |
+| Admin Billing Issues | 7 | #1041 |
+| Admin Payment Reports | 7 | #1041 |
+| API: Admin Billing Issues | 3 | #1041 |
+| API: Admin Payment Reports | 3 | #1041 |
+| **Total** | **182** | |
 
 ---
 
@@ -398,6 +441,7 @@ valid states (e.g. `/sponsor` may redirect or 404 depending on env).
 The following scenarios are intentionally excluded because they require external service integration, sandbox environments, or infrastructure that cannot be tested in a standard E2E setup:
 
 - **Payment flows** — Stripe checkout modal, sponsorship checkout (need Stripe sandbox)
+- **Executing a refund end to end** — `/admin/billing-issues` refund action (needs a live provider; the specs cover the gate, the validation and the 404-before-provider-call branch instead)
 - **Email flows** — Password reset, email verification (need email infrastructure)
 - **Geo Analytics** — `/api/admin/geo-analytics` (needs geo service API keys)
 - **Map Status** — `/admin/settings/map-status` (needs map provider API keys)

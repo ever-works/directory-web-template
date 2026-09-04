@@ -523,6 +523,37 @@ confirm, override, or refine.
 
 ---
 
+## Spec 047 — Admin payment reports and export
+
+### Q-047-1 Should the payment report also export PDF?
+
+- **Context.** [EW-117](https://evertech.atlassian.net/browse/EW-117) asks for
+  "tools to filter and export reports (CSV, PDF, etc.)". `apps/web` has no PDF
+  generation dependency — `exceljs` and `papaparse` are the only document
+  libraries in `apps/web/package.json`, and both were already there for the item
+  export. Article VII (reuse before build) and `AGENTS.md` §14 ("ask the user
+  first before adding new dependencies") both point away from pulling a PDF
+  engine in as a side effect of this feature.
+- **Options.**
+  - **CSV + XLSX only (current).** No new dependency. XLSX already covers the
+    "hand it to a stakeholder" case, and a spreadsheet is more useful than a PDF
+    for revenue numbers because the recipient can re-sort and sum it.
+  - Add a client-side PDF library (`jspdf` + `jspdf-autotable`, ~350 KB). Renders
+    in the browser from the rows already loaded, so no server cost — but only the
+    current page of rows, not the full filtered set.
+  - Add a server-side renderer (`@react-pdf/renderer`, or headless Chromium).
+    Full fidelity over the whole filtered set; a heavy dependency, and headless
+    Chromium is not viable in the template's serverless targets.
+- **Default.** **CSV + XLSX only.** `SUPPORTED_EXPORT_FORMATS` in
+  `apps/web/lib/services/payment-report-export.service.ts` is the single place to
+  extend, and `?format=pdf` already returns a 400 naming the supported formats
+  rather than failing obscurely. Revisit if an operator asks for a print-ready
+  statement rather than a data extract.
+- **Owner.** Template maintainers.
+- **Status.** `open`.
+
+---
+
 ## How to add a question
 
 1. Pick the next available `Q-NNN…` id under the relevant spec.
