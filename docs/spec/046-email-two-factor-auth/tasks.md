@@ -51,6 +51,19 @@ sidebar_label: 046 Tasks
       the failure counter in the database and derive the lock from the
       serialized result; consume the code conditionally on `consumed_at IS NULL`;
       refuse to enable when no mail provider is configured.
+- [x] T-016 (review follow-up): validate both operands as hex before
+      `timingSafeEqual` (an empty decode made any two non-hex strings compare
+      equal); reserve-and-refund the password budget so a `code` parameter
+      cannot widen it; accept legacy `type: 'email'` / NULL-tenant credential
+      rows; normalize an expired lock on read; move the issuance cap into the
+      database so it holds across instances; purge pending codes on enable as
+      well as disable; charge the resend per-address budget only after the
+      password verifies; equalise unknown-account timing; take only the first
+      `x-forwarded-for` address; reject a `MockEmailProvider` fallback in the
+      mail-configured check; list the 2FA audit events in the security activity
+      feed; show the OAuth notice only for genuinely OAuth-only accounts; clear
+      the spent captcha token and the rejected code in the sign-in form; and
+      clear the `serverClient` GET cache after a 2FA mutation.
 
 ## Acceptance Criteria → Task Map
 
@@ -64,7 +77,8 @@ sidebar_label: 046 Tasks
 | AC-6 | EW-141 | T-001, T-002, T-003, T-006, T-007 |
 | AC-7 | EW-142 | T-003, T-005, T-006, T-011 |
 | AC-8 | — | T-012 |
-| AC-9 | — | T-015 |
+| AC-9 | — | T-015, T-016 |
+| AC-10 | — | T-016 |
 
 ## Verification
 

@@ -101,8 +101,11 @@ tries without my intervention.
       cannot set up two-factor authentication because you signed up with OAuth."
       and the enable route answers `403` with `code: "OAUTH_ACCOUNT"`.
 - [x] AC-9: enabling is refused with `503` `EMAIL_NOT_CONFIGURED` when the
-      deployment has no mail provider, so a member cannot switch on a factor
-      whose codes could never be delivered.
+      deployment has no mail provider — including the case where the provider
+      factory has silently fallen back to `MockEmailProvider` — so a member
+      cannot switch on a factor whose codes could never be delivered.
+- [x] AC-10: enabling and disabling 2FA, and the brute-force lockout, appear in
+      the account's own security activity list.
 - [x] AC-8: every user-visible string exists in all 21 locale files under
       `apps/web/messages/`.
 
@@ -118,6 +121,13 @@ change to the credentials path.
 The `twoFactorCodes.attempts` column counts failures against one specific code.
 It is an audit aid — the enforcement counter is the per-account one on
 `client_profiles`, because that is the one that must survive code rotation.
+
+Residual, accepted: the resend route's *success* path does more work (mint,
+store, send) than its miss paths, so response time still carries a weak signal
+about whether an address exists with 2FA on, even though the unknown-account
+path now burns a comparable password comparison. Closing it properly means
+deferring the send off the request, which is a queueing change rather than a
+2FA one.
 
 ## 8. UX Notes
 

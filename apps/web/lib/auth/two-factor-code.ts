@@ -1,4 +1,5 @@
 import crypto from 'crypto';
+import { getRuntimeAuthSecret } from './auth-secret';
 
 /**
  * Pure, dependency-free primitives behind email two-factor authentication
@@ -70,17 +71,22 @@ export function generateTwoFactorCode(length: number = TWO_FACTOR_CODE_LENGTH): 
 /**
  * The key the code digest is computed under.
  *
- * `TWO_FACTOR_CODE_SECRET` when set, otherwise `AUTH_SECRET` — which every
- * deployment already has, because NextAuth refuses to start without it.
+ * `TWO_FACTOR_CODE_SECRET` when set, otherwise whatever
+ * {@link getRuntimeAuthSecret} resolves — `AUTH_SECRET`, falling back to the
+ * legacy `COOKIE_SECRET`. Deliberately the SAME resolution the auth config
+ * uses: a deployment running on `COOKIE_SECRET` alone boots fine, so keying
+ * only off `AUTH_SECRET` here would have thrown at code-issuing time on an
+ * otherwise valid install.
+ *
  * Throwing rather than falling back to an unkeyed digest is deliberate: a
  * silent fallback would leave the very property this key exists to provide
  * (see {@link hashTwoFactorCode}) quietly absent in production.
  */
 export function twoFactorCodeSecret(): string {
-	const secret = process.env.TWO_FACTOR_CODE_SECRET || process.env.AUTH_SECRET;
+	const secret = process.env.TWO_FACTOR_CODE_SECRET?.trim() || getRuntimeAuthSecret();
 	if (!secret) {
 		throw new Error(
-			'Two-factor codes require a server secret: set AUTH_SECRET (or TWO_FACTOR_CODE_SECRET) before enabling 2FA.'
+			'Two-factor codes require a server secret: set AUTH_SECRET (or COOKIE_SECRET, or TWO_FACTOR_CODE_SECRET) before enabling 2FA.'
 		);
 	}
 	return secret;

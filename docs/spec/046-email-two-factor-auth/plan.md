@@ -82,6 +82,9 @@ sequenceDiagram
 | Hooks | `apps/web/hooks/use-security-settings.ts` | `useEnableTwoFactor` / `useDisableTwoFactor` |
 | i18n | `apps/web/messages/*.json` (21) | `auth.TWO_FACTOR.*`, `settings.SECURITY_PAGE.TWO_FACTOR.*` |
 | Config | `apps/web/.env.example` | four documented, optional env vars |
+| Util | `apps/web/lib/utils/rate-limit.ts` | new `refundRateLimit()` (release one reserved slot) |
+| API | `apps/web/app/api/auth/security/login-activity/route.ts` | 2FA audit events added to `SECURITY_ACTIONS` |
+| UI | `apps/web/components/settings/security/login-history-card.tsx` | presentation for the three 2FA audit events |
 | Tests | `apps/web-e2e/tests/unit/two-factor-code.spec.ts` | pure-function unit coverage |
 | Tests | `apps/web-e2e/tests/auth/two-factor-login.spec.ts` | enable → challenge → disable, expiry, lockout |
 | Tests | `apps/web-e2e/tests/api/auth-2fa-routes.spec.ts` | auth / OAuth / resend contract |
@@ -141,8 +144,20 @@ rows that expired more than a day ago so the table cannot grow without bound.
   account), not only at the routes. `authorize` is reachable by posting straight
   to `/api/auth/callback/credentials`, which bypasses the server action's own
   per-email limiter; putting the cap at the single choke point every issuance
-  path shares closes that hole. Exceeding it answers `AuthErrorCode.RATE_LIMITED`
-  and mints nothing.
+  path shares closes that hole. On the sign-in paths, exceeding it answers
+  `AuthErrorCode.RATE_LIMITED` and mints nothing; the resend route keeps its
+  generic `200`. The count comes from the **database** (rows in the window), not
+  from the in-memory `ratelimit()` map, because a process-local counter would
+  let a multi-instance deployment issue `6 × instances` codes per window. That
+  is why issuing marks earlier codes consumed rather than deleting them — a
+  deleted row cannot be counted.
+- **The password budget is reserved, not checked-then-charged.** The sign-in
+  action calls `ratelimit()` up front for every submission (an atomic map
+  read-and-write with no `await` inside) and hands the slot back with
+  `refundRateLimit()` once a code-carrying submission's password has proven
+  correct. A check-then-act pair around the password verification would let
+  concurrent requests all observe "slots remaining", which is exactly how a
+  second factor turns into extra password guesses.
 
 ## 6. Alternatives Considered
 

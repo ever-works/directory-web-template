@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { getClientAccountByEmail, getClientProfileByUserId, verifyClientPassword } from '@/lib/db/queries';
 import { issueTwoFactorCode } from '@/lib/auth/two-factor';
 import { TWO_FACTOR_CODE_TTL_MINUTES } from '@/lib/auth/two-factor-code';
-import { ratelimit } from '@/lib/utils/rate-limit';
+import { getRateLimitStatus, ratelimit } from '@/lib/utils/rate-limit';
 import { comparePasswords } from '@/lib/auth/credentials';
 
 /**
@@ -19,7 +19,10 @@ const DUMMY_PASSWORD_HASH = '$2b$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJ
  * Deliberately tighter than the sign-in limiter because this endpoint
  * sends mail: without it, a stranger who knows an address could use it
  * to bomb that inbox. Both keys are checked so neither a single noisy
- * IP nor a distributed attempt on one address gets a free pass.
+ * IP nor a distributed attempt on one address gets a free pass — but the
+ * per-address budget is only SPENT once the password has been verified,
+ * otherwise wrong-password requests from a stranger would lock the real
+ * owner out of their own resends.
  */
 const RESEND_LIMIT = 3;
 const RESEND_WINDOW_MS = 10 * 60 * 1000;
@@ -93,18 +96,30 @@ export async function POST(request: NextRequest) {
 
 		const email = parsed.data.email.toLowerCase().trim();
 
-		for (const key of [`2fa-resend:ip:${clientIP}`, `2fa-resend:email:${email}`]) {
-			const result = await ratelimit(key, RESEND_LIMIT, RESEND_WINDOW_MS);
-			if (!result.success) {
-				return NextResponse.json(
-					{
-						success: false,
-						error: 'Too many code requests. Please wait before trying again.',
-						retryAfter: result.retryAfter
-					},
-					{ status: 429 }
-				);
-			}
+		const tooManyRequests = (retryAfter?: number) =>
+			NextResponse.json(
+				{
+					success: false,
+					error: 'Too many code requests. Please wait before trying again.',
+					retryAfter
+				},
+				{ status: 429 }
+			);
+
+		// The IP bucket is spent up front — it is the circuit breaker that bounds
+		// the work an anonymous caller can make this route do.
+		const ipBudget = await ratelimit(`2fa-resend:ip:${clientIP}`, RESEND_LIMIT, RESEND_WINDOW_MS);
+		if (!ipBudget.success) {
+			return tooManyRequests(ipBudget.retryAfter);
+		}
+
+		// The EMAIL bucket is only READ here and spent further down, after the
+		// password checks out. Spending it up front would hand a stranger a
+		// denial of service: three wrong-password requests against a known
+		// address would lock its owner out of resends for ten minutes.
+		const emailBudgetKey = `2fa-resend:email:${email}`;
+		if (getRateLimitStatus(emailBudgetKey, RESEND_LIMIT).remaining <= 0) {
+			return tooManyRequests();
 		}
 
 		// Generic success envelope used for every non-rate-limited outcome so
@@ -130,6 +145,13 @@ export async function POST(request: NextRequest) {
 
 		const profile = await getClientProfileByUserId(clientAccount.userId);
 		if (!profile || !profile.twoFactorEnabled) return accepted;
+
+		// Credentials are good: NOW charge the per-address budget, so only the
+		// account's real owner can spend it.
+		const emailBudget = await ratelimit(emailBudgetKey, RESEND_LIMIT, RESEND_WINDOW_MS);
+		if (!emailBudget.success) {
+			return tooManyRequests(emailBudget.retryAfter);
+		}
 
 		await issueTwoFactorCode({
 			userId: profile.userId,

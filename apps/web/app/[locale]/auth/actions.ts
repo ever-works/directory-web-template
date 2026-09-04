@@ -35,7 +35,7 @@ import { issueTwoFactorCode, verifyTwoFactorCode } from '@/lib/auth/two-factor';
 import { generatePasswordResetToken, generateVerificationToken } from '@/lib/db/tokens';
 import { sendPasswordResetEmail, sendVerificationEmailWithTemplate } from '@/lib/mail';
 import { authServiceFactory } from '@/lib/auth/services';
-import { getRateLimitStatus, ratelimit } from '@/lib/utils/rate-limit';
+import { ratelimit, refundRateLimit } from '@/lib/utils/rate-limit';
 
 const PASSWORD_MIN_LENGTH = 8;
 // Rate limiting: 5 attempts per 15 minutes per email
@@ -68,32 +68,42 @@ export const signInAction = validatedAction(signInSchema, async (data) => {
 		// Rate limiting check (by email to prevent brute force on specific accounts)
 		const passwordBudgetKey = `signin:${email.toLowerCase()}`;
 
-		// Bound the volume of THIS submission. A code-carrying submission gets
-		// its own, looser bucket so that spending code attempts does not consume
-		// the password budget — otherwise the sign-in limiter would fire before
-		// the 5-attempt 2FA lockout it complements, and the user would see "too
-		// many attempts" instead of the lockout message.
-		const gate = await ratelimit(
-			submittedCode ? `2fa-verify:${email.toLowerCase()}` : passwordBudgetKey,
-			submittedCode ? TWO_FACTOR_VERIFY_RATE_LIMIT : AUTH_RATE_LIMIT,
-			AUTH_RATE_WINDOW_MS
-		);
-		if (!gate.success) {
+		// RESERVE a password slot for every submission, code-carrying or not.
+		// `ratelimit()` reads and writes its map with no `await` in between, so
+		// the reservation is atomic on Node's single thread — a check-then-act
+		// pair around the password verification would not be, and concurrent
+		// requests could all observe "slots remaining" before any of them was
+		// charged. Attaching a `code` therefore cannot buy extra password
+		// guesses.
+		const passwordGate = await ratelimit(passwordBudgetKey, AUTH_RATE_LIMIT, AUTH_RATE_WINDOW_MS);
+		if (!passwordGate.success) {
 			return { error: AuthErrorCode.RATE_LIMITED, ...data };
 		}
 
-		// ...but attaching a `code` must NOT buy extra password guesses. The
-		// password budget is still honoured for a code-carrying request (read
-		// without spending here) and is charged below on every wrong password,
-		// so a scripted `code=x` cannot turn 5 password attempts into 10.
-		if (submittedCode && getRateLimitStatus(passwordBudgetKey, AUTH_RATE_LIMIT).remaining <= 0) {
-			return { error: AuthErrorCode.RATE_LIMITED, ...data };
+		// A code-carrying submission is additionally bounded by its own, looser
+		// bucket, so that a run of wrong codes cannot exhaust the password
+		// budget before the 5-attempt 2FA lockout it complements fires.
+		if (submittedCode) {
+			const codeGate = await ratelimit(
+				`2fa-verify:${email.toLowerCase()}`,
+				TWO_FACTOR_VERIFY_RATE_LIMIT,
+				AUTH_RATE_WINDOW_MS
+			);
+			if (!codeGate.success) {
+				refundRateLimit(passwordBudgetKey);
+				return { error: AuthErrorCode.RATE_LIMITED, ...data };
+			}
 		}
 
-		/** Charge one password attempt when a code-carrying request got the password wrong. */
-		const chargePasswordAttempt = async () => {
+		/**
+		 * Hand the reserved password slot back once the password has proven
+		 * CORRECT on a code-carrying submission: that request was a second-factor
+		 * attempt, not a password guess, so it must not count against a budget
+		 * that exists to bound password guessing.
+		 */
+		const releasePasswordReservation = () => {
 			if (submittedCode) {
-				await ratelimit(passwordBudgetKey, AUTH_RATE_LIMIT, AUTH_RATE_WINDOW_MS);
+				refundRateLimit(passwordBudgetKey);
 			}
 		};
 
@@ -117,17 +127,17 @@ export const signInAction = validatedAction(signInSchema, async (data) => {
 		if (isAdmin && foundUser) {
 			const isValid = await comparePasswords(password, foundUser.passwordHash);
 			if (!isValid) {
-				await chargePasswordAttempt();
 				return { error: AuthErrorCode.INVALID_PASSWORD, ...data };
 			}
+			releasePasswordReservation();
 		}
 		// Check password for client user (has passwordHash in accounts table)
 		else if (clientAccount) {
 			const isValid = await verifyClientPassword(email, password);
 			if (!isValid) {
-				await chargePasswordAttempt();
 				return { error: AuthErrorCode.INVALID_PASSWORD, ...data };
 			}
+			releasePasswordReservation();
 
 			// ── Email two-factor step (EW-139 / EW-140 / EW-141) ──────────────
 			// Password is right but, with 2FA on, it is not sufficient. This

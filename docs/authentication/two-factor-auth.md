@@ -46,7 +46,7 @@ counter, and so does letting a code expire.
 
 ### Configuration
 
-All three settings are optional; the defaults match the specification.
+All four settings are optional; the defaults match the specification.
 
 | Variable | Default | Meaning |
 | --- | --- | --- |

@@ -1,9 +1,8 @@
-import { and, desc, eq, isNull, lt, sql } from 'drizzle-orm';
+import { and, desc, eq, gt, isNull, lt, or, sql } from 'drizzle-orm';
 import { db } from '@/lib/db/drizzle';
 import { ActivityType, accounts, clientProfiles, twoFactorCodes } from '@/lib/db/schema';
 import { logActivity } from '@/lib/db/queries/activity.queries';
 import { sendTwoFactorTokenEmail } from '@/lib/mail';
-import { ratelimit } from '@/lib/utils/rate-limit';
 import {
 	TWO_FACTOR_CODE_TTL_MINUTES,
 	TWO_FACTOR_MAX_ATTEMPTS,
@@ -94,15 +93,20 @@ export async function getTwoFactorAccountState(
 		.where(profileWhere)
 		.limit(1);
 
-	// Tenant-scoped exactly like the connected-accounts route's `hasPassword`.
-	// Account rows always carry a tenant (both credentials inserts set it), and
-	// without the scope a credentials account belonging to ANOTHER tenant would
-	// satisfy the OAuth gate for an OAuth-only profile in this one.
+	// Tenant-scoped like the connected-accounts route's `hasPassword`: without a
+	// scope, a credentials account belonging to ANOTHER tenant would satisfy the
+	// OAuth gate for an OAuth-only profile in this one. Rows with a NULL tenant
+	// are included deliberately — both credentials inserts set `tenant_id`, but
+	// a row predating that column belongs to no tenant rather than to a
+	// different one, and excluding it would tell a legitimate password account
+	// that it signed up with OAuth.
 	const linkedAccounts = await db
 		.select({ type: accounts.type, provider: accounts.provider, passwordHash: accounts.passwordHash })
 		.from(accounts)
 		.where(
-			tenantId ? and(eq(accounts.userId, userId), eq(accounts.tenantId, tenantId)) : eq(accounts.userId, userId)
+			tenantId
+				? and(eq(accounts.userId, userId), or(eq(accounts.tenantId, tenantId), isNull(accounts.tenantId)))
+				: eq(accounts.userId, userId)
 		);
 
 	// Client passwords live on `accounts` rows whose PROVIDER is 'credentials'
@@ -185,9 +189,11 @@ export async function setTwoFactorEnabled(
 
 	if (updated.length === 0) return false;
 
-	if (!enabled) {
-		await db.delete(twoFactorCodes).where(eq(twoFactorCodes.userId, userId));
-	}
+	// Purge pending codes on BOTH transitions. Disabling obviously discards
+	// them; enabling must too, because a code minted before the factor was
+	// last turned off would otherwise still satisfy the very next sign-in —
+	// including one that survived a failed cleanup on the way out.
+	await db.delete(twoFactorCodes).where(eq(twoFactorCodes.userId, userId));
 
 	return true;
 }
@@ -223,6 +229,13 @@ export interface IssuedTwoFactorCode {
  * the endpoint to bomb the victim's inbox. Deliberately looser than the
  * resend route's 3-per-10-minutes so a legitimate user who retries never
  * meets it first.
+ *
+ * Counted **in the database**, not in `ratelimit()`'s in-memory map: this
+ * one is a security control, and a process-local counter would let a
+ * multi-instance deployment issue `ISSUE_LIMIT × instances` codes per
+ * window. Counting `twoFactorCodes` rows in the window is exact and shared,
+ * which is why issuing marks earlier codes CONSUMED rather than deleting
+ * them — a deleted row cannot be counted.
  */
 const ISSUE_LIMIT = 6;
 const ISSUE_WINDOW_MS = 10 * 60 * 1000;
@@ -244,8 +257,13 @@ export async function issueTwoFactorCode(params: {
 }): Promise<IssuedTwoFactorCode> {
 	const { userId, email, tenantId, userName } = params;
 
-	const budget = await ratelimit(`2fa-issue:${userId}`, ISSUE_LIMIT, ISSUE_WINDOW_MS);
-	if (!budget.success) {
+	const windowStart = new Date(Date.now() - ISSUE_WINDOW_MS);
+	const [{ issued } = { issued: 0 }] = await db
+		.select({ issued: sql<number>`count(*)::int` })
+		.from(twoFactorCodes)
+		.where(and(eq(twoFactorCodes.userId, userId), gt(twoFactorCodes.createdAt, windowStart)));
+
+	if (issued >= ISSUE_LIMIT) {
 		return {
 			expiresAt: twoFactorCodeExpiry(),
 			expiresInMinutes: TWO_FACTOR_CODE_TTL_MINUTES,
@@ -259,7 +277,13 @@ export async function issueTwoFactorCode(params: {
 	const expiresAt = twoFactorCodeExpiry();
 
 	// Rotate: any previous code for this user becomes inert immediately.
-	await db.delete(twoFactorCodes).where(eq(twoFactorCodes.userId, userId));
+	// Marked consumed rather than deleted so it still counts towards the
+	// issuance budget above; `verifyTwoFactorCode` only ever looks at rows
+	// where `consumedAt IS NULL`, so a consumed row can never be satisfied.
+	await db
+		.update(twoFactorCodes)
+		.set({ consumedAt: new Date() })
+		.where(and(eq(twoFactorCodes.userId, userId), isNull(twoFactorCodes.consumedAt)));
 
 	// Opportunistic housekeeping so the table cannot grow without bound on a
 	// busy directory: drop anything that expired more than a day ago.

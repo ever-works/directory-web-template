@@ -147,8 +147,12 @@ export function TwoFactorCard() {
 				</div>
 			</div>
 
-			{/* EW-142: OAuth sign-ups cannot enable email 2FA. */}
-			{!canEnable && !enabled && (
+			{/* EW-142: OAuth sign-ups cannot enable email 2FA. Shown only when the
+			    account really is OAuth-only — `canEnableTwoFactor` is also false
+			    for an unknown auth method or an older deployment that does not
+			    send the field, and telling those users they "signed up with
+			    OAuth" would simply be wrong. They still get a disabled switch. */}
+			{!canEnable && !enabled && settings.authMethod === 'oauth' && (
 				<div
 					className="px-6 py-3 flex items-start gap-2 text-xs text-amber-600 dark:text-amber-400 bg-amber-50/50 dark:bg-amber-900/10 rounded-b-xl"
 					data-testid="two-factor-oauth-notice"

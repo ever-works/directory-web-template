@@ -315,13 +315,21 @@ async function mailService() {
  * Used by the 2FA enable route (spec 046): turning on a factor that is
  * delivered by email on a deployment with no mail provider would lock the
  * member out of their own account at the next sign-in, so the toggle
- * refuses rather than accepting a setting it cannot honour. Never throws —
- * a failure to resolve configuration answers `false`.
+ * refuses rather than accepting a setting it cannot honour.
+ *
+ * `isServiceAvailable()` alone is not enough. The provider factory never
+ * throws on a misconfiguration — it silently substitutes
+ * `MockEmailProvider`, which accepts every send and delivers nothing, so a
+ * deployment with (say) `EMAIL_PROVIDER=smtp` but only a Resend key set
+ * reports "available" while nothing can ever arrive. The resolved provider
+ * name is therefore checked too. Never throws — a failure to resolve
+ * configuration answers `false`.
  */
 export async function isEmailServiceConfigured(): Promise<boolean> {
   try {
     const service = await mailService();
-    return service.isServiceAvailable();
+    if (!service.isServiceAvailable()) return false;
+    return service.getProviderName().toLowerCase() !== 'mock';
   } catch (error) {
     console.warn('[EMAIL] Could not determine mail service availability:', error);
     return false;
