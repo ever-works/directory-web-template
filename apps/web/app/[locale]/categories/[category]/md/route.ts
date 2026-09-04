@@ -3,6 +3,7 @@
  * Public URL: `/<locale>/categories/<category>.md`.
  */
 
+import { NextResponse } from 'next/server';
 import { getCachedItems } from '@/lib/content';
 import { getBaseUrl } from '@/lib/utils/url-cleaner';
 import { slugify } from '@/lib/utils';
@@ -22,7 +23,13 @@ export async function GET(
 	const matched = categories.find(
 		(c) => c.id === decoded || c.id === slug || c.name.toLowerCase() === decoded.toLowerCase()
 	);
-	const resolvedId = matched?.id ?? slug;
+	// Unknown category slug → 404, the same answer the HTML page gives.
+	// Rendering an empty listing here would make the mirror a soft-404 that
+	// disagrees with the page it mirrors.
+	if (!matched) {
+		return NextResponse.json({ error: 'Not found' }, { status: 404 });
+	}
+	const resolvedId = matched.id;
 	const matchingItems = items.filter((item) => {
 		const cat = item.category;
 		if (!cat) return false;

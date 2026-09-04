@@ -7,6 +7,29 @@ sidebar_position: 99
 
 # Documentation & Specs Change Log
 
+## 2026-09-04
+
+- `spec-046`: the per-page `.md` Markdown mirrors were dead on every URL they
+  advertise — the seven route handlers lived in `_`-prefixed folders, which the
+  App Router drops from the route table, so the `next.config.ts` rewrite
+  destinations did not exist, and the unprefixed sources additionally pointed at
+  destinations missing the `[locale]` segment `proxy.ts` refuses to add to dotted
+  paths. Handlers renamed (`_md` → `md`, `_static-md` → `static-md`; public URLs
+  unchanged), unprefixed rewrites given an explicit default-locale destination
+  via a new dependency-free `apps/web/lib/i18n/locales.ts` that
+  `lib/constants.ts` re-exports, and unknown category/tag slugs now 404 like
+  their HTML pages
+  ([spec 046](spec/046-md-mirror-route-reachability/spec.md), PR #PRNUM).
+- `apps/web-e2e`: `md-mirror-routes.spec.ts` rewritten from `status < 500` (which
+  a 404 satisfied, which is why the breakage above shipped and stayed) to the
+  real contract — exactly 200, `text/markdown`, `X-Robots-Tag: noindex`, a body
+  that names the canonical page it mirrors — across the static info pages, a
+  discovered item / category / tag, a non-default locale, the unknown-slug 404s,
+  and the advertised alternate href actually resolving (PR #PRNUM).
+- `questions`: added Q-046a (internal `/md` segment left publicly reachable
+  behind `noindex`) and Q-046b (doubled origin still present on the item and CMS
+  page `text/markdown` alternates) (PR #PRNUM).
+
 ## 2026-08-25
 
 - `spec-045`: documented and hardened the shared handler/`POST /api/stripe/platform-webhook` path, including HMAC fail-closed coverage, formatted payment amounts, and retry-safe event coordination ([spec 045](spec/045-shared-stripe-webhook-relay/spec.md), PR #1037).
@@ -37,7 +60,8 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-08-23 — Chore: force LF for container scripts (.gitattributes)
 
-- infra: `docker-entrypoint.sh`, `*.sh` and the Dockerfiles are now `text eol=lf` in `.gitattributes`. A Windows checkout (`core.autocrlf=true`) produced `#!/bin/sh` and the built site image died with `exec /usr/local/bin/docker-entrypoint.sh: no such file or directory` (2026-08-23, local image build while the CI runner pool was stalled). No runtime change for CI-built images. (PR: pending)
+- infra: `docker-entrypoint.sh`, `*.sh` and the Dockerfiles are now `text eol=lf` in `.gitattributes`. A Windows checkout (`core.autocrlf=true`) produced `#!/bin/sh
+` and the built site image died with `exec /usr/local/bin/docker-entrypoint.sh: no such file or directory` (2026-08-23, local image build while the CI runner pool was stalled). No runtime change for CI-built images. (PR: pending)
 
 ## 2026-08-22
 
