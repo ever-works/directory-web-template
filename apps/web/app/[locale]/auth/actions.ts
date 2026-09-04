@@ -131,8 +131,15 @@ export const signInAction = validatedAction(signInSchema, async (data) => {
 								? AuthErrorCode.TWO_FACTOR_REQUIRED
 								: AuthErrorCode.TWO_FACTOR_SEND_FAILED,
 						twoFactorRequired: true,
-						twoFactorExpiresAt: issued.expiresAt.toISOString(),
-						twoFactorExpiresInMinutes: issued.expiresInMinutes,
+						// No code was minted when throttled, so do not hand the form
+						// a countdown for one that does not exist — whatever earlier
+						// code is still live keeps its own deadline.
+						...(issued.throttled
+							? {}
+							: {
+									twoFactorExpiresAt: issued.expiresAt.toISOString(),
+									twoFactorExpiresInMinutes: issued.expiresInMinutes
+								}),
 						email: normalizedEmail
 					};
 				}
