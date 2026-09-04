@@ -523,6 +523,49 @@ confirm, override, or refine.
 
 ---
 
+## Spec 046 — Legal page SEO metadata from Markdown frontmatter
+
+### Q-046a Which routes adopt `buildStaticPageMetadata()`
+
+- **Context.** `apps/web/lib/seo/static-page-metadata.ts` resolves a static
+  info page's `<title>` / `<meta name="description">` from the data
+  repository's Markdown frontmatter with an i18n fallback. EW-17 scoped the
+  change to `/terms-of-service` and `/privacy-policy`, but `/about` and
+  `/cookies` are the same shape (dedicated route, `pages/<slug>.<locale>.md`
+  body, frontmatter title in the `<h1>` and in the `.md` mirror, i18n-only
+  `generateMetadata`) and have the same drift.
+- **Options.**
+  - **Legal routes now, `about` / `cookies` in a follow-up.** Keeps the
+    ticket's diff reviewable; the helper is already generic, so the follow-up
+    is a four-line change per route.
+  - Migrate all four in one PR. Removes the inconsistency immediately but
+    widens a small ticket into every static info page, and `/about` is
+    asserted by more specs (`about.spec.ts`,
+    `each-page-document-title-length.spec.ts`).
+- **Default.** **Legal routes now, `about` / `cookies` in a follow-up.**
+- **Owner.** Template maintainers.
+- **Status.** `open`.
+
+### Q-046b `.md` vs `.mdx` for data-repository pages
+
+- **Context.** EW-17 asks for `terms-of-service.mdx` / `privacy-policy.mdx`.
+  The template's reader (`fetchPageContent`) globs `pages/<slug>.<locale>.md`
+  and the content is rendered by `next-mdx-remote`, so the files already get
+  full MDX rendering under a `.md` extension; the demo data repository ships
+  them as `.md`.
+- **Options.**
+  - **Keep `.md`.** No behaviour difference, no data-repository migration, and
+    the extension every existing Work and the `pages/` docs already use.
+  - Accept both extensions in `fetchPageContent` and document `.mdx` as
+    preferred. Matches the ticket's wording; costs an extra stat per lookup
+    and a docs/data migration for no rendering gain.
+- **Default.** **Keep `.md`** — the requirement is "MDX rendering with
+  frontmatter", which is satisfied.
+- **Owner.** Template maintainers.
+- **Status.** `open`.
+
+---
+
 ## How to add a question
 
 1. Pick the next available `Q-NNN…` id under the relevant spec.

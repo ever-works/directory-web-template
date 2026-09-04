@@ -6,35 +6,35 @@ import Link from 'next/link';
 import { PageContainer } from '@/components/ui/container';
 import { MDX } from '@/components/mdx';
 import { getCachedPageContent } from '@/lib/content';
-import { getBaseUrl } from '@/lib/utils/url-cleaner';
-import { generateHreflangAlternates, getLocalizedUrl } from '@/lib/seo/hreflang';
-import { Locale, DEFAULT_LOCALE } from '@/lib/constants';
+import { buildStaticPageMetadata } from '@/lib/seo/static-page-metadata';
+import { DEFAULT_LOCALE } from '@/lib/constants';
 import { BreadcrumbJsonLd } from '@/components/seo/breadcrumb-json-ld';
 
 interface PageProps {
   params: Promise<{ locale: string }>;
 }
 
-const appUrl = getBaseUrl();
-
 // Default privacy policy content when no MDX file exists in .content/pages/
 const DEFAULT_PRIVACY_POLICY_CONTENT = `No content yet. Add a \`privacy-policy.en.md\` file to your content repository's \`pages/\` directory to customize this page.`;
 
+/**
+ * SEO metadata comes from the Markdown frontmatter (`title` / `description` in
+ * `pages/privacy-policy.<locale>.md`) so a directory that customised its
+ * privacy copy also gets its own SERP snippet. The i18n strings stay as the
+ * fallback for Works whose data repository has no `pages/` content.
+ */
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { locale } = await params;
   const tFooter = await getTranslations({ locale, namespace: 'footer' });
   const tPages = await getTranslations({ locale, namespace: 'pages' });
 
-  return {
-    metadataBase: new URL(appUrl),
-    title: tFooter('PRIVACY_POLICY'),
-    description: tPages('PRIVACY_POLICY_META_DESCRIPTION'),
-    alternates: {
-      canonical: getLocalizedUrl('/privacy-policy', locale as Locale),
-      languages: generateHreflangAlternates('/privacy-policy'),
-      types: { 'text/markdown': `${appUrl}${getLocalizedUrl('/privacy-policy', locale as Locale)}.md` }
-    }
-  };
+  return buildStaticPageMetadata({
+    slug: 'privacy-policy',
+    path: '/privacy-policy',
+    locale,
+    fallbackTitle: tFooter('PRIVACY_POLICY'),
+    fallbackDescription: tPages('PRIVACY_POLICY_META_DESCRIPTION')
+  });
 }
 
 export default async function PrivacyPolicyPage({ params }: PageProps) {

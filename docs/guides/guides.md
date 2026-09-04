@@ -45,6 +45,7 @@ Guides related to content management, data utilities, and URL handling.
 | Guide                                                   | Description                                                              |
 | ------------------------------------------------------- | ------------------------------------------------------------------------ |
 | [Slug Utilities](/docs/guides/slug-utilities)           | URL slug generation, validation, and conflict resolution                 |
+| [Static Page Content](/docs/guides/static-page-content) | Terms, Privacy, About and Cookies copy: the data repository `pages/` Markdown files, their frontmatter, and the fallbacks |
 | [URL Utilities](/docs/guides/url-utilities)             | URL construction helpers, query parameter management, and canonical URLs |
 | [Filter Sync](/docs/guides/filter-sync)                 | How filter state is synchronized between URL parameters and the UI       |
 | [Pagination Patterns](/docs/guides/pagination-patterns) | Server-side and client-side pagination implementations                   |

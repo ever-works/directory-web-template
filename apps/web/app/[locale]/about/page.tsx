@@ -36,7 +36,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     alternates: {
       canonical: getLocalizedUrl('/about', locale as Locale),
       languages: generateHreflangAlternates('/about'),
-      types: { 'text/markdown': `${appUrl}${getLocalizedUrl('/about', locale as Locale)}.md` }
+      types: { 'text/markdown': `${getLocalizedUrl('/about', locale as Locale)}.md` }
     }
   };
 }
