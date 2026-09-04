@@ -248,13 +248,24 @@ export async function createBillingIssue(data: Omit<NewBillingIssue, 'tenantId'>
 	if (!user) throw new BillingIssueReferenceError('The user does not exist in this tenant');
 
 	if (data.subscriptionId) {
+		// Same tenant is not enough: the subscription must belong to the SAME user, or
+		// the issue would show one customer while pointing the refund at another
+		// customer's payment.
 		const [subscription] = await db
 			.select({ id: subscriptions.id })
 			.from(subscriptions)
-			.where(and(eq(subscriptions.id, data.subscriptionId), eq(subscriptions.tenantId, tenantId)))
+			.where(
+				and(
+					eq(subscriptions.id, data.subscriptionId),
+					eq(subscriptions.tenantId, tenantId),
+					eq(subscriptions.userId, data.userId)
+				)
+			)
 			.limit(1);
 		if (!subscription) {
-			throw new BillingIssueReferenceError('The subscription does not exist in this tenant');
+			throw new BillingIssueReferenceError(
+				'The subscription does not exist in this tenant, or belongs to another user'
+			);
 		}
 	}
 
@@ -276,6 +287,8 @@ export interface UpdateBillingIssueData {
 	refundId?: string | null;
 	refundAmount?: number | null;
 	refundedAt?: Date | null;
+	/** Cleared when a refund is finalised, so the row is not left holding a claim. */
+	refundClaimedAt?: Date | null;
 }
 
 export interface UpdateBillingIssueOptions {
@@ -286,6 +299,13 @@ export interface UpdateBillingIssueOptions {
 	 * The condition therefore has to travel into the UPDATE's own WHERE clause.
 	 */
 	skipIfRefunded?: boolean;
+	/**
+	 * Refuse the write unless the row still carries exactly this refund claim — the
+	 * claim timestamp doubles as an ownership token. A request whose claim was taken
+	 * over after the TTL must not be able to write its outcome over the request that
+	 * now owns the issue.
+	 */
+	onlyWithClaim?: Date;
 }
 
 /**
@@ -302,6 +322,7 @@ export async function updateBillingIssue(
 
 	const conditions: SQL[] = [eq(billingIssues.id, id), eq(billingIssues.tenantId, tenantId)];
 	if (options.skipIfRefunded) conditions.push(ne(billingIssues.status, BillingIssueStatus.REFUNDED));
+	if (options.onlyWithClaim) conditions.push(eq(billingIssues.refundClaimedAt, options.onlyWithClaim));
 
 	const [row] = await db
 		.update(billingIssues)
@@ -346,17 +367,6 @@ export async function claimBillingIssueForRefund(id: string): Promise<BillingIss
 		.returning();
 
 	return row ?? null;
-}
-
-/** Hand the claim back when the provider refused, so the admin can retry at once. */
-export async function releaseBillingIssueRefundClaim(id: string): Promise<void> {
-	const tenantId = await getTenantId();
-	if (!tenantId) return;
-
-	await db
-		.update(billingIssues)
-		.set({ refundClaimedAt: null, updatedAt: new Date() })
-		.where(and(eq(billingIssues.id, id), eq(billingIssues.tenantId, tenantId)));
 }
 
 /** Counts and totals for the page header tabs and stat cards. */
@@ -586,5 +596,29 @@ export async function upsertBillingIssueForSubscription(input: {
 		.onConflictDoNothing({ target: [billingIssues.tenantId, billingIssues.sourceKey] })
 		.returning();
 
-	return row ?? null;
+	if (row) return row;
+
+	// The issue already existed — created by the re-scan, which can only ever know
+	// the invoice id. A webhook usually carries the payment intent, which is what a
+	// refund actually needs, so adopt it. Scoped to issues that are still OPEN so a
+	// closed or refunded issue is never touched, and to rows whose reference differs,
+	// so this is a no-op on a repeat delivery.
+	if (input.providerPaymentId) {
+		const [updated] = await db
+			.update(billingIssues)
+			.set({ providerPaymentId: input.providerPaymentId, updatedAt: new Date() })
+			.where(
+				and(
+					eq(billingIssues.tenantId, input.tenantId),
+					eq(billingIssues.sourceKey, buildBillingIssueSourceKey(input.subscriptionId, input.type)),
+					inArray(billingIssues.status, OPEN_BILLING_ISSUE_STATUSES),
+					ne(billingIssues.providerPaymentId, input.providerPaymentId)
+				)
+			)
+			.returning();
+
+		return updated ?? null;
+	}
+
+	return null;
 }

@@ -72,9 +72,16 @@ export function buildPaymentReportQuery(params: PaymentReportParams): string {
 	return apiUtils.createQueryString(queryParams);
 }
 
-const fetchReport = async (params: PaymentReportParams): Promise<PaymentReportResponse> => {
+/**
+ * `signal` is not only for cancellation here: `serverClient` skips its own
+ * five-minute GET cache whenever a signal is supplied. Without it the table could
+ * keep serving a cached page while the export — which fetches directly — returned
+ * fresher rows, and the two would disagree for the same filters.
+ */
+const fetchReport = async (params: PaymentReportParams, signal?: AbortSignal): Promise<PaymentReportResponse> => {
 	const response = await serverClient.get<{ success: boolean; data: PaymentReportResponse }>(
-		`/api/admin/payment-reports?${buildPaymentReportQuery(params)}`
+		`/api/admin/payment-reports?${buildPaymentReportQuery(params)}`,
+		{ signal }
 	);
 
 	if (!apiUtils.isSuccess(response)) throw new Error(apiUtils.getErrorMessage(response));
@@ -92,7 +99,7 @@ export function useAdminPaymentReports(options: PaymentReportParams = {}) {
 
 	const { data, isLoading, isError, error, refetch } = useQuery({
 		queryKey: paymentReportQueryKeys.list(queryParams),
-		queryFn: () => fetchReport(queryParams),
+		queryFn: ({ signal }) => fetchReport(queryParams, signal),
 		staleTime: 60 * 1000,
 		gcTime: 5 * 60 * 1000,
 		retry: 2

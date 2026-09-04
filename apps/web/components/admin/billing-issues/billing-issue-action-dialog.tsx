@@ -73,7 +73,11 @@ export default function BillingIssueActionDialog({
 		setPartialAmount('');
 		setPaymentReference(issue.providerPaymentId || '');
 		setConfirmingRefund(false);
-	}, [issue.id, issue.status, issue.resolutionNote, issue.providerPaymentId]);
+		// `open` is a dependency on purpose: without it, cancelling and reopening the
+		// same row restores the previous draft — including a typed partial amount and
+		// an armed refund confirmation. A dialog that reopens one click away from
+		// moving money is not an acceptable default.
+	}, [open, issue.id, issue.status, issue.resolutionNote, issue.providerPaymentId]);
 
 	if (!open) return null;
 

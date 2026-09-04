@@ -2,7 +2,6 @@ import {
 	claimBillingIssueForRefund,
 	getBillingIssueById,
 	getBillingIssueRow,
-	releaseBillingIssueRefundClaim,
 	updateBillingIssue,
 	upsertBillingIssueForSubscription,
 	type BillingIssueWithContext
@@ -13,7 +12,7 @@ import { getTenantId } from '@/lib/auth/tenant';
 import { ActivityType, BillingIssueStatus, BillingIssueType, type BillingIssueStatusValues } from '@/lib/db/schema';
 import { getOrCreateProvider } from '@/lib/payment/config/payment-provider-manager';
 import type { PaymentProviderInterface } from '@/lib/payment/types/payment-types';
-import { fromMinorUnits, toMinorUnits } from '@/lib/utils/currency-format';
+import { toMinorUnits } from '@/lib/utils/currency-format';
 
 /**
  * Billing-issue actions (Spec 046).
@@ -99,23 +98,29 @@ async function recordAdminActivity(type: ActivityType, adminId: string, tenantId
  *
  * Everything the template stores is in the smallest currency unit — `subscriptions.amount`,
  * `billing_issues.amount`, the API body and the DB column are all integer cents.
- * Every `PaymentProviderInterface.refundPayment` implementation, however, takes a
- * MAJOR-unit amount and multiplies by 100 itself (`stripe-provider.ts` →
- * `Math.round(amount * 100)`, and the same in `polar-provider.ts` and
- * `solidgate-provider.ts`) and returns `refund.amount / 100` back in major units.
- * Passing cents straight through would refund 100x the intended amount, so the
- * conversion happens here, once, on both directions of the provider call.
+ * Every `PaymentProviderInterface.refundPayment` implementation, however, does its
+ * own `Math.round(amount * 100)` before calling the provider SDK
+ * (`stripe-provider.ts:631`, and the same in `polar-provider.ts` and
+ * `solidgate-provider.ts`) and returns `refund.amount / 100` on the way back.
+ * Passing cents straight through would refund 100x the intended amount.
  *
- * The factor is per-currency, not a hard-coded 100: for a zero-decimal currency
- * such as JPY the smallest unit IS the major unit, and dividing by 100 there
- * would refund a hundredth of what the admin asked for.
+ * That factor in the adapters is a HARD-CODED 100, not a currency-aware one — so
+ * the value this seam must hand them is "minor units ÷ 100" for EVERY currency,
+ * including the zero-decimal ones. Making this conversion currency-aware would be
+ * the intuitive move and would be wrong: for JPY it would pass ¥1000 unchanged,
+ * the adapter would multiply by 100, and the customer would be refunded ¥100,000.
+ * The currency-aware helpers are used for storage and display, never here.
+ * Standardising the adapter interface on minor units is the real fix and belongs
+ * in the payment-provider spec, not in this feature.
  */
-function toProviderAmount(minorUnits: number, currency: string | null): number {
-	return fromMinorUnits(minorUnits, currency || 'usd');
+const PROVIDER_AMOUNT_SCALE = 100;
+
+function toProviderAmount(minorUnits: number): number {
+	return minorUnits / PROVIDER_AMOUNT_SCALE;
 }
 
-function fromProviderAmount(majorUnits: number, currency: string | null): number {
-	return toMinorUnits(majorUnits, currency || 'usd');
+function fromProviderAmount(providerAmount: number): number {
+	return Math.round(providerAmount * PROVIDER_AMOUNT_SCALE);
 }
 
 /** Read the refund id out of whatever shape the provider returned. */
@@ -131,14 +136,15 @@ function extractRefundId(result: unknown): string | null {
 
 /**
  * Read the refunded amount out of whatever shape the provider returned, converted
- * back into the smallest currency unit this feature stores.
+ * back into the smallest currency unit this feature stores. Mirrors the adapters'
+ * own `refund.amount / 100`, so it is the same fixed scale, not a currency one.
  */
-function extractRefundAmount(result: unknown, currency: string | null): number | null {
+function extractRefundAmount(result: unknown): number | null {
 	if (!result || typeof result !== 'object') return null;
 	const record = result as Record<string, unknown>;
 	for (const key of ['amount', 'refundAmount', 'refunded_amount']) {
 		const value = record[key];
-		if (typeof value === 'number' && Number.isFinite(value)) return fromProviderAmount(value, currency);
+		if (typeof value === 'number' && Number.isFinite(value)) return fromProviderAmount(value);
 	}
 	return null;
 }
@@ -218,37 +224,62 @@ export async function refundBillingIssue(
 		);
 	}
 
+	const claimedAt = claimed.refundClaimedAt;
+
 	let providerResult: unknown;
 	try {
 		providerResult = await provider.refundPayment(
 			providerPaymentId,
-			input.amount === undefined ? undefined : toProviderAmount(input.amount, issue.currency)
+			input.amount === undefined ? undefined : toProviderAmount(input.amount)
 		);
 	} catch (error) {
-		// Hand the claim back so the admin can fix the reference and retry at once,
-		// rather than waiting out the claim TTL.
-		await releaseBillingIssueRefundClaim(issue.id);
+		// The claim is deliberately NOT handed back here.
+		//
+		// A thrown error does not tell us whether the provider took the money: a lost
+		// response, a proxy timeout or a client-side abort all look identical to a
+		// clean rejection. Releasing the claim would let an immediate retry submit a
+		// SECOND refund for a charge that may already have been refunded. So the claim
+		// is left to expire after `REFUND_CLAIM_TTL_MS`, which bounds the damage to a
+		// short wait instead of a duplicate payout, and the message says so.
 		const detail = error instanceof Error ? error.message : String(error);
 		console.error('[BillingIssueService] Provider refund failed:', detail);
-		throw new BillingIssueActionError(`The payment provider rejected the refund: ${detail}`, 502);
+		throw new BillingIssueActionError(
+			`The payment provider rejected the refund: ${detail}. Check the provider dashboard before retrying — the refund may still have gone through, so this issue stays locked for a few minutes.`,
+			502
+		);
 	}
 
 	const now = new Date();
-	const updated = await updateBillingIssue(issue.id, {
-		status: BillingIssueStatus.REFUNDED,
-		// Persist the reference that actually worked, so a retry or an audit reads
-		// the same id the provider was given.
-		providerPaymentId,
-		refundId: extractRefundId(providerResult),
-		refundAmount: input.amount ?? extractRefundAmount(providerResult, issue.currency) ?? issue.amount ?? null,
-		refundedAt: now,
-		resolutionNote: input.note === undefined ? issue.resolutionNote : input.note || null,
-		resolvedBy: input.adminId,
-		resolvedAt: now
-	});
+	const updated = await updateBillingIssue(
+		issue.id,
+		{
+			status: BillingIssueStatus.REFUNDED,
+			// Persist the reference that actually worked, so a retry or an audit reads
+			// the same id the provider was given.
+			providerPaymentId,
+			refundClaimedAt: null,
+			refundId: extractRefundId(providerResult),
+			refundAmount: input.amount ?? extractRefundAmount(providerResult) ?? issue.amount ?? null,
+			refundedAt: now,
+			resolutionNote: input.note === undefined ? issue.resolutionNote : input.note || null,
+			resolvedBy: input.adminId,
+			resolvedAt: now
+		},
+		// Only the request that still holds the claim may write the outcome. If the
+		// claim expired and another request took it over, this write is refused
+		// rather than stamping our result over theirs.
+		claimedAt ? { onlyWithClaim: claimedAt } : {}
+	);
 
 	if (!updated) {
-		throw new BillingIssueActionError('Billing issue not found', 404);
+		console.error(
+			'[BillingIssueService] Refund succeeded at the provider but the issue could not be finalised (claim lost):',
+			issue.id
+		);
+		throw new BillingIssueActionError(
+			'The refund was accepted by the provider, but this issue was picked up by another request in the meantime. Reload the page and check the provider dashboard before retrying.',
+			409
+		);
 	}
 
 	await recordAdminActivity(ActivityType.ADMIN_BILLING_REFUND, input.adminId, issue.tenantId);

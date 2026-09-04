@@ -77,8 +77,3 @@ CREATE INDEX IF NOT EXISTS "billing_issues_tenant_id_idx" ON "billing_issues" ("
 -- re-created on the next sync.
 CREATE UNIQUE INDEX IF NOT EXISTS "billing_issues_tenant_source_key_idx"
   ON "billing_issues" ("tenant_id", "source_key");
-
--- Added alongside the table so a database that already ran an earlier copy of this
--- migration still gains the refund-claim column (the table create above is guarded
--- by IF NOT EXISTS and would otherwise skip it).
-ALTER TABLE "billing_issues" ADD COLUMN IF NOT EXISTS "refund_claimed_at" timestamp;

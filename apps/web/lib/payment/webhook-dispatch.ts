@@ -543,18 +543,18 @@ function extractProviderSubscriptionId(data: any): string | null {
 /**
  * Read the reference a refund would target off a failed-invoice payload (Spec 046).
  *
- * `stripe.refunds.create` takes a payment intent (or charge), never an invoice id,
- * so the invoice's `payment_intent` is preferred when Stripe included one. The
- * invoice id is kept as the fallback so the issue still records *something* to
- * trace; an admin can paste the real charge id in the refund dialog.
+ * The invoice's `payment_intent` is what a refund actually needs — the template's
+ * Stripe adapter passes whatever it is given as `payment_intent` to
+ * `refunds.create`. The invoice's `charge` is deliberately NOT used as a fallback:
+ * it is a `ch_…` id, and handing it to the adapter would produce a refund call
+ * that always fails while looking like a valid reference to the admin. The invoice
+ * id is the honest fallback — it records something traceable, and the refund
+ * dialog lets an admin paste the real reference before confirming.
  */
 function extractProviderPaymentId(data: any): string | null {
 	const intent = data?.payment_intent;
 	if (typeof intent === 'string' && intent) return intent;
 	if (intent && typeof intent === 'object' && typeof intent.id === 'string' && intent.id) return intent.id;
-
-	const charge = data?.charge;
-	if (typeof charge === 'string' && charge) return charge;
 
 	return typeof data?.id === 'string' && data.id ? data.id : null;
 }

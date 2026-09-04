@@ -99,9 +99,14 @@ All copy is `next-intl` under `admin.ADMIN_PAYMENT_REPORTS_PAGE`, present in all
 ## 9. Data & API Surface
 
 Reads the existing `subscriptions` table joined to `users`; no schema change. The
-collected amount for a row is `coalesce(nullif(amount_paid, 0), amount, 0)`,
-stored in the smallest currency unit and rendered in major units in the export so
-a spreadsheet sum reads as money.
+collected amount for a row is `coalesce(amount_paid, amount, 0)` — note the
+absence of a `nullif(amount_paid, 0)`: a paid amount of 0 is a real answer for a
+pending or failed subscription, and treating it as missing would book unpaid
+subscriptions as revenue.
+
+Amounts are stored and exported in MAJOR units, because `subscriptions.amount*`
+are written through `convertCentsToDecimal`. The export therefore does not divide;
+doing so would have shipped every stakeholder a report showing 1% of real revenue.
 
 | Route | Method | Purpose |
 | --- | --- | --- |

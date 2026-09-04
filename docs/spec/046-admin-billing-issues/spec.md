@@ -95,7 +95,9 @@ All copy is `next-intl` under `admin.ADMIN_BILLING_ISSUES_PAGE`, present in all
 
 ## 9. Data & API Surface
 
-New table `billing_issues` (migration `0040_admin_billing_issues.sql`): references
+New table `billing_issues` (migrations `0040_admin_billing_issues.sql` and
+`0041_billing_issue_refund_claim.sql`; the claim column ships as its own migration
+because a migration that has been applied is immutable): references
 `users` and (nullably) `subscriptions`, with `type`, `status`, `payment_provider`,
 `provider_payment_id`, `amount`, `currency`, `detection_reason`, `source_key`,
 `refund_claimed_at`, `refund_id`, `refund_amount`, `refunded_at`,
@@ -121,25 +123,41 @@ here and only one of them is obvious:
 | --- | --- | --- |
 | `subscriptions.amount` / `amount_paid` / `amount_due` | **major** (dollars) | The webhook writer stores `convertCentsToDecimal(...)`, and the customer-facing `subscription-card.tsx` formats them with `formatCurrencyAmount` |
 | `billing_issues.amount` / `refund_amount`, the API body, the UI | **minor** (cents) | So a partial refund can carry cents at all |
-| `PaymentProviderInterface.refundPayment(id, amount)` | **major** | Every adapter does its own `Math.round(amount * 100)` and returns `amount / 100` |
+| `PaymentProviderInterface.refundPayment(id, amount)` | **minor ÷ 100, for every currency** | Every adapter does its own hard-coded `Math.round(amount * 100)` and returns `amount / 100` |
 
 So intake converts major → minor when seeding an issue from a subscription, and
-the refund converts minor → major at the provider call and back on the way out.
-The factor is per-currency (`currencyMinorUnitFactor`), never a literal `100`: for
-a zero-decimal currency such as JPY the smallest unit IS the major unit. Getting
-any one of these wrong is a silent 100× money error, so the conversions live in
-exactly two places — `lib/utils/currency-format.ts` and the provider boundary in
-`billing-issue.service.ts` — and the display path goes through the template's
-shared `formatCurrency`.
+the refund divides by 100 at the provider call and multiplies back on the way out.
+
+The third row is the counter-intuitive one and is worth stating plainly: the
+provider seam is **not** currency-aware, because the adapters' factor is a literal
+`100` rather than the currency's own. Making this conversion currency-aware — the
+natural-looking fix — would pass ¥1000 through unchanged, the adapter would
+multiply by 100, and the customer would receive ¥100,000. Currency-aware
+conversion (`currencyMinorUnitFactor`) is therefore used for storage and display
+only; standardising the adapter interface on minor units is the real fix and
+belongs in the payment-provider spec.
+
+Storage and display go through the template's shared `formatCurrency` /
+`formatCurrencyAmount`, which already handle the zero-decimal currencies.
 
 **Concurrency.** A refund is claimed before it is attempted. `refund_claimed_at`
-is set by a single conditional UPDATE that exactly one request can win, so two
-admins pressing "Refund" at the same moment cannot both reach the provider; the
-claim is released if the provider rejects, and is treated as stale after
-`REFUND_CLAIM_TTL_MS` so a crashed request cannot strand the issue. For the same
-reason the status-change path passes `skipIfRefunded`, which carries the "not
-already refunded" condition into the UPDATE's own `WHERE` — a status read taken
-before the write cannot bind a row that a concurrent refund has since changed.
+(migration `0041`) is set by a single conditional UPDATE that exactly one request
+can win, so two admins pressing "Refund" at the same moment cannot both reach the
+provider. The timestamp doubles as an ownership token: the request that finalises
+the refund must still match the claim it took, so a request whose claim expired
+and was taken over cannot write its outcome over the request that now owns the
+issue.
+
+A provider error deliberately does **not** release the claim. A thrown error does
+not say whether the money moved — a lost response, a proxy timeout and a clean
+rejection are indistinguishable from here — so releasing would let an immediate
+retry submit a second refund for a charge that may already be refunded. The claim
+is left to expire after `REFUND_CLAIM_TTL_MS`, which bounds the cost to a short
+wait instead of a duplicate payout, and the 502 says so.
+
+For the same reason the status-change path passes `skipIfRefunded`, which carries
+the "not already refunded" condition into the UPDATE's own `WHERE` — a status read
+taken before the write cannot bind a row a concurrent refund has since changed.
 
 **Refund target.** `POST .../refund` accepts an optional `providerPaymentId` that
 overrides the reference stored on the issue and is persisted when the refund

@@ -57,7 +57,7 @@ flowchart LR
 `listPaymentRecords` and `summarizePayments` build their `WHERE` from the same
 private helper, so a row that appears in the table is always counted in the
 summary. The collected amount is
-`coalesce(nullif(amount_paid, 0), amount, 0)` — `amount_paid` when the provider
+`coalesce(amount_paid, amount, 0)` — `amount_paid` when the provider
 reported one, otherwise the subscription amount.
 
 Date bounds are parsed by `parseReportDate`, which **throws** on a malformed value

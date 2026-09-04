@@ -228,8 +228,12 @@ export async function listAllPaymentRecords(
 	// One statement, not a paging loop: the cap belongs in the SQL `LIMIT`, so a
 	// 10k-row export costs one round trip instead of fifty (each of which would
 	// also have re-run the COUNT the paginated read needs and the export does not).
+	// A cap of 0 means "no rows", not "one row": `Math.max(1, …)` here would break
+	// the maximum-row contract the caller is relying on.
+	if (maxRows <= 0) return [];
+
 	const where = await buildWhere(filters);
-	return await selectRecords(where, Math.max(1, maxRows), 0);
+	return await selectRecords(where, maxRows, 0);
 }
 
 /** Revenue roll-ups for the same filter set the list uses. */

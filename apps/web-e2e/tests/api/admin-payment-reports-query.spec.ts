@@ -91,9 +91,14 @@ const PAYMENT_REPORT_QUERIES = [
 
 test.describe('API: /api/admin/payment-reports query-param surface (unauthenticated)', () => {
 	for (const path of PAYMENT_REPORT_QUERIES) {
-		test(`GET ${path} responds without a server error`, async ({ request }) => {
+		test(`GET ${path} is refused for an anonymous caller`, async ({ request }) => {
 			const response = await request.get(path);
-			expect(response.status()).toBeLessThan(500);
+
+			// The file's stated invariant is "neither route is reachable anonymously
+			// under any query permutation" — a `< 500` assertion does not pin that. An
+			// auth regression answering 200 with customer emails and revenue on, say,
+			// `?token=anything` has to fail HERE, not in a reviewer's memory.
+			expect([401, 403, 503]).toContain(response.status());
 		});
 	}
 

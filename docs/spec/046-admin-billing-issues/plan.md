@@ -42,7 +42,7 @@ flowchart LR
 | Area | File |
 | --- | --- |
 | Schema | `apps/web/lib/db/schema.ts` (`billingIssues`, `BillingIssueType`, `BillingIssueStatus`, three `ActivityType` values) |
-| Migration | `apps/web/lib/db/migrations/0040_admin_billing_issues.sql` + journal entry |
+| Migration | `apps/web/lib/db/migrations/0040_admin_billing_issues.sql`, `0041_billing_issue_refund_claim.sql` + journal entries |
 | Queries | `apps/web/lib/db/queries/billing-issue.queries.ts` |
 | Service | `apps/web/lib/services/billing-issue.service.ts` |
 | API | `apps/web/app/api/admin/billing-issues/{route,stats/route,[id]/route,[id]/refund/route}.ts` |
@@ -85,12 +85,14 @@ the branch can be exercised without a live provider.
 
 **Two boundary details worth spelling out, because both are silent failure modes:**
 
-- *Units.* The whole feature — column, API body, UI — speaks in the smallest
-  currency unit, like `subscriptions.amount`. Every provider adapter's
-  `refundPayment` takes major units and does its own `* 100`, and returns
-  `amount / 100`. `toProviderAmount` / `fromProviderAmount` in the service are the
-  single conversion point; without them a "$12.34" partial refund would leave as
-  $1,234.
+- *Units.* `subscriptions.amount*` are MAJOR units (`convertCentsToDecimal` runs
+  before they are stored); `billing_issues.amount`, the API body and the UI are in
+  the smallest unit, so a partial refund can carry cents. Every provider adapter's
+  `refundPayment` does its own hard-coded `* 100` and returns `amount / 100`, so
+  the provider seam divides by 100 for EVERY currency — deliberately not
+  currency-aware, or a ¥1000 refund would leave as ¥100,000. Storage and display
+  conversions are currency-aware via `currencyMinorUnitFactor`. See the table in
+  spec §9.
 - *Reference.* `provider_payment_id` is filled by detection from
   `subscriptions.invoice_id`, but Stripe refunds a payment intent, not an invoice.
   The refund request may therefore carry an overriding `providerPaymentId`, the
@@ -116,7 +118,12 @@ the branch can be exercised without a live provider.
 
 ## 7. Rollout
 
-The migration is additive and idempotent (`CREATE TABLE IF NOT EXISTS`, guarded
-constraint adds, `CREATE INDEX IF NOT EXISTS`), so it is safe on a database that
-already ran it. With no rows the page renders its empty state and the re-scan
-button is the entry point.
+Both migrations are additive and idempotent (`CREATE TABLE IF NOT EXISTS`, guarded
+constraint adds, `CREATE INDEX IF NOT EXISTS`, `ADD COLUMN IF NOT EXISTS`), so
+they are safe on a database that already ran them. `refund_claimed_at` ships as
+its own migration (`0041`) rather than as an edit to `0040`: Drizzle records
+applied migrations by tag, so a database that already ran `0040` would never see
+an `ALTER` appended to it. A shipped migration is immutable.
+
+With no rows the page renders its empty state and the re-scan button is the entry
+point.

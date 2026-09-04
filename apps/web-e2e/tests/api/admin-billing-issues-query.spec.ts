@@ -102,9 +102,14 @@ const BILLING_ISSUE_QUERIES = [
 
 test.describe('API: /api/admin/billing-issues query-param surface (unauthenticated)', () => {
 	for (const path of BILLING_ISSUE_QUERIES) {
-		test(`GET ${path} responds without a server error`, async ({ request }) => {
+		test(`GET ${path} is refused for an anonymous caller`, async ({ request }) => {
 			const response = await request.get(path);
-			expect(response.status()).toBeLessThan(500);
+
+			// Not just "no 5xx": the point of sweeping the whole query surface is that
+			// NO permutation may become reachable. A future `?token=` or `?userId=`
+			// shortcut would answer 200 with customer and payment data and still pass
+			// a `< 500` assertion, which is how this class of regression ships.
+			expect([401, 403, 503]).toContain(response.status());
 		});
 	}
 
@@ -197,7 +202,11 @@ test.describe('API: /api/admin/billing-issues (admin)', () => {
 
 	test('GET /api/admin/billing-issues returns the list envelope for an admin', async ({ request }) => {
 		const response = await request.get('/api/admin/billing-issues?page=1&limit=10');
-		expect(response.status(), 'admin list should not 5xx').toBeLessThan(500);
+		// 503 is the documented answer when the database is unavailable; every other
+		// admin assertion in this file guards the same way.
+		if (response.status() !== 503) {
+			expect(response.status(), 'admin list should not 5xx').toBeLessThan(500);
+		}
 
 		if (response.status() === 200) {
 			const body = await response.json();
@@ -216,7 +225,13 @@ test.describe('API: /api/admin/billing-issues (admin)', () => {
 			expect(body.success).toBe(true);
 			expect(typeof body.data.total).toBe('number');
 			expect(typeof body.data.openCount).toBe('number');
-			expect(typeof body.data.amountAtRisk).toBe('number');
+			// Per currency, not a scalar: adding 100 JPY to 100 USD would produce a
+			// number with no meaning and no honest label.
+			expect(Array.isArray(body.data.amountAtRisk)).toBe(true);
+			for (const row of body.data.amountAtRisk) {
+				expect(typeof row.currency).toBe('string');
+				expect(typeof row.amount).toBe('number');
+			}
 		}
 	});
 

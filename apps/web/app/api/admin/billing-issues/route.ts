@@ -15,6 +15,7 @@ import {
 } from '@/lib/db/schema';
 import { PaymentProvider } from '@/lib/constants/payment';
 import { validatePaginationParams } from '@/lib/utils/pagination-validation';
+import { firstNonIntegerParam } from '@/lib/utils/integer-query-param';
 import { BillingIssueReferenceError } from '@/lib/db/queries/billing-issue.queries';
 
 export const runtime = 'nodejs';
@@ -69,9 +70,18 @@ export async function GET(request: Request) {
 
 		const { searchParams } = new URL(request.url);
 
-		// Shared validator rather than an inline clamp: `Number('1.5')` survives a
-		// clamp and reaches the database as a fractional OFFSET, which Postgres
-		// rejects with a 500 instead of the 400 the caller deserves.
+		// Two steps on purpose. The shared validator parses with `parseInt`, which
+		// silently truncates `limit=1.5` to 1 and answers 200 with the wrong page
+		// size; the strict pre-check rejects any value that is not a whole integer
+		// token, and the shared validator then applies the repo's range rules.
+		const malformed = firstNonIntegerParam(searchParams, ['page', 'limit']);
+		if (malformed) {
+			return NextResponse.json(
+				{ success: false, error: `Invalid ${malformed} parameter. Must be a whole number.` },
+				{ status: 400 }
+			);
+		}
+
 		const pagination = validatePaginationParams(searchParams);
 		if ('error' in pagination) {
 			return NextResponse.json({ success: false, error: pagination.error }, { status: pagination.status });
@@ -171,18 +181,31 @@ export async function POST(request: Request) {
 		const authResult = await requireAdminSession();
 		if (authResult instanceof NextResponse) return authResult;
 
-		let body: Record<string, unknown> = {};
-		try {
-			const parsed: unknown = await request.json();
-			// `null` and a bare array / string are valid JSON but not a payload; treat
-			// them as "no fields supplied" rather than letting a property read throw.
-			body =
-				parsed && typeof parsed === 'object' && !Array.isArray(parsed)
-					? (parsed as Record<string, unknown>)
-					: {};
-		} catch {
-			// An empty body means "sync" — the page's refresh button posts nothing.
-			body = { action: 'sync' };
+		// POST both creates an issue and, with `{action:'sync'}`, WRITES rows derived
+		// from the payment records. So an unreadable request must not be guessed at:
+		// only a genuinely empty body means "sync" (the page's refresh button posts
+		// nothing), while malformed or non-object JSON is a 400.
+		let body: Record<string, unknown> = { action: 'sync' };
+		const rawBody = await request.text();
+		if (rawBody.trim()) {
+			let parsed: unknown;
+			try {
+				parsed = JSON.parse(rawBody);
+			} catch {
+				return NextResponse.json(
+					{ success: false, error: 'The request body must be valid JSON, or omitted to re-scan.' },
+					{ status: 400 }
+				);
+			}
+
+			if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+				return NextResponse.json(
+					{ success: false, error: 'The request body must be a JSON object, or omitted to re-scan.' },
+					{ status: 400 }
+				);
+			}
+
+			body = parsed as Record<string, unknown>;
 		}
 
 		if (body.action === 'sync' || Object.keys(body).length === 0) {

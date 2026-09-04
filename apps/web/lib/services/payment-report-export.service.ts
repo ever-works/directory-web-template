@@ -75,9 +75,20 @@ function toRows(records: PaymentReportRecord[]): Array<Record<string, string | n
 	});
 }
 
-/** Build the CSV body. Exported so tests can assert on it without a DB. */
+/**
+ * Build the CSV body. Exported so tests can assert on it without a DB.
+ *
+ * `escapeFormulae` matters here, not as a formality: the rows carry customer-
+ * supplied text (email, plan id, provider identifiers), and a value beginning
+ * `=`, `+`, `-` or `@` is executed as a formula when the file is opened in Excel
+ * or Sheets. An admin exporting a revenue report is exactly the person whose
+ * machine you do not want running a stranger's formula.
+ */
 export function buildPaymentReportCsv(records: PaymentReportRecord[]): string {
-	return Papa.unparse(toRows(records), { columns: COLUMNS.map((column) => column.header) });
+	return Papa.unparse(toRows(records), {
+		columns: COLUMNS.map((column) => column.header),
+		escapeFormulae: true
+	});
 }
 
 /** Build the XLSX workbook. A second sheet carries the summary roll-ups. */

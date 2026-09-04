@@ -1,6 +1,6 @@
 import { SubscriptionStatus } from '@/lib/db/schema';
 import { PaymentPlan, PaymentProvider } from '@/lib/constants/payment';
-import type { PaymentReportFilters } from '@/lib/db/queries/payment-report.queries';
+import { parseReportDate, type PaymentReportFilters } from '@/lib/db/queries/payment-report.queries';
 
 /**
  * Filter parsing shared by `GET /api/admin/payment-reports` and
@@ -30,13 +30,21 @@ export function isValidReportDate(value: string): boolean {
 	const parsed = new Date(value);
 	if (Number.isNaN(parsed.getTime())) return false;
 
-	const dateOnly = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
-	if (dateOnly) {
-		const [, year, month, day] = dateOnly;
+	// The calendar triple is validated on its OWN, not by comparing the parsed date
+	// back to the string. Comparing the parsed value would wrongly reject a legal
+	// offset datetime like `2026-01-01T23:00:00-05:00`, which is genuinely 2 January
+	// in UTC. Round-tripping the triple through `Date.UTC` catches exactly the case
+	// that matters: `2026-02-30` becomes 2 March and no longer matches its own day.
+	// A datetime is checked the same way, so the shift is not reachable by adding a
+	// time component.
+	const calendar = /^(\d{4})-(\d{2})-(\d{2})/.exec(value);
+	if (calendar) {
+		const [, year, month, day] = calendar;
+		const probe = new Date(Date.UTC(Number(year), Number(month) - 1, Number(day)));
 		return (
-			parsed.getUTCFullYear() === Number(year) &&
-			parsed.getUTCMonth() + 1 === Number(month) &&
-			parsed.getUTCDate() === Number(day)
+			probe.getUTCFullYear() === Number(year) &&
+			probe.getUTCMonth() + 1 === Number(month) &&
+			probe.getUTCDate() === Number(day)
 		);
 	}
 
@@ -61,8 +69,15 @@ export function parsePaymentReportFilters(searchParams: URLSearchParams): Parsed
 		return { error: 'Invalid to date. Use an ISO date such as 2026-01-31.' };
 	}
 
-	if (from && to && new Date(from).getTime() > new Date(to).getTime()) {
-		return { error: 'The from date must not be later than the to date.' };
+	// Compare the bounds the QUERY will actually use. A bare `to` covers the whole
+	// day, so `from=2026-01-01T10:00:00Z&to=2026-01-01` is a valid same-day range —
+	// comparing the raw strings would reject it as inverted.
+	if (from && to) {
+		const fromBound = parseReportDate(from, 'from');
+		const toBound = parseReportDate(to, 'to');
+		if (fromBound && toBound && fromBound.getTime() > toBound.getTime()) {
+			return { error: 'The from date must not be later than the to date.' };
+		}
 	}
 
 	// `plan_id` is free-form on the subscriptions table (a Work may define its own
