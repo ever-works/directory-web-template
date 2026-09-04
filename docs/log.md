@@ -7,6 +7,19 @@ sidebar_position: 99
 
 # Documentation & Specs Change Log
 
+## 2026-09-04
+
+- `apps/web/app/[locale]` `apps/web-e2e`: fixed the doubled origin in the
+  `text/markdown` alternate link on `about`, `cookies`, `privacy-policy`
+  and `terms-of-service`. Those four prefixed `getLocalizedUrl()` — which
+  already returns an absolute URL — with `appUrl` a second time, so
+  crawlers were served `href="http://host/http:/host/http:/host/about.md"`
+  (Next.js resolved the unparseable doubled string against `metadataBase`,
+  burying it in the path). `help` and `pricing` were already correct. Added
+  `public/md-alternate-link-absolute-url.spec.ts` asserting the advertised
+  href parses as one absolute URL whose pathname is the plain `<page>.md`
+  mirror path, across the default and `/fr` locale prefixes (PR #1046).
+
 ## 2026-08-25
 
 - `spec-045`: documented and hardened the shared handler/`POST /api/stripe/platform-webhook` path, including HMAC fail-closed coverage, formatted payment amounts, and retry-safe event coordination ([spec 045](spec/045-shared-stripe-webhook-relay/spec.md), PR #1037).
