@@ -346,7 +346,7 @@ valid states (e.g. `/sponsor` may redirect or 404 depending on env).
 156. GET /api/current-user returns user data when authenticated
 157. GET /api/current-user returns 401 when unauthenticated
 
-## PR #1041 — Admin billing issues & payment reports (17 new tests)
+## PR #1049 — Admin billing issues & payment reports (17 new tests)
 
 Specs 046 / 047 (Jira EW-116, EW-117). Two admin surfaces over the payment
 records the site already stores. The API specs carry most of the weight here
@@ -428,10 +428,10 @@ full of customer data — the gate, not the happy path, is the invariant.
 | Form Validation | 4 | #630 |
 | i18n Locales & RTL | 11 | #628 |
 | API Contracts | 4 | #630 |
-| Admin Billing Issues | 7 | #1041 |
-| Admin Payment Reports | 7 | #1041 |
-| API: Admin Billing Issues | 3 | #1041 |
-| API: Admin Payment Reports | 3 | #1041 |
+| Admin Billing Issues | 7 | #1049 |
+| Admin Payment Reports | 7 | #1049 |
+| API: Admin Billing Issues | 3 | #1049 |
+| API: Admin Payment Reports | 3 | #1049 |
 | **Total** | **182** | |
 
 ---
