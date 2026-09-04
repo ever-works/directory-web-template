@@ -281,6 +281,13 @@
       "when": 1781695727000,
       "tag": "0039_add_account_deactivation",
       "breakpoints": true
+    },
+    {
+      "idx": 40,
+      "version": "7",
+      "when": 1788417526152,
+      "tag": "0040_email_two_factor_auth",
+      "breakpoints": true
     }
   ]
 }

@@ -7,6 +7,12 @@ sidebar_position: 99
 
 # Documentation & Specs Change Log
 
+## 2026-09-04
+
+- `spec-046`: email two-factor authentication for client accounts — enable/disable card on `/client/settings/security`, hashed six-digit code emailed on every credentials sign-in, 10-minute expiry with resend, 5-failure / 15-minute database-tracked lockout, and OAuth-only accounts refused in the UI and at the API ([spec 046](spec/046-email-two-factor-auth/spec.md), [plan](spec/046-email-two-factor-auth/plan.md), [tasks](spec/046-email-two-factor-auth/tasks.md), Jira EW-135 … EW-142, PR #1048).
+- `docs/authentication`: added [Email Two-Factor Authentication](authentication/two-factor-auth.md) covering the member flow, the three `TWO_FACTOR_*` env vars, the operator unlock procedure, and the hash-only storage contract (PR #1048).
+- `questions`: added Q-046a — should admin `users` rows get email 2FA too? Default: no, client profiles only. Added Q-046b — should enabling 2FA require a verified email address? Default: allow, and guard only the unrecoverable no-mail-provider case. Added Q-046c — how should a session-free `/api` route resolve the tenant on a host-routed multi-tenant deployment? Default: leave it, fix repo-wide (PR #1048).
+
 ## 2026-08-25
 
 - `spec-045`: documented and hardened the shared handler/`POST /api/stripe/platform-webhook` path, including HMAC fail-closed coverage, formatted payment amounts, and retry-safe event coordination ([spec 045](spec/045-shared-stripe-webhook-relay/spec.md), PR #1037).
@@ -37,7 +43,8 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-08-23 — Chore: force LF for container scripts (.gitattributes)
 
-- infra: `docker-entrypoint.sh`, `*.sh` and the Dockerfiles are now `text eol=lf` in `.gitattributes`. A Windows checkout (`core.autocrlf=true`) produced `#!/bin/sh` and the built site image died with `exec /usr/local/bin/docker-entrypoint.sh: no such file or directory` (2026-08-23, local image build while the CI runner pool was stalled). No runtime change for CI-built images. (PR: pending)
+- infra: `docker-entrypoint.sh`, `*.sh` and the Dockerfiles are now `text eol=lf` in `.gitattributes`. A Windows checkout (`core.autocrlf=true`) produced `#!/bin/sh
+` and the built site image died with `exec /usr/local/bin/docker-entrypoint.sh: no such file or directory` (2026-08-23, local image build while the CI runner pool was stalled). No runtime change for CI-built images. (PR: pending)
 
 ## 2026-08-22
 
