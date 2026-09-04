@@ -102,10 +102,62 @@ function canonicalPathOf(body: string, label: string): string {
 	return new URL(url).pathname;
 }
 
-/** Assert `path` is a hard 404 — not a 500 and not a soft, empty 200. */
+/**
+ * Assert `path` is a hard 404 from the *handler* — not a 500, not a soft empty
+ * 200, and not Next.js' HTML not-found page.
+ *
+ * The content type is the load-bearing part. A missing rewrite or an
+ * unroutable handler also answers 404, but with `text/html`; only a handler
+ * that ran and decided the slug does not exist answers with the JSON
+ * envelope. That distinction is what makes these cases evidence of
+ * reachability rather than of the very breakage this spec guards against.
+ */
 async function expectNotFound(request: APIRequestContext, path: string): Promise<void> {
 	const resp = await request.get(path);
 	expect(resp.status(), `${path} must 404 for an unknown slug`).toBe(404);
+	expect(resp.headers()['content-type'] ?? '', `${path} 404 must come from the mirror handler`).toMatch(
+		/^application\/json\b/
+	);
+	expect(await resp.json(), `${path} 404 body`).toEqual({ error: 'Not found' });
+}
+
+/**
+ * Find one slug that really exists for a route family, from the links on its
+ * listing page, so these assertions run against whatever content the
+ * environment serves. Returns `null` when the directory ships none of that
+ * resource — the CI content stub has no comparisons, the demo repository has
+ * no collections — rather than pinning a fixture slug that exists in only one
+ * of them. (`/sitemap.xml` is not usable for this: it passes slugs through
+ * `sanitizeSlug()`, which collapses the `--` in comparison slugs.)
+ */
+async function discoverListedSlug(
+	request: APIRequestContext,
+	family: 'collections' | 'comparisons'
+): Promise<string | null> {
+	const resp = await request.get(`/${family}`);
+	expect(resp.status(), `/${family} status`).toBe(200);
+	const html = await resp.text();
+	const href = new RegExp(`href="(?:https?://[^"]*)?/(?:[a-z]{2}/)?${family}/([^"/?#]+)"`, 'g');
+	for (const match of html.matchAll(href)) {
+		const slug = decodeURIComponent(match[1]);
+		if (slug !== 'paging') return slug;
+	}
+	return null;
+}
+
+/**
+ * CMS documents under `/pages/<slug>` have no listing to scrape, so probe the
+ * conventional slugs and take the first one this content repository actually
+ * publishes.
+ */
+const CMS_PAGE_CANDIDATES = ['about', 'privacy-policy', 'terms-of-service', 'cookies', 'contact'] as const;
+
+async function discoverCmsPageSlug(request: APIRequestContext): Promise<string | null> {
+	for (const slug of CMS_PAGE_CANDIDATES) {
+		const resp = await request.get(`/pages/${slug}`);
+		if (resp.status() === 200) return slug;
+	}
+	return null;
 }
 
 test.describe('Markdown mirror routes', () => {
@@ -156,10 +208,47 @@ test.describe('Markdown mirror routes', () => {
 		await expectMarkdownMirror(request, `/tags/${encodeURIComponent(tag!)}.md`);
 	});
 
-	// An unknown slug must reach the handler and be rejected by it. A 404 here
-	// proves the route exists; the pre-Spec-046 breakage produced the same 404
-	// for *every* slug, which is why the known-slug cases above are the ones
-	// that pin the fix.
+	test('/pages/<slug>.md serves the CMS page as Markdown', async ({ request }) => {
+		const slug = await discoverCmsPageSlug(request);
+		test.skip(slug === null, 'this content repository publishes no /pages/<slug> documents');
+		const path = `/pages/${slug}.md`;
+		const body = await expectMarkdownMirror(request, path);
+		expect(canonicalPathOf(body, path), `${path} canonical page`).toBe(`/pages/${slug}`);
+	});
+
+	test('/collections/<slug>.md serves the collection as Markdown', async ({ request }) => {
+		const slug = await discoverListedSlug(request, 'collections');
+		test.skip(slug === null, 'this content repository publishes no collections');
+		const path = `/collections/${slug}.md`;
+		const body = await expectMarkdownMirror(request, path);
+		expect(canonicalPathOf(body, path), `${path} canonical page`).toBe(`/collections/${slug}`);
+	});
+
+	test('/comparisons/<slug>.md serves the comparison as Markdown', async ({ request }) => {
+		const slug = await discoverListedSlug(request, 'comparisons');
+		test.skip(slug === null, 'this content repository publishes no comparisons');
+		const path = `/comparisons/${slug}.md`;
+		const body = await expectMarkdownMirror(request, path);
+		expect(canonicalPathOf(body, path), `${path} canonical page`).toBe(`/comparisons/${slug}`);
+	});
+
+	// `proxy.ts` skips dotted paths, so nothing but the rewrite source itself
+	// rejects an unsupported locale here. `/zz/about` 404s; `/zz/about.md`
+	// must too, or the mirrors would answer for locales the site does not have.
+	for (const path of ['/zz/about.md', '/zz/pricing.md']) {
+		test(`${path} is not served for an unsupported locale`, async ({ request }) => {
+			const resp = await request.get(path);
+			expect(resp.status(), `${path} must not serve a mirror`).toBe(404);
+			expect(resp.headers()['content-type'] ?? '', `${path} content-type`).not.toMatch(
+				/^text\/markdown\b/
+			);
+		});
+	}
+
+	// An unknown slug must reach the handler and be rejected by it. The JSON
+	// envelope `expectNotFound` requires is what separates "the handler said
+	// no" from "the route does not exist" — the pre-Spec-046 breakage produced
+	// an HTML 404 for *every* slug and would fail these too.
 	for (const path of [
 		`/items/${MISSING}.md`,
 		`/pages/${MISSING}.md`,

@@ -37,10 +37,12 @@ sidebar_label: 046 Plan
    fail. Record the counts.
 4. **Rename the seven handler folders** with `git mv` (`_md` → `md`,
    `_static-md` → `static-md`) and update their doc comments.
-5. **Update the rewrites** in `apps/web/next.config.ts` to the new segment and
-   give the unprefixed sources an explicit default-locale destination.
-6. **Extract `DEFAULT_LOCALE`** into `apps/web/lib/i18n/locales.ts` (no
-   imports, so `next.config.ts` can read it) and re-export from
+5. **Update the rewrites** in `apps/web/next.config.ts` to the new segment,
+   give the unprefixed sources an explicit default-locale destination, and
+   build the locale group from `LOCALES` so an unsupported locale is not
+   served.
+6. **Extract `DEFAULT_LOCALE` / `LOCALES`** into `apps/web/lib/i18n/locales.ts`
+   (no imports, so `next.config.ts` can read them) and re-export from
    `apps/web/lib/constants.ts`.
 7. **404 unknown category / tag slugs** in the two mirrors that soft-404'd,
    matching their HTML pages.

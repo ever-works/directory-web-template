@@ -109,9 +109,18 @@ rewrites to `/<DEFAULT_LOCALE>/items/:slug/md`. `next.config.ts` reads
 cannot import `lib/constants.ts` itself — that module opens with `@/…`
 imports, which do not resolve outside the app's module graph.)
 
+**Restrict the locale group to `LOCALES`.** The rewrite sources matched any
+`[a-z]{2}` segment. Because `proxy.ts` skips these paths, nothing downstream
+rejects an unsupported locale, so `/zz/about.md` served the mirror while
+`/zz/about` 404s. The group is now built from `LOCALES` (the same
+dependency-free module), so unsupported locales fall through to the 404 page.
+
 **404 on unknown slugs.** The category and tag mirrors previously rendered an
 empty listing (`200`) for a slug their HTML pages `notFound()` on. They now
-return the same `404`.
+return the same `404`. Every mirror's not-found answer is the handler's JSON
+envelope (`{"error":"Not found"}`), which is what lets the guard tell "the
+handler rejected this slug" apart from "the route does not exist" — the latter
+being Next.js' HTML 404 and exactly the failure mode this spec fixes.
 
 ## 5. Acceptance
 
@@ -122,10 +131,13 @@ Against `next build && next start`:
   body opens with a Markdown `H1` and names its canonical page.
 - `/fr/about.md` → `200`, canonical page `/fr/about`.
 - `/items/<slug>.md`, `/fr/items/<slug>.md`, `/categories/<id>.md`,
-  `/tags/<id>.md` → `200 text/markdown`.
+  `/tags/<id>.md`, `/pages/<slug>.md`, `/collections/<slug>.md`,
+  `/comparisons/<slug>.md` → `200 text/markdown` wherever the content
+  repository publishes that resource.
 - `/items/<unknown>.md`, `/pages/<unknown>.md`, `/collections/<unknown>.md`,
   `/comparisons/<unknown>.md`, `/categories/<unknown>.md`,
-  `/tags/<unknown>.md` → `404`.
+  `/tags/<unknown>.md` → `404 application/json`, from the handler.
+- `/zz/about.md` (unsupported locale) → `404`, never `text/markdown`.
 - The `text/markdown` alternate href advertised by `/help` and `/pricing`
   resolves to `200 text/markdown`.
 
