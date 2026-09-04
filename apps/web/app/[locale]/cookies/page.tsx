@@ -29,7 +29,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     alternates: {
       canonical: getLocalizedUrl('/cookies', locale as Locale),
       languages: generateHreflangAlternates('/cookies'),
-      types: { 'text/markdown': `${appUrl}${getLocalizedUrl('/cookies', locale as Locale)}.md` }
+      types: { 'text/markdown': `${getLocalizedUrl('/cookies', locale as Locale)}.md` }
     }
   };
 }

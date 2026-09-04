@@ -32,7 +32,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     alternates: {
       canonical: getLocalizedUrl('/privacy-policy', locale as Locale),
       languages: generateHreflangAlternates('/privacy-policy'),
-      types: { 'text/markdown': `${appUrl}${getLocalizedUrl('/privacy-policy', locale as Locale)}.md` }
+      types: { 'text/markdown': `${getLocalizedUrl('/privacy-policy', locale as Locale)}.md` }
     }
   };
 }
