@@ -7,6 +7,10 @@ sidebar_position: 99
 
 # Documentation & Specs Change Log
 
+## 2026-09-04
+
+- `spec-050`: added the blog reader surface for generated directory sites — `/blog` listing with configurable pagination and search, `/blog/[slug]` post pages, category and tag archives, `/blog/rss.xml`, sitemap entries and 21-locale strings, all reading `.content/posts/` through the existing `lib/content.ts` pipeline ([spec 050](spec/050-blog-pages/spec.md), EW-25..EW-29).
+
 ## 2026-08-25
 
 - `spec-045`: documented and hardened the shared handler/`POST /api/stripe/platform-webhook` path, including HMAC fail-closed coverage, formatted payment amounts, and retry-safe event coordination ([spec 045](spec/045-shared-stripe-webhook-relay/spec.md), PR #1037).
@@ -37,7 +41,7 @@ why** at a higher level than per-commit diffs.
 
 ## 2026-08-23 — Chore: force LF for container scripts (.gitattributes)
 
-- infra: `docker-entrypoint.sh`, `*.sh` and the Dockerfiles are now `text eol=lf` in `.gitattributes`. A Windows checkout (`core.autocrlf=true`) produced `#!/bin/sh` and the built site image died with `exec /usr/local/bin/docker-entrypoint.sh: no such file or directory` (2026-08-23, local image build while the CI runner pool was stalled). No runtime change for CI-built images. (PR: pending)
+- infra: `docker-entrypoint.sh`, `*.sh` and the Dockerfiles are now `text eol=lf` in `.gitattributes`. A Windows checkout (`core.autocrlf=true`) produced a `#!/bin/sh\r` shebang and the built site image died with `exec /usr/local/bin/docker-entrypoint.sh: no such file or directory` (2026-08-23, local image build while the CI runner pool was stalled). No runtime change for CI-built images. (PR: pending)
 
 ## 2026-08-22
 
