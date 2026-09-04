@@ -93,7 +93,7 @@ To turn the factor off for someone who has lost access to their inbox, set
 | --- | --- | --- |
 | `/api/auth/security/2fa/enable` | `POST` | Session required. `403` + `code: "OAUTH_ACCOUNT"` for OAuth-only accounts |
 | `/api/auth/security/2fa/disable` | `POST` | Session required. No OAuth guard — turning a factor off is always allowed |
-| `/api/auth/2fa/resend` | `POST` | Body `{ email, password }`. Always `200` for well-formed requests (no account enumeration); `429` when the 3-per-10-minutes budget per IP or per email is spent |
+| `/api/auth/2fa/resend` | `POST` | Body `{ email, password }`. `400` for a malformed body, `429` when the 3-per-10-minutes budget per IP or per email is spent, `500` on an internal failure. Every other outcome is the same `200` envelope whatever the account state, so the response cannot be used to enumerate addresses |
 | `/api/auth/security/settings` | `GET` | Now also returns `canEnableTwoFactor`, `authMethod`, `accountLockedUntil` |
 
 Sign-in errors surface as `AuthErrorCode.TWO_FACTOR_REQUIRED`, `_INVALID`,
@@ -103,8 +103,19 @@ message.
 Code **issuance** is itself capped at 6 per 10 minutes per account inside
 `issueTwoFactorCode`, so the cap applies to the sign-in action, the NextAuth
 `authorize` callback and the resend route alike — including a request posted
-directly to `/api/auth/callback/credentials`. Exceeding it answers
-`AuthErrorCode.RATE_LIMITED` and mints nothing.
+directly to `/api/auth/callback/credentials`. On the two **sign-in** paths
+exceeding it surfaces as `AuthErrorCode.RATE_LIMITED`; the resend route mints
+nothing but still answers its generic `200`, because reporting the throttle
+there would leak that the address exists and has 2FA on.
+
+The resend route resolves its tenant the way every session-free `/api` route in
+this repo does — Next middleware does not run for `/api`, so the
+`x-tenant-domain` header it injects is absent and `getTenantId()` falls through
+to the environment or the default tenant. On a host-routed multi-tenant
+deployment a resend for a member outside that tenant therefore sends nothing
+(silently, by design of the generic envelope). The primary issuing path — the
+sign-in server action — runs behind middleware and is tenant-correct. Tracked as
+Q-046c.
 
 ### Storage
 

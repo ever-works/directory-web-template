@@ -80,8 +80,10 @@ tries without my intervention.
       narrow screens.
 - [x] AC-2 (EW-137): `POST /api/auth/security/2fa/enable` and
       `POST /api/auth/security/2fa/disable` persist
-      `client_profiles.two_factor_enabled`, require a session, and refuse a
-      non-credentials account.
+      `client_profiles.two_factor_enabled` and require a session. **Enable**
+      additionally refuses a non-credentials account; **disable** deliberately
+      does not — turning a factor off must always be possible for the account
+      that owns it, whatever it signed up with.
 - [x] AC-3 (EW-138): with 2FA on, signing in mints a cryptographically random
       six-digit code, stores **only a keyed HMAC-SHA256 of it** with a timestamp
       and the owning user, and emails the plaintext in a branded template that

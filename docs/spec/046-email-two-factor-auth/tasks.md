@@ -70,8 +70,8 @@ sidebar_label: 046 Tasks
 
 ```bash
 pnpm run lint                      # 0 errors
-cd apps/web     && npx tsc --noEmit
-cd apps/web-e2e && npx tsc --noEmit
+(cd apps/web     && npx tsc --noEmit)
+(cd apps/web-e2e && npx tsc --noEmit)
 pnpm run build:web                 # the check CI actually gates on
 # Requires a database and a running app:
 pnpm --filter @ever-works/web-e2e exec playwright test tests/unit/two-factor-code.spec.ts

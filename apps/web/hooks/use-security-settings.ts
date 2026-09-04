@@ -225,6 +225,10 @@ export function useEnableTwoFactor() {
       return body.data as { twoFactorEnabled: boolean };
     },
     onSuccess: () => {
+      // `serverClient` memoises GET responses for five minutes, so a bare
+      // React Query invalidation would refetch straight out of that cache and
+      // hand the card back the PRE-mutation body — the switch would flip back.
+      serverClient.clearCache();
       queryClient.invalidateQueries({ queryKey: SECURITY_QUERY_KEYS.settings });
     },
   });
@@ -243,6 +247,8 @@ export function useDisableTwoFactor() {
       return body.data as { twoFactorEnabled: boolean };
     },
     onSuccess: () => {
+      // Same five-minute GET cache as the enable mutation above.
+      serverClient.clearCache();
       queryClient.invalidateQueries({ queryKey: SECURITY_QUERY_KEYS.settings });
     },
   });

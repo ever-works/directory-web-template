@@ -584,6 +584,35 @@ confirm, override, or refine.
 
 ---
 
+### Q-046c How should a session-free `/api` route resolve the tenant on a host-routed multi-tenant deployment?
+
+- **Context.** `POST /api/auth/2fa/resend` runs mid-login, so it has no
+  session, and Next middleware does not run for `/api` — the
+  `x-tenant-domain` header the middleware injects is therefore absent and
+  `getTenantId()` falls through to `TENANT_ID` / the default tenant. On a
+  deployment that routes tenants by host, a resend for a member outside that
+  tenant finds no account and (correctly, per the enumeration-safe envelope)
+  reports nothing. This is a property of every session-free `/api` route in
+  the repo, not of this one; the primary issuing path, the sign-in server
+  action, runs behind middleware and is tenant-correct.
+- **Options.**
+  - **Leave it (current).** The sign-in flow always works; only the "send a
+    new code" convenience is affected, and only on host-routed multi-tenant
+    deployments.
+  - Resolve the tenant from the request's own `Host` header inside the route
+    and thread it into the account / profile lookups. Needs a tenant argument
+    on `getClientAccountByEmail`, `verifyClientPassword` and
+    `getClientProfileByUserId`, which every other caller shares.
+  - Make the resend button re-submit the sign-in server action without a
+    code, so the issuing path is always the tenant-correct one, and keep the
+    route for programmatic callers.
+- **Default.** **Leave it**, and revisit as part of a repo-wide fix for
+  tenant resolution in `/api` routes rather than one route at a time.
+- **Owner.** Template maintainers.
+- **Status.** `open`.
+
+---
+
 ## How to add a question
 
 1. Pick the next available `Q-NNN…` id under the relevant spec.

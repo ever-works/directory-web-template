@@ -118,6 +118,9 @@ export function isWellFormedTwoFactorCode(code: string, length: number = TWO_FAC
 	return normalized.length === length && /^[0-9]+$/.test(normalized);
 }
 
+/** Even-length, non-empty, hexadecimal. */
+const HEX_DIGEST = /^(?:[0-9a-fA-F]{2})+$/;
+
 /**
  * Constant-time comparison of two hex digests.
  *
@@ -125,9 +128,19 @@ export function isWellFormedTwoFactorCode(code: string, length: number = TWO_FAC
  * mismatched lengths are rejected up front — safe here because both
  * operands are always SHA-256 digests of the same width, and a
  * length difference therefore carries no secret.
+ *
+ * Both operands are also validated as real hex FIRST, which is not
+ * decoration: `Buffer.from('zzzz', 'hex')` silently stops at the first
+ * invalid character and yields an EMPTY buffer, and
+ * `timingSafeEqual(empty, empty)` is `true` — so without this check any
+ * pair of equal-length non-hex strings would compare equal. A corrupted
+ * or attacker-planted `code_hash` would then be satisfied by any digest.
  */
 export function constantTimeEqualsHex(a: string, b: string): boolean {
 	if (typeof a !== 'string' || typeof b !== 'string' || a.length !== b.length || a.length === 0) {
+		return false;
+	}
+	if (!HEX_DIGEST.test(a) || !HEX_DIGEST.test(b)) {
 		return false;
 	}
 	try {

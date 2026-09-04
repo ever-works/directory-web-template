@@ -4,6 +4,14 @@ import { getClientAccountByEmail, getClientProfileByUserId, verifyClientPassword
 import { issueTwoFactorCode } from '@/lib/auth/two-factor';
 import { TWO_FACTOR_CODE_TTL_MINUTES } from '@/lib/auth/two-factor-code';
 import { ratelimit } from '@/lib/utils/rate-limit';
+import { comparePasswords } from '@/lib/auth/credentials';
+
+/**
+ * bcrypt hash of a value nobody holds, used only to equalise timing on the
+ * unknown-account path. Constant rather than generated per request because
+ * hashing on every miss would itself be a distinguishable cost.
+ */
+const DUMMY_PASSWORD_HASH = '$2b$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy';
 
 /**
  * Resend budget: 3 per 10 minutes, keyed by IP *and* by email.
@@ -15,6 +23,19 @@ import { ratelimit } from '@/lib/utils/rate-limit';
  */
 const RESEND_LIMIT = 3;
 const RESEND_WINDOW_MS = 10 * 60 * 1000;
+
+/**
+ * A bcrypt comparison against a throwaway hash, so an unknown address costs
+ * roughly what a known one does. Never throws: a failure here must not turn
+ * the generic 200 into a 500 and reintroduce the very signal it removes.
+ */
+async function burnPasswordComparison(password: string): Promise<void> {
+	try {
+		await comparePasswords(password, DUMMY_PASSWORD_HASH);
+	} catch {
+		// ignored on purpose
+	}
+}
 
 const resendSchema = z.object({
 	email: z.string().email().max(255),
@@ -56,7 +77,13 @@ const resendSchema = z.object({
  */
 export async function POST(request: NextRequest) {
 	try {
-		const clientIP = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown';
+		// `x-forwarded-for` is a comma-separated chain, and the whole string is
+		// caller-controllable: keying on it verbatim would let one client rotate
+		// the header and mint a fresh budget on every request. Take only the
+		// first entry — the conventional client address — and normalise it.
+		const forwardedFor = request.headers.get('x-forwarded-for');
+		const clientIP =
+			forwardedFor?.split(',')[0]?.trim() || request.headers.get('x-real-ip')?.trim() || 'unknown';
 
 		const body = await request.json().catch(() => null);
 		const parsed = resendSchema.safeParse(body);
@@ -89,7 +116,14 @@ export async function POST(request: NextRequest) {
 		});
 
 		const clientAccount = await getClientAccountByEmail(email);
-		if (!clientAccount) return accepted;
+		if (!clientAccount) {
+			// Spend a comparable amount of time on a miss. Without this, "no such
+			// account" returns before any bcrypt work and "wrong password" returns
+			// after it, so the response TIME distinguishes the two even though the
+			// body does not.
+			await burnPasswordComparison(parsed.data.password);
+			return accepted;
+		}
 
 		const passwordValid = await verifyClientPassword(email, parsed.data.password);
 		if (!passwordValid) return accepted;

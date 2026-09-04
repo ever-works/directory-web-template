@@ -369,6 +369,12 @@ export function CredentialsForm({
 			const code = twoFactorCode.trim();
 			formData.set('code', code);
 			setPendingCode(code);
+			// Clear the input HERE rather than in the response effect: two
+			// consecutive wrong codes produce an identical action state, so the
+			// effect's dependencies do not change and it never re-runs — the
+			// rejected value would sit in the box and could be resubmitted,
+			// spending another attempt on a code already known to be wrong.
+			setTwoFactorCode('');
 		}
 
 		startTransition(() => {
@@ -384,7 +390,10 @@ export function CredentialsForm({
 	 */
 	const handleResendCode = async () => {
 		const emailValue = state?.email || (document.getElementById('email') as HTMLInputElement | null)?.value;
-		if (!emailValue || !pendingPassword || resendPending) return;
+		// Refuse while a submission (or the auto-login that follows a successful
+		// one) is in flight: issuing a new code rotates away the one currently
+		// being verified, which would turn a correct code into "expired".
+		if (!emailValue || !pendingPassword || resendPending || isResendBlocked) return;
 
 		setResendPending(true);
 		setResendNotice(null);
@@ -414,6 +423,9 @@ export function CredentialsForm({
 		}
 	};
 
+	// A resend must not race a verification in flight — see `handleResendCode`.
+	const isResendBlocked = pending || isPending || isVerifying || !!state?.success;
+
 	/** Abandon the code step and go back to email + password. */
 	const handleBackToPassword = () => {
 		setTwoFactorStep(false);
@@ -421,6 +433,12 @@ export function CredentialsForm({
 		setPendingCode(null);
 		setTwoFactorExpiresAt(null);
 		setResendNotice(null);
+		// The token solved for the first password submit has been spent, and the
+		// widget remounts unsolved. Keeping it would let the form submit with a
+		// token the server then rejects, so drop it and make the user solve the
+		// freshly rendered challenge.
+		setCaptchaToken(null);
+		setCaptchaError(null);
 	};
 
 	// Client-side submit when clientMode is true (admin login path)
@@ -704,7 +722,7 @@ export function CredentialsForm({
 								<button
 									type="button"
 									onClick={handleResendCode}
-									disabled={resendPending}
+									disabled={resendPending || isResendBlocked}
 									data-testid="two-factor-resend"
 									className="text-xs font-medium text-theme-primary hover:text-theme-primary/80 hover:underline transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
 								>

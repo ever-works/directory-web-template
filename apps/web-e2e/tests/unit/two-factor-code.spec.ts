@@ -123,7 +123,20 @@ test.describe('Email 2FA: constant-time verification', () => {
 		expect(constantTimeEqualsHex('abcd', 'abcd')).toBe(true);
 		expect(constantTimeEqualsHex('abcd', 'abcde')).toBe(false);
 		expect(constantTimeEqualsHex('', '')).toBe(false);
+		// `Buffer.from('zzzz', 'hex')` decodes to an EMPTY buffer, and
+		// `timingSafeEqual(empty, empty)` is true — so any pair of equal-length
+		// non-hex strings would compare equal without the hex guard. A
+		// corrupted or planted `code_hash` must never be satisfiable.
 		expect(constantTimeEqualsHex('zzzz', 'zzzz')).toBe(false);
+		expect(constantTimeEqualsHex('abcz', 'abcz')).toBe(false);
+		// Odd-length hex truncates on decode, so it is refused too.
+		expect(constantTimeEqualsHex('abc', 'abc')).toBe(false);
+	});
+
+	test('a planted non-hex digest cannot be matched by a real code', () => {
+		const code = generateTwoFactorCode();
+		expect(verifyTwoFactorCodeHash(code, 'z'.repeat(64), SECRET)).toBe(false);
+		expect(verifyTwoFactorCodeHash(code, '', SECRET)).toBe(false);
 	});
 
 	test('a malformed submission cannot verify even against its own digest', () => {

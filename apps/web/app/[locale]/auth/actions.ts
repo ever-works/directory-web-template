@@ -35,7 +35,7 @@ import { issueTwoFactorCode, verifyTwoFactorCode } from '@/lib/auth/two-factor';
 import { generatePasswordResetToken, generateVerificationToken } from '@/lib/db/tokens';
 import { sendPasswordResetEmail, sendVerificationEmailWithTemplate } from '@/lib/mail';
 import { authServiceFactory } from '@/lib/auth/services';
-import { ratelimit } from '@/lib/utils/rate-limit';
+import { getRateLimitStatus, ratelimit } from '@/lib/utils/rate-limit';
 
 const PASSWORD_MIN_LENGTH = 8;
 // Rate limiting: 5 attempts per 15 minutes per email
@@ -66,15 +66,36 @@ export const signInAction = validatedAction(signInSchema, async (data) => {
 		const submittedCode = (data.code ?? '').trim();
 
 		// Rate limiting check (by email to prevent brute force on specific accounts)
-		const rateLimitKey = submittedCode ? `2fa-verify:${email.toLowerCase()}` : `signin:${email.toLowerCase()}`;
-		const rateLimitResult = await ratelimit(
-			rateLimitKey,
+		const passwordBudgetKey = `signin:${email.toLowerCase()}`;
+
+		// Bound the volume of THIS submission. A code-carrying submission gets
+		// its own, looser bucket so that spending code attempts does not consume
+		// the password budget — otherwise the sign-in limiter would fire before
+		// the 5-attempt 2FA lockout it complements, and the user would see "too
+		// many attempts" instead of the lockout message.
+		const gate = await ratelimit(
+			submittedCode ? `2fa-verify:${email.toLowerCase()}` : passwordBudgetKey,
 			submittedCode ? TWO_FACTOR_VERIFY_RATE_LIMIT : AUTH_RATE_LIMIT,
 			AUTH_RATE_WINDOW_MS
 		);
-		if (!rateLimitResult.success) {
+		if (!gate.success) {
 			return { error: AuthErrorCode.RATE_LIMITED, ...data };
 		}
+
+		// ...but attaching a `code` must NOT buy extra password guesses. The
+		// password budget is still honoured for a code-carrying request (read
+		// without spending here) and is charged below on every wrong password,
+		// so a scripted `code=x` cannot turn 5 password attempts into 10.
+		if (submittedCode && getRateLimitStatus(passwordBudgetKey, AUTH_RATE_LIMIT).remaining <= 0) {
+			return { error: AuthErrorCode.RATE_LIMITED, ...data };
+		}
+
+		/** Charge one password attempt when a code-carrying request got the password wrong. */
+		const chargePasswordAttempt = async () => {
+			if (submittedCode) {
+				await ratelimit(passwordBudgetKey, AUTH_RATE_LIMIT, AUTH_RATE_WINDOW_MS);
+			}
+		};
 
 		// Normalize email for consistent lookup
 		const normalizedEmail = email.toLowerCase().trim();
@@ -96,6 +117,7 @@ export const signInAction = validatedAction(signInSchema, async (data) => {
 		if (isAdmin && foundUser) {
 			const isValid = await comparePasswords(password, foundUser.passwordHash);
 			if (!isValid) {
+				await chargePasswordAttempt();
 				return { error: AuthErrorCode.INVALID_PASSWORD, ...data };
 			}
 		}
@@ -103,6 +125,7 @@ export const signInAction = validatedAction(signInSchema, async (data) => {
 		else if (clientAccount) {
 			const isValid = await verifyClientPassword(email, password);
 			if (!isValid) {
+				await chargePasswordAttempt();
 				return { error: AuthErrorCode.INVALID_PASSWORD, ...data };
 			}
 

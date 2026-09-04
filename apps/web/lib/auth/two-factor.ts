@@ -99,18 +99,34 @@ export async function getTwoFactorAccountState(
 	// without the scope a credentials account belonging to ANOTHER tenant would
 	// satisfy the OAuth gate for an OAuth-only profile in this one.
 	const linkedAccounts = await db
-		.select({ type: accounts.type, passwordHash: accounts.passwordHash })
+		.select({ type: accounts.type, provider: accounts.provider, passwordHash: accounts.passwordHash })
 		.from(accounts)
-		.where(tenantId ? and(eq(accounts.userId, userId), eq(accounts.tenantId, tenantId)) : eq(accounts.userId, userId));
+		.where(
+			tenantId ? and(eq(accounts.userId, userId), eq(accounts.tenantId, tenantId)) : eq(accounts.userId, userId)
+		);
 
-	// Client passwords live on `accounts` rows of type 'credentials' — a value
-	// outside next-auth's `AdapterAccountType` union, hence the cast. Same
-	// detection the connected-accounts route uses for `hasPassword`.
-	const hasPasswordAccount = linkedAccounts.some((a) => (a.type as string) === 'credentials' && !!a.passwordHash);
+	// Client passwords live on `accounts` rows whose PROVIDER is 'credentials'
+	// — that is the column `verifyClientPassword` matches on, so it is the
+	// authority on "can this account sign in with a password". `type` is
+	// checked too because the connected-accounts card keys off it, but relying
+	// on `type` alone would miss legacy rows written as `type: 'email'` and
+	// wrongly report those password accounts as OAuth-only. Both values sit
+	// outside next-auth's `AdapterAccountType` union, hence the casts.
+	const hasPasswordAccount = linkedAccounts.some(
+		(a) => ((a.type as string) === 'credentials' || a.provider === 'credentials') && !!a.passwordHash
+	);
 	const hasOAuthAccount = linkedAccounts.some((a) => (a.type as string) === 'oauth');
 
 	const authMethod: TwoFactorAuthMethod = hasPasswordAccount ? 'credentials' : hasOAuthAccount ? 'oauth' : 'unknown';
-	const lockedUntil = profile?.lockedUntil ?? null;
+
+	// A lock that has already run out is reported as gone, and its counter as
+	// spent-and-reset, rather than as "5 failed attempts" forever: the row is
+	// only rewritten by the next verification, and until then the security
+	// overview would keep showing an at-risk account whose lock expired hours
+	// ago. This mirrors what `verifyTwoFactorCode` writes when it next runs.
+	const storedLockedUntil = profile?.lockedUntil ?? null;
+	const lockExpired = !!storedLockedUntil && !isTwoFactorLocked(storedLockedUntil);
+	const lockedUntil = lockExpired ? null : storedLockedUntil;
 
 	return {
 		clientProfileId: profile?.id ?? null,
@@ -123,7 +139,7 @@ export async function getTwoFactorAccountState(
 		// EW-142: only email/password accounts may turn 2FA on. A profile must
 		// also exist, because the flag is stored on it.
 		canEnableTwoFactor: hasPasswordAccount && !!profile,
-		failedAttempts: profile?.failedAttempts ?? 0,
+		failedAttempts: lockExpired ? 0 : (profile?.failedAttempts ?? 0),
 		lockedUntil,
 		locked: isTwoFactorLocked(lockedUntil)
 	};
