@@ -54,16 +54,42 @@ type ItemsJsonItem = {
  * environment actually serves (the demo repo locally, the seeded stub in
  * CI) instead of a hard-coded fixture slug.
  */
-async function firstItem(request: APIRequestContext): Promise<ItemsJsonItem> {
+async function allItems(request: APIRequestContext): Promise<ItemsJsonItem[]> {
 	const resp = await request.get('/items.json');
 	expect(resp.status(), '/items.json status').toBe(200);
 	const json = (await resp.json()) as { items?: ItemsJsonItem[] };
-	const item = (json.items ?? []).find((i) => typeof i.slug === 'string' && i.slug.length > 0);
+	return json.items ?? [];
+}
+
+async function firstItem(request: APIRequestContext): Promise<ItemsJsonItem> {
+	const item = (await allItems(request)).find(
+		(i) => typeof i.slug === 'string' && i.slug.length > 0
+	);
 	expect(
 		item,
 		'/items.json returned no items, so the item/category/tag Markdown mirrors cannot be verified'
 	).toBeTruthy();
 	return item!;
+}
+
+/**
+ * First non-empty category / tag value anywhere in `/items.json`.
+ *
+ * Deliberately *not* `firstItem().categories[0]`: whether item #1 carries a
+ * category and a tag depends on the content repository's ordering, not on
+ * whether the mirror route works, so keying off it turns an unrelated content
+ * change into a red build. Scanning for the first item that actually has the
+ * facet exercises the same route with no such coupling.
+ */
+async function firstFacet(
+	request: APIRequestContext,
+	facet: 'categories' | 'tags'
+): Promise<string | null> {
+	for (const item of await allItems(request)) {
+		const value = (item[facet] ?? []).find((v) => typeof v === 'string' && v.length > 0);
+		if (value) return value;
+	}
+	return null;
 }
 
 /**
@@ -195,16 +221,14 @@ test.describe('Markdown mirror routes', () => {
 	});
 
 	test('/categories/<category>.md serves the category listing as Markdown', async ({ request }) => {
-		const item = await firstItem(request);
-		const category = (item.categories ?? [])[0];
-		expect(category, '/items.json item must carry a category').toBeTruthy();
+		const category = await firstFacet(request, 'categories');
+		test.skip(category === null, 'this content repository categorises no items');
 		await expectMarkdownMirror(request, `/categories/${encodeURIComponent(category!)}.md`);
 	});
 
 	test('/tags/<tag>.md serves the tag listing as Markdown', async ({ request }) => {
-		const item = await firstItem(request);
-		const tag = (item.tags ?? [])[0];
-		expect(tag, '/items.json item must carry a tag').toBeTruthy();
+		const tag = await firstFacet(request, 'tags');
+		test.skip(tag === null, 'this content repository tags no items');
 		await expectMarkdownMirror(request, `/tags/${encodeURIComponent(tag!)}.md`);
 	});
 

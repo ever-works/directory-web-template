@@ -10,15 +10,16 @@ sidebar_label: 046 Plan
 
 | Article | Check |
 | --- | --- |
-| I — Spec-driven | Spec, plan and `docs/log.md` entry ship in the same PR as the code. |
-| II — Plugin-first | No new feature surface; this repairs an existing core route surface. No plugin boundary is crossed. |
-| III — TypeScript only | Only `.ts` files change. |
-| IV — Performance | Route handlers are unchanged (`revalidate` values kept); the rewrites resolve in the router, not at render time. |
-| V — Latest stable | No dependency change. |
-| VI — Reuse before build | No new utility; `lib/i18n/locales.ts` *removes* a would-be duplicate of `DEFAULT_LOCALE` by making `lib/constants.ts` re-export it. |
-| VIII — No removal without migration | Nothing is removed. The seven handlers are renamed in place (`git mv`), every public URL is preserved byte-for-byte, and the e2e guard is strengthened rather than deleted. |
-| IX — Test coverage | `md-mirror-routes.spec.ts` is rewritten to assert the real contract and mutation-tested against the unfixed source. |
-| X — Docs first-class | `docs/features/seo.md` updated; this spec is indexed in `docs/spec/README.md`. |
+| I — Plugin-First Architecture | No new feature surface; this repairs an existing core route surface. No plugin boundary is crossed. |
+| II — TypeScript Everywhere | Only `.ts` files change. |
+| III — Spec Before Code | Spec, plan and `docs/log.md` entry ship in the same PR as the code. |
+| IV — Documentation as a First-Class Citizen | `docs/features/seo.md` updated; this spec is indexed in `docs/spec/README.md`. |
+| V — Performance Budget | Route handlers are unchanged (`revalidate` values kept); the rewrites resolve in the router, not at render time. |
+| VI — Latest Stable Frameworks | No dependency change. |
+| VII — Reuse Before Build | No new utility; `lib/i18n/locales.ts` *removes* a would-be duplicate of `DEFAULT_LOCALE` by making `lib/constants.ts` re-export it. |
+| VIII — No Removal Without Migration | Nothing is removed. The seven handlers are renamed in place (`git mv`), every public URL is preserved byte-for-byte, and the e2e guard is strengthened rather than deleted. |
+| IX — Test Coverage Bar | `md-mirror-routes.spec.ts` is rewritten to assert the real contract and mutation-tested against the unfixed source. |
+| X — Modular Packages | No new package surface; the change stays inside `apps/web` and `apps/web-e2e`. |
 
 ## Steps
 
