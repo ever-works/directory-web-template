@@ -523,6 +523,51 @@ confirm, override, or refine.
 
 ---
 
+## Spec 046 — Markdown mirrors reachable (private-folder routing fix)
+
+### Q-046a Should the internal mirror segment stay reachable as a public URL?
+
+- **Context.** The `.md` mirrors are served by route handlers that used to
+  live in `_`-prefixed *private* folders, which the App Router excludes from
+  routing — so every mirror URL 404'd. Renaming the segment (`_md` → `md`,
+  `_static-md` → `static-md`) is what makes them routable at all, and it also
+  makes the internal paths (`/en/items/<slug>/md`) directly requestable.
+- **Options.**
+  - **Leave them reachable.** The handlers already send
+    `X-Robots-Tag: noindex`, they are absent from the sitemap and nothing
+    links to them, so the exposure is a duplicate of content already public
+    at the `.md` URL.
+  - Add a `Disallow: /*/md$` + `/*/static-md/` pair to `robots.ts`, or gate
+    the handlers on an internal header set by the rewrite.
+- **Default.** **Leave them reachable.** `noindex` already answers the only
+  concern (crawlers indexing the mirror instead of the canonical HTML), and a
+  header gate would make the handlers untestable except through the rewrite.
+- **Owner.** Template maintainers.
+- **Status.** `open`.
+
+### Q-046b Should the doubled origin in the item / CMS-page `text/markdown` alternates be fixed here?
+
+- **Context.** `getLocalizedUrl()` already returns an absolute URL, so
+  `` `${appUrl}${getLocalizedUrl(…)}.md` `` emits
+  `http://hosthttp://host/…md`. PR #1046 fixes the four static info pages
+  (`/about`, `/cookies`, `/privacy-policy`, `/terms-of-service`); the same
+  doubling remains on `app/[locale]/items/[slug]/page.tsx` and
+  `app/[locale]/pages/[slug]/page.tsx`.
+- **Options.**
+  - **Leave to the owning PR / a follow-up.** Spec 046 is about
+    reachability; touching the same four-file blast radius as PR #1046 while
+    it is open invites a conflict, and the two remaining pages are the same
+    one-line change.
+  - Fix all six in this PR.
+- **Default.** **Leave to a follow-up**, tracked here. Spec 046's e2e guard
+  deliberately checks alternate-href *resolution* on `/help` and `/pricing`
+  only — the two pages whose href is already origin-correct — so it neither
+  duplicates nor collides with `md-alternate-link-absolute-url.spec.ts`.
+- **Owner.** Template maintainers.
+- **Status.** `open`.
+
+---
+
 ## How to add a question
 
 1. Pick the next available `Q-NNN…` id under the relevant spec.
