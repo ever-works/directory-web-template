@@ -7,6 +7,14 @@ sidebar_position: 99
 
 # Documentation & Specs Change Log
 
+## 2026-09-03
+
+- `spec-046`: admin **Billing Issues** queue at `/admin/billing-issues` — payment problems derived from the payment records the site already stores (failed charges, disputed/refund cases, subscriptions stuck pending or expired-while-renewing), with mark-resolved/dismissed and a refund issued through the provider named on the underlying subscription. Adds the `billing_issues` triage table (migration `0040`) and wires the previously caller-less `PaymentProviderInterface.refundPayment` seam; money state stays on `subscriptions` ([spec 046](spec/046-admin-billing-issues/spec.md), Jira EW-116, PR #1049).
+- `spec-047`: admin **Payment Reports** at `/admin/payment-reports` — the stored payment records filtered by date range, plan, provider and status, with roll-ups by currency/plan/provider/status and CSV + XLSX export sharing one filter validator with the JSON view. PDF deliberately not shipped; see Q-047-1 ([spec 047](spec/047-admin-payment-reports/spec.md), Jira EW-117, PR #1049).
+- `spec-046`/`spec-047` review follow-ups (same PR): unit boundaries made explicit and per-currency (`subscriptions.amount*` are MAJOR units, `billing_issues.amount` is minor, provider adapters take major — see the table in spec 046 §9); refunds are claimed atomically via `billing_issues.refund_claimed_at` before any provider call; report roll-ups are grouped by currency; revenue no longer falls back from `amount_paid = 0` to the scheduled amount; an over-cap export is refused rather than truncated; date filters reject calendar-invalid values such as `2026-02-30`.
+- `spec-046`/`spec-047` review round 3 (same PR): both writing POST routes test the RAW body for emptiness instead of a trimmed copy — a whitespace-only payload was reading as "no body supplied", which on `.../refund` meant a full irreversible refund; and `/api/admin/payment-reports` now applies the same strict whole-integer pagination pre-check the billing-issues list uses, so `limit=3.5` is a 400 rather than a 200 carrying a page size nobody asked for ([spec 046](spec/046-admin-billing-issues/spec.md) §9, [spec 047](spec/047-admin-payment-reports/spec.md) §9, PR #1049).
+- `questions`: added Q-047-1 — should the payment report also export PDF? Default: CSV + XLSX only, no new dependency.
+
 ## 2026-08-25
 
 - `spec-045`: documented and hardened the shared handler/`POST /api/stripe/platform-webhook` path, including HMAC fail-closed coverage, formatted payment amounts, and retry-safe event coordination ([spec 045](spec/045-shared-stripe-webhook-relay/spec.md), PR #1037).
