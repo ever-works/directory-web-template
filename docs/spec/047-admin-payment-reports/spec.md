@@ -117,6 +117,14 @@ Filters (`from`, `to`, `planId`, `status`, `provider`, `search`) are parsed by
 `lib/services/payment-report-filters.ts`, imported by both routes. It lives outside
 the route files because a Next.js `route.ts` may only export route handlers.
 
+`page` and `limit` go through the strict pre-check in
+`lib/utils/integer-query-param.ts` before the repo's shared
+`validatePaginationParams`, exactly as the billing-issues list route does. The
+shared validator parses with `parseInt`, so on its own it reads `limit=3.5` as 3
+and answers 200 — a report whose row count silently disagrees with the request it
+came from is precisely the failure this feature cannot afford, because the number
+leaves the site in a file a stakeholder acts on.
+
 ## 10. Plugin / Adapter Impact
 
 None. Export uses `papaparse` and `exceljs`, both already dependencies of

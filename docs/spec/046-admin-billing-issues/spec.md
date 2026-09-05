@@ -159,6 +159,21 @@ For the same reason the status-change path passes `skipIfRefunded`, which carrie
 the "not already refunded" condition into the UPDATE's own `WHERE` — a status read
 taken before the write cannot bind a row a concurrent refund has since changed.
 
+**An unreadable request is never guessed at.** Both writing POST routes read the
+RAW body and treat only a genuinely empty one as "omitted"; malformed JSON, or
+JSON that is not an object, is a 400. The emptiness test deliberately does not
+trim first, because trimming collapses a whitespace-only body — the shape a
+truncated or mis-serialised payload arrives in — onto "no body supplied". On
+`.../refund` that would turn a typo in a partial-amount payload into a full,
+irreversible refund; on `POST /billing-issues` it would run the re-scan, which
+writes rows.
+
+Pagination is equally strict on both list routes. `validatePaginationParams` (the
+repo's shared validator) parses with `parseInt`, so `limit=3.5` reads as 3 and the
+caller gets 200 with a page size it never asked for; `lib/utils/integer-query-param.ts`
+rejects any value that is not a whole-integer token before the shared validator
+applies the repo's range rules.
+
 **Refund target.** `POST .../refund` accepts an optional `providerPaymentId` that
 overrides the reference stored on the issue and is persisted when the refund
 succeeds. Detection can only fill that column from what the site stores

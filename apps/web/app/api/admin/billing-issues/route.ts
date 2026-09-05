@@ -184,10 +184,12 @@ export async function POST(request: Request) {
 		// POST both creates an issue and, with `{action:'sync'}`, WRITES rows derived
 		// from the payment records. So an unreadable request must not be guessed at:
 		// only a genuinely empty body means "sync" (the page's refresh button posts
-		// nothing), while malformed or non-object JSON is a 400.
+		// nothing), while malformed or non-object JSON is a 400. The emptiness test
+		// reads the RAW body for the same reason the refund route does: a trimmed
+		// copy would let a whitespace-only payload fall through to a write.
 		let body: Record<string, unknown> = { action: 'sync' };
 		const rawBody = await request.text();
-		if (rawBody.trim()) {
+		if (rawBody) {
 			let parsed: unknown;
 			try {
 				parsed = JSON.parse(rawBody);

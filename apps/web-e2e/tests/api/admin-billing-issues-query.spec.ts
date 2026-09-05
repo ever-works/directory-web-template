@@ -296,7 +296,11 @@ test.describe('API: /api/admin/billing-issues (admin)', () => {
 		// The dangerous shape: a partial-refund payload with a typo in it. Treating
 		// an unparseable body as "no body" would turn that typo into a full refund,
 		// so the route must refuse instead of guessing.
-		for (const body of ['{"amount": 100', 'null', '"amount=100"', '[100]']) {
+		//
+		// `' '` is in the list on purpose. A whitespace-only body is what a truncated
+		// or mis-serialised payload arrives as, and any route that trims before
+		// testing for emptiness reads it as "no body supplied" — i.e. a full refund.
+		for (const body of ['{"amount": 100', 'null', '"amount=100"', '[100]', ' ', '\n\t']) {
 			const response = await request.post('/api/admin/billing-issues/does-not-exist/refund', {
 				headers: { 'Content-Type': 'application/json' },
 				data: body
@@ -327,6 +331,22 @@ test.describe('API: /api/admin/billing-issues (admin)', () => {
 
 			if (response.status() !== 503) {
 				expect(response.status(), `${query} should be rejected`).toBe(400);
+			}
+		}
+	});
+
+	test('a whitespace-only POST body is a 400, not a silent re-scan', async ({ request }) => {
+		// POST with an empty body means "re-scan the payment records", which WRITES
+		// issue rows. A body of `' '` is a malformed request, not an omitted one, so
+		// it must be refused rather than trimmed into the write path.
+		for (const body of [' ', '\n\t']) {
+			const response = await request.post('/api/admin/billing-issues', {
+				headers: { 'Content-Type': 'application/json' },
+				data: body
+			});
+
+			if (response.status() !== 503) {
+				expect(response.status(), `body ${JSON.stringify(body)} should be rejected`).toBe(400);
 			}
 		}
 	});

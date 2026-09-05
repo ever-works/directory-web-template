@@ -5,6 +5,7 @@ import { safeErrorResponse } from '@/lib/utils/api-error';
 import { listPaymentRecords, summarizePayments } from '@/lib/db/queries/payment-report.queries';
 import { parsePaymentReportFilters } from '@/lib/services/payment-report-filters';
 import { validatePaginationParams } from '@/lib/utils/pagination-validation';
+import { firstNonIntegerParam } from '@/lib/utils/integer-query-param';
 
 export const runtime = 'nodejs';
 
@@ -46,7 +47,7 @@ export const runtime = 'nodejs';
  *         schema: { type: string }
  *     responses:
  *       200: { description: "Report retrieved successfully" }
- *       400: { description: "Bad request - invalid filter value" }
+ *       400: { description: "Bad request - invalid filter value or non-integer pagination parameter" }
  *       401: { description: "Unauthorized" }
  *       403: { description: "Forbidden - Admin access required" }
  *       500: { description: "Internal server error" }
@@ -65,9 +66,20 @@ export async function GET(request: Request) {
 			return NextResponse.json({ success: false, error: parsed.error }, { status: 400 });
 		}
 
-		// Shared validator, not an inline clamp: `Number('1.5')` clamps to 1.5 and
-		// reaches Postgres as a fractional LIMIT / OFFSET, which is a 500 rather than
-		// the 400 a malformed query deserves.
+		// Two steps, matching the billing-issues list route. The shared validator
+		// parses with `parseInt`, which reads `limit=3.5` as 3 and answers 200 with a
+		// page size the caller never asked for — a report whose row count silently
+		// disagrees with the request is worse than a rejection. The strict pre-check
+		// refuses anything that is not a whole-integer token; the shared validator
+		// then applies the repo's own range rules, so both routes stay in step.
+		const malformed = firstNonIntegerParam(searchParams, ['page', 'limit']);
+		if (malformed) {
+			return NextResponse.json(
+				{ success: false, error: `Invalid ${malformed} parameter. Must be a whole number.` },
+				{ status: 400 }
+			);
+		}
+
 		const pagination = validatePaginationParams(searchParams);
 		if ('error' in pagination) {
 			return NextResponse.json({ success: false, error: pagination.error }, { status: pagination.status });

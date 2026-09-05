@@ -59,8 +59,14 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
 		// Only a genuinely EMPTY body means "full refund"; malformed JSON, or JSON
 		// that is not an object, is a 400 — silently treating it as an omitted body
 		// would turn a typo in a partial-amount payload into a full refund.
+		//
+		// The emptiness test runs on the RAW body, deliberately not on a trimmed
+		// copy: trimming first would collapse a whitespace-only body (`" "`, the
+		// shape a truncated or mis-serialised payload arrives in) onto "no body
+		// supplied" and issue a full refund. Whitespace reaches `JSON.parse`, which
+		// rejects it, and the caller gets the 400 it deserves.
 		let body: Record<string, unknown> = {};
-		const rawBody = (await request.text()).trim();
+		const rawBody = await request.text();
 		if (rawBody) {
 			let parsed: unknown;
 			try {
