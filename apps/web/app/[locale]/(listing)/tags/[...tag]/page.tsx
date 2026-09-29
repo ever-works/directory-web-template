@@ -62,9 +62,14 @@ async function resolveTagListing(segments: readonly string[], locale: string) {
   const tag = decodeSegment(rawTag);
   if (tag === null) return null;
 
-  const result = await getCachedItemsByTag(tag, { lang: locale });
-  const matchedTag = findTagBySegment(result.tags, tag);
+  const bySegment = await getCachedItemsByTag(tag, { lang: locale });
+  const matchedTag = findTagBySegment(bySegment.tags, tag);
   if (!matchedTag) return null;
+  // A tag named by its display name (`/tags/Open%20Source/2`): list the items
+  // of the tag itself, the page the canonical below names. fetchByTag matches
+  // items on the tag id only, so the name spelling listed none.
+  const result =
+    matchedTag.id === tag ? bySegment : await getCachedItemsByTag(matchedTag.id, { lang: locale });
 
   // Pages of the tag's own items, as <Listing> paginates them; URL filters
   // (?q=, ?categories=) only ever shrink that. NOT `result.total`: fetchByTag
@@ -73,7 +78,7 @@ async function resolveTagListing(segments: readonly string[], locale: string) {
   const page = resolveAliasPage(pageSegments, result.items.length, PER_PAGE);
   if (page === null) return null;
 
-  return { ...result, tag, matchedTag, page };
+  return { ...result, tag: matchedTag.id, matchedTag, page };
 }
 
 export async function generateMetadata({
