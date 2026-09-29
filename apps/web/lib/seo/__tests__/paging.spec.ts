@@ -1,6 +1,13 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { listingPageCount, pagingCanonicalPath, pagingTitle, parsePageParam, resolveListingPage } from '../paging';
+import {
+	listingPageCount,
+	pagingCanonicalPath,
+	pagingTitle,
+	parsePageParam,
+	resolveAliasPage,
+	resolveListingPage
+} from '../paging';
 
 /**
  * Page-number helpers for /tags/paging/<n> and /collections/paging/<n>
@@ -88,5 +95,37 @@ describe('pagingCanonicalPath / pagingTitle', () => {
 		assert.equal(pagingCanonicalPath('/tags', 2), '/tags/paging/2');
 		assert.equal(pagingCanonicalPath('/collections', 10), '/collections/paging/10');
 		assert.equal(pagingTitle('Tags', 2), 'Tags - Page 2');
+	});
+});
+
+describe('resolveAliasPage', () => {
+	// A record with 30 entries at 12 per page has pages 1-3.
+	it('reads no page segment as page 1', () => {
+		assert.equal(resolveAliasPage([], 30, 12), 1);
+		assert.equal(resolveAliasPage([], 0, 12), 1);
+	});
+
+	it('accepts a page of the record', () => {
+		assert.equal(resolveAliasPage(['1'], 30, 12), 1);
+		assert.equal(resolveAliasPage(['2'], 30, 12), 2);
+		assert.equal(resolveAliasPage(['3'], 30, 12), 3);
+	});
+
+	it('rejects a malformed page segment instead of reading it as page 1', () => {
+		for (const raw of ['abc', '0', '02', '2abc', '']) {
+			assert.equal(resolveAliasPage([raw], 30, 12), null, JSON.stringify(raw));
+		}
+	});
+
+	it('rejects a page past the last one', () => {
+		assert.equal(resolveAliasPage(['4'], 30, 12), null);
+		assert.equal(resolveAliasPage(['999'], 30, 12), null);
+		assert.equal(resolveAliasPage(['2'], 0, 12), null);
+	});
+
+	it('rejects any segment after the page', () => {
+		assert.equal(resolveAliasPage(['2', 'extra'], 30, 12), null);
+		assert.equal(resolveAliasPage(['2', 'x', 'y'], 30, 12), null);
+		assert.equal(resolveAliasPage(['extra', 'junk'], 30, 12), null);
 	});
 });

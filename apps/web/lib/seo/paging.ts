@@ -40,6 +40,21 @@ export function resolveListingPage(raw: string | null | undefined, total: number
 }
 
 /**
+ * The page a legacy catch-all alias names (`/categories/category/<id>[/<n>]`,
+ * `/tags/tag/<id>[/<n>]`, `/tags/<id>/<n>`). `pageSegments` is what the
+ * catch-all holds AFTER the record segment: none is page 1, one must be a page
+ * of the record's listing (see resolveListingPage), and any further segment
+ * makes the URL something that is not a page. null means not-found: those
+ * routes ignored everything after the record, so an unbounded set of URLs
+ * (`/<id>/abc`, `/<id>/999`, `/<id>/2/x/y`) answered 200 as copies of page 1.
+ */
+export function resolveAliasPage(pageSegments: readonly string[], total: number, perPage: number): number | null {
+	if (pageSegments.length === 0) return 1;
+	if (pageSegments.length > 1) return null;
+	return resolveListingPage(pageSegments[0], total, perPage);
+}
+
+/**
  * The canonical path of page `page` of the listing at `listingPath`
  * (`/tags`, `/collections`): page 1 IS the listing index, later pages are
  * `<listingPath>/paging/<n>`.

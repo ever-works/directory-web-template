@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { getTagsEnabled } from "@/lib/utils/settings";
 import { generateListingMetadata } from "@/lib/seo/listing-metadata";
 import { toTitleCase } from "@/lib/utils";
+import { findTagBySegment } from "@/lib/seo/route-segment";
 import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-json-ld";
 import { getTranslations } from "next-intl/server";
 import { DEFAULT_LOCALE } from "@/lib/constants";
@@ -19,18 +20,23 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { tag, locale } = await params;
   const decodedTag = decodeURIComponent(tag);
-  const formattedTag = toTitleCase(decodedTag);
-  const { items } = await getCachedItems({ lang: locale });
+  const { items, tags } = await getCachedItems({ lang: locale });
+  // Title and canonical from the tag's id, whatever spelling the URL used
+  // (`/tags/Open%20Source`): that answered as its own self-canonical duplicate
+  // of /tags/<id>. An unknown tag keeps the raw segment; the page below 404s it.
+  const matchedTag = findTagBySegment(tags, decodedTag);
+  const formattedTag = toTitleCase(matchedTag ? matchedTag.id : decodedTag);
+  const path = matchedTag ? `/tags/${encodeURIComponent(matchedTag.id)}` : `/tags/${tag}`;
   const taggedItems = items.filter((item) =>
     item.tags?.some((t: string | { id: string }) => {
       const tagValue = typeof t === "string" ? t : t?.id;
-      return tagValue?.toLowerCase() === decodedTag.toLowerCase();
+      return tagValue?.toLowerCase() === (matchedTag ? matchedTag.id : decodedTag).toLowerCase();
     })
   );
 
   return generateListingMetadata({
     title: `${formattedTag} Tag`,
-    path: `/tags/${tag}`,
+    path,
     locale,
     itemCount: taggedItems.length,
     keywords: [decodedTag, "tag", "directory", "listings"],
@@ -62,9 +68,8 @@ export default async function TagListing({
   const decodedTag = decodeURIComponent(tag);
 
   // Unknown tag slug → proper 404 (not a soft-404 with full item list).
-  const knownTag = tags.some(
-    (t) => t.id === decodedTag || t.name?.toLowerCase() === decodedTag.toLowerCase()
-  );
+  // Same lookup as generateMetadata above.
+  const knownTag = findTagBySegment(tags, decodedTag) !== undefined;
   if (!knownTag) {
     notFound();
   }

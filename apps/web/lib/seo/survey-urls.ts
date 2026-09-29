@@ -9,6 +9,8 @@
  * published under that item; every other survey under `/surveys`.
  */
 
+import { decodeSegment } from './route-segment';
+
 /** The survey fields that decide where it is published. */
 export interface SurveyLocation {
 	slug: string;
@@ -22,21 +24,23 @@ function isItemSurvey(survey: SurveyLocation): survey is SurveyLocation & { item
 	return survey.type === 'item' && typeof survey.itemId === 'string' && survey.itemId.length > 0;
 }
 
-/** Locale-less canonical path of a survey. */
-export function surveyCanonicalPath(survey: SurveyLocation): string {
-	const slug = encodeURIComponent(survey.slug);
-	if (isItemSurvey(survey)) {
-		return `/items/${encodeURIComponent(survey.itemId)}/surveys/${slug}`;
+/**
+ * Locale-less path of survey `slug`: under item `itemId` when one is given,
+ * otherwise under `/surveys`. The one place the two URL shapes are spelled
+ * out (components/surveys/utils/survey-helpers.ts getPublicSurveyLink() builds
+ * its copyable link from it too).
+ */
+export function surveyPath(slug: string, itemId?: string | null): string {
+	const encodedSlug = encodeURIComponent(slug);
+	if (typeof itemId === 'string' && itemId.length > 0) {
+		return `/items/${encodeURIComponent(itemId)}/surveys/${encodedSlug}`;
 	}
-	return `/surveys/${slug}`;
+	return `/surveys/${encodedSlug}`;
 }
 
-function safeDecode(value: string): string {
-	try {
-		return decodeURIComponent(value);
-	} catch {
-		return value;
-	}
+/** Locale-less canonical path of a survey. */
+export function surveyCanonicalPath(survey: SurveyLocation): string {
+	return surveyPath(survey.slug, isItemSurvey(survey) ? survey.itemId : null);
 }
 
 /**
@@ -46,5 +50,5 @@ function safeDecode(value: string): string {
  */
 export function isSurveyOfItem(survey: SurveyLocation, itemSlug: string): boolean {
 	if (!isItemSurvey(survey)) return false;
-	return survey.itemId === itemSlug || survey.itemId === safeDecode(itemSlug);
+	return survey.itemId === itemSlug || survey.itemId === decodeSegment(itemSlug);
 }

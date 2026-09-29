@@ -3,46 +3,31 @@ import { paginateMeta, totalPages } from "@/lib/paginate";
 import ListingTags from "../../listing-tags";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { getTagsEnabled } from "@/lib/utils/settings";
 import { generateListingMetadata } from "@/lib/seo/listing-metadata";
-import { pagingCanonicalPath, pagingTitle, resolveListingPage } from "@/lib/seo/paging";
-
-// Set per page to 12 for tags (default from config)
-const PER_PAGE = 12; // This matches the default in LayoutThemeContext
-
-/**
- * The tags and the page this URL names, or `page: null` when the segment is
- * not a page of the tag listing (malformed, or past the last page).
- */
-async function resolveTagsPage(rawPage: string | undefined, locale: string) {
-  const { tags } = await getCachedItems({ lang: locale, sortTags: true });
-  return { tags, page: resolveListingPage(rawPage, tags.length, PER_PAGE) };
-}
+import { pagingCanonicalPath, pagingTitle } from "@/lib/seo/paging";
+import { resolveTagsPage, TAGS_PER_PAGE as PER_PAGE } from "./resolve-tags-page";
 
 /**
  * Own metadata instead of the [locale] layout's homepage canonical. Page 1 is
  * the same listing as /tags, so it takes /tags' canonical and title; each
  * later page is canonical to itself with a title of its own. Anything that is
  * not a page of the listing (/tags/paging/abc, /tags/paging/999) is
- * not-found, not an empty grid that claims to be canonical. This route's
- * loading.tsx streams the response, so that page is sent with status 200 and
- * `noindex`.
+ * not-found, not an empty grid that claims to be canonical: layout.tsx
+ * answers those with a real 404 before this route's loading.tsx starts
+ * streaming.
  */
 export async function generateMetadata({
   params,
 }: {
   params: Promise<{ page: string; locale: string }>;
 }): Promise<Metadata> {
-  // Tags switched off: /tags 404s on this site (the page below does the same).
-  if (!getTagsEnabled()) {
-    notFound();
-  }
-
   const { locale, page: rawPage } = await params;
-  const { tags, page } = await resolveTagsPage(rawPage, locale);
-  if (page === null) {
+  // Tags switched off (/tags 404s on this site) or not a page of the listing.
+  const resolved = await resolveTagsPage(rawPage, locale);
+  if (!resolved) {
     notFound();
   }
+  const { tags, page } = resolved;
 
   return generateListingMetadata({
     title: pagingTitle("Tags", page),
@@ -81,20 +66,17 @@ export default async function TagPagingPage({
 }: {
   params: Promise<{ page: string; locale: string }>;
 }) {
-  // Tags switched off → the not-found page, as on /tags/paging.
-  if (!getTagsEnabled()) {
-    notFound();
-  }
-
   const { page: pageMeta, locale } = await params;
   // `page` is one segment (a string), not a catch-all array: `pageMeta[0]`
   // took its first CHARACTER, so /tags/paging/10..19 all rendered page 1 while
-  // each declared itself canonical.
-  const { tags, page: resolvedPage } = await resolveTagsPage(pageMeta, locale);
-  if (resolvedPage === null) {
+  // each declared itself canonical. Tags switched off, or not a page of the
+  // listing: not-found, as on /tags/paging (layout.tsx already answered it).
+  const resolved = await resolveTagsPage(pageMeta, locale);
+  if (!resolved) {
     notFound();
   }
-  const { start, page } = paginateMeta(resolvedPage, PER_PAGE);
+  const { tags } = resolved;
+  const { start, page } = paginateMeta(resolved.page, PER_PAGE);
 
   // PAGINATE tags here!
   const paginatedTags = tags.slice(start, start + PER_PAGE);

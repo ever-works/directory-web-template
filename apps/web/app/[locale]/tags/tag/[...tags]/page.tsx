@@ -1,15 +1,13 @@
 import type { Metadata } from "next";
-import { getCachedItemsByTag, getCachedItems, type Tag } from "@/lib/content";
+import { getCachedItems } from "@/lib/content";
 import { totalPages } from "@/lib/paginate";
 import ListingTags from "../../listing-tags";
-import { getTagsEnabled } from "@/lib/utils/settings";
 import { notFound } from "next/navigation";
 import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-json-ld";
 import { getTranslations } from "next-intl/server";
 import { DEFAULT_LOCALE } from "@/lib/constants";
-import { toTitleCase } from "@/lib/utils";
 import { generateListingMetadata } from "@/lib/seo/listing-metadata";
-import { parsePageParam } from "@/lib/seo/paging";
+import { resolveTagAlias } from "./resolve-tag-alias";
 
 // Force dynamic — getCachedItemsByTag consults request-scoped APIs during
 // render, so an on-demand ISR render threw and every /tags/tag/<tag> URL
@@ -17,13 +15,6 @@ import { parsePageParam } from "@/lib/seo/paging";
 export const dynamic = 'force-dynamic';
 // Enable ISR with 10 minutes revalidation
 export const revalidate = 600;
-
-/** The tag a URL segment names: by id, or by name (any case). */
-function findTag(tags: Tag[], tag: string): Tag | undefined {
-  return tags.find(
-    (t) => t.id === tag || t.name?.toLowerCase() === tag.toLowerCase()
-  );
-}
 
 /**
  * Own metadata instead of the [locale] layout's, which made every
@@ -39,21 +30,15 @@ export async function generateMetadata({
 }: {
   params: Promise<{ tags: string[]; locale: string }>;
 }): Promise<Metadata> {
-  // Tags switched off: /tags 404s on this site (the page below does the same).
-  if (!getTagsEnabled()) {
-    notFound();
-  }
-
   const { tags: tagMeta, locale } = await params;
-  const [rawTag] = tagMeta;
-  const tag = decodeURI(rawTag);
-  // An unknown tag gets the not-found page (the page below does the same).
-  // This route's loading.tsx streams the response, so that page is sent with
-  // status 200 and `noindex` (Next's streaming-metadata behaviour).
-  const { tags } = await getCachedItemsByTag(tag, { lang: locale });
-  if (!findTag(tags, tag)) {
+  // Tags switched off (/tags 404s on this site), an unknown tag, or a URL that
+  // is not one of its pages: not-found (layout.tsx already answered it with a
+  // real 404).
+  const alias = await resolveTagAlias(tagMeta, locale);
+  if (!alias) {
     notFound();
   }
+  const { tags } = alias;
 
   return generateListingMetadata({
     title: "Tags",
@@ -94,46 +79,29 @@ export default async function TagListing({
 }: {
   params: Promise<{ tags: string[]; locale: string }>;
 }) {
-  const tagsEnabled = getTagsEnabled();
-  if (!tagsEnabled) {
-    notFound();
-  }
-
   const resolvedParams = await params;
   const { tags: tagMeta, locale } = resolvedParams;
-  const [rawTag, rawPage] = tagMeta;
-  const tag = decodeURI(rawTag);
-  // A malformed page segment (`abc`, `02`) reads as page 1 rather than NaN.
-  const page = parsePageParam(rawPage) ?? 1;
-  const { total, tags } = await getCachedItemsByTag(tag, {
-    lang: locale,
-  });
 
-  // Unknown tag → the not-found page (noindex), as on /tags/<tag>, not the
-  // full tag grid under any string.
-  const matchedTag = findTag(tags, tag);
-  if (!matchedTag) {
+  // Tags switched off, an unknown tag, a malformed page segment (`abc`,
+  // `02`), a page past the last one, or segments after the page: not-found,
+  // as on /tags/<tag>, not the full tag grid under any string. layout.tsx
+  // already answered these with a real 404; this keeps the page from ever
+  // rendering one.
+  const alias = await resolveTagAlias(tagMeta, locale);
+  if (!alias) {
     notFound();
   }
+  const { total, tags, tag, page } = alias;
 
   const tCommon = await getTranslations({ locale, namespace: "common" });
   const localePrefix = locale === DEFAULT_LOCALE ? "" : `/${locale}`;
-  const tagName = matchedTag.name || toTitleCase(matchedTag.id);
+  // The trail of /tags, the page this one renders and canonicalises to (see
+  // generateMetadata): naming the tag, or the tag and a page number, described
+  // a page the URL does not show.
   const breadcrumbItems: { name: string; url?: string }[] = [
     { name: tCommon("HOME"), url: `${localePrefix || "/"}` },
-    { name: tCommon("TAGS"), url: `${localePrefix}/tags` },
+    { name: tCommon("TAGS") },
   ];
-  if (page > 1) {
-    breadcrumbItems.push({
-      name: tagName,
-      // The tag's own page, under its id (a URL segment may name the tag by
-      // its display name, e.g. `Open%20Source`).
-      url: `${localePrefix}/tags/${encodeURIComponent(matchedTag.id)}`,
-    });
-    breadcrumbItems.push({ name: `Page ${page}` });
-  } else {
-    breadcrumbItems.push({ name: tagName });
-  }
 
   return (
     <>

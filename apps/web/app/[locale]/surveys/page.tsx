@@ -13,6 +13,7 @@ import { SurveyTypeEnum, SurveyStatusEnum } from '@/lib/types/survey';
 import { getSurveysEnabled } from '@/lib/utils/settings';
 import { getBaseUrl } from '@/lib/utils/url-cleaner';
 import { getLocalizedUrl } from '@/lib/seo/hreflang';
+import { getSiteName } from '@/lib/seo/site-identity';
 import type { Locale } from '@/lib/constants';
 
 const logger = Logger.create('SurveysPage');
@@ -34,16 +35,32 @@ export async function generateMetadata({
 
     const { locale } = await params;
     const t = await getTranslations({ locale, namespace: 'survey' });
+    const siteName = await getSiteName();
+    // The configured site name, as every listing title has it: the
+    // `survey.PAGE_TITLE` message spells the template's own brand
+    // ("Surveys | Ever Works") into every directory built from it.
+    const title = `${t('SURVEYS')} | ${siteName}`;
+    const description = t('PAGE_META_DESCRIPTION');
+    const canonical = getLocalizedUrl('/surveys', locale as Locale);
 
     return {
         metadataBase: new URL(appUrl),
-        title: t('PAGE_TITLE'),
-        description: t('PAGE_META_DESCRIPTION'),
+        title,
+        description,
+        // Own og:url (Next replaces, never merges, `openGraph`), so a share
+        // names this page rather than none.
+        openGraph: {
+            title,
+            description,
+            type: 'website',
+            siteName,
+            url: canonical
+        },
         // Own canonical: without it this page inherited the [locale] layout's
         // `alternates` and declared itself a duplicate of the homepage.
         // Canonical only - survey content is not translated per locale.
         alternates: {
-            canonical: getLocalizedUrl('/surveys', locale as Locale)
+            canonical
         }
     };
 }

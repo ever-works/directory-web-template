@@ -1,4 +1,5 @@
 import { Logger } from '@/lib/logger';
+import { surveyPath } from '@/lib/seo/survey-urls';
 
 const logger = Logger.create('SurveyHelpers');
 
@@ -130,14 +131,12 @@ export function getTypeColor(type: string): string {
 }
 
 /**
- * Generate public survey link
+ * Generate public survey link. The path comes from surveyPath(), the same
+ * mapping the survey pages build their canonical URL from.
  */
 export function getPublicSurveyLink(slug: string, itemId?: string): string {
   const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
-  if (itemId) {
-    return `${baseUrl}/items/${itemId}/surveys/${slug}`;
-  }
-  return `${baseUrl}/surveys/${slug}`;
+  return `${baseUrl}${surveyPath(slug, itemId)}`;
 }
 
 /**

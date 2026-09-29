@@ -1,11 +1,10 @@
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { getCachedItemsByCategory, getCachedItems, type Category } from "@/lib/content";
+import { getCachedItems } from "@/lib/content";
 import { paginateMeta, totalPages } from "@/lib/paginate";
 import { generateListingMetadata } from "@/lib/seo/listing-metadata";
-import { parsePageParam } from "@/lib/seo/paging";
-import { toTitleCase, slugify } from "@/lib/utils";
-import { getCategoriesEnabled } from "@/lib/utils/settings";
+import { toTitleCase } from "@/lib/utils";
+import { resolveCategoryAlias } from "./resolve-category-alias";
 import Listing from "../../../(listing)/listing";
 import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-json-ld";
 import { getTranslations } from "next-intl/server";
@@ -20,47 +19,30 @@ export const dynamic = 'force-dynamic';
 // Enable ISR with 10 minutes revalidation
 export const revalidate = 600;
 
-/** The category a URL segment names: by id, by slugified id, or by name. */
-function findCategory(categories: Category[], category: string): Category | undefined {
-  const slug = slugify(category);
-  return categories.find(
-    (c) => c.id === category || c.id === slug
-      || c.name.toLowerCase() === category.toLowerCase()
-  );
-}
-
 /**
  * Legacy alias of /categories/<id>. EVERY page of it canonicalises there, with
  * that page's own title: this route hands the whole category to <Listing>
- * without slicing it by page, so /categories/category/<id>/2, /3 or /999
- * render the same listing as page 1, and /categories/<id> is the URL every
- * internal link, breadcrumb and the sitemap use. (Letting page N point at
- * itself declared an unbounded set of duplicates canonical.)
+ * without slicing it by page, so /categories/category/<id>/2 or /3 render the
+ * same listing as page 1, and /categories/<id> is the URL every internal link,
+ * breadcrumb and the sitemap use. (Letting page N point at itself declared an
+ * unbounded set of duplicates canonical.) Only the category's real pages
+ * answer at all: /abc, /0, /999 or /2/extra are a 404 (resolve-category-alias.ts).
  */
 export async function generateMetadata({
   params,
 }: {
   params: Promise<{ categorie: string[]; locale: string }>;
 }): Promise<Metadata> {
-  // Categories switched off: /categories/<id> 404s on this site, so this
-  // alias must not answer as an indexable page that points there.
-  if (!getCategoriesEnabled()) {
-    notFound();
-  }
-
   const { categorie: categoryMeta, locale } = await params;
-  const [rawCategory] = categoryMeta;
-  const category = decodeURIComponent(rawCategory);
-  const { total, categories } = await getCachedItemsByCategory(category, { lang: locale });
-  // An unknown category gets the not-found page (the page below does the
-  // same). Resolving it here also keeps its metadata from naming
-  // /categories/<unknown>, a 404, as the canonical. This route's loading.tsx
-  // streams the response, so that page is sent with status 200 and
-  // `noindex` (Next's streaming-metadata behaviour).
-  const matchedCategory = findCategory(categories, category);
-  if (!matchedCategory) {
+  // Categories switched off, an unknown category, or a URL that is not one of
+  // its pages: not-found (layout.tsx already answered it with a real 404).
+  // Resolving it here also keeps the metadata from naming
+  // /categories/<unknown>, a 404, as the canonical.
+  const alias = await resolveCategoryAlias(categoryMeta, locale);
+  if (!alias) {
     notFound();
   }
+  const { matchedCategory, total } = alias;
 
   // Same title, path and mirror as categories/[category]/page.tsx renders for
   // /categories/<id>, the page this one duplicates.
@@ -103,34 +85,20 @@ export default async function CategoryListing({
 }: {
   params: Promise<{ categorie: string[]; locale: string }>;
 }) {
-  // Categories switched off → the not-found page, as on /categories/<id>.
-  if (!getCategoriesEnabled()) {
-    notFound();
-  }
-
   const resolvedParams = await params;
   const { categorie: categoryMeta, locale } = resolvedParams;
-  const [rawCategory, rawPage] = categoryMeta;
-  const category = decodeURIComponent(rawCategory);
 
-  // Handle pagination. A malformed page segment (`abc`, `02`) reads as page 1
-  // rather than NaN.
-  const page = parsePageParam(rawPage) ?? 1;
-  const { start } = paginateMeta(page);
-  
-  // For now, we'll use the original approach
-  // In the future, we can implement query parameters here
-  const result = await getCachedItemsByCategory(category, { lang: locale });
-
-  const { items, categories, total, tags } = result;
-
-  // Resolve to a known category ID (handles URL-encoded names with spaces, etc.)
-  const matchedCategory = findCategory(categories, category);
-  // Unknown category → the not-found page (noindex), as on /categories/<id>,
-  // not an empty listing.
-  if (!matchedCategory) {
+  // Categories switched off, an unknown category (resolved by id, slugified
+  // id or name, e.g. a URL-encoded name with spaces), a malformed page
+  // segment (`abc`, `02`), a page past the last one, or segments after the
+  // page: not-found, as on /categories/<id>. layout.tsx already answered these
+  // with a real 404; this keeps the page from ever rendering one.
+  const alias = await resolveCategoryAlias(categoryMeta, locale);
+  if (!alias) {
     notFound();
   }
+  const { items, categories, total, tags, matchedCategory, page, category } = alias;
+  const { start } = paginateMeta(page);
   const resolvedCategory = matchedCategory.id;
 
   const tCommon = await getTranslations({ locale, namespace: "common" });
