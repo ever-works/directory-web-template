@@ -66,9 +66,11 @@ async function resolveTagListing(segments: readonly string[], locale: string) {
   const matchedTag = findTagBySegment(result.tags, tag);
   if (!matchedTag) return null;
 
-  // Pages of the tag's whole listing; URL filters (?q=, ?categories=) only
-  // ever shrink it.
-  const page = resolveAliasPage(pageSegments, result.total, PER_PAGE);
+  // Pages of the tag's own items, as <Listing> paginates them; URL filters
+  // (?q=, ?categories=) only ever shrink that. NOT `result.total`: fetchByTag
+  // returns the whole catalogue's count there, which let /tags/<tag>/<n> answer
+  // 200 with an empty, self-canonical listing far past the tag's last page.
+  const page = resolveAliasPage(pageSegments, result.items.length, PER_PAGE);
   if (page === null) return null;
 
   return { ...result, tag, matchedTag, page };
@@ -84,7 +86,7 @@ export async function generateMetadata({
   if (!listing) {
     notFound();
   }
-  const { matchedTag, page, total } = listing;
+  const { matchedTag, page, items } = listing;
   // Title and canonical from the tag's id, whatever spelling the URL used
   // (`/tags/Open%20Source/2`, `/tags/OPEN-SOURCE/2`): the URL /tags/<id>
   // publishes.
@@ -97,7 +99,8 @@ export async function generateMetadata({
     title,
     path,
     locale,
-    itemCount: total,
+    // The tag's own items (`total` is the whole catalogue, see above).
+    itemCount: items.length,
     keywords: [matchedTag.id, "tag", "directory", "listings"],
   });
 }
