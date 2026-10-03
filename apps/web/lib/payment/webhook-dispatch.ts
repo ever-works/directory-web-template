@@ -41,7 +41,7 @@ import { coreConfig, emailConfig as globalEmailConfig } from '@/lib/config/confi
 import { WebhookSubscriptionService } from '@/lib/services/webhook-subscription.service';
 import { sponsorAdService } from '@/lib/services/sponsor-ad.service';
 import { buildPaymentSucceededBaseEmailData } from '@/lib/payment/webhook-email-data';
-import { assertRelayFulfilment } from '@/lib/payment/relay-fulfilment';
+import { assertRelayFulfilment, reportNotificationFailure } from '@/lib/payment/relay-fulfilment';
 import { openBillingIssueFromFailedPaymentWebhook } from '@/lib/services/billing-issue.service';
 import { PaymentProvider } from '@/lib/constants/payment';
 const webhookSubscriptionService = new WebhookSubscriptionService();
@@ -257,7 +257,7 @@ async function handlePaymentSucceeded(data: any) {
 			console.log('✅ Payment success email sent successfully');
 		} else {
 			console.error('❌ Failed to send payment success email:', emailResult.error);
-			assertRelayFulfilment(false, 'payment success email');
+			reportNotificationFailure('payment success email', emailResult.error);
 		}
 	} catch (error) {
 		console.error('❌ Error handling payment succeeded:', error);
@@ -301,7 +301,7 @@ async function handlePaymentFailed(data: any) {
 			console.log('✅ Payment failed email sent successfully');
 		} else {
 			console.error('❌ Failed to send payment failed email:', emailResult.error);
-			assertRelayFulfilment(false, 'payment failed email');
+			reportNotificationFailure('payment failed email', emailResult.error);
 		}
 	} catch (error) {
 		console.error('❌ Error handling payment failed:', error);
@@ -355,7 +355,7 @@ async function handleSubscriptionCreated(data: any) {
 			console.log('✅ New subscription email sent successfully');
 		} else {
 			console.error('❌ Failed to send new subscription email:', emailResult.error);
-			assertRelayFulfilment(false, 'new subscription email');
+			reportNotificationFailure('new subscription email', emailResult.error);
 		}
 	} catch (error) {
 		console.error('❌ Error handling subscription created:', error);
@@ -402,7 +402,7 @@ async function handleSubscriptionUpdated(data: any) {
 			console.log('✅ Updated subscription email sent successfully');
 		} else {
 			console.error('❌ Failed to send updated subscription email:', emailResult.error);
-			assertRelayFulfilment(false, 'updated subscription email');
+			reportNotificationFailure('updated subscription email', emailResult.error);
 		}
 	} catch (error) {
 		console.error('❌ Error handling subscription updated:', error);
@@ -452,7 +452,7 @@ async function handleSubscriptionCancelled(data: any) {
 			console.log('✅ Cancelled subscription email sent successfully');
 		} else {
 			console.error('❌ Failed to send cancelled subscription email:', emailResult.error);
-			assertRelayFulfilment(false, 'cancelled subscription email');
+			reportNotificationFailure('cancelled subscription email', emailResult.error);
 		}
 	} catch (error) {
 		console.error('❌ Error handling subscription cancelled:', error);
@@ -511,7 +511,7 @@ async function handleSubscriptionPaymentSucceeded(data: any) {
 			console.log('✅ Subscription payment success email sent successfully');
 		} else {
 			console.error('❌ Failed to send subscription payment success email:', emailResult.error);
-			assertRelayFulfilment(false, 'subscription payment success email');
+			reportNotificationFailure('subscription payment success email', emailResult.error);
 		}
 	} catch (error) {
 		console.error('❌ Error handling subscription payment succeeded:', error);
@@ -642,7 +642,7 @@ async function handleSubscriptionPaymentFailed(data: any) {
 			console.log('✅ Subscription payment failed email sent successfully');
 		} else {
 			console.error('❌ Failed to send subscription payment failed email:', emailResult.error);
-			assertRelayFulfilment(false, 'subscription payment failed email');
+			reportNotificationFailure('subscription payment failed email', emailResult.error);
 		}
 	} catch (error) {
 		console.error('❌ Error handling subscription payment failed:', error);
@@ -688,7 +688,7 @@ async function handleSubscriptionTrialEnding(data: any) {
 			console.log('✅ Trial ending email sent successfully');
 		} else {
 			console.error('❌ Failed to send trial ending email:', emailResult.error);
-			assertRelayFulfilment(false, 'trial ending email');
+			reportNotificationFailure('trial ending email', emailResult.error);
 		}
 	} catch (error) {
 		console.error('❌ Error handling subscription trial ending:', error);
