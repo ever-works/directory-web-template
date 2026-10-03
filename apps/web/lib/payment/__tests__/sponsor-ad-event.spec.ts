@@ -4,7 +4,7 @@ import { join } from 'node:path';
 import { test } from 'node:test';
 
 import { reportNotificationFailure } from '../relay-fulfilment';
-import { isSponsorAdObject, readSponsorAdId, sponsorAdInvoiceAction } from '../sponsor-ad-event';
+import { isSponsorAdObject, readSponsorAdId, readSponsorAdMarker, sponsorAdInvoiceAction } from '../sponsor-ad-event';
 
 // CC05-04 (billing audit 2026-09-28): a sponsor-ad INVOICE carries the subscription's
 // metadata only in subscription_details / parent.subscription_details / its lines, so the
@@ -43,10 +43,72 @@ test('an invoice is recognised by subscription_details.metadata (earlier API ver
 	assert.equal(readSponsorAdId(invoice), 'ad_123');
 });
 
-test('an invoice is recognised by a subscription line item metadata', () => {
-	const invoice = { id: 'in_3', subscription: 'sub_1', lines: { data: [{ metadata: {} }, { metadata: SPONSOR }] } };
-	assert.equal(isSponsorAdObject(invoice), true);
+test('an invoice is recognised by a subscription line item metadata (both line shapes)', () => {
+	const legacy = {
+		id: 'in_3',
+		subscription: 'sub_1',
+		lines: {
+			data: [
+				{ type: 'invoiceitem', metadata: {} },
+				{ type: 'subscription', metadata: SPONSOR }
+			]
+		}
+	};
+	assert.equal(isSponsorAdObject(legacy), true);
+	assert.equal(readSponsorAdId(legacy), 'ad_123');
+	const basil = {
+		id: 'in_4',
+		lines: { data: [{ parent: { type: 'subscription_item_details' }, metadata: SPONSOR }] }
+	};
+	assert.equal(readSponsorAdId(basil), 'ad_123');
+});
+
+test('a one-off invoice item carrying the marker does not reclassify a plan invoice', () => {
+	const planInvoice = {
+		id: 'in_plan_with_item',
+		subscription_details: { metadata: { planId: 'premium' } },
+		lines: {
+			data: [
+				{ type: 'subscription', metadata: { planId: 'premium' } },
+				{ type: 'invoiceitem', metadata: SPONSOR },
+				{ parent: { type: 'invoice_item_details' }, metadata: SPONSOR }
+			]
+		}
+	};
+	assert.equal(isSponsorAdObject(planInvoice), false);
+});
+
+test('a renewal subscription (sponsor_ad_renewal) is a sponsor ad of kind renewal', () => {
+	const renewal = { type: 'sponsor_ad_renewal', sponsorAdId: 'ad_123', isRenewal: 'true' };
+	assert.deepEqual(readSponsorAdMarker({ id: 'sub_r', metadata: renewal }), {
+		kind: 'renewal',
+		sponsorAdId: 'ad_123',
+		conflict: false
+	});
+	assert.equal(
+		readSponsorAdMarker({ id: 'in_r', parent: { subscription_details: { metadata: renewal } } })?.kind,
+		'renewal'
+	);
+	assert.equal(readSponsorAdMarker({ id: 'sub_n', metadata: SPONSOR })?.kind, 'new');
+});
+
+test('the ad id comes from the marked metadata, never from an unmarked bag', () => {
+	const invoice = {
+		id: 'in_5',
+		metadata: { sponsorAdId: 'ad_from_unmarked_invoice_metadata' },
+		parent: { subscription_details: { metadata: SPONSOR } }
+	};
 	assert.equal(readSponsorAdId(invoice), 'ad_123');
+});
+
+test('two marked bags naming different ads are a conflict with no id', () => {
+	const invoice = {
+		id: 'in_6',
+		metadata: { type: 'sponsor_ad', sponsorAdId: 'ad_A' },
+		parent: { subscription_details: { metadata: { type: 'sponsor_ad', sponsorAdId: 'ad_B' } } }
+	};
+	assert.deepEqual(readSponsorAdMarker(invoice), { kind: 'new', sponsorAdId: null, conflict: true });
+	assert.equal(readSponsorAdId(invoice), null);
 });
 
 test('a plan subscription invoice is not a sponsor ad', () => {
@@ -79,12 +141,21 @@ test('only a cycle invoice renews a sponsor ad', () => {
 	assert.equal(sponsorAdInvoiceAction(null), 'other');
 });
 
+test('a renewal subscription renews on its FIRST invoice too', () => {
+	// The renewal checkout creates a new subscription for an active or expired ad; its
+	// first paid invoice is the renewal payment, and nothing else would extend the ad.
+	assert.equal(sponsorAdInvoiceAction({ billing_reason: 'subscription_create' }, 'renewal'), 'renew');
+	assert.equal(sponsorAdInvoiceAction({ billing_reason: 'subscription_cycle' }, 'renewal'), 'renew');
+	assert.equal(sponsorAdInvoiceAction({ billing_reason: 'subscription_update' }, 'renewal'), 'other');
+	assert.equal(sponsorAdInvoiceAction({ billing_reason: 'subscription_create' }, 'new'), 'initial');
+});
+
 // CC05-03: an email that cannot be sent must not fail the webhook, or the relay answers
 // 502 and Stripe retries an already-fulfilled event for days.
 
 test('a notification failure is logged and does not throw', () => {
 	const original = console.error;
-	const logged: unknown[] = [];
+	let logged: unknown[] = [];
 	console.error = (...args: unknown[]) => void logged.push(args.join(' '));
 	try {
 		const line = reportNotificationFailure('new subscription email', 'Email service not configured');

@@ -42,7 +42,7 @@ import { WebhookSubscriptionService } from '@/lib/services/webhook-subscription.
 import { sponsorAdService } from '@/lib/services/sponsor-ad.service';
 import { buildPaymentSucceededBaseEmailData } from '@/lib/payment/webhook-email-data';
 import { assertRelayFulfilment, reportNotificationFailure } from '@/lib/payment/relay-fulfilment';
-import { isSponsorAdObject, readSponsorAdId, sponsorAdInvoiceAction } from '@/lib/payment/sponsor-ad-event';
+import { readSponsorAdMarker, sponsorAdInvoiceAction } from '@/lib/payment/sponsor-ad-event';
 import { openBillingIssueFromFailedPaymentWebhook } from '@/lib/services/billing-issue.service';
 import { PaymentProvider } from '@/lib/constants/payment';
 const webhookSubscriptionService = new WebhookSubscriptionService();
@@ -315,6 +315,13 @@ async function handleSubscriptionCreated(data: any) {
 
 	// Check if this is a sponsor ad subscription
 	if (isSponsorAdSubscription(data)) {
+		// A renewal subscription is created for an ad that is already ACTIVE or EXPIRED, so
+		// there is nothing to activate (confirmPayment would refuse it, and through the relay
+		// that is a retry that never succeeds). Its first paid invoice extends the ad.
+		if (readSponsorAdMarker(data)?.kind === 'renewal') {
+			acknowledgeSponsorAdEvent('renewal subscription created', data);
+			return;
+		}
 		console.log('📢 Sponsor ad subscription detected');
 		await handleSponsorAdActivation(data);
 		return;
@@ -476,14 +483,15 @@ async function handleSubscriptionPaymentSucceeded(data: any) {
 	// invoice lives in subscription_details / parent.subscription_details / the lines,
 	// never on the invoice itself (CC05-04, lib/payment/sponsor-ad-event.ts).
 	if (isSponsorAdSubscription(data)) {
-		const action = sponsorAdInvoiceAction(data);
+		const action = sponsorAdInvoiceAction(data, readSponsorAdMarker(data)?.kind);
 		if (action === 'renew') {
 			console.log('📢 Sponsor ad payment succeeded (renewal)');
 			await handleSponsorAdRenewal(data);
 		} else {
-			// The first invoice is activated by customer.subscription.created; renewing on it
-			// would extend a period that has not started, and would fail (and, through the
-			// relay, retry forever) while the ad is still pending payment or review.
+			// A first purchase's first invoice is activated by customer.subscription.created;
+			// renewing on it would extend a period that has not started, and would fail (and,
+			// through the relay, retry forever) while the ad is still pending payment or review.
+			// A RENEWAL subscription's first invoice is the renewal payment: action 'renew'.
 			acknowledgeSponsorAdEvent(`invoice payment (${action})`, data);
 		}
 		return;
@@ -757,7 +765,7 @@ function getSubscriptionFeatures(planName: string): string[] {
 // ######################### Sponsor Ad Webhook Handlers #########################
 
 /**
- * Check if subscription metadata indicates a sponsor ad.
+ * Check if subscription metadata indicates a sponsor ad (first purchase or renewal).
  *
  * Reads the subscription's metadata wherever Stripe puts it: the object itself
  * (subscription events), `subscription_data` (Checkout Session), and — for invoices —
@@ -765,14 +773,20 @@ function getSubscriptionFeatures(planName: string): string[] {
  * invoice locations were missing, so sponsor renewals ran the plan path (CC05-04).
  */
 function isSponsorAdSubscription(data: Record<string, unknown>): boolean {
-	return isSponsorAdObject(data);
+	return readSponsorAdMarker(data) !== null;
 }
 
 /**
  * Get sponsor ad ID from subscription metadata (same locations as above).
  */
 function getSponsorAdId(data: Record<string, unknown>): string | null {
-	return readSponsorAdId(data);
+	const marker = readSponsorAdMarker(data);
+	if (marker?.conflict) {
+		// Two marked metadata bags name different ads: acting on either could extend or
+		// cancel the wrong one. The callers treat a null id as missing metadata.
+		console.error('❌ Sponsor ad metadata names more than one sponsor ad; refusing to act on it');
+	}
+	return marker?.sponsorAdId ?? null;
 }
 
 /**
