@@ -42,6 +42,7 @@ import { WebhookSubscriptionService } from '@/lib/services/webhook-subscription.
 import { sponsorAdService } from '@/lib/services/sponsor-ad.service';
 import { buildPaymentSucceededBaseEmailData } from '@/lib/payment/webhook-email-data';
 import { assertRelayFulfilment, reportNotificationFailure } from '@/lib/payment/relay-fulfilment';
+import { isSponsorAdObject, readSponsorAdId, sponsorAdInvoiceAction } from '@/lib/payment/sponsor-ad-event';
 import { openBillingIssueFromFailedPaymentWebhook } from '@/lib/services/billing-issue.service';
 import { PaymentProvider } from '@/lib/constants/payment';
 const webhookSubscriptionService = new WebhookSubscriptionService();
@@ -366,6 +367,14 @@ async function handleSubscriptionCreated(data: any) {
 async function handleSubscriptionUpdated(data: any) {
 	console.log('Subscription updated:', data.id);
 
+	// CC05-04: a sponsor-ad subscription is not a plan subscription. The plan service
+	// creates a plan row for a subscription it cannot find, so letting this through
+	// booked every sponsor-ad update as a plan purchase (and emailed a plan update).
+	if (isSponsorAdSubscription(data)) {
+		acknowledgeSponsorAdEvent('subscription update', data);
+		return;
+	}
+
 	try {
 		await webhookSubscriptionService.handleSubscriptionUpdated(data);
 
@@ -463,10 +472,20 @@ async function handleSubscriptionCancelled(data: any) {
 async function handleSubscriptionPaymentSucceeded(data: any) {
 	console.log('Subscription payment succeeded:', data.id);
 
-	// Check if this is a sponsor ad subscription (for renewals)
+	// Check if this is a sponsor ad subscription (for renewals). The marker on an
+	// invoice lives in subscription_details / parent.subscription_details / the lines,
+	// never on the invoice itself (CC05-04, lib/payment/sponsor-ad-event.ts).
 	if (isSponsorAdSubscription(data)) {
-		console.log('📢 Sponsor ad payment succeeded (renewal)');
-		await handleSponsorAdRenewal(data);
+		const action = sponsorAdInvoiceAction(data);
+		if (action === 'renew') {
+			console.log('📢 Sponsor ad payment succeeded (renewal)');
+			await handleSponsorAdRenewal(data);
+		} else {
+			// The first invoice is activated by customer.subscription.created; renewing on it
+			// would extend a period that has not started, and would fail (and, through the
+			// relay, retry forever) while the ad is still pending payment or review.
+			acknowledgeSponsorAdEvent(`invoice payment (${action})`, data);
+		}
 		return;
 	}
 
@@ -581,6 +600,15 @@ function extractProviderPaymentId(data: unknown): string | null {
 async function handleSubscriptionPaymentFailed(data: any) {
 	console.log('Subscription payment failed:', data.id);
 
+	// CC05-04: a sponsor ad has no plan subscription, so the plan path below could only
+	// email the buyer about a "plan" and open a billing issue against nothing. Stripe's
+	// own dunning and the eventual customer.subscription.deleted (which cancels the ad)
+	// cover it.
+	if (isSponsorAdSubscription(data)) {
+		acknowledgeSponsorAdEvent('invoice payment failure', data);
+		return;
+	}
+
 	try {
 		await webhookSubscriptionService.handleSubscriptionPaymentFailed(data);
 
@@ -653,6 +681,11 @@ async function handleSubscriptionPaymentFailed(data: any) {
 async function handleSubscriptionTrialEnding(data: any) {
 	console.log('Subscription trial ending:', data.id);
 
+	if (isSponsorAdSubscription(data)) {
+		acknowledgeSponsorAdEvent('trial ending', data);
+		return;
+	}
+
 	try {
 		await webhookSubscriptionService.handleSubscriptionTrialEnding(data);
 
@@ -724,39 +757,30 @@ function getSubscriptionFeatures(planName: string): string[] {
 // ######################### Sponsor Ad Webhook Handlers #########################
 
 /**
- * Check if subscription metadata indicates a sponsor ad
- * Handles both checkout.session.completed (subscription_data) and invoice.payment_succeeded (subscription) events
+ * Check if subscription metadata indicates a sponsor ad.
+ *
+ * Reads the subscription's metadata wherever Stripe puts it: the object itself
+ * (subscription events), `subscription_data` (Checkout Session), and — for invoices —
+ * `subscription_details`, `parent.subscription_details` and the line items. The
+ * invoice locations were missing, so sponsor renewals ran the plan path (CC05-04).
  */
 function isSponsorAdSubscription(data: Record<string, unknown>): boolean {
-	const metadata = data.metadata as Record<string, string> | undefined;
-	const subscriptionDataMetadata = (data.subscription_data as Record<string, unknown>)?.metadata as
-		| Record<string, string>
-		| undefined;
-	const subscriptionMetadata = (data.subscription as Record<string, unknown>)?.metadata as
-		| Record<string, string>
-		| undefined;
-
-	return (
-		metadata?.type === 'sponsor_ad' ||
-		subscriptionDataMetadata?.type === 'sponsor_ad' ||
-		subscriptionMetadata?.type === 'sponsor_ad'
-	);
+	return isSponsorAdObject(data);
 }
 
 /**
- * Get sponsor ad ID from subscription metadata
- * Handles both checkout.session.completed (subscription_data) and invoice.payment_succeeded (subscription) events
+ * Get sponsor ad ID from subscription metadata (same locations as above).
  */
 function getSponsorAdId(data: Record<string, unknown>): string | null {
-	const metadata = data.metadata as Record<string, string> | undefined;
-	const subscriptionDataMetadata = (data.subscription_data as Record<string, unknown>)?.metadata as
-		| Record<string, string>
-		| undefined;
-	const subscriptionMetadata = (data.subscription as Record<string, unknown>)?.metadata as
-		| Record<string, string>
-		| undefined;
+	return readSponsorAdId(data);
+}
 
-	return metadata?.sponsorAdId || subscriptionDataMetadata?.sponsorAdId || subscriptionMetadata?.sponsorAdId || null;
+/**
+ * A sponsor-ad event that needs no write: logged and acknowledged, never handed to
+ * the plan path (which would create a plan subscription for it).
+ */
+function acknowledgeSponsorAdEvent(what: string, data: Record<string, unknown>): void {
+	console.log(`📢 Sponsor ad ${what} acknowledged without changes: ${getSponsorAdId(data) ?? 'unknown sponsor ad'}`);
 }
 
 /**
