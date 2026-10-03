@@ -41,7 +41,13 @@ import { coreConfig, emailConfig as globalEmailConfig } from '@/lib/config/confi
 import { WebhookSubscriptionService } from '@/lib/services/webhook-subscription.service';
 import { sponsorAdService } from '@/lib/services/sponsor-ad.service';
 import { buildPaymentSucceededBaseEmailData } from '@/lib/payment/webhook-email-data';
-import { assertRelayFulfilment } from '@/lib/payment/relay-fulfilment';
+import { assertRelayFulfilment, reportNotificationFailure } from '@/lib/payment/relay-fulfilment';
+import { readSponsorAdMarker, sponsorAdInvoiceAction } from '@/lib/payment/sponsor-ad-event';
+import {
+	sponsorAdActivationDecision,
+	sponsorAdCancellationDecision,
+	sponsorAdRenewalDecision
+} from '@/lib/payment/sponsor-ad-lifecycle';
 import { openBillingIssueFromFailedPaymentWebhook } from '@/lib/services/billing-issue.service';
 import { PaymentProvider } from '@/lib/constants/payment';
 const webhookSubscriptionService = new WebhookSubscriptionService();
@@ -257,7 +263,7 @@ async function handlePaymentSucceeded(data: any) {
 			console.log('✅ Payment success email sent successfully');
 		} else {
 			console.error('❌ Failed to send payment success email:', emailResult.error);
-			assertRelayFulfilment(false, 'payment success email');
+			reportNotificationFailure('payment success email', emailResult.error);
 		}
 	} catch (error) {
 		console.error('❌ Error handling payment succeeded:', error);
@@ -301,7 +307,7 @@ async function handlePaymentFailed(data: any) {
 			console.log('✅ Payment failed email sent successfully');
 		} else {
 			console.error('❌ Failed to send payment failed email:', emailResult.error);
-			assertRelayFulfilment(false, 'payment failed email');
+			reportNotificationFailure('payment failed email', emailResult.error);
 		}
 	} catch (error) {
 		console.error('❌ Error handling payment failed:', error);
@@ -314,6 +320,13 @@ async function handleSubscriptionCreated(data: any) {
 
 	// Check if this is a sponsor ad subscription
 	if (isSponsorAdSubscription(data)) {
+		// A renewal subscription is created for an ad that is already ACTIVE or EXPIRED, so
+		// there is nothing to activate (confirmPayment would refuse it, and through the relay
+		// that is a retry that never succeeds). Its first paid invoice extends the ad.
+		if (readSponsorAdMarker(data)?.kind === 'renewal') {
+			acknowledgeSponsorAdEvent('renewal subscription created', data);
+			return;
+		}
 		console.log('📢 Sponsor ad subscription detected');
 		await handleSponsorAdActivation(data);
 		return;
@@ -355,7 +368,7 @@ async function handleSubscriptionCreated(data: any) {
 			console.log('✅ New subscription email sent successfully');
 		} else {
 			console.error('❌ Failed to send new subscription email:', emailResult.error);
-			assertRelayFulfilment(false, 'new subscription email');
+			reportNotificationFailure('new subscription email', emailResult.error);
 		}
 	} catch (error) {
 		console.error('❌ Error handling subscription created:', error);
@@ -365,6 +378,14 @@ async function handleSubscriptionCreated(data: any) {
 
 async function handleSubscriptionUpdated(data: any) {
 	console.log('Subscription updated:', data.id);
+
+	// CC05-04: a sponsor-ad subscription is not a plan subscription. The plan service
+	// creates a plan row for a subscription it cannot find, so letting this through
+	// booked every sponsor-ad update as a plan purchase (and emailed a plan update).
+	if (isSponsorAdSubscription(data)) {
+		acknowledgeSponsorAdEvent('subscription update', data);
+		return;
+	}
 
 	try {
 		await webhookSubscriptionService.handleSubscriptionUpdated(data);
@@ -402,7 +423,7 @@ async function handleSubscriptionUpdated(data: any) {
 			console.log('✅ Updated subscription email sent successfully');
 		} else {
 			console.error('❌ Failed to send updated subscription email:', emailResult.error);
-			assertRelayFulfilment(false, 'updated subscription email');
+			reportNotificationFailure('updated subscription email', emailResult.error);
 		}
 	} catch (error) {
 		console.error('❌ Error handling subscription updated:', error);
@@ -452,7 +473,7 @@ async function handleSubscriptionCancelled(data: any) {
 			console.log('✅ Cancelled subscription email sent successfully');
 		} else {
 			console.error('❌ Failed to send cancelled subscription email:', emailResult.error);
-			assertRelayFulfilment(false, 'cancelled subscription email');
+			reportNotificationFailure('cancelled subscription email', emailResult.error);
 		}
 	} catch (error) {
 		console.error('❌ Error handling subscription cancelled:', error);
@@ -463,10 +484,21 @@ async function handleSubscriptionCancelled(data: any) {
 async function handleSubscriptionPaymentSucceeded(data: any) {
 	console.log('Subscription payment succeeded:', data.id);
 
-	// Check if this is a sponsor ad subscription (for renewals)
+	// Check if this is a sponsor ad subscription (for renewals). The marker on an
+	// invoice lives in subscription_details / parent.subscription_details / the lines,
+	// never on the invoice itself (CC05-04, lib/payment/sponsor-ad-event.ts).
 	if (isSponsorAdSubscription(data)) {
-		console.log('📢 Sponsor ad payment succeeded (renewal)');
-		await handleSponsorAdRenewal(data);
+		const action = sponsorAdInvoiceAction(data, readSponsorAdMarker(data)?.kind);
+		if (action === 'renew') {
+			console.log('📢 Sponsor ad payment succeeded (renewal)');
+			await handleSponsorAdRenewal(data);
+		} else {
+			// A first purchase's first invoice is activated by customer.subscription.created;
+			// renewing on it would extend a period that has not started, and would fail (and,
+			// through the relay, retry forever) while the ad is still pending payment or review.
+			// A RENEWAL subscription's first invoice is the renewal payment: action 'renew'.
+			acknowledgeSponsorAdEvent(`invoice payment (${action})`, data);
+		}
 		return;
 	}
 
@@ -511,7 +543,7 @@ async function handleSubscriptionPaymentSucceeded(data: any) {
 			console.log('✅ Subscription payment success email sent successfully');
 		} else {
 			console.error('❌ Failed to send subscription payment success email:', emailResult.error);
-			assertRelayFulfilment(false, 'subscription payment success email');
+			reportNotificationFailure('subscription payment success email', emailResult.error);
 		}
 	} catch (error) {
 		console.error('❌ Error handling subscription payment succeeded:', error);
@@ -581,6 +613,15 @@ function extractProviderPaymentId(data: unknown): string | null {
 async function handleSubscriptionPaymentFailed(data: any) {
 	console.log('Subscription payment failed:', data.id);
 
+	// CC05-04: a sponsor ad has no plan subscription, so the plan path below could only
+	// email the buyer about a "plan" and open a billing issue against nothing. Stripe's
+	// own dunning and the eventual customer.subscription.deleted (which cancels the ad)
+	// cover it.
+	if (isSponsorAdSubscription(data)) {
+		acknowledgeSponsorAdEvent('invoice payment failure', data);
+		return;
+	}
+
 	try {
 		await webhookSubscriptionService.handleSubscriptionPaymentFailed(data);
 
@@ -642,7 +683,7 @@ async function handleSubscriptionPaymentFailed(data: any) {
 			console.log('✅ Subscription payment failed email sent successfully');
 		} else {
 			console.error('❌ Failed to send subscription payment failed email:', emailResult.error);
-			assertRelayFulfilment(false, 'subscription payment failed email');
+			reportNotificationFailure('subscription payment failed email', emailResult.error);
 		}
 	} catch (error) {
 		console.error('❌ Error handling subscription payment failed:', error);
@@ -652,6 +693,11 @@ async function handleSubscriptionPaymentFailed(data: any) {
 
 async function handleSubscriptionTrialEnding(data: any) {
 	console.log('Subscription trial ending:', data.id);
+
+	if (isSponsorAdSubscription(data)) {
+		acknowledgeSponsorAdEvent('trial ending', data);
+		return;
+	}
 
 	try {
 		await webhookSubscriptionService.handleSubscriptionTrialEnding(data);
@@ -688,7 +734,7 @@ async function handleSubscriptionTrialEnding(data: any) {
 			console.log('✅ Trial ending email sent successfully');
 		} else {
 			console.error('❌ Failed to send trial ending email:', emailResult.error);
-			assertRelayFulfilment(false, 'trial ending email');
+			reportNotificationFailure('trial ending email', emailResult.error);
 		}
 	} catch (error) {
 		console.error('❌ Error handling subscription trial ending:', error);
@@ -724,39 +770,70 @@ function getSubscriptionFeatures(planName: string): string[] {
 // ######################### Sponsor Ad Webhook Handlers #########################
 
 /**
- * Check if subscription metadata indicates a sponsor ad
- * Handles both checkout.session.completed (subscription_data) and invoice.payment_succeeded (subscription) events
+ * Check if subscription metadata indicates a sponsor ad (first purchase or renewal).
+ *
+ * Reads the subscription's metadata wherever Stripe puts it: the object itself
+ * (subscription events), `subscription_data` (Checkout Session), and — for invoices —
+ * `subscription_details`, `parent.subscription_details` and the line items. The
+ * invoice locations were missing, so sponsor renewals ran the plan path (CC05-04).
  */
 function isSponsorAdSubscription(data: Record<string, unknown>): boolean {
-	const metadata = data.metadata as Record<string, string> | undefined;
-	const subscriptionDataMetadata = (data.subscription_data as Record<string, unknown>)?.metadata as
-		| Record<string, string>
-		| undefined;
-	const subscriptionMetadata = (data.subscription as Record<string, unknown>)?.metadata as
-		| Record<string, string>
-		| undefined;
-
-	return (
-		metadata?.type === 'sponsor_ad' ||
-		subscriptionDataMetadata?.type === 'sponsor_ad' ||
-		subscriptionMetadata?.type === 'sponsor_ad'
-	);
+	return readSponsorAdMarker(data) !== null;
 }
 
 /**
- * Get sponsor ad ID from subscription metadata
- * Handles both checkout.session.completed (subscription_data) and invoice.payment_succeeded (subscription) events
+ * Get sponsor ad ID from subscription metadata (same locations as above).
  */
 function getSponsorAdId(data: Record<string, unknown>): string | null {
-	const metadata = data.metadata as Record<string, string> | undefined;
-	const subscriptionDataMetadata = (data.subscription_data as Record<string, unknown>)?.metadata as
-		| Record<string, string>
-		| undefined;
-	const subscriptionMetadata = (data.subscription as Record<string, unknown>)?.metadata as
-		| Record<string, string>
-		| undefined;
+	const marker = readSponsorAdMarker(data);
+	if (marker?.conflict) {
+		// Two marked metadata bags name different ads: acting on either could extend or
+		// cancel the wrong one. Nothing acts on a null id (see sponsorAdIdToActOn).
+		console.error('❌ Sponsor ad metadata names more than one sponsor ad; refusing to act on it');
+	}
+	return marker?.sponsorAdId ?? null;
+}
 
-	return metadata?.sponsorAdId || subscriptionDataMetadata?.sponsorAdId || subscriptionMetadata?.sponsorAdId || null;
+/**
+ * A sponsor-ad event that needs no write: logged and acknowledged, never handed to
+ * the plan path (which would create a plan subscription for it).
+ */
+function acknowledgeSponsorAdEvent(what: string, data: Record<string, unknown>): void {
+	console.log(`📢 Sponsor ad ${what} acknowledged without changes: ${getSponsorAdId(data) ?? 'unknown sponsor ad'}`);
+}
+
+/**
+ * The sponsor ad id an event should act on, or null after logging why it cannot act.
+ *
+ * A Stripe retry carries the SAME payload, so an event whose metadata names no ad, or
+ * names two different ads, can never be fulfilled by retrying it: the caller acknowledges
+ * it (and the loud log line is the reconciliation hook) instead of answering 502, which
+ * the platform would relay to Stripe as a retry for about three days.
+ */
+function sponsorAdIdToActOn(data: Record<string, unknown>, action: string): string | null {
+	const marker = readSponsorAdMarker(data);
+	if (marker?.sponsorAdId) return marker.sponsorAdId;
+	const why = marker?.conflict ? 'its metadata names more than one sponsor ad' : 'its metadata names no sponsor ad';
+	console.error(
+		`❌ Sponsor ad ${action} not applied to ${String(data.id ?? 'unknown object')}: ${why}. Acknowledged, because a retry carries the same metadata — reconcile it by hand.`
+	);
+	return null;
+}
+
+/**
+ * Log an acknowledged sponsor-ad event whose ad cannot take the action, with everything an
+ * operator needs to reconcile it in Stripe (the ad, its status, the subscription).
+ */
+function acknowledgeSponsorAdStatus(
+	action: string,
+	sponsorAdId: string,
+	status: string | null | undefined,
+	data: Record<string, unknown>
+): void {
+	const subscription = extractProviderSubscriptionId(data) ?? String(data.id ?? 'unknown');
+	console.error(
+		`❌ Sponsor ad ${action} not applied: ad ${sponsorAdId} is ${status ?? 'not found'} (subscription ${subscription}). Acknowledged without changes — if Stripe is still billing it, cancel the subscription in Stripe.`
+	);
 }
 
 /**
@@ -764,16 +841,20 @@ function getSponsorAdId(data: Record<string, unknown>): string | null {
  * Activates the sponsor ad after successful payment
  */
 async function handleSponsorAdActivation(data: Record<string, unknown>): Promise<void> {
-	const sponsorAdId = getSponsorAdId(data);
-
-	if (!sponsorAdId) {
-		console.error('❌ Sponsor ad ID not found in subscription metadata');
-		throw new Error('sponsor ad activation metadata missing');
-	}
+	const sponsorAdId = sponsorAdIdToActOn(data, 'activation');
+	if (!sponsorAdId) return;
 
 	try {
 		const subscriptionId = data.id as string;
 		const customerId = data.customer as string;
+
+		const existing = await sponsorAdService.getSponsorAdById(sponsorAdId);
+		if (sponsorAdActivationDecision(existing?.status) !== 'act') {
+			// Already confirmed (a duplicate delivery), moved on, or gone: confirmPayment would
+			// throw, and no retry can change that.
+			acknowledgeSponsorAdStatus('activation', sponsorAdId, existing?.status, data);
+			return;
+		}
 
 		console.log(`🔄 Confirming payment for sponsor ad: ${sponsorAdId}`);
 
@@ -793,17 +874,22 @@ async function handleSponsorAdActivation(data: Record<string, unknown>): Promise
 
 /**
  * Handle sponsor ad subscription cancelled
- * Cancels the sponsor ad
+ * Cancels the sponsor ad. Idempotent: an ad that is already cancelled, expired or
+ * rejected is acknowledged (cancelSponsorAd would throw, and a retry cannot change it).
  */
 async function handleSponsorAdCancellation(data: Record<string, unknown>): Promise<void> {
-	const sponsorAdId = getSponsorAdId(data);
-
-	if (!sponsorAdId) {
-		console.error('❌ Sponsor ad ID not found in subscription metadata');
-		throw new Error('sponsor ad cancellation metadata missing');
-	}
+	const sponsorAdId = sponsorAdIdToActOn(data, 'cancellation');
+	if (!sponsorAdId) return;
 
 	try {
+		const existing = await sponsorAdService.getSponsorAdById(sponsorAdId);
+		if (sponsorAdCancellationDecision(existing?.status) !== 'act') {
+			console.log(
+				`📢 Sponsor ad ${sponsorAdId} is already ${existing?.status ?? 'gone'}; subscription deletion acknowledged without changes`
+			);
+			return;
+		}
+
 		console.log(`🔄 Cancelling sponsor ad: ${sponsorAdId}`);
 
 		const cancelledAd = await sponsorAdService.cancelSponsorAd(sponsorAdId, 'Subscription cancelled');
@@ -822,17 +908,27 @@ async function handleSponsorAdCancellation(data: Record<string, unknown>): Promi
 
 /**
  * Handle sponsor ad subscription renewal
- * Extends the sponsor ad end date
+ * Extends the sponsor ad end date.
+ *
+ * A cancelled or rejected ad whose subscription still bills (nothing in the app cancels
+ * the Stripe subscription) is acknowledged with a loud log, not renewed and not retried.
+ * An ad still pending payment or review stays retryable: that status can still change.
  */
 async function handleSponsorAdRenewal(data: Record<string, unknown>): Promise<void> {
-	const sponsorAdId = getSponsorAdId(data);
-
-	if (!sponsorAdId) {
-		console.error('❌ Sponsor ad ID not found in subscription metadata');
-		throw new Error('sponsor ad renewal metadata missing');
-	}
+	const sponsorAdId = sponsorAdIdToActOn(data, 'renewal');
+	if (!sponsorAdId) return;
 
 	try {
+		const existing = await sponsorAdService.getSponsorAdById(sponsorAdId);
+		const decision = sponsorAdRenewalDecision(existing?.status);
+		if (decision === 'acknowledge') {
+			acknowledgeSponsorAdStatus('renewal', sponsorAdId, existing?.status, data);
+			return;
+		}
+		if (decision === 'retry') {
+			throw new Error(`sponsor ad renewal: ad ${sponsorAdId} is still ${existing?.status}; retry later`);
+		}
+
 		console.log(`🔄 Renewing sponsor ad: ${sponsorAdId}`);
 
 		const renewedAd = await sponsorAdService.renewSponsorAd(sponsorAdId);
