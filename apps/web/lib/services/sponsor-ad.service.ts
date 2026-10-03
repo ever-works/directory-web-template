@@ -16,6 +16,11 @@ import {
 	getSponsorAdMonthlyPrice,
 	getSponsorAdCurrency,
 } from "@/lib/utils/settings";
+import {
+	renewalStartDate,
+	sponsorAdCancellationDecision,
+	sponsorAdRenewalDecision,
+} from "@/lib/payment/sponsor-ad-lifecycle";
 import type {
 	SponsorAdListOptions,
 	SponsorAdStats,
@@ -318,14 +323,9 @@ export class SponsorAdService {
 			throw new Error("Sponsor ad not found");
 		}
 
-		// Can cancel pending_payment, pending, or active sponsor ads
-		const cancellableStatuses: SponsorAdStatusValues[] = [
-			SponsorAdStatus.PENDING_PAYMENT,
-			SponsorAdStatus.PENDING,
-			SponsorAdStatus.ACTIVE,
-		];
-
-		if (!cancellableStatuses.includes(sponsorAd.status as SponsorAdStatusValues)) {
+		// Can cancel pending_payment, pending, or active sponsor ads. The table is shared
+		// with the Stripe webhook (lib/payment/sponsor-ad-lifecycle.ts) so they cannot drift.
+		if (sponsorAdCancellationDecision(sponsorAd.status) !== "act") {
 			throw new Error(
 				`Cannot cancel sponsor ad with status: ${sponsorAd.status}`
 			);
@@ -363,18 +363,17 @@ export class SponsorAdService {
 			throw new Error("Sponsor ad not found");
 		}
 
-		// Can only renew active or expired sponsor ads
-		if (
-			sponsorAd.status !== SponsorAdStatus.ACTIVE &&
-			sponsorAd.status !== SponsorAdStatus.EXPIRED
-		) {
+		// Can only renew active or expired sponsor ads (table shared with the webhook,
+		// lib/payment/sponsor-ad-lifecycle.ts).
+		if (sponsorAdRenewalDecision(sponsorAd.status) !== "act") {
 			throw new Error(
 				`Cannot renew sponsor ad with status: ${sponsorAd.status}`
 			);
 		}
 
-		// Calculate new end date from current end date or now
-		const startDate = sponsorAd.endDate || new Date();
+		// The new period starts at the current end date while it is still ahead, else now:
+		// an ad that expired more than one interval ago must not be "renewed" into the past.
+		const startDate = renewalStartDate(sponsorAd.endDate);
 		const endDate = this.calculateEndDate(startDate, sponsorAd.interval);
 
 		return await sponsorAdRepo.updateSponsorAd(id, {

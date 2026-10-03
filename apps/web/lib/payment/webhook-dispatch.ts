@@ -43,6 +43,11 @@ import { sponsorAdService } from '@/lib/services/sponsor-ad.service';
 import { buildPaymentSucceededBaseEmailData } from '@/lib/payment/webhook-email-data';
 import { assertRelayFulfilment, reportNotificationFailure } from '@/lib/payment/relay-fulfilment';
 import { readSponsorAdMarker, sponsorAdInvoiceAction } from '@/lib/payment/sponsor-ad-event';
+import {
+	sponsorAdActivationDecision,
+	sponsorAdCancellationDecision,
+	sponsorAdRenewalDecision
+} from '@/lib/payment/sponsor-ad-lifecycle';
 import { openBillingIssueFromFailedPaymentWebhook } from '@/lib/services/billing-issue.service';
 import { PaymentProvider } from '@/lib/constants/payment';
 const webhookSubscriptionService = new WebhookSubscriptionService();
@@ -783,7 +788,7 @@ function getSponsorAdId(data: Record<string, unknown>): string | null {
 	const marker = readSponsorAdMarker(data);
 	if (marker?.conflict) {
 		// Two marked metadata bags name different ads: acting on either could extend or
-		// cancel the wrong one. The callers treat a null id as missing metadata.
+		// cancel the wrong one. Nothing acts on a null id (see sponsorAdIdToActOn).
 		console.error('❌ Sponsor ad metadata names more than one sponsor ad; refusing to act on it');
 	}
 	return marker?.sponsorAdId ?? null;
@@ -798,20 +803,58 @@ function acknowledgeSponsorAdEvent(what: string, data: Record<string, unknown>):
 }
 
 /**
+ * The sponsor ad id an event should act on, or null after logging why it cannot act.
+ *
+ * A Stripe retry carries the SAME payload, so an event whose metadata names no ad, or
+ * names two different ads, can never be fulfilled by retrying it: the caller acknowledges
+ * it (and the loud log line is the reconciliation hook) instead of answering 502, which
+ * the platform would relay to Stripe as a retry for about three days.
+ */
+function sponsorAdIdToActOn(data: Record<string, unknown>, action: string): string | null {
+	const marker = readSponsorAdMarker(data);
+	if (marker?.sponsorAdId) return marker.sponsorAdId;
+	const why = marker?.conflict ? 'its metadata names more than one sponsor ad' : 'its metadata names no sponsor ad';
+	console.error(
+		`❌ Sponsor ad ${action} not applied to ${String(data.id ?? 'unknown object')}: ${why}. Acknowledged, because a retry carries the same metadata — reconcile it by hand.`
+	);
+	return null;
+}
+
+/**
+ * Log an acknowledged sponsor-ad event whose ad cannot take the action, with everything an
+ * operator needs to reconcile it in Stripe (the ad, its status, the subscription).
+ */
+function acknowledgeSponsorAdStatus(
+	action: string,
+	sponsorAdId: string,
+	status: string | null | undefined,
+	data: Record<string, unknown>
+): void {
+	const subscription = extractProviderSubscriptionId(data) ?? String(data.id ?? 'unknown');
+	console.error(
+		`❌ Sponsor ad ${action} not applied: ad ${sponsorAdId} is ${status ?? 'not found'} (subscription ${subscription}). Acknowledged without changes — if Stripe is still billing it, cancel the subscription in Stripe.`
+	);
+}
+
+/**
  * Handle sponsor ad subscription created/payment succeeded
  * Activates the sponsor ad after successful payment
  */
 async function handleSponsorAdActivation(data: Record<string, unknown>): Promise<void> {
-	const sponsorAdId = getSponsorAdId(data);
-
-	if (!sponsorAdId) {
-		console.error('❌ Sponsor ad ID not found in subscription metadata');
-		throw new Error('sponsor ad activation metadata missing');
-	}
+	const sponsorAdId = sponsorAdIdToActOn(data, 'activation');
+	if (!sponsorAdId) return;
 
 	try {
 		const subscriptionId = data.id as string;
 		const customerId = data.customer as string;
+
+		const existing = await sponsorAdService.getSponsorAdById(sponsorAdId);
+		if (sponsorAdActivationDecision(existing?.status) !== 'act') {
+			// Already confirmed (a duplicate delivery), moved on, or gone: confirmPayment would
+			// throw, and no retry can change that.
+			acknowledgeSponsorAdStatus('activation', sponsorAdId, existing?.status, data);
+			return;
+		}
 
 		console.log(`🔄 Confirming payment for sponsor ad: ${sponsorAdId}`);
 
@@ -831,17 +874,22 @@ async function handleSponsorAdActivation(data: Record<string, unknown>): Promise
 
 /**
  * Handle sponsor ad subscription cancelled
- * Cancels the sponsor ad
+ * Cancels the sponsor ad. Idempotent: an ad that is already cancelled, expired or
+ * rejected is acknowledged (cancelSponsorAd would throw, and a retry cannot change it).
  */
 async function handleSponsorAdCancellation(data: Record<string, unknown>): Promise<void> {
-	const sponsorAdId = getSponsorAdId(data);
-
-	if (!sponsorAdId) {
-		console.error('❌ Sponsor ad ID not found in subscription metadata');
-		throw new Error('sponsor ad cancellation metadata missing');
-	}
+	const sponsorAdId = sponsorAdIdToActOn(data, 'cancellation');
+	if (!sponsorAdId) return;
 
 	try {
+		const existing = await sponsorAdService.getSponsorAdById(sponsorAdId);
+		if (sponsorAdCancellationDecision(existing?.status) !== 'act') {
+			console.log(
+				`📢 Sponsor ad ${sponsorAdId} is already ${existing?.status ?? 'gone'}; subscription deletion acknowledged without changes`
+			);
+			return;
+		}
+
 		console.log(`🔄 Cancelling sponsor ad: ${sponsorAdId}`);
 
 		const cancelledAd = await sponsorAdService.cancelSponsorAd(sponsorAdId, 'Subscription cancelled');
@@ -860,17 +908,27 @@ async function handleSponsorAdCancellation(data: Record<string, unknown>): Promi
 
 /**
  * Handle sponsor ad subscription renewal
- * Extends the sponsor ad end date
+ * Extends the sponsor ad end date.
+ *
+ * A cancelled or rejected ad whose subscription still bills (nothing in the app cancels
+ * the Stripe subscription) is acknowledged with a loud log, not renewed and not retried.
+ * An ad still pending payment or review stays retryable: that status can still change.
  */
 async function handleSponsorAdRenewal(data: Record<string, unknown>): Promise<void> {
-	const sponsorAdId = getSponsorAdId(data);
-
-	if (!sponsorAdId) {
-		console.error('❌ Sponsor ad ID not found in subscription metadata');
-		throw new Error('sponsor ad renewal metadata missing');
-	}
+	const sponsorAdId = sponsorAdIdToActOn(data, 'renewal');
+	if (!sponsorAdId) return;
 
 	try {
+		const existing = await sponsorAdService.getSponsorAdById(sponsorAdId);
+		const decision = sponsorAdRenewalDecision(existing?.status);
+		if (decision === 'acknowledge') {
+			acknowledgeSponsorAdStatus('renewal', sponsorAdId, existing?.status, data);
+			return;
+		}
+		if (decision === 'retry') {
+			throw new Error(`sponsor ad renewal: ad ${sponsorAdId} is still ${existing?.status}; retry later`);
+		}
+
 		console.log(`🔄 Renewing sponsor ad: ${sponsorAdId}`);
 
 		const renewedAd = await sponsorAdService.renewSponsorAd(sponsorAdId);
