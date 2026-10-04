@@ -83,8 +83,11 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 			);
 		}
 
-		// Cancel the sponsor ad
-		const cancelledAd = await sponsorAdService.cancelSponsorAd(id, cancelReason);
+		// Cancel the sponsor ad, and its provider subscription first: the dialog promises the
+		// sponsorship ends immediately, so billing must stop too.
+		const cancelledAd = await sponsorAdService.cancelSponsorAd(id, cancelReason, {
+			stopProviderSubscription: true
+		});
 
 		if (!cancelledAd) {
 			return NextResponse.json({ success: false, error: 'Failed to cancel sponsor ad' }, { status: 500 });

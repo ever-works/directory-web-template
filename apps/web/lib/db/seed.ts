@@ -33,6 +33,7 @@ import { SubscriptionStatus, VoteType } from './schema';
 import { isDemoMode } from '../utils';
 import { getDatabaseUrl, getNodeEnv } from './config';
 import { getTenantId } from '../auth/tenant';
+import { futureWithin, YEAR_MS } from './seed-dates';
 
 // Global database connection - will be initialized after environment loading
 let db: ReturnType<typeof import('./drizzle').getDrizzleInstance>;
@@ -975,7 +976,7 @@ export async function runSeed(): Promise<void> {
 								title = 'System Maintenance';
 								message =
 									'Scheduled maintenance will occur on ' +
-									faker.date.future({ years: 0.1 }).toLocaleDateString();
+									futureWithin(faker, 0.1 * YEAR_MS).toLocaleDateString();
 								break;
 						}
 
@@ -1020,7 +1021,7 @@ export async function runSeed(): Promise<void> {
 					return Array.from({ length: numSessions }, () => ({
 						sessionToken: faker.string.alphanumeric(64),
 						userId: user.id,
-						expires: faker.date.future({ years: 0.1 }) // Expires within next ~1 month
+						expires: futureWithin(faker, 0.1 * YEAR_MS) // Expires within next ~1 month
 					}));
 				});
 
@@ -1090,7 +1091,7 @@ export async function runSeed(): Promise<void> {
 						identifier: user.id,
 						email: user.email as string,
 						token: faker.string.alphanumeric(32),
-						expires: faker.date.future({ years: 0.01 }) // Expires within ~3-4 days
+						expires: futureWithin(faker, 0.01 * YEAR_MS) // Expires within ~3-4 days
 					}));
 
 				if (verificationTokenValues.length > 0) {
@@ -1113,7 +1114,7 @@ export async function runSeed(): Promise<void> {
 					.map((user) => ({
 						email: user.email as string,
 						token: faker.string.alphanumeric(32),
-						expires: faker.date.future({ years: 0.002 }) // Expires within ~18 hours
+						expires: futureWithin(faker, 0.002 * YEAR_MS) // Expires within ~18 hours
 					}));
 
 				if (passwordResetTokenValues.length > 0) {
