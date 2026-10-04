@@ -21,7 +21,7 @@ import {
 	sponsorAdCancellationDecision,
 	sponsorAdRenewalDecision,
 } from "@/lib/payment/sponsor-ad-lifecycle";
-import { stopSponsorAdSubscription } from "@/lib/payment/sponsor-ad-subscription";
+import { stopSubscriptionThenWrite } from "@/lib/payment/sponsor-ad-subscription";
 import { getOrCreateProvider } from "@/lib/payment/config/payment-provider-manager";
 import type {
 	SponsorAdListOptions,
@@ -312,9 +312,9 @@ export class SponsorAdService {
 		// A paid ad awaiting review already has a live subscription: stop it before the row
 		// says "rejected", or it keeps billing (see lib/payment/sponsor-ad-subscription.ts).
 		// Refunding the first period is a separate decision and is not done here.
-		await stopSponsorAdSubscription(sponsorAd, getOrCreateProvider);
-
-		return await sponsorAdRepo.rejectSponsorAd(id, adminUserId, rejectionReason);
+		return await stopSubscriptionThenWrite(sponsorAd, getOrCreateProvider, () =>
+			sponsorAdRepo.rejectSponsorAd(id, adminUserId, rejectionReason)
+		);
 	}
 
 	/**
@@ -345,7 +345,9 @@ export class SponsorAdService {
 		}
 
 		if (options.stopProviderSubscription) {
-			await stopSponsorAdSubscription(sponsorAd, getOrCreateProvider);
+			return await stopSubscriptionThenWrite(sponsorAd, getOrCreateProvider, () =>
+				sponsorAdRepo.cancelSponsorAd(id, cancelReason)
+			);
 		}
 
 		return await sponsorAdRepo.cancelSponsorAd(id, cancelReason);

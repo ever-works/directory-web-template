@@ -16,7 +16,10 @@
  * - **Immediate, not at period end.** The cancel dialog promises: "Your sponsorship will be
  *   cancelled immediately and you will lose any remaining time." No refund is issued here.
  * - **Webhook-driven cancels must NOT call this**: there the subscription is already gone.
- * - A subscription the provider reports as missing or already cancelled counts as stopped.
+ * - A subscription the provider reports as missing or already cancelled counts as stopped. Only
+ *   explicit signals count (Stripe `resource_missing`, "No such subscription", "already
+ *   cancelled"), searched through `error.cause`; a bare 404 or a generic failure is rethrown,
+ *   because a misconfigured provider must not make the app mark ads ended while they bill.
  */
 
 /** The fields of a sponsor ad this helper reads. */
@@ -43,10 +46,16 @@ const DEFAULT_PROVIDER = 'stripe';
 
 /** True when the provider error means the subscription is already gone, so there is nothing left to stop. */
 export function isSubscriptionAlreadyEnded(error: unknown): boolean {
-	if (!error || typeof error !== 'object') return false;
-	const { code, statusCode, message } = error as { code?: unknown; statusCode?: unknown; message?: unknown };
-	if (code === 'resource_missing' || statusCode === 404) return true;
-	return typeof message === 'string' && /already (been )?cancel(l)?ed|no such subscription/i.test(message);
+	let current: unknown = error;
+	// Providers wrap SDK errors (`new Error('Failed to cancel subscription', { cause })`); look inside.
+	for (let depth = 0; depth < 5 && current && typeof current === 'object'; depth++) {
+		const { code, message, cause } = current as { code?: unknown; message?: unknown; cause?: unknown };
+		if (code === 'resource_missing') return true;
+		if (typeof message === 'string' && /already (been )?cancel(l)?ed|no such subscription/i.test(message))
+			return true;
+		current = cause;
+	}
+	return false;
 }
 
 export async function stopSponsorAdSubscription(
@@ -64,4 +73,17 @@ export async function stopSponsorAdSubscription(
 		if (isSubscriptionAlreadyEnded(error)) return 'already-ended';
 		throw error;
 	}
+}
+
+/**
+ * Stop the ad's subscription, then write the row. If stopping throws, `writeRow` is never called
+ * and the error propagates, so the ad keeps its status and the caller can retry.
+ */
+export async function stopSubscriptionThenWrite<T>(
+	ad: SponsorAdSubscriptionRef,
+	resolveProvider: SubscriptionProviderResolver,
+	writeRow: () => Promise<T>
+): Promise<T> {
+	await stopSponsorAdSubscription(ad, resolveProvider);
+	return writeRow();
 }
