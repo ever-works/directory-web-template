@@ -29,13 +29,28 @@ test('a horizon of one second or less is a caller bug, not a silent past date', 
 	}
 });
 
+const HORIZON_KEY = /\b(years|days)\b(\s*:\s*([^,}]+))?/g;
+const WHOLE_NUMBER = /^\s*\d+\s*$/;
+
+/** True when a faker options object could carry a fractional years/days at runtime. */
+function hasNonLiteralHorizon(options: string): boolean {
+	if (options.includes('...')) return true;
+	return [...options.matchAll(HORIZON_KEY)].some(([, , , value]) => value === undefined || !WHOLE_NUMBER.test(value));
+}
+
+test('the guard flags every non-literal horizon shape (0.1, 1 / 10, shorthand, variable, spread)', () => {
+	for (const bad of ['{ years: 0.1 }', '{ years: 1 / 10 }', '{ years }', '{ days: horizon }', '{ ...opts }']) {
+		assert.equal(hasNonLiteralHorizon(bad), true, bad);
+	}
+	for (const ok of ['{ years: 2 }', '{ days: 90 }', '{ days: 30, refDate }']) {
+		assert.equal(hasNonLiteralHorizon(ok), false, ok);
+	}
+});
+
 test('the seed passes only whole-number literals as years/days to faker date helpers', () => {
 	const seed = readFileSync(join(__dirname, '../seed.ts'), 'utf8');
 	const calls = seed.match(/faker\.date\.(future|past|soon|recent)\(\{[^}]*\}/g) ?? [];
 	assert.ok(calls.length > 0, 'control: the faker date calls are still found');
-	// Anything but a plain integer (0.1, 1 / 10, a variable) can be fractional at runtime.
-	const suspicious = calls.filter((call) =>
-		[...call.matchAll(/\b(years|days)\s*:\s*([^,}]+)/g)].some(([, , value]) => !/^\s*\d+\s*$/.test(value))
-	);
+	const suspicious = calls.filter((call) => hasNonLiteralHorizon(call.slice(call.indexOf('{'))));
 	assert.deepEqual(suspicious, []);
 });
