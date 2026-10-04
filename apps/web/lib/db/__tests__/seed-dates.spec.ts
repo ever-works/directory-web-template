@@ -29,8 +29,13 @@ test('a horizon of one second or less is a caller bug, not a silent past date', 
 	}
 });
 
-test('the seed passes no fractional years or days to faker date helpers', () => {
+test('the seed passes only whole-number literals as years/days to faker date helpers', () => {
 	const seed = readFileSync(join(__dirname, '../seed.ts'), 'utf8');
-	const fractional = seed.match(/faker\.date\.(future|past|soon|recent)\(\{\s*(years|days):\s*\d*\.\d+/g) ?? [];
-	assert.deepEqual(fractional, []);
+	const calls = seed.match(/faker\.date\.(future|past|soon|recent)\(\{[^}]*\}/g) ?? [];
+	assert.ok(calls.length > 0, 'control: the faker date calls are still found');
+	// Anything but a plain integer (0.1, 1 / 10, a variable) can be fractional at runtime.
+	const suspicious = calls.filter((call) =>
+		[...call.matchAll(/\b(years|days)\s*:\s*([^,}]+)/g)].some(([, , value]) => !/^\s*\d+\s*$/.test(value))
+	);
+	assert.deepEqual(suspicious, []);
 });
