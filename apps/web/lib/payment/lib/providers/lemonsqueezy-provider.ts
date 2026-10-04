@@ -508,7 +508,8 @@ export class LemonSqueezyProvider implements PaymentProviderInterface {
 			};
 		} catch (error) {
 			console.error('Error cancelling LemonSqueezy subscription:', error);
-			throw new Error('Failed to cancel subscription');
+			// Keep the original error as `cause` so callers can tell "already cancelled" from an outage.
+			throw new Error('Failed to cancel subscription', { cause: error });
 		}
 	}
 

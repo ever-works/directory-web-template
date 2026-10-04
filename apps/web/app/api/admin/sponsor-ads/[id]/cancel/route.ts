@@ -84,9 +84,11 @@ export async function POST(
 			);
 		}
 
+		// The app ends this ad, so stop its provider subscription first (it would keep billing).
 		const sponsorAd = await sponsorAdService.cancelSponsorAd(
 			id,
-			validationResult.data.cancelReason
+			validationResult.data.cancelReason,
+			{ stopProviderSubscription: true }
 		);
 
 		if (!sponsorAd) {
