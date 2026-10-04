@@ -16,9 +16,11 @@ import type { SponsorAdStatusValues } from '@/lib/db/schema';
  * Only a status that can still change into an actionable one stays retryable: a renewal
  * paid while the ad is still pending (payment or admin review).
  *
- * Nothing in the app cancels the Stripe subscription when an ad is cancelled by its owner
- * or rejected by an admin, so those ads keep billing and their cycle invoices keep
- * arriving. That is a separate product finding; here they are acknowledged, not looped.
+ * Until 2026-10-04 nothing in the app cancelled the provider subscription when an ad was
+ * cancelled by its owner or an admin, or rejected by an admin, so those ads kept billing and
+ * their cycle invoices kept arriving. `sponsor-ad-subscription.ts` now stops the subscription
+ * first; ads ended before that fix can still send cycle invoices, and they are acknowledged
+ * here, not looped.
  *
  * The service (`sponsor-ad.service.ts`) uses the same tables, so the webhook and the
  * service cannot drift apart on which statuses are renewable or cancellable.

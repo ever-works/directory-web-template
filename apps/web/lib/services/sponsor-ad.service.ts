@@ -21,6 +21,8 @@ import {
 	sponsorAdCancellationDecision,
 	sponsorAdRenewalDecision,
 } from "@/lib/payment/sponsor-ad-lifecycle";
+import { stopSponsorAdSubscription } from "@/lib/payment/sponsor-ad-subscription";
+import { getOrCreateProvider } from "@/lib/payment/config/payment-provider-manager";
 import type {
 	SponsorAdListOptions,
 	SponsorAdStats,
@@ -307,15 +309,26 @@ export class SponsorAdService {
 			);
 		}
 
+		// A paid ad awaiting review already has a live subscription: stop it before the row
+		// says "rejected", or it keeps billing (see lib/payment/sponsor-ad-subscription.ts).
+		// Refunding the first period is a separate decision and is not done here.
+		await stopSponsorAdSubscription(sponsorAd, getOrCreateProvider);
+
 		return await sponsorAdRepo.rejectSponsorAd(id, adminUserId, rejectionReason);
 	}
 
 	/**
 	 * Cancel sponsor ad
+	 *
+	 * `stopProviderSubscription`: set it when the APP ends the ad (the owner's or an admin's
+	 * cancel). The provider subscription is cancelled first, immediately, so billing stops
+	 * before the row says "cancelled". Webhook-driven cancels leave it unset: there the
+	 * subscription is already gone.
 	 */
 	async cancelSponsorAd(
 		id: string,
-		cancelReason?: string
+		cancelReason?: string,
+		options: { stopProviderSubscription?: boolean } = {}
 	): Promise<SponsorAd | null> {
 		const sponsorAd = await sponsorAdRepo.getSponsorAdById(id);
 
@@ -329,6 +342,10 @@ export class SponsorAdService {
 			throw new Error(
 				`Cannot cancel sponsor ad with status: ${sponsorAd.status}`
 			);
+		}
+
+		if (options.stopProviderSubscription) {
+			await stopSponsorAdSubscription(sponsorAd, getOrCreateProvider);
 		}
 
 		return await sponsorAdRepo.cancelSponsorAd(id, cancelReason);
