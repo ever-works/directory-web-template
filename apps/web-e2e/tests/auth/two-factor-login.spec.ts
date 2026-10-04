@@ -42,12 +42,36 @@ async function openSecuritySettings(page: Page) {
 	await expect(page.getByTestId('two-factor-card')).toBeVisible({ timeout: 60_000 });
 }
 
+/**
+ * The enable route refuses with 503 on a server whose mail provider is the mock one: an emailed
+ * second factor must never be switched on where its codes cannot be delivered. The E2E workflow
+ * configures no mail transport, so this flow cannot run there yet (issue #1070). Skip ONLY when
+ * the server gives exactly that answer; on a server with a real transport the tests run unchanged.
+ */
+const MAIL_NOT_CONFIGURED_SKIP =
+	'Email delivery is not configured on this server (mail provider = mock), so POST /api/auth/security/2fa/enable answers 503 by design. Give the E2E job a mail transport to run this flow (ever-works/directory-web-template#1070).';
+
 async function setTwoFactor(page: Page, enabled: boolean) {
 	await openSecuritySettings(page);
 	const toggle = page.getByTestId('two-factor-toggle');
 	await expect(toggle).toBeEnabled();
 	if ((await toggle.getAttribute('aria-checked')) !== String(enabled)) {
+		const enableAnswer = enabled
+			? page.waitForResponse(
+					(response) =>
+						response.url().includes('/api/auth/security/2fa/enable') &&
+						response.request().method() === 'POST',
+					{ timeout: 30_000 }
+				)
+			: null;
 		await toggle.click();
+		if (enableAnswer) {
+			const response = await enableAnswer;
+			if (response.status() === 503) {
+				const body = (await response.json().catch(() => ({}))) as { error?: unknown };
+				test.skip(/email delivery is not configured/i.test(String(body.error ?? '')), MAIL_NOT_CONFIGURED_SKIP);
+			}
+		}
 	}
 	await expect(toggle).toHaveAttribute('aria-checked', String(enabled), { timeout: 30_000 });
 }
