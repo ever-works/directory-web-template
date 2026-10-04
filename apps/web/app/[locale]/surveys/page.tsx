@@ -12,7 +12,7 @@ import { Logger } from '@/lib/logger';
 import { SurveyTypeEnum, SurveyStatusEnum } from '@/lib/types/survey';
 import { getSurveysEnabled } from '@/lib/utils/settings';
 import { getBaseUrl } from '@/lib/utils/url-cleaner';
-import { getLocalizedUrl } from '@/lib/seo/hreflang';
+import { generateHreflangAlternates, getLocalizedUrl } from '@/lib/seo/hreflang';
 import { getSiteName } from '@/lib/seo/site-identity';
 import type { Locale } from '@/lib/constants';
 
@@ -57,10 +57,14 @@ export async function generateMetadata({
             url: canonical
         },
         // Own canonical: without it this page inherited the [locale] layout's
-        // `alternates` and declared itself a duplicate of the homepage.
-        // Canonical only - survey content is not translated per locale.
+        // `alternates` and declared itself a duplicate of the homepage. Each
+        // locale is its own page (translated title, headings and UI, as on
+        // /docs), so it also carries the reciprocal hreflang cluster every
+        // listing has: Next replaces `alternates` whole, so a canonical alone
+        // dropped the layout's languages and left the locales unlinked.
         alternates: {
-            canonical
+            canonical,
+            languages: generateHreflangAlternates('/surveys')
         }
     };
 }
