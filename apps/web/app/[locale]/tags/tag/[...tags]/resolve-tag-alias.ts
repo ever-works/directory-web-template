@@ -18,13 +18,24 @@ export async function resolveTagAlias(segments: readonly string[], locale: strin
 	const tag = decodeSegment(rawTag);
 	if (tag === null) return null;
 
-	const result = await getCachedItemsByTag(tag, { lang: locale });
-	const matchedTag = findTagBySegment(result.tags, tag);
+	const bySegment = await getCachedItemsByTag(tag, { lang: locale });
+	const matchedTag = findTagBySegment(bySegment.tags, tag);
 	if (!matchedTag) return null;
 
-	// The pages <ListingTags> offers for this tag (12 per page, over its items).
-	const page = resolveAliasPage(pageSegments, result.total, PER_PAGE);
+	// fetchByTag matches items on the tag ID, so a URL naming the tag by its
+	// display name (`/tags/tag/Open%20Source`) found none of them: read the
+	// items by the matched id, as (listing)/tags/[...tag] does.
+	const result =
+		matchedTag.id === tag ? bySegment : await getCachedItemsByTag(matchedTag.id, { lang: locale });
+
+	// The pages <ListingTags> offers for this tag: 12 per page over the TAG's
+	// items. NOT `result.total`, which fetchByTag returns as the whole
+	// catalogue's count, so /tags/tag/<id>/14 .. /273 answered for a tag with 13
+	// pages. page.tsx hands the same `total` to the pager, so every page it
+	// links answers.
+	const total = result.items.length;
+	const page = resolveAliasPage(pageSegments, total, PER_PAGE);
 	if (page === null) return null;
 
-	return { ...result, tag, matchedTag, page };
+	return { ...result, total, tag, matchedTag, page };
 }

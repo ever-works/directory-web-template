@@ -93,8 +93,8 @@ export async function generateMetadata({
   }
   const { matchedTag, page, items } = listing;
   // Title and canonical from the tag's id, whatever spelling the URL used
-  // (`/tags/Open%20Source/2`, `/tags/OPEN-SOURCE/2`): the URL /tags/<id>
-  // publishes.
+  // (its display name in any case, `/tags/Open%20Source/2`): the URL
+  // /tags/<id> publishes. The id itself matches exactly (findTagBySegment).
   const formattedTag = toTitleCase(matchedTag.id);
   const title = page > 1 ? `${formattedTag} Tag - Page ${page}` : `${formattedTag} Tag`;
   const encodedTag = encodeURIComponent(matchedTag.id);

@@ -69,8 +69,8 @@ export default async function TagListing({
 
   // Unknown tag slug → proper 404 (not a soft-404 with full item list).
   // Same lookup as generateMetadata above.
-  const knownTag = findTagBySegment(tags, decodedTag) !== undefined;
-  if (!knownTag) {
+  const matchedTag = findTagBySegment(tags, decodedTag);
+  if (!matchedTag) {
     notFound();
   }
 
@@ -82,7 +82,11 @@ export default async function TagListing({
 
   const tCommon = await getTranslations({ locale, namespace: "common" });
   const localePrefix = locale === DEFAULT_LOCALE ? "" : `/${locale}`;
-  const tagName = toTitleCase(decodedTag);
+  // Named and filtered by the matched tag's id: the filter matches item tags
+  // on their id, so a URL spelling the tag by its display name
+  // (`/tags/Open%20Source`, which item pages link) rendered an empty listing
+  // while canonicalising to the full /tags/<id>.
+  const tagName = toTitleCase(matchedTag.id);
 
   return (
     <>
@@ -101,7 +105,7 @@ export default async function TagListing({
         start={start}
         page={page}
         basePath={basePath}
-        initialTag={decodedTag}
+        initialTag={matchedTag.id}
       />
     </>
   );

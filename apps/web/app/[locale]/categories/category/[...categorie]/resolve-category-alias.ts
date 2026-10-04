@@ -27,9 +27,17 @@ export async function resolveCategoryAlias(segments: readonly string[], locale: 
 	const category = decodeSegment(rawCategory);
 	if (category === null) return null;
 
-	const result = await getCachedItemsByCategory(category, { lang: locale });
-	const matchedCategory = findCategory(result.categories, category);
+	const bySegment = await getCachedItemsByCategory(category, { lang: locale });
+	const matchedCategory = findCategory(bySegment.categories, category);
 	if (!matchedCategory) return null;
+
+	// fetchByCategory matches items on the category ID, so a URL naming the
+	// category by its display name (`Time%20Tracking%20Software`) listed none of
+	// them and bounded its pages by 0: read the items by the matched id.
+	const result =
+		matchedCategory.id === category
+			? bySegment
+			: await getCachedItemsByCategory(matchedCategory.id, { lang: locale });
 
 	// The pages <Listing> paginates this category into (12 per page).
 	const page = resolveAliasPage(pageSegments, result.total, PER_PAGE);

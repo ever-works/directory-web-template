@@ -8,7 +8,7 @@ import { SurveyPageClient } from '@/components/surveys/pages/public-survey-page'
 import { Container } from '@/components/ui/container';
 import { cache } from 'react';
 import { getBaseUrl } from '@/lib/utils/url-cleaner';
-import { getLocalizedUrl } from '@/lib/seo/hreflang';
+import { generateHreflangAlternates, getLocalizedUrl } from '@/lib/seo/hreflang';
 import { isSurveyOfItem, surveyCanonicalPath } from '@/lib/seo/survey-urls';
 import { getSurveysEnabled } from '@/lib/utils/settings';
 import type { Locale } from '@/lib/constants';
@@ -56,7 +56,10 @@ export async function generateMetadata({ params }: ItemSurveyPageProps): Promise
 		description: survey.description || `Take the ${survey.title} survey`,
 		// Own canonical instead of the [locale] layout's homepage canonical.
 		alternates: {
-			canonical: getLocalizedUrl(surveyCanonicalPath(survey), locale as Locale)
+			canonical: getLocalizedUrl(surveyCanonicalPath(survey), locale as Locale),
+			// Next replaces `alternates` whole: a canonical alone dropped the
+			// layout's hreflang. The cluster of the canonical page, as on /surveys.
+			languages: generateHreflangAlternates(surveyCanonicalPath(survey))
 		}
 	};
 }
