@@ -6,7 +6,7 @@ This guide will walk you through setting up the Ever Works on your local machine
 
 Before you begin, ensure you have the following installed:
 
-- **Node.js >= 20.19.0** - [Download here](https://nodejs.org/)
+- **Node.js >= 24.0.0** - [Download here](https://nodejs.org/)
 - **pnpm** - Required package manager (install with `npm install -g pnpm`)
 - **Git** - For version control
 - **PostgreSQL** (optional) - For database
@@ -141,9 +141,9 @@ sudo npm install -g <package-name>
 Use Node Version Manager (nvm) to switch Node versions:
 
 ```bash
-nvm install 20
-nvm use 20
-# Verify: node -v should show >= 20.19.0
+nvm install 26
+nvm use 26
+# Verify: node -v should show >= 24.0.0
 ```
 
 ## Troubleshooting {#troubleshooting}

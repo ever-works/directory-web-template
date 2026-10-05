@@ -80,7 +80,7 @@ standalone 输出支持 Docker 容器化。典型部署使用 Node.js 运行时�
 
 ### 系统要求
 
-- **Node.js**：版本 20.19.0 或更高（在 `package.json` 的 `engines` 字段中定义）
+- **Node.js**：版本 24.0.0 或更高（在 `package.json` 的 `engines` 字段中定义）
 - **包管理器**：pnpm（项目使用 `pnpm-lock.yaml`）
 - **数据库**：PostgreSQL（生产功能如身份验证、订阅、分析所必需）
 - **内存**：构建过程建议至少 8 GB RAM

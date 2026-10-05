@@ -266,7 +266,7 @@ FB_CLIENT_ID + FB_CLIENT_SECRET
 
 1. Todas as variáveis de ambiente necessárias definidas no painel do Vercel
 2. `DATABASE_URL` acessível na rede Vercel
-3. Compatível com versão Node.js (requer 20.19.0 ou superior)
+3. Compatível com versão Node.js (requer 24.0.0 ou superior)
 4. O diretório de conteúdo existe (CI cria `.content/data` automaticamente)
 5. Alocação de memória suficiente
 

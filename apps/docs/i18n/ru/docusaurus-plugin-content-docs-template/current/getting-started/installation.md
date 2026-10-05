@@ -7,7 +7,7 @@ sidebar_position: 1
 # Установка
 
 ## Предварительные требования
-- Node.js >= 20.19.0
+- Node.js >= 24.0.0
 - pnpm
 - Git
 - PostgreSQL (опционально)

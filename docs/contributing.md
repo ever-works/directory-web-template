@@ -18,7 +18,7 @@ For contributions to the Ever Works Platform, see the [Platform repository](http
 
 Before you begin, make sure you have the following installed:
 
-- **Node.js** >= 20.19.0 (LTS recommended)
+- **Node.js** >= 24.0.0 (LTS recommended)
 - **pnpm** >= 10.x (strictly enforced; do not use npm or yarn)
 - **Git** >= 2.30
 - **PostgreSQL** (for database; Supabase provides a hosted option)
@@ -26,7 +26,8 @@ Before you begin, make sure you have the following installed:
 ### Installing pnpm
 
 ```bash
-# Using corepack (recommended, ships with Node.js 20+)
+# Using corepack (recommended). Node.js 25+ no longer bundles it, so install it first
+npm install -g corepack
 corepack enable
 corepack prepare pnpm@latest --activate
 

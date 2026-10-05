@@ -16,7 +16,7 @@ Een volledig uitgeruste Next.js-directorywebsite in een Turborepo-monorepo met p
 Belangrijke details:
 - Pakketnaam: directory-web-template
 - Licentie: AGPL-3.0
-- Node.js-vereiste: >= 20.19.0
+- Node.js-vereiste: >= 24.0.0
 - Pakketbeheerder: pnpm met Turborepo
 - Framework: Next.js 16 met React 19
 - Database-ORM: Drizzle ORM met PostgreSQL
@@ -32,7 +32,7 @@ Belangrijke details:
 ## Sectie-overzicht
 
 ### 1. Installatie
-Stel Node.js (>= 20.19.0), pnpm in en kloon de monorepo.
+Stel Node.js (>= 24.0.0), pnpm in en kloon de monorepo.
 
 ### 2. Omgevingsconfiguratie
 Configureer apps/web/.env.local met alle vereiste en optionele variabelen.

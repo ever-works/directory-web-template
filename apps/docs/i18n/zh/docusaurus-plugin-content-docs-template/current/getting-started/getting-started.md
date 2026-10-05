@@ -14,7 +14,7 @@ Ever Works Template 是一个功能完整的 Next.js 目录，组织在 Turborep
 
 ## 系统要求
 
-- **Node.js >= 20.19.0**
+- **Node.js >= 24.0.0**
 - **pnpm** – 包管理器
 - **Next.js 16** – React 框架
 - **Drizzle ORM** – 数据库管理

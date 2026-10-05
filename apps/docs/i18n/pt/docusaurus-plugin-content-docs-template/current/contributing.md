@@ -18,7 +18,7 @@ Para contribuições à Plataforma Ever Works, veja o [repositório da Plataform
 
 Antes de começar, certifique-se de ter o seguinte instalado:
 
-- **Node.js** >= 20.19.0 (LTS recomendado)
+- **Node.js** >= 24.0.0 (LTS recomendado)
 - **pnpm** >= 10.x (rigorosamente aplicado; não use npm ou yarn)
 - **Git** >= 2.30
 - **PostgreSQL** (para banco de dados; Supabase fornece uma opção hospedada)

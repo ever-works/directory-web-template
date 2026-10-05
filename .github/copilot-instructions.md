@@ -8,7 +8,7 @@ For full project details (build/run/test, env, architecture, docs), Copilot shou
 
 ## Runtime & tooling
 
-- Use **Node.js >= 20.19.0**.
+- Use **Node.js >= 26.0.0**.
 - Use **pnpm** as the package manager (not npm or yarn).
 - Run build/dev/lint commands from the **monorepo root**. App-specific commands (db, etc.) from `apps/web/`.
 

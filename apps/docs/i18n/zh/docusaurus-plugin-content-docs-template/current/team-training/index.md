@@ -67,7 +67,7 @@ Ever Works 平台开发团队的全面入职和技能提升培训计划。
 
 ### 需要安装的工具
 
-- Node.js 20.19.0+（使用 nvm）
+- Node.js 24.0.0+（使用 nvm）
 - pnpm（[安装](https://pnpm.io/installation)）
 - PostgreSQL 14+
 - Git

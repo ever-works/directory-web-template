@@ -67,7 +67,7 @@ sidebar_position: 1
 
 ### כלים להתקנה
 
-- Node.js 20.19.0+ (השתמש ב-nvm)
+- Node.js 24.0.0+ (השתמש ב-nvm)
 - pnpm ([התקנה](https://pnpm.io/installation))
 - PostgreSQL 14+
 - Git

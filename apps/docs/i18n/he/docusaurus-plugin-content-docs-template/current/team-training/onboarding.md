@@ -29,7 +29,7 @@ sidebar_position: 2
 
 עקוב אחר [מדריך ההתקנה](/getting-started/installation) המפורט כדי להתקין:
 
-- Node.js 20.19.0+
+- Node.js 24.0.0+
 - pnpm ([התקנה](https://pnpm.io/installation))
 - PostgreSQL 14+
 - Git

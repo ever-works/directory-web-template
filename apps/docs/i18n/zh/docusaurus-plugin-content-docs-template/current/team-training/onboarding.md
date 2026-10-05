@@ -29,7 +29,7 @@ sidebar_position: 2
 
 按照详细的[安装指南](/getting-started/installation)安装：
 
-- Node.js 20.19.0+
+- Node.js 24.0.0+
 - pnpm（[安装](https://pnpm.io/installation)）
 - PostgreSQL 14+
 - Git

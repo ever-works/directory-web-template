@@ -8,7 +8,7 @@ Most project details (build, run, tests, env, docs) are documented in `CLAUDE.md
 
 ## Runtime & tooling
 
-- Use **Node.js >= 20.19.0** (see `package.json.engines`).
+- Use **Node.js >= 26.0.0** (see `package.json.engines`).
 - Use **pnpm** as the package manager (lockfile: `pnpm-lock.yaml`).
 - Run build/dev/lint from the **monorepo root** (via Turborepo). App-specific scripts from `apps/web/`.
 

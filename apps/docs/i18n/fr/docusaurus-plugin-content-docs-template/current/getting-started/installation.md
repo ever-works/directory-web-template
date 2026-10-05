@@ -6,7 +6,7 @@ Ce guide vous accompagne à travers la configuration d'Ever Works sur votre mach
 
 Avant de commencer, assurez-vous d'avoir les éléments suivants installés :
 
-- **Node.js >= 20.19.0** - [Télécharger ici](https://nodejs.org/)
+- **Node.js >= 24.0.0** - [Télécharger ici](https://nodejs.org/)
 - **pnpm** - Gestionnaire de paquets requis (installer avec `npm install -g pnpm`)
 - **Git** - Pour le contrôle de version
 - **PostgreSQL** (optionnel) - Pour la base de données
@@ -127,7 +127,7 @@ npm install -g pnpm
 ### Erreur : "Mauvaise version de Node.js"
 Utilisez nvm pour passer à la version requise :
 ```bash
-nvm use 20
+nvm use 26
 ```
 
 ### Erreur de connexion à la base de données

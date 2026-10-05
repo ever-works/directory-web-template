@@ -334,7 +334,7 @@ pnpm start         # Manual testing
 Die Mindestversion ist in `package.json` definiert:
 
 ```json
-{ "engines": { "node": ">=20.19.0" } }
+{ "engines": { "node": ">=24.0.0" } }
 ```
 
 ### Datenbank

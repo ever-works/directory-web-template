@@ -111,7 +111,7 @@ pnpm build
 pnpm start
 ```
 
-需要额外配置：Node.js >= 20.19.0、PostgreSQL、进程管理器（PM2 等）和反向代理（Nginx 等）。
+需要额外配置：Node.js >= 24.0.0、PostgreSQL、进程管理器（PM2 等）和反向代理（Nginx 等）。
 
 ## 关键服务
 
