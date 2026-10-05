@@ -19,7 +19,7 @@ Key facts from the project manifest:
 | ----------------------- | ----------------------------------------------------- |
 | **Package name**        | `directory-web-template` (monorepo root)              |
 | **License**             | AGPL-3.0                                              |
-| **Node.js requirement** | >= 26.0.0                                            |
+| **Node.js requirement** | >= 24.0.0                                            |
 | **Package manager**     | pnpm with Turborepo (lockfile: `pnpm-lock.yaml`)      |
 | **Framework**           | Next.js 16 with React 19                              |
 | **Database ORM**        | Drizzle ORM with PostgreSQL (or SQLite for local dev) |
@@ -41,7 +41,7 @@ Work through the guides in order. Each one builds on the previous step.
 
 ### 1. Installation
 
-Set up Node.js (>= 26.0.0), pnpm, and clone the monorepo. The installation guide covers system requirements, dependency installation, and initial project structure orientation.
+Set up Node.js (>= 24.0.0), pnpm, and clone the monorepo. The installation guide covers system requirements, dependency installation, and initial project structure orientation.
 
 **Read next:** [Installation](./installation.md)
 
@@ -81,7 +81,7 @@ A single-page cheat sheet of the most common commands, file paths, and conventio
 
 Before starting the installation guide, make sure you have the following tools available:
 
-- **Node.js 26.0.0 or higher** -- the `engines` field in `package.json` enforces this minimum.
+- **Node.js 24.0.0 or higher (26 recommended)** -- the `engines` field in `package.json` enforces this minimum.
 - **pnpm** -- the project uses pnpm as its package manager. Install it globally with `npm install -g pnpm`.
 - **Git** -- required both for cloning the template and for the Git-based CMS content pipeline.
 - **A code editor** -- VS Code is recommended; the repository includes workspace settings.

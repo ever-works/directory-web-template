@@ -286,7 +286,7 @@ workspace.
 | `homepage` / `repository` / `bugs` | Same rationale — these fields surface only on published packages. The repo-root [`workspace-root-manifest.md`](./workspace-root-manifest.md) is the single source of truth for repository metadata. |
 | `author` | Inherited from the workspace-wide `AGPL-3.0` license; no per-package author. |
 | `keywords` | Same rationale as `description` — surfaces only in the registry. |
-| `engines` | Inherited from [`workspace-root-manifest.md`](./workspace-root-manifest.md)'s `engines.node: '>=26.0.0'`. Repeating here would risk drift. |
+| `engines` | Inherited from [`workspace-root-manifest.md`](./workspace-root-manifest.md)'s `engines.node: '>=24.0.0'`. Repeating here would risk drift. |
 | `packageManager` | Inherited from the workspace root; pnpm's Corepack lookup walks up to the first `packageManager` field it finds. |
 | `type` | Absent because Playwright's CLI handles both ESM and CJS spec files and the suite's `tsconfig.json` (per [`e2e-tsconfig.md`](./e2e-tsconfig.md)) sets `module: 'esnext'` + `moduleResolution: 'bundler'` directly. Adding `"type": "module"` would risk a regression on a future Playwright version that ships a CJS-only utility. |
 | `main` / `types` / `exports` | The package has no public exports — every consumer of the e2e source is the suite itself. The absence of these fields is what makes this manifest a **test-only** member rather than a library. |

@@ -82,7 +82,7 @@ transitive dependencies, the native-build allow-list that gates
 | `private`                                         | `true`                                                                                                | Hard-blocks `pnpm publish` against the root. Combined with the per-package `private: true` it guarantees nothing reaches a registry. |
 | `license`                                         | `AGPL-3.0`                                                                                            | The project's license. Inherited by every workspace member that does not override it.                                                |
 | `packageManager`                                  | `pnpm@10.31.0`                                                                                        | The exact pnpm version every contributor and every CI runner must use, enforced by Corepack and `engineStrict`.                      |
-| `engines.node`                                    | `>=26.0.0`                                                                                           | The Node.js floor. Below this version, `pnpm install` and `turbo` will error before any package code is read.                        |
+| `engines.node`                                    | `>=24.0.0`                                                                                           | The Node.js floor. Below this version, `pnpm install` and `turbo` will error before any package code is read.                        |
 | `scripts.build`                                   | `turbo run build`                                                                                     | The fan-out script that builds every workspace member in topological order according to [`turbo.json`](./turbo-config.md).           |
 | `scripts.dev`                                     | `turbo run dev`                                                                                       | Starts the persistent `dev` task across every workspace member. The `dev` task is `cache: false` and `persistent: true`.             |
 | `scripts.dev:web`                                 | `turbo run dev --filter=@ever-works/web`                                                              | Web-only dev shortcut that skips the docs app. Mirrors the `--filter` documented in [`pnpm-workspace.md`](./pnpm-workspace.md).      |
@@ -135,7 +135,7 @@ relies on.
 	"license": "AGPL-3.0",
 	"packageManager": "pnpm@10.31.0",
 	"engines": {
-		"node": ">=26.0.0"
+		"node": ">=24.0.0"
 	},
 	"scripts": {
 		"build": "turbo run build",
@@ -271,15 +271,16 @@ versions, and CI / contributor environments must update in lockstep.
 
 ```jsonc
 "engines": {
-	"node": ">=26.0.0"
+	"node": ">=24.0.0"
 }
 ```
 
-Node 26.0.0 is the minimum because every runtime surface moves to the
-newest Node release line together: both Dockerfiles (`node:26-alpine`),
-every workflow's `node-version`, `apps/web`'s `@types/node` and this
-field (Node 20 reached end of life on 2026-04-30). The floors the code
-itself needs are lower:
+Every runtime surface we control runs the newest Node release line, 26: both Dockerfiles
+(`node:26-alpine`), every workflow's `node-version` and `apps/web`'s `@types/node` (Node 20
+reached end of life on 2026-04-30). The floor itself is Node 24.0.0, not 26, because Vercel, the
+host this template documents as the easiest deploy, offers Node 24.x at most (checked 2026-10-05);
+a `>=26` floor would make every Vercel deployment of the template fail its install. Raise it to 26
+once Vercel lists 26.x. The floors the code itself needs are lower:
 
 - Next.js 16 requires Node 20.9+ (the Next.js team's stated floor).
 - The host's
@@ -725,7 +726,7 @@ field), document it in this table in the same change.
 
 | Symptom                                                                             | Likely cause                                                                                             | Fix                                                                                                                                                                                 |
 | ----------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `pnpm install` errors with `ERR_PNPM_UNSUPPORTED_ENGINE`                            | Contributor's Node version is below `engines.node`'s `>=26.0.0` floor.                                  | Upgrade Node (e.g. via `nvm install 26`). The floor is intentional — see [`engines.node`](#enginesnode--nodejs-floor).                                                           |
+| `pnpm install` errors with `ERR_PNPM_UNSUPPORTED_ENGINE`                            | Contributor's Node version is below `engines.node`'s `>=24.0.0` floor.                                  | Upgrade Node (e.g. via `nvm install 26`). The floor is intentional — see [`engines.node`](#enginesnode--nodejs-floor).                                                           |
 | `pnpm install` errors with `Wrong package manager`                                  | Corepack downloaded a pnpm version that mismatches the `packageManager` pin.                             | Run `corepack prepare pnpm@10.31.0 --activate` (or update the pin if intentional).                                                                                                  |
 | Sentry / Trigger.dev OTel instrumentation silently misses spans                     | Two copies of `@opentelemetry/api` resolved on disk because the hoist or override drifted.               | Verify [`pnpm.publicHoistPattern`](#pnpmpublichoistpattern--opentelemetry-hoist) and [`pnpm.overrides.@opentelemetry/api`](#pnpmoverrides--workspace-wide-version-pins) are intact. |
 | `pnpm install` fails on a fresh clone with "ignored build script" warnings          | A new dependency landed that ships a `postinstall`, but its name is not in `pnpm.onlyBuiltDependencies`. | Audit the package's install hook. If it's required, add the name to the allow-list in the same change. Otherwise the warning is the success.                                        |

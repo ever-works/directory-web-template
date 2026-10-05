@@ -16,7 +16,7 @@ This file gives Claude Code (and other AI coding tools) project-specific instruc
 ## 1. Environment & tooling
 
 - This project uses a **Turborepo monorepo** with **pnpm workspaces**. Run commands from the **monorepo root** (where `turbo.json` lives) unless noted otherwise. The web app source lives in `apps/web/`.
-- Node.js: **>= 26.0.0** (see `package.json.engines`).
+- Node.js: **>= 24.0.0** (see `package.json.engines`).
 - Primary package manager: **pnpm** (lockfile: `pnpm-lock.yaml`).
 - Scripts in `package.json` should not call `yarn` or `npm`; invoking them via `pnpm` is correct.
 
