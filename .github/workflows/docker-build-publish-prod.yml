@@ -124,11 +124,16 @@ jobs:
             org.opencontainers.image.source=https://github.com/${{ github.repository }}
             org.opencontainers.image.revision=${{ github.sha }}
             org.opencontainers.image.title=${{ github.repository }}
+          # NEXT_PUBLIC_CANONICAL_URL: the web app's public canonical origin
+          # (apps/web/lib/utils/url-cleaner.ts), from this repository's SITE_CANONICAL_URL Actions
+          # variable - the same value k8s-build.yml passes to the :prod image. Unset or '' = today's
+          # behaviour (NEXT_PUBLIC_APP_URL); the Dockerfile unsets an empty value before the build.
           build-args: |
             DATA_REPOSITORY=${{ secrets.DATA_REPOSITORY != '' && format('https://github.com/{0}/{1}', github.repository_owner, secrets.DATA_REPOSITORY) || '' }}
             GITHUB_REPOSITORY=${{ github.repository }}
             GITHUB_SHA=${{ github.sha }}
             VERDACCIO_REGISTRY=${{ vars.VERDACCIO_REGISTRY }}
+            NEXT_PUBLIC_CANONICAL_URL=${{ vars.SITE_CANONICAL_URL }}
           secrets: |
             gh_token=${{ secrets.GH_TOKEN }}
           provenance: false

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getCachedConfig, getCachedItems } from '@/lib/content';
+import { getCanonicalOrigin } from '@/lib/utils/url-cleaner';
 
 /**
  * Public canonical-data endpoint that emits every directory item as JSON,
@@ -82,7 +83,7 @@ export async function GET(): Promise<NextResponse> {
 	const items: ReadonlyArray<ItemShape> = ((fetchResult as { items?: ReadonlyArray<ItemShape> })
 		.items ?? []) as ReadonlyArray<ItemShape>;
 
-	const siteUrl = (config.app_url || process.env.NEXT_PUBLIC_APP_URL || '').replace(/\/$/, '');
+	const siteUrl = (getCanonicalOrigin() || config.app_url || process.env.NEXT_PUBLIC_APP_URL || '').replace(/\/$/, '');
 	const description =
 		(config as { description?: string; tagline?: string }).description ||
 		(config as { tagline?: string }).tagline ||

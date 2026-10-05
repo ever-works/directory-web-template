@@ -4,7 +4,7 @@ import './tailwind.css';
 import './[locale]/globals.scss';
 import { LayoutProvider, ThemeProvider } from '@/components/providers';
 import { ensureBackgroundJobsInitialized } from '@/app/api/cron/jobs/background-jobs-init';
-import { cleanUrl } from '@/lib/utils/url-cleaner';
+import { getBaseUrl } from '@/lib/utils/url-cleaner';
 import { getLocale } from 'next-intl/server';
 import { RTL_LOCALES, type Locale } from '@/lib/constants';
 import { Geist, Geist_Mono } from 'next/font/google';
@@ -20,9 +20,8 @@ const geistMono = Geist_Mono({
     subsets: ['latin'],
 });
 
-const rawUrl = process.env.NEXT_PUBLIC_APP_URL?.trim() ||
-	(process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "https://demo.ever.works");
-const appUrl = cleanUrl(rawUrl);
+// Public origin: NEXT_PUBLIC_CANONICAL_URL when pinned, else the app URL.
+const appUrl = getBaseUrl();
 
 // Root metadata used by `not-found.tsx` and any path outside `[locale]`.
 // The `robots: 'noindex'` here is scoped to the not-found page — child

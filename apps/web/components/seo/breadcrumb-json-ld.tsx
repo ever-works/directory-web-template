@@ -25,7 +25,8 @@ import { getBaseUrl } from '@/lib/utils/url-cleaner';
 interface BreadcrumbJsonLdProps {
 	/**
 	 * Breadcrumb trail from root to current page. Each entry's `url` is
-	 * resolved to absolute via the configured base URL (`NEXT_PUBLIC_APP_URL`).
+	 * resolved to absolute via getBaseUrl(): the pinned public origin
+	 * (`NEXT_PUBLIC_CANONICAL_URL`) when set, else `NEXT_PUBLIC_APP_URL`.
 	 *
 	 * Convention: omit `url` on the last item to mark the current page.
 	 * Schema.org allows `BreadcrumbList` items without `item` URLs and

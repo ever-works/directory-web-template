@@ -79,10 +79,20 @@ jobs:
           # duplicate whose canonicals point at prod URLs that do not exist yet. Every other
           # image gets '' and builds noindex, naming no host. The root Dockerfile declares
           # neither arg and ignores them.
+          #
+          # NEXT_PUBLIC_CANONICAL_URL: the web app's public canonical origin
+          # (apps/web/lib/utils/url-cleaner.ts), from this repository's own SITE_CANONICAL_URL
+          # Actions variable, which survives the template sync. Set it when the production
+          # site answers on more than one host (a brand domain plus the platform host): every
+          # canonical, hreflang, og:url, sitemap, robots and feed URL then names that origin.
+          # Unset or '' = today's behaviour (NEXT_PUBLIC_APP_URL). Production image only, for
+          # the same reason as DOCS_URL: :dev and :stage run on hosts of their own. The docs
+          # Dockerfile does not declare it and ignores it.
           build-args: |
             VERDACCIO_REGISTRY=${{ vars.VERDACCIO_REGISTRY }}
             DOCS_URL=${{ steps.t.outputs.tag == 'prod' && vars.DOCS_URL || '' }}
             DOCS_HOME_CANONICAL_PATH=${{ steps.t.outputs.tag == 'prod' && vars.DOCS_HOME_CANONICAL_PATH || '' }}
+            NEXT_PUBLIC_CANONICAL_URL=${{ steps.t.outputs.tag == 'prod' && vars.SITE_CANONICAL_URL || '' }}
           tags: |
             ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}${{ matrix.suffix }}:${{ steps.t.outputs.tag }}
             ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}${{ matrix.suffix }}:sha-${{ github.sha }}

@@ -1,5 +1,6 @@
 import { defineRouting } from "next-intl/routing";
 import { DEFAULT_LOCALE, LOCALES } from "@/lib/constants";
+import { alternateLinksHeaderEnabled } from "@/lib/i18n/alternate-links-header";
 
 /**
  * Locale URL style. Build-time choice driven by the `LOCALE_URL_STYLE` env var.
@@ -76,6 +77,15 @@ export const routing = defineRouting({
    * See Spec 019 and `docs/performance/locale-detection.md`.
    */
   localeCookie: false,
+
+  /**
+   * next-intl's hreflang `Link` response header, off unless
+   * `I18N_ALTERNATE_LINKS_HEADER=true`. The HTML `<link rel="alternate"
+   * hreflang>` tags are the one hreflang source: they use the public origin
+   * and the page's canonical path, which the middleware cannot know. See
+   * `lib/i18n/alternate-links-header.ts`.
+   */
+  alternateLinks: alternateLinksHeaderEnabled(process.env.I18N_ALTERNATE_LINKS_HEADER),
 
   localePrefix,
 });

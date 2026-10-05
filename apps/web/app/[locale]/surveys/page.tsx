@@ -11,26 +11,61 @@ import { Survey } from '@/lib/db/schema';
 import { Logger } from '@/lib/logger';
 import { SurveyTypeEnum, SurveyStatusEnum } from '@/lib/types/survey';
 import { getSurveysEnabled } from '@/lib/utils/settings';
-import { cleanUrl } from '@/lib/utils/url-cleaner';
+import { getBaseUrl } from '@/lib/utils/url-cleaner';
+import { generateHreflangAlternates, getLocalizedUrl } from '@/lib/seo/hreflang';
+import { getSiteName } from '@/lib/seo/site-identity';
+import type { Locale } from '@/lib/constants';
 
 const logger = Logger.create('SurveysPage');
 
-const rawUrl = process.env.NEXT_PUBLIC_APP_URL?.trim() || 
-  (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "https://demo.ever.works");
-const appUrl = cleanUrl(rawUrl);
+// Public origin: NEXT_PUBLIC_CANONICAL_URL when pinned (and valid), else the
+// app URL. getBaseUrl() validates both, so a malformed pin cannot make
+// `new URL(appUrl)` below throw.
+const appUrl = getBaseUrl();
 
 export async function generateMetadata({
     params
 }: {
     params: Promise<{ locale: string }>;
 }): Promise<Metadata> {
+    // Surveys switched off: the page below 404s.
+    if (!getSurveysEnabled()) {
+        notFound();
+    }
+
     const { locale } = await params;
     const t = await getTranslations({ locale, namespace: 'survey' });
+    const siteName = await getSiteName();
+    // The configured site name, as every listing title has it: the
+    // `survey.PAGE_TITLE` message spells the template's own brand
+    // ("Surveys | Ever Works") into every directory built from it.
+    const title = `${t('SURVEYS')} | ${siteName}`;
+    const description = t('PAGE_META_DESCRIPTION');
+    const canonical = getLocalizedUrl('/surveys', locale as Locale);
 
     return {
         metadataBase: new URL(appUrl),
-        title: t('PAGE_TITLE'),
-        description: t('PAGE_META_DESCRIPTION')
+        title,
+        description,
+        // Own og:url (Next replaces, never merges, `openGraph`), so a share
+        // names this page rather than none.
+        openGraph: {
+            title,
+            description,
+            type: 'website',
+            siteName,
+            url: canonical
+        },
+        // Own canonical: without it this page inherited the [locale] layout's
+        // `alternates` and declared itself a duplicate of the homepage. Each
+        // locale is its own page (translated title, headings and UI, as on
+        // /docs), so it also carries the reciprocal hreflang cluster every
+        // listing has: Next replaces `alternates` whole, so a canonical alone
+        // dropped the layout's languages and left the locales unlinked.
+        alternates: {
+            canonical,
+            languages: generateHreflangAlternates('/surveys')
+        }
     };
 }
 
