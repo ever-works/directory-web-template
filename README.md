@@ -110,7 +110,7 @@ apps/web/
 ### Prerequisites
 
 - **Node.js** >= 26.0.0
-- **pnpm** 9.x (`corepack enable` to use the version pinned in `package.json`)
+- **pnpm** 10.x (`npm install -g corepack && corepack enable` to use the version pinned in `package.json`; Node 25+ no longer bundles corepack)
 - PostgreSQL database (optional -- SQLite works for local dev)
 
 ### Installation

@@ -42,8 +42,8 @@ For Ever Works Platform documentation, visit [docs.ever.works](https://docs.ever
 
 #### Installation Problems
 
-- **Node.js Version**: Ensure you are using Node.js 20+
-- **Package Manager**: Use pnpm (strictly enforced). Run `corepack enable` to activate it.
+- **Node.js Version**: Ensure you are using Node.js 26+
+- **Package Manager**: Use pnpm (strictly enforced). Run `npm install -g corepack && corepack enable` to activate it (Node.js 25+ no longer bundles corepack).
 - **Dependencies**: Run `pnpm install` in the repository root
 - **Port Conflicts**: The dev server defaults to port 3000. Use `--port` flag to specify a different port.
 

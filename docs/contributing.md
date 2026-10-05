@@ -26,7 +26,8 @@ Before you begin, make sure you have the following installed:
 ### Installing pnpm
 
 ```bash
-# Using corepack (recommended, ships with Node.js 20+)
+# Using corepack (recommended). Node.js 25+ no longer bundles it, so install it first
+npm install -g corepack
 corepack enable
 corepack prepare pnpm@latest --activate
 
