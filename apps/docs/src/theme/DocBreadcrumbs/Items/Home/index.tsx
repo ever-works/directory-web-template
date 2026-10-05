@@ -6,7 +6,8 @@
  */
 
 /*
- * Ejected from @docusaurus/theme-classic 3.9.2 (theme/DocBreadcrumbs/Items/Home), the home icon
+ * Ejected from @docusaurus/theme-classic 3.9.2 and re-diffed against 3.10.2, where upstream is
+ * unchanged (theme/DocBreadcrumbs/Items/Home), the home icon
  * that opens every doc page's breadcrumbs. Upstream links it to the site root. When the
  * deployment redirects its root (DOCS_HOME_CANONICAL_PATH, see docusaurus.config.ts) that is a
  * link to a redirect on every doc page, so this links the page the root is sent to

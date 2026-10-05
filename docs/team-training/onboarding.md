@@ -29,7 +29,7 @@ By the end of this module, you will:
 
 Follow the detailed [Installation Guide](/getting-started/installation) to install:
 
-- Node.js 20.19.0+
+- Node.js 26.0.0+
 - pnpm ([install](https://pnpm.io/installation))
 - PostgreSQL 14+
 - Git

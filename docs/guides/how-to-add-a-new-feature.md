@@ -13,7 +13,7 @@ We will use a concrete example throughout -- adding a **Bookmarks** feature that
 
 ## Prerequisites
 
-- Node.js >= 20.19.0 and pnpm installed
+- Node.js >= 26.0.0 and pnpm installed
 - PostgreSQL database running and `DATABASE_URL` configured in `.env.local`
 - Familiarity with TypeScript, Next.js App Router, Drizzle ORM, and React Query
 - Development server running (`pnpm dev`)

@@ -55,14 +55,15 @@ const HAS_DOCS_URL = DOCS_URL !== '';
 const PLACEHOLDER_URL = 'https://docs.example.invalid';
 
 // src/theme/SiteMetadata and src/theme/DocBreadcrumbs/Items/Home are ejected from
-// @docusaurus/theme-classic 3.9 (SiteMetadata leans on @docusaurus/theme-common/internal), while
-// package.json allows ^3.9.2. An upgrade to another minor would keep rendering the ejected 3.9
+// @docusaurus/theme-classic 3.9 and re-diffed against 3.10.2 (SiteMetadata leans on
+// @docusaurus/theme-common/internal), while package.json allows ^3.10.2. An upgrade to another
+// minor would keep rendering the ejected 3.10
 // copies with nothing to say they diverged from upstream, so the build stops instead: re-diff
 // the ejected components against the new upstream, then update EJECTED_THEME_CLASSIC.
 // theme-classic is not a direct dependency; it is resolved the way preset-classic resolves it.
-// Whoever merges the next Docusaurus minor bump (a Dependabot 3.10 PR, say) will see the Docs CI
+// Whoever merges the next Docusaurus minor bump (a Dependabot 3.11 PR, say) will see the Docs CI
 // build and the -docs image build fail here until that re-diff is done: that is deliberate.
-const EJECTED_THEME_CLASSIC = '3.9';
+const EJECTED_THEME_CLASSIC = '3.10';
 const THEME_CLASSIC_VERSION: string = createRequire(require.resolve('@docusaurus/preset-classic'))(
 	'@docusaurus/theme-classic/package.json'
 ).version;

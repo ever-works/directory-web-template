@@ -120,7 +120,7 @@ Practice what you've learned with real-world exercises and challenges.
 
 Before starting the training, ensure you have:
 
-- Node.js 20.19.0+ (use nvm)
+- Node.js 26.0.0+ (use nvm)
 - pnpm ([install](https://pnpm.io/installation)) -- the monorepo package manager
 - PostgreSQL 14+
 - Git
