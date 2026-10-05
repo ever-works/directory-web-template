@@ -29,7 +29,7 @@ Bienvenue dans Ever Works ! Ce guide vous aidera à configurer votre environneme
 
 Suivez le [Guide d'installation](/getting-started/installation) détaillé pour installer :
 
-- Node.js 20.19.0+
+- Node.js 24.0.0+
 - pnpm ([installer](https://pnpm.io/installation))
 - PostgreSQL 14+
 - Git

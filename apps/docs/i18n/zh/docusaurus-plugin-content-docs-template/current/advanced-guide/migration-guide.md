@@ -342,7 +342,7 @@ pnpm start         # Manual testing
 最低版本在1中定义：
 
 ```json
-{ "engines": { "node": ">=20.19.0" } }
+{ "engines": { "node": ">=24.0.0" } }
 ```
 
 ### 数据库

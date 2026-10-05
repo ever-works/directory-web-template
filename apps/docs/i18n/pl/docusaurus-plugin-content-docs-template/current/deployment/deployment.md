@@ -80,7 +80,7 @@ Szablon może być wdrożony na dowolnej platformie obsługującej aplikacje Nod
 
 ### Wymagania Systemowe
 
-- **Node.js**: wersja 20.19.0 lub wyższa (zdefiniowana w polu `engines` `package.json`)
+- **Node.js**: wersja 24.0.0 lub wyższa (zdefiniowana w polu `engines` `package.json`)
 - **Menedżer Pakietów**: pnpm (projekt używa `pnpm-lock.yaml`)
 - **Baza Danych**: PostgreSQL (wymagana dla funkcji produkcyjnych jak auth, subskrypcje, analityka)
 - **Pamięć**: Co najmniej 8 GB RAM zalecane dla procesu budowania

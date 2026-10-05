@@ -120,7 +120,7 @@ Lernen Sie die Codierungsstandards, Muster und Best Practices, die in Ever Works
 
 Stellen Sie vor Beginn der Schulung sicher, dass Sie haben:
 
-- Node.js 20.19.0+ (nvm verwenden)
+- Node.js 24.0.0+ (nvm verwenden)
 - pnpm ([installieren](https://pnpm.io/installation)) – der Monorepo-Paketmanager
 - PostgreSQL 14+
 - Git

@@ -67,7 +67,7 @@ sidebar_position: 1
 
 ### الأدوات المطلوب تثبيتها
 
-- Node.js 20.19.0+ (استخدم nvm)
+- Node.js 24.0.0+ (استخدم nvm)
 - pnpm ([التثبيت](https://pnpm.io/installation))
 - PostgreSQL 14+
 - Git

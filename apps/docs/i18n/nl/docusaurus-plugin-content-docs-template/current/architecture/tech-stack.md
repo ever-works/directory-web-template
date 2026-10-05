@@ -11,7 +11,7 @@ Dit document geeft een uitgebreid overzicht van alle technologieën die in de Ev
 
 ## Systeemvereisten
 
-- **Node.js**: 20.19.0 of hoger
+- **Node.js**: 24.0.0 of hoger
 - **PostgreSQL**: 14.0 of hoger
 - **Pakketbeheer**: npm, pnpm, garen of knotje
 
@@ -423,7 +423,7 @@ Ever Works ondersteunt **13+ talen** standaard:
 
 ### Knooppunt.js
 
-- **Minimaal**: Node.js 20.19.0
+- **Minimaal**: Node.js 24.0.0
 - **Aanbevolen**: Nieuwste LTS-versie
 - **Pakketmanager**: npm 10+, garen 1.13+ of pnpm 8+
 

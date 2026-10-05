@@ -29,7 +29,7 @@ sidebar_position: 2
 
 اتبع [دليل التثبيت](/getting-started/installation) المفصَّل لتثبيت:
 
-- Node.js 20.19.0+
+- Node.js 24.0.0+
 - pnpm ([التثبيت](https://pnpm.io/installation))
 - PostgreSQL 14+
 - Git

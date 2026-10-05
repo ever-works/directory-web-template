@@ -14,7 +14,7 @@ Witamy w Ever Works Directory Web Template. Od klonowania do uruchomionej aplika
 Kompletna strona katalogów Next.js w monorepo Turborepo. Funkcje: uwierzytelnianie, płatności, panel administracyjny, i18n, CMS oparty na Git.
 
 Szczegóły:
-- Node.js >= 20.19.0
+- Node.js >= 24.0.0
 - pnpm z Turborepo
 - Next.js 16 z React 19
 - Drizzle ORM z PostgreSQL

@@ -16,7 +16,7 @@ Eine voll ausgestattete Next.js-Verzeichniswebsite in einem Turborepo-Monorepo m
 Wichtige Details:
 - Paketname: directory-web-template
 - Lizenz: AGPL-3.0
-- Node.js-Anforderung: >= 20.19.0
+- Node.js-Anforderung: >= 24.0.0
 - Paketmanager: pnpm mit Turborepo
 - Framework: Next.js 16 mit React 19
 - Datenbank-ORM: Drizzle ORM mit PostgreSQL
@@ -32,7 +32,7 @@ Wichtige Details:
 ## Abschnitts-Übersicht
 
 ### 1. Installation
-Richten Sie Node.js (>= 20.19.0), pnpm ein und klonen Sie das Monorepo.
+Richten Sie Node.js (>= 24.0.0), pnpm ein und klonen Sie das Monorepo.
 
 ### 2. Umgebungskonfiguration
 Konfigurieren Sie apps/web/.env.local mit allen erforderlichen und optionalen Variablen.

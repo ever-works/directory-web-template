@@ -80,7 +80,7 @@ Het template kan worden geïmplementeerd op elk platform dat Node.js-applicaties
 
 ### Systeemvereisten
 
-- **Node.js**: versie 20.19.0 of hoger (gedefinieerd in het `engines`-veld van `package.json`)
+- **Node.js**: versie 24.0.0 of hoger (gedefinieerd in het `engines`-veld van `package.json`)
 - **Pakketbeheerder**: pnpm (het project gebruikt `pnpm-lock.yaml`)
 - **Database**: PostgreSQL (vereist voor productiefuncties zoals authenticatie, abonnementen, analyses)
 - **Geheugen**: Minimaal 8 GB RAM aanbevolen voor het bouwproces

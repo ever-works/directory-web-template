@@ -14,7 +14,7 @@ Ever Works Template هو دليل Next.js متكامل الميزات، منظم
 
 ## المتطلبات
 
-- **Node.js >= 20.19.0**
+- **Node.js >= 24.0.0**
 - **pnpm** – مدير الحزم
 - **Next.js 16** – إطار React
 - **Drizzle ORM** – إدارة قاعدة البيانات

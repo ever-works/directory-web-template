@@ -18,7 +18,7 @@ Informacje o wkładzie w Platformę Ever Works można znaleźć w [repozytorium 
 
 Przed rozpoczęciem upewnij się, że masz zainstalowane:
 
-- **Node.js** >= 20.19.0 (zalecane LTS)
+- **Node.js** >= 24.0.0 (zalecane LTS)
 - **pnpm** >= 10.x (ściśle wymuszane; nie używaj npm ani yarn)
 - **Git** >= 2.30
 - **PostgreSQL** (do bazy danych; Supabase oferuje opcję hostowaną)

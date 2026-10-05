@@ -7,6 +7,10 @@ sidebar_position: 99
 
 # Documentation & Specs Change Log
 
+## 2026-10-05
+
+- `deps` `apps/web` `apps/docs` `Dockerfile` `.github/workflows`: security dependency bump for the `pnpm audit --prod` advisories (3 critical / 82 high on `develop` to 0 critical / 1 high; the one left, `braces`, has no patched release). Direct bumps: `@auth/drizzle-adapter` and `@auth/supabase-adapter` 1.11.3 (drops the second `@auth/core` 0.41.1 copy), `axios` 1.20.0, `nodemailer` 10.0.14, `@trigger.dev/sdk` 4.7.2, Docusaurus 3.10.2 (the ejected `SiteMetadata` re-diffed: upstream dropped `keyboardFocusedClassName`; `EJECTED_THEME_CLASSIC` is now `3.10`), `cheerio` 1.2.0; vulnerable transitive packages refreshed inside their parents' ranges, plus three scoped `pnpm.overrides` (`lodash-es`, `serialize-javascript`, `ws`) where the parent pins a vulnerable version. Node moves to 26 everywhere together (both Dockerfiles, which now install corepack because Node 25+ no longer bundles it; every workflow; `engines`; `@types/node`; the documented floor). No API change (PR #1080).
+
 ## 2026-09-04
 
 - `spec-050`: added the blog reader surface for generated directory sites — `/blog` listing with configurable pagination and search, `/blog/[slug]` post pages, category and tag archives, `/blog/rss.xml`, sitemap entries and 21-locale strings, all reading `.content/posts/` through the existing `lib/content.ts` pipeline ([spec 050](https://github.com/ever-works/directory-web-template/blob/develop/docs/spec/050-blog-pages/spec.md), EW-25..EW-29).

@@ -57,7 +57,7 @@ monorepo/
 ### 🧱 Technology Stack
 
 - **[TypeScript](https://www.typescriptlang.org)**
-- **[Node.js](https://nodejs.org)** >= 20.19.0
+- **[Node.js](https://nodejs.org)** >= 24.0.0
 - **Build System**: [Turborepo](https://turbo.build) + [pnpm](https://pnpm.io) workspaces
 - **Framework**: [Next.js 16](https://nextjs.org) with App Router
 - **Authentication**: [Auth.js](https://authjs.dev) / [Supabase Auth](https://supabase.com/auth)
@@ -109,8 +109,8 @@ apps/web/
 
 ### Prerequisites
 
-- **Node.js** >= 20.19.0
-- **pnpm** 9.x (`corepack enable` to use the version pinned in `package.json`)
+- **Node.js** >= 24.0.0
+- **pnpm** 10.x (`npm install -g corepack && corepack enable` to use the version pinned in `package.json`; Node 25+ no longer bundles corepack)
 - PostgreSQL database (optional -- SQLite works for local dev)
 
 ### Installation
