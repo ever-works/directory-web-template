@@ -87,8 +87,10 @@ function getNormalizedAppUrl(): string {
 
 /**
  * Validate and normalise a canonical origin override.
- * Returns the origin without a trailing slash, or undefined when the value is
- * empty or not an absolute URL (the caller then falls back to the app URL).
+ * Returns the normalised origin (scheme://host[:port], no trailing slash), or
+ * undefined when the value is empty, not an absolute http(s) URL, or carries a
+ * path, query, fragment or credentials (the caller then falls back to the app
+ * URL).
  */
 export function resolveCanonicalOrigin(raw: string | undefined): string | undefined {
   const trimmed = raw?.trim();
@@ -96,7 +98,20 @@ export function resolveCanonicalOrigin(raw: string | undefined): string | undefi
 
   const cleaned = cleanUrl(trimmed).replace(/\/+$/, '');
   if (cleaned && isValidAbsoluteUrl(cleaned)) {
-    return cleaned;
+    // An http(s) ORIGIN only. A path would be prefixed to every URL the site
+    // publishes (https://brand.example/foo/items/x in the sitemap, robots and
+    // canonicals); a query, fragment or credentials make no sense in one.
+    const url = new URL(cleaned);
+    if (
+      (url.protocol === 'https:' || url.protocol === 'http:') &&
+      url.pathname === '/' &&
+      !url.search &&
+      !url.hash &&
+      !url.username &&
+      !url.password
+    ) {
+      return url.origin;
+    }
   }
   console.warn(`Invalid NEXT_PUBLIC_CANONICAL_URL: "${trimmed}" (cleaned: "${cleaned}"). Ignoring it.`);
   return undefined;

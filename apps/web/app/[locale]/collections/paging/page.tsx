@@ -5,10 +5,16 @@ import { Collection } from "@/types/collection";
 import type { Metadata } from "next";
 import { generateListingMetadata } from "@/lib/seo/listing-metadata";
 
-// Page 1 of the paging route renders the same listing as /collections, so it
-// takes /collections' metadata (collections/page.tsx): canonical, title,
-// description, og:url. Without this it inherited the [locale] layout's
-// canonical and title and declared itself a duplicate of the homepage.
+// Collections per page of this route (the page below renders this many).
+const COLLECTIONS_PER_PAGE = 6;
+
+// Page 1 of the paging route. When every active collection fits on it, it
+// renders the same listing as /collections, so it takes /collections'
+// metadata (collections/page.tsx): canonical, title, description, og:url.
+// With more, it shows only the first COLLECTIONS_PER_PAGE while /collections
+// shows them all, so it is not a duplicate: it is page 1 of its own series
+// and canonical to itself, like /collections/paging/<n>. (Without own
+// metadata it inherited the [locale] layout's homepage canonical and title.)
 export async function generateMetadata({
   params,
 }: {
@@ -16,11 +22,12 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { locale } = await params;
   const { collections } = await getCachedItems({ lang: locale });
+  const activeCount = collections.filter((c) => c.isActive !== false).length;
   return generateListingMetadata({
     title: "Collections",
-    path: "/collections",
+    path: activeCount > COLLECTIONS_PER_PAGE ? "/collections/paging" : "/collections",
     locale,
-    itemCount: collections.filter((c) => c.isActive !== false).length,
+    itemCount: activeCount,
     keywords: ["collections", "curated", "directory", "lists"],
   });
 }
@@ -42,7 +49,6 @@ export default async function CollectionsPagingPage({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  const COLLECTIONS_PER_PAGE = 6;
   const { start, page } = paginateMeta(1, COLLECTIONS_PER_PAGE);
 
   // Fetch collections from content

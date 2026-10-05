@@ -43,6 +43,14 @@ describe('findTagBySegment', () => {
 		assert.equal(findTagBySegment(tags, 'TAG-A'), undefined);
 	});
 
+	it('prefers an exact id over the display name of another tag', () => {
+		// An EARLIER tag named like a LATER tag's id must not shadow it: /tags/<id>
+		// would otherwise list and canonicalise to the wrong tag.
+		const shadowing = [{ id: 'editors-pick', name: 'Popular' }, { id: 'popular', name: 'Most Popular' }];
+		assert.equal(findTagBySegment(shadowing, 'popular')?.id, 'popular');
+		assert.equal(findTagBySegment(shadowing, 'Popular')?.id, 'editors-pick');
+	});
+
 	it('finds nothing for an unknown segment', () => {
 		assert.equal(findTagBySegment(tags, 'zz-unknown'), undefined);
 		assert.equal(findTagBySegment([], 'tag-a'), undefined);

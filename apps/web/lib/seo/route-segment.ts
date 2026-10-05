@@ -30,6 +30,11 @@ export interface TagLike {
  * so a page reached by name must still name `/tags/<id>` as canonical.
  */
 export function findTagBySegment<T extends TagLike>(tags: readonly T[], segment: string): T | undefined {
+	// The exact id first: an EARLIER tag whose display name equals a later
+	// tag's id must not shadow that tag (the page and canonical would name the
+	// wrong one).
+	const byId = tags.find((tag) => tag.id === segment);
+	if (byId) return byId;
 	const lower = segment.toLowerCase();
-	return tags.find((tag) => tag.id === segment || (typeof tag.name === 'string' && tag.name.toLowerCase() === lower));
+	return tags.find((tag) => typeof tag.name === 'string' && tag.name.toLowerCase() === lower);
 }

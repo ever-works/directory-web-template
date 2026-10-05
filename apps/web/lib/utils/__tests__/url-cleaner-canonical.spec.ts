@@ -44,6 +44,21 @@ describe('resolveCanonicalOrigin', () => {
 	it('ignores a value that is not an absolute URL', () => {
 		assert.equal(mod.resolveCanonicalOrigin('https://'), undefined);
 	});
+
+	it('accepts an http(s) ORIGIN only: no path, query, fragment or credentials', () => {
+		// A path would be prefixed to every published URL (sitemap, robots,
+		// canonical, hreflang): https://brand.example/foo/items/x.
+		assert.equal(mod.resolveCanonicalOrigin('https://brand.example/foo'), undefined);
+		assert.equal(mod.resolveCanonicalOrigin('https://brand.example/?a=1'), undefined);
+		assert.equal(mod.resolveCanonicalOrigin('https://brand.example/#top'), undefined);
+		assert.equal(mod.resolveCanonicalOrigin('https://user:pw@brand.example'), undefined);
+		assert.equal(mod.resolveCanonicalOrigin('ftp://brand.example'), undefined);
+	});
+
+	it('returns the normalised origin', () => {
+		assert.equal(mod.resolveCanonicalOrigin('https://Brand.Example/'), CANONICAL);
+		assert.equal(mod.resolveCanonicalOrigin('https://brand.example:443'), CANONICAL);
+	});
 });
 
 describe('with NEXT_PUBLIC_CANONICAL_URL pinned', () => {
