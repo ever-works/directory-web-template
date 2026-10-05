@@ -8,7 +8,7 @@ sidebar_position: 1
 
 ## 前提条件
 
-- **Node.js >= 20.19.0**
+- **Node.js >= 24.0.0**
 - **pnpm** – 包管理器
 - **Git**
 - **PostgreSQL**（本地开发可选）

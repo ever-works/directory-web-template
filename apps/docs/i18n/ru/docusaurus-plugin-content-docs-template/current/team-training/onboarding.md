@@ -29,7 +29,7 @@ sidebar_position: 2
 
 Следуйте подробному [Руководству по установке](/getting-started/installation) для установки:
 
-- Node.js 20.19.0+
+- Node.js 24.0.0+
 - pnpm ([установка](https://pnpm.io/installation))
 - PostgreSQL 14+
 - Git

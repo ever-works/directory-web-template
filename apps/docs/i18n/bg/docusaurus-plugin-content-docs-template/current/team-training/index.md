@@ -67,7 +67,7 @@ sidebar_position: 1
 
 ### Инструменти за инсталиране
 
-- Node.js 20.19.0+ (използвайте nvm)
+- Node.js 24.0.0+ (използвайте nvm)
 - pnpm ([инсталиране](https://pnpm.io/installation))
 - PostgreSQL 14+
 - Git

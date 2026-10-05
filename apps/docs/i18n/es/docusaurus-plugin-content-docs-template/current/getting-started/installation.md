@@ -13,7 +13,7 @@ Esta guía te llevará paso a paso por la configuración de Ever Works en tu má
 
 Antes de comenzar, asegúrate de tener instalado lo siguiente:
 
-- **Node.js >= 20.19.0** - [Descargar aquí](https://nodejs.org/)
+- **Node.js >= 24.0.0** - [Descargar aquí](https://nodejs.org/)
 - **pnpm** - Gestor de paquetes requerido (instalar con `npm install -g pnpm`)
 - **Git** - Para control de versiones
 - **PostgreSQL** (opcional) - Para la base de datos

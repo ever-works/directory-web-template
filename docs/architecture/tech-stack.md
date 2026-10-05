@@ -11,7 +11,7 @@ This document provides a comprehensive overview of all technologies used in the 
 
 ## System Requirements
 
-- **Node.js**: 20.19.0 or higher
+- **Node.js**: 24.0.0 or higher (26 recommended; the Docker images and CI run 26)
 - **PostgreSQL**: 14.0 or higher
 - **Package Manager**: npm, pnpm, yarn, or bun
 
@@ -423,7 +423,7 @@ Ever Works supports **13+ languages** out of the box:
 
 ### Node.js
 
-- **Minimum**: Node.js 20.19.0
+- **Minimum**: Node.js 24.0.0 (Vercel offers 24.x at most); the Docker images and CI run 26
 - **Recommended**: Latest LTS version
 - **Package Manager**: npm 10+, yarn 1.13+, or pnpm 8+
 

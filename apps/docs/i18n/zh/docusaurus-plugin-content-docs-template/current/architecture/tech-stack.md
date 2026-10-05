@@ -11,7 +11,7 @@ sidebar_position: 2
 
 ## 系统要求
 
-- **Node.js**：20.19.0 或更高版本
+- **Node.js**：24.0.0 或更高版本
 - **PostgreSQL**：14.0 或更高版本
 - **包管理器**：npm、pnpm、yarn 或 bun
 
@@ -423,7 +423,7 @@ Ever Works 开箱即用地支持 **13 种以上语言**：
 
 ### Node.js
 
-- **最低**：Node.js 20.19.0
+- **最低**：Node.js 24.0.0
 - **推荐**：最新 LTS 版本
 - **包管理器**：npm 10+、yarn 1.13+ 或 pnpm 8+
 

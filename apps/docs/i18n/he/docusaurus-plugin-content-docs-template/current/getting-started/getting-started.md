@@ -14,7 +14,7 @@ Ever Works Template הוא ספריית Next.js עם כל הפיצ'רים, מא�
 
 ## דרישות מוקדמות
 
-- **Node.js >= 20.19.0**
+- **Node.js >= 24.0.0**
 - **pnpm** – מנהל חבילות
 - **Next.js 16** – מסגרת React
 - **Drizzle ORM** – ניהול מסד נתונים

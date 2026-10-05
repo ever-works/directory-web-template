@@ -14,7 +14,7 @@ sidebar_position: 0
 Полнофункциональный сайт-каталог Next.js в монорепозитории Turborepo. Возможности: аутентификация, платежи, панель администратора, i18n, CMS на основе Git.
 
 Детали:
-- Node.js >= 20.19.0
+- Node.js >= 24.0.0
 - pnpm с Turborepo
 - Next.js 16 с React 19
 - Drizzle ORM с PostgreSQL

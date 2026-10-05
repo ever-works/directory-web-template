@@ -19,7 +19,7 @@ Datos clave del manifiesto del proyecto:
 | --------------------------- | ------------------------------------------------------ |
 | **Nombre del paquete**      | `directory-web-template` (raíz del monorepo)           |
 | **Licencia**                | AGPL-3.0                                               |
-| **Requisito de Node.js**    | >= 20.19.0                                             |
+| **Requisito de Node.js**    | >= 24.0.0                                             |
 | **Gestor de paquetes**      | pnpm con Turborepo (lockfile: `pnpm-lock.yaml`)        |
 | **Framework**               | Next.js 16 con React 19                                |
 | **ORM de base de datos**    | Drizzle ORM con PostgreSQL (o SQLite para desarrollo)  |
@@ -41,7 +41,7 @@ Trabaja las guías en orden. Cada una se basa en el paso anterior.
 
 ### 1. Instalación
 
-Configura Node.js (>= 20.19.0), pnpm y clona el monorepo. La guía de instalación cubre los requisitos del sistema, la instalación de dependencias y la orientación inicial sobre la estructura del proyecto.
+Configura Node.js (>= 24.0.0), pnpm y clona el monorepo. La guía de instalación cubre los requisitos del sistema, la instalación de dependencias y la orientación inicial sobre la estructura del proyecto.
 
 **Leer a continuación:** [Instalación](/docs/getting-started/installation)
 
@@ -81,7 +81,7 @@ Una hoja de referencia de una sola página con los comandos, rutas de archivos y
 
 Antes de comenzar la guía de instalación, asegúrate de tener las siguientes herramientas disponibles:
 
-- **Node.js 20.19.0 o superior** — el campo `engines` en `package.json` impone este mínimo.
+- **Node.js 24.0.0 o superior** — el campo `engines` en `package.json` impone este mínimo.
 - **pnpm** — el proyecto usa pnpm como gestor de paquetes. Instálalo globalmente con `npm install -g pnpm`.
 - **Git** — necesario tanto para clonar la plantilla como para el pipeline de contenido del CMS basado en Git.
 - **Un editor de código** — se recomienda VS Code; el repositorio incluye configuraciones del espacio de trabajo.

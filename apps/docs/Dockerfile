@@ -4,13 +4,18 @@
 # docs build. Docs content lives in the repo-root docs/ (Docusaurus `path: ../../docs`).
 #   docker build -f apps/docs/Dockerfile -t ghcr.io/ever-works/directory-web-template-docs .
 
-ARG NODE_VERSION=22-alpine
+ARG NODE_VERSION=26-alpine
 ARG PNPM_VERSION=10.31.0
+ARG COREPACK_VERSION=0.36.0
 ARG TURBO_VERSION=2.9.14
 
 # ---- base ------------------------------------------------------------------
 FROM node:${NODE_VERSION} AS base
-RUN corepack enable && \
+# Node.js 25+ no longer bundles corepack, so the node:26 images ship without it. Install a
+# pinned corepack from npm first; everything after it is unchanged.
+ARG COREPACK_VERSION
+RUN npm install -g corepack@${COREPACK_VERSION} && \
+    corepack enable && \
     corepack prepare pnpm@${PNPM_VERSION} --activate && \
     npm install -g turbo@${TURBO_VERSION}
 ENV CI=true

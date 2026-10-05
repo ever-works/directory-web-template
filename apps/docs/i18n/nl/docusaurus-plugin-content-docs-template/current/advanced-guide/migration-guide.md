@@ -332,7 +332,7 @@ pnpm start         # Manual testing
 De minimale versie is gedefinieerd in `package.json` :
 
 ```json
-{ "engines": { "node": ">=20.19.0" } }
+{ "engines": { "node": ">=24.0.0" } }
 ```
 
 ### Database

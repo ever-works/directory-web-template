@@ -67,7 +67,7 @@ Al termine di questo programma, i membri del team saranno in grado di:
 
 ### Strumenti da Installare
 
-- Node.js 20.19.0+ (usa nvm)
+- Node.js 24.0.0+ (usa nvm)
 - pnpm ([installazione](https://pnpm.io/installation))
 - PostgreSQL 14+
 - Git

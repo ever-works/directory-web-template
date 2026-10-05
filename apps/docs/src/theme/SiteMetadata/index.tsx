@@ -6,7 +6,9 @@
  */
 
 /*
- * Ejected from @docusaurus/theme-classic 3.9.2 (theme/SiteMetadata). Re-diff it against the
+ * Ejected from @docusaurus/theme-classic 3.9.2, re-diffed against 3.10.2 (theme/SiteMetadata; 3.10
+ * dropped `keyboardFocusedClassName` from theme-common/internal and renders a bare <body />, so this
+ * file does too). Re-diff it against the
  * upstream component on every Docusaurus upgrade.
  *
  * The behavioral changes, both driven by src/utils/servedUrl:
@@ -35,7 +37,7 @@ import React, { type ReactNode } from 'react';
 import Head from '@docusaurus/Head';
 import useDocusaurusContext from '@docusaurus/useDocusaurusContext';
 import { PageMetadata, useThemeConfig } from '@docusaurus/theme-common';
-import { DEFAULT_SEARCH_TAG, useAlternatePageUtils, keyboardFocusedClassName } from '@docusaurus/theme-common/internal';
+import { DEFAULT_SEARCH_TAG, useAlternatePageUtils } from '@docusaurus/theme-common/internal';
 import SearchMetadata from '@theme/SearchMetadata';
 import { useHasCanonicalOrigin, useIsNoIndexPage, useIsNotFoundPage, useServedUrl } from '../../utils/servedUrl';
 
@@ -136,7 +138,7 @@ export default function SiteMetadata(): ReactNode {
 				<meta name="twitter:card" content="summary_large_image" />
 				{/* The keyboard focus class name need to be applied when SSR so links
 				are outlined when JS is disabled */}
-				<body className={keyboardFocusedClassName} />
+				<body />
 			</Head>
 
 			{isNoIndexPage && (

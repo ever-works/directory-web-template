@@ -11,7 +11,7 @@ Este documento fornece uma visão abrangente de todas as tecnologias utilizadas 
 
 ## Requisitos do sistema
 
-- **Node.js**: 20.19.0 ou superior
+- **Node.js**: 24.0.0 ou superior
 - **PostgreSQL**: 14.0 ou superior
 - **Gerenciador de Pacotes**: npm, pnpm, fio ou coque
 
@@ -423,7 +423,7 @@ Ever Works oferece suporte a **mais de 13 idiomas** prontos para uso:
 
 ### Node.js
 
-- **Mínimo**: Node.js 20.19.0
+- **Mínimo**: Node.js 24.0.0
 - **Recomendado**: versão LTS mais recente
 - **Gerenciador de pacotes**: npm 10+, fio 1.13+ ou pnpm 8+
 

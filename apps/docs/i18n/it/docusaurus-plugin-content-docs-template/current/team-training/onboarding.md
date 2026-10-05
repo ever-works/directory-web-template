@@ -29,7 +29,7 @@ Al termine di questo modulo:
 
 Segui la [Guida all'Installazione](/getting-started/installation) dettagliata per installare:
 
-- Node.js 20.19.0+
+- Node.js 24.0.0+
 - pnpm ([installazione](https://pnpm.io/installation))
 - PostgreSQL 14+
 - Git
