@@ -224,9 +224,10 @@ Exports survey responses to a CSV file with proper escaping, BOM for Excel compa
 ### Link Generation
 
 ```typescript
-getPublicSurveyLink(slug: string, itemId?: string): string
-// Global: "/surveys/{slug}"
-// Item:   "/items/{itemId}/surveys/{slug}"
+getPublicSurveyLink(survey: { slug: string; type: string; itemId?: string | null }): string
+// The survey's canonical URL (lib/seo/survey-urls.ts surveyCanonicalPath), chosen by its TYPE:
+// type 'item' with an itemId: "/items/{itemId}/surveys/{slug}"
+// anything else:              "/surveys/{slug}"  (even when a global survey still carries an itemId)
 ```
 
 ### Clipboard

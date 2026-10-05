@@ -1,6 +1,42 @@
 import { getCachedItems } from "@/lib/content";
 import { paginateMeta, totalPages } from "@/lib/paginate";
 import ListingTags from "../../listing-tags";
+import type { Metadata } from "next";
+import { notFound } from "next/navigation";
+import { generateListingMetadata } from "@/lib/seo/listing-metadata";
+import { pagingCanonicalPath, pagingTitle } from "@/lib/seo/paging";
+import { resolveTagsPage, TAGS_PER_PAGE as PER_PAGE } from "./resolve-tags-page";
+
+/**
+ * Own metadata instead of the [locale] layout's homepage canonical. Page 1 is
+ * the same listing as /tags, so it takes /tags' canonical and title; each
+ * later page is canonical to itself with a title of its own. Anything that is
+ * not a page of the listing (/tags/paging/abc, /tags/paging/999) is
+ * not-found, not an empty grid that claims to be canonical: layout.tsx
+ * answers those with a real 404 before this route's loading.tsx starts
+ * streaming.
+ */
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ page: string; locale: string }>;
+}): Promise<Metadata> {
+  const { locale, page: rawPage } = await params;
+  // Tags switched off (/tags 404s on this site) or not a page of the listing.
+  const resolved = await resolveTagsPage(rawPage, locale);
+  if (!resolved) {
+    notFound();
+  }
+  const { tags, page } = resolved;
+
+  return generateListingMetadata({
+    title: pagingTitle("Tags", page),
+    path: pagingCanonicalPath("/tags", page),
+    locale,
+    itemCount: tags.length,
+    keywords: ["tags", "browse", "directory", "labels"],
+  });
+}
 
 // Force dynamic — getCachedItems consults request-scoped APIs
 // during render. Static rendering throws DYNAMIC_SERVER_USAGE → 5xx
@@ -25,18 +61,22 @@ export async function generateStaticParams() {
   return paths;
 }
 
-// Set per page to 12 for tags (default from config)
-const PER_PAGE = 12; // This matches the default in LayoutThemeContext
-
 export default async function TagPagingPage({
   params,
 }: {
   params: Promise<{ page: string; locale: string }>;
 }) {
   const { page: pageMeta, locale } = await params;
-  const rawPage = pageMeta[0] || "1";
-  const { start, page } = paginateMeta(rawPage, PER_PAGE);
-  const { tags } = await getCachedItems({ lang: locale, sortTags: true });
+  // `page` is one segment (a string), not a catch-all array: `pageMeta[0]`
+  // took its first CHARACTER, so /tags/paging/10..19 all rendered page 1 while
+  // each declared itself canonical. Tags switched off, or not a page of the
+  // listing: not-found, as on /tags/paging (layout.tsx already answered it).
+  const resolved = await resolveTagsPage(pageMeta, locale);
+  if (!resolved) {
+    notFound();
+  }
+  const { tags } = resolved;
+  const { start, page } = paginateMeta(resolved.page, PER_PAGE);
 
   // PAGINATE tags here!
   const paginatedTags = tags.slice(start, start + PER_PAGE);

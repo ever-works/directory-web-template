@@ -154,8 +154,9 @@ async function expectNotFound(request: APIRequestContext, path: string): Promise
  * environment serves. Returns `null` when the directory ships none of that
  * resource — the CI content stub has no comparisons, the demo repository has
  * no collections — rather than pinning a fixture slug that exists in only one
- * of them. (`/sitemap.xml` is not usable for this: it passes slugs through
- * `sanitizeSlug()`, which collapses the `--` in comparison slugs.)
+ * of them. (`/sitemap.xml` is not used for this: it names the site's public
+ * origin, which may be a pinned `NEXT_PUBLIC_CANONICAL_URL` rather than the
+ * host under test, and it leaves out records whose slug is not URL-safe.)
  */
 async function discoverListedSlug(
 	request: APIRequestContext,
