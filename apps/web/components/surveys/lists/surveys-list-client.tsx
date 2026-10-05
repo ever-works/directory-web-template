@@ -39,7 +39,7 @@ export function SurveysListClient({
 	const locale = useLocale();
 
 	const handleCopyLink = async (survey: Survey) => {
-		const link = getPublicSurveyLink(survey.slug, survey.itemId || undefined);
+		const link = getPublicSurveyLink(survey);
 		const success = await copyToClipboard(link);
 		if (success) {
 			toast.success(t('SURVEY_LINK_COPIED'));

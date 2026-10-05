@@ -68,14 +68,19 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { category, locale } = await params;
   const decodedCategory = decodeURIComponent(category);
-  const formattedCategory = toTitleCase(decodedCategory);
   const { categories, items } = await getCachedItems({ lang: locale });
-  const { id: resolvedCategory } = resolveCategoryId(categories, category);
+  const { id: resolvedCategory, matched } = resolveCategoryId(categories, category);
   const categoryItems = filterItems(items, { selectedCategories: [resolvedCategory] });
+  // Title and canonical from the category's id, whatever spelling the URL used
+  // (/categories/TIME-TRACKING-SOFTWARE, /categories/<name>): each of those
+  // answered as its own self-canonical duplicate of /categories/<id>. An
+  // unknown category keeps the raw segment; the page below 404s it.
+  const formattedCategory = toTitleCase(matched ? matched.id : decodedCategory);
+  const path = matched ? `/categories/${encodeURIComponent(matched.id)}` : `/categories/${category}`;
 
   return generateListingMetadata({
     title: `${formattedCategory} Category`,
-    path: `/categories/${category}`,
+    path,
     locale,
     itemCount: categoryItems.length,
     keywords: [decodedCategory, "category", "directory", "listings"],

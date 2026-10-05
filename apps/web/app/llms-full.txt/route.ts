@@ -37,6 +37,7 @@
 import { NextResponse } from 'next/server';
 import { getCachedConfig, getCachedItems, getCachedComparisons, type ItemData } from '@/lib/content';
 import { renderItemMarkdown, renderComparisonMarkdown } from '@/lib/seo/markdown-mirror';
+import { getCanonicalOrigin } from '@/lib/utils/url-cleaner';
 
 // Edge-case-safe upper bound on items rendered with full bodies. Sites
 // with thousands of items can exceed reasonable response sizes; cap to
@@ -59,7 +60,7 @@ export async function GET(): Promise<NextResponse> {
 	const comparisons =
 		(comparisonsResult as { comparisons?: Array<{ slug: string; title: string; summary?: string; item_a_name: string; item_b_name: string; item_a_slug: string; item_b_slug: string; dimensions?: ReadonlyArray<unknown>; generated_at?: string }> }).comparisons ?? [];
 
-	const siteUrl = (config.app_url || process.env.NEXT_PUBLIC_APP_URL || '').replace(/\/$/, '');
+	const siteUrl = (getCanonicalOrigin() || config.app_url || process.env.NEXT_PUBLIC_APP_URL || '').replace(/\/$/, '');
 	const siteName = config.company_name || 'Ever Works Directory';
 	const description =
 		(config as { description?: string; tagline?: string }).description ||

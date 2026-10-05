@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getCachedConfig, getCachedItems } from '@/lib/content';
+import { getCanonicalOrigin } from '@/lib/utils/url-cleaner';
 
 /**
  * Public llms.txt endpoint per the public llms.txt convention
@@ -29,7 +30,7 @@ export async function GET(): Promise<NextResponse> {
 		(fetchResult as { items?: ReadonlyArray<{ slug?: string; name?: string; description?: string }> })
 			.items ?? [];
 
-	const siteUrl = (config.app_url || process.env.NEXT_PUBLIC_APP_URL || '').replace(/\/$/, '');
+	const siteUrl = (getCanonicalOrigin() || config.app_url || process.env.NEXT_PUBLIC_APP_URL || '').replace(/\/$/, '');
 	const name = config.company_name || 'Ever Works Directory';
 	const fallbackDescription =
 		(config as { description?: string; tagline?: string }).description || (config as { tagline?: string }).tagline;

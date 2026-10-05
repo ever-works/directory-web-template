@@ -67,8 +67,19 @@ COPY --from=pruner /app/out/full/ .
 ARG DATA_REPOSITORY=""
 ENV DATA_REPOSITORY=${DATA_REPOSITORY}
 
+# Optional public canonical origin of THIS site (apps/web/lib/utils/url-cleaner.ts
+# getCanonicalOrigin), e.g. a brand domain when the same deployment also answers
+# on a platform host. Every URL the site publishes (canonical, hreflang, og:url,
+# sitemap, robots, feeds, JSON-LD) then names it; functional round trips keep
+# NEXT_PUBLIC_APP_URL. `next build` inlines NEXT_PUBLIC_* values, so it has to be
+# a build-arg. It names no host here: .github/workflows/k8s-build.yml passes the
+# repository's own SITE_CANONICAL_URL Actions variable. Empty = not pinned, and
+# it is then UNSET for the build so nothing (not even '') gets inlined.
+ARG NEXT_PUBLIC_CANONICAL_URL=""
+
 RUN --mount=type=secret,id=gh_token \
     sh -c 'if [ -s /run/secrets/gh_token ]; then export GH_TOKEN=$(cat /run/secrets/gh_token); fi; \
+           if [ -z "$NEXT_PUBLIC_CANONICAL_URL" ]; then unset NEXT_PUBLIC_CANONICAL_URL; fi; \
            pnpm exec turbo build --filter=@ever-works/web...'
 
 # ---- runner ----------------------------------------------------------------
@@ -87,6 +98,11 @@ ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV PORT=3000
 ENV HOSTNAME=0.0.0.0
+
+# The same canonical origin at runtime, for any server-side read the build did
+# not inline. Empty = not pinned (lib/utils/url-cleaner.ts ignores '').
+ARG NEXT_PUBLIC_CANONICAL_URL=""
+ENV NEXT_PUBLIC_CANONICAL_URL=${NEXT_PUBLIC_CANONICAL_URL}
 
 RUN apk add --no-cache libc6-compat && \
     mkdir -p /app/apps/web/.next/cache/images && \

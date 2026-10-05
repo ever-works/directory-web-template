@@ -1,4 +1,5 @@
 import { Logger } from '@/lib/logger';
+import { surveyCanonicalPath, type SurveyLocation } from '@/lib/seo/survey-urls';
 
 const logger = Logger.create('SurveyHelpers');
 
@@ -130,14 +131,15 @@ export function getTypeColor(type: string): string {
 }
 
 /**
- * Generate public survey link
+ * Generate public survey link: the survey's canonical URL
+ * (lib/seo/survey-urls.ts surveyCanonicalPath), chosen by its TYPE. Passing
+ * `itemId` alone linked a global survey that still carried an item id to
+ * /items/<id>/surveys/<slug>, which answers 404 (only item surveys are served
+ * there).
  */
-export function getPublicSurveyLink(slug: string, itemId?: string): string {
+export function getPublicSurveyLink(survey: SurveyLocation): string {
   const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
-  if (itemId) {
-    return `${baseUrl}/items/${itemId}/surveys/${slug}`;
-  }
-  return `${baseUrl}/surveys/${slug}`;
+  return `${baseUrl}${surveyCanonicalPath(survey)}`;
 }
 
 /**

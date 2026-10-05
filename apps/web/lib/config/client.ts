@@ -8,6 +8,8 @@
  * import { configService } from '@/lib/config';
  */
 
+import { resolveCanonicalOrigin } from '@/lib/utils/url-cleaner';
+
 // Helper to parse price with proper NaN fallback
 const parsePrice = (envVar: string | undefined, defaultValue: number): number => {
 	const parsed = parseFloat(envVar ?? '');
@@ -17,7 +19,13 @@ const parsePrice = (envVar: string | undefined, defaultValue: number): number =>
 export const siteConfig = {
 	name: process.env.NEXT_PUBLIC_SITE_NAME || 'Ever Works',
 	tagline: process.env.NEXT_PUBLIC_SITE_TAGLINE || 'The Open-Source, AI-Powered Directory Builder',
-	url: process.env.NEXT_PUBLIC_APP_URL || 'https://demo.ever.works',
+	// Public origin named in JSON-LD: the pinned canonical origin when set
+	// (see getCanonicalOrigin in lib/utils/url-cleaner.ts), else the app URL.
+	// Read literally here so the build inlines it into client bundles too.
+	url:
+		resolveCanonicalOrigin(process.env.NEXT_PUBLIC_CANONICAL_URL) ||
+		process.env.NEXT_PUBLIC_APP_URL ||
+		'https://demo.ever.works',
 	logo: process.env.NEXT_PUBLIC_SITE_LOGO || '/logo-ever-works.svg',
 	brandName: process.env.NEXT_PUBLIC_BRAND_NAME || 'Ever Works',
 	description: process.env.NEXT_PUBLIC_SITE_DESCRIPTION || 'Discover and explore professional services and solutions on Ever Works',
