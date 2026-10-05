@@ -80,7 +80,7 @@ Il template può essere deployato su qualsiasi piattaforma che supporti le appli
 
 ### Requisiti di Sistema
 
-- **Node.js**: versione 20.19.0 o superiore (definita nel campo `engines` di `package.json`)
+- **Node.js**: versione 24.0.0 o superiore (definita nel campo `engines` di `package.json`)
 - **Package Manager**: pnpm (il progetto usa `pnpm-lock.yaml`)
 - **Database**: PostgreSQL (richiesto per le funzionalità di produzione come auth, abbonamenti, analytics)
 - **Memoria**: Almeno 8 GB di RAM consigliati per il processo di build

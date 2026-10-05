@@ -80,7 +80,7 @@ La plantilla puede desplegarse en cualquier plataforma que admita aplicaciones N
 
 ### Requisitos del Sistema
 
-- **Node.js**: versión 20.19.0 o superior (definida en el campo `engines` de `package.json`)
+- **Node.js**: versión 24.0.0 o superior (definida en el campo `engines` de `package.json`)
 - **Gestor de Paquetes**: pnpm (el proyecto usa `pnpm-lock.yaml`)
 - **Base de Datos**: PostgreSQL (requerida para funciones de producción como auth, suscripciones, analíticas)
 - **Memoria**: Se recomiendan al menos 8 GB de RAM para el proceso de build

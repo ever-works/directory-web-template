@@ -18,7 +18,7 @@ Template 的源代码托管在 [github.com/ever-works/directory-web-template](ht
 
 开始之前，请确保已安装以下内容：
 
-- **Node.js** >= 20.19.0（推荐 LTS）
+- **Node.js** >= 24.0.0（推荐 LTS）
 - **pnpm** >= 10.x（严格要求；请勿使用 npm 或 yarn）
 - **Git** >= 2.30
 - **PostgreSQL**（用于数据库；Supabase 提供托管选项）

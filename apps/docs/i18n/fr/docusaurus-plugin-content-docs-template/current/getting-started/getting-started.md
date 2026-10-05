@@ -19,7 +19,7 @@ Informations clés du manifeste du projet :
 | -------------------------- | ----------------------------------------------------------- |
 | **Nom du paquet**          | `directory-web-template` (racine du monorepo)              |
 | **Licence**                | AGPL-3.0                                                    |
-| **Prérequis Node.js**      | >= 20.19.0                                                  |
+| **Prérequis Node.js**      | >= 24.0.0                                                  |
 | **Gestionnaire de paquets**| pnpm avec Turborepo (lockfile : `pnpm-lock.yaml`)           |
 | **Framework**              | Next.js avec React 19                                       |
 | **ORM de base de données** | Drizzle ORM avec PostgreSQL (ou SQLite pour le dev local)   |
@@ -41,7 +41,7 @@ Parcourez les guides dans l'ordre. Chacun s'appuie sur l'étape précédente.
 
 ### 1. Installation
 
-Configurez Node.js (>= 20.19.0), pnpm et clonez le monorepo. Le guide d'installation couvre les prérequis système, l'installation des dépendances et l'orientation initiale de la structure du projet.
+Configurez Node.js (>= 24.0.0), pnpm et clonez le monorepo. Le guide d'installation couvre les prérequis système, l'installation des dépendances et l'orientation initiale de la structure du projet.
 
 **Lire ensuite :** [Installation](/getting-started/installation)
 
@@ -83,7 +83,7 @@ Avant de commencer, assurez-vous que ce qui suit est installé et fonctionne sur
 
 | Outil         | Version minimale | Remarques                                              |
 | ------------- | ---------------- | ------------------------------------------------------ |
-| **Node.js**   | 20.19.0          | Utilisez nvm ou fnm pour gérer les versions            |
+| **Node.js**   | 24.0.0          | Utilisez nvm ou fnm pour gérer les versions            |
 | **pnpm**      | 9.x              | `npm install -g pnpm`                                  |
 | **Git**       | Toute version récente | Requis pour le clonage et le pipeline de contenu  |
 | **PostgreSQL**| 14+ (optionnel)  | SQLite fonctionne pour le développement local          |

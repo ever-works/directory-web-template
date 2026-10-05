@@ -7,7 +7,7 @@ sidebar_position: 1
 # Installatie
 
 ## Vereisten
-- Node.js >= 20.19.0
+- Node.js >= 24.0.0
 - pnpm (npm install -g pnpm)
 - Git
 - PostgreSQL (optioneel)

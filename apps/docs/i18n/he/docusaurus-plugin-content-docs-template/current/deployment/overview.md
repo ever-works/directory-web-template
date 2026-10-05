@@ -111,7 +111,7 @@ pnpm build
 pnpm start
 ```
 
-דורש הגדרה נוספת: Node.js >= 20.19.0, PostgreSQL, מנהל תהליכים (PM2 וכו') ו-Reverse Proxy (Nginx וכו').
+דורש הגדרה נוספת: Node.js >= 24.0.0, PostgreSQL, מנהל תהליכים (PM2 וכו') ו-Reverse Proxy (Nginx וכו').
 
 ## שירותים מרכזיים
 

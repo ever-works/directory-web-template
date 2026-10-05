@@ -141,8 +141,8 @@ sudo npm install -g <package-name>
 Use Node Version Manager (nvm) to switch Node versions:
 
 ```bash
-nvm install 20
-nvm use 20
+nvm install 26
+nvm use 26
 # Verify: node -v should show >= 24.0.0
 ```
 

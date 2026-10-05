@@ -68,7 +68,7 @@ Na het voltooien van dit trainingsprogramma zullen teamleden in staat zijn:
 
 ### Te Installeren Hulpmiddelen
 
-- Node.js 20.19.0+ (nvm gebruiken)
+- Node.js 24.0.0+ (nvm gebruiken)
 - pnpm ([installeren](https://pnpm.io/installation))
 - PostgreSQL 14+
 - Git

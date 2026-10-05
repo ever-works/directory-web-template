@@ -11,7 +11,7 @@ Dieses Dokument bietet einen umfassenden Überblick über alle in Ever Works ver
 
 ## Systemanforderungen
 
-- **Node.js**: 20.19.0 oder höher
+- **Node.js**: 24.0.0 oder höher
 - **PostgreSQL**: 14.0 oder höher
 - **Paketmanager**: npm, pnpm, Garn oder Brötchen
 
@@ -423,7 +423,7 @@ Ever Works unterstützt standardmäßig **13+ Sprachen**:
 
 ### Node.js
 
-- **Minimum**: Node.js 20.19.0
+- **Minimum**: Node.js 24.0.0
 - **Empfohlen**: Neueste LTS-Version
 - **Paketmanager**: npm 10+, Yarn 1.13+ oder pnpm 8+
 

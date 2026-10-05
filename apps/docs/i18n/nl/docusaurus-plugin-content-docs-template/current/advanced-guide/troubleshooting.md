@@ -266,7 +266,7 @@ FB_CLIENT_ID + FB_CLIENT_SECRET
 
 1. Alle vereiste omgevingsvariabelen ingesteld in het Vercel-dashboard
 2. `DATABASE_URL` toegankelijk via het netwerk van Vercel
-3. Compatibel met Node.js-versie (vereist 20.19.0 of hoger)
+3. Compatibel met Node.js-versie (vereist 24.0.0 of hoger)
 4. Inhoudsmap bestaat (CI maakt automatisch `.content/data` aan)
 5. Geheugentoewijzing voldoende
 
