@@ -3,14 +3,19 @@
 ARG NODE_VERSION=26-alpine
 ARG PNPM_VERSION=10.31.0
 ARG COREPACK_VERSION=0.36.0
-ARG TURBO_VERSION=2.9.14
+ARG TURBO_VERSION=2.11.7
 
 # ---- base ------------------------------------------------------------------
 
 FROM node:${NODE_VERSION} AS base
 # Node.js 25+ no longer bundles corepack, so the node:26 images ship without it. Install a
 # pinned corepack from npm first; everything after it is unchanged.
+# An ARG declared before the first FROM is only in scope for FROM lines; each stage has to
+# re-declare it to read the value. Without these two lines pnpm@ and turbo@ were EMPTY here,
+# so `npm install -g turbo@` took whatever turbo was newest on the day of the build.
 ARG COREPACK_VERSION
+ARG PNPM_VERSION
+ARG TURBO_VERSION
 RUN npm install -g corepack@${COREPACK_VERSION} && \
     corepack enable && \
     corepack prepare pnpm@${PNPM_VERSION} --activate && \
@@ -120,9 +125,16 @@ COPY --from=installer --chown=node:node /app/apps/web/messages ./apps/web/messag
 
 VOLUME /app/apps/web/.next/cache
 
+# Sizes --max-old-space-size from the cgroup limit at start-up. The BUILD stage
+# above already pins a heap; the runtime stage did not, so V8 fell back to ~half
+# the container limit (a 2Gi pod got ~1005MB) and large catalogues died with
+# "Reached heap limit" + exit 139 — which presents as a crash loop, not an OOM.
+COPY --chmod=755 docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
+
 USER node
 WORKDIR /app/apps/web
 
 EXPOSE 3000
 
+ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
 CMD ["node", "server.js"]

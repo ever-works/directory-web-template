@@ -5,7 +5,14 @@ on:
     branches: [develop, stage, main, master]
 concurrency:
   group: k8s-build-${{ github.ref }}
-  cancel-in-progress: true
+  # A push cancels the build that holds this group, as before. A manual dispatch no longer
+  # does: it waits until that build ends (even if the build's jobs are still waiting for a
+  # runner). On 2026-10-05 two Work sites' push builds, queued for a runner, were cancelled
+  # this way by a hand dispatch for the same commit. GitHub still replaces an older PENDING
+  # run in the group with the newest one; that loses nothing, because a dispatch builds the
+  # branch head, which includes the commit of the push it replaced. One group per ref (not
+  # one per event) keeps two builds of a branch from publishing the same image tag at once.
+  cancel-in-progress: ${{ github.event_name == 'push' }}
 permissions:
   contents: read
   packages: write
