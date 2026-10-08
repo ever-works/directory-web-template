@@ -3,14 +3,19 @@
 ARG NODE_VERSION=26-alpine
 ARG PNPM_VERSION=10.31.0
 ARG COREPACK_VERSION=0.36.0
-ARG TURBO_VERSION=2.9.14
+ARG TURBO_VERSION=2.11.7
 
 # ---- base ------------------------------------------------------------------
 
 FROM node:${NODE_VERSION} AS base
 # Node.js 25+ no longer bundles corepack, so the node:26 images ship without it. Install a
 # pinned corepack from npm first; everything after it is unchanged.
+# An ARG declared before the first FROM is only in scope for FROM lines; each stage has to
+# re-declare it to read the value. Without these two lines pnpm@ and turbo@ were EMPTY here,
+# so `npm install -g turbo@` took whatever turbo was newest on the day of the build.
 ARG COREPACK_VERSION
+ARG PNPM_VERSION
+ARG TURBO_VERSION
 RUN npm install -g corepack@${COREPACK_VERSION} && \
     corepack enable && \
     corepack prepare pnpm@${PNPM_VERSION} --activate && \
