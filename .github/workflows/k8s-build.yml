@@ -5,7 +5,10 @@ on:
     branches: [develop, stage, main, master]
 concurrency:
   group: k8s-build-${{ github.ref }}
-  cancel-in-progress: true
+  # A newer push still replaces an older push build. A manual dispatch does not cancel a
+  # queued or running build: it waits behind it. On 2026-10-05 two Work sites' push builds,
+  # still queued for a runner, were cancelled by a hand dispatch for the same commit.
+  cancel-in-progress: ${{ github.event_name == 'push' }}
 permissions:
   contents: read
   packages: write
