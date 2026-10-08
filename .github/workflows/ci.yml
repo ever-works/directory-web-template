@@ -177,7 +177,8 @@ jobs:
         continue-on-error: ${{ github.event_name == 'pull_request' }}
 
       - name: Type check
-        run: pnpm run --filter @ever-works/web typecheck || echo "No type check script found, skipping"
+        # apps/web had no `typecheck` script, so this step always printed "skipping" and passed.
+        run: pnpm run --filter @ever-works/web typecheck
 
       - name: Run unit tests
         # node:test specs under apps/web (lib/**/*.spec.ts, scripts/**/*.spec.ts).
