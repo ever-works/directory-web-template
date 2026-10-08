@@ -38,7 +38,8 @@
 			"postcss": "^8.5.23",
 			"lodash-es@<4.18.0": "^4.18.1",
 			"serialize-javascript@<7.0.3": "^7.1.2",
-			"ws@>=8.0.0 <8.21.0": "^8.22.0"
+			"ws@>=8.0.0 <8.21.0": "^8.22.0",
+			"tinypool@<2.1.2": "^2.2.0"
 		},
 		"onlyBuiltDependencies": [
 			"@vercel/speed-insights",
