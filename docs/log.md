@@ -7,6 +7,10 @@ sidebar_position: 99
 
 # Documentation & Specs Change Log
 
+## 2026-10-18
+
+- `apps/web/components/{item,sponsor-ads/sponsor-card,sponsor-ads/sidebar-sponsor,maps/map-item-popup,layouts/MapSidebar}.tsx` `apps/web/app/[locale]/admin/clients/[id]/client-detail-content.tsx`: broken links on every non-default locale. These components prefixed `/${locale}` onto hrefs passed to the next-intl `Link` from `@/i18n/navigation`, which adds the locale itself, so item cards on `/fr` linked to `/fr/fr/items/<slug>` (404; ~38k crawler 404s a day on one directory). Item links now use the locale-free `getItemPath()`; the map components' `locale` prop is deprecated and ignored (handing it to the `Link` would force `/en/...` on the default locale); `is_source_url_active` no longer changes the card href. Guarded by `lib/i18n/__tests__/item-link-locale-prefix.spec.ts` (unit, runs on PRs) and `apps/web-e2e/tests/i18n/item-card-href-locale.spec.ts` (PR #1091).
+
 ## 2026-10-05
 
 - `deps` `apps/web` `apps/docs` `Dockerfile` `.github/workflows`: security dependency bump for the `pnpm audit --prod` advisories (3 critical / 82 high on `develop` to 0 critical / 1 high; the one left, `braces`, has no patched release). Direct bumps: `@auth/drizzle-adapter` and `@auth/supabase-adapter` 1.11.3 (drops the second `@auth/core` 0.41.1 copy), `axios` 1.20.0, `nodemailer` 10.0.14, `@trigger.dev/sdk` 4.7.2, Docusaurus 3.10.2 (the ejected `SiteMetadata` re-diffed: upstream dropped `keyboardFocusedClassName`; `EJECTED_THEME_CLASSIC` is now `3.10`), `cheerio` 1.2.0; vulnerable transitive packages refreshed inside their parents' ranges, plus three scoped `pnpm.overrides` (`lodash-es`, `serialize-javascript`, `ws`) where the parent pins a vulnerable version. Node moves to 26 everywhere together (both Dockerfiles, which now install corepack because Node 25+ no longer bundles it; every workflow; `engines`; `@types/node`; the documented floor). No API change (PR #1080).
