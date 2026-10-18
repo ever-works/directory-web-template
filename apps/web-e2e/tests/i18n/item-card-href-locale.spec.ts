@@ -11,6 +11,7 @@ import { test, expect, type Page } from '@playwright/test';
  */
 
 const NON_DEFAULT_LOCALES = ['fr', 'de', 'zh'] as const;
+const ITEM_LINK_TIMEOUT = 15_000;
 
 async function internalHrefs(page: Page): Promise<string[]> {
 	return page.evaluate(() =>
@@ -25,8 +26,13 @@ test.describe('i18n: item card hrefs on locale homepages', () => {
 		test(`/${locale} item cards link to /${locale}/items/<slug>`, async ({ page, request }) => {
 			const resp = await page.goto(`/${locale}`, { waitUntil: 'domcontentloaded' });
 			expect(resp?.status() ?? 0, `/${locale}`).toBeLessThan(400);
-			// Let the client-rendered listing settle before reading hrefs.
-			await page.waitForTimeout(2_000);
+			// Wait for the listing instead of sleeping. No card is a valid state: the
+			// CI E2E run clones the empty `ci-fixture-empty` content repository.
+			await page
+				.locator('a[href^="/"][href*="/items/"]')
+				.first()
+				.waitFor({ state: 'attached', timeout: ITEM_LINK_TIMEOUT })
+				.catch(() => undefined);
 
 			const hrefs = await internalHrefs(page);
 			const doubled = hrefs.filter((h) => h === `/${locale}/${locale}` || h.startsWith(`/${locale}/${locale}/`));
