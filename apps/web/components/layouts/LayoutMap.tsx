@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useMemo, useCallback, useEffect } from 'react';
-import { useLocale, useTranslations } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import { MapPin, Loader2, List, Map as MapIcon } from 'lucide-react';
 import { Map as MapComponent } from '@/components/maps/map';
 import { MapItemPopup } from '@/components/maps/map-item-popup';
@@ -49,7 +49,6 @@ function getCategoryName(category: ItemData['category']): string | undefined {
  * Spec: docs/spec/017-map-view/spec.md
  */
 export default function LayoutMap({ items, showSidebar = true, fullBleed = false }: LayoutMapProps) {
-	const locale = useLocale();
 	const t = useTranslations('listing');
 	const { settings } = useLocationSettings();
 	const { coordinates, isLoading } = useMapCoordinates(true);
@@ -185,7 +184,6 @@ export default function LayoutMap({ items, showSidebar = true, fullBleed = false
 						isOpen={true}
 						position={selectedMarker.coordinates}
 						onClose={handleClosePopup}
-						locale={locale}
 					/>
 				</div>
 			)}

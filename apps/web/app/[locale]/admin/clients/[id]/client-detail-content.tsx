@@ -146,14 +146,14 @@ export function ClientDetailContent({ profile, lastLogin, locale, portfolio, sta
 					{/* Admin navigation header */}
 					<div className="flex items-center justify-between gap-3">
 						<Link
-							href={`/${encodeURIComponent(locale)}/admin/clients`}
+							href="/admin/clients"
 							className="inline-flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors"
 						>
 							<ArrowLeft className="w-3.5 h-3.5" aria-hidden="true" />
 							{t('BACK_TO_CLIENTS')}
 						</Link>
 						<Link
-							href={`/${encodeURIComponent(locale)}/admin/clients?edit=${encodeURIComponent(profile.id)}`}
+							href={`/admin/clients?edit=${encodeURIComponent(profile.id)}`}
 							className="inline-flex items-center gap-1.5 px-3 h-8 text-xs font-medium rounded-md bg-black  text-white dark:bg-white dark:text-black hover:bg-theme-primary-700 transition-colors"
 						>
 							<Edit className="w-3.5 h-3.5" aria-hidden="true" />

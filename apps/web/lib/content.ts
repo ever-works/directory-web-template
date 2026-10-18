@@ -394,6 +394,9 @@ export interface ItemData {
 	updatedAt: Date; // timestamp
 	promo_code?: PromoCode; // New field for promotional codes
 	markdown?: string; // Optional markdown content from YAML
+	// Used to drop the card link's manual `/${locale}` prefix. Card links are now always
+	// locale-free (`getItemPath`) because the next-intl `Link` adds the prefix, so this
+	// no longer changes the href. Kept for content and callers that still set it.
 	is_source_url_active?: boolean;
 	action?: 'visit-website' | 'start-survey' | 'buy'; // CTA action type
 	showSurveys?: boolean; // Whether to show surveys section (default: true)
