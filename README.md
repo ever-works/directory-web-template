@@ -826,6 +826,13 @@ All other brand and product names are trademarks, registered trademarks, or serv
 - You are more than welcome to submit feature requests in the [separate repo](https://github.com/ever-co/feature-requests/issues)
 - Pull requests are always welcome! Please base pull requests against the _develop_ branch and follow the [contributing guide](.github/CONTRIBUTING.md).
 
+### Automated contributions
+
+Some pull requests in this repository are opened by Ever Works Fleet agents.
+They come from branches named `task/<slug>-<id>`, and their commits are authored as `<agent> <...@agents.ever.works>`.
+They target the _develop_ branch and are never merged automatically: they get the same review and CI as any other pull request.
+See the [Fleet documentation](https://docs.ever.works/docs/features/fleet) for more details.
+
 ## 💪 Thanks to our Contributors
 
 See our contributors list in [CONTRIBUTORS.md](https://github.com/ever-co/directory-web-template/blob/develop/.github/CONTRIBUTORS.md).
