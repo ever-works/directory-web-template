@@ -20,7 +20,7 @@
 	},
 	"dependencies": {
 		"@ever-works/plugin-sdk": "workspace:*",
-		"zod": "^4.0.5"
+		"zod": "^4.6.6"
 	},
 	"peerDependencies": {
 		"react": ">=19.0.0"
