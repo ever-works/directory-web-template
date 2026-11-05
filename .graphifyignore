@@ -1,0 +1,4 @@
+# Graphify (local code graph, see AGENTS.md §12) skips these paths. Same syntax as .gitignore.
+# apps/docs/i18n: the docs site translated into 12 locales (4,000+ Markdown files), about 80,000 of the
+# graph's ~118,000 nodes, all headings that drown out the code in `graphify query` answers.
+apps/docs/i18n/

@@ -9,7 +9,7 @@ sidebar_position: 99
 
 ## 2026-11-05
 
-- `AGENTS.md` §12 `.gitignore`: added "Code navigation: Graphify" — when a local Graphify graph (`graphify-out/graph.json`) exists, agents use `graphify query|path|explain` before reading raw files and run `graphify update .` after code changes; `graphify-out/` is per-machine build output and is now git-ignored. Docs only, no code change (trivial-fix exception: no spec). (#1096)
+- `AGENTS.md` §12 `.gitignore` `.graphifyignore`: added "Code navigation: Graphify" — when a local Graphify graph (`graphify-out/graph.json`) exists, agents use `graphify query|path|explain` before reading raw files and run `graphify update .` after code changes; `graphify-out/` is per-machine build output and is now git-ignored; `.graphifyignore` keeps the translated docs (`apps/docs/i18n/`, ~80k of ~118k graph nodes) out of the graph. Docs only, no code change (trivial-fix exception: no spec). (#1096)
 
 ## 2026-10-18
 
