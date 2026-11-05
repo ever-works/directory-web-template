@@ -7,6 +7,10 @@ sidebar_position: 99
 
 # Documentation & Specs Change Log
 
+## 2026-11-05
+
+- `AGENTS.md` §12 `.gitignore`: added "Code navigation: Graphify" — when a local Graphify graph (`graphify-out/graph.json`) exists, agents use `graphify query|path|explain` before reading raw files and run `graphify update .` after code changes; `graphify-out/` is per-machine build output and is now git-ignored. Docs only, no code change.
+
 ## 2026-10-18
 
 - `apps/web/components/{item,sponsor-ads/sponsor-card,sponsor-ads/sidebar-sponsor,maps/map-item-popup,layouts/MapSidebar}.tsx` `apps/web/app/[locale]/admin/clients/[id]/client-detail-content.tsx`: broken links on every non-default locale. These components prefixed `/${locale}` onto hrefs passed to the next-intl `Link` from `@/i18n/navigation`, which adds the locale itself, so item cards on `/fr` linked to `/fr/fr/items/<slug>` (404; ~38k crawler 404s a day on one directory). Item links now use the locale-free `getItemPath()`; the map components' `locale` prop is deprecated and ignored (handing it to the `Link` would force `/en/...` on the default locale); `is_source_url_active` no longer changes the card href. Guarded by `apps/web/lib/i18n/__tests__/item-link-locale-prefix.spec.ts` (unit, runs on PRs) and `apps/web-e2e/tests/i18n/item-card-href-locale.spec.ts` (PR #1091).

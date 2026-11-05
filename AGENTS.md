@@ -201,6 +201,14 @@ Treat as the main verification steps:
 Run commands from the **monorepo root**. App-specific commands
 (`pnpm db:migrate` etc.) can be run from `apps/web/`.
 
+### Code navigation: Graphify
+
+Machines that work on this repo may keep a local [Graphify](https://github.com/Graphify-Labs/graphify) knowledge graph of the code in `graphify-out/` (per-machine build output, refreshed nightly, never committed).
+
+- When `graphify-out/graph.json` exists, answer code questions with `graphify query "<question>"`, `graphify path "<A>" "<B>"` or `graphify explain "<symbol>"` first, then open only the files it points to. In a git worktree, use the primary checkout's graph: add `--graph <primary checkout>/graphify-out/graph.json`.
+- After changing code in a checkout that has its own `graphify-out/`, run `graphify update .` (AST only: no LLM, no cost). Never build a new graph inside a worktree: the primary checkout's graph covers it.
+- Never commit `graphify-out/` (it is in `.gitignore`).
+
 ## 13. Environment & data
 
 - Assume `.env.local` already exists and is correctly configured.
