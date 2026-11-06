@@ -113,10 +113,10 @@ importers:
     dependencies:
       '@ai-sdk/openai-compatible':
         specifier: ^2.0.41
-        version: 2.0.47(zod@4.3.6)
+        version: 2.0.47(zod@4.6.6)
       '@ai-sdk/react':
         specifier: ^3.0.156
-        version: 3.0.184(react@19.2.5)(zod@4.3.6)
+        version: 3.0.184(react@19.2.5)(zod@4.6.6)
       '@auth/drizzle-adapter':
         specifier: ^1.11.3
         version: 1.11.3(nodemailer@10.0.14)
@@ -284,7 +284,7 @@ importers:
         version: 3.20.1
       '@trigger.dev/sdk':
         specifier: ^4.7.2
-        version: 4.7.2(ai@6.0.182(zod@4.3.6))(react@19.2.5)(zod@4.3.6)
+        version: 4.7.2(ai@6.0.182(zod@4.6.6))(react@19.2.5)(zod@4.6.6)
       '@uppy/core':
         specifier: ^5.2.0
         version: 5.2.0
@@ -308,7 +308,7 @@ importers:
         version: 1.3.1(next@16.3.8(@babel/core@7.29.0)(@opentelemetry/api@1.9.0)(@playwright/test@1.63.0)(@types/node@26.6.4)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(sass@1.97.3))(react@19.2.5)
       ai:
         specifier: ^6.0.154
-        version: 6.0.182(zod@4.3.6)
+        version: 6.0.182(zod@4.6.6)
       axios:
         specifier: ^1.20.0
         version: 1.20.0
@@ -475,8 +475,8 @@ importers:
         specifier: ^2.8.3
         version: 2.8.3
       zod:
-        specifier: ^4.0.5
-        version: 4.3.6
+        specifier: ^4.6.6
+        version: 4.6.6
       zustand:
         specifier: ^5.0.6
         version: 5.0.11(@types/react@19.2.7)(immer@11.1.4)(react@19.2.5)(use-sync-external-store@1.6.0(react@19.2.5))
@@ -642,19 +642,19 @@ importers:
     dependencies:
       '@ai-sdk/openai-compatible':
         specifier: ^2.0.41
-        version: 2.0.47(zod@4.3.6)
+        version: 2.0.47(zod@4.6.6)
       '@ai-sdk/react':
         specifier: ^3.0.156
-        version: 3.0.184(react@19.2.5)(zod@4.3.6)
+        version: 3.0.184(react@19.2.5)(zod@4.6.6)
       '@ever-works/plugin-sdk':
         specifier: workspace:*
         version: link:../plugin-sdk
       ai:
         specifier: ^6.0.154
-        version: 6.0.182(zod@4.3.6)
+        version: 6.0.182(zod@4.6.6)
       zod:
-        specifier: ^4.0.5
-        version: 4.3.6
+        specifier: ^4.6.6
+        version: 4.6.6
     devDependencies:
       '@ever-works/tsconfig':
         specifier: workspace:*
@@ -675,8 +675,8 @@ importers:
         specifier: workspace:*
         version: link:../plugin-sdk
       zod:
-        specifier: ^4.0.5
-        version: 4.3.6
+        specifier: ^4.6.6
+        version: 4.6.6
     devDependencies:
       '@ever-works/tsconfig':
         specifier: workspace:*
@@ -697,8 +697,8 @@ importers:
         specifier: workspace:*
         version: link:../plugin-sdk
       zod:
-        specifier: ^4.0.5
-        version: 4.3.6
+        specifier: ^4.6.6
+        version: 4.6.6
     devDependencies:
       '@ever-works/tsconfig':
         specifier: workspace:*
@@ -716,8 +716,8 @@ importers:
   packages/plugin-sdk:
     dependencies:
       zod:
-        specifier: ^4.0.5
-        version: 4.3.6
+        specifier: ^4.6.6
+        version: 4.6.6
     devDependencies:
       '@ever-works/tsconfig':
         specifier: workspace:*
@@ -4081,24 +4081,28 @@ packages:
   '@opentelemetry/sdk-trace-base@2.2.0':
     resolution: {integrity: sha512-xWQgL0Bmctsalg6PaXExmzdedSp3gyKV8mQBwK/j9VGdCDu2fmXIb2gAehBKbkXCpJ4HPkgv3QfoJWRT4dHWbw==}
     engines: {node: ^18.19.0 || >=20.6.0}
+    deprecated: Use @opentelemetry/sdk-trace package
     peerDependencies:
       '@opentelemetry/api': 1.9.0
 
   '@opentelemetry/sdk-trace-base@2.6.0':
     resolution: {integrity: sha512-g/OZVkqlxllgFM7qMKqbPV9c1DUPhQ7d4n3pgZFcrnrNft9eJXZM2TNHTPYREJBrtNdRytYyvwjgL5geDKl3EQ==}
     engines: {node: ^18.19.0 || >=20.6.0}
+    deprecated: Use @opentelemetry/sdk-trace package
     peerDependencies:
       '@opentelemetry/api': 1.9.0
 
   '@opentelemetry/sdk-trace-base@2.8.0':
     resolution: {integrity: sha512-mhU4jp+vW0mGbFRd+GeXHvmfA4aDqWjBjLC3pE5XMpLs0IE2ryYb019Ts2AQrOq67gaTF25D91+fgvEHDZEnuQ==}
     engines: {node: ^18.19.0 || >=20.6.0}
+    deprecated: Use @opentelemetry/sdk-trace package
     peerDependencies:
       '@opentelemetry/api': 1.9.0
 
   '@opentelemetry/sdk-trace-node@2.8.0':
     resolution: {integrity: sha512-nZt9OGufioAc3AfoLTqA9bsAeaMJAictYDdI2VcNQ+PmT+3rfKjAZDZvgPfd8VPX0O5Bw1hdQF6kDK8VSpZiWg==}
     engines: {node: ^18.19.0 || >=20.6.0}
+    deprecated: Use @opentelemetry/sdk-trace package
     peerDependencies:
       '@opentelemetry/api': 1.9.0
 
@@ -13005,8 +13009,8 @@ packages:
     peerDependencies:
       zod: ^3.25.0 || ^4.0.0
 
-  zod@4.3.6:
-    resolution: {integrity: sha512-rftlrkhHZOcjDwkGlnUtZZkvaPHCsDATp4pGpuOOMDaTdDDXF91wuVDJoWoPsKX/3YPQ5fHuF3STjcYyKr+Qhg==}
+  zod@4.6.6:
+    resolution: {integrity: sha512-4UmzQUF5fxvfcYHlbjBmejU+w+hbDnWFx4aS8kBx7nPBHcO2SqPbpAG8snbdg+Xse4pRefR98hgjFgIMCI/UhA==}
 
   zustand@5.0.11:
     resolution: {integrity: sha512-fdZY+dk7zn/vbWNCYmzZULHRrss0jx5pPFiOuMZ/5HJN6Yv3u+1Wswy/4MpZEkEGhtNH+pwxZB8OKgUBPzYAGg==}
@@ -13038,34 +13042,34 @@ snapshots:
       section-matter: 1.0.0
       strip-bom-string: 1.0.0
 
-  '@ai-sdk/gateway@3.0.114(zod@4.3.6)':
+  '@ai-sdk/gateway@3.0.114(zod@4.6.6)':
     dependencies:
       '@ai-sdk/provider': 3.0.10
-      '@ai-sdk/provider-utils': 4.0.27(zod@4.3.6)
+      '@ai-sdk/provider-utils': 4.0.27(zod@4.6.6)
       '@vercel/oidc': 3.2.0
-      zod: 4.3.6
+      zod: 4.6.6
 
-  '@ai-sdk/openai-compatible@2.0.47(zod@4.3.6)':
+  '@ai-sdk/openai-compatible@2.0.47(zod@4.6.6)':
     dependencies:
       '@ai-sdk/provider': 3.0.10
-      '@ai-sdk/provider-utils': 4.0.27(zod@4.3.6)
-      zod: 4.3.6
+      '@ai-sdk/provider-utils': 4.0.27(zod@4.6.6)
+      zod: 4.6.6
 
-  '@ai-sdk/provider-utils@4.0.27(zod@4.3.6)':
+  '@ai-sdk/provider-utils@4.0.27(zod@4.6.6)':
     dependencies:
       '@ai-sdk/provider': 3.0.10
       '@standard-schema/spec': 1.1.0
       eventsource-parser: 3.0.8
-      zod: 4.3.6
+      zod: 4.6.6
 
   '@ai-sdk/provider@3.0.10':
     dependencies:
       json-schema: 0.4.0
 
-  '@ai-sdk/react@3.0.184(react@19.2.5)(zod@4.3.6)':
+  '@ai-sdk/react@3.0.184(react@19.2.5)(zod@4.6.6)':
     dependencies:
-      '@ai-sdk/provider-utils': 4.0.27(zod@4.3.6)
-      ai: 6.0.182(zod@4.3.6)
+      '@ai-sdk/provider-utils': 4.0.27(zod@4.6.6)
+      ai: 6.0.182(zod@4.6.6)
       react: 19.2.5
       swr: 2.4.1(react@19.2.5)
       throttleit: 2.1.0
@@ -17389,7 +17393,7 @@ snapshots:
 
   '@novu/api@3.15.0':
     dependencies:
-      zod: 4.3.6
+      zod: 4.6.6
 
   '@opentelemetry/api-logs@0.207.0':
     dependencies:
@@ -18021,12 +18025,12 @@ snapshots:
   '@polar-sh/sdk@0.42.5':
     dependencies:
       standardwebhooks: 1.0.0
-      zod: 4.3.6
+      zod: 4.6.6
 
   '@polar-sh/sdk@0.46.3':
     dependencies:
       standardwebhooks: 1.0.0
-      zod: 4.3.6
+      zod: 4.6.6
 
   '@polar-sh/ui@0.1.2(@types/react-dom@19.2.3(@types/react@19.2.7))(@types/react@19.2.7)(react-dom@19.2.5(react@19.2.5))(react-is@16.13.1)(react@19.2.5)(redux@5.0.1)':
     dependencies:
@@ -19754,7 +19758,7 @@ snapshots:
       '@scalar/helpers': 0.2.18
       nanoid: 5.1.16
       type-fest: 5.4.4
-      zod: 4.3.6
+      zod: 4.6.6
 
   '@scarf/scarf@1.4.0': {}
 
@@ -20607,7 +20611,7 @@ snapshots:
 
   '@transloadit/prettier-bytes@0.3.5': {}
 
-  '@trigger.dev/core@4.7.2(zod@4.3.6)':
+  '@trigger.dev/core@4.7.2(zod@4.6.6)':
     dependencies:
       '@bugsnag/cuid': 3.2.1
       '@electric-sql/client': 1.0.14
@@ -20638,22 +20642,22 @@ snapshots:
       std-env: 3.10.0
       tinyexec: 0.3.2
       uncrypto: 0.1.3
-      zod: 4.3.6
-      zod-validation-error: 5.0.0(zod@4.3.6)
+      zod: 4.6.6
+      zod-validation-error: 5.0.0(zod@4.6.6)
     transitivePeerDependencies:
       - bufferutil
       - supports-color
       - utf-8-validate
 
-  '@trigger.dev/sdk@4.7.2(ai@6.0.182(zod@4.3.6))(react@19.2.5)(zod@4.3.6)':
+  '@trigger.dev/sdk@4.7.2(ai@6.0.182(zod@4.6.6))(react@19.2.5)(zod@4.6.6)':
     dependencies:
       '@opentelemetry/api': 1.9.0
       '@opentelemetry/semantic-conventions': 1.41.1
-      '@trigger.dev/core': 4.7.2(zod@4.3.6)
+      '@trigger.dev/core': 4.7.2(zod@4.6.6)
       uncrypto: 0.1.3
-      zod: 4.3.6
+      zod: 4.6.6
     optionalDependencies:
-      ai: 6.0.182(zod@4.3.6)
+      ai: 6.0.182(zod@4.6.6)
       react: 19.2.5
     transitivePeerDependencies:
       - bufferutil
@@ -21370,13 +21374,13 @@ snapshots:
       clean-stack: 2.2.0
       indent-string: 4.0.0
 
-  ai@6.0.182(zod@4.3.6):
+  ai@6.0.182(zod@4.6.6):
     dependencies:
-      '@ai-sdk/gateway': 3.0.114(zod@4.3.6)
+      '@ai-sdk/gateway': 3.0.114(zod@4.6.6)
       '@ai-sdk/provider': 3.0.10
-      '@ai-sdk/provider-utils': 4.0.27(zod@4.3.6)
+      '@ai-sdk/provider-utils': 4.0.27(zod@4.6.6)
       '@opentelemetry/api': 1.9.0
-      zod: 4.3.6
+      zod: 4.6.6
 
   ajv-formats@2.1.1(ajv@8.18.0):
     optionalDependencies:
@@ -23075,8 +23079,8 @@ snapshots:
       '@babel/parser': 7.29.0
       eslint: 9.39.4(jiti@2.6.1)
       hermes-parser: 0.25.1
-      zod: 4.3.6
-      zod-validation-error: 4.0.2(zod@4.3.6)
+      zod: 4.6.6
+      zod-validation-error: 4.0.2(zod@4.6.6)
     transitivePeerDependencies:
       - supports-color
 
@@ -23811,7 +23815,7 @@ snapshots:
 
   history@4.10.1:
     dependencies:
-      '@babel/runtime': 7.29.7
+      '@babel/runtime': 7.29.10
       loose-envify: 1.4.0
       resolve-pathname: 3.0.0
       tiny-invariant: 1.3.3
@@ -28543,15 +28547,15 @@ snapshots:
       compress-commons: 4.1.2
       readable-stream: 3.6.2
 
-  zod-validation-error@4.0.2(zod@4.3.6):
+  zod-validation-error@4.0.2(zod@4.6.6):
     dependencies:
-      zod: 4.3.6
+      zod: 4.6.6
 
-  zod-validation-error@5.0.0(zod@4.3.6):
+  zod-validation-error@5.0.0(zod@4.6.6):
     dependencies:
-      zod: 4.3.6
+      zod: 4.6.6
 
-  zod@4.3.6: {}
+  zod@4.6.6: {}
 
   zustand@5.0.11(@types/react@19.2.7)(immer@11.1.4)(react@19.2.5)(use-sync-external-store@1.6.0(react@19.2.5)):
     optionalDependencies:

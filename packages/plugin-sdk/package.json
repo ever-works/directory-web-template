@@ -21,7 +21,7 @@
 		"lint": "echo 'No lint configured for plugin-sdk'"
 	},
 	"dependencies": {
-		"zod": "^4.0.5"
+		"zod": "^4.6.6"
 	},
 	"peerDependencies": {
 		"react": ">=19.0.0"

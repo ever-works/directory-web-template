@@ -27,7 +27,7 @@
 		"@ai-sdk/openai-compatible": "^2.0.41",
 		"@ai-sdk/react": "^3.0.156",
 		"ai": "^6.0.154",
-		"zod": "^4.0.5"
+		"zod": "^4.6.6"
 	},
 	"peerDependencies": {
 		"react": ">=19.0.0"
