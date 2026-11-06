@@ -119,10 +119,10 @@ importers:
         version: 3.0.184(react@19.2.5)(zod@4.3.6)
       '@auth/drizzle-adapter':
         specifier: ^1.11.3
-        version: 1.11.3(nodemailer@10.0.14)
+        version: 1.11.3(nodemailer@10.1.4)
       '@auth/supabase-adapter':
         specifier: ^1.11.3
-        version: 1.11.3(@supabase/supabase-js@2.98.0)(nodemailer@10.0.14)
+        version: 1.11.3(@supabase/supabase-js@2.98.0)(nodemailer@10.1.4)
       '@babel/core':
         specifier: ^7.28.5
         version: 7.29.0
@@ -368,7 +368,7 @@ importers:
         version: 16.3.8(@babel/core@7.29.0)(@opentelemetry/api@1.9.0)(@playwright/test@1.63.0)(@types/node@26.6.4)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(sass@1.97.3)
       next-auth:
         specifier: 5.0.0-beta.32
-        version: 5.0.0-beta.32(next@16.3.8(@babel/core@7.29.0)(@opentelemetry/api@1.9.0)(@playwright/test@1.63.0)(@types/node@26.6.4)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(sass@1.97.3))(nodemailer@10.0.14)(react@19.2.5)
+        version: 5.0.0-beta.32(next@16.3.8(@babel/core@7.29.0)(@opentelemetry/api@1.9.0)(@playwright/test@1.63.0)(@types/node@26.6.4)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(sass@1.97.3))(nodemailer@10.1.4)(react@19.2.5)
       next-intl:
         specifier: ^4.9.2
         version: 4.9.2(@swc/helpers@0.5.19)(next@16.3.8(@babel/core@7.29.0)(@opentelemetry/api@1.9.0)(@playwright/test@1.63.0)(@types/node@26.6.4)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(sass@1.97.3))(react@19.2.5)(typescript@5.9.3)
@@ -382,8 +382,8 @@ importers:
         specifier: ^0.4.6
         version: 0.4.6(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       nodemailer:
-        specifier: ^10.0.14
-        version: 10.0.14
+        specifier: ^10.1.4
+        version: 10.1.4
       papaparse:
         specifier: ^5.5.3
         version: 5.5.3
@@ -4081,24 +4081,28 @@ packages:
   '@opentelemetry/sdk-trace-base@2.2.0':
     resolution: {integrity: sha512-xWQgL0Bmctsalg6PaXExmzdedSp3gyKV8mQBwK/j9VGdCDu2fmXIb2gAehBKbkXCpJ4HPkgv3QfoJWRT4dHWbw==}
     engines: {node: ^18.19.0 || >=20.6.0}
+    deprecated: Use @opentelemetry/sdk-trace package
     peerDependencies:
       '@opentelemetry/api': 1.9.0
 
   '@opentelemetry/sdk-trace-base@2.6.0':
     resolution: {integrity: sha512-g/OZVkqlxllgFM7qMKqbPV9c1DUPhQ7d4n3pgZFcrnrNft9eJXZM2TNHTPYREJBrtNdRytYyvwjgL5geDKl3EQ==}
     engines: {node: ^18.19.0 || >=20.6.0}
+    deprecated: Use @opentelemetry/sdk-trace package
     peerDependencies:
       '@opentelemetry/api': 1.9.0
 
   '@opentelemetry/sdk-trace-base@2.8.0':
     resolution: {integrity: sha512-mhU4jp+vW0mGbFRd+GeXHvmfA4aDqWjBjLC3pE5XMpLs0IE2ryYb019Ts2AQrOq67gaTF25D91+fgvEHDZEnuQ==}
     engines: {node: ^18.19.0 || >=20.6.0}
+    deprecated: Use @opentelemetry/sdk-trace package
     peerDependencies:
       '@opentelemetry/api': 1.9.0
 
   '@opentelemetry/sdk-trace-node@2.8.0':
     resolution: {integrity: sha512-nZt9OGufioAc3AfoLTqA9bsAeaMJAictYDdI2VcNQ+PmT+3rfKjAZDZvgPfd8VPX0O5Bw1hdQF6kDK8VSpZiWg==}
     engines: {node: ^18.19.0 || >=20.6.0}
+    deprecated: Use @opentelemetry/sdk-trace package
     peerDependencies:
       '@opentelemetry/api': 1.9.0
 
@@ -10431,8 +10435,8 @@ packages:
     resolution: {integrity: sha512-kQK9LGGFiHtrWiNhZtA7Qbw17AQz+dmsEKODRIVTXA9+e5MS/2gZEBhYJt13GrAz5/IOZKddH/0Z3TP/Zgo+yw==}
     engines: {node: '>=18'}
 
-  nodemailer@10.0.14:
-    resolution: {integrity: sha512-eJoLFKg55fesSlzUekmfOv/SBXh4KUYT8oiQc2RLP0tfG0rbNMJBK7wgHJwXTJwqyKlSJMz9UzDZ4v+aHEvo8g==}
+  nodemailer@10.1.4:
+    resolution: {integrity: sha512-EsMnOR2oRv4LGnWvHgcVYkkQ4O2j8KO4WTw6l+PHR4sOXo8SAgIraxtEnGDmotjbhv0hDsu3IuDIFZm8iXwO4A==}
     engines: {node: '>=20.0.0'}
 
   nodemon@3.1.14:
@@ -13208,7 +13212,7 @@ snapshots:
       openapi-types: 12.1.3
       z-schema: 5.0.5
 
-  '@auth/core@0.41.3(nodemailer@10.0.14)':
+  '@auth/core@0.41.3(nodemailer@10.1.4)':
     dependencies:
       '@panva/hkdf': 1.2.1
       jose: 6.2.0
@@ -13216,19 +13220,19 @@ snapshots:
       preact: 10.24.3
       preact-render-to-string: 6.5.11(preact@10.24.3)
     optionalDependencies:
-      nodemailer: 10.0.14
+      nodemailer: 10.1.4
 
-  '@auth/drizzle-adapter@1.11.3(nodemailer@10.0.14)':
+  '@auth/drizzle-adapter@1.11.3(nodemailer@10.1.4)':
     dependencies:
-      '@auth/core': 0.41.3(nodemailer@10.0.14)
+      '@auth/core': 0.41.3(nodemailer@10.1.4)
     transitivePeerDependencies:
       - '@simplewebauthn/browser'
       - '@simplewebauthn/server'
       - nodemailer
 
-  '@auth/supabase-adapter@1.11.3(@supabase/supabase-js@2.98.0)(nodemailer@10.0.14)':
+  '@auth/supabase-adapter@1.11.3(@supabase/supabase-js@2.98.0)(nodemailer@10.1.4)':
     dependencies:
-      '@auth/core': 0.41.3(nodemailer@10.0.14)
+      '@auth/core': 0.41.3(nodemailer@10.1.4)
       '@supabase/supabase-js': 2.98.0
     transitivePeerDependencies:
       - '@simplewebauthn/browser'
@@ -23811,7 +23815,7 @@ snapshots:
 
   history@4.10.1:
     dependencies:
-      '@babel/runtime': 7.29.7
+      '@babel/runtime': 7.29.10
       loose-envify: 1.4.0
       resolve-pathname: 3.0.0
       tiny-invariant: 1.3.3
@@ -25328,13 +25332,13 @@ snapshots:
 
   neo-async@2.6.2: {}
 
-  next-auth@5.0.0-beta.32(next@16.3.8(@babel/core@7.29.0)(@opentelemetry/api@1.9.0)(@playwright/test@1.63.0)(@types/node@26.6.4)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(sass@1.97.3))(nodemailer@10.0.14)(react@19.2.5):
+  next-auth@5.0.0-beta.32(next@16.3.8(@babel/core@7.29.0)(@opentelemetry/api@1.9.0)(@playwright/test@1.63.0)(@types/node@26.6.4)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(sass@1.97.3))(nodemailer@10.1.4)(react@19.2.5):
     dependencies:
-      '@auth/core': 0.41.3(nodemailer@10.0.14)
+      '@auth/core': 0.41.3(nodemailer@10.1.4)
       next: 16.3.8(@babel/core@7.29.0)(@opentelemetry/api@1.9.0)(@playwright/test@1.63.0)(@types/node@26.6.4)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(sass@1.97.3)
       react: 19.2.5
     optionalDependencies:
-      nodemailer: 10.0.14
+      nodemailer: 10.1.4
 
   next-intl-swc-plugin-extractor@4.11.0: {}
 
@@ -25441,7 +25445,7 @@ snapshots:
 
   node-releases@2.0.57: {}
 
-  nodemailer@10.0.14: {}
+  nodemailer@10.1.4: {}
 
   nodemon@3.1.14:
     dependencies:
