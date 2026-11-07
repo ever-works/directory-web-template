@@ -880,3 +880,30 @@ confirm, override, or refine.
 3. Always include a **Default**; never block on a question.
 4. Append a line to [`log.md`](log.md):
    `YYYY-MM-DD questions: added Q-NNN — short summary`.
+
+### Q-055a The demo banner as a plugin slot
+
+- **Context.** The constitution asks for new UI surface through a plugin slot.
+  The slot runtime has no host integration yet (Spec 002 / T-004), and there is
+  no slot above the header, so spec 055 renders the banner in
+  `ConditionalLayout` (see its Complexity Tracking).
+- **Options.**
+  - Keep it in the layout, switched only by the deployment's `NEXT_PUBLIC_DEMO` (current).
+  - When T-004 lands, add a `header.before` slot and move the banner to a
+    `packages/plugin-demo-banner` plugin, so admins can disable or replace it.
+- **Default.** **Move it with T-004.** Until then it stays in the layout; its
+  only switch is the runtime demo flag.
+- **Owner.** Maintainers.
+- **Status.** open
+
+### Q-055b Demo banner copy for visitors who are not signed in
+
+- **Context.** The strip says "You are using a demo account", the line
+  demo.gauzy.co uses. On demo.ever.works most visitors browse without signing in.
+- **Options.**
+  - Keep the same line on every Ever demo (current, as the owner asked).
+  - Say "You are using a demo" for visitors without a session.
+- **Default.** **Keep the same line.** The owner asked for the line demo.gauzy.co
+  shows, on every demo.
+- **Owner.** Owner (copy).
+- **Status.** open

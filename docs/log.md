@@ -7,6 +7,10 @@ sidebar_position: 99
 
 # Documentation & Specs Change Log
 
+## 2026-11-08
+
+- `spec-055` `apps/web/components/layout/{demo-banner,conditional-layout}.tsx` `apps/web/messages/*.json`: demo deployments (runtime `NEXT_PUBLIC_DEMO=true`, as demo.ever.works) show the "You are using a demo account. Finding our software useful? Click here to Sign Up and start using for free!" strip above the header, as demo.gauzy.co does, linking to `https://app.ever.works/register`. The flag is the runtime one from `usePublicPaymentConfig()`, so customer directories built from the same image render nothing. 21 locales; unit spec `apps/web/lib/__tests__/demo-banner.spec.ts`, e2e `apps/web-e2e/tests/public/demo-banner.spec.ts` ([055](spec/055-demo-banner/spec.md), #1098).
+
 ## 2026-11-07
 
 - git: per-site, one-repo, short-lived data-repo token from the Ever Works site git-token broker, `GH_TOKEN` as fallback ([054](spec/054-per-site-git-token/spec.md), #1097).
