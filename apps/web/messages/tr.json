@@ -43,6 +43,8 @@
 		"OPEN_USER_MENU": "Kullanıcı menüsünü aç"
 	},
 	"common": {
+		"DEMO_BANNER_TEXT": "Bir demo hesabı kullanıyorsunuz. Yazılımımızı faydalı buldunuz mu?",
+		"DEMO_BANNER_SIGN_UP": "Kaydolmak ve ücretsiz kullanmaya başlamak için buraya tıklayın!",
 		"FAQ": "SSS",
 		"DISCOVER": "Keşfet",
 		"HOME": "Ana Sayfa",

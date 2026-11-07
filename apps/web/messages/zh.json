@@ -43,6 +43,8 @@
 		"OPEN_USER_MENU": "Open user menu"
 	},
 	"common": {
+		"DEMO_BANNER_TEXT": "您正在使用演示账户。觉得我们的软件有用吗？",
+		"DEMO_BANNER_SIGN_UP": "点击此处注册，免费开始使用！",
 		"FAQ": "常见问题",
 		"DISCOVER": "发现",
 		"HOME": "首页",

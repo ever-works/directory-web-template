@@ -43,6 +43,8 @@
 		"OPEN_USER_MENU": "Buka menu pengguna"
 	},
 	"common": {
+		"DEMO_BANNER_TEXT": "Anda menggunakan akun demo. Merasa perangkat lunak kami bermanfaat?",
+		"DEMO_BANNER_SIGN_UP": "Klik di sini untuk mendaftar dan mulai menggunakannya secara gratis!",
 		"FAQ": "FAQ",
 		"DISCOVER": "Jelajahi",
 		"HOME": "Beranda",
