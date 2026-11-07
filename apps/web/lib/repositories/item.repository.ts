@@ -38,7 +38,9 @@ export class ItemRepository {
         const config: ItemGitServiceConfig = {
           owner,
           repo,
-          token,
+          // '' when only the site git-token broker is configured: the git service
+          // then gets its token from the broker (lib/git/site-git-token.ts).
+          token: token ?? '',
           branch: coreConfig.content.githubBranch,
           dataDir: getContentPath(), // Use dynamic path (local: .content, Vercel: /tmp/.content)
           itemsDir: 'data',
