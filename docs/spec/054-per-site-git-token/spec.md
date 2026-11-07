@@ -44,8 +44,14 @@ manual token edits.
   for the broker alone, so a site whose bootstrap token is missing still starts.
 - `scripts/clone.cjs` (build) fetches one broker token, else uses `GH_TOKEN`.
 - `deploy_vercel.yaml` copies the two broker secrets into the Vercel project env
-  when the platform pushed them. `deploy_k8s.yaml` already forwards every repo
-  secret into the runtime-env Secret.
+  when the platform pushed them, removing the old value first (`vercel env add`
+  refuses an existing name, which used to freeze a project's first `GH_TOKEN`).
+  `deploy_k8s.yaml` already forwards every repo secret into the runtime-env
+  Secret.
+- Docker builds (`deploy_k8s.yaml`, `docker-build-publish-*.yml`, `Dockerfile`)
+  pass the broker URL and secret as BuildKit secrets next to `gh_token`, so a
+  build long after the last deploy still clones with a fresh token.
+- `onAuthFailure` refreshes at most once per git operation.
 - Nothing logs the secret or a token.
 
 ## 4. Out of scope

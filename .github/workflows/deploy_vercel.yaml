@@ -273,6 +273,13 @@ jobs:
         run: |
           SCOPE_FLAG=""
           [ -n "$VERCEL_TEAM_SCOPE" ] && SCOPE_FLAG="--scope $VERCEL_TEAM_SCOPE"
+          # `vercel env add` refuses a name that already exists, so without the
+          # rm a project keeps its FIRST GH_TOKEN forever (a broad token from
+          # before the site git-token broker, or an expired bootstrap one).
+          # Only when there is a new value to put back (GH_TOKEN is in the job env).
+          if [ -n "$GH_TOKEN" ]; then
+            vercel env rm GH_TOKEN ${{ inputs.environment }} --yes $SCOPE_FLAG --token "$VERCEL_TOKEN" || true
+          fi
           echo -n "${{ secrets.GH_TOKEN }}" | vercel env add GH_TOKEN ${{ inputs.environment }} $SCOPE_FLAG --token "$VERCEL_TOKEN"
 
       - name: Set CRON_SECRET env variable
@@ -299,6 +306,11 @@ jobs:
           if [ -n "$SITE_GIT_TOKEN_URL" ] && [ -n "$SITE_GIT_TOKEN_SECRET" ]; then
             SCOPE_FLAG=""
             [ -n "$VERCEL_TEAM_SCOPE" ] && SCOPE_FLAG="--scope $VERCEL_TEAM_SCOPE"
+            # rm first: `env add` refuses an existing name, and a rotated key or
+            # a new broker URL must replace the old values.
+            for NAME in EVER_WORKS_SITE_GIT_TOKEN_URL EVER_WORKS_SITE_GIT_TOKEN_SECRET; do
+              vercel env rm "$NAME" ${{ inputs.environment }} --yes $SCOPE_FLAG --token "$VERCEL_TOKEN" || true
+            done
             echo -n "$SITE_GIT_TOKEN_URL" | vercel env add EVER_WORKS_SITE_GIT_TOKEN_URL ${{ inputs.environment }} $SCOPE_FLAG --token "$VERCEL_TOKEN"
             echo -n "$SITE_GIT_TOKEN_SECRET" | vercel env add EVER_WORKS_SITE_GIT_TOKEN_SECRET ${{ inputs.environment }} $SCOPE_FLAG --token "$VERCEL_TOKEN"
           fi

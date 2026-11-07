@@ -169,6 +169,14 @@ describe('site git token', () => {
 			assert.equal(await auth.onAuthFailure('https://github.com/x/y', { password: 'ghs_a' }), undefined);
 		});
 
+		it('onAuthFailure refreshes at most once per git operation (no bouncing between tokens)', async () => {
+			const { fetchImpl, calls } = brokerReturning({ token: 'ghs_b' }, { token: 'ghs_c' });
+			const auth = siteGitAuthCallbacks(undefined, { env: BROKER_ENV, fetchImpl });
+			assert.ok(await auth.onAuthFailure('https://github.com/x/y', { password: 'ghs_a' }));
+			assert.equal(await auth.onAuthFailure('https://github.com/x/y', { password: 'ghs_b' }), undefined);
+			assert.equal(calls.length, 1);
+		});
+
 		it('onAuthFailure never retries without the broker (a static token cannot change)', async () => {
 			const auth = siteGitAuthCallbacks('ghp_static', { env: {} });
 			assert.equal(await auth.onAuthFailure('https://github.com/x/y', { password: 'ghp_static' }), undefined);

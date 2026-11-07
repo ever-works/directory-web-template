@@ -172,10 +172,16 @@ export function siteGitAuthCallbacks(
 ): SiteGitAuthCallbacks {
 	const toAuth = (token: string): SiteGitAuth | undefined =>
 		token ? { username: GIT_USERNAME, password: token } : undefined;
+	// ONE forced refresh per callbacks object (one git operation). Comparing
+	// with the failed token alone is not enough: behind several API replicas
+	// each may hand out its own cached token, and retries could bounce
+	// between them until the broker's rate limit stops them.
+	let refreshed = false;
 	return {
 		onAuth: async () => toAuth(await getSiteGitToken({ fallbackToken, ...options })),
 		onAuthFailure: async (_url, failed) => {
-			if (!isSiteGitTokenBrokerConfigured(options.env ?? process.env)) return undefined;
+			if (refreshed || !isSiteGitTokenBrokerConfigured(options.env ?? process.env)) return undefined;
+			refreshed = true;
 			const fresh = await getSiteGitToken({ fallbackToken, forceRefresh: true, ...options });
 			if (!fresh || fresh === failed?.password) return undefined;
 			return toAuth(fresh);
