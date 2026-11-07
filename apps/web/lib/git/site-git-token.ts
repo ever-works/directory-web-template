@@ -102,12 +102,14 @@ async function fetchFromBroker(env: Env, fetchImpl: FetchLike): Promise<CachedTo
 function startRefresh(env: Env, fetchImpl: FetchLike): Promise<string | null> {
 	const request = fetchFromBroker(env, fetchImpl)
 		.then((fresh) => {
-			cached = fresh;
-			lastFailureAtMs = 0;
+			// Two overlapping refreshes (two forced ones racing) must not let the
+			// older answer replace a newer cached token.
+			if (!cached || fresh.expiresAtMs >= cached.expiresAtMs) cached = fresh;
+			if (inflight === request) lastFailureAtMs = 0;
 			return fresh.token;
 		})
 		.catch((error: unknown) => {
-			lastFailureAtMs = Date.now();
+			if (inflight === request) lastFailureAtMs = Date.now();
 			// Never log the secret or a token; the status is enough.
 			console.warn(
 				`[site-git-token] broker refresh failed: ${error instanceof Error ? error.message : String(error)}`

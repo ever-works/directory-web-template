@@ -165,9 +165,6 @@ export class CategoryGitService {
   }
 
   /**
-   * Get Git authentication
-   */
-  /**
    * isomorphic-git `onAuth` / `onAuthFailure` for the data repo: the platform's
    * per-site broker token when configured, else this service's static token.
    */

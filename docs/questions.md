@@ -840,6 +840,39 @@ confirm, override, or refine.
 
 ---
 
+## Spec 054 — Per-site git token
+
+### Q-054a Data repos outside the platform's managed orgs
+
+- **Context.** The Ever Works broker mints tokens only for data repos in its
+  managed orgs (`ever-works`, `ever-works-cloud`) that it provisioned for the
+  Work. A site whose data repo is in a member's own account gets no broker
+  variables and keeps using `GH_TOKEN`.
+- **Options.**
+  - Keep `GH_TOKEN` for those sites (current).
+  - Serve them from the member's own GitHub App installation, narrowed the same
+    way, once the platform can prove the installation is the member's.
+- **Default.** **Keep `GH_TOKEN`.** Nothing changes for those sites; the
+  template already supports the broker the moment the platform sends it.
+- **Owner.** Maintainers (platform side).
+- **Status.** open
+
+### Q-054b What a site does when its broker secret is rotated
+
+- **Context.** The site secret is derived from a platform key; rotating the key
+  changes every site's secret, and a site only learns its new one at its next
+  deploy.
+- **Options.**
+  - Redeploy every site after a rotation (current, documented in the platform
+    runbook).
+  - Let the broker accept the previous key for a grace period.
+- **Default.** **Redeploy after rotation.** Until then the broker answers 401,
+  the site keeps a still-valid cached token, then falls back to `GH_TOKEN`.
+- **Owner.** Maintainers (platform side).
+- **Status.** open
+
+---
+
 ## How to add a question
 
 1. Pick the next available `Q-NNN…` id under the relevant spec.

@@ -10,6 +10,7 @@ sidebar_position: 99
 ## 2026-11-07
 
 - git: per-site, one-repo, short-lived data-repo token from the Ever Works site git-token broker, `GH_TOKEN` as fallback ([054](spec/054-per-site-git-token/spec.md), #1097).
+- questions: added Q-054a (data repos outside managed orgs) and Q-054b (site secret rotation) ([054](spec/054-per-site-git-token/spec.md), #1097).
 
 ## 2026-11-05
 
