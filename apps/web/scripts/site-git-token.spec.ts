@@ -44,6 +44,13 @@ describe('build-time site git token (scripts/site-git-token.cjs)', () => {
 		assert.equal((calls[0].init.headers as Record<string, string>).Authorization, 'Bearer ewsgt_secret');
 	});
 
+	it('never sends the site secret to a non-https broker URL', async () => {
+		const { fetchImpl, calls } = answering(200, { token: 'ghs_fresh' });
+		const env = { ...BROKER_ENV, EVER_WORKS_SITE_GIT_TOKEN_URL: 'http://api.ever.works/api/sites/w/git-token' };
+		assert.equal(await resolveSiteGitToken(env, fetchImpl), 'ghs_bootstrap');
+		assert.equal(calls.length, 0);
+	});
+
 	it('falls back to GH_TOKEN on a broker error status', async () => {
 		const { fetchImpl } = answering(503, {});
 		assert.equal(await resolveSiteGitToken(BROKER_ENV, fetchImpl), 'ghs_bootstrap');

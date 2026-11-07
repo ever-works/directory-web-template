@@ -63,6 +63,18 @@ describe('site git token', () => {
 		assert.equal(await getSiteGitToken({ env, fallbackToken: 'ghp_route' }), 'ghp_route');
 	});
 
+	it('treats a non-https broker URL as no broker (the secret is a bearer)', async () => {
+		const { fetchImpl, calls } = brokerReturning({ token: 'ghs_fresh' });
+		const env = { ...BROKER_ENV, EVER_WORKS_SITE_GIT_TOKEN_URL: 'http://api.ever.works/x' };
+		assert.equal(isSiteGitTokenBrokerConfigured(env), false);
+		assert.equal(await getSiteGitToken({ env, fetchImpl }), 'ghs_bootstrap');
+		assert.equal(calls.length, 0);
+		assert.equal(
+			isSiteGitTokenBrokerConfigured({ ...BROKER_ENV, EVER_WORKS_SITE_GIT_TOKEN_URL: 'http://localhost:3100/x' }),
+			true
+		);
+	});
+
 	it('needs BOTH broker variables', () => {
 		assert.equal(isSiteGitTokenBrokerConfigured({ EVER_WORKS_SITE_GIT_TOKEN_URL: 'https://x' }), false);
 		assert.equal(isSiteGitTokenBrokerConfigured({ EVER_WORKS_SITE_GIT_TOKEN_SECRET: 's' }), false);

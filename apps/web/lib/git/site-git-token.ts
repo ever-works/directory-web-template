@@ -62,8 +62,24 @@ function trimmed(value: string | undefined): string {
 }
 
 /** Both broker variables are set. */
+/**
+ * The per-site secret is a bearer, so it only ever goes to an https URL
+ * (plain http only for a local platform on localhost / 127.0.0.1). Any other
+ * URL means the broker is not configured, and the site keeps `GH_TOKEN`.
+ */
+export function isSafeBrokerUrl(value: string): boolean {
+	try {
+		const url = new URL(value);
+		const local = url.hostname === 'localhost' || url.hostname === '127.0.0.1';
+		return url.protocol === 'https:' || (local && url.protocol === 'http:');
+	} catch {
+		return false;
+	}
+}
+
 export function isSiteGitTokenBrokerConfigured(env: Env = process.env): boolean {
-	return Boolean(trimmed(env[SITE_GIT_TOKEN_URL_ENV]) && trimmed(env[SITE_GIT_TOKEN_SECRET_ENV]));
+	const url = trimmed(env[SITE_GIT_TOKEN_URL_ENV]);
+	return Boolean(url && trimmed(env[SITE_GIT_TOKEN_SECRET_ENV]) && isSafeBrokerUrl(url));
 }
 
 /**
