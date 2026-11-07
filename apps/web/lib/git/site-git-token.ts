@@ -44,7 +44,7 @@ export interface SiteGitAuth {
 
 /** The `onAuth` / `onAuthFailure` pair isomorphic-git accepts on every network call. */
 export interface SiteGitAuthCallbacks {
-	onAuth: () => Promise<SiteGitAuth | undefined>;
+	onAuth: (url?: string) => Promise<SiteGitAuth | undefined>;
 	onAuthFailure: (url: string, auth: { password?: string }) => Promise<SiteGitAuth | undefined>;
 }
 
@@ -99,6 +99,28 @@ async function fetchFromBroker(env: Env, fetchImpl: FetchLike): Promise<CachedTo
 	}
 }
 
+function startRefresh(env: Env, fetchImpl: FetchLike): Promise<string | null> {
+	const request = fetchFromBroker(env, fetchImpl)
+		.then((fresh) => {
+			cached = fresh;
+			lastFailureAtMs = 0;
+			return fresh.token;
+		})
+		.catch((error: unknown) => {
+			lastFailureAtMs = Date.now();
+			// Never log the secret or a token; the status is enough.
+			console.warn(
+				`[site-git-token] broker refresh failed: ${error instanceof Error ? error.message : String(error)}`
+			);
+			return null;
+		})
+		.finally(() => {
+			if (inflight === request) inflight = null;
+		});
+	inflight = request;
+	return request;
+}
+
 /**
  * The token to use right now, or '' when there is none.
  *
@@ -106,45 +128,49 @@ async function fetchFromBroker(env: Env, fetchImpl: FetchLike): Promise<CachedTo
  * minutes left, else a fresh one. If the broker fails, a cached token that
  * has not expired yet, else the static token. Without the broker: the static
  * token (`fallbackToken`, else `GH_TOKEN`).
+ *
+ * `forceRefresh` (GitHub just rejected `rejectedToken`): a cached or
+ * in-flight token that is NOT the rejected one is used as is (another request
+ * already refreshed); otherwise a new broker call is made, never joined to a
+ * call that started before the rejection.
  */
 export async function getSiteGitToken(
-	options: { forceRefresh?: boolean; fallbackToken?: string; env?: Env; fetchImpl?: FetchLike } = {}
+	options: {
+		forceRefresh?: boolean;
+		rejectedToken?: string;
+		fallbackToken?: string;
+		env?: Env;
+		fetchImpl?: FetchLike;
+	} = {}
 ): Promise<string> {
 	const env = options.env ?? process.env;
 	const staticToken = trimmed(options.fallbackToken) || trimmed(env.GH_TOKEN);
 	if (!isSiteGitTokenBrokerConfigured(env)) return staticToken;
+	const fetchImpl = options.fetchImpl ?? (globalThis.fetch as FetchLike);
 
 	const now = Date.now();
-	if (!options.forceRefresh && cached && cached.expiresAtMs - now > REFRESH_BEFORE_EXPIRY_MS) {
+	if (options.forceRefresh) {
+		const rejected = trimmed(options.rejectedToken);
+		if (cached && cached.expiresAtMs > now && cached.token !== rejected) return cached.token;
+		if (inflight) {
+			const joined = await inflight;
+			if (joined && joined !== rejected) return joined;
+		}
+		const fresh = await startRefresh(env, fetchImpl);
+		if (fresh) return fresh;
+		return cached && cached.expiresAtMs > Date.now() ? cached.token : staticToken;
+	}
+
+	if (cached && cached.expiresAtMs - now > REFRESH_BEFORE_EXPIRY_MS) {
 		return cached.token;
 	}
 	// Back off after a failure so a broker outage is not hammered by every
 	// request; a forced refresh (GitHub just said 401) still tries.
-	if (!options.forceRefresh && lastFailureAtMs && now - lastFailureAtMs < FAILURE_BACKOFF_MS) {
+	if (lastFailureAtMs && now - lastFailureAtMs < FAILURE_BACKOFF_MS) {
 		return cached && cached.expiresAtMs > now ? cached.token : staticToken;
 	}
 
-	if (!inflight) {
-		const fetchImpl = options.fetchImpl ?? (globalThis.fetch as FetchLike);
-		inflight = fetchFromBroker(env, fetchImpl)
-			.then((fresh) => {
-				cached = fresh;
-				lastFailureAtMs = 0;
-				return fresh.token;
-			})
-			.catch((error: unknown) => {
-				lastFailureAtMs = Date.now();
-				// Never log the secret or a token; the status is enough.
-				console.warn(
-					`[site-git-token] broker refresh failed: ${error instanceof Error ? error.message : String(error)}`
-				);
-				return null;
-			})
-			.finally(() => {
-				inflight = null;
-			});
-	}
-	const fresh = await inflight;
+	const fresh = await (inflight ?? startRefresh(env, fetchImpl));
 	if (fresh) return fresh;
 	return cached && cached.expiresAtMs > Date.now() ? cached.token : staticToken;
 }
@@ -157,14 +183,30 @@ export function resetSiteGitTokenCache(): void {
 }
 
 /**
+ * The token is a GitHub credential: it is only ever handed to github.com,
+ * whatever remote a checkout's config or a caller points a git call at. A
+ * missing URL (a direct call, as in the unit tests) is allowed.
+ */
+function isGitHubRemote(url: string | undefined): boolean {
+	if (url === undefined) return true;
+	try {
+		const parsed = new URL(url);
+		return parsed.protocol === 'https:' && parsed.hostname.toLowerCase() === 'github.com';
+	} catch {
+		return false;
+	}
+}
+
+/**
  * `onAuth` / `onAuthFailure` for isomorphic-git. Spread it into a call:
  * `git.push({ ...siteGitAuthCallbacks(token), fs, http, dir })`.
  *
  * `onAuth` resolves the token when GitHub first asks (so a long-running
  * process always presents a current one). `onAuthFailure` runs when GitHub
- * rejected it: it forces ONE broker refresh and retries only if that
- * produced a different token. Returning nothing stops isomorphic-git's
- * retry loop, which otherwise keeps calling `onAuthFailure`.
+ * rejected it: it forces ONE broker refresh per git operation and retries only
+ * with a different token. Returning nothing stops isomorphic-git's retry loop,
+ * which otherwise keeps calling `onAuthFailure`. Neither answers for a remote
+ * that is not https://github.com.
  */
 export function siteGitAuthCallbacks(
 	fallbackToken?: string,
@@ -178,11 +220,20 @@ export function siteGitAuthCallbacks(
 	// between them until the broker's rate limit stops them.
 	let refreshed = false;
 	return {
-		onAuth: async () => toAuth(await getSiteGitToken({ fallbackToken, ...options })),
-		onAuthFailure: async (_url, failed) => {
+		onAuth: async (url) => {
+			if (!isGitHubRemote(url)) return undefined;
+			return toAuth(await getSiteGitToken({ fallbackToken, ...options }));
+		},
+		onAuthFailure: async (url, failed) => {
+			if (!isGitHubRemote(url)) return undefined;
 			if (refreshed || !isSiteGitTokenBrokerConfigured(options.env ?? process.env)) return undefined;
 			refreshed = true;
-			const fresh = await getSiteGitToken({ fallbackToken, forceRefresh: true, ...options });
+			const fresh = await getSiteGitToken({
+				fallbackToken,
+				forceRefresh: true,
+				rejectedToken: failed?.password,
+				...options
+			});
 			if (!fresh || fresh === failed?.password) return undefined;
 			return toAuth(fresh);
 		}

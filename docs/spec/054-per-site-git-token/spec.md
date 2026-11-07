@@ -12,8 +12,9 @@ A deployed site reads and writes its data repository (`DATA_REPOSITORY`) with
 a short-lived GitHub token scoped to **that one repository**, fetched from the
 Ever Works platform, instead of a long-lived `GH_TOKEN`. When the platform sets
 `EVER_WORKS_SITE_GIT_TOKEN_URL` and `EVER_WORKS_SITE_GIT_TOKEN_SECRET`, every
-git call (clone, pull, push; items, categories, tags, collections, `works.yml`,
-the build-time clone) asks `lib/git/site-git-token.ts` for the token. Without
+git call (clone, pull, push; items, categories, tags, collections, `works.yml`)
+asks `lib/git/site-git-token.ts` for the token, and the build-time clone asks its
+CommonJS twin `scripts/site-git-token.cjs`. Without
 those two variables nothing changes: the site uses `GH_TOKEN` as before.
 
 ## 2. Motivation
@@ -42,7 +43,7 @@ manual token edits.
 - **No token at all**: `onAuth` answers nothing (no pointless retry); the gates
   that used to test `GH_TOKEN` now test `hasSiteGitCredentials()`, which is true
   for the broker alone, so a site whose bootstrap token is missing still starts.
-- `scripts/clone.cjs` (build) fetches one broker token, else uses `GH_TOKEN`.
+- `scripts/clone.cjs` (build) fetches one broker token through `scripts/site-git-token.cjs`, else uses `GH_TOKEN`.
 - `deploy_vercel.yaml` copies the two broker secrets into the Vercel project env
   when the platform pushed them, removing the old value first (`vercel env add`
   refuses an existing name, which used to freeze a project's first `GH_TOKEN`).
@@ -51,7 +52,10 @@ manual token edits.
 - Docker builds (`deploy_k8s.yaml`, `docker-build-publish-*.yml`, `Dockerfile`)
   pass the broker URL and secret as BuildKit secrets next to `gh_token`, so a
   build long after the last deploy still clones with a fresh token.
-- `onAuthFailure` refreshes at most once per git operation.
+- `onAuthFailure` refreshes at most once per git operation, reuses a newer cached
+  token when another request already refreshed, never settles for an in-flight
+  answer GitHub just rejected, and neither callback answers for a remote that is
+  not `https://github.com`.
 - Nothing logs the secret or a token.
 
 ## 4. Out of scope
@@ -62,7 +66,7 @@ tokens (the broker)".
 
 ## 5. Acceptance
 
-- Unit: `apps/web/lib/git/__tests__/site-git-token.spec.ts` (`pnpm --filter
-@ever-works/web test:unit`).
+- Unit: `apps/web/lib/git/__tests__/site-git-token.spec.ts` and
+  `apps/web/scripts/site-git-token.spec.ts` (`pnpm --filter @ever-works/web test:unit`).
 - A site deployed with the broker on serves content, and the platform API log
-  shows `site git token issued for <org>/<slug>-data` about every 40 minutes.
+  shows `site git token issued for <org>/<slug>-data` about once an hour per site process (a ~1h token refreshed 5 minutes before expiry).

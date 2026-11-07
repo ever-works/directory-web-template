@@ -30,9 +30,6 @@ env:
   DATA_REPOSITORY: "https://github.com/${{ github.repository_owner }}/${{ secrets.DATA_REPOSITORY }}"
   VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
   GH_TOKEN: ${{ secrets.GH_TOKEN }}
-  # Build-time data clone (scripts/clone.cjs) prefers a fresh broker token.
-  EVER_WORKS_SITE_GIT_TOKEN_URL: ${{ secrets.EVER_WORKS_SITE_GIT_TOKEN_URL }}
-  EVER_WORKS_SITE_GIT_TOKEN_SECRET: ${{ secrets.EVER_WORKS_SITE_GIT_TOKEN_SECRET }}
   VERCEL_TEAM_SCOPE: ${{ secrets.VERCEL_TEAM_SCOPE || secrets.DEPLOY_TEAM_SCOPE }}
   NODE_OPTIONS: "--max-old-space-size=4096"
 
@@ -270,6 +267,8 @@ jobs:
 
       - name: Set GH_TOKEN env variable
         continue-on-error: true
+        env:
+          VERCEL_ENVIRONMENT: ${{ inputs.environment }}
         run: |
           SCOPE_FLAG=""
           [ -n "$VERCEL_TEAM_SCOPE" ] && SCOPE_FLAG="--scope $VERCEL_TEAM_SCOPE"
@@ -278,9 +277,9 @@ jobs:
           # before the site git-token broker, or an expired bootstrap one).
           # Only when there is a new value to put back (GH_TOKEN is in the job env).
           if [ -n "$GH_TOKEN" ]; then
-            vercel env rm GH_TOKEN ${{ inputs.environment }} --yes $SCOPE_FLAG --token "$VERCEL_TOKEN" || true
+            vercel env rm GH_TOKEN "$VERCEL_ENVIRONMENT" --yes $SCOPE_FLAG --token "$VERCEL_TOKEN" || true
           fi
-          echo -n "${{ secrets.GH_TOKEN }}" | vercel env add GH_TOKEN ${{ inputs.environment }} $SCOPE_FLAG --token "$VERCEL_TOKEN"
+          echo -n "$GH_TOKEN" | vercel env add GH_TOKEN "$VERCEL_ENVIRONMENT" $SCOPE_FLAG --token "$VERCEL_TOKEN"
 
       - name: Set CRON_SECRET env variable
         continue-on-error: true
@@ -295,24 +294,28 @@ jobs:
 
       # Ever Works site git-token broker: the site trades its per-site secret for
       # a ~1h token scoped to its own data repo (lib/git/site-git-token.ts), so
-      # GH_TOKEN above is only a short-lived bootstrap. Set only when the platform
-      # pushed both secrets; absent, the site keeps using GH_TOKEN.
+      # GH_TOKEN above is only a short-lived bootstrap. Reconciled on every
+      # deploy: both secrets present = (re)write both; absent = remove both, so a
+      # project never keeps a stale or rotated-out broker secret. No
+      # continue-on-error: a site half-configured for the broker would stop
+      # syncing an hour after this deploy, so a failed write fails the deploy.
       - name: Set site git-token broker env variables
-        continue-on-error: true
         env:
+          VERCEL_ENVIRONMENT: ${{ inputs.environment }}
           SITE_GIT_TOKEN_URL: ${{ secrets.EVER_WORKS_SITE_GIT_TOKEN_URL }}
           SITE_GIT_TOKEN_SECRET: ${{ secrets.EVER_WORKS_SITE_GIT_TOKEN_SECRET }}
         run: |
+          SCOPE_FLAG=""
+          [ -n "$VERCEL_TEAM_SCOPE" ] && SCOPE_FLAG="--scope $VERCEL_TEAM_SCOPE"
+          # rm first: `env add` refuses an existing name. `|| true` covers the
+          # first deploy, where there is nothing to remove; any other rm failure
+          # makes the `add` below fail, and with it this step.
+          for NAME in EVER_WORKS_SITE_GIT_TOKEN_URL EVER_WORKS_SITE_GIT_TOKEN_SECRET; do
+            vercel env rm "$NAME" "$VERCEL_ENVIRONMENT" --yes $SCOPE_FLAG --token "$VERCEL_TOKEN" || true
+          done
           if [ -n "$SITE_GIT_TOKEN_URL" ] && [ -n "$SITE_GIT_TOKEN_SECRET" ]; then
-            SCOPE_FLAG=""
-            [ -n "$VERCEL_TEAM_SCOPE" ] && SCOPE_FLAG="--scope $VERCEL_TEAM_SCOPE"
-            # rm first: `env add` refuses an existing name, and a rotated key or
-            # a new broker URL must replace the old values.
-            for NAME in EVER_WORKS_SITE_GIT_TOKEN_URL EVER_WORKS_SITE_GIT_TOKEN_SECRET; do
-              vercel env rm "$NAME" ${{ inputs.environment }} --yes $SCOPE_FLAG --token "$VERCEL_TOKEN" || true
-            done
-            echo -n "$SITE_GIT_TOKEN_URL" | vercel env add EVER_WORKS_SITE_GIT_TOKEN_URL ${{ inputs.environment }} $SCOPE_FLAG --token "$VERCEL_TOKEN"
-            echo -n "$SITE_GIT_TOKEN_SECRET" | vercel env add EVER_WORKS_SITE_GIT_TOKEN_SECRET ${{ inputs.environment }} $SCOPE_FLAG --token "$VERCEL_TOKEN"
+            echo -n "$SITE_GIT_TOKEN_URL" | vercel env add EVER_WORKS_SITE_GIT_TOKEN_URL "$VERCEL_ENVIRONMENT" $SCOPE_FLAG --token "$VERCEL_TOKEN"
+            echo -n "$SITE_GIT_TOKEN_SECRET" | vercel env add EVER_WORKS_SITE_GIT_TOKEN_SECRET "$VERCEL_ENVIRONMENT" $SCOPE_FLAG --token "$VERCEL_TOKEN"
           fi
 
       - name: Pull Vercel settings

@@ -138,7 +138,46 @@ describe('site git token', () => {
 		assert.equal(await getSiteGitToken({ env: BROKER_ENV, fetchImpl }), 'ghs_bootstrap');
 	});
 
+	it('a forced refresh reuses a newer cached token instead of calling the broker again', async () => {
+		// Concurrent 401s on an old token: the first refresh already cached a new one.
+		const { fetchImpl, calls } = brokerReturning({ token: 'ghs_a' }, { token: 'ghs_b' });
+		await getSiteGitToken({ env: BROKER_ENV, fetchImpl });
+		const token = await getSiteGitToken({
+			env: BROKER_ENV,
+			fetchImpl,
+			forceRefresh: true,
+			rejectedToken: 'ghs_old'
+		});
+		assert.equal(token, 'ghs_a');
+		assert.equal(calls.length, 1);
+	});
+
+	it('a forced refresh never settles for the in-flight answer that GitHub just rejected', async () => {
+		const { fetchImpl, calls } = brokerReturning({ token: 'ghs_a' }, { token: 'ghs_b' });
+		const [normal, forced] = await Promise.all([
+			getSiteGitToken({ env: BROKER_ENV, fetchImpl }),
+			getSiteGitToken({ env: BROKER_ENV, fetchImpl, forceRefresh: true, rejectedToken: 'ghs_a' })
+		]);
+		assert.equal(normal, 'ghs_a');
+		assert.equal(forced, 'ghs_b');
+		assert.equal(calls.length, 2);
+	});
+
 	describe('isomorphic-git callbacks', () => {
+		it('never hands the token to a remote other than https://github.com', async () => {
+			const { fetchImpl, calls } = brokerReturning({ token: 'ghs_a' });
+			const auth = siteGitAuthCallbacks('ghp_static', { env: BROKER_ENV, fetchImpl });
+			assert.equal(await auth.onAuth('https://gitlab.com/x/y'), undefined);
+			assert.equal(await auth.onAuth('http://github.com/x/y'), undefined);
+			assert.equal(await auth.onAuth('https://github.com.evil.example/x/y'), undefined);
+			assert.equal(await auth.onAuthFailure('https://gitlab.com/x/y', { password: 'ghs_a' }), undefined);
+			assert.equal(calls.length, 0);
+			assert.deepEqual(await auth.onAuth('https://github.com/x/y'), {
+				username: 'x-access-token',
+				password: 'ghs_a'
+			});
+		});
+
 		it('onAuth answers x-access-token + the current token', async () => {
 			const { fetchImpl } = brokerReturning({ token: 'ghs_a' });
 			const auth = siteGitAuthCallbacks(undefined, { env: BROKER_ENV, fetchImpl });

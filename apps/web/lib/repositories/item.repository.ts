@@ -25,7 +25,9 @@ export class ItemRepository {
         const token = coreConfig.content.ghToken;
 
         if (!dataRepo || !hasSiteGitCredentials(process.env, token)) {
-          throw new Error('DATA_REPOSITORY and GH_TOKEN environment variables are required');
+          throw new Error(
+            'DATA_REPOSITORY and GH_TOKEN (or EVER_WORKS_SITE_GIT_TOKEN_URL + EVER_WORKS_SITE_GIT_TOKEN_SECRET) environment variables are required'
+          );
         }
 
         // Parse DATA_REPOSITORY URL to extract owner and repo
