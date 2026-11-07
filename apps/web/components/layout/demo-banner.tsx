@@ -31,7 +31,7 @@ export function DemoBanner() {
 			<span>{t('DEMO_BANNER_TEXT')}</span>
 			<a
 				href={DEMO_SIGN_UP_URL}
-				className="rounded-sm font-semibold text-theme-primary-600 underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-theme-primary/40 dark:text-theme-primary-400"
+				className="rounded-sm font-semibold text-theme-primary-700 underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-theme-primary/40 dark:text-theme-primary-400"
 			>
 				{t('DEMO_BANNER_SIGN_UP')}
 			</a>
