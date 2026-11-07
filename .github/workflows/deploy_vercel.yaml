@@ -267,10 +267,19 @@ jobs:
 
       - name: Set GH_TOKEN env variable
         continue-on-error: true
+        env:
+          VERCEL_ENVIRONMENT: ${{ inputs.environment }}
         run: |
           SCOPE_FLAG=""
           [ -n "$VERCEL_TEAM_SCOPE" ] && SCOPE_FLAG="--scope $VERCEL_TEAM_SCOPE"
-          echo -n "${{ secrets.GH_TOKEN }}" | vercel env add GH_TOKEN ${{ inputs.environment }} $SCOPE_FLAG --token "$VERCEL_TOKEN"
+          # `vercel env add` refuses a name that already exists, so without the
+          # rm a project keeps its FIRST GH_TOKEN forever (a broad token from
+          # before the site git-token broker, or an expired bootstrap one).
+          # Only when there is a new value to put back (GH_TOKEN is in the job env).
+          if [ -n "$GH_TOKEN" ]; then
+            vercel env rm GH_TOKEN "$VERCEL_ENVIRONMENT" --yes $SCOPE_FLAG --token "$VERCEL_TOKEN" || true
+          fi
+          echo -n "$GH_TOKEN" | vercel env add GH_TOKEN "$VERCEL_ENVIRONMENT" $SCOPE_FLAG --token "$VERCEL_TOKEN"
 
       - name: Set CRON_SECRET env variable
         continue-on-error: true
@@ -281,6 +290,32 @@ jobs:
             SCOPE_FLAG=""
             [ -n "$VERCEL_TEAM_SCOPE" ] && SCOPE_FLAG="--scope $VERCEL_TEAM_SCOPE"
             echo -n "$CRON_SECRET" | vercel env add CRON_SECRET ${{ inputs.environment }} $SCOPE_FLAG --token "$VERCEL_TOKEN"
+          fi
+
+      # Ever Works site git-token broker: the site trades its per-site secret for
+      # a ~1h token scoped to its own data repo (lib/git/site-git-token.ts), so
+      # GH_TOKEN above is only a short-lived bootstrap. Reconciled on every
+      # deploy: both secrets present = (re)write both; absent = remove both, so a
+      # project never keeps a stale or rotated-out broker secret. No
+      # continue-on-error: a site half-configured for the broker would stop
+      # syncing an hour after this deploy, so a failed write fails the deploy.
+      - name: Set site git-token broker env variables
+        env:
+          VERCEL_ENVIRONMENT: ${{ inputs.environment }}
+          SITE_GIT_TOKEN_URL: ${{ secrets.EVER_WORKS_SITE_GIT_TOKEN_URL }}
+          SITE_GIT_TOKEN_SECRET: ${{ secrets.EVER_WORKS_SITE_GIT_TOKEN_SECRET }}
+        run: |
+          SCOPE_FLAG=""
+          [ -n "$VERCEL_TEAM_SCOPE" ] && SCOPE_FLAG="--scope $VERCEL_TEAM_SCOPE"
+          # rm first: `env add` refuses an existing name. `|| true` covers the
+          # first deploy, where there is nothing to remove; any other rm failure
+          # makes the `add` below fail, and with it this step.
+          for NAME in EVER_WORKS_SITE_GIT_TOKEN_URL EVER_WORKS_SITE_GIT_TOKEN_SECRET; do
+            vercel env rm "$NAME" "$VERCEL_ENVIRONMENT" --yes $SCOPE_FLAG --token "$VERCEL_TOKEN" || true
+          done
+          if [ -n "$SITE_GIT_TOKEN_URL" ] && [ -n "$SITE_GIT_TOKEN_SECRET" ]; then
+            echo -n "$SITE_GIT_TOKEN_URL" | vercel env add EVER_WORKS_SITE_GIT_TOKEN_URL "$VERCEL_ENVIRONMENT" $SCOPE_FLAG --token "$VERCEL_TOKEN"
+            echo -n "$SITE_GIT_TOKEN_SECRET" | vercel env add EVER_WORKS_SITE_GIT_TOKEN_SECRET "$VERCEL_ENVIRONMENT" $SCOPE_FLAG --token "$VERCEL_TOKEN"
           fi
 
       - name: Pull Vercel settings

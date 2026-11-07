@@ -7,6 +7,11 @@ sidebar_position: 99
 
 # Documentation & Specs Change Log
 
+## 2026-11-07
+
+- git: per-site, one-repo, short-lived data-repo token from the Ever Works site git-token broker, `GH_TOKEN` as fallback ([054](spec/054-per-site-git-token/spec.md), #1097).
+- questions: added Q-054a (data repos outside managed orgs) and Q-054b (site secret rotation) ([054](spec/054-per-site-git-token/spec.md), #1097).
+
 ## 2026-11-05
 
 - `AGENTS.md` §12 `.gitignore` `.graphifyignore`: added "Code navigation: Graphify" — when a local Graphify graph (`graphify-out/graph.json`) exists, agents use `graphify query|path|explain` before reading raw files and run `graphify update .` after code changes; `graphify-out/` is per-machine build output and is now git-ignored; `.graphifyignore` keeps the translated docs (`apps/docs/i18n/`, ~80k of ~118k graph nodes) out of the graph. Docs only, no code change (trivial-fix exception: no spec). (#1096)

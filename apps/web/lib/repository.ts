@@ -1,18 +1,21 @@
 import 'server-only';
 
-import git, { GitAuth, Errors } from "isomorphic-git";
+import git, { Errors } from "isomorphic-git";
 import * as http from "isomorphic-git/http/node";
 import * as path from "node:path";
 import * as fs from "node:fs";
 import { fsExists, replaceDirectoryAtomically } from "./lib";
 import { coreConfig } from "@/lib/config/config-service";
 import { getPrimaryContentConfigPath, hasContentConfigFile } from "./content-config-file";
+import { siteGitAuthCallbacks, type SiteGitAuthCallbacks } from "@/lib/git/site-git-token";
 
-function getGitAuth(token?: string): GitAuth {
-  if (!token) {
-    return {};
-  }
-  return { username: "x-access-token", password: token };
+/**
+ * isomorphic-git `onAuth` / `onAuthFailure` for the data repo: the platform's
+ * per-site broker token when configured (refreshed before it expires), else
+ * the static `GH_TOKEN`. Spread into every network call.
+ */
+function getGitAuth(token?: string): SiteGitAuthCallbacks {
+  return siteGitAuthCallbacks(token);
 }
 
 /**
@@ -82,7 +85,7 @@ function isReadOnlyContentRuntime(): boolean {
 async function tryPushLocalChanges(
   dir: string,
   url: string,
-  auth: GitAuth
+  auth: SiteGitAuthCallbacks
 ): Promise<boolean> {
   if (isReadOnlyContentRuntime()) {
     console.log("[SYNC] Skipping push: content runtime is read-only (DISABLE_AUTO_SYNC or Vercel).");
@@ -107,7 +110,7 @@ async function tryPushLocalChanges(
 
     // Push
     await withTimeout(
-      git.push({ onAuth: () => auth, fs, http, dir, url }),
+      git.push({ ...auth, fs, http, dir, url }),
       60000 // 1 minute timeout for push
     );
 
@@ -118,7 +121,7 @@ async function tryPushLocalChanges(
   }
 }
 
-async function cloneRepositoryAtomically(url: string, dest: string, auth: GitAuth): Promise<void> {
+async function cloneRepositoryAtomically(url: string, dest: string, auth: SiteGitAuthCallbacks): Promise<void> {
   const tempDest = path.join(path.dirname(dest), `${path.basename(dest)}.${process.pid}.${Date.now()}.clone`);
 
   try {
@@ -126,7 +129,7 @@ async function cloneRepositoryAtomically(url: string, dest: string, auth: GitAut
     await fs.promises.mkdir(tempDest, { recursive: true });
     await withTimeout(
       git.clone({
-        onAuth: () => auth,
+        ...auth,
         fs,
         http,
         url,
@@ -141,12 +144,12 @@ async function cloneRepositoryAtomically(url: string, dest: string, auth: GitAut
   }
 }
 
-export async function pullChanges(url: string, dest: string, auth: GitAuth) {
+export async function pullChanges(url: string, dest: string, auth: SiteGitAuthCallbacks) {
   try {
     const author = { name: "website" }; // required for git pull for some reason
     await withTimeout(
       git.pull({
-        onAuth: () => auth,
+        ...auth,
         fs,
         http,
         url,
@@ -182,7 +185,7 @@ export async function pullChanges(url: string, dest: string, auth: GitAuth) {
             const author = { name: "website" };
             await withTimeout(
               git.pull({
-                onAuth: () => auth,
+                ...auth,
                 fs,
                 http,
                 url,

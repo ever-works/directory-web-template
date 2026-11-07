@@ -1,4 +1,5 @@
 const { loadEnvConfig } = require("@next/env");
+const { resolveSiteGitToken } = require("./site-git-token.cjs");
 const git = require("isomorphic-git")
 const http = require("isomorphic-git/http/node")
 const fs = require("node:fs")
@@ -7,7 +8,6 @@ const os = require('node:os')
 
 loadEnvConfig(process.cwd());
 
-const token = process.env.GH_TOKEN;
 const url = process.env.DATA_REPOSITORY;
 
 if (!url) {
@@ -23,10 +23,11 @@ function getContentPath() {
   return path.join(process.cwd(), contentDir);
 }
 
-const auth = { username: "x-access-token", password: token };
 const dest = getContentPath();
 
 async function main() {
+  const token = await resolveSiteGitToken();
+  const auth = { username: "x-access-token", password: token };
   await fs.promises.mkdir(dest, { recursive: true });
 
   // If already cloned, pull the latest content instead of skipping.
