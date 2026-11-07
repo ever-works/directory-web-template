@@ -13,12 +13,16 @@ export const DEMO_SIGN_UP_URL = 'https://app.ever.works/register';
  * The flag is the RUNTIME one, from `usePublicPaymentConfig()` (`GET /api/payment/public-config`): platform-deployed
  * Works share one image built without per-Work env, so the bundle's `process.env.NEXT_PUBLIC_DEMO` cannot tell a demo
  * from a customer's directory. Every directory without the flag (all customer sites) renders nothing.
+ *
+ * It waits for that runtime answer: until the request succeeds, `config` is only the build-time env, which a build
+ * with `NEXT_PUBLIC_DEMO=true` would turn into a banner on a customer site (before the answer, or for good when the
+ * request fails).
  */
 export function DemoBanner() {
 	const t = useTranslations('common');
-	const { config } = usePublicPaymentConfig();
+	const { config, isResolved, isError } = usePublicPaymentConfig();
 
-	if (!config.demo) {
+	if (!isResolved || isError || !config.demo) {
 		return null;
 	}
 

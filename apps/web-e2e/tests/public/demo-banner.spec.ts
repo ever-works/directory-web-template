@@ -40,4 +40,19 @@ test.describe('Demo account banner', () => {
 
 		await expect(page.getByTestId('demo-banner')).toHaveCount(0);
 	});
+
+	test('no runtime answer, no banner: a failed config request does not fall back to the build-time flag', async ({
+		page
+	}) => {
+		// The e2e bundle is built with NEXT_PUBLIC_DEMO=true, so this proves the banner waits for a successful answer.
+		await page.route(PUBLIC_CONFIG, (route) => route.abort());
+		const failed = page.waitForEvent('requestfailed', (request) =>
+			request.url().includes('/api/payment/public-config')
+		);
+
+		await page.goto('/', { waitUntil: 'domcontentloaded' });
+		await failed;
+
+		await expect(page.getByTestId('demo-banner')).toHaveCount(0);
+	});
 });

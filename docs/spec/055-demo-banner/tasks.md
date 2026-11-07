@@ -8,8 +8,9 @@ sidebar_label: 055 Tasks
 
 > **Spec:** [`spec.md`](./spec.md) · **Plan:** [`plan.md`](./plan.md)
 
-- [x] **T-001** `apps/web/components/layout/demo-banner.tsx`: the strip, shown when
-  `usePublicPaymentConfig().config.demo`. Verify: it renders nothing with `demo=false`.
+- [x] **T-001** `apps/web/components/layout/demo-banner.tsx`: the strip, shown when the runtime
+  answer of `usePublicPaymentConfig()` succeeded with `demo=true`. Verify: nothing with `demo=false`,
+  before the answer, or when the request fails.
 - [x] **T-002** `ConditionalLayout` renders it above `Header` (not on `/auth-demo/`).
 - [x] **T-003** `common.DEMO_BANNER_TEXT` / `common.DEMO_BANNER_SIGN_UP` in all 21 locales.
 - [x] **T-004** `apps/web/lib/__tests__/demo-banner.spec.ts` (unit, `test:unit`): the runtime

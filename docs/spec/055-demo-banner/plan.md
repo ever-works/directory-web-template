@@ -16,9 +16,9 @@ existing `usePublicPaymentConfig()` hook, which merges the server's runtime
 values (`GET /api/payment/public-config`, `readPublicPaymentConfigFromRuntimeEnv`)
 over the build-time env. No new route, setting or dependency.
 
-On the demo, the strip appears once that request returns, unless the bundle
-was built with `NEXT_PUBLIC_DEMO=true` (the e2e build is). No image build
-inlines the flag, so customer sites start at `false` and never flash it.
+The banner renders only once that request has succeeded (`isResolved && !isError`),
+so the build-time env alone never shows it: not before the answer, and not when
+the request fails. On the demo it appears once the answer arrives.
 
 ## Constitution Check
 

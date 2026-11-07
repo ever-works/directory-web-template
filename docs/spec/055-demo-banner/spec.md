@@ -6,7 +6,7 @@ sidebar_label: 055 Demo banner
 
 # Feature spec — `055-demo-banner`
 
-> **Status:** shipped · **Plan:** [`plan.md`](./plan.md) · **Tasks:** [`tasks.md`](./tasks.md)
+> **Status:** in-progress (shipped in code; the live check T-006 is open) · **Plan:** [`plan.md`](./plan.md) · **Tasks:** [`tasks.md`](./tasks.md)
 
 ## 1. Summary
 
@@ -34,7 +34,8 @@ and only on the demos.
   demo apart from a customer site. The flag comes from
   `GET /api/payment/public-config` (`demo`) through `usePublicPaymentConfig()`.
 - **R2.** A directory whose runtime flag is `false`, empty or unset never shows
-  it, whatever the bundle was built with.
+  it, whatever the bundle was built with: the banner waits for a successful
+  runtime answer and shows nothing before it or when the request fails.
 - **R3.** It sits above the header on every page that has the header (not on
   `/auth-demo/` pages), and scrolls away while the header stays sticky.
 - **R4.** The text is translated in every locale (`common.DEMO_BANNER_TEXT`,
