@@ -30,6 +30,9 @@ env:
   DATA_REPOSITORY: "https://github.com/${{ github.repository_owner }}/${{ secrets.DATA_REPOSITORY }}"
   VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
   GH_TOKEN: ${{ secrets.GH_TOKEN }}
+  # Build-time data clone (scripts/clone.cjs) prefers a fresh broker token.
+  EVER_WORKS_SITE_GIT_TOKEN_URL: ${{ secrets.EVER_WORKS_SITE_GIT_TOKEN_URL }}
+  EVER_WORKS_SITE_GIT_TOKEN_SECRET: ${{ secrets.EVER_WORKS_SITE_GIT_TOKEN_SECRET }}
   VERCEL_TEAM_SCOPE: ${{ secrets.VERCEL_TEAM_SCOPE || secrets.DEPLOY_TEAM_SCOPE }}
   NODE_OPTIONS: "--max-old-space-size=4096"
 
@@ -281,6 +284,23 @@ jobs:
             SCOPE_FLAG=""
             [ -n "$VERCEL_TEAM_SCOPE" ] && SCOPE_FLAG="--scope $VERCEL_TEAM_SCOPE"
             echo -n "$CRON_SECRET" | vercel env add CRON_SECRET ${{ inputs.environment }} $SCOPE_FLAG --token "$VERCEL_TOKEN"
+          fi
+
+      # Ever Works site git-token broker: the site trades its per-site secret for
+      # a ~1h token scoped to its own data repo (lib/git/site-git-token.ts), so
+      # GH_TOKEN above is only a short-lived bootstrap. Set only when the platform
+      # pushed both secrets; absent, the site keeps using GH_TOKEN.
+      - name: Set site git-token broker env variables
+        continue-on-error: true
+        env:
+          SITE_GIT_TOKEN_URL: ${{ secrets.EVER_WORKS_SITE_GIT_TOKEN_URL }}
+          SITE_GIT_TOKEN_SECRET: ${{ secrets.EVER_WORKS_SITE_GIT_TOKEN_SECRET }}
+        run: |
+          if [ -n "$SITE_GIT_TOKEN_URL" ] && [ -n "$SITE_GIT_TOKEN_SECRET" ]; then
+            SCOPE_FLAG=""
+            [ -n "$VERCEL_TEAM_SCOPE" ] && SCOPE_FLAG="--scope $VERCEL_TEAM_SCOPE"
+            echo -n "$SITE_GIT_TOKEN_URL" | vercel env add EVER_WORKS_SITE_GIT_TOKEN_URL ${{ inputs.environment }} $SCOPE_FLAG --token "$VERCEL_TOKEN"
+            echo -n "$SITE_GIT_TOKEN_SECRET" | vercel env add EVER_WORKS_SITE_GIT_TOKEN_SECRET ${{ inputs.environment }} $SCOPE_FLAG --token "$VERCEL_TOKEN"
           fi
 
       - name: Pull Vercel settings

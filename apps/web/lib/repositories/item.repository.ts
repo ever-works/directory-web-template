@@ -4,6 +4,7 @@ import { createItemGitService, ItemGitServiceConfig, ItemGitService } from '@/li
 import { getContentPath } from '@/lib/lib';
 import { coreConfig } from '@/lib/config/config-service';
 import { itemAuditService, type AuditUser } from '@/lib/services/item-audit.service';
+import { hasSiteGitCredentials } from '@/lib/git/site-git-token';
 
 export class ItemRepository {
   private gitService: ItemGitService | null = null;
@@ -23,7 +24,7 @@ export class ItemRepository {
         const dataRepo = coreConfig.content.dataRepository;
         const token = coreConfig.content.ghToken;
 
-        if (!dataRepo || !token) {
+        if (!dataRepo || !hasSiteGitCredentials(process.env, token)) {
           throw new Error('DATA_REPOSITORY and GH_TOKEN environment variables are required');
         }
 

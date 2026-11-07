@@ -6,6 +6,7 @@ import git from 'isomorphic-git';
 import { Collection, CreateCollectionRequest, UpdateCollectionRequest } from '@/types/collection';
 import { getContentPath } from '@/lib/lib';
 import { isContentGitRemoteDisabled } from './content-git-offline';
+import { siteGitAuthCallbacks } from '@/lib/git/site-git-token';
 
 interface GitConfig {
   owner: string;
@@ -78,7 +79,7 @@ export class CollectionGitService {
     const auth = this.getAuth();
 
     await git.clone({
-      onAuth: () => auth,
+      ...auth,
       fs,
       http,
       dir: this.config.dataDir,
@@ -93,7 +94,7 @@ export class CollectionGitService {
       const committer = this.getCommitter();
 
       await git.pull({
-        onAuth: () => auth,
+        ...auth,
         fs,
         http,
         dir: this.config.dataDir,
@@ -133,11 +134,12 @@ export class CollectionGitService {
     return `https://github.com/${this.config.gitConfig.owner}/${this.config.gitConfig.repo}`;
   }
 
+  /**
+   * isomorphic-git `onAuth` / `onAuthFailure` for the data repo: the platform's
+   * per-site broker token when configured, else this service's static token.
+   */
   private getAuth() {
-    return {
-      username: 'x-access-token',
-      password: this.config.gitConfig.token,
-    };
+    return siteGitAuthCallbacks(this.config.gitConfig.token);
   }
 
   private getCommitter(committer: Committer = {}): Committer {
@@ -189,7 +191,7 @@ export class CollectionGitService {
         }
         const auth = this.getAuth();
         await git.push({
-          onAuth: () => auth,
+          ...auth,
           fs,
           http,
           dir: this.config.dataDir,
@@ -388,7 +390,7 @@ export class CollectionGitService {
 
       const auth = this.getAuth();
       await git.push({
-        onAuth: () => auth,
+        ...auth,
         fs,
         http,
         dir: this.config.dataDir,
