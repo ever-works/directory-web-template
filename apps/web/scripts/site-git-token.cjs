@@ -1,12 +1,5 @@
 // Build-time site git-token resolver for scripts/clone.cjs (spec 054).
-/**
- * The data-repo token for this build: a fresh one-repo token from the Ever Works
- * site git-token broker when EVER_WORKS_SITE_GIT_TOKEN_URL and
- * EVER_WORKS_SITE_GIT_TOKEN_SECRET are set, else GH_TOKEN (which may be an
- * expired bootstrap token once the broker is in use). The build-time
- * twin of lib/git/site-git-token.ts (CommonJS, so scripts/clone.cjs can require it);
- * covered by scripts/site-git-token.spec.ts.
- */
+/** https only (plain http only for a local platform): the site secret is a bearer. */
 function isSafeBrokerUrl(value) {
   try {
     const url = new URL(value);
@@ -17,6 +10,14 @@ function isSafeBrokerUrl(value) {
   }
 }
 
+/**
+ * The data-repo token for this build: a fresh one-repo token from the Ever Works
+ * site git-token broker when EVER_WORKS_SITE_GIT_TOKEN_URL and
+ * EVER_WORKS_SITE_GIT_TOKEN_SECRET are set, else GH_TOKEN (which may be an
+ * expired bootstrap token once the broker is in use). The build-time
+ * twin of lib/git/site-git-token.ts (CommonJS, so scripts/clone.cjs can require it);
+ * covered by scripts/site-git-token.spec.ts.
+ */
 async function resolveSiteGitToken(env = process.env, fetchImpl = globalThis.fetch) {
   const staticToken = (env.GH_TOKEN || "").trim();
   const brokerUrl = (env.EVER_WORKS_SITE_GIT_TOKEN_URL || "").trim();
