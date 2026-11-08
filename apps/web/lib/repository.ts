@@ -19,6 +19,14 @@ function getGitAuth(token?: string): SiteGitAuthCallbacks {
 }
 
 /**
+ * Makes the callbacks for ONE git network call. `siteGitAuthCallbacks` allows one
+ * forced refresh per object (per git operation): a single object shared by the
+ * pull, push, retried pull and clone of one sync would let the first 401 spend the
+ * refresh for all of them.
+ */
+type GitAuthFactory = () => SiteGitAuthCallbacks;
+
+/**
  * Wraps a promise with a timeout to prevent indefinite hangs
  * @param promise - The promise to wrap
  * @param timeoutMs - Timeout in milliseconds (default: 2 minutes)
@@ -85,7 +93,7 @@ function isReadOnlyContentRuntime(): boolean {
 async function tryPushLocalChanges(
   dir: string,
   url: string,
-  auth: SiteGitAuthCallbacks
+  auth: GitAuthFactory
 ): Promise<boolean> {
   if (isReadOnlyContentRuntime()) {
     console.log("[SYNC] Skipping push: content runtime is read-only (DISABLE_AUTO_SYNC or Vercel).");
@@ -110,7 +118,7 @@ async function tryPushLocalChanges(
 
     // Push
     await withTimeout(
-      git.push({ ...auth, fs, http, dir, url }),
+      git.push({ ...auth(), fs, http, dir, url }),
       60000 // 1 minute timeout for push
     );
 
@@ -121,7 +129,7 @@ async function tryPushLocalChanges(
   }
 }
 
-async function cloneRepositoryAtomically(url: string, dest: string, auth: SiteGitAuthCallbacks): Promise<void> {
+async function cloneRepositoryAtomically(url: string, dest: string, auth: GitAuthFactory): Promise<void> {
   const tempDest = path.join(path.dirname(dest), `${path.basename(dest)}.${process.pid}.${Date.now()}.clone`);
 
   try {
@@ -129,7 +137,7 @@ async function cloneRepositoryAtomically(url: string, dest: string, auth: SiteGi
     await fs.promises.mkdir(tempDest, { recursive: true });
     await withTimeout(
       git.clone({
-        ...auth,
+        ...auth(),
         fs,
         http,
         url,
@@ -144,12 +152,12 @@ async function cloneRepositoryAtomically(url: string, dest: string, auth: SiteGi
   }
 }
 
-export async function pullChanges(url: string, dest: string, auth: SiteGitAuthCallbacks) {
+export async function pullChanges(url: string, dest: string, auth: GitAuthFactory) {
   try {
     const author = { name: "website" }; // required for git pull for some reason
     await withTimeout(
       git.pull({
-        ...auth,
+        ...auth(),
         fs,
         http,
         url,
@@ -185,7 +193,7 @@ export async function pullChanges(url: string, dest: string, auth: SiteGitAuthCa
             const author = { name: "website" };
             await withTimeout(
               git.pull({
-                ...auth,
+                ...auth(),
                 fs,
                 http,
                 url,
@@ -252,7 +260,7 @@ copyright_year: ${new Date().getFullYear()}
   // This ensures all containers get the latest content from the repository
   const { getContentPath } = await import('./lib');
   const dest = getContentPath();
-  const auth = getGitAuth(token);
+  const auth: GitAuthFactory = () => getGitAuth(token);
 
   const exists = await fsExists(path.join(dest, ".git"));
   try {

@@ -35,8 +35,12 @@ test.describe('Demo account banner', () => {
 			const body = await response.json();
 			await route.fulfill({ response, json: { ...body, demo: false } });
 		});
+		// The banner renders nothing until the answer arrives, so assert only after it has been handled
+		const answered = page.waitForResponse(PUBLIC_CONFIG);
 
 		await page.goto('/', { waitUntil: 'domcontentloaded' });
+		await answered;
+		await page.waitForLoadState('networkidle');
 
 		await expect(page.getByTestId('demo-banner')).toHaveCount(0);
 	});
@@ -46,12 +50,15 @@ test.describe('Demo account banner', () => {
 	}) => {
 		// The e2e bundle is built with NEXT_PUBLIC_DEMO=true, so this proves the banner waits for a successful answer.
 		await page.route(PUBLIC_CONFIG, (route) => route.abort());
-		const failed = page.waitForEvent('requestfailed', (request) =>
-			request.url().includes('/api/payment/public-config')
-		);
+		// usePublicPaymentConfig retries once: assert only after the final attempt failed too
+		let failures = 0;
+		page.on('requestfailed', (request) => {
+			if (request.url().includes('/api/payment/public-config')) failures++;
+		});
 
 		await page.goto('/', { waitUntil: 'domcontentloaded' });
-		await failed;
+		await expect.poll(() => failures, { timeout: 15_000 }).toBeGreaterThanOrEqual(2);
+		await page.waitForLoadState('networkidle');
 
 		await expect(page.getByTestId('demo-banner')).toHaveCount(0);
 	});

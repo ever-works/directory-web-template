@@ -873,13 +873,7 @@ confirm, override, or refine.
 
 ---
 
-## How to add a question
-
-1. Pick the next available `Q-NNN…` id under the relevant spec.
-2. Use the format above.
-3. Always include a **Default**; never block on a question.
-4. Append a line to [`log.md`](log.md):
-   `YYYY-MM-DD questions: added Q-NNN — short summary`.
+## Spec 055 — Demo banner
 
 ### Q-055a The demo banner as a plugin slot
 
@@ -907,3 +901,11 @@ confirm, override, or refine.
   shows, on every demo.
 - **Owner.** Owner (copy).
 - **Status.** open
+
+## How to add a question
+
+1. Pick the next available `Q-NNN…` id under the relevant spec.
+2. Use the format above.
+3. Always include a **Default**; never block on a question.
+4. Append a line to [`log.md`](log.md):
+   `YYYY-MM-DD questions: added Q-NNN — short summary`.

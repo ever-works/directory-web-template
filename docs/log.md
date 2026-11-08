@@ -9,7 +9,9 @@ sidebar_position: 99
 
 ## 2026-11-08
 
+- `spec-054` `turbo.json` `.github/workflows/deploy_vercel.yaml` `apps/web/lib/{git/site-git-token,repository,repositories/category.repository}.ts`: review fixes from the develop → stage promotion (#1099). Turbo's strict env mode dropped `EVER_WORKS_SITE_GIT_TOKEN_*` from the image build (now in `tasks.build.env`, like `GH_*`); the Vercel deploy now removes a variable only when it can verify the removal and retries the write, failing the deploy instead of continuing without `GH_TOKEN` or with a stale broker secret; `onAuth` / `onAuthFailure` hand the token to no caller that names no remote; every git network call of a sync gets its own callbacks, so the one-refresh budget is per operation; the category gate's error names the broker variables. Spec 054 is `in-progress` until T-006 ([054](spec/054-per-site-git-token/spec.md), #1100).
 - `spec-055` `apps/web/components/layout/{demo-banner,conditional-layout}.tsx` `apps/web/messages/*.json`: demo deployments (runtime `NEXT_PUBLIC_DEMO=true`, as demo.ever.works) show the "You are using a demo account. Finding our software useful? Click here to Sign Up and start using for free!" strip above the header, as demo.gauzy.co does, linking to `https://app.ever.works/register`. The flag is the runtime one from `usePublicPaymentConfig()`, so customer directories built from the same image render nothing. 21 locales; unit spec `apps/web/lib/__tests__/demo-banner.spec.ts`, e2e `apps/web-e2e/tests/public/demo-banner.spec.ts` ([055](spec/055-demo-banner/spec.md), #1098).
+- `spec-055`: Q-055a/Q-055b moved under their own heading; the e2e negative checks wait for the runtime answer before asserting, and the failed-request case waits for the retried request ([055](spec/055-demo-banner/spec.md), #1100).
 
 ## 2026-11-07
 

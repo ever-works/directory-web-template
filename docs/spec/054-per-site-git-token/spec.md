@@ -30,7 +30,9 @@ manual token edits.
 
 ## 3. Behaviour
 
-- **Broker on** (both variables set): `POST $EVER_WORKS_SITE_GIT_TOKEN_URL` with
+- **Broker on** (both variables set, and the URL is `https:`, or `http:` on
+  `localhost` / `127.0.0.1` only; any other URL counts as unset, so the site keeps
+  `GH_TOKEN` and never sends its secret in clear text): `POST $EVER_WORKS_SITE_GIT_TOKEN_URL` with
   `Authorization: Bearer $EVER_WORKS_SITE_GIT_TOKEN_SECRET` returns
   `{ token, expiresAt, repository }`. The token is cached in memory and refreshed
   five minutes before `expiresAt`. Concurrent callers share one request.

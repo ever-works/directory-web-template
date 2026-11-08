@@ -212,10 +212,12 @@ export function resetSiteGitTokenCache(): void {
 /**
  * The token is a GitHub credential: it is only ever handed to github.com,
  * whatever remote a checkout's config or a caller points a git call at. A
- * missing URL (a direct call, as in the unit tests) is allowed.
+ * missing URL is refused: isomorphic-git always passes the remote, so a call
+ * without one is not a git operation and gets no credential.
  */
 function isGitHubRemote(url: string | undefined): boolean {
-	if (url === undefined) return true;
+	// isomorphic-git always passes the remote: a caller that does not is never handed the token
+	if (url === undefined) return false;
 	try {
 		const parsed = new URL(url);
 		return parsed.protocol === 'https:' && parsed.hostname.toLowerCase() === 'github.com';

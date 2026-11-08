@@ -15,7 +15,7 @@ credential. Every isomorphic-git network call gets its `onAuth` /
 `onAuthFailure` from `siteGitAuthCallbacks(staticToken)`, so the token is
 resolved when GitHub asks for it (a long-running process always presents a
 current one) instead of being captured once at service init. The build-time
-clone (`scripts/clone.cjs`, CommonJS) uses the twin `scripts/site-git-token.cjs`.
+clone (`apps/web/scripts/clone.cjs`, CommonJS) uses the twin `apps/web/scripts/site-git-token.cjs`.
 
 ## Why a pull from the platform, not a mounted Secret
 
