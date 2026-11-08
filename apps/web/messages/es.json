@@ -43,6 +43,8 @@
 		"OPEN_USER_MENU": "Abrir menú de usuario"
 	},
 	"common": {
+		"DEMO_BANNER_TEXT": "Está usando una cuenta de demostración. ¿Le resulta útil nuestro software?",
+		"DEMO_BANNER_SIGN_UP": "¡Haga clic aquí para registrarse y empezar a usarlo gratis!",
 		"FAQ": "Preguntas frecuentes",
 		"DISCOVER": "Descubrir",
 		"HOME": "Inicio",

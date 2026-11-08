@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 import Header from "@/components/header";
 import { Footer } from "@/components/footer";
 import { ScrollToTopButton } from "@/components/scroll-to-top-button";
+import { DemoBanner } from "@/components/layout/demo-banner";
 
 interface ConditionalLayoutProps {
   children: React.ReactNode;
@@ -17,6 +18,8 @@ export function ConditionalLayout({ children }: ConditionalLayoutProps) {
 
   return (
     <>
+      {/* Demo deployments only (runtime NEXT_PUBLIC_DEMO=true); renders nothing on every other directory. */}
+      {!isAuthDemoPage && <DemoBanner />}
       {!isAuthDemoPage && <Header />}
       {/* id="main-content" lets skip-to-content anchors target it.
           Required by `skip-link-and-focus.spec.ts`. */}
