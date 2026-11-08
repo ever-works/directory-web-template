@@ -35,8 +35,12 @@ test.describe('Demo account banner', () => {
 			const body = await response.json();
 			await route.fulfill({ response, json: { ...body, demo: false } });
 		});
+		// The banner renders nothing until the answer arrives, so assert only after it has been handled
+		const answered = page.waitForResponse(PUBLIC_CONFIG);
 
 		await page.goto('/', { waitUntil: 'domcontentloaded' });
+		await answered;
+		await page.waitForLoadState('networkidle');
 
 		await expect(page.getByTestId('demo-banner')).toHaveCount(0);
 	});
@@ -52,6 +56,7 @@ test.describe('Demo account banner', () => {
 
 		await page.goto('/', { waitUntil: 'domcontentloaded' });
 		await failed;
+		await page.waitForLoadState('networkidle');
 
 		await expect(page.getByTestId('demo-banner')).toHaveCount(0);
 	});

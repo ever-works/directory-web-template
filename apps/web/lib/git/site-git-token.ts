@@ -215,7 +215,8 @@ export function resetSiteGitTokenCache(): void {
  * missing URL (a direct call, as in the unit tests) is allowed.
  */
 function isGitHubRemote(url: string | undefined): boolean {
-	if (url === undefined) return true;
+	// isomorphic-git always passes the remote: a caller that does not is never handed the token
+	if (url === undefined) return false;
 	try {
 		const parsed = new URL(url);
 		return parsed.protocol === 'https:' && parsed.hostname.toLowerCase() === 'github.com';

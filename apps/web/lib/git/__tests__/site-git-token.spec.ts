@@ -10,7 +10,7 @@ import {
 } from '../site-git-token';
 
 /**
- * The site's data-repo credential (security audit 2026-11-07, spec 062).
+ * The site's data-repo credential (security audit 2026-11-07, spec 054).
  *
  * Run with: `pnpm --filter @ever-works/web test:unit`
  *
@@ -183,6 +183,8 @@ describe('site git token', () => {
 			assert.equal(await auth.onAuth('http://github.com/x/y'), undefined);
 			assert.equal(await auth.onAuth('https://github.com.evil.example/x/y'), undefined);
 			assert.equal(await auth.onAuthFailure('https://gitlab.com/x/y', { password: 'ghs_a' }), undefined);
+			// No remote at all: no token either
+			assert.equal(await auth.onAuth(), undefined);
 			assert.equal(calls.length, 0);
 			assert.deepEqual(await auth.onAuth('https://github.com/x/y'), {
 				username: 'x-access-token',
@@ -193,18 +195,21 @@ describe('site git token', () => {
 		it('onAuth answers x-access-token + the current token', async () => {
 			const { fetchImpl } = brokerReturning({ token: 'ghs_a' });
 			const auth = siteGitAuthCallbacks(undefined, { env: BROKER_ENV, fetchImpl });
-			assert.deepEqual(await auth.onAuth(), { username: 'x-access-token', password: 'ghs_a' });
+			assert.deepEqual(await auth.onAuth('https://github.com/x/y'), {
+				username: 'x-access-token',
+				password: 'ghs_a'
+			});
 		});
 
 		it('onAuth answers nothing when there is no token at all (no pointless retry)', async () => {
 			const auth = siteGitAuthCallbacks(undefined, { env: {} });
-			assert.equal(await auth.onAuth(), undefined);
+			assert.equal(await auth.onAuth('https://github.com/x/y'), undefined);
 		});
 
 		it('onAuthFailure forces ONE refresh and retries with the new token', async () => {
 			const { fetchImpl, calls } = brokerReturning({ token: 'ghs_a' }, { token: 'ghs_b' });
 			const auth = siteGitAuthCallbacks(undefined, { env: BROKER_ENV, fetchImpl });
-			await auth.onAuth();
+			await auth.onAuth('https://github.com/x/y');
 			assert.deepEqual(await auth.onAuthFailure('https://github.com/x/y', { password: 'ghs_a' }), {
 				username: 'x-access-token',
 				password: 'ghs_b'

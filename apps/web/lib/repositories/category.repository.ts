@@ -41,7 +41,7 @@ export class CategoryRepository {
       };
 
       if (!hasSiteGitCredentials(process.env, gitConfig.token)) {
-        throw new Error('GitHub token not configured. Please set GH_TOKEN environment variable.');
+        throw new Error('GitHub token not configured. Please set GH_TOKEN (or EVER_WORKS_SITE_GIT_TOKEN_URL + EVER_WORKS_SITE_GIT_TOKEN_SECRET).');
       }
 
       this.gitService = await createCategoryGitService(gitConfig);
