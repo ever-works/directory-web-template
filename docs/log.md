@@ -7,6 +7,10 @@ sidebar_position: 99
 
 # Documentation & Specs Change Log
 
+## 2026-11-10
+
+- `apps/web/lib/utils/pagination-params.ts` `apps/web/app/api/auth/security/login-activity/route.ts`: `GET /api/auth/security/login-activity?page=abc` (or `limit=abc`) computed a NaN OFFSET and answered 500; non-numeric values now fall back to the defaults and numeric ones are clamped. Unit spec `apps/web/lib/utils/__tests__/pagination-params.spec.ts` (bug fix, no spec folder needed).
+
 ## 2026-11-08
 
 - `spec-054` `turbo.json` `.github/workflows/deploy_vercel.yaml` `apps/web/lib/{git/site-git-token,repository,repositories/category.repository}.ts`: review fixes from the develop → stage promotion (#1099). Turbo's strict env mode dropped `EVER_WORKS_SITE_GIT_TOKEN_*` from the image build (now in `tasks.build.env`, like `GH_*`); the Vercel deploy now removes a variable only when it can verify the removal and retries the write, failing the deploy instead of continuing without `GH_TOKEN` or with a stale broker secret; `onAuth` / `onAuthFailure` hand the token to no caller that names no remote; every git network call of a sync gets its own callbacks, so the one-refresh budget is per operation; the category gate's error names the broker variables. Spec 054 is `in-progress` until T-006 ([054](spec/054-per-site-git-token/spec.md), #1100).

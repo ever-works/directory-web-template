@@ -1,0 +1,39 @@
+import assert from 'node:assert/strict';
+import { describe, it } from 'node:test';
+import { parsePaginationParams } from '../pagination-params';
+
+/**
+ * Run with: `pnpm --filter @ever-works/web test:unit`
+ *
+ * GET /api/auth/security/login-activity?page=abc used to compute an OFFSET of
+ * NaN and answer 500.
+ */
+describe('parsePaginationParams', () => {
+	it('uses defaults when the params are missing', () => {
+		assert.deepEqual(parsePaginationParams(null, null), { page: 1, limit: 10, offset: 0 });
+		assert.deepEqual(parsePaginationParams(undefined, undefined), { page: 1, limit: 10, offset: 0 });
+	});
+
+	it('reads valid numbers and computes the offset', () => {
+		assert.deepEqual(parsePaginationParams('3', '20'), { page: 3, limit: 20, offset: 40 });
+	});
+
+	it('falls back to defaults for non-numeric values instead of NaN', () => {
+		assert.deepEqual(parsePaginationParams('abc', 'xyz'), { page: 1, limit: 10, offset: 0 });
+		assert.deepEqual(parsePaginationParams('', ''), { page: 1, limit: 10, offset: 0 });
+	});
+
+	it('clamps zero, negative and oversized values', () => {
+		assert.deepEqual(parsePaginationParams('0', '0'), { page: 1, limit: 1, offset: 0 });
+		assert.deepEqual(parsePaginationParams('-4', '-2'), { page: 1, limit: 1, offset: 0 });
+		assert.deepEqual(parsePaginationParams('2', '9999'), { page: 2, limit: 50, offset: 50 });
+	});
+
+	it('honours custom default and max limits', () => {
+		assert.deepEqual(parsePaginationParams('2', 'abc', { defaultLimit: 25, maxLimit: 100 }), {
+			page: 2,
+			limit: 25,
+			offset: 25
+		});
+	});
+});
