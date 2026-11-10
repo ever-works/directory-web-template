@@ -16,7 +16,8 @@ export function parsePaginationParams(
 	const parsedLimit = Number.parseInt(rawLimit ?? '', 10);
 
 	const page = Number.isFinite(parsedPage) ? Math.max(1, parsedPage) : 1;
-	const limit = Number.isFinite(parsedLimit) ? Math.min(maxLimit, Math.max(1, parsedLimit)) : defaultLimit;
+	// The fallback is clamped too, so a custom default above the cap cannot exceed it.
+	const limit = Math.min(maxLimit, Math.max(1, Number.isFinite(parsedLimit) ? parsedLimit : defaultLimit));
 
 	return { page, limit, offset: (page - 1) * limit };
 }

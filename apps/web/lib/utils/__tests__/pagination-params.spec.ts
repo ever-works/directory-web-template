@@ -29,6 +29,14 @@ describe('parsePaginationParams', () => {
 		assert.deepEqual(parsePaginationParams('2', '9999'), { page: 2, limit: 50, offset: 50 });
 	});
 
+	it('never lets the fallback limit exceed the max limit', () => {
+		assert.deepEqual(parsePaginationParams(null, 'abc', { defaultLimit: 200, maxLimit: 50 }), {
+			page: 1,
+			limit: 50,
+			offset: 0
+		});
+	});
+
 	it('honours custom default and max limits', () => {
 		assert.deepEqual(parsePaginationParams('2', 'abc', { defaultLimit: 25, maxLimit: 100 }), {
 			page: 2,
