@@ -1,0 +1,41 @@
+---
+id: spec-056-pagination-params
+title: Spec 056 — Safe page / limit query parsing
+sidebar_label: 056 Pagination params
+---
+
+# Feature spec — `056-pagination-params`
+
+> **Status:** shipped (first route) · **Plan:** [`plan.md`](./plan.md) · **Tasks:** [`tasks.md`](./tasks.md)
+
+## 1. Summary
+
+A shared parser, `parsePaginationParams()` in `apps/web/lib/utils/pagination-params.ts`,
+turns the `page` and `limit` query-string values into safe integers. The first
+route to use it is `GET /api/auth/security/login-activity`.
+
+## 2. Motivation
+
+`login-activity` read `page` with `Math.max(1, parseInt(value, 10))`. A
+non-numeric value such as `?page=abc` makes `parseInt` return `NaN`, and
+`Math.max(1, NaN)` is still `NaN`, so the SQL `OFFSET` / `LIMIT` was `NaN`, the
+query failed and the route answered 500 instead of the first page. Several other
+routes parse the same way (see plan, "Follow-ups").
+
+## 3. Requirements
+
+- **R1.** A missing, empty or non-numeric `page` is page 1; a numeric one is at
+  least 1.
+- **R2.** A missing, empty or non-numeric `limit` is the caller's default
+  (10 unless set); a numeric one is at least 1.
+- **R3.** The limit never exceeds the caller's maximum (50 unless set), including
+  when the fallback default is above that maximum.
+- **R4.** `offset` is `(page - 1) * limit`.
+- **R5.** The response shape of `login-activity` does not change. Valid
+  requests behave as before; only invalid values change, from 500 to the defaults.
+
+## 4. Out of scope
+
+- Returning 400 for invalid values: the route's callers never sent them on purpose,
+  and falling back keeps the existing clients working.
+- Migrating the other routes: one small slice at a time (plan, "Follow-ups").
