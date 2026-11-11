@@ -489,7 +489,14 @@ function ItemDetailContent({
 	);
 }
 
-export function ItemDetail({ meta, renderedContent, categoryName, similarItemsPromise, headings }: ItemDetailProps) {
+export function ItemDetail({
+	meta,
+	renderedContent,
+	categoryName,
+	similarItemsPromise,
+	headings,
+	rating
+}: ItemDetailProps) {
 	return (
 		<Suspense fallback={<ItemDetailSkeleton />}>
 			<ItemDetailContent
@@ -498,6 +505,7 @@ export function ItemDetail({ meta, renderedContent, categoryName, similarItemsPr
 				categoryName={categoryName}
 				similarItemsPromise={similarItemsPromise}
 				headings={headings}
+				rating={rating}
 			/>
 		</Suspense>
 	);
