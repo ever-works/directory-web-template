@@ -22,8 +22,10 @@ snippets in search results. Listing sites that rank well show them.
 
 ## 3. Requirements
 
-- **R1.** The rating comes from the item's non-deleted comments, the same rows the page
-  already loads for the comments section: no extra database query.
+- **R1.** The rating comes from the item's non-deleted comments of active accounts, the same
+  rows the page already loads for the comments section: no extra database query.
+  The visible rating (`GET /api/items/{slug}/comments/rating`) counts the same rows
+  (active reviewers, ratings 1-5), so the number on the page equals the marked-up one.
 - **R2.** Only ratings that are finite numbers from 1 to 5 count. The `comments.rating`
   column defaults to 0 and the API refuses anything outside 1-5, so a stray 0 never
   lowers the published mean.

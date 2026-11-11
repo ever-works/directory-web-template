@@ -220,7 +220,7 @@ export default async function ItemDetails({ params }: { params: Promise<{ slug: 
 							categoryName={categoryName}
 							similarItemsPromise={similarItemsPromise}
 							headings={headings}
-								rating={rating}
+							rating={rating}
 						/>
 					</Container>
 				</div>
