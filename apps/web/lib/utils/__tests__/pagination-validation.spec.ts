@@ -49,6 +49,18 @@ describe('validateStrictPaginationParams', () => {
 		}
 	});
 
+	it('rejects a page too large to be a safe OFFSET (Infinity, precision loss)', () => {
+		for (const page of ['9'.repeat(400), '9'.repeat(20), '9007199254740991']) {
+			const result = validateStrictPaginationParams(qs(`page=${page}&limit=100`));
+			assert.ok('error' in result, page.slice(0, 20));
+			assert.equal((result as { status: number }).status, 400);
+		}
+	});
+
+	it('accepts a large but safe page', () => {
+		assert.deepEqual(validateStrictPaginationParams(qs('page=100000&limit=100')), { page: 100000, limit: 100 });
+	});
+
 	it('keeps the lenient validator unchanged for existing routes', () => {
 		assert.deepEqual(validatePaginationParams(qs('limit=1.5')), { page: 1, limit: 1 });
 	});

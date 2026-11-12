@@ -65,5 +65,18 @@ export function validateStrictPaginationParams(
 		};
 	}
 
-	return validatePaginationParams(searchParams);
+	const result = validatePaginationParams(searchParams);
+	if ('error' in result) return result;
+
+	// A ~400-digit `page` is a valid integer token but `parseInt` turns it into
+	// Infinity (and a 20-digit one loses precision), which would become a
+	// non-numeric OFFSET downstream. Reject anything beyond the safe-integer range.
+	if (!Number.isSafeInteger(result.page) || !Number.isSafeInteger(result.page * result.limit)) {
+		return {
+			error: 'Invalid page parameter. Must be a whole number.',
+			status: 400
+		};
+	}
+
+	return result;
 }

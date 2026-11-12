@@ -9,7 +9,7 @@ sidebar_position: 99
 
 ## 2026-11-12
 
-- `apps/web/app/api/admin/comments/route.ts` `apps/web/lib/utils/pagination-validation.ts`: `GET /api/admin/comments` answered 500 for `page=abc`, `page=0` or `limit=-1` (NaN / negative OFFSET and LIMIT reached Postgres) and read the whole table for `limit=100000`; it now answers 400 for a non-whole-number or out-of-range `page` / `limit` (limit 1-100, as the OpenAPI block already stated) through the new `validateStrictPaginationParams`. Unit spec `apps/web/lib/utils/__tests__/pagination-validation.spec.ts` (PR number to be added).
+- `spec-052` `apps/web/app/api/admin/comments/route.ts` `apps/web/lib/utils/pagination-validation.ts`: `GET /api/admin/comments` answered 500 for `page=abc`, `page=0` or `limit=-1` (NaN / negative OFFSET and LIMIT reached Postgres) and read the whole table for `limit=100000`; it now answers 400 for a non-whole-number or out-of-range `page` / `limit` (limit 1-100, as the OpenAPI block already stated) through the new `validateStrictPaginationParams`. A `page` beyond the safe-integer range (e.g. 400 digits, which `parseInt` reads as Infinity) is also a 400. No spec owns this route; the change applies the strict whole-number query rule from [052](spec/052-admin-payment-reports/spec.md) to it, so no new spec folder was added. Unit spec `apps/web/lib/utils/__tests__/pagination-validation.spec.ts` (PR #1104).
 
 ## 2026-11-08
 
