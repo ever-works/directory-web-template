@@ -86,9 +86,10 @@ export async function GET(request: Request, { params }: { params: Promise<{ slug
 				totalRatings: count().as('totalRatings')
 			})
 			.from(comments)
-			// Same rows as the comments list and the page's Product JSON-LD
-			// (getCommentsByItemId + summarizeRatings): reviewers with a deactivated
-			// account and ratings outside 1-5 (the column defaults to 0) are not counted.
+			// Counts the same rows as the page's Product JSON-LD (getCommentsByItemId +
+			// summarizeRatings): reviewers with a deactivated account and ratings outside
+			// 1-5 (the column defaults to 0) are left out. The comments list itself still
+			// returns rating-0 comments; only the rating average skips them.
 			.innerJoin(clientProfiles, eq(comments.userId, clientProfiles.id))
 			.innerJoin(users, and(eq(users.id, clientProfiles.userId), isNull(users.deactivatedAt)))
 			.where(
