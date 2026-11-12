@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { parsePaginationParams } from '../pagination-params';
+import { MAX_PAGE, parsePaginationParams } from '../pagination-params';
 
 /**
  * Run with: `pnpm --filter @ever-works/web test:unit`
@@ -27,6 +27,16 @@ describe('parsePaginationParams', () => {
 		assert.deepEqual(parsePaginationParams('0', '0'), { page: 1, limit: 1, offset: 0 });
 		assert.deepEqual(parsePaginationParams('-4', '-2'), { page: 1, limit: 1, offset: 0 });
 		assert.deepEqual(parsePaginationParams('2', '9999'), { page: 2, limit: 50, offset: 50 });
+	});
+
+	it('caps an absurdly large page so the offset stays a small exact integer', () => {
+		const huge = parsePaginationParams('99999999999999999999', '10');
+		assert.equal(huge.page, MAX_PAGE);
+		assert.equal(huge.offset, (MAX_PAGE - 1) * 10);
+		assert.ok(Number.isSafeInteger(huge.offset));
+		assert.equal(parsePaginationParams('1e400', null).page, 1);
+		assert.equal(parsePaginationParams(String(MAX_PAGE), '10').page, MAX_PAGE);
+		assert.equal(parsePaginationParams(String(MAX_PAGE + 1), '10').page, MAX_PAGE);
 	});
 
 	it('never lets the fallback limit exceed the max limit', () => {

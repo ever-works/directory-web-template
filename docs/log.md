@@ -9,7 +9,7 @@ sidebar_position: 99
 
 ## 2026-11-10
 
-- `spec-056` `apps/web/lib/utils/pagination-params.ts` `apps/web/app/api/auth/security/login-activity/route.ts`: `GET /api/auth/security/login-activity?page=abc` (or `limit=abc`) computed a NaN OFFSET and answered 500; the new shared `parsePaginationParams()` falls back to the defaults for non-numeric values and clamps numeric ones, the fallback limit included. Unit spec `apps/web/lib/utils/__tests__/pagination-params.spec.ts` ([056](spec/056-pagination-params/spec.md), #1102).
+- `spec-056` `apps/web/lib/utils/pagination-params.ts` `apps/web/app/api/auth/security/login-activity/route.ts`: `GET /api/auth/security/login-activity?page=abc` (or `limit=abc`) computed a NaN OFFSET and answered 500; the new shared `parsePaginationParams()` falls back to the defaults for non-numeric values and clamps numeric ones, the fallback limit included, and caps `page` at 100000. Unit spec `apps/web/lib/utils/__tests__/pagination-params.spec.ts` ([056](spec/056-pagination-params/spec.md), #1102).
 
 ## 2026-11-08
 

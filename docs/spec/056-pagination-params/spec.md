@@ -30,6 +30,8 @@ routes parse the same way (see plan, "Follow-ups").
   (10 unless set); a numeric one is at least 1.
 - **R3.** The limit never exceeds the caller's maximum (50 unless set), including
   when the fallback default is above that maximum.
+- **R3a.** `page` never exceeds `MAX_PAGE` (100000), so a huge numeric value such as
+  `99999999999999999999` cannot produce an OFFSET the database rejects.
 - **R4.** `offset` is `(page - 1) * limit`.
 - **R5.** The response shape of `login-activity` does not change. Valid
   requests behave as before; only invalid values change, from 500 to the defaults.

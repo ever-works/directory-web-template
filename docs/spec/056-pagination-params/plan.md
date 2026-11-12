@@ -18,8 +18,16 @@ parsed one.
 
 ## Constitution Check
 
-- **No new dependency, no removal:** met.
-- **Additive and reversible:** met; one route switched, behaviour of valid input unchanged.
+- [x] **I — Plugin-First** — not applicable; a pure utility used by one API route.
+- [x] **II — TypeScript Everywhere** — the helper, its route change and its unit spec are TypeScript.
+- [x] **III — Spec Before Code** — spec, plan and tasks exist.
+- [x] **IV — Documentation First-Class** — spec folder and `docs/log.md` entry added.
+- [x] **V — Performance Budget** — O(1) string parsing; the page cap keeps the SQL OFFSET small.
+- [x] **VI — Latest Stable Frameworks** — no framework or dependency changes.
+- [x] **VII — Reuse Before Build** — `lib/utils/pagination-validation.ts` answers 400 for bad input on admin routes; this helper intentionally falls back to defaults so existing `login-activity` clients keep working (see spec §4). The two policies are deliberate, not duplicated.
+- [x] **VIII — No Removal Without Migration** — additive; no removal. Valid input behaves as before.
+- [x] **IX — Test Coverage Bar** — unit spec in `test:unit`; not a user-visible UI change, so no Playwright test.
+- [x] **X — Modular Packages** — no package changes.
 
 ## Follow-ups
 
