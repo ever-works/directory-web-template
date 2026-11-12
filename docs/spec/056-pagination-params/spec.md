@@ -6,7 +6,7 @@ sidebar_label: 056 Pagination params
 
 # Feature spec — `056-pagination-params`
 
-> **Status:** shipped (first route) · **Plan:** [`plan.md`](./plan.md) · **Tasks:** [`tasks.md`](./tasks.md)
+> **Status:** in-progress (first route shipped; follow-up routes open) · **Plan:** [`plan.md`](./plan.md) · **Tasks:** [`tasks.md`](./tasks.md)
 
 ## 1. Summary
 
@@ -24,17 +24,23 @@ routes parse the same way (see plan, "Follow-ups").
 
 ## 3. Requirements
 
+- **R0.** Only a plain whole number (optional leading `-`, then digits, a safe
+  integer) is read as a number. `2abc`, `1.5` or `9007199254740993` are treated as
+  non-numeric, never as a different page or size.
 - **R1.** A missing, empty or non-numeric `page` is page 1; a numeric one is at
   least 1.
 - **R2.** A missing, empty or non-numeric `limit` is the caller's default
   (10 unless set); a numeric one is at least 1.
 - **R3.** The limit never exceeds the caller's maximum (50 unless set), including
   when the fallback default is above that maximum.
-- **R3a.** `page` never exceeds `MAX_PAGE` (100000), so a huge numeric value such as
-  `99999999999999999999` cannot produce an OFFSET the database rejects.
+- **R3a.** `page` never exceeds `MAX_PAGE` (100000), so a large numeric value
+  cannot produce an OFFSET the database rejects. (An integer beyond the safe range
+  is non-numeric under R0 and is page 1.)
 - **R4.** `offset` is `(page - 1) * limit`.
 - **R5.** The response shape of `login-activity` does not change. Valid
-  requests behave as before; only invalid values change, from 500 to the defaults.
+  requests behave as before, with one exception: a page above 100000 is clamped
+  to 100000 and reported as 100000. Only invalid values otherwise change, from 500
+  to the defaults.
 
 ## 4. Out of scope
 
