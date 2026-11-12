@@ -7,6 +7,10 @@ sidebar_position: 99
 
 # Documentation & Specs Change Log
 
+## 2026-11-11
+
+- `spec-057` `apps/web/lib/seo/{aggregate-rating,schema}.ts` `apps/web/app/[locale]/items/[slug]/page.tsx` `apps/web/components/item-detail/item-detail.tsx`: the item page's `Product` JSON-LD gains `aggregateRating` (mean of valid 1-5 ratings, one decimal, plus review count) computed from the comments the page already prefetches; no valid rating, no key. The visible rating (`app/api/items/[slug]/comments/rating/route.ts`) now counts the same rows (active reviewers, ratings 1-5), so the badge and the markup agree. Unit specs `apps/web/lib/seo/__tests__/{aggregate-rating,product-schema-rating}.spec.ts` ([057](spec/057-item-aggregate-rating/spec.md), #1103).
+
 ## 2026-11-10
 
 - `spec-056` `apps/web/lib/utils/pagination-params.ts` `apps/web/app/api/auth/security/login-activity/route.ts`: `GET /api/auth/security/login-activity?page=abc` (or `limit=abc`) computed a NaN OFFSET and answered 500; the new shared `parsePaginationParams()` falls back to the defaults for non-numeric values and clamps numeric ones, the fallback limit included, and caps `page` at 100000. Unit spec `apps/web/lib/utils/__tests__/pagination-params.spec.ts` ([056](spec/056-pagination-params/spec.md), #1102).

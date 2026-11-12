@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/db/drizzle';
-import { comments } from '@/lib/db/schema';
-import { and, avg, count, isNull, eq } from 'drizzle-orm';
+import { clientProfiles, comments, users } from '@/lib/db/schema';
+import { and, avg, count, gte, isNull, eq, lte } from 'drizzle-orm';
+import { MAX_RATING, MIN_RATING } from '@/lib/seo/aggregate-rating';
 import { checkDatabaseAvailability } from '@/lib/utils/database-check';
 import { getItemIdFromSlug } from '@/lib/db/queries/item.queries';
 import { getTenantId } from '@/lib/auth/tenant';
@@ -12,7 +13,7 @@ import { getTenantId } from '@/lib/auth/tenant';
  *   get:
  *     tags: ["Item Comments"]
  *     summary: "Get item rating statistics"
- *     description: "Returns aggregated rating statistics for a specific item including average rating and total number of ratings. Only counts non-deleted comments. This is a public endpoint that doesn't require authentication and includes database availability checking."
+ *     description: "Returns aggregated rating statistics for a specific item including average rating and total number of ratings. Only counts non-deleted comments from active accounts with a rating from 1 to 5. This is a public endpoint that doesn't require authentication and includes database availability checking."
  *     parameters:
  *       - name: "slug"
  *         in: "path"
@@ -85,7 +86,21 @@ export async function GET(request: Request, { params }: { params: Promise<{ slug
 				totalRatings: count().as('totalRatings')
 			})
 			.from(comments)
-			.where(and(eq(comments.itemId, itemId), isNull(comments.deletedAt), eq(comments.tenantId, tenantId)));
+			// Counts the same rows as the page's Product JSON-LD (getCommentsByItemId +
+			// summarizeRatings): reviewers with a deactivated account and ratings outside
+			// 1-5 (the column defaults to 0) are left out. The comments list itself still
+			// returns rating-0 comments; only the rating average skips them.
+			.innerJoin(clientProfiles, eq(comments.userId, clientProfiles.id))
+			.innerJoin(users, and(eq(users.id, clientProfiles.userId), isNull(users.deactivatedAt)))
+			.where(
+				and(
+					eq(comments.itemId, itemId),
+					isNull(comments.deletedAt),
+					eq(comments.tenantId, tenantId),
+					gte(comments.rating, MIN_RATING),
+					lte(comments.rating, MAX_RATING)
+				)
+			);
 
 		const { averageRating, totalRatings } = result[0];
 
