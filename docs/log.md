@@ -11,6 +11,10 @@ sidebar_position: 99
 
 - `spec-057` `apps/web/lib/seo/{aggregate-rating,schema}.ts` `apps/web/app/[locale]/items/[slug]/page.tsx` `apps/web/components/item-detail/item-detail.tsx`: the item page's `Product` JSON-LD gains `aggregateRating` (mean of valid 1-5 ratings, one decimal, plus review count) computed from the comments the page already prefetches; no valid rating, no key. The visible rating (`app/api/items/[slug]/comments/rating/route.ts`) now counts the same rows (active reviewers, ratings 1-5), so the badge and the markup agree. Unit specs `apps/web/lib/seo/__tests__/{aggregate-rating,product-schema-rating}.spec.ts` ([057](spec/057-item-aggregate-rating/spec.md), #1103).
 
+## 2026-11-10
+
+- `spec-056` `apps/web/lib/utils/pagination-params.ts` `apps/web/app/api/auth/security/login-activity/route.ts`: `GET /api/auth/security/login-activity?page=abc` (or `limit=abc`) computed a NaN OFFSET and answered 500; the new shared `parsePaginationParams()` falls back to the defaults for non-numeric values and clamps numeric ones, the fallback limit included, and caps `page` at 100000. Unit spec `apps/web/lib/utils/__tests__/pagination-params.spec.ts` ([056](spec/056-pagination-params/spec.md), #1102).
+
 ## 2026-11-08
 
 - `spec-054` `turbo.json` `.github/workflows/deploy_vercel.yaml` `apps/web/lib/{git/site-git-token,repository,repositories/category.repository}.ts`: review fixes from the develop → stage promotion (#1099). Turbo's strict env mode dropped `EVER_WORKS_SITE_GIT_TOKEN_*` from the image build (now in `tasks.build.env`, like `GH_*`); the Vercel deploy now removes a variable only when it can verify the removal and retries the write, failing the deploy instead of continuing without `GH_TOKEN` or with a stale broker secret; `onAuth` / `onAuthFailure` hand the token to no caller that names no remote; every git network call of a sync gets its own callbacks, so the one-refresh budget is per operation; the category gate's error names the broker variables. Spec 054 is `in-progress` until T-006 ([054](spec/054-per-site-git-token/spec.md), #1100).
