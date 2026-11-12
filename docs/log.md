@@ -7,6 +7,10 @@ sidebar_position: 99
 
 # Documentation & Specs Change Log
 
+## 2026-11-12
+
+- `apps/web/app/api/admin/comments/route.ts` `apps/web/lib/utils/pagination-validation.ts`: `GET /api/admin/comments` answered 500 for `page=abc`, `page=0` or `limit=-1` (NaN / negative OFFSET and LIMIT reached Postgres) and read the whole table for `limit=100000`; it now answers 400 for a non-whole-number or out-of-range `page` / `limit` (limit 1-100, as the OpenAPI block already stated) through the new `validateStrictPaginationParams`. Unit spec `apps/web/lib/utils/__tests__/pagination-validation.spec.ts` (PR number to be added).
+
 ## 2026-11-08
 
 - `spec-054` `turbo.json` `.github/workflows/deploy_vercel.yaml` `apps/web/lib/{git/site-git-token,repository,repositories/category.repository}.ts`: review fixes from the develop → stage promotion (#1099). Turbo's strict env mode dropped `EVER_WORKS_SITE_GIT_TOKEN_*` from the image build (now in `tasks.build.env`, like `GH_*`); the Vercel deploy now removes a variable only when it can verify the removal and retries the write, failing the deploy instead of continuing without `GH_TOKEN` or with a stale broker secret; `onAuth` / `onAuthFailure` hand the token to no caller that names no remote; every git network call of a sync gets its own callbacks, so the one-refresh budget is per operation; the category gate's error names the broker variables. Spec 054 is `in-progress` until T-006 ([054](spec/054-per-site-git-token/spec.md), #1100).
