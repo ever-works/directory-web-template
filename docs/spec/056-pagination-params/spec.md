@@ -37,10 +37,12 @@ routes parse the same way (see plan, "Follow-ups").
   cannot produce an OFFSET the database rejects. (An integer beyond the safe range
   is non-numeric under R0 and is page 1.)
 - **R4.** `offset` is `(page - 1) * limit`.
-- **R5.** The response shape of `login-activity` does not change. Valid
-  requests behave as before, with one exception: a page above 100000 is clamped
-  to 100000 and reported as 100000. Only invalid values otherwise change, from 500
-  to the defaults.
+- **R5.** The response shape of `login-activity` does not change. Requests whose
+  `page` and `limit` are plain whole numbers in range behave as before, with one
+  exception: a page above 100000 is clamped to 100000 and reported as 100000.
+  Everything else now gets the defaults: values that used to answer 500, and
+  malformed numbers that `parseInt` used to read loosely (`?page=2abc` was page 2
+  and is now page 1; `?limit=1.5` returned 1 row and now returns 10).
 
 ## 4. Out of scope
 

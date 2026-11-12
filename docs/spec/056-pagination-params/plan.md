@@ -27,7 +27,7 @@ clamp as a parsed one.
 - [x] **V — Performance Budget** — O(1) string parsing; the page cap keeps the SQL OFFSET small.
 - [x] **VI — Latest Stable Frameworks** — no framework or dependency changes.
 - [x] **VII — Reuse Before Build** — `lib/utils/pagination-validation.ts` answers 400 for bad input on admin routes; this helper intentionally falls back to defaults so existing `login-activity` clients keep working (see spec §4). The two policies are deliberate, not duplicated.
-- [x] **VIII — No Removal Without Migration** — additive; no removal. Valid input behaves as before, except a page above 100000, which is now clamped to and reported as 100000.
+- [x] **VIII — No Removal Without Migration** — additive; no removal. Plain whole-number input in range behaves as before, except a page above 100000, which is now clamped to and reported as 100000. Malformed numbers that `parseInt` used to read loosely (`2abc`, `1.5`) now fall back to the defaults (spec R5).
 - [x] **IX — Test Coverage Bar** — unit spec in `test:unit`; not a user-visible UI change, so no Playwright test.
 - [x] **X — Modular Packages** — no package changes.
 
