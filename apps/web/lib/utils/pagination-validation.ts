@@ -3,6 +3,8 @@
  * Shared validation logic for pagination parameters across admin API routes
  */
 
+import { firstNonIntegerParam } from './integer-query-param';
+
 export interface PaginationParams {
 	page: number;
 	limit: number;
@@ -44,4 +46,37 @@ export function validatePaginationParams(
 	}
 
 	return { page, limit };
+}
+
+/**
+ * Same range rules as `validatePaginationParams`, but a `page` / `limit` that is
+ * not a whole-number token (`"1.5"`, `"2abc"`, `"abc"`) is rejected instead of
+ * being truncated by `parseInt`, so the caller never silently gets a different
+ * page size than the one it asked for.
+ */
+export function validateStrictPaginationParams(
+	searchParams: URLSearchParams
+): PaginationParams | PaginationError {
+	const malformed = firstNonIntegerParam(searchParams, ['page', 'limit']);
+	if (malformed) {
+		return {
+			error: `Invalid ${malformed} parameter. Must be a whole number.`,
+			status: 400
+		};
+	}
+
+	const result = validatePaginationParams(searchParams);
+	if ('error' in result) return result;
+
+	// A ~400-digit `page` is a valid integer token but `parseInt` turns it into
+	// Infinity (and a 20-digit one loses precision), which would become a
+	// non-numeric OFFSET downstream. Reject anything beyond the safe-integer range.
+	if (!Number.isSafeInteger(result.page) || !Number.isSafeInteger(result.page * result.limit)) {
+		return {
+			error: 'Invalid page parameter. Must be a whole number.',
+			status: 400
+		};
+	}
+
+	return result;
 }
