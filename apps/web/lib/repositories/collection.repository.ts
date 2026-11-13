@@ -45,7 +45,7 @@ export class CollectionRepository {
         };
 
         if (!hasSiteGitCredentials(process.env, gitConfig.token)) {
-          throw new Error('GitHub token not configured. Please set GH_TOKEN (or GITHUB_TOKEN) for collection sync.');
+          throw new Error('GitHub token not configured. Please set GH_TOKEN or GITHUB_TOKEN (or EVER_WORKS_SITE_GIT_TOKEN_URL + EVER_WORKS_SITE_GIT_TOKEN_SECRET) for collection sync.');
         }
 
         const svc = await createCollectionGitService(gitConfig);

@@ -4,6 +4,7 @@ import { afterEach, describe, it } from 'node:test';
 import {
 	getSiteGitToken,
 	hasSiteGitCredentials,
+	isGitHubRemote,
 	isSiteGitTokenBrokerConfigured,
 	resetSiteGitTokenCache,
 	siteGitAuthCallbacks
@@ -190,6 +191,27 @@ describe('site git token', () => {
 				username: 'x-access-token',
 				password: 'ghs_a'
 			});
+		});
+
+		it('refuses userinfo, look-alike hosts and ports, in onAuth and onAuthFailure', async () => {
+			const { fetchImpl, calls } = brokerReturning({ token: 'ghs_a' });
+			const auth = siteGitAuthCallbacks('ghp_static', { env: BROKER_ENV, fetchImpl });
+			for (const remote of [
+				'https://github.com@evil.example/x/y',
+				'https://github.com:443@evil.example/x/y',
+				'https://x-access-token:ghp_x@github.com/x/y',
+				'https://evil.example@github.com/x/y',
+				'https://github.com:8443/x/y',
+				'https://github.com./x/y',
+				'https://www.github.com/x/y',
+				'git@github.com:x/y.git'
+			]) {
+				assert.equal(isGitHubRemote(remote), false, remote);
+				assert.equal(await auth.onAuth(remote), undefined, remote);
+				assert.equal(await auth.onAuthFailure(remote, { password: 'ghs_a' }), undefined, remote);
+			}
+			assert.equal(calls.length, 0);
+			assert.equal(isGitHubRemote('https://GitHub.com/x/y.git'), true);
 		});
 
 		it('onAuth answers x-access-token + the current token', async () => {

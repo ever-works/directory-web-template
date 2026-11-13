@@ -17,6 +17,11 @@ sidebar_label: 054 Tasks
       collection / tag services, `repository.ts`, `config-manager.ts`).
 - [x] T-003: `GH_TOKEN` gates use `hasSiteGitCredentials()`.
 - [x] T-004: `scripts/site-git-token.cjs` + `clone.cjs`, with unit tests.
+- [x] T-004a: `clone.cjs` hands the token only to `https://github.com`
+      (`gitHubOnlyOnAuth` / `isGitHubRemote`, the twin of the runtime check; both
+      refuse userinfo and a port other than 443). Verify: `scripts/site-git-token.spec.ts` (http,
+      other hosts, `github.com.evil.com`, userinfo, the two twins agree) and
+      `lib/git/__tests__/site-git-token.spec.ts`.
 - [x] T-005: `deploy_vercel.yaml` reconciles the broker variables; Docker
       builds pass them as BuildKit secrets.
 - [ ] T-006: after the platform turns the broker on, confirm a deployed site

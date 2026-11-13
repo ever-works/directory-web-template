@@ -16,7 +16,11 @@ sidebar_label: 057 Tasks
   ignored 0 / out-of-range / non-numbers, schema shape, unpublishable summaries.
 - [x] **T-003a** `rating` is forwarded `ItemDetailWrapper` -> `ItemDetail` -> `ItemDetailContent`; the rating
   route counts only active reviewers and ratings 1-5, like the JSON-LD. Verify:
-  `apps/web/lib/seo/__tests__/product-schema-rating.spec.ts` (summary -> `aggregateRating`, none otherwise).
+  `apps/web/lib/seo/__tests__/product-schema-rating.spec.ts` (summary -> `aggregateRating`, none otherwise) and
+  `apps/web/lib/seo/__tests__/item-rating-wiring.spec.ts` (the forwarding chain, and the rating route's joins and
+  filters against `getCommentsByItemId` + `MIN_RATING` / `MAX_RATING`).
+- [x] **T-003b** No `aggregateRating` while the ratings feature is off (R4): `ratingWhenEnabled` on the server
+  (`getFeatureFlags().ratings`) and in `ItemDetailContent` (simulation-aware flags). Verify: the two specs above.
 - [ ] **T-004** Live check on a listing with reviews: the page's `Product` JSON-LD has `aggregateRating`
   and a listing without reviews has none; run the result through a rich-results validator.
 - [ ] **T-005** Playwright spec with seeded reviews (needs a seeded database in the e2e environment).

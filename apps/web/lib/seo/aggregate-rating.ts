@@ -42,6 +42,18 @@ export function summarizeRatings(ratings: ReadonlyArray<unknown>): RatingSummary
 }
 
 /**
+ * The summary the item page may publish (spec 057 R4): `null` while the ratings
+ * feature is off, so the `Product` schema then has no `aggregateRating` key and
+ * never claims a rating the page does not show.
+ */
+export function ratingWhenEnabled(
+	summary: RatingSummary | null | undefined,
+	ratingsEnabled: boolean
+): RatingSummary | null {
+	return ratingsEnabled && summary ? summary : null;
+}
+
+/**
  * Build the Schema.org `AggregateRating` node, or `null` when the summary is
  * missing or not publishable (no reviews, or a value outside the 1-5 scale).
  */

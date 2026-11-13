@@ -27,6 +27,10 @@ works the same on every host and for builds.
 ## Constraints kept
 
 - No new dependency; Node `fetch` only.
-- Without the two broker variables, every path behaves exactly as before.
+- Without the two broker variables, the site authenticates with `GH_TOKEN` as
+  before, for an `https://github.com` data repo. One deliberate change applies with
+  or without the broker: the token (a GitHub credential) is handed only to
+  `https://github.com`, by the runtime callbacks and by the build-time clone, so a
+  data repo on another host or over plain `http://` is read without it.
 - No secret or token in logs, image layers or build records (BuildKit secrets).
 - Plugin-first / no-removal: nothing removed; `GH_TOKEN` stays the fallback.
