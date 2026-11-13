@@ -10,6 +10,22 @@ import {
 import { ItemRepository } from './item.repository';
 import { slugify } from '@/lib/utils/slug';
 import { getViewsPerItem } from '@/lib/db/queries/item-view.queries';
+import { findItemBySourceUrl } from '@/lib/utils/source-url';
+
+/**
+ * Thrown by `createAsClient` when a pending or approved item already uses the
+ * submitted link. `existingSlug` is set only when that item is public
+ * (approved), so a pending submission by someone else is not revealed.
+ */
+export class DuplicateSourceUrlError extends Error {
+  readonly existingSlug?: string;
+
+  constructor(existingSlug?: string) {
+    super('An item with this link already exists');
+    this.name = 'DuplicateSourceUrlError';
+    this.existingSlug = existingSlug;
+  }
+}
 
 // ===================== Geo Types =====================
 
@@ -56,6 +72,12 @@ export class ClientItemRepository {
     // Guard against empty slugs (e.g., name with only special characters)
     if (!baseSlug) {
       throw new Error('Item name must produce a valid slug');
+    }
+
+    // Refuse a link the directory already has (pending or approved)
+    const duplicate = findItemBySourceUrl(await this.itemRepository.findAll(), data.source_url);
+    if (duplicate) {
+      throw new DuplicateSourceUrlError(duplicate.status === 'approved' ? duplicate.slug : undefined);
     }
 
     // Ensure unique slug by checking for duplicates
