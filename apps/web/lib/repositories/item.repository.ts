@@ -4,6 +4,7 @@ import { createItemGitService, ItemGitServiceConfig, ItemGitService } from '@/li
 import { getContentPath } from '@/lib/lib';
 import { coreConfig } from '@/lib/config/config-service';
 import { itemAuditService, type AuditUser } from '@/lib/services/item-audit.service';
+import { hasSiteGitCredentials } from '@/lib/git/site-git-token';
 
 export class ItemRepository {
   private gitService: ItemGitService | null = null;
@@ -23,8 +24,10 @@ export class ItemRepository {
         const dataRepo = coreConfig.content.dataRepository;
         const token = coreConfig.content.ghToken;
 
-        if (!dataRepo || !token) {
-          throw new Error('DATA_REPOSITORY and GH_TOKEN environment variables are required');
+        if (!dataRepo || !hasSiteGitCredentials(process.env, token)) {
+          throw new Error(
+            'DATA_REPOSITORY and GH_TOKEN (or EVER_WORKS_SITE_GIT_TOKEN_URL + EVER_WORKS_SITE_GIT_TOKEN_SECRET) environment variables are required'
+          );
         }
 
         // Parse DATA_REPOSITORY URL to extract owner and repo
@@ -37,7 +40,9 @@ export class ItemRepository {
         const config: ItemGitServiceConfig = {
           owner,
           repo,
-          token,
+          // '' when only the site git-token broker is configured: the git service
+          // then gets its token from the broker (lib/git/site-git-token.ts).
+          token: token ?? '',
           branch: coreConfig.content.githubBranch,
           dataDir: getContentPath(), // Use dynamic path (local: .content, Vercel: /tmp/.content)
           itemsDir: 'data',

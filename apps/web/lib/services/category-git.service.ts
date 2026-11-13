@@ -4,6 +4,7 @@ import * as yaml from 'yaml';
 import * as http from 'isomorphic-git/http/node';
 import git from 'isomorphic-git';
 import { CategoryData, CreateCategoryRequest, UpdateCategoryRequest } from '@/lib/types/category';
+import { siteGitAuthCallbacks } from '@/lib/git/site-git-token';
 
 interface GitConfig {
   owner: string;
@@ -85,7 +86,7 @@ export class CategoryGitService {
     const auth = this.getAuth();
 
     await git.clone({
-      onAuth: () => auth,
+      ...auth,
       fs,
       http,
       dir: this.config.dataDir,
@@ -103,7 +104,7 @@ export class CategoryGitService {
       const committer = this.getCommitter();
 
       await git.pull({
-        onAuth: () => auth,
+        ...auth,
         fs,
         http,
         dir: this.config.dataDir,
@@ -164,13 +165,11 @@ export class CategoryGitService {
   }
 
   /**
-   * Get Git authentication
+   * isomorphic-git `onAuth` / `onAuthFailure` for the data repo: the platform's
+   * per-site broker token when configured, else this service's static token.
    */
   private getAuth() {
-    return {
-      username: 'x-access-token',
-      password: this.config.gitConfig.token,
-    };
+    return siteGitAuthCallbacks(this.config.gitConfig.token);
   }
 
   /**
@@ -241,7 +240,7 @@ export class CategoryGitService {
         // Push to GitHub
         const auth = this.getAuth();
         await git.push({
-          onAuth: () => auth,
+          ...auth,
           fs,
           http,
           dir: this.config.dataDir,
@@ -481,7 +480,7 @@ export class CategoryGitService {
       // Push to GitHub
       const auth = this.getAuth();
       await git.push({
-        onAuth: () => auth,
+        ...auth,
         fs,
         http,
         dir: this.config.dataDir,

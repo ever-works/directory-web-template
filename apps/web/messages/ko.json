@@ -43,6 +43,8 @@
 		"OPEN_USER_MENU": "사용자 메뉴 열기"
 	},
 	"common": {
+		"DEMO_BANNER_TEXT": "데모 계정을 사용하고 있습니다. 저희 소프트웨어가 유용하신가요?",
+		"DEMO_BANNER_SIGN_UP": "여기를 클릭하여 가입하고 무료로 사용을 시작하세요!",
 		"FAQ": "자주 묻는 질문",
 		"DISCOVER": "탐색",
 		"HOME": "홈",

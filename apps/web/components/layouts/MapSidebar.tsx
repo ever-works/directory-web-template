@@ -3,9 +3,9 @@
 import { useEffect, useRef } from 'react';
 import Image from 'next/image';
 import { Link } from "@/i18n/navigation";
-import { useLocale, useTranslations } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import { MapPin } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { cn, getItemPath } from '@/lib/utils';
 import type { ItemData, Category } from '@/lib/content';
 
 /**
@@ -44,7 +44,6 @@ interface MapSidebarProps {
  * marker clicks can highlight the matching card and vice-versa.
  */
 export function MapSidebar({ items, selectedSlug, onSelect, className }: MapSidebarProps) {
-	const locale = useLocale();
 	const t = useTranslations('listing');
 	const containerRef = useRef<HTMLUListElement>(null);
 
@@ -122,7 +121,7 @@ export function MapSidebar({ items, selectedSlug, onSelect, className }: MapSide
 											</p>
 										)}
 										<Link
-											href={`/${locale}/items/${item.slug}`}
+											href={getItemPath(item.slug)}
 											className="inline-block mt-2 text-xs font-medium text-theme-primary-600 dark:text-theme-primary-400 hover:underline"
 											onClick={(event) => event.stopPropagation()}
 										>

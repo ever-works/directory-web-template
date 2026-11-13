@@ -304,6 +304,8 @@ jobs:
                       VERDACCIO_REGISTRY=${{ vars.VERDACCIO_REGISTRY }}
                   secrets: |
                       gh_token=${{ secrets.GH_TOKEN }}
+                      site_git_token_url=${{ secrets.EVER_WORKS_SITE_GIT_TOKEN_URL }}
+                      site_git_token_secret=${{ secrets.EVER_WORKS_SITE_GIT_TOKEN_SECRET }}
                   # Disable provenance / SBOM attestation. With these on,
                   # buildx pushes a manifest LIST (image + attestation
                   # artifact) rather than a single image manifest. GHCR's

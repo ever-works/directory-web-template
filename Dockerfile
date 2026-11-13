@@ -87,8 +87,17 @@ ENV DATA_REPOSITORY=${DATA_REPOSITORY}
 # it is then UNSET for the build so nothing (not even '') gets inlined.
 ARG NEXT_PUBLIC_CANONICAL_URL=""
 
+# The data-repo credential for the build-time clone (scripts/clone.cjs): GH_TOKEN,
+# and, when Ever Works runs the site git-token broker, its URL + this site's
+# secret, so a build long after the last deploy still gets a fresh one-repo token
+# (GH_TOKEN is then only the deploy-time bootstrap, valid about an hour).
+# BuildKit secrets: never in a layer, the image history or a build record.
 RUN --mount=type=secret,id=gh_token \
+    --mount=type=secret,id=site_git_token_url \
+    --mount=type=secret,id=site_git_token_secret \
     sh -c 'if [ -s /run/secrets/gh_token ]; then export GH_TOKEN=$(cat /run/secrets/gh_token); fi; \
+           if [ -s /run/secrets/site_git_token_url ]; then export EVER_WORKS_SITE_GIT_TOKEN_URL=$(cat /run/secrets/site_git_token_url); fi; \
+           if [ -s /run/secrets/site_git_token_secret ]; then export EVER_WORKS_SITE_GIT_TOKEN_SECRET=$(cat /run/secrets/site_git_token_secret); fi; \
            if [ -z "$NEXT_PUBLIC_CANONICAL_URL" ]; then unset NEXT_PUBLIC_CANONICAL_URL; fi; \
            pnpm exec turbo build --filter=@ever-works/web...'
 

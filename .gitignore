@@ -69,3 +69,6 @@ public/openapi.backup.json
 
 # claude
 .claude
+
+# Graphify knowledge graph: local, per-machine build output (never commit)
+graphify-out/

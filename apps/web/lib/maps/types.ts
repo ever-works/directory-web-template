@@ -296,7 +296,10 @@ export interface MapItemPopupProps {
 	position: Coordinates;
 	/** Called when popup is closed */
 	onClose: () => void;
-	/** Locale for link generation */
+	/**
+	 * @deprecated Ignored. The next-intl `Link` already links in the active locale, and
+	 * passing it a `locale` forces a prefix (`/en/items/...` on the default locale).
+	 */
 	locale?: string;
 }
 

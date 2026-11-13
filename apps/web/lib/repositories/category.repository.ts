@@ -9,6 +9,7 @@ import {
 } from "@/lib/types/category";
 import { createCategoryGitService } from "@/lib/services/category-git.service";
 import { coreConfig } from "@/lib/config/config-service";
+import { hasSiteGitCredentials } from '@/lib/git/site-git-token';
 
 /**
  * Repository for category business logic operations
@@ -39,8 +40,8 @@ export class CategoryRepository {
         branch: coreConfig.content.githubBranch || 'main',
       };
 
-      if (!gitConfig.token) {
-        throw new Error('GitHub token not configured. Please set GH_TOKEN environment variable.');
+      if (!hasSiteGitCredentials(process.env, gitConfig.token)) {
+        throw new Error('GitHub token not configured. Please set GH_TOKEN (or EVER_WORKS_SITE_GIT_TOKEN_URL + EVER_WORKS_SITE_GIT_TOKEN_SECRET).');
       }
 
       this.gitService = await createCategoryGitService(gitConfig);

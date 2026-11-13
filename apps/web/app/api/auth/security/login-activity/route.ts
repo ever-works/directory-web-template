@@ -4,6 +4,7 @@ import { db } from '@/lib/db/drizzle';
 import { activityLogs, ActivityType } from '@/lib/db/schema';
 import { eq, and, or, inArray, desc, count } from 'drizzle-orm';
 import { getTenantId } from '@/lib/auth/tenant';
+import { parsePaginationParams } from '@/lib/utils/pagination-params';
 
 const SECURITY_ACTIONS: ActivityType[] = [
 	ActivityType.SIGN_IN,
@@ -57,9 +58,7 @@ export async function GET(req: NextRequest) {
 		}
 
 		const { searchParams } = new URL(req.url);
-		const page = Math.max(1, parseInt(searchParams.get('page') ?? '1', 10));
-		const limit = Math.min(50, Math.max(1, parseInt(searchParams.get('limit') ?? '10', 10)));
-		const offset = (page - 1) * limit;
+		const { page, limit, offset } = parsePaginationParams(searchParams.get('page'), searchParams.get('limit'));
 
 		const userId = session.user.id;
 		const clientProfileId = (session as any).user?.clientProfileId as string | undefined;

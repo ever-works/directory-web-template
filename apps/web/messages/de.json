@@ -43,6 +43,8 @@
 		"OPEN_USER_MENU": "Open user menu"
 	},
 	"common": {
+		"DEMO_BANNER_TEXT": "Sie verwenden ein Demo-Konto. Finden Sie unsere Software nützlich?",
+		"DEMO_BANNER_SIGN_UP": "Klicken Sie hier, um sich zu registrieren und kostenlos loszulegen!",
 		"FAQ": "FAQ",
 		"DISCOVER": "Entdecken",
 		"HOME": "Startseite",

@@ -5,7 +5,7 @@ import { useTranslations } from 'next-intl';
 import { Link } from "@/i18n/navigation";
 import Image from 'next/image';
 import { X, ExternalLink, Tag } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { cn, getItemPath } from '@/lib/utils';
 import type { MapItemPopupProps } from '@/lib/maps/types';
 
 // Max length for description preview
@@ -36,7 +36,6 @@ function truncateText(text: string, maxLength: number): string {
  *   isOpen={isPopupOpen}
  *   position={{ latitude: 40.7128, longitude: -74.0060 }}
  *   onClose={() => setIsPopupOpen(false)}
- *   locale="en"
  * />
  * ```
  */
@@ -44,8 +43,7 @@ export function MapItemPopup({
 	item,
 	isOpen,
 	position: _position,
-	onClose,
-	locale = 'en'
+	onClose
 }: MapItemPopupProps): React.ReactElement | null {
 	const t = useTranslations('listing');
 	const popupRef = useRef<HTMLDivElement>(null);
@@ -97,7 +95,6 @@ export function MapItemPopup({
 		return null;
 	}
 
-	const itemUrl = `/${locale}/items/${item.slug}`;
 	const truncatedDescription = item.description
 		? truncateText(item.description, DESCRIPTION_MAX_LENGTH)
 		: null;
@@ -179,7 +176,7 @@ export function MapItemPopup({
 			{/* View Details link */}
 			<div className="px-4 pb-4 pt-2">
 				<Link
-					href={itemUrl}
+					href={getItemPath(item.slug)}
 					className={cn(
 						'inline-flex items-center gap-1.5 text-sm font-medium',
 						'text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300',
@@ -208,7 +205,10 @@ interface MapItemCardProps {
 	category?: string;
 	/** Short description */
 	description?: string;
-	/** Locale for URL */
+	/**
+	 * @deprecated Ignored. The next-intl `Link` already links in the active locale, and
+	 * passing it a `locale` forces a prefix (`/en/items/...` on the default locale).
+	 */
 	locale?: string;
 	/** Additional CSS classes */
 	className?: string;
@@ -226,7 +226,6 @@ export function MapItemCard({
 	icon,
 	category,
 	description,
-	locale = 'en',
 	className,
 	onClick
 }: MapItemCardProps): React.ReactElement {
@@ -281,7 +280,7 @@ export function MapItemCard({
 	}
 
 	return (
-		<Link href={`/${locale}/items/${slug}`} className={baseClasses}>
+		<Link href={getItemPath(slug)} className={baseClasses}>
 			{content}
 		</Link>
 	);

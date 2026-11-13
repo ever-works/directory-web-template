@@ -5,8 +5,7 @@ import { Link } from "@/i18n/navigation";
 import Image from 'next/image';
 import { FiFolder, FiExternalLink, FiArrowRight } from 'react-icons/fi';
 import { Megaphone } from 'lucide-react';
-import { useParams } from 'next/navigation';
-import { cn } from '@/lib/utils';
+import { cn, getItemPath } from '@/lib/utils';
 import { SponsorBadge } from './sponsor-badge';
 import { shouldShowFallback, isProblematicUrl } from '@/lib/utils/image-domains';
 import { useTranslations } from 'next-intl';
@@ -35,8 +34,6 @@ export function SidebarSponsor({
 	className,
 	title
 }: SidebarSponsorProps) {
-	const params = useParams();
-	const locale = params?.locale as string | undefined;
 	const t = useTranslations('sponsor');
 	const [currentIndex, setCurrentIndex] = useState(0);
 
@@ -66,7 +63,8 @@ export function SidebarSponsor({
 	const current = validSponsors[currentIndex];
 	const item = current.item!;
 	const shouldShowFallbackIcon = shouldShowFallback(item.icon_url || '');
-	const detailPath = `${locale ? `/${locale}` : ''}/items/${item.slug}`;
+	// The next-intl `Link` adds the locale prefix; adding it here doubled it.
+	const detailPath = getItemPath(item.slug);
 	const categoryName = getCategoryName(item.category);
 
 	return (

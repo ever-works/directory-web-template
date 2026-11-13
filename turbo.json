@@ -23,6 +23,7 @@
 				"DOCS_LOCALES",
 				"DOCS_URL",
 				"EMAIL_*",
+				"EVER_WORKS_SITE_GIT_TOKEN_*",
 				"GH_*",
 				"GITHUB_*",
 				"NEXT_PUBLIC_*",
