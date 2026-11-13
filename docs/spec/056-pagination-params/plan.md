@@ -41,8 +41,9 @@ without changing a documented answer: `apps/web/app/api/items/popularity-scores`
 end).
 
 Not candidates: `apps/web/app/api/admin/companies` and `apps/web/app/api/admin/collections`
-already answer 400 for a non-numeric or out-of-range `page` / `limit` and document it in their
-OpenAPI blocks, so the helper's fallback would change their contract. They still read
+already answer 400 for a non-numeric or out-of-range `page` / `limit` (the companies OpenAPI
+block documents that 400; the collections one documents only the 1-1000 bounds), so the
+helper's fallback would change their contract. They still read
 `2abc` loosely through `parseInt`; tightening that belongs with the strict
 `validateStrictPaginationParams()` (`lib/utils/pagination-validation.ts`, spec 052, #1104),
 which `apps/web/app/api/admin/comments` now uses, and collections' 1-1000 limit would need a

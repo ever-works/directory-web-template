@@ -68,8 +68,9 @@ manual token edits.
   token when another request already refreshed, never settles for an in-flight
   answer GitHub just rejected, and neither callback answers for a remote that is
   not `https://github.com` (`isGitHubRemote`: `https:`, host exactly `github.com`,
-  no port other than 443, no credentials in the URL; `github.com.evil.com` and
-  `github.com@evil.com` are refused).
+  no port other than 443, no credentials in the URL, and the URL text itself starts
+  with `https://github.com/`; `github.com.evil.com`, `github.com@evil.com` and the
+  percent-encoded `github%2Ecom` are refused).
 - Nothing logs the secret or a token.
 
 ## 4. Out of scope

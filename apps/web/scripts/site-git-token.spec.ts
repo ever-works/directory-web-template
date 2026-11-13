@@ -147,6 +147,21 @@ describe('build-time clone hands the token to https://github.com only (scripts/s
 		}
 	});
 
+	it('refuses hosts only new URL() reads as github.com (percent-encoding, a backslash or ? before @)', () => {
+		const onAuth = gitHubOnlyOnAuth('ghs_fresh');
+		for (const remote of [
+			'https://github%2Ecom/ever-works/data',
+			'https://%67ithub.com/ever-works/data',
+			'https://github%E3%80%82com/ever-works/data',
+			'https://github.com\\@evil.com/ever-works/data',
+			'https://github.com?@evil.com/ever-works/data'
+		]) {
+			assert.equal(isGitHubRemote(remote), false, remote);
+			assert.equal(runtimeIsGitHubRemote(remote), false, remote);
+			assert.equal(onAuth(remote), undefined, remote);
+		}
+	});
+
 	it('clone.cjs hands isomorphic-git the GitHub-only onAuth for both the clone and the pull', () => {
 		const clone = readFileSync(join(__dirname, 'clone.cjs'), 'utf8').replace(/\s+/g, ' ');
 		assert.ok(clone.includes('const onAuth = gitHubOnlyOnAuth(token);'), 'clone.cjs does not build the onAuth');

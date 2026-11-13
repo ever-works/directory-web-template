@@ -221,6 +221,10 @@ export function resetSiteGitTokenCache(): void {
 export function isGitHubRemote(url: string | undefined): boolean {
 	// isomorphic-git always passes the remote: a caller that does not is never handed the token
 	if (url === undefined) return false;
+	// The text itself must name github.com: new URL() decodes `github%2Ecom` and
+	// `%67ithub.com` to github.com, but isomorphic-git's HTTP client (legacy
+	// url.parse) connects to `github` / localhost for them.
+	if (!/^https:\/\/github\.com(?::443)?(?:\/|$)/i.test(url)) return false;
 	try {
 		const parsed = new URL(url);
 		return parsed.origin === 'https://github.com' && !parsed.username && !parsed.password;

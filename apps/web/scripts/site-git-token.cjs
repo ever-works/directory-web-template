@@ -58,6 +58,10 @@ async function resolveSiteGitToken(env = process.env, fetchImpl = globalThis.fet
  */
 function isGitHubRemote(value) {
   if (typeof value !== "string") return false;
+  // The text itself must name github.com: new URL() decodes `github%2Ecom` and
+  // `%67ithub.com` to github.com, but isomorphic-git's HTTP client (legacy
+  // url.parse) connects to `github` / localhost for them.
+  if (!/^https:\/\/github\.com(?::443)?(?:\/|$)/i.test(value)) return false;
   try {
     const url = new URL(value);
     return url.origin === "https://github.com" && !url.username && !url.password;
