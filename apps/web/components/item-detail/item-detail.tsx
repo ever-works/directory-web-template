@@ -27,6 +27,7 @@ import { LocationSection } from './LocationSection';
 import { UserSurveySection } from '@/components/surveys/user-survey-section';
 import { useTranslations } from 'next-intl';
 import { generateProductSchema, generateBreadcrumbSchema, BreadcrumbItem } from '@/lib/seo/schema';
+import type { RatingSummary } from '@/lib/seo/aggregate-rating';
 import { useParams } from 'next/navigation';
 import { siteConfig } from '@/lib/config/client';
 import { DEFAULT_LOCALE } from '@/lib/constants';
@@ -70,9 +71,18 @@ export interface ItemDetailProps {
 	similarItemsPromise?: Promise<ItemData[]>;
 	/** Headings extracted from the MDX content for the Table of Contents sidebar card. */
 	headings?: TocHeading[];
+	/** Review rating summary computed on the server; feeds the Product `aggregateRating` JSON-LD. */
+	rating?: RatingSummary | null;
 }
 
-function ItemDetailContent({ meta, renderedContent, categoryName, similarItemsPromise, headings = [] }: ItemDetailProps) {
+function ItemDetailContent({
+	meta,
+	renderedContent,
+	categoryName,
+	similarItemsPromise,
+	headings = [],
+	rating
+}: ItemDetailProps) {
 	const t = useTranslations();
 	const params = useParams();
 	const locale = params.locale as string;
@@ -98,7 +108,8 @@ function ItemDetailContent({ meta, renderedContent, categoryName, similarItemsPr
 		url: `${siteConfig.url}${localePrefix}/items/${meta.slug}`,
 		category: categoryName,
 		sourceUrl: meta.source_url,
-		brandName: siteConfig.brandName
+		brandName: siteConfig.brandName,
+		rating
 	});
 
 	// Generate Breadcrumb schema for SEO
@@ -478,7 +489,14 @@ function ItemDetailContent({ meta, renderedContent, categoryName, similarItemsPr
 	);
 }
 
-export function ItemDetail({ meta, renderedContent, categoryName, similarItemsPromise, headings }: ItemDetailProps) {
+export function ItemDetail({
+	meta,
+	renderedContent,
+	categoryName,
+	similarItemsPromise,
+	headings,
+	rating
+}: ItemDetailProps) {
 	return (
 		<Suspense fallback={<ItemDetailSkeleton />}>
 			<ItemDetailContent
@@ -487,6 +505,7 @@ export function ItemDetail({ meta, renderedContent, categoryName, similarItemsPr
 				categoryName={categoryName}
 				similarItemsPromise={similarItemsPromise}
 				headings={headings}
+				rating={rating}
 			/>
 		</Suspense>
 	);
