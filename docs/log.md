@@ -9,7 +9,7 @@ sidebar_position: 99
 
 ## 2026-11-13
 
-- `spec-058` `apps/web/lib/utils/source-url.ts` `apps/web/lib/repositories/client-item.repository.ts` `apps/web/app/api/client/items/route.ts`: `POST /api/client/items` now answers 409 when a pending or approved item already uses the submitted link (scheme, `www.`, trailing slash, fragment and tracking parameters ignored); rejected, draft and deleted items do not block. Unit spec `apps/web/lib/utils/__tests__/source-url.spec.ts` ([058](spec/058-duplicate-submission-guard/spec.md), PR number to be added once opened).
+- `spec-058` `apps/web/lib/utils/source-url.ts` `apps/web/lib/repositories/client-item.repository.ts` `apps/web/app/api/client/items/route.ts`: `POST /api/client/items` now answers 409 when a pending or approved item already uses the submitted link (scheme, `www.`, trailing slash, fragment and tracking parameters ignored); rejected, draft and deleted items do not block. Unit specs `apps/web/lib/utils/__tests__/{source-url,mutex,duplicate-submission-wiring}.spec.ts` ([058](spec/058-duplicate-submission-guard/spec.md), #1105).
 
 ## 2026-11-11
 
