@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { summarizeRatings } from '../aggregate-rating';
+import { ratingWhenEnabled, summarizeRatings } from '../aggregate-rating';
 import { generateProductSchema } from '../schema';
 
 /**
@@ -34,5 +34,17 @@ describe('generateProductSchema aggregateRating', () => {
 		assert.equal('aggregateRating' in generateProductSchema({ ...base }), false);
 		assert.equal('aggregateRating' in generateProductSchema({ ...base, rating: null }), false);
 		assert.equal('aggregateRating' in generateProductSchema({ ...base, rating: summarizeRatings([0, 9]) }), false);
+	});
+
+	it('has no aggregateRating key while the ratings feature is off (R4)', () => {
+		const summary = summarizeRatings([5, 4, 4]);
+		assert.equal(ratingWhenEnabled(summary, false), null);
+		assert.equal(
+			'aggregateRating' in generateProductSchema({ ...base, rating: ratingWhenEnabled(summary, false) }),
+			false
+		);
+		assert.deepEqual(ratingWhenEnabled(summary, true), summary);
+		assert.equal(ratingWhenEnabled(null, true), null);
+		assert.equal(ratingWhenEnabled(undefined, true), null);
 	});
 });

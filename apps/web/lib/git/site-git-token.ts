@@ -210,17 +210,24 @@ export function resetSiteGitTokenCache(): void {
 }
 
 /**
- * The token is a GitHub credential: it is only ever handed to github.com,
- * whatever remote a checkout's config or a caller points a git call at. A
- * missing URL is refused: isomorphic-git always passes the remote, so a call
- * without one is not a git operation and gets no credential.
+ * The token is a GitHub credential: it is only ever handed to https://github.com,
+ * whatever remote a checkout's config or a caller points a git call at. Plain
+ * http, another host (`github.com.evil.com`, or `evil.com` behind `github.com@`),
+ * a port other than 443, and a URL carrying credentials of its own are refused.
+ * A missing URL is refused too: isomorphic-git always passes the remote, so a
+ * call without one is not a git operation and gets no credential. Twin of
+ * `isGitHubRemote` in `scripts/site-git-token.cjs` (the build-time clone).
  */
-function isGitHubRemote(url: string | undefined): boolean {
+export function isGitHubRemote(url: string | undefined): boolean {
 	// isomorphic-git always passes the remote: a caller that does not is never handed the token
 	if (url === undefined) return false;
+	// The text itself must name github.com: new URL() decodes `github%2Ecom` and
+	// `%67ithub.com` to github.com, but isomorphic-git's HTTP client (legacy
+	// url.parse) connects to `github` / localhost for them.
+	if (!/^https:\/\/github\.com(?::443)?(?:\/|$)/i.test(url)) return false;
 	try {
 		const parsed = new URL(url);
-		return parsed.protocol === 'https:' && parsed.hostname.toLowerCase() === 'github.com';
+		return parsed.origin === 'https://github.com' && !parsed.username && !parsed.password;
 	} catch {
 		return false;
 	}

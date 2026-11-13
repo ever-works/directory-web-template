@@ -13,4 +13,5 @@ sidebar_label: 056 Tasks
 - [x] **T-003** `apps/web/lib/utils/__tests__/pagination-params.spec.ts` (unit, `test:unit`):
   defaults, valid values, non-numeric values, zero / negative / oversized values, a fallback
   above the maximum, custom limits.
-- [ ] **T-004** Move the routes listed in the plan's follow-ups onto the helper, one small change each.
+- [ ] **T-004** Move the route listed in the plan's follow-ups (`items/popularity-scores`) onto the helper. The
+  admin lists that already answer 400 stay off it (plan, "Follow-ups").

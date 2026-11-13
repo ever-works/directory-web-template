@@ -18,6 +18,10 @@ sidebar_label: 057 Plan
 - The item page (`app/[locale]/items/[slug]/page.tsx`) already prefetches the comments
   into the query client; it reads that cached list, summarises the ratings on the server
   and passes `rating` through `ItemDetailWrapper` to `ItemDetail`.
+- `ratingWhenEnabled(summary, ratingsEnabled)` (same module) returns `null` while the
+  ratings feature is off (R4). The page passes `getFeatureFlags().ratings`;
+  `ItemDetailContent` passes `isPending || features.ratings` from
+  `useFeatureFlagsWithSimulation()`, the flags `RatingDisplay` hides the badge on.
 
 The page is ISR (`revalidate = 600`), so the markup can trail a new review by up to ten minutes.
 

@@ -50,4 +50,34 @@ async function resolveSiteGitToken(env = process.env, fetchImpl = globalThis.fet
   }
 }
 
-module.exports = { resolveSiteGitToken };
+/**
+ * The token is a GitHub credential: only https://github.com gets it (spec 054),
+ * whatever DATA_REPOSITORY says. Plain http, another host (github.com.evil.com,
+ * or evil.com behind `github.com@`), a port other than 443, or credentials of
+ * the URL's own are all refused. Twin of isGitHubRemote in lib/git/site-git-token.ts.
+ */
+function isGitHubRemote(value) {
+  if (typeof value !== "string") return false;
+  // The text itself must name github.com: new URL() decodes `github%2Ecom` and
+  // `%67ithub.com` to github.com, but isomorphic-git's HTTP client (legacy
+  // url.parse) connects to `github` / localhost for them.
+  if (!/^https:\/\/github\.com(?::443)?(?:\/|$)/i.test(value)) return false;
+  try {
+    const url = new URL(value);
+    return url.origin === "https://github.com" && !url.username && !url.password;
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * isomorphic-git `onAuth` for the build-time clone / pull: the token for the
+ * remote isomorphic-git is about to call when that is https://github.com,
+ * nothing otherwise (and nothing without a token, so there is no pointless retry).
+ */
+function gitHubOnlyOnAuth(token) {
+  return (remoteUrl) =>
+    token && isGitHubRemote(remoteUrl) ? { username: "x-access-token", password: token } : undefined;
+}
+
+module.exports = { resolveSiteGitToken, isGitHubRemote, gitHubOnlyOnAuth };
