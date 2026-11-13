@@ -45,7 +45,9 @@ export function normalizeSourceUrl(raw: unknown): string | null {
 	url.searchParams.forEach((value, key) => {
 		if (!isTrackingParam(key)) kept.push([key, value]);
 	});
-	kept.sort(([ak, av], [bk, bv]) => (ak === bk ? (av < bv ? -1 : av > bv ? 1 : 0) : ak < bk ? -1 : 1));
+	// Sort by name only (a stable sort): repeated values of one name keep their order, because
+	// `?id=1&id=2` and `?id=2&id=1` can open different pages.
+	kept.sort(([ak], [bk]) => (ak < bk ? -1 : ak > bk ? 1 : 0));
 	const query = kept.map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`).join('&');
 
 	return `${host}${port}${path}${query ? `?${query}` : ''}`;

@@ -19,6 +19,17 @@ describe('normalizeSourceUrl', () => {
 		assert.equal(normalizeSourceUrl('  https://example.com/tool  '), key);
 	});
 
+	it('keeps the order of repeated values of one parameter', () => {
+		assert.notEqual(
+			normalizeSourceUrl('https://example.com/tool?id=1&id=2'),
+			normalizeSourceUrl('https://example.com/tool?id=2&id=1')
+		);
+		assert.equal(
+			normalizeSourceUrl('https://example.com/tool?b=2&id=1&id=2'),
+			normalizeSourceUrl('https://example.com/tool?id=1&b=2&id=2')
+		);
+	});
+
 	it('drops tracking parameters and ignores the order of the others', () => {
 		assert.equal(
 			normalizeSourceUrl('https://example.com/?utm_source=x&fbclid=1&b=2&a=1'),
@@ -34,7 +45,10 @@ describe('normalizeSourceUrl', () => {
 		assert.notEqual(normalizeSourceUrl('https://example.com:8080/tool'), base);
 		assert.notEqual(normalizeSourceUrl('https://docs.example.com/tool'), base);
 		assert.notEqual(normalizeSourceUrl('https://example.org/tool'), base);
-		assert.notEqual(normalizeSourceUrl('https://example.com/tool?id=1'), normalizeSourceUrl('https://example.com/tool?id=2'));
+		assert.notEqual(
+			normalizeSourceUrl('https://example.com/tool?id=1'),
+			normalizeSourceUrl('https://example.com/tool?id=2')
+		);
 	});
 
 	it('does not merge the site root with a deeper page', () => {
