@@ -35,8 +35,8 @@ existing entry.
   or soft-deleted item does not, so a corrected resubmission is accepted.
 - **R4.** On a duplicate the route answers `409` with
   `{ success: false, error: "An item with this link already exists in the directory." }`.
-  `existingSlug` is added only when the existing item is `approved` (public); a pending
-  item of another submitter is not revealed.
+  `existingSlug` is added only when the existing item is `approved` (public). For a pending
+  item the slug is withheld, but the 409 itself still tells the submitter that the link is taken.
 - **R5.** A link that cannot be parsed as http(s) never matches (the existing
   `source_url` validation still decides about it). Valid, non-duplicate submissions
   behave exactly as before.
@@ -48,6 +48,8 @@ existing entry.
 
 - The same check on `PATCH /api/client/items/:id` (changing the link of an existing
   item) and on admin create / import: later slices (plan, "Follow-ups").
+- `POST /api/client/items/import` (client bulk import): it keeps its own exact-match
+  `source_url` duplicate detection and does not use this guard.
 - A per-user submission rate limit and a cap on pending submissions.
 - Fuzzy matching (same name, redirected domains, path case).
 - Showing the match inside the form before submit; the form already shows the
