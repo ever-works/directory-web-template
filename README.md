@@ -829,8 +829,8 @@ All other brand and product names are trademarks, registered trademarks, or serv
 ### Automated contributions
 
 Some pull requests in this repository are opened by Ever Works Fleet agents.
-They come from branches named `task/<slug>-<id>`, and their commits are authored as `<agent> <...@agents.ever.works>`.
-They target the _develop_ branch and are never merged automatically: they get the same review and CI as any other pull request.
+They come from branches named `task/<slug>-<id>`, and their commits use the Agent's committer name and email (an `@agents.ever.works` address when the Agent has none set).
+They target the _develop_ branch and get the same review and CI as any other pull request. Whether an Agent may merge one itself is set by the Work's merge policy, which is off by default.
 See the [Fleet documentation](https://docs.ever.works/docs/features/fleet) for more details.
 
 ## 💪 Thanks to our Contributors
