@@ -34,5 +34,6 @@ clamp as a parsed one.
 ## Follow-ups
 
 Routes with the same `parseInt` / `Number` pattern that can adopt the helper:
-`apps/web/app/api/items/popularity-scores`, `apps/web/app/api/admin/comments`,
-`apps/web/app/api/admin/companies`, `apps/web/app/api/admin/collections`.
+`apps/web/app/api/items/popularity-scores`, `apps/web/app/api/admin/companies`,
+`apps/web/app/api/admin/collections`. (`apps/web/app/api/admin/comments` went the other way: it now answers 400
+for an invalid `page` or `limit`, like the other admin lists — spec 052, #1104.)
