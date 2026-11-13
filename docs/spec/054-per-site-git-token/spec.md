@@ -69,7 +69,7 @@ manual token edits.
   answer GitHub just rejected, and neither callback answers for a remote that is
   not `https://github.com` (`isGitHubRemote`: `https:`, host exactly `github.com`,
   no port other than 443, no credentials in the URL, and the URL text itself starts
-  with `https://github.com/`; `github.com.evil.com`, `github.com@evil.com` and the
+  with `https://github.com`, optionally `:443`, followed by `/` or nothing; `github.com.evil.com`, `github.com@evil.com` and the
   percent-encoded `github%2Ecom` are refused).
 - Nothing logs the secret or a token.
 
