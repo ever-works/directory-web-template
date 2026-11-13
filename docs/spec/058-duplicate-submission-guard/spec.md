@@ -41,6 +41,9 @@ existing entry.
   `source_url` validation still decides about it). Valid, non-duplicate submissions
   behave exactly as before.
 
+- **R6.** Two simultaneous submissions of the same link handled by one server process
+  produce one saved item and one 409. Separate server instances are not coordinated.
+
 ## 4. Out of scope
 
 - The same check on `PATCH /api/client/items/:id` (changing the link of an existing
