@@ -34,7 +34,12 @@ snippets in search results. Listing sites that rank well show them.
 - **R3.** `ratingValue` is the mean rounded to one decimal; `reviewCount` is the number
   of counted ratings; `bestRating` is 5 and `worstRating` is 1.
 - **R4.** With no valid rating (no reviews, ratings feature off, database unavailable)
-  the `Product` schema has no `aggregateRating` key.
+  the `Product` schema has no `aggregateRating` key. "Ratings feature off" follows the
+  rating badge: the server flag (`getFeatureFlags().ratings`) when the page renders, and
+  in the browser the viewer's flags from `useFeatureFlagsWithSimulation()`, so database
+  simulation set to `disabled` drops the markup with the badge once the flags have loaded.
+  While they load (server render, hydration) the server's answer stands; simulation is a
+  per-browser setting, so the HTML search engines fetch is not affected by it.
 - **R5.** No new route, setting, dependency or outbound call.
 
 ## 4. Out of scope

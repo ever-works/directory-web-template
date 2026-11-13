@@ -24,9 +24,10 @@ routes parse the same way (see plan, "Follow-ups").
 
 ## 3. Requirements
 
-- **R0.** Only a plain whole number (optional leading `-`, then digits, a safe
-  integer) is read as a number. `2abc`, `1.5` or `9007199254740993` are treated as
-  non-numeric, never as a different page or size.
+- **R0.** Only a plain whole number is read as a number: after surrounding whitespace
+  is trimmed, an optional leading `-`, then digits, within the safe-integer range.
+  `" 3 "` is 3 (as `parseInt` read it); `2abc`, `1.5`, `+4` or `9007199254740993` are
+  treated as non-numeric, never as a different page or size.
 - **R1.** A missing, empty or non-numeric `page` is page 1; a numeric one is at
   least 1.
 - **R2.** A missing, empty or non-numeric `limit` is the caller's default
@@ -37,12 +38,14 @@ routes parse the same way (see plan, "Follow-ups").
   cannot produce an OFFSET the database rejects. (An integer beyond the safe range
   is non-numeric under R0 and is page 1.)
 - **R4.** `offset` is `(page - 1) * limit`.
-- **R5.** The response shape of `login-activity` does not change. Requests whose
-  `page` and `limit` are plain whole numbers in range behave as before, with one
-  exception: a page above 100000 is clamped to 100000 and reported as 100000.
-  Everything else now gets the defaults: values that used to answer 500, and
-  malformed numbers that `parseInt` used to read loosely (`?page=2abc` was page 2
-  and is now page 1; `?limit=1.5` returned 1 row and now returns 10).
+- **R5.** The response shape of `login-activity` does not change. A `page` or `limit`
+  that is a whole number under R0 behaves as before, out-of-range ones included:
+  they are clamped as the old code clamped them (`page=0` is page 1, `limit=0` is 1,
+  `limit=500` is 50). The one exception is a page above 100000, which is clamped to
+  100000 and reported as 100000. Only values that are not whole numbers under R0 now
+  get the defaults: values that used to answer 500 (`?page=abc`), and malformed
+  numbers that `parseInt` used to read loosely (`?page=2abc` was page 2 and is now
+  page 1; `?limit=1.5` returned 1 row and now returns 10).
 
 ## 4. Out of scope
 

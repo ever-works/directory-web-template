@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireClientAuth, serverErrorResponse, badRequestResponse } from '@/lib/utils/client-auth';
-import { getClientItemRepository } from '@/lib/repositories/client-item.repository';
+import { getClientItemRepository, DuplicateSourceUrlError } from '@/lib/repositories/client-item.repository';
 import { clientItemsListQuerySchema, clientCreateItemSchema } from '@/lib/validations/client-item';
 import { ClientCreateItemResponse } from '@/lib/types/client-item';
 
@@ -188,6 +188,8 @@ export async function GET(request: NextRequest) {
  *         description: "Bad request - Invalid input"
  *       401:
  *         description: "Unauthorized - Authentication required"
+ *       409:
+ *         description: "Conflict - A pending or approved item already uses this link (compared ignoring http/https, www, trailing slash, fragment and tracking parameters)"
  *       500:
  *         description: "Internal server error"
  */
@@ -228,6 +230,16 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(response, { status: 201 });
 
   } catch (error) {
+    if (error instanceof DuplicateSourceUrlError) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'An item with this link already exists in the directory.',
+          ...(error.existingSlug && { existingSlug: error.existingSlug }),
+        },
+        { status: 409 }
+      );
+    }
     return serverErrorResponse(error, 'Failed to create item');
   }
 }

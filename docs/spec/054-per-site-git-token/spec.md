@@ -45,19 +45,32 @@ manual token edits.
 - **No token at all**: `onAuth` answers nothing (no pointless retry); the gates
   that used to test `GH_TOKEN` now test `hasSiteGitCredentials()`, which is true
   for the broker alone, so a site whose bootstrap token is missing still starts.
-- `scripts/clone.cjs` (build) fetches one broker token through `scripts/site-git-token.cjs`, else uses `GH_TOKEN`.
+- `scripts/clone.cjs` (build) fetches one broker token through `scripts/site-git-token.cjs`, else uses `GH_TOKEN`,
+  and hands it only to `https://github.com` (the same `isGitHubRemote` rule as the runtime callbacks, checked on the
+  remote isomorphic-git calls): an `http://` or non-GitHub `DATA_REPOSITORY` is cloned without it.
 - `deploy_vercel.yaml` copies the two broker secrets into the Vercel project env
   when the platform pushed them, removing the old value first (`vercel env add`
   refuses an existing name, which used to freeze a project's first `GH_TOKEN`).
+  It rewrites `GH_TOKEN` the same way when the job has one; a job without a
+  `GH_TOKEN` secret leaves the project's `GH_TOKEN` as it is and the deploy goes on.
   `deploy_k8s.yaml` already forwards every repo secret into the runtime-env
   Secret.
 - Docker builds (`deploy_k8s.yaml`, `docker-build-publish-*.yml`, `Dockerfile`)
   pass the broker URL and secret as BuildKit secrets next to `gh_token`, so a
-  build long after the last deploy still clones with a fresh token.
+  build long after the last deploy still clones with a fresh token. Secrets are
+  not part of BuildKit's cache key: a rebuild with the same pruned source and
+  `DATA_REPOSITORY` and a warm cache reuses that step (no broker call, the earlier
+  clone's prerendered pages), as it did with `gh_token` alone. The running site
+  still syncs its data repo itself (`lib/repository.ts`, runtime token) and ISR
+  re-renders the pages. `k8s-build.yml`, which builds the deployed images, passes
+  neither `DATA_REPOSITORY` nor these secrets, so its builds clone nothing.
 - `onAuthFailure` refreshes at most once per git operation, reuses a newer cached
   token when another request already refreshed, never settles for an in-flight
   answer GitHub just rejected, and neither callback answers for a remote that is
-  not `https://github.com`.
+  not `https://github.com` (`isGitHubRemote`: `https:`, host exactly `github.com`,
+  no port other than 443, no credentials in the URL, and the URL text itself starts
+  with `https://github.com`, optionally `:443`, followed by `/` or nothing; `github.com.evil.com`, `github.com@evil.com` and the
+  percent-encoded `github%2Ecom` are refused).
 - Nothing logs the secret or a token.
 
 ## 4. Out of scope

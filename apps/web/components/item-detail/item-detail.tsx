@@ -27,7 +27,8 @@ import { LocationSection } from './LocationSection';
 import { UserSurveySection } from '@/components/surveys/user-survey-section';
 import { useTranslations } from 'next-intl';
 import { generateProductSchema, generateBreadcrumbSchema, BreadcrumbItem } from '@/lib/seo/schema';
-import type { RatingSummary } from '@/lib/seo/aggregate-rating';
+import { ratingWhenEnabled, type RatingSummary } from '@/lib/seo/aggregate-rating';
+import { useFeatureFlagsWithSimulation } from '@/hooks/use-feature-flags-with-simulation';
 import { useParams } from 'next/navigation';
 import { siteConfig } from '@/lib/config/client';
 import { DEFAULT_LOCALE } from '@/lib/constants';
@@ -90,6 +91,10 @@ function ItemDetailContent({
 	const { surveysEnabled } = useSurveysEnabled();
 	const { tagsEnabled } = useTagsEnabled();
 	const { sponsors } = useSponsorAdsContext();
+	// The rating badge (RatingDisplay) hides when the viewer's flags turn ratings off, database
+	// simulation "disabled" included; the markup follows it (spec 057 R4). While the flags are
+	// still loading (server render, hydration) the server's rating is kept.
+	const { features, isPending: featureFlagsPending } = useFeatureFlagsWithSimulation();
 	const containerWidth = useContainerWidth();
 	const isFluid = containerWidth === 'fluid';
 	const tagNames = Array.isArray(meta.tags) ? meta.tags.map((tag) => (typeof tag === 'string' ? tag : tag.name)) : [];
@@ -109,7 +114,7 @@ function ItemDetailContent({
 		category: categoryName,
 		sourceUrl: meta.source_url,
 		brandName: siteConfig.brandName,
-		rating
+		rating: ratingWhenEnabled(rating, featureFlagsPending || features.ratings)
 	});
 
 	// Generate Breadcrumb schema for SEO
