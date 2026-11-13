@@ -5,6 +5,7 @@
 
 import { siteConfig } from '@/lib/config/client';
 import { DEFAULT_LOCALE } from '@/lib/constants';
+import { buildAggregateRatingSchema, type RatingSummary } from './aggregate-rating';
 
 export interface ProductSchemaInput {
 	name: string;
@@ -14,6 +15,8 @@ export interface ProductSchemaInput {
 	category?: string;
 	sourceUrl?: string;
 	brandName?: string;
+	/** Review rating summary; omitted from the schema when absent or not publishable. */
+	rating?: RatingSummary | null;
 }
 
 export interface CollectionSchemaInput {
@@ -69,6 +72,11 @@ export function generateProductSchema(input: ProductSchemaInput) {
 			url: input.sourceUrl,
 			availability: 'https://schema.org/InStock'
 		};
+	}
+
+	const aggregateRating = buildAggregateRatingSchema(input.rating);
+	if (aggregateRating) {
+		schema.aggregateRating = aggregateRating;
 	}
 
 	return schema;

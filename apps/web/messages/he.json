@@ -43,6 +43,8 @@
 		"OPEN_USER_MENU": "Open user menu"
 	},
 	"common": {
+		"DEMO_BANNER_TEXT": "אתם משתמשים בחשבון הדגמה. מוצאים את התוכנה שלנו שימושית?",
+		"DEMO_BANNER_SIGN_UP": "לחצו כאן כדי להירשם ולהתחיל להשתמש בחינם!",
 		"FAQ": "שאלות נפוצות",
 		"DISCOVER": "גלה",
 		"HOME": "דף הבית",

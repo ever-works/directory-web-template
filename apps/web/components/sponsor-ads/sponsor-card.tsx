@@ -5,7 +5,7 @@ import { Link } from "@/i18n/navigation";
 import Image from 'next/image';
 import { Card, CardHeader, CardBody, cn } from '@heroui/react';
 import { FiFolder, FiExternalLink } from 'react-icons/fi';
-import { useParams } from 'next/navigation';
+import { getItemPath } from '@/lib/utils';
 import { SponsorBadge } from './sponsor-badge';
 import { shouldShowFallback, isProblematicUrl } from '@/lib/utils/image-domains';
 import type { SponsorWithItem } from '@/lib/types/sponsor-ad';
@@ -39,8 +39,6 @@ export function SponsorCard({
 	className,
 	variant = 'default'
 }: SponsorCardProps) {
-	const params = useParams();
-	const locale = params?.locale as string | undefined;
 	const [currentIndex, setCurrentIndex] = useState(0);
 
 	// Filter out sponsors without valid items
@@ -69,7 +67,8 @@ export function SponsorCard({
 	const current = validSponsors[currentIndex];
 	const item = current.item!;
 	const shouldShowFallbackIcon = shouldShowFallback(item.icon_url || '');
-	const detailPath = `${locale ? `/${locale}` : ''}/items/${item.slug}`;
+	// The next-intl `Link` adds the locale prefix; adding it here doubled it.
+	const detailPath = getItemPath(item.slug);
 	const categoryName = getCategoryName(item.category);
 	const tagNames = getTagNames(item.tags);
 

@@ -136,6 +136,8 @@ jobs:
             NEXT_PUBLIC_CANONICAL_URL=${{ vars.SITE_CANONICAL_URL }}
           secrets: |
             gh_token=${{ secrets.GH_TOKEN }}
+            site_git_token_url=${{ secrets.EVER_WORKS_SITE_GIT_TOKEN_URL }}
+            site_git_token_secret=${{ secrets.EVER_WORKS_SITE_GIT_TOKEN_SECRET }}
           provenance: false
           sbom: false
           cache-from: type=gha

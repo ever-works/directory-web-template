@@ -5,6 +5,7 @@ import { ItemData, CreateItemRequest, UpdateItemRequest, ReviewRequest } from '@
 import type { ItemExportData } from '@/lib/types/item-import-export';
 import { getLocationIndexService } from './location/location-index.service';
 import { isContentGitRemoteDisabled } from './content-git-offline';
+import { siteGitAuthCallbacks } from '@/lib/git/site-git-token';
 
 // Helper function to format date in the expected format for YAML files
 function formatDateForYaml(date: Date = new Date()): string {
@@ -78,7 +79,7 @@ export class ItemGitService {
     const http = (await import('isomorphic-git/http/node')).default;
 
     await git.clone({
-      onAuth: () => auth,
+      ...auth,
       fs,
       http,
       dir: this.config.dataDir,
@@ -96,7 +97,7 @@ export class ItemGitService {
       const http = (await import('isomorphic-git/http/node')).default;
 
       await git.pull({
-        onAuth: () => auth,
+        ...auth,
         fs,
         http,
         dir: this.config.dataDir,
@@ -484,7 +485,7 @@ export class ItemGitService {
       }
       const auth = this.getAuth();
       await git.push({
-        onAuth: () => auth,
+        ...auth,
         fs,
         http,
         dir: this.config.dataDir,
@@ -809,11 +810,12 @@ export class ItemGitService {
     return `https://github.com/${this.config.owner}/${this.config.repo}`;
   }
 
+  /**
+   * isomorphic-git `onAuth` / `onAuthFailure` for the data repo: the platform's
+   * per-site broker token when configured, else this service's static token.
+   */
   private getAuth() {
-    return {
-      username: 'x-access-token',
-      password: this.config.token,
-    };
+    return siteGitAuthCallbacks(this.config.token);
   }
 
   private getCommitter(): ICommitter {
@@ -878,7 +880,7 @@ export class ItemGitService {
       // Push to GitHub
       const auth = this.getAuth();
       await git.push({
-        onAuth: () => auth,
+        ...auth,
         fs,
         http,
         dir: this.config.dataDir,

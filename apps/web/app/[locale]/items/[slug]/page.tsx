@@ -16,6 +16,8 @@ import { HydrationBoundary, dehydrate } from '@tanstack/react-query';
 import { getQueryClient } from '@/lib/query-client';
 import { getCommentsByItemId } from '@/lib/db/queries';
 import { extractHeadings } from '@/lib/utils/extract-headings';
+import { ratingWhenEnabled, summarizeRatings } from '@/lib/seo/aggregate-rating';
+import { getFeatureFlags } from '@/lib/config/feature-flags';
 
 // Enable ISR with 10 minutes revalidation
 // Using dynamicParams allows on-demand generation without build-time MDX errors
@@ -181,6 +183,13 @@ export default async function ItemDetails({ params }: { params: Promise<{ slug: 
 		}
 
 		const { meta, content } = item;
+		// Reuse the comments just prefetched above: no extra query for the Product JSON-LD.
+		// No aggregateRating while the ratings feature is off: the page then shows no rating (spec 057 R4).
+		const prefetchedComments = queryClient.getQueryData<Array<{ rating: unknown }>>(['comments', slug]);
+		const rating = ratingWhenEnabled(
+			summarizeRatings((prefetchedComments ?? []).map((comment) => comment.rating)),
+			getFeatureFlags().ratings
+		);
 		const categoryName = getCategoriesName(meta.category);
 		const headings = extractHeadings(content ?? '');
 
@@ -216,6 +225,7 @@ export default async function ItemDetails({ params }: { params: Promise<{ slug: 
 							categoryName={categoryName}
 							similarItemsPromise={similarItemsPromise}
 							headings={headings}
+							rating={rating}
 						/>
 					</Container>
 				</div>

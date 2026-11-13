@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import yaml from 'js-yaml';
 import { getContentPath, ensureContentAvailable } from '@/lib/lib';
+import { hasSiteGitCredentials, siteGitAuthCallbacks } from '@/lib/git/site-git-token';
 import {
 	PRIMARY_CONTENT_CONFIG_FILENAME,
 	getContentConfigPaths,
@@ -273,7 +274,7 @@ export class ConfigManager {
 	 */
 	private async commitAndPush(customMessage?: string): Promise<void> {
 		// Skip Git operations if DATA_REPOSITORY is not configured
-		if (!process.env.DATA_REPOSITORY || !process.env.GH_TOKEN) {
+		if (!process.env.DATA_REPOSITORY || !hasSiteGitCredentials()) {
 			return;
 		}
 
@@ -291,11 +292,8 @@ export class ConfigManager {
 			// Get branch from environment or default to 'main'
 			const branch = process.env.GITHUB_BRANCH || 'main';
 
-			// Get auth credentials
-			const auth = {
-				username: 'x-access-token',
-				password: process.env.GH_TOKEN
-			};
+			// Auth: the platform's per-site broker token when configured, else GH_TOKEN
+			const auth = siteGitAuthCallbacks(process.env.GH_TOKEN);
 
 			// Get committer info
 			const committer = {
@@ -347,7 +345,7 @@ export class ConfigManager {
 
 			// Push to GitHub (pushes the current branch, which is now ensured to be the configured branch)
 			await git.push({
-				onAuth: () => auth,
+				...auth,
 				fs: gitFs,
 				http,
 				dir: contentPath

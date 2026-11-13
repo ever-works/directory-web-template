@@ -5,6 +5,7 @@ import { and, count, desc, eq, isNull, sql, type SQL } from 'drizzle-orm';
 import { checkDatabaseAvailability } from '@/lib/utils/database-check';
 import { getTenantId } from '@/lib/auth/tenant';
 import { checkAdminAuth } from '@/lib/auth/admin-guard';
+import { validateStrictPaginationParams } from '@/lib/utils/pagination-validation';
 
 export const runtime = 'nodejs';
 
@@ -191,6 +192,8 @@ interface ListResponseComment {
  *                   page: 1
  *                   limit: 10
  *                   totalPages: 16
+ *       400:
+ *         description: "Invalid page or limit (not a whole number, page below 1, limit outside 1-100)"
  *       403:
  *         description: "Forbidden - Admin access required"
  *         content:
@@ -228,8 +231,13 @@ export async function GET(request: Request) {
 		if (authError) return authError;
 
 		const { searchParams } = new URL(request.url);
-		const page = Number(searchParams.get('page') || 1);
-		const limit = Number(searchParams.get('limit') || 10);
+		// `page=abc` / `page=0` / `limit=-1` used to reach Postgres as a NaN or negative
+		// OFFSET/LIMIT and answer 500; `limit=100000` read the whole table. Reject with 400.
+		const pagination = validateStrictPaginationParams(searchParams);
+		if ('error' in pagination) {
+			return NextResponse.json({ success: false, error: pagination.error }, { status: pagination.status });
+		}
+		const { page, limit } = pagination;
 		const search = (searchParams.get('search') || '').trim();
 		const offset = (page - 1) * limit;
 

@@ -27,6 +27,8 @@ import { LocationSection } from './LocationSection';
 import { UserSurveySection } from '@/components/surveys/user-survey-section';
 import { useTranslations } from 'next-intl';
 import { generateProductSchema, generateBreadcrumbSchema, BreadcrumbItem } from '@/lib/seo/schema';
+import { ratingWhenEnabled, type RatingSummary } from '@/lib/seo/aggregate-rating';
+import { useFeatureFlagsWithSimulation } from '@/hooks/use-feature-flags-with-simulation';
 import { useParams } from 'next/navigation';
 import { siteConfig } from '@/lib/config/client';
 import { DEFAULT_LOCALE } from '@/lib/constants';
@@ -70,9 +72,18 @@ export interface ItemDetailProps {
 	similarItemsPromise?: Promise<ItemData[]>;
 	/** Headings extracted from the MDX content for the Table of Contents sidebar card. */
 	headings?: TocHeading[];
+	/** Review rating summary computed on the server; feeds the Product `aggregateRating` JSON-LD. */
+	rating?: RatingSummary | null;
 }
 
-function ItemDetailContent({ meta, renderedContent, categoryName, similarItemsPromise, headings = [] }: ItemDetailProps) {
+function ItemDetailContent({
+	meta,
+	renderedContent,
+	categoryName,
+	similarItemsPromise,
+	headings = [],
+	rating
+}: ItemDetailProps) {
 	const t = useTranslations();
 	const params = useParams();
 	const locale = params.locale as string;
@@ -80,6 +91,10 @@ function ItemDetailContent({ meta, renderedContent, categoryName, similarItemsPr
 	const { surveysEnabled } = useSurveysEnabled();
 	const { tagsEnabled } = useTagsEnabled();
 	const { sponsors } = useSponsorAdsContext();
+	// The rating badge (RatingDisplay) hides when the viewer's flags turn ratings off, database
+	// simulation "disabled" included; the markup follows it (spec 057 R4). While the flags are
+	// still loading (server render, hydration) the server's rating is kept.
+	const { features, isPending: featureFlagsPending } = useFeatureFlagsWithSimulation();
 	const containerWidth = useContainerWidth();
 	const isFluid = containerWidth === 'fluid';
 	const tagNames = Array.isArray(meta.tags) ? meta.tags.map((tag) => (typeof tag === 'string' ? tag : tag.name)) : [];
@@ -98,7 +113,8 @@ function ItemDetailContent({ meta, renderedContent, categoryName, similarItemsPr
 		url: `${siteConfig.url}${localePrefix}/items/${meta.slug}`,
 		category: categoryName,
 		sourceUrl: meta.source_url,
-		brandName: siteConfig.brandName
+		brandName: siteConfig.brandName,
+		rating: ratingWhenEnabled(rating, featureFlagsPending || features.ratings)
 	});
 
 	// Generate Breadcrumb schema for SEO
@@ -478,7 +494,14 @@ function ItemDetailContent({ meta, renderedContent, categoryName, similarItemsPr
 	);
 }
 
-export function ItemDetail({ meta, renderedContent, categoryName, similarItemsPromise, headings }: ItemDetailProps) {
+export function ItemDetail({
+	meta,
+	renderedContent,
+	categoryName,
+	similarItemsPromise,
+	headings,
+	rating
+}: ItemDetailProps) {
 	return (
 		<Suspense fallback={<ItemDetailSkeleton />}>
 			<ItemDetailContent
@@ -487,6 +510,7 @@ export function ItemDetail({ meta, renderedContent, categoryName, similarItemsPr
 				categoryName={categoryName}
 				similarItemsPromise={similarItemsPromise}
 				headings={headings}
+				rating={rating}
 			/>
 		</Suspense>
 	);

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createCategoryGitService } from "@/lib/services/category-git.service";
 import { safeErrorResponse } from '@/lib/utils/api-error';
 import { checkAdminAuth } from '@/lib/auth/admin-guard';
+import { hasSiteGitCredentials } from '@/lib/git/site-git-token';
 
 /**
  * @swagger
@@ -123,7 +124,7 @@ export async function GET() {
       branch: process.env.GITHUB_BRANCH || 'main',
     };
 
-    if (!gitConfig.token) {
+    if (!hasSiteGitCredentials(process.env, gitConfig.token)) {
       return NextResponse.json({
         success: false,
         configured: false,
@@ -306,7 +307,7 @@ export async function POST(request: NextRequest) {
       branch: process.env.GITHUB_BRANCH || 'main',
     };
 
-    if (!gitConfig.token) {
+    if (!hasSiteGitCredentials(process.env, gitConfig.token)) {
       return NextResponse.json(
         { 
           success: false, 

@@ -5,7 +5,7 @@ import { Link } from "@/i18n/navigation";
 import { Card, CardBody, cn, Spinner, Tooltip } from '@heroui/react';
 import { FiFolder, FiEye, FiThumbsUp, FiMessageSquare } from 'react-icons/fi';
 import { useFilters } from '@/components/filters/context/filter-context';
-import { useParams } from 'next/navigation';
+import { getItemPath } from '@/lib/utils';
 import { PromoCodeComponent } from './promo-code';
 import { FavoriteButton } from './favorite-button';
 import { useCurrentUser } from '@/hooks/use-current-user';
@@ -36,8 +36,6 @@ function formatCount(n: number): string {
 }
 
 const Item = memo(function Item(props: ItemProps) {
-	const params = useParams();
-	const locale = params?.locale as string | undefined;
 	const { user } = useCurrentUser();
 	const [isNavigating, setIsNavigating] = useState(false);
 	const { categoriesEnabled } = useCategoriesEnabled();
@@ -51,8 +49,9 @@ const Item = memo(function Item(props: ItemProps) {
 		if (tag && typeof tag === 'object' && 'name' in tag) return tag.name;
 		return '';
 	};
-	const isSourceUrl = props.is_source_url_active === true ? '' : locale ? `/${locale}` : '';
-	const getDetailPath = () => `${isSourceUrl}/items/${props.slug}`;
+	// Locale-free on purpose: the next-intl `Link` below adds the active locale's
+	// prefix itself, so a manual `/${locale}` here rendered `/fr/fr/items/<slug>`.
+	const detailPath = getItemPath(props.slug);
 
 	// Layout checks
 	const isMasonryLayout = props.layout === 'masonry';
@@ -79,7 +78,7 @@ const Item = memo(function Item(props: ItemProps) {
 
 	return (
 		<Link
-			href={getDetailPath()}
+			href={detailPath}
 			onClick={() => {
 				setIsNavigating(true);
 				props.onNavigate?.();

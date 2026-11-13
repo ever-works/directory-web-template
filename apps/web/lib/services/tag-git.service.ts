@@ -2,6 +2,7 @@ import * as fs from 'node:fs/promises';
 import * as path from 'node:path';
 import * as yaml from 'yaml';
 import { TagData, CreateTagRequest, UpdateTagRequest } from '@/lib/types/tag';
+import { siteGitAuthCallbacks } from '@/lib/git/site-git-token';
 
 export interface TagGitServiceConfig {
   owner: string;
@@ -111,7 +112,7 @@ export class TagGitService {
       // Push to GitHub
       const auth = this.getAuth();
       await git.push({
-        onAuth: () => auth,
+        ...auth,
         fs,
         http,
         dir: this.config.dataDir,
@@ -281,11 +282,12 @@ export class TagGitService {
     };
   }
 
+  /**
+   * isomorphic-git `onAuth` / `onAuthFailure` for the data repo: the platform's
+   * per-site broker token when configured, else this service's static token.
+   */
   private getAuth() {
-    return {
-      username: this.config.token,
-      password: '',
-    };
+    return siteGitAuthCallbacks(this.config.token);
   }
 
   private scheduleBackgroundSync(): void {
@@ -375,7 +377,7 @@ export class TagGitService {
       // Push to GitHub
       const auth = this.getAuth();
       await git.push({
-        onAuth: () => auth,
+        ...auth,
         fs,
         http,
         dir: this.config.dataDir,
@@ -397,7 +399,7 @@ export class TagGitService {
       // Pull latest changes
       const auth = this.getAuth();
       await git.pull({
-        onAuth: () => auth,
+        ...auth,
         fs,
         http,
         dir: this.config.dataDir,

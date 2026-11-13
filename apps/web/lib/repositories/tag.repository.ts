@@ -2,6 +2,7 @@ import { TagData, CreateTagRequest, UpdateTagRequest, TagListResponse, TagListOp
 import { createTagGitService } from '@/lib/services/tag-git.service';
 import { getContentPath } from '@/lib/lib';
 import { coreConfig } from '@/lib/config/config-service';
+import { hasSiteGitCredentials } from '@/lib/git/site-git-token';
 
 /**
  * Repository wrapper around the tag-git-service for the Git-CMS
@@ -59,8 +60,8 @@ export class TagRepository {
         tagsFile: 'tags.yml',
       };
 
-      if (!gitConfig.token) {
-        throw new Error('GitHub token not configured. Please set GH_TOKEN environment variable.');
+      if (!hasSiteGitCredentials(process.env, gitConfig.token)) {
+        throw new Error('GitHub token not configured. Please set GH_TOKEN (or EVER_WORKS_SITE_GIT_TOKEN_URL + EVER_WORKS_SITE_GIT_TOKEN_SECRET).');
       }
 
       this.gitService = await createTagGitService(gitConfig);

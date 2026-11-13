@@ -10,6 +10,31 @@ import {
 import { ItemRepository } from './item.repository';
 import { slugify } from '@/lib/utils/slug';
 import { getViewsPerItem } from '@/lib/db/queries/item-view.queries';
+import { findItemBySourceUrl } from '@/lib/utils/source-url';
+import { createMutex } from '@/lib/utils/mutex';
+
+/**
+ * Serialises "check the link and slug, then save" for new submissions within
+ * this process. Without it two simultaneous requests could both pass the
+ * checks before either item was written. It does not coordinate separate
+ * server instances (the git store has no uniqueness constraint to lean on).
+ */
+const runSubmissionExclusively = createMutex();
+
+/**
+ * Thrown by `createAsClient` when a pending or approved item already uses the
+ * submitted link. `existingSlug` is set only when that item is public
+ * (approved), so a pending submission by someone else is not revealed.
+ */
+export class DuplicateSourceUrlError extends Error {
+  readonly existingSlug?: string;
+
+  constructor(existingSlug?: string) {
+    super('An item with this link already exists');
+    this.name = 'DuplicateSourceUrlError';
+    this.existingSlug = existingSlug;
+  }
+}
 
 // ===================== Geo Types =====================
 
@@ -50,12 +75,27 @@ export class ClientItemRepository {
     userId: string,
     data: ClientCreateItemRequest
   ): Promise<ClientSubmissionData> {
+    // The link check, the slug check and the save must not interleave with
+    // another submission, or two requests can both pass the checks.
+    return runSubmissionExclusively(() => this.createAsClientUnlocked(userId, data));
+  }
+
+  private async createAsClientUnlocked(
+    userId: string,
+    data: ClientCreateItemRequest
+  ): Promise<ClientSubmissionData> {
     // Generate slug from name
     const baseSlug = slugify(data.name);
 
     // Guard against empty slugs (e.g., name with only special characters)
     if (!baseSlug) {
       throw new Error('Item name must produce a valid slug');
+    }
+
+    // Refuse a link the directory already has (pending or approved)
+    const duplicate = findItemBySourceUrl(await this.itemRepository.findAll(), data.source_url);
+    if (duplicate) {
+      throw new DuplicateSourceUrlError(duplicate.status === 'approved' ? duplicate.slug : undefined);
     }
 
     // Ensure unique slug by checking for duplicates

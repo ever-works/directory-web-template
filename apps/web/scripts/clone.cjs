@@ -1,4 +1,5 @@
 const { loadEnvConfig } = require("@next/env");
+const { resolveSiteGitToken, isGitHubRemote, gitHubOnlyOnAuth } = require("./site-git-token.cjs");
 const git = require("isomorphic-git")
 const http = require("isomorphic-git/http/node")
 const fs = require("node:fs")
@@ -7,7 +8,6 @@ const os = require('node:os')
 
 loadEnvConfig(process.cwd());
 
-const token = process.env.GH_TOKEN;
 const url = process.env.DATA_REPOSITORY;
 
 if (!url) {
@@ -23,10 +23,17 @@ function getContentPath() {
   return path.join(process.cwd(), contentDir);
 }
 
-const auth = { username: "x-access-token", password: token };
 const dest = getContentPath();
 
 async function main() {
+  const token = await resolveSiteGitToken();
+  // The token only ever goes to https://github.com (spec 054): onAuth checks the
+  // remote isomorphic-git is calling, not just DATA_REPOSITORY. Never log the URL
+  // (it may carry credentials of its own).
+  const onAuth = gitHubOnlyOnAuth(token);
+  if (token && !isGitHubRemote(url)) {
+    console.warn("DATA_REPOSITORY is not a plain https://github.com URL; the GitHub token is only sent to https://github.com.");
+  }
   await fs.promises.mkdir(dest, { recursive: true });
 
   // If already cloned, pull the latest content instead of skipping.
@@ -44,7 +51,7 @@ async function main() {
     };
 
     if (token) {
-      pullOptions.onAuth = () => auth;
+      pullOptions.onAuth = onAuth;
     }
 
     await git.pull(pullOptions);
@@ -62,7 +69,7 @@ async function main() {
   }
 
   if (token) {
-    cloneOptions.onAuth = () => auth;
+    cloneOptions.onAuth = onAuth;
   }
 
   await git.clone(cloneOptions);

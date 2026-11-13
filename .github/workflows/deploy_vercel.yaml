@@ -265,12 +265,49 @@ jobs:
           [ -n "$VERCEL_TEAM_SCOPE" ] && SCOPE_FLAG="--scope $VERCEL_TEAM_SCOPE"
           echo -n "$DATA_REPOSITORY" | vercel env add DATA_REPOSITORY ${{ inputs.environment }} $SCOPE_FLAG --token "$VERCEL_TOKEN"
 
+      # No continue-on-error: once the old GH_TOKEN is removed, a failed write
+      # must stop the deploy rather than ship a site without its git credential.
       - name: Set GH_TOKEN env variable
-        continue-on-error: true
+        env:
+          VERCEL_ENVIRONMENT: ${{ inputs.environment }}
         run: |
           SCOPE_FLAG=""
           [ -n "$VERCEL_TEAM_SCOPE" ] && SCOPE_FLAG="--scope $VERCEL_TEAM_SCOPE"
-          echo -n "${{ secrets.GH_TOKEN }}" | vercel env add GH_TOKEN ${{ inputs.environment }} $SCOPE_FLAG --token "$VERCEL_TOKEN"
+          # Nothing to put back (GH_TOKEN is not in the job env): leave the
+          # project's value as it is.
+          if [ -z "$GH_TOKEN" ]; then
+            echo "GH_TOKEN is not set for this job; the project's GH_TOKEN is left unchanged."
+            exit 0
+          fi
+          # remove_env NAME: a failed `vercel env rm` is accepted only when the variable
+          # is really gone afterwards (nothing to remove on a first deploy), never when
+          # it is still there: a stale value would stay live.
+          remove_env() {
+            vercel env rm "$1" "$VERCEL_ENVIRONMENT" --yes $SCOPE_FLAG --token "$VERCEL_TOKEN" && return 0
+            if ! LISTED=$(vercel env ls "$VERCEL_ENVIRONMENT" $SCOPE_FLAG --token "$VERCEL_TOKEN"); then
+              echo "::error::could not check whether $1 is still set (vercel env ls failed)"
+              return 1
+            fi
+            if grep -qw -- "$1" <<<"$LISTED"; then
+              echo "::error::$1 could not be removed from the $VERCEL_ENVIRONMENT environment"
+              return 1
+            fi
+          }
+          # add_env NAME VALUE: retried, because after a successful rm a failed add
+          # would leave the project without the variable.
+          add_env() {
+            for ATTEMPT in 1 2 3; do
+              printf '%s' "$2" | vercel env add "$1" "$VERCEL_ENVIRONMENT" $SCOPE_FLAG --token "$VERCEL_TOKEN" && return 0
+              sleep $((ATTEMPT * 5))
+            done
+            echo "::error::$1 could not be written to the $VERCEL_ENVIRONMENT environment"
+            return 1
+          }
+          # `vercel env add` refuses a name that already exists, so without the
+          # rm a project keeps its FIRST GH_TOKEN forever (a broad token from
+          # before the site git-token broker, or an expired bootstrap one).
+          remove_env GH_TOKEN
+          add_env GH_TOKEN "$GH_TOKEN"
 
       - name: Set CRON_SECRET env variable
         continue-on-error: true
@@ -281,6 +318,56 @@ jobs:
             SCOPE_FLAG=""
             [ -n "$VERCEL_TEAM_SCOPE" ] && SCOPE_FLAG="--scope $VERCEL_TEAM_SCOPE"
             echo -n "$CRON_SECRET" | vercel env add CRON_SECRET ${{ inputs.environment }} $SCOPE_FLAG --token "$VERCEL_TOKEN"
+          fi
+
+      # Ever Works site git-token broker: the site trades its per-site secret for
+      # a ~1h token scoped to its own data repo (lib/git/site-git-token.ts), so
+      # GH_TOKEN above is only a short-lived bootstrap. Reconciled on every
+      # deploy: both secrets present = (re)write both; absent = remove both, so a
+      # project never keeps a stale or rotated-out broker secret. No
+      # continue-on-error: a site half-configured for the broker would stop
+      # syncing an hour after this deploy, so a failed write fails the deploy.
+      - name: Set site git-token broker env variables
+        env:
+          VERCEL_ENVIRONMENT: ${{ inputs.environment }}
+          SITE_GIT_TOKEN_URL: ${{ secrets.EVER_WORKS_SITE_GIT_TOKEN_URL }}
+          SITE_GIT_TOKEN_SECRET: ${{ secrets.EVER_WORKS_SITE_GIT_TOKEN_SECRET }}
+        run: |
+          SCOPE_FLAG=""
+          [ -n "$VERCEL_TEAM_SCOPE" ] && SCOPE_FLAG="--scope $VERCEL_TEAM_SCOPE"
+          # remove_env NAME: a failed `vercel env rm` is accepted only when the variable
+          # is really gone afterwards (nothing to remove on a first deploy), never when
+          # it is still there: a stale value would stay live.
+          remove_env() {
+            vercel env rm "$1" "$VERCEL_ENVIRONMENT" --yes $SCOPE_FLAG --token "$VERCEL_TOKEN" && return 0
+            if ! LISTED=$(vercel env ls "$VERCEL_ENVIRONMENT" $SCOPE_FLAG --token "$VERCEL_TOKEN"); then
+              echo "::error::could not check whether $1 is still set (vercel env ls failed)"
+              return 1
+            fi
+            if grep -qw -- "$1" <<<"$LISTED"; then
+              echo "::error::$1 could not be removed from the $VERCEL_ENVIRONMENT environment"
+              return 1
+            fi
+          }
+          # add_env NAME VALUE: retried, because after a successful rm a failed add
+          # would leave the project without the variable.
+          add_env() {
+            for ATTEMPT in 1 2 3; do
+              printf '%s' "$2" | vercel env add "$1" "$VERCEL_ENVIRONMENT" $SCOPE_FLAG --token "$VERCEL_TOKEN" && return 0
+              sleep $((ATTEMPT * 5))
+            done
+            echo "::error::$1 could not be written to the $VERCEL_ENVIRONMENT environment"
+            return 1
+          }
+          # rm first: `env add` refuses an existing name. A failed rm passes only
+          # when the variable is verifiably absent (first deploy); a broker secret
+          # that is still set after the platform disabled or rotated it fails here.
+          for NAME in EVER_WORKS_SITE_GIT_TOKEN_URL EVER_WORKS_SITE_GIT_TOKEN_SECRET; do
+            remove_env "$NAME"
+          done
+          if [ -n "$SITE_GIT_TOKEN_URL" ] && [ -n "$SITE_GIT_TOKEN_SECRET" ]; then
+            add_env EVER_WORKS_SITE_GIT_TOKEN_URL "$SITE_GIT_TOKEN_URL"
+            add_env EVER_WORKS_SITE_GIT_TOKEN_SECRET "$SITE_GIT_TOKEN_SECRET"
           fi
 
       - name: Pull Vercel settings
