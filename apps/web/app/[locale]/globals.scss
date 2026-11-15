@@ -239,6 +239,15 @@
     transition: background-color 0.3s ease, color 0.3s ease;
   }
 
+  /* Same stack as Tailwind's `font-mono` (tailwind.config.ts), so bare code elements
+     match the utility. Geist Mono comes from app/layout.tsx. */
+  code,
+  kbd,
+  pre,
+  samp {
+    font-family: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  }
+
   /* Arabic and Hebrew pages skip Geist. next/font puts an Arial-based 'Geist Fallback' face
      right after Geist in --font-geist-sans, and on Windows Arial has Arabic and Hebrew glyphs,
      so that face (not the system UI font) would draw those scripts. :where() keeps the
