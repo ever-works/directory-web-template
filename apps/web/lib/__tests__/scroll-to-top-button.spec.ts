@@ -64,7 +64,13 @@ describe('scroll-to-top button', () => {
 		}
 		// The arrow must follow: no centring there either, and an offset per button size.
 		assert.match(COMPONENT, /hintArrowOffsets\s*=\s*\{\s*sm:\s*"right-4",\s*md:\s*"right-5",\s*lg:\s*"right-7"/);
-		assert.match(COMPONENT, /hintArrowOffsets\[size\]/, 'the arrow does not use the per-size offset');
+		const arrowClasses = /className=\{cn\(\s*["']([^"']*)["']\s*,\s*hintArrowOffsets\[size\]\s*\)\}/.exec(
+			COMPONENT.slice(hintAt)
+		)?.[1];
+		assert.ok(arrowClasses, 'the arrow does not use the per-size offset');
+		for (const centring of ['left-1/2', '-translate-x-1/2']) {
+			assert.ok(!arrowClasses.split(/\s+/).includes(centring), `the hint arrow is still centred (${centring})`);
+		}
 	});
 
 	it('resolves both strings in every locale, translated outside English', () => {
