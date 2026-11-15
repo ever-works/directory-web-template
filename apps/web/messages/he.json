@@ -40,7 +40,9 @@
 		}
 	},
 	"header": {
-		"OPEN_USER_MENU": "Open user menu"
+		"OPEN_USER_MENU": "Open user menu",
+		"SCROLL_TO_TOP": "גלילה לראש העמוד",
+		"BACK_TO_TOP": "חזרה למעלה"
 	},
 	"common": {
 		"DEMO_BANNER_TEXT": "אתם משתמשים בחשבון הדגמה. מוצאים את התוכנה שלנו שימושית?",

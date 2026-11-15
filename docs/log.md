@@ -7,6 +7,10 @@ sidebar_position: 99
 
 # Documentation & Specs Change Log
 
+## 2026-11-15
+
+- `apps/web/components/scroll-to-top-button.tsx`: the button's accessible name ("Scroll to top") and hover hint ("Back to top") were hard-coded English; they now come from the `header.SCROLL_TO_TOP` / `header.BACK_TO_TOP` keys in all 21 `apps/web/messages/*.json` files. The `group` class also moved from the button to its wrapper so the hint now appears on hover and keyboard focus (it was a sibling and never showed), and the hint is `aria-hidden` so screen readers do not hear it after the button's name. Trivial-fix exception (no spec). Unit spec `apps/web/lib/__tests__/scroll-to-top-button.spec.ts` (#1110).
+
 ## 2026-11-13
 
 - `spec-055`: shipped. T-006 live check done after the stage → main release (#1106): demo.ever.works shows the demo account strip linking to app.ever.works/register; timetrack.ever.works (a customer directory, runtime `demo=false`) shows none ([055](spec/055-demo-banner/spec.md)).

@@ -40,7 +40,9 @@
 		}
 	},
 	"header": {
-		"OPEN_USER_MENU": "Buka menu pengguna"
+		"OPEN_USER_MENU": "Buka menu pengguna",
+		"SCROLL_TO_TOP": "Gulir ke bagian atas halaman",
+		"BACK_TO_TOP": "Kembali ke atas"
 	},
 	"common": {
 		"DEMO_BANNER_TEXT": "Anda menggunakan akun demo. Merasa perangkat lunak kami bermanfaat?",

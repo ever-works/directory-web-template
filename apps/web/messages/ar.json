@@ -40,7 +40,9 @@
 		}
 	},
 	"header": {
-		"OPEN_USER_MENU": "Open user menu"
+		"OPEN_USER_MENU": "Open user menu",
+		"SCROLL_TO_TOP": "التمرير إلى أعلى الصفحة",
+		"BACK_TO_TOP": "العودة إلى الأعلى"
 	},
 	"common": {
 		"DEMO_BANNER_TEXT": "أنت تستخدم حسابًا تجريبيًا. هل تجد برنامجنا مفيدًا؟",
