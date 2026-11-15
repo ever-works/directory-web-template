@@ -240,12 +240,15 @@
   }
 
   /* Same stack as Tailwind's `font-mono` (tailwind.config.ts), so bare code elements
-     match the utility. Geist Mono comes from app/layout.tsx. */
+     match the utility. Geist Mono comes from app/layout.tsx. The `ui-monospace` inside var()
+     keeps this rule valid where --font-geist-mono is not set (app/global-error.tsx renders
+     its own <body> without the next/font class); without it the whole declaration is dropped
+     and <pre> falls back to the inherited sans font. */
   code,
   kbd,
   pre,
   samp {
-    font-family: var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    font-family: var(--font-geist-mono, ui-monospace), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
   }
 
   /* Arabic and Hebrew pages skip Geist. next/font puts an Arial-based 'Geist Fallback' face
