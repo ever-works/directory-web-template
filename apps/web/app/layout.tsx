@@ -15,9 +15,15 @@ const geistSans = Geist({
     subsets: ['latin'],
 });
 
+// adjustFontFallback: false drops next/font's 'Geist Mono Fallback' face, which is Arial scaled
+// to 134.59%. Geist Mono has no Arabic or Hebrew letters, so that proportional face would draw
+// them in code at about a third larger than the text around them, and it would also draw Latin
+// code before Geist Mono loads. The CSS stack after var(--font-geist-mono) (Consolas,
+// Menlo, Courier New...) takes over instead, as it did before Geist Mono was wired up.
 const geistMono = Geist_Mono({
     variable: '--font-geist-mono',
     subsets: ['latin'],
+    adjustFontFallback: false,
 });
 
 // Public origin: NEXT_PUBLIC_CANONICAL_URL when pinned, else the app URL.
