@@ -82,7 +82,7 @@ export function ScrollToTopButton({
   if (!isVisible) return null;
 
   return (
-    <div className="fixed bottom-8 right-8 z-50">
+    <div className="group fixed bottom-8 right-8 z-50">
       {/* Progress ring for elegant variant */}
       {variant === "elegant" && (
         <div className="absolute inset-0 rounded-full">
@@ -119,7 +119,6 @@ export function ScrollToTopButton({
          "flex items-center justify-center",
          "hover:scale-110 active:scale-95",
          "animate-fadeInUp",
-         "group",
          sizeClasses[size],
          variants[variant],
          className
@@ -157,7 +156,7 @@ export function ScrollToTopButton({
       </button>
       
       {/* Floating text hint */}
-      <div className="absolute -top-12 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none">
+      <div aria-hidden="true" className="absolute -top-12 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-all duration-300 pointer-events-none">
         <div className="bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 px-3 py-1 rounded-lg text-sm font-medium whitespace-nowrap shadow-lg">
           {t("BACK_TO_TOP")}
           <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-gray-900 dark:border-t-gray-100" />
