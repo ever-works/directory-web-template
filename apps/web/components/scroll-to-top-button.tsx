@@ -63,6 +63,14 @@ export function ScrollToTopButton({
     lg: "w-7 h-7"
   };
 
+  // Keeps the hint's arrow under the button's centre now that the bubble is right-aligned:
+  // right offset = button width / 2 - arrow half width (4px).
+  const hintArrowOffsets = {
+    sm: "right-4",
+    md: "right-5",
+    lg: "right-7"
+  };
+
   const variants = {
     default: "bg-primary-600 hover:bg-primary-700 text-white border-2 border-primary-500 hover:border-primary-600",
     elegant: "bg-white/90 dark:bg-white/5 backdrop-blur-lg text-gray-800 dark:text-white border border-gray-200/50 dark:border-white/4 hover:bg-white dark:hover:bg-white/6 shadow-lg hover:shadow-xl",
@@ -156,10 +164,12 @@ export function ScrollToTopButton({
       </button>
       
       {/* Floating text hint */}
-      <div aria-hidden="true" className="absolute -top-12 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-all duration-300 pointer-events-none">
+      {/* Anchored to the button's physical right edge (the button is `fixed right-8` in LTR and RTL alike), so the
+          bubble grows leftwards, into the page, and never past the viewport edge in long locales. */}
+      <div aria-hidden="true" className="absolute -top-12 right-0 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-all duration-300 pointer-events-none">
         <div className="bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 px-3 py-1 rounded-lg text-sm font-medium whitespace-nowrap shadow-lg">
           {t("BACK_TO_TOP")}
-          <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-gray-900 dark:border-t-gray-100" />
+          <div className={cn("absolute top-full border-4 border-transparent border-t-gray-900 dark:border-t-gray-100", hintArrowOffsets[size])} />
         </div>
       </div>
     </div>

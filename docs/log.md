@@ -10,6 +10,7 @@ sidebar_position: 99
 ## 2026-11-15
 
 - `apps/web/components/scroll-to-top-button.tsx`: the button's accessible name ("Scroll to top") and hover hint ("Back to top") were hard-coded English; they now come from the `header.SCROLL_TO_TOP` / `header.BACK_TO_TOP` keys in all 21 `apps/web/messages/*.json` files. The `group` class also moved from the button to its wrapper so the hint now appears on hover and keyboard focus (it was a sibling and never showed), and the hint is `aria-hidden` so screen readers do not hear it after the button's name. Trivial-fix exception (no spec). Unit spec `apps/web/lib/__tests__/scroll-to-top-button.spec.ts` (#1110).
+- `apps/web/components/scroll-to-top-button.tsx`: the "Back to top" hint was centred on the button, which sits 32 px from the right edge, so longer translations (nl, ar, id, fr) ran past the right edge of the viewport. The hint is now anchored to the button's right edge (`right-0`; the button is `fixed right-8` in RTL too, so this holds for `ar` and `he`) and grows into the page. The arrow keeps pointing at the button's centre with a per-size offset. Trivial-fix exception (no spec). Unit spec `apps/web/lib/__tests__/scroll-to-top-button.spec.ts` (#1111).
 
 ## 2026-11-13
 

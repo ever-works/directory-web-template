@@ -51,6 +51,28 @@ describe('scroll-to-top button', () => {
 		assert.ok(COMPONENT.lastIndexOf('aria-hidden="true"', hintAt) > buttonEnd, 'the hint is not aria-hidden');
 	});
 
+	it('anchors the hint to the button right edge so long locales stay inside the viewport', () => {
+		// The button is `fixed right-8` in LTR and RTL alike, so the hint is right-aligned in both directions.
+		assert.match(COMPONENT, /fixed bottom-8 right-8/, 'the button is expected to sit on the physical right edge');
+		const hintAt = COMPONENT.search(/\{\s*t\(\s*["']BACK_TO_TOP["']/);
+		const wrapperStart = COMPONENT.lastIndexOf('aria-hidden="true"', hintAt);
+		const wrapperClasses = /className="([^"]*)"/.exec(COMPONENT.slice(wrapperStart))?.[1] ?? '';
+		const classes = wrapperClasses.split(/\s+/);
+		assert.ok(classes.includes('right-0'), 'the hint wrapper is not right-aligned (right-0)');
+		for (const centring of ['left-1/2', '-translate-x-1/2']) {
+			assert.ok(!classes.includes(centring), `the hint wrapper is still centred (${centring})`);
+		}
+		// The arrow must follow: no centring there either, and an offset per button size.
+		assert.match(COMPONENT, /hintArrowOffsets\s*=\s*\{\s*sm:\s*"right-4",\s*md:\s*"right-5",\s*lg:\s*"right-7"/);
+		const arrowClasses = /className=\{cn\(\s*["']([^"']*)["']\s*,\s*hintArrowOffsets\[size\]\s*\)\}/.exec(
+			COMPONENT.slice(hintAt)
+		)?.[1];
+		assert.ok(arrowClasses, 'the arrow does not use the per-size offset');
+		for (const centring of ['left-1/2', '-translate-x-1/2']) {
+			assert.ok(!arrowClasses.split(/\s+/).includes(centring), `the hint arrow is still centred (${centring})`);
+		}
+	});
+
 	it('resolves both strings in every locale, translated outside English', () => {
 		const found = componentKeys();
 		if (!found.namespace || !found.labelKey || !found.hintKey) return assert.fail('component keys not found');
