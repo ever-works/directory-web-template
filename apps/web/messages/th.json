@@ -40,7 +40,9 @@
 		}
 	},
 	"header": {
-		"OPEN_USER_MENU": "Open user menu"
+		"OPEN_USER_MENU": "Open user menu",
+		"SCROLL_TO_TOP": "เลื่อนขึ้นไปด้านบนของหน้า",
+		"BACK_TO_TOP": "กลับขึ้นด้านบน"
 	},
 	"common": {
 		"DEMO_BANNER_TEXT": "คุณกำลังใช้บัญชีทดลอง พบว่าซอฟต์แวร์ของเรามีประโยชน์หรือไม่?",

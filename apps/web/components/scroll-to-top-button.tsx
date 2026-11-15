@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { ChevronUp, ArrowUp } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useScrollToTop } from "@/hooks/use-scroll-to-top";
 import { cn } from "@/lib/utils";
 
@@ -20,6 +21,7 @@ export function ScrollToTopButton({
   variant = "elegant",
   easing = "easeInOut"
 }: ScrollToTopButtonProps) {
+  const t = useTranslations("header");
   const [isVisible, setIsVisible] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
   const { scrollToTop } = useScrollToTop({ 
@@ -122,7 +124,7 @@ export function ScrollToTopButton({
          variants[variant],
          className
        )}
-       aria-label="Scroll to top"
+       aria-label={t("SCROLL_TO_TOP")}
       >
         {/* Background glow effect */}
         <div className="absolute inset-0 rounded-full bg-linear-to-r from-primary-400/20 to-primary-600/20 blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10" />
@@ -157,7 +159,7 @@ export function ScrollToTopButton({
       {/* Floating text hint */}
       <div className="absolute -top-12 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none">
         <div className="bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 px-3 py-1 rounded-lg text-sm font-medium whitespace-nowrap shadow-lg">
-          Back to top
+          {t("BACK_TO_TOP")}
           <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-gray-900 dark:border-t-gray-100" />
         </div>
       </div>

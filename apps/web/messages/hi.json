@@ -40,7 +40,9 @@
 		}
 	},
 	"header": {
-		"OPEN_USER_MENU": "Open user menu"
+		"OPEN_USER_MENU": "Open user menu",
+		"SCROLL_TO_TOP": "पृष्ठ के शीर्ष पर स्क्रॉल करें",
+		"BACK_TO_TOP": "ऊपर जाएँ"
 	},
 	"common": {
 		"DEMO_BANNER_TEXT": "आप एक डेमो खाते का उपयोग कर रहे हैं। क्या आपको हमारा सॉफ़्टवेयर उपयोगी लगा?",

@@ -40,7 +40,9 @@
 		}
 	},
 	"header": {
-		"OPEN_USER_MENU": "Kullanıcı menüsünü aç"
+		"OPEN_USER_MENU": "Kullanıcı menüsünü aç",
+		"SCROLL_TO_TOP": "Sayfanın başına kaydır",
+		"BACK_TO_TOP": "Başa dön"
 	},
 	"common": {
 		"DEMO_BANNER_TEXT": "Bir demo hesabı kullanıyorsunuz. Yazılımımızı faydalı buldunuz mu?",

@@ -40,7 +40,9 @@
 		}
 	},
 	"header": {
-		"OPEN_USER_MENU": "Mở menu người dùng"
+		"OPEN_USER_MENU": "Mở menu người dùng",
+		"SCROLL_TO_TOP": "Cuộn lên đầu trang",
+		"BACK_TO_TOP": "Về đầu trang"
 	},
 	"common": {
 		"DEMO_BANNER_TEXT": "Bạn đang sử dụng tài khoản demo. Bạn thấy phần mềm của chúng tôi hữu ích?",

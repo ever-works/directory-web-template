@@ -40,7 +40,9 @@
 		}
 	},
 	"header": {
-		"OPEN_USER_MENU": "Open user menu"
+		"OPEN_USER_MENU": "Open user menu",
+		"SCROLL_TO_TOP": "Прокрутити на початок сторінки",
+		"BACK_TO_TOP": "Угору"
 	},
 	"common": {
 		"DEMO_BANNER_TEXT": "Ви використовуєте демо-обліковий запис. Вважаєте наше програмне забезпечення корисним?",

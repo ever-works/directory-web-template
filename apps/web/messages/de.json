@@ -40,7 +40,9 @@
 		}
 	},
 	"header": {
-		"OPEN_USER_MENU": "Open user menu"
+		"OPEN_USER_MENU": "Open user menu",
+		"SCROLL_TO_TOP": "Zum Seitenanfang scrollen",
+		"BACK_TO_TOP": "Nach oben"
 	},
 	"common": {
 		"DEMO_BANNER_TEXT": "Sie verwenden ein Demo-Konto. Finden Sie unsere Software nützlich?",
