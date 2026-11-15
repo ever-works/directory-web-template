@@ -239,8 +239,20 @@
     transition: background-color 0.3s ease, color 0.3s ease;
   }
 
-  /* Locale-specific font overrides — prepend supplementary font for non-Latin scripts;
-     Geist stays next in the stack so Latin text inside these locales still uses it. */
+  /* Arabic and Hebrew pages skip Geist. next/font puts an Arial-based 'Geist Fallback' face
+     right after Geist in --font-geist-sans, and on Windows Arial has Arabic and Hebrew glyphs,
+     so that face (not the system UI font) would draw those scripts. :where() keeps the
+     specificity of plain `body`: this rule wins by source order, and the body.font-locale-ar
+     rule below still wins once getFontClassNames is wired. */
+  :where(html:lang(ar), html:lang(he)) body {
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  }
+
+  /* Locale-specific font overrides — prepend the supplementary Noto font for non-Latin scripts.
+     The Noto fonts carry their own Latin glyphs, so Latin text in these locales uses Noto too;
+     Geist and the system stack only cover characters the Noto font lacks.
+     The classes and --font-noto-* variables come from getFontClassNames() in app/fonts.ts,
+     which app/layout.tsx does not call yet, so these rules are inactive for now. */
   body.font-locale-zh {
     font-family: var(--font-noto-sc), var(--font-geist-sans), system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   }
