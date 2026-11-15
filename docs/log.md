@@ -9,6 +9,7 @@ sidebar_position: 99
 
 ## 2026-11-15
 
+- `apps/web/app/[locale]/globals.scss`: the base `body` rule set `font-family: sans-serif`, so page text used the system font and the Geist download (loaded in `app/layout.tsx`) was never used. `body` now uses `var(--font-geist-sans)` followed by the system stack already used in `globals.css`, and the `body.font-locale-*` overrides put their Noto font first and keep Geist behind it. Trivial-fix exception (no spec). Note: `getFontClassNames` in `app/fonts.ts` is not called anywhere, so the `font-locale-*` classes and `--font-noto-*` variables are not applied to `<body>` yet; that is a separate follow-up.
 - `apps/web/components/scroll-to-top-button.tsx`: the button's accessible name ("Scroll to top") and hover hint ("Back to top") were hard-coded English; they now come from the `header.SCROLL_TO_TOP` / `header.BACK_TO_TOP` keys in all 21 `apps/web/messages/*.json` files. The `group` class also moved from the button to its wrapper so the hint now appears on hover and keyboard focus (it was a sibling and never showed), and the hint is `aria-hidden` so screen readers do not hear it after the button's name. Trivial-fix exception (no spec). Unit spec `apps/web/lib/__tests__/scroll-to-top-button.spec.ts` (#1110).
 
 ## 2026-11-13
