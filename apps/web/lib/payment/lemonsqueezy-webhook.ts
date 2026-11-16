@@ -82,7 +82,7 @@ type WebhookResource = { id: string; type?: string; attributes?: Record<string, 
  * amounts in cents). The service stores rows under the provider it was built
  * with, so this carries only the data.
  */
-export function toSubscriptionServiceData(resource: WebhookResource): Record<string, any> {
+export function toSubscriptionServiceData(resource: WebhookResource, now: number = Date.now()): Record<string, any> {
 	const attrs = resource.attributes ?? {};
 	const custom = (resource.meta?.custom_data ?? {}) as Record<string, unknown>;
 	const metadata: Record<string, unknown> = { ...custom };
@@ -118,10 +118,13 @@ export function toSubscriptionServiceData(resource: WebhookResource): Record<str
 	const cancelled = attrs.cancelled === true;
 	const endsAt = toSeconds(attrs.ends_at);
 	const priceId = toId(attrs.first_subscription_item?.price_id) ?? toId(attrs.variant_id);
+	// A subscription cancelled with time left in the paid period stays usable until
+	// `ends_at`; LemonSqueezy sends an expiry event when that date passes.
+	const paidThroughEndsAt = cancelled && endsAt !== undefined && endsAt * 1000 > now;
 	return {
 		...common,
 		id: resource.id,
-		status: attrs.status,
+		status: paidThroughEndsAt && attrs.status === 'cancelled' ? 'active' : attrs.status,
 		start_date: toSeconds(attrs.created_at),
 		// ends_at is set once cancelled; otherwise the next renewal is the period end.
 		period_end: endsAt ?? toSeconds(attrs.renews_at),

@@ -3,6 +3,8 @@ import { createHmac } from 'node:crypto';
 import { test } from 'node:test';
 
 import { resolveListCustomerEmail } from '../lemonsqueezy-list-access';
+import { toStoredAmount } from '../stored-amount';
+import { RelayEventCoordinator } from '../relay-event-coordinator';
 import {
 	getLemonSqueezyEventKey,
 	parseLemonSqueezyEvent,
@@ -90,20 +92,45 @@ test('a subscription event maps id, customer, user, plan, status and dates', () 
 	assert.equal(mapped.items.data[0].price.id, '99');
 });
 
-test('a cancelled subscription ends at ends_at and is flagged cancel-at-period-end', () => {
-	const mapped = toSubscriptionServiceData({
-		id: '42',
-		type: 'subscriptions',
-		attributes: {
-			status: 'cancelled',
-			cancelled: true,
-			ends_at: '2026-03-01T00:00:00.000000Z',
-			renews_at: '2026-02-01T00:00:00.000000Z'
-		}
-	});
-	assert.equal(mapped.status, 'cancelled');
+const cancelledResource = {
+	id: '42',
+	type: 'subscriptions',
+	attributes: {
+		status: 'cancelled',
+		cancelled: true,
+		ends_at: '2026-03-01T00:00:00.000000Z',
+		renews_at: '2026-02-01T00:00:00.000000Z'
+	}
+};
+
+test('a cancelled subscription with paid time left stays active until ends_at', () => {
+	const mapped = toSubscriptionServiceData(cancelledResource, Date.parse('2026-02-10T00:00:00Z'));
+	assert.equal(mapped.status, 'active');
 	assert.equal(mapped.cancel_at_period_end, true);
 	assert.equal(mapped.period_end, Date.parse('2026-03-01T00:00:00Z') / 1000);
+});
+
+test('a cancelled subscription past ends_at stays cancelled', () => {
+	const mapped = toSubscriptionServiceData(cancelledResource, Date.parse('2026-03-02T00:00:00Z'));
+	assert.equal(mapped.status, 'cancelled');
+	assert.equal(mapped.period_end, Date.parse('2026-03-01T00:00:00Z') / 1000);
+});
+
+test('an expired subscription keeps its status even if ends_at is still ahead of the clock', () => {
+	const mapped = toSubscriptionServiceData(
+		{ id: '42', type: 'subscriptions', attributes: { status: 'expired', cancelled: false, ends_at: '2026-03-01T00:00:00Z' } },
+		Date.parse('2026-02-10T00:00:00Z')
+	);
+	assert.equal(mapped.status, 'expired');
+});
+
+test('stored amounts are whole numbers and never NaN', () => {
+	assert.equal(toStoredAmount(1999), 20);
+	assert.equal(toStoredAmount(2000), 20);
+	assert.equal(toStoredAmount(0), 0);
+	assert.equal(toStoredAmount(undefined), 0);
+	assert.equal(toStoredAmount(Number.NaN), 0);
+	assert.ok(Number.isInteger(toStoredAmount(1234)));
 });
 
 test('an invoice event is keyed on its subscription and carries cents', () => {
@@ -126,6 +153,21 @@ test('an order maps to the email layout without dividing the total', () => {
 	});
 	assert.equal(mapped.total, 2500);
 	assert.deepEqual(mapped.customer, { name: 'Buyer', email: 'buyer@example.com' });
+});
+
+test('a delivery whose handler reports failure is not remembered and can be retried', async () => {
+	const events = new RelayEventCoordinator();
+	let attempts = 0;
+	const key = 'subscription_created:42:hash';
+	const handler = (ok: boolean) => async () => {
+		attempts += 1;
+		return ok;
+	};
+
+	assert.equal(await events.process(key, handler(false)), 'retry');
+	assert.equal(await events.process(key, handler(true)), 'processed');
+	assert.equal(await events.process(key, handler(true)), 'duplicate');
+	assert.equal(attempts, 2);
 });
 
 test('the list endpoint ignores no email and the caller\'s own email', () => {

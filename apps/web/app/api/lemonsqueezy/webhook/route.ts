@@ -67,14 +67,14 @@ export async function POST(request: NextRequest) {
 			return NextResponse.json({ error: 'Invalid payload' }, { status: 400 });
 		}
 
-		const outcome = await processedEvents.process(getLemonSqueezyEventKey(event, body), async () => {
-			await dispatchEvent(webhookResult.type, webhookResult.data);
-			return true;
-		});
+		// Only a successfully handled event is remembered as done. A failed one (or a
+		// concurrent redelivery still in flight) gets a non-2xx so LemonSqueezy retries it.
+		const outcome = await processedEvents.process(getLemonSqueezyEventKey(event, body), () =>
+			dispatchEvent(webhookResult.type, webhookResult.data)
+		);
 
-		// A concurrent redelivery of an in-flight event: ask LemonSqueezy to retry.
 		if (outcome === 'retry') {
-			return NextResponse.json({ error: 'Event is being processed' }, { status: 409 });
+			return NextResponse.json({ error: 'Event not processed, retry later' }, { status: 503 });
 		}
 
 		return NextResponse.json({ received: true });
@@ -84,37 +84,54 @@ export async function POST(request: NextRequest) {
 	}
 }
 
-async function dispatchEvent(lemonsqueezyEventType: string, data: any): Promise<void> {
+/** Resolves true when the event was handled, false when it should be retried. */
+async function dispatchEvent(lemonsqueezyEventType: string, data: any): Promise<boolean> {
 	// Map LemonSqueezy event types to our generic types
 	const eventType = mapLemonSqueezyEventType(lemonsqueezyEventType);
 
 	switch (eventType) {
 		case WebhookEventType.SUBSCRIPTION_CREATED:
-			await handleSubscriptionCreated(data);
-			break;
+			return handleSubscriptionCreated(data);
 		case WebhookEventType.SUBSCRIPTION_UPDATED:
-			await handleSubscriptionUpdated(data);
-			break;
+			return handleSubscriptionUpdated(data);
 		case WebhookEventType.SUBSCRIPTION_CANCELLED:
-			await handleSubscriptionCancelled(data);
-			break;
+			return handleSubscriptionCancelled(data);
 		case WebhookEventType.PAYMENT_SUCCEEDED:
-			await handlePaymentSucceeded(data);
-			break;
+			return handlePaymentSucceeded(data);
 		case WebhookEventType.SUBSCRIPTION_PAYMENT_SUCCEEDED:
-			await handleSubscriptionPaymentSucceeded(data);
-			break;
+			return handleSubscriptionPaymentSucceeded(data);
 		case WebhookEventType.SUBSCRIPTION_PAYMENT_FAILED:
-			await handleSubscriptionPaymentFailed(data);
-			break;
+			return handleSubscriptionPaymentFailed(data);
 		case WebhookEventType.PAYMENT_FAILED:
 			await handlePaymentFailed(data);
-			break;
+			return true;
 		case WebhookEventType.SUBSCRIPTION_TRIAL_ENDING:
-			await handleSubscriptionTrialEnding(data);
-			break;
+			return handleSubscriptionTrialEnding(data);
 		default:
 			console.log(`Unhandled webhook event: ${eventType}`);
+			return true;
+	}
+}
+
+/**
+ * Run one subscription-service call. Returns whether it succeeded so a failed
+ * event is not acknowledged and can be redelivered.
+ */
+async function runSubscriptionHandler(
+	label: string,
+	run: () => Promise<{ success: boolean; error?: string }>
+): Promise<boolean> {
+	try {
+		const result = await run();
+		if (result.success) {
+			console.log(`✅ LemonSqueezy ${label} handled successfully`);
+			return true;
+		}
+		console.error(`❌ Failed to handle ${label}:`, result.error);
+		return false;
+	} catch (error) {
+		console.error(`❌ Error handling ${label}:`, error);
+		return false;
 	}
 }
 
@@ -140,60 +157,39 @@ function mapLemonSqueezyEventType(lemonsqueezyEventType: string): string {
 }
 
 // Webhook event handlers
-async function handleSubscriptionCreated(data: any) {
+async function handleSubscriptionCreated(data: any): Promise<boolean> {
 	// Check if this is a sponsor ad subscription
 	if (isSponsorAdSubscription(data)) {
 		console.log('📢 LemonSqueezy sponsor ad subscription detected');
-		await handleSponsorAdActivation(data);
-		return;
+		return handleSponsorAdActivation(data);
 	}
 
-	try {
-		const result = await webhookSubscriptionService.handleSubscriptionCreated(toSubscriptionServiceData(data));
-		if (result.success) {
-			console.log('✅ LemonSqueezy subscription created successfully');
-		} else {
-			console.error('❌ Failed to handle subscription created:', result.error);
-		}
-	} catch (error) {
-		console.error('❌ Error handling subscription created:', error);
-	}
+	return runSubscriptionHandler('subscription created', () =>
+		webhookSubscriptionService.handleSubscriptionCreated(toSubscriptionServiceData(data))
+	);
 }
 
-async function handleSubscriptionUpdated(data: any) {
-	try {
-		const result = await webhookSubscriptionService.handleSubscriptionUpdated(toSubscriptionServiceData(data));
-		if (result.success) {
-			console.log('✅ LemonSqueezy subscription updated successfully');
-		} else {
-			console.error('❌ Failed to handle subscription updated:', result.error);
-		}
-	} catch (error) {
-		console.error('❌ Error handling subscription updated:', error);
-	}
+async function handleSubscriptionUpdated(data: any): Promise<boolean> {
+	return runSubscriptionHandler('subscription updated', () =>
+		webhookSubscriptionService.handleSubscriptionUpdated(toSubscriptionServiceData(data))
+	);
 }
 
-async function handleSubscriptionCancelled(data: any) {
+async function handleSubscriptionCancelled(data: any): Promise<boolean> {
 	// Check if this is a sponsor ad subscription
 	if (isSponsorAdSubscription(data)) {
 		console.log('📢 LemonSqueezy sponsor ad subscription cancellation detected');
-		await handleSponsorAdCancellation(data);
-		return;
+		return handleSponsorAdCancellation(data);
 	}
 
-	try {
-		const result = await webhookSubscriptionService.handleSubscriptionCancelled(toSubscriptionServiceData(data));
-		if (result.success) {
-			console.log('✅ LemonSqueezy subscription cancelled successfully');
-		} else {
-			console.error('❌ Failed to handle subscription cancelled:', result.error);
-		}
-	} catch (error) {
-		console.error('❌ Error handling subscription cancelled:', error);
-	}
+	return runSubscriptionHandler('subscription cancelled', () =>
+		webhookSubscriptionService.handleSubscriptionCancelled(toSubscriptionServiceData(data))
+	);
 }
 
-async function handlePaymentSucceeded(resource: any) {
+// The confirmation email is best effort: a mail failure must not make LemonSqueezy
+// redeliver the order (which would send it again), so this always resolves true.
+async function handlePaymentSucceeded(resource: any): Promise<boolean> {
 	try {
 		const data = toOrderEmailData(resource);
 		const emailConfig = await getEmailConfig();
@@ -228,6 +224,7 @@ async function handlePaymentSucceeded(resource: any) {
 	} catch (error) {
 		console.error('❌ Error handling payment succeeded:', error);
 	}
+	return true;
 }
 
 async function handlePaymentFailed(data: any) {
@@ -235,52 +232,29 @@ async function handlePaymentFailed(data: any) {
 	// Add specific handling for failed payments if needed
 }
 
-async function handleSubscriptionPaymentSucceeded(data: any) {
+async function handleSubscriptionPaymentSucceeded(data: any): Promise<boolean> {
 	// Check if this is a sponsor ad subscription (for renewals)
 	if (isSponsorAdSubscription(data)) {
 		console.log('📢 LemonSqueezy sponsor ad payment succeeded (renewal)');
-		await handleSponsorAdRenewal(data);
-		return;
+		return handleSponsorAdRenewal(data);
 	}
 
-	try {
-		const result = await webhookSubscriptionService.handleSubscriptionPaymentSucceeded(
-			toSubscriptionServiceData(data)
-		);
-		if (result.success) {
-			console.log('✅ LemonSqueezy subscription payment processed successfully');
-		} else {
-			console.error('❌ Failed to handle subscription payment succeeded:', result.error);
-		}
-	} catch (error) {
-		console.error('❌ Error handling subscription payment succeeded:', error);
-	}
+	return runSubscriptionHandler('subscription payment succeeded', () =>
+		webhookSubscriptionService.handleSubscriptionPaymentSucceeded(toSubscriptionServiceData(data))
+	);
 }
 
-async function handleSubscriptionPaymentFailed(data: any) {
-	try {
-		const result = await webhookSubscriptionService.handleSubscriptionPaymentFailed(toSubscriptionServiceData(data));
-		if (result.success) {
-			console.log('✅ LemonSqueezy subscription payment failure handled successfully');
-		} else {
-			console.error('❌ Failed to handle subscription payment failed:', result.error);
-		}
-	} catch (error) {
-		console.error('❌ Error handling subscription payment failed:', error);
-	}
+async function handleSubscriptionPaymentFailed(data: any): Promise<boolean> {
+	return runSubscriptionHandler('subscription payment failed', () =>
+		webhookSubscriptionService.handleSubscriptionPaymentFailed(toSubscriptionServiceData(data))
+	);
 }
 
-async function handleSubscriptionTrialEnding(data: any) {
-	try {
-		const result = await webhookSubscriptionService.handleSubscriptionTrialEnding(toSubscriptionServiceData(data));
-		if (result.success) {
-			console.log('✅ LemonSqueezy subscription trial ending handled successfully');
-		} else {
-			console.error('❌ Failed to handle subscription trial ending:', result.error);
-		}
-	} catch (error) {
-		console.error('❌ Error handling subscription trial ending:', error);
-	}
+async function handleSubscriptionTrialEnding(data: any): Promise<boolean> {
+	return runSubscriptionHandler('subscription trial ending', () =>
+		// The service types this one as the formatted shape; it formats the raw layout itself.
+		webhookSubscriptionService.handleSubscriptionTrialEnding(toSubscriptionServiceData(data) as any)
+	);
 }
 
 // ######################### Sponsor Ad Webhook Handlers #########################
@@ -311,12 +285,12 @@ function getSponsorAdId(data: Record<string, unknown>): string | null {
 /**
  * Handle sponsor ad subscription created/payment succeeded
  */
-async function handleSponsorAdActivation(data: Record<string, unknown>): Promise<void> {
+async function handleSponsorAdActivation(data: Record<string, unknown>): Promise<boolean> {
 	const sponsorAdId = getSponsorAdId(data);
 
 	if (!sponsorAdId) {
 		console.error('❌ Sponsor ad ID not found in LemonSqueezy custom data');
-		return;
+		return true; // redelivery cannot fix a missing id
 	}
 
 	try {
@@ -336,20 +310,22 @@ async function handleSponsorAdActivation(data: Record<string, unknown>): Promise
 		} else {
 			console.error(`❌ Failed to confirm sponsor ad payment: ${sponsorAdId}`);
 		}
+		return true;
 	} catch (error) {
 		console.error('❌ Error confirming sponsor ad payment:', error);
+		return false;
 	}
 }
 
 /**
  * Handle sponsor ad subscription cancelled
  */
-async function handleSponsorAdCancellation(data: Record<string, unknown>): Promise<void> {
+async function handleSponsorAdCancellation(data: Record<string, unknown>): Promise<boolean> {
 	const sponsorAdId = getSponsorAdId(data);
 
 	if (!sponsorAdId) {
 		console.error('❌ Sponsor ad ID not found in LemonSqueezy custom data');
-		return;
+		return true; // redelivery cannot fix a missing id
 	}
 
 	try {
@@ -365,20 +341,22 @@ async function handleSponsorAdCancellation(data: Record<string, unknown>): Promi
 		} else {
 			console.error(`❌ Failed to cancel sponsor ad: ${sponsorAdId}`);
 		}
+		return true;
 	} catch (error) {
 		console.error('❌ Error cancelling sponsor ad:', error);
+		return false;
 	}
 }
 
 /**
  * Handle sponsor ad subscription renewal
  */
-async function handleSponsorAdRenewal(data: Record<string, unknown>): Promise<void> {
+async function handleSponsorAdRenewal(data: Record<string, unknown>): Promise<boolean> {
 	const sponsorAdId = getSponsorAdId(data);
 
 	if (!sponsorAdId) {
 		console.error('❌ Sponsor ad ID not found in LemonSqueezy custom data');
-		return;
+		return true; // redelivery cannot fix a missing id
 	}
 
 	try {
@@ -391,7 +369,9 @@ async function handleSponsorAdRenewal(data: Record<string, unknown>): Promise<vo
 		} else {
 			console.error(`❌ Failed to renew sponsor ad: ${sponsorAdId}`);
 		}
+		return true;
 	} catch (error) {
 		console.error('❌ Error renewing sponsor ad:', error);
+		return false;
 	}
 }

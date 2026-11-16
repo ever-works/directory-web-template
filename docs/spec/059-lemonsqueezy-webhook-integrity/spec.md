@@ -35,9 +35,17 @@ signed-in user list another customer's subscriptions by passing `customerEmail`.
   Invoice events are keyed on their subscription id and carry amounts in cents. Rows use provider
   `lemonsqueezy`. `subscription_resumed`, `_expired`, `_paused` and `_unpaused` are stored through the
   updated handler.
-- **R4.** A redelivery of the same event (same name, resource id and body) is acknowledged once per pod;
-  a delivery that arrives while the same event is in flight gets 409 so LemonSqueezy retries. Subscription
-  rows are idempotent on (provider, subscription id), which is the durable boundary.
+- **R4.** A redelivery of the same event (same name, resource id and body) is acknowledged once per pod.
+  Only a successfully handled event is remembered: if the subscription handler fails (or the same event is
+  in flight) the route answers 503 so LemonSqueezy redelivers it. Subscription rows are idempotent on
+  (provider, subscription id), which is the durable boundary.
+- **R6.** A subscription cancelled with paid time left (`ends_at` in the future) stays `active` with
+  `cancel_at_period_end` set and its end date at `ends_at`; the expiry event later stores `expired`. Past
+  `ends_at` (or with no end date) it is `cancelled` at once. `auto_renewal` is written as the opposite of
+  `cancel_at_period_end`, because the table rejects both being true. An unknown period end on create is
+  stored as no end date, not "now".
+- **R7.** `amount`, `amount_due` and `amount_paid` are integer columns holding major units; webhook writes
+  round cents to whole units (never a decimal, never NaN) so the row is saved.
 - **R5.** `GET` and `POST /api/lemonsqueezy/list` use the session email. A `customerEmail` equal to it
   (case-insensitive) is accepted; a different one is `403 ACCESS_DENIED` unless the caller is an admin.
 

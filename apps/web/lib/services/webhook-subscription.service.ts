@@ -13,6 +13,7 @@ import {
 } from '@/lib/db/schema';
 import { PaymentPlan, PaymentProvider } from '@/lib/constants';
 import { convertCentsToDecimal, convertNumberToDate, WebhookEventType } from '@/lib/payment/types/payment-types';
+import { toStoredAmount } from '@/lib/payment/stored-amount';
 
 export interface WebhookSubscriptionData {
 	id: string;
@@ -150,19 +151,22 @@ export class WebhookSubscriptionService {
 				planId: (response?.planId as any) || PaymentPlan.STANDARD,
 				status: this.mapProviderStatusToInternal(response.status),
 				startDate: new Date(),
-				endDate: convertNumberToDate(response.endDate as unknown as number) ?? new Date(),
+				// Unknown period end stays open (null): "now" would end paid access immediately.
+				endDate: convertNumberToDate(response.endDate as unknown as number) ?? null,
 				paymentProvider: this.paymentProvider,
 				subscriptionId: response.subscriptionId,
 				priceId: response.priceId || null,
 				customerId: response.customerId,
 				currency: response.currency || 'usd',
-				amount: convertCentsToDecimal(response.amount) || null,
+				amount: toStoredAmount(response.amount) || null,
 				interval: response.interval || 'month',
 				intervalCount: response.intervalCount || 1,
 				trialStart: convertNumberToDate(response.trialStart) || null,
 				trialEnd: convertNumberToDate(response.trialEnd) || null,
 				cancelledAt: null,
 				cancelAtPeriodEnd: response.cancelAtPeriodEnd || false,
+				// The table forbids auto-renewal together with cancel-at-period-end.
+				autoRenewal: !response.cancelAtPeriodEnd,
 				cancelReason: null,
 				metadata: response.metadata ? JSON.stringify(response.metadata) : null,
 				createdAt: new Date(),
@@ -227,6 +231,10 @@ export class WebhookSubscriptionService {
 			const newStatus = this.mapProviderStatusToInternal(response.status);
 			const trialStart = convertNumberToDate(response.trialStart) || existingSubscription.trialStart;
 			const trialEnd = convertNumberToDate(response.trialEnd) || existingSubscription.trialEnd;
+			const cancelAtPeriodEnd =
+				response.cancelAtPeriodEnd !== undefined
+					? response.cancelAtPeriodEnd
+					: (existingSubscription.cancelAtPeriodEnd ?? false);
 
 			const updateData = {
 				status: newStatus,
@@ -236,7 +244,7 @@ export class WebhookSubscriptionService {
 					response.planId === 'free'
 						? 0
 						: response.amount > 0
-							? convertCentsToDecimal(response.amount)
+							? toStoredAmount(response.amount)
 							: existingSubscription.amount,
 				priceId: response.priceId || existingSubscription.priceId,
 				currency: response.currency || existingSubscription.currency,
@@ -244,10 +252,9 @@ export class WebhookSubscriptionService {
 				intervalCount: response.intervalCount || existingSubscription.intervalCount,
 				trialStart: trialStart !== undefined ? trialStart : existingSubscription.trialStart,
 				trialEnd: trialEnd !== undefined ? trialEnd : existingSubscription.trialEnd,
-				cancelAtPeriodEnd:
-					response.cancelAtPeriodEnd !== undefined
-						? response.cancelAtPeriodEnd
-						: existingSubscription.cancelAtPeriodEnd,
+				cancelAtPeriodEnd,
+				// The table forbids auto-renewal together with cancel-at-period-end.
+				autoRenewal: !cancelAtPeriodEnd,
 				metadata: response.metadata ? JSON.stringify(response.metadata) : existingSubscription.metadata,
 				updatedAt: new Date()
 			};
@@ -316,11 +323,21 @@ export class WebhookSubscriptionService {
 			const previousStatus = existingSubscription.status;
 			const cancelReason = response.metadata?.cancel_reason || 'Cancelled via webhook';
 
-			// Update subscription to cancelled
+			// A subscription cancelled with time left in the paid period keeps its access
+			// until that date (the provider sends an expiry event at the end). Otherwise
+			// it is cancelled now.
+			const cancelAtPeriodEnd = response.cancelAtPeriodEnd ?? false;
+			const paidUntil = convertNumberToDate(response.endDate as unknown as number);
+			const keepUntilPeriodEnd = cancelAtPeriodEnd && !!paidUntil && paidUntil.getTime() > Date.now();
+			const newStatus = keepUntilPeriodEnd ? SubscriptionStatus.ACTIVE : SubscriptionStatus.CANCELLED;
+
 			const updateData = {
-				status: SubscriptionStatus.CANCELLED,
-				cancelledAt: response.cancelledAt || new Date(),
-				cancelAtPeriodEnd: response.cancelAtPeriodEnd ?? false,
+				status: newStatus,
+				cancelledAt: convertNumberToDate(response.cancelledAt as unknown as number) ?? new Date(),
+				cancelAtPeriodEnd,
+				// The table forbids auto-renewal together with cancel-at-period-end.
+				autoRenewal: !cancelAtPeriodEnd,
+				...(keepUntilPeriodEnd ? { endDate: paidUntil } : {}),
 				cancelReason,
 				updatedAt: new Date()
 			};
@@ -336,7 +353,7 @@ export class WebhookSubscriptionService {
 				existingSubscription.id,
 				'subscription_cancelled',
 				previousStatus,
-				SubscriptionStatus.CANCELLED,
+				newStatus,
 				existingSubscription.planId,
 				existingSubscription.planId,
 				cancelReason,
@@ -388,8 +405,8 @@ export class WebhookSubscriptionService {
 				status: SubscriptionStatus.ACTIVE,
 				// Keep the stored end date when the event carries no period end.
 				endDate: convertNumberToDate(response.periodEnd) ?? existingSubscription.endDate,
-				amountDue: convertCentsToDecimal(response.amountDue!),
-				amountPaid: convertCentsToDecimal(response.amountPaid!),
+				amountDue: toStoredAmount(response.amountDue),
+				amountPaid: toStoredAmount(response.amountPaid),
 				periodEnd: convertNumberToDate(response.periodEnd),
 				periodStart: convertNumberToDate(response.periodStart),
 				invoicePdf: response.invoicePdf,
