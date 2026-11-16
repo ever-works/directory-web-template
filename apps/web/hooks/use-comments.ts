@@ -85,6 +85,8 @@ export function useComments(itemId: string) {
         dispatchCommentEvent(newComment);
         // Force refetch rating query to show updated data immediately
         await queryClient.refetchQueries({ queryKey: ["item-rating", itemId] });
+        // The aggregate comment rating includes the new comment's rating
+        queryClient.invalidateQueries({ queryKey: ["commentRating", itemId] });
         // Sync Statistics card (comments count + avgRating) with server
         queryClient.invalidateQueries({ queryKey: ['item-activity', itemId] });
       }
@@ -121,6 +123,9 @@ export function useComments(itemId: string) {
         queryKey: ["comments", itemId],
         exact: true
       });
+      // A deleted comment's rating leaves the aggregates
+      queryClient.invalidateQueries({ queryKey: ["item-rating", itemId] });
+      queryClient.invalidateQueries({ queryKey: ["commentRating", itemId] });
       // Sync Statistics card (comments count + avgRating) with server
       queryClient.invalidateQueries({ queryKey: ['item-activity', itemId] });
     },
@@ -158,58 +163,13 @@ export function useComments(itemId: string) {
         dispatchCommentEvent(updatedComment);
         // Force refetch rating to reflect updated rating immediately
         await queryClient.refetchQueries({ queryKey: ["item-rating", itemId] });
+        // A rating change through updateComment also moves the aggregate comment rating
+        queryClient.invalidateQueries({ queryKey: ["commentRating", itemId] });
         // Sync avgRating in Statistics card
         queryClient.invalidateQueries({ queryKey: ['item-activity', itemId] });
       }
     },
   });
-
-  const { mutate: rateCommentMutation, isPending: isRatingComment } = useMutation({
-    mutationFn: async ({ commentId, rating }: { commentId: string; rating: number }) => {
-      const encodedItemId = encodeURIComponent(itemId);
-      const response = await serverClient.post(`/api/items/${encodedItemId}/comments/rating`, { commentId, rating });
-
-      if (!apiUtils.isSuccess(response)) {
-        if (response.error?.includes('401') || response.error?.includes('Unauthorized')) {
-          loginModal.onOpen('Please sign in to rate comment');
-          return;
-        }
-        throw new Error(apiUtils.getErrorMessage(response));
-      }
-
-      return response.data;
-    },
-    onSuccess: async () => {
-      queryClient.invalidateQueries({ queryKey: ["comments", itemId] });
-      await queryClient.refetchQueries({ queryKey: ["item-rating", itemId] });
-      // Sync avgRating in Statistics card
-      queryClient.invalidateQueries({ queryKey: ['item-activity', itemId] });
-    },
-  });
-
-  const { mutate: updateCommentRatingMutation, isPending: isUpdatingRating } = useMutation({
-    mutationFn: async ({ commentId, rating }: { commentId: string; rating: number }) => {
-      const encodedItemId = encodeURIComponent(itemId);
-      const response = await serverClient.put(`/api/items/${encodedItemId}/comments/rating`, { commentId, rating });
-
-      if (!apiUtils.isSuccess(response)) {
-        if (response.error?.includes('401') || response.error?.includes('Unauthorized')) {
-          loginModal.onOpen('Please sign in to rate comment');
-          return;
-        }
-        throw new Error(apiUtils.getErrorMessage(response));
-      }
-
-      return response.data;
-    },
-    onSuccess: async () => {
-      queryClient.invalidateQueries({ queryKey: ["comments", itemId] });
-      await queryClient.refetchQueries({ queryKey: ["item-rating", itemId] });
-      // Sync avgRating in Statistics card
-      queryClient.invalidateQueries({ queryKey: ['item-activity', itemId] });
-    },
-  });
-
 
   const { data: commentRating = 0, isLoading: isLoadingRating } = useQuery({
     queryKey: ["commentRating", itemId],
@@ -233,11 +193,7 @@ export function useComments(itemId: string) {
     isUpdating,
     deleteComment,
     isDeleting,
-    updateCommentRating: updateCommentRatingMutation,
-    isUpdatingRating,
     commentRating,
     isLoadingRating,
-    rateComment: rateCommentMutation,
-    isRatingComment,
   };
 } 

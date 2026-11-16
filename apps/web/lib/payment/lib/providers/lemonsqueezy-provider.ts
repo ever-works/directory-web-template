@@ -24,6 +24,7 @@ import {
 	getOrder,
 	cancelSubscription,
 	updateSubscription,
+	getSubscription as getLemonSqueezySubscription,
 	lemonSqueezySetup,
 	listSubscriptions,
 	Variant,
@@ -518,6 +519,29 @@ export class LemonSqueezyProvider implements PaymentProviderInterface {
 		});
 		if (error) throw new Error(`Lemonsqueezy list variants error: ${error.message || 'Unknown error'}`);
 		return data.data as unknown as Variant[];
+	}
+
+	/**
+	 * Reads one subscription of this store for the ownership check in the subscription routes.
+	 * Returns `null` when LemonSqueezy has no such subscription or it belongs to another store,
+	 * and throws when LemonSqueezy cannot be asked, so a route never treats an outage as "owned".
+	 */
+	async getSubscriptionOwner(
+		subscriptionId: string
+	): Promise<{ id: string; userEmail: string | null; storeId: number } | null> {
+		const { statusCode, data, error } = await getLemonSqueezySubscription(subscriptionId);
+		if (error) {
+			if (statusCode === 404) return null;
+			throw new Error(`Lemonsqueezy get subscription error: ${error.message || 'Unknown error'}`, { cause: error });
+		}
+		const subscription = data?.data;
+		if (!subscription?.attributes) return null;
+		if (subscription.attributes.store_id !== Number(this.storeId)) return null;
+		return {
+			id: String(subscription.id),
+			userEmail: subscription.attributes.user_email ?? null,
+			storeId: subscription.attributes.store_id
+		};
 	}
 
 	async getSubscription(subscriptionId: string): Promise<any> {
