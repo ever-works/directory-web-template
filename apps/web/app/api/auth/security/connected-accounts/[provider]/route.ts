@@ -4,6 +4,7 @@ import { db } from '@/lib/db/drizzle';
 import { accounts } from '@/lib/db/schema';
 import { eq, and, count, inArray } from 'drizzle-orm';
 import { getTenantId } from '@/lib/auth/tenant';
+import { OAUTH_ACCOUNT_TYPES, wouldLeaveNoSignInMethod } from '@/lib/auth/connected-accounts';
 
 /**
  * @swagger
@@ -68,7 +69,7 @@ export async function DELETE(
 				.where(
 					and(
 						eq(accounts.userId, userId),
-						eq(accounts.type, 'oauth'),
+						inArray(accounts.type, [...OAUTH_ACCOUNT_TYPES]),
 						eq(accounts.tenantId, tenantId)
 					)
 				),
@@ -76,7 +77,7 @@ export async function DELETE(
 
 		// Client passwords are stored in accounts (type='credentials'), not users.passwordHash
 		const hasPassword = credRows.length > 0 && !!credRows[0].passwordHash;
-		const wouldHaveNoAuth = !hasPassword && oauthCount <= 1;
+		const wouldHaveNoAuth = wouldLeaveNoSignInMethod(hasPassword, oauthCount);
 
 		if (wouldHaveNoAuth) {
 			return NextResponse.json(
@@ -97,7 +98,7 @@ export async function DELETE(
 					// Only OAuth links can be disconnected here. Removing the password row
 					// would turn a password user into an OAuth-only one, and an OAuth-only
 					// user's address counts as verified (`isEmailVerifiedForOwnership`).
-					inArray(accounts.type, ['oauth', 'oidc']),
+					inArray(accounts.type, [...OAUTH_ACCOUNT_TYPES]),
 					eq(accounts.tenantId, tenantId)
 				)
 			)

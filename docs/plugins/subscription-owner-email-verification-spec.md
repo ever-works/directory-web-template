@@ -35,6 +35,9 @@ any LemonSqueezy subscription bought under that address in the same store.
   It is `false` for a missing user id, email or user.
 - `DELETE /api/auth/security/connected-accounts/{provider}` only deletes `oauth` /
   `oidc` rows, so a password user cannot remove the password row and become OAuth-only.
+  `GET /api/auth/security/connected-accounts` lists the same two types (Auth.js stores
+  Google and other OpenID Connect providers as `oidc`), and the "last sign-in method"
+  guard counts both. The set is `OAUTH_ACCOUNT_TYPES` in `lib/auth/connected-accounts.ts`.
 - `updateUser` (`lib/db/queries/user.queries.ts`, used by the account settings action)
   clears `users.emailVerified` when the address changes, and first writes the old
   address into the user's `oauth` / `oidc` rows that had none recorded. Without this a
