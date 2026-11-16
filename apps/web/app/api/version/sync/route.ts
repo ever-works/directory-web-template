@@ -278,9 +278,10 @@ export async function POST(request: Request) {
   const startTime = Date.now();
 
   try {
-    // Admin only: every sync pulls the data repository, flushes all content
-    // caches and rebuilds the location index, so a signed-in non-admin must
-    // not be able to trigger it (401 anonymous, 403 non-admin).
+    // Admin only: a successful sync pulls the data repository, flushes all
+    // content caches and, when location features are on, rebuilds the
+    // location index, so a signed-in non-admin must not be able to trigger
+    // it (401 anonymous, 403 non-admin).
     const authResult = await requireAdminSession();
     if (authResult instanceof NextResponse) return authResult;
 

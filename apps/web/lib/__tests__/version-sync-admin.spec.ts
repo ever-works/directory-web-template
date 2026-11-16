@@ -7,7 +7,7 @@ import { describe, it } from 'node:test';
  * Run with: `pnpm --filter @ever-works/web test:unit`
  *
  * `POST /api/version/sync` pulls the data repository, flushes every content cache and
- * rebuilds the location index, so only an admin may trigger it. Before this guard any
+ * (when location features are on) rebuilds the location index, so only an admin may trigger it. Before this guard any
  * signed-in user (including one who had just registered) could call it in a loop.
  * The route handler imports Next.js and the auth stack and cannot be loaded under
  * `tsx --test`, so these checks read the source.
@@ -35,11 +35,13 @@ describe('POST /api/version/sync is admin-only', () => {
 	it('POST runs requireAdminSession() and returns its response before triggerManualSync()', () => {
 		const guard = post.indexOf('await requireAdminSession()');
 		const bail = post.indexOf('if (authResult instanceof NextResponse) return authResult;');
+		const body = post.indexOf('request.json()');
 		const sync = post.indexOf('triggerManualSync()');
 		assert.ok(guard > 0, 'POST does not call requireAdminSession()');
 		assert.ok(bail > guard, 'POST does not return the 401/403 response from requireAdminSession()');
 		assert.ok(sync > 0, 'POST no longer calls triggerManualSync()');
 		assert.ok(bail < sync, 'the admin check must run before triggerManualSync()');
+		assert.ok(body < 0 || bail < body, 'the admin check must run before the request body is read');
 	});
 
 	it('POST no longer accepts any signed-in user', () => {
@@ -51,6 +53,7 @@ describe('POST /api/version/sync is admin-only', () => {
 		const get = functionBody(route, 'export async function GET(');
 		assert.ok(get.includes('getSyncStatus()'), 'GET does not read the sync status');
 		assert.ok(!get.includes('requireAdminSession'), 'GET must stay public');
+		assert.ok(!get.includes('auth()'), 'GET must not resolve a session');
 		assert.ok(!get.includes('triggerManualSync'), 'GET must not trigger a sync');
 	});
 });

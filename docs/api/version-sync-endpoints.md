@@ -136,7 +136,7 @@ if (status.syncInProgress) {
 
 `GET /api/version` and `GET /api/version/sync` are **public** -- no authentication is required. They are designed for monitoring dashboards and administrative tooling.
 
-`POST /api/version/sync` needs a signed-in **admin**. Every sync pulls the data repository, flushes all content caches and rebuilds the location index, so other callers are refused: anonymous callers get `401` and signed-in users who are not admins get `403` (both with a `{ success: false, error }` body). The admin role is checked against the database on every call (`requireAdminSession()` in `apps/web/lib/auth/admin-guard.ts`).
+`POST /api/version/sync` needs a signed-in **admin**. A successful sync pulls the data repository, flushes all content caches and, when location features are on, rebuilds the location index, so other callers are refused: anonymous callers get `401` and signed-in users who are not admins get `403` (both with a `{ success: false, error }` body). The admin role is checked against the database on every call (`requireAdminSession()` in `apps/web/lib/auth/admin-guard.ts`).
 
 ## Error Responses
 
