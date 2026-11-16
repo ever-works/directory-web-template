@@ -101,10 +101,6 @@ const {
   isUpdating,
   deleteComment,         // (commentId) => Promise
   isDeleting,
-  rateComment,           // ({ commentId, rating }) => void
-  isRatingComment,
-  updateCommentRating,   // ({ commentId, rating }) => void
-  isUpdatingRating,
   commentRating,         // number
   isLoadingRating,
 } = useComments(itemId);
@@ -163,8 +159,6 @@ const {
 | POST | `/api/items/:id/comments` | Creëer een nieuwe reactie |
 | ZET | `/api/items/:id/comments/:commentId` | Een reactie bijwerken |
 | VERWIJDEREN | `/api/items/:id/comments/:commentId` | Een opmerking verwijderen |
-| POST | `/api/items/:id/comments/rating` | Beoordeel een reactie |
-| ZET | `/api/items/:id/comments/rating` | Reactiebeoordeling bijwerken |
 | KRIJG | `/api/items/:id/comments/rating` | Totale beoordeling verkrijgen |
 
 ## Functievlag-integratie

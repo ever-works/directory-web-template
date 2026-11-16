@@ -101,10 +101,6 @@ const {
   isUpdating,
   deleteComment,         // (commentId) => Promise
   isDeleting,
-  rateComment,           // ({ commentId, rating }) => void
-  isRatingComment,
-  updateCommentRating,   // ({ commentId, rating }) => void
-  isUpdatingRating,
   commentRating,         // number
   isLoadingRating,
 } = useComments(itemId);
@@ -163,8 +159,6 @@ const {
 | POST | `/api/items/:id/comments` | Einen neuen Kommentar erstellen |
 | PUT | `/api/items/:id/comments/:commentId` | Einen Kommentar aktualisieren |
 | LÖSCHEN | `/api/items/:id/comments/:commentId` | Einen Kommentar löschen |
-| POST | `/api/items/:id/comments/rating` | Bewerten Sie einen Kommentar |
-| PUT | `/api/items/:id/comments/rating` | Kommentarbewertung aktualisieren |
 | GET | `/api/items/:id/comments/rating` | Gesamtbewertung abrufen |
 
 ## Feature-Flag-Integration

@@ -101,10 +101,6 @@ const {
   isUpdating,
   deleteComment,         // (commentId) => Promise
   isDeleting,
-  rateComment,           // ({ commentId, rating }) => void
-  isRatingComment,
-  updateCommentRating,   // ({ commentId, rating }) => void
-  isUpdatingRating,
   commentRating,         // number
   isLoadingRating,
 } = useComments(itemId);
@@ -163,8 +159,6 @@ const {
 | פוסט | `/api/items/:id/comments` | צור תגובה חדשה |
 | PUT | `/api/items/:id/comments/:commentId` | עדכן תגובה |
 | מחק | `/api/items/:id/comments/:commentId` | מחק תגובה |
-| פוסט | `/api/items/:id/comments/rating` | דרג תגובה |
-| PUT | `/api/items/:id/comments/rating` | עדכון דירוג הערות |
 | קבל | `/api/items/:id/comments/rating` | קבל דירוג מצטבר |
 
 ## שילוב דגל תכונה

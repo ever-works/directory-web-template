@@ -21,7 +21,7 @@ app/api/items/[id]/
   votes/route.ts             # GET/POST/DELETE vote endpoints
   comments/route.ts          # GET/POST comment endpoints
   comments/[commentId]/route.ts  # PUT/DELETE single comment
-  comments/rating/route.ts   # POST/PUT/GET rating endpoints
+  comments/rating/route.ts   # GET rating endpoint
 
 lib/db/schema.ts             # votes and comments table definitions
 ```
@@ -150,8 +150,6 @@ interface UpdateCommentData {
 | `createComment` | `(data) => Promise` | Създайте нов коментар |
 | `updateComment` | `(data) => Promise` | Редактиране на съществуващ коментар |
 | `deleteComment` | `(id) => Promise` | Премахване на коментар |
-| `rateComment` | `(data) => void` | Оценете коментар |
-| `updateCommentRating` | `(data) => void` | Актуализиране на съществуваща оценка |
 | `commentRating` | `number` | Обща оценка за артикула |
 
 ### Кръстокомпонентна система за събития
@@ -232,8 +230,6 @@ function useAdminComments({ page, limit, search }) {
 | ПУБЛИКАЦИЯ | `/api/items/:id/comments` | Създайте нов коментар |
 | ПОСТАВЕТЕ | `/api/items/:id/comments/:commentId` | Актуализиране на коментар |
 | ИЗТРИВАНЕ | `/api/items/:id/comments/:commentId` | Изтриване на коментар |
-| ПУБЛИКАЦИЯ | `/api/items/:id/comments/rating` | Оценете коментар |
-| ПОСТАВЕТЕ | `/api/items/:id/comments/rating` | Актуализиране на оценка на коментар |
 | ВЗЕМЕТЕ | `/api/items/:id/comments/rating` | Вземете обобщена оценка на артикул |
 
 ## Интегриране на флаг за функции
