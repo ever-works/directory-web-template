@@ -178,8 +178,6 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ s
  *                       type: string
  *                     name:
  *                       type: string
- *                     email:
- *                       type: string
  *                     image:
  *                       type: string
  *       400:
@@ -299,7 +297,6 @@ export async function PUT(request: Request, { params }: { params: Promise<{ slug
 				user: {
 					id: clientProfiles.id,
 					name: clientProfiles.name,
-					email: clientProfiles.email,
 					image: clientProfiles.avatar
 				}
 			})

@@ -45,7 +45,7 @@ The comments system provides endpoints for creating, reading, updating, and dele
 GET /api/items/[slug]/comments
 ```
 
-Returns all comments for a specific item including user profile information. No authentication is required.
+Returns all comments for a specific item including user profile information. No authentication is required, and the item page embeds the same list in its HTML, so `user` carries public profile fields only and never the commenter's email. The create (`POST`) response returns the same public fields. The update (`PUT`) response returns only `id`, `name` and `image` in `user`. Neither carries the email.
 
 **Path Parameters:**
 
@@ -71,8 +71,7 @@ Returns all comments for a specific item including user profile information. No 
       "user": {
         "id": "client_456def",
         "name": "John Doe",
-        "email": "john.doe@example.com",
-        "avatar": "https://example.com/avatars/john.jpg"
+        "image": "https://example.com/avatars/john.jpg"
       }
     }
   ]
@@ -143,8 +142,7 @@ Creates a new comment with a rating on an item. Requires authentication and a va
     "user": {
       "id": "client_456def",
       "name": "John Doe",
-      "email": "john.doe@example.com",
-      "avatar": "https://example.com/avatars/john.jpg"
+      "image": "https://example.com/avatars/john.jpg"
     }
   }
 }
