@@ -19,6 +19,9 @@
  *   user's email. That is the same identity `GET /api/lemonsqueezy/list` uses to
  *   show a user their subscriptions. The local table cannot be used: the
  *   LemonSqueezy webhook does not write owner rows, and users can insert rows.
+ *   The email is only trusted when {@link isEmailVerifiedForOwnership} is true,
+ *   so each LemonSqueezy route answers 403 before the owner lookup otherwise.
+ *   The database lookup lives in `subscription-email-verification.ts`.
  */
 
 /** Body of the 404 every route returns when a helper gives `null`. */
@@ -46,6 +49,70 @@ export async function findOwnedProviderSubscription<T extends { userId: string |
 	if (!isNonBlank(userId) || !isNonBlank(paymentProvider) || !isNonBlank(subscriptionId)) return null;
 	const row = await lookup(paymentProvider, subscriptionId);
 	return row && row.userId === userId ? row : null;
+}
+
+/** Body of the 403 a LemonSqueezy route returns when the signed-in email is not verified. */
+export const EMAIL_NOT_VERIFIED_MESSAGE =
+	'Verify your email address before managing a subscription. Check your inbox for the verification link.';
+
+/** What {@link isEmailVerifiedForOwnership} needs to know about a user. */
+export interface EmailVerificationState {
+	/** `users.email` as stored now. */
+	email: string | null | undefined;
+	/** `users.emailVerified`: set once the user confirmed the address in `email`. */
+	emailVerified: Date | string | null | undefined;
+	/**
+	 * Linked OAuth / OIDC rows in `accounts` (the provider verified an address).
+	 * `email` is the address the row was bound to, or null when it was never recorded.
+	 */
+	oauthAccounts: ReadonlyArray<{ email: string | null | undefined }>;
+	/**
+	 * The user can sign in with a password (`users.passwordHash`, or any `accounts` row
+	 * that is not `oauth` / `oidc`, such as the `credentials` row sign-up writes). Then
+	 * `email` was typed in, not taken from a provider, and an OAuth row only shows that
+	 * the user linked some provider account while signed in (Auth.js links any OAuth
+	 * account to the signed-in user, whatever its address), so it proves nothing.
+	 */
+	hasPasswordSignIn: boolean;
+}
+
+/** Loads {@link EmailVerificationState}; `null` when the user does not exist. */
+export type EmailVerificationLookup = (userId: string) => Promise<EmailVerificationState | null | undefined>;
+
+/**
+ * True when `email` - the address a LemonSqueezy subscription is matched against - is
+ * proven to belong to the user. Credentials sign-up does not verify the address, so
+ * without this check someone could register another person's email first and take
+ * over that person's subscriptions.
+ *
+ * The proof has to be about the address being matched, not just about the user:
+ * - `email` must be the address stored on the user now. A session carries the address
+ *   from sign-in, and an address change must not inherit an earlier verification.
+ * - `users.emailVerified` being set counts (`updateUser` clears it on an address change).
+ * - A linked OAuth / OIDC account counts (Auth.js leaves `emailVerified` null for these
+ *   users), but a row bound to a different address proves nothing about this one.
+ * - The OAuth shortcut is only for users without a password: a user who signed up with
+ *   a password and then linked their own Google or GitHub account has proven nothing
+ *   about the address they typed, so they must verify it by email.
+ *
+ * A missing user id, email or user never counts.
+ */
+export async function isEmailVerifiedForOwnership(
+	userId: string | null | undefined,
+	email: string | null | undefined,
+	lookup: EmailVerificationLookup
+): Promise<boolean> {
+	if (!isNonBlank(userId) || !isNonBlank(email)) return false;
+	const state = await lookup(userId);
+	if (!state || !isNonBlank(state.email)) return false;
+	const current = normaliseEmail(state.email);
+	if (normaliseEmail(email) !== current) return false;
+	if (state.emailVerified) return true;
+	// Fail closed when the lookup does not say.
+	if (state.hasPasswordSignIn !== false) return false;
+	return state.oauthAccounts.some(
+		(account) => !isNonBlank(account.email) || normaliseEmail(account.email) === current
+	);
 }
 
 /** What the owner check needs from a LemonSqueezy subscription. */

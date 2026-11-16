@@ -6,11 +6,13 @@ import { test, expect } from '@playwright/test';
  * endpoint served by the `POST` AND `PUT` exports of
  * `apps/web/app/api/payment/account/route.ts`.
  *
- * Both methods require a signed-in caller (401 with
- * `{ error: "Unauthorized" }` otherwise, checked BEFORE
- * the body is read) and only write the caller's own
- * account (403 when `session.user.id !== userId`). The
- * earlier no-auth-gate finding is closed by PR #1115.
+ * Both methods are admin-only (the `/api/admin` guard:
+ * 401 with `{ success: false, error: "Unauthorized" }` for
+ * an anonymous caller, 403 for a signed-in non-admin, both
+ * checked BEFORE the body is read). The earlier
+ * no-auth-gate finding was closed by PR #1115, which
+ * left signed-in owners able to repoint their own row;
+ * that is closed by the admin-only guard.
  * These specs run anonymously, so every POST / PUT is
  * expected to stop at the 401; the field-validation
  * cascade ('Provider is required', 'Unsupported

@@ -128,6 +128,8 @@ Provider-agnostic payment endpoints for managing subscriptions regardless of the
 | `GET` | `/api/payment/[subscriptionId]` | Get subscription details by ID |
 | `GET` | `/api/payment/account` | Get payment account for current user |
 | `GET` | `/api/payment/account/[userId]` | Get payment account for specific user (admin) |
+| `POST` | `/api/payment/account` | Create or replace a payment account (admin only; the providers write through the database queries) |
+| `PUT` | `/api/payment/account` | Update a payment account (admin only) |
 
 ## Webhook Security
 

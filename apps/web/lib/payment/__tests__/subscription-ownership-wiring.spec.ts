@@ -30,6 +30,8 @@ const STRIPE_CHECK =
 const LEMONSQUEEZY_CHECK =
 	'findOwnedLemonSqueezySubscription(session.user.email, subscriptionId, (id) => lemonsqueezy.getSubscriptionOwner(id))';
 
+const EMAIL_CHECK = 'isEmailVerifiedForOwnership(session.user.id, session.user.email, loadEmailVerificationState)';
+
 type Guarded = {
 	name: string;
 	file: string;
@@ -175,6 +177,50 @@ describe('subscription ownership wiring', () => {
 			}
 		});
 	}
+
+	// LemonSqueezy matches by customer email, and credentials sign-up does not verify
+	// the email, so the email must be verified (or OAuth-linked) before the lookup.
+	for (const route of guarded.filter((r) => r.check === LEMONSQUEEZY_CHECK)) {
+		it(`${route.name} requires a verified email before the owner lookup`, () => {
+			const handler = handlerSource(route.file, route.method);
+			const verifyAt = handler.indexOf(EMAIL_CHECK);
+			assert.ok(verifyAt > 0, `${route.name} does not check that the email is verified`);
+			assert.ok(
+				verifyAt < handler.indexOf(route.check),
+				`${route.name} looks up the owner before checking the email is verified`
+			);
+			assert.ok(
+				/^[^;]*\)\)\) \{ return [^;]*?code: ['"]EMAIL_NOT_VERIFIED['"][^;]*?status: 403 \}/.test(handler.slice(verifyAt)),
+				`${route.name} does not return 403 right after a failed email check`
+			);
+			assert.ok(
+				!handler.slice(0, verifyAt).includes('getSubscriptionOwner('),
+				`${route.name} reaches LemonSqueezy before the email check`
+			);
+		});
+	}
+
+	it('updateUser clears emailVerified when the address changes, so a verification never moves to a new address', () => {
+		const source = squash(readFileSync(join(__dirname, '../../db/queries/user.queries.ts'), 'utf8'));
+		const start = source.indexOf('export async function updateUser(');
+		assert.ok(start >= 0, 'updateUser is missing');
+		const body = source.slice(start, source.indexOf('export async function', start + 1));
+		assert.ok(body.includes('emailVerified: null'), 'updateUser keeps emailVerified when the email changes');
+		assert.ok(body.includes("inArray(accounts.type, ['oauth', 'oidc'])"), 'updateUser does not bind OAuth rows');
+	});
+
+	// An OAuth-only user's address counts as verified, so a password user must not be able
+	// to delete their password row and become OAuth-only after linking their own account.
+	it('the connected-accounts disconnect only deletes OAuth rows, never the password row', () => {
+		const source = squash(read('api/auth/security/connected-accounts/[provider]/route.ts'));
+		const start = source.indexOf('.delete(accounts)');
+		assert.ok(start >= 0, 'the disconnect route no longer deletes from accounts');
+		const statement = source.slice(start, source.indexOf('.returning(', start));
+		assert.ok(
+			statement.includes("inArray(accounts.type, ['oauth', 'oidc'])"),
+			'the disconnect route can delete a credentials row'
+		);
+	});
 
 	for (const [file, { why, check }] of Object.entries(ownCheck)) {
 		it(`${file} keeps its own ownership check (${why})`, () => {
