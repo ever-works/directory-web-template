@@ -71,7 +71,6 @@ Returns all comments for a specific item, including user profile information.
       "user": {
         "id": "client_456def",
         "name": "John Doe",
-        "email": "john.doe@example.com",
         "avatar": "https://example.com/avatars/john.jpg"
       }
     }
@@ -140,7 +139,6 @@ Creates a new comment with a rating for an item.
     "user": {
       "id": "client_456def",
       "name": "John Doe",
-      "email": "john.doe@example.com",
       "avatar": "https://example.com/avatars/john.jpg"
     }
   }
@@ -207,7 +205,6 @@ At least one field must be provided:
   "user": {
     "id": "client_456def",
     "name": "John Doe",
-    "email": "john.doe@example.com",
     "image": "https://example.com/avatars/john.jpg"
   }
 }

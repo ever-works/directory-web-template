@@ -80,7 +80,6 @@ export async function getCommentsByItemId(itemSlug: string): Promise<CommentWith
 			user: {
 				id: clientProfiles.userId,
 				name: clientProfiles.name,
-				email: clientProfiles.email,
 				image: clientProfiles.avatar,
 				username: clientProfiles.username,
 				bio: clientProfiles.bio,
@@ -136,7 +135,6 @@ export async function getCommentWithUserById(id: string): Promise<CommentWithUse
 			user: {
 				id: clientProfiles.userId,
 				name: clientProfiles.name,
-				email: clientProfiles.email,
 				image: clientProfiles.avatar,
 				username: clientProfiles.username,
 				bio: clientProfiles.bio,

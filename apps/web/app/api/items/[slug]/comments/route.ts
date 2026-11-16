@@ -84,9 +84,6 @@ import { checkDatabaseAvailability } from '@/lib/utils/database-check';
  *                           name:
  *                             type: string
  *                             example: "John Doe"
- *                           email:
- *                             type: string
- *                             example: "john.doe@example.com"
  *                           avatar:
  *                             type: string
  *                             nullable: true
@@ -106,7 +103,6 @@ import { checkDatabaseAvailability } from '@/lib/utils/database-check';
  *                   user:
  *                     id: "client_456def"
  *                     name: "John Doe"
- *                     email: "john.doe@example.com"
  *                     avatar: "https://example.com/avatars/john.jpg"
  *                 - id: "comment_789ghi"
  *                   content: "Good tool, but could use some improvements in the UI."
@@ -119,7 +115,6 @@ import { checkDatabaseAvailability } from '@/lib/utils/database-check';
  *                   user:
  *                     id: "client_789ghi"
  *                     name: "Jane Smith"
- *                     email: "jane.smith@example.com"
  *                     avatar: null
  *       500:
  *         description: "Internal server error"
@@ -256,9 +251,6 @@ export async function GET(request: Request, { params }: { params: Promise<{ slug
  *                         name:
  *                           type: string
  *                           example: "John Doe"
- *                         email:
- *                           type: string
- *                           example: "john.doe@example.com"
  *                         avatar:
  *                           type: string
  *                           nullable: true
@@ -278,7 +270,6 @@ export async function GET(request: Request, { params }: { params: Promise<{ slug
  *                 user:
  *                   id: "client_456def"
  *                   name: "John Doe"
- *                   email: "john.doe@example.com"
  *                   avatar: "https://example.com/avatars/john.jpg"
  *       400:
  *         description: "Bad request - Invalid input data"
