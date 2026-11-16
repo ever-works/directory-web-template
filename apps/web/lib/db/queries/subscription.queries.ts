@@ -108,20 +108,31 @@ export async function getSubscriptionByUserIdAndSubscriptionId(
 }
 
 /**
- * Update subscription by subscription ID
- * @param updateData - Partial subscription data including subscriptionId
+ * Update subscription by provider and subscription ID.
+ * Provider subscription ids are only unique per provider, so the provider is part of the match:
+ * an update for one provider must never touch another provider's row with the same id.
+ * @param updateData - Partial subscription data including subscriptionId and paymentProvider
  * @returns Updated subscription or null if not found
  */
 export async function updateSubscriptionBySubscriptionId(
-	updateData: Partial<NewSubscription>
+	updateData: Partial<NewSubscription> & { subscriptionId: string; paymentProvider: string }
 ): Promise<Subscription | null> {
 	const tenantId = await getTenantId();
 	if (!tenantId) throw new Error('Tenant ID not found');
+	if (!updateData.subscriptionId || !updateData.paymentProvider) {
+		throw new Error('subscriptionId and paymentProvider are required');
+	}
 
 	const result = await db
 		.update(subscriptions)
 		.set({ ...updateData, updatedAt: new Date() })
-		.where(and(eq(subscriptions.subscriptionId, updateData.subscriptionId!), eq(subscriptions.tenantId, tenantId)))
+		.where(
+			and(
+				eq(subscriptions.paymentProvider, updateData.paymentProvider),
+				eq(subscriptions.subscriptionId, updateData.subscriptionId),
+				eq(subscriptions.tenantId, tenantId)
+			)
+		)
 		.returning();
 
 	return result[0] || null;

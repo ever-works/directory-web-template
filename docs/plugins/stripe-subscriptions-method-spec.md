@@ -26,6 +26,21 @@ covers 1, 2, or 3 methods). Distinct from the
   (Q-010 finding) — this plural sibling does it
   correctly.
 
+## Current contract (2026-11-16, PR #1118)
+
+`GET` and `DELETE` are unchanged. `POST` and `PUT` are now **admin-only**:
+nothing in the app calls them, and a user could forge a row for another
+customer's provider subscription (`POST`) or give their own row a paid plan
+with no expiry (`PUT` sets `planId`, `status` and `endDate`, which
+`getUserPlan` reads). Both first answer the same bare `{ error: 'Unauthorized' }`
+401 as `GET` and `DELETE` when nobody is signed in, then call
+`requireAdminSession` (live database role check): 403 for a signed-in
+non-admin, before the body is read. `PUT` also never rewrites `userId`,
+`paymentProvider`, `subscriptionId`, `customerId`, `tenantId`, `id` or
+`createdAt`. The smoke spec runs without a session, so its 401 assertions
+still hold. Admin rules: unit spec
+`apps/web/lib/payment/__tests__/subscription-forgery.spec.ts`.
+
 ## What's distinct from EVERY prior method-method smoke
 
 - **FOUR-method export** (GET + POST + PUT + DELETE)
