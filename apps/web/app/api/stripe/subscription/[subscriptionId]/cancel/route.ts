@@ -186,6 +186,7 @@ export async function POST(
 
     await updateSubscriptionBySubscriptionId({
       subscriptionId: subscriptionId,
+      paymentProvider: 'stripe',
       cancelAtPeriodEnd: cancelAtPeriodEnd,
       cancelledAt: cancelAtPeriodEnd ? new Date() : null,
       updatedAt: new Date(),
