@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth, getOrCreateStripeProvider } from '@/lib/auth';
+import { getSubscriptionByProviderSubscriptionId } from '@/lib/db/queries';
+import { PaymentProvider } from '@/lib/constants';
+import { findOwnedProviderSubscription, SUBSCRIPTION_NOT_FOUND_MESSAGE } from '@/lib/payment/subscription-ownership';
 
 /**
  * @swagger
@@ -228,6 +231,16 @@ export async function POST(request: NextRequest) {
  *                 error:
  *                   type: string
  *                   example: "Unauthorized"
+ *       404:
+ *         description: "Subscription not found, or it does not belong to the signed-in user"
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "Subscription not found or access denied"
  *       500:
  *         description: "Internal server error"
  *         content:
@@ -248,6 +261,16 @@ export async function PUT(request: NextRequest) {
     }
 
     const { subscriptionId, priceId, cancelAtPeriodEnd } = await request.json();
+
+    const ownedSubscription = await findOwnedProviderSubscription(
+      session.user.id,
+      PaymentProvider.STRIPE,
+      subscriptionId,
+      getSubscriptionByProviderSubscriptionId,
+    );
+    if (!ownedSubscription) {
+      return NextResponse.json({ error: SUBSCRIPTION_NOT_FOUND_MESSAGE }, { status: 404 });
+    }
 
     // Get or create Stripe provider (singleton)
     const stripeProvider = getOrCreateStripeProvider();
@@ -334,6 +357,16 @@ export async function PUT(request: NextRequest) {
  *                 error:
  *                   type: string
  *                   example: "Unauthorized"
+ *       404:
+ *         description: "Subscription not found, or it does not belong to the signed-in user"
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "Subscription not found or access denied"
  *       500:
  *         description: "Internal server error"
  *         content:
@@ -354,6 +387,16 @@ export async function DELETE(request: NextRequest) {
     }
 
     const { subscriptionId, cancelAtPeriodEnd } = await request.json();
+
+    const ownedSubscription = await findOwnedProviderSubscription(
+      session.user.id,
+      PaymentProvider.STRIPE,
+      subscriptionId,
+      getSubscriptionByProviderSubscriptionId,
+    );
+    if (!ownedSubscription) {
+      return NextResponse.json({ error: SUBSCRIPTION_NOT_FOUND_MESSAGE }, { status: 404 });
+    }
 
     // Get or create Stripe provider (singleton)
     const stripeProvider = getOrCreateStripeProvider();

@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth, getOrCreateStripeProvider } from '@/lib/auth';
-import { getSubscriptionByUserIdAndSubscriptionId, updateSubscriptionBySubscriptionId } from '@/lib/db/queries';
-import { findOwnedSubscription, SUBSCRIPTION_NOT_FOUND_MESSAGE } from '@/lib/payment/subscription-ownership';
+import { getSubscriptionByProviderSubscriptionId, updateSubscriptionBySubscriptionId } from '@/lib/db/queries';
+import { PaymentProvider } from '@/lib/constants';
+import { findOwnedProviderSubscription, SUBSCRIPTION_NOT_FOUND_MESSAGE } from '@/lib/payment/subscription-ownership';
 import { paymentEmailService } from '@/lib/payment/services/payment-email.service';
 
 /**
@@ -142,10 +143,11 @@ export async function POST(
     const stripeProvider = getOrCreateStripeProvider();
 
     // Verify the subscription belongs to the user
-    const userSubscription = await findOwnedSubscription(
+    const userSubscription = await findOwnedProviderSubscription(
       session.user.id,
+      PaymentProvider.STRIPE,
       subscriptionId,
-      getSubscriptionByUserIdAndSubscriptionId,
+      getSubscriptionByProviderSubscriptionId,
     );
 
     if (!userSubscription) {

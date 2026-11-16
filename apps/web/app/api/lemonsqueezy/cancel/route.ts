@@ -1,8 +1,7 @@
 import { auth } from "@/lib/auth";
 import { getOrCreateLemonsqueezyProvider } from "@/lib/payment/config/payment-provider-manager";
-import { getSubscriptionByUserIdAndSubscriptionId } from "@/lib/db/queries";
 import {
-  findOwnedSubscription,
+  findOwnedLemonSqueezySubscription,
   SUBSCRIPTION_NOT_FOUND_MESSAGE,
 } from "@/lib/payment/subscription-ownership";
 import { safeErrorMessage } from "@/lib/utils/api-error";
@@ -136,6 +135,16 @@ const cancelSubscriptionSchema = z.object({
  *                 code:
  *                   type: string
  *                   example: "AUTH_REQUIRED"
+ *       404:
+ *         description: "Subscription not found, or it does not belong to the signed-in user"
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "Subscription not found or access denied"
  *       500:
  *         description: "Internal server error"
  *         content:
@@ -188,16 +197,16 @@ export async function POST(request: NextRequest) {
 
     const { subscriptionId, cancelAtPeriodEnd } = validationResult.data;
 
-    const ownedSubscription = await findOwnedSubscription(
-      session.user.id,
+    const lemonsqueezy = getOrCreateLemonsqueezyProvider();
+
+    const ownedSubscription = await findOwnedLemonSqueezySubscription(
+      session.user.email,
       subscriptionId,
-      getSubscriptionByUserIdAndSubscriptionId,
+      (id) => lemonsqueezy.getSubscriptionOwner(id),
     );
     if (!ownedSubscription) {
       return NextResponse.json({ error: SUBSCRIPTION_NOT_FOUND_MESSAGE }, { status: 404 });
     }
-
-    const lemonsqueezy = getOrCreateLemonsqueezyProvider();
 
     const result = await lemonsqueezy.cancelSubscription(
       subscriptionId,

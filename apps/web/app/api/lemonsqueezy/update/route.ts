@@ -1,7 +1,6 @@
 import { auth } from '@/lib/auth';
 import { PaymentProviderManager } from '@/lib/auth';
-import { getSubscriptionByUserIdAndSubscriptionId } from '@/lib/db/queries';
-import { findOwnedSubscription, SUBSCRIPTION_NOT_FOUND_MESSAGE } from '@/lib/payment/subscription-ownership';
+import { findOwnedLemonSqueezySubscription, SUBSCRIPTION_NOT_FOUND_MESSAGE } from '@/lib/payment/subscription-ownership';
 import { safeErrorMessage } from '@/lib/utils/api-error';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
@@ -287,10 +286,9 @@ export async function POST(request: NextRequest) {
 
 		const { subscriptionId, status, cancelAtPeriodEnd, priceId, metadata } = validationResult.data;
 
-		const ownedSubscription = await findOwnedSubscription(
-			session.user.id,
-			subscriptionId,
-			getSubscriptionByUserIdAndSubscriptionId
+		const lemonsqueezy = PaymentProviderManager.getLemonsqueezyProvider();
+		const ownedSubscription = await findOwnedLemonSqueezySubscription(session.user.email, subscriptionId, (id) =>
+			lemonsqueezy.getSubscriptionOwner(id)
 		);
 		if (!ownedSubscription) {
 			return NextResponse.json(
@@ -321,7 +319,6 @@ export async function POST(request: NextRequest) {
 			);
 		}
 
-		const lemonsqueezy = PaymentProviderManager.getLemonsqueezyProvider();
 		const subscription = await lemonsqueezy.updateSubscription({
 			subscriptionId,
 			priceId,
