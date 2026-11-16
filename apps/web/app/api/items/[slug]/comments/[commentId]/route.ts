@@ -6,6 +6,7 @@ import { comments, clientProfiles } from '@/lib/db/schema';
 import { eq, and, isNull } from 'drizzle-orm';
 import { checkDatabaseAvailability } from '@/lib/utils/database-check';
 import { getTenantId } from '@/lib/auth/tenant';
+import { validateCommentInput } from '@/lib/validations/comment';
 
 /**
  * @swagger
@@ -136,7 +137,9 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ s
  *             properties:
  *               content:
  *                 type: string
- *                 description: "Updated comment content"
+ *                 minLength: 1
+ *                 maxLength: 1000
+ *                 description: "Updated comment content (1-1000 characters after trimming; stored trimmed)"
  *                 example: "This is my updated review of this amazing tool!"
  *               rating:
  *                 type: integer
@@ -181,7 +184,7 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ s
  *                     image:
  *                       type: string
  *       400:
- *         description: "Bad request - validation failed"
+ *         description: "Bad request - validation failed (same rules as creating a comment)"
  *         content:
  *           application/json:
  *             schema:
@@ -189,6 +192,15 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ s
  *               properties:
  *                 error:
  *                   type: string
+ *                   examples:
+ *                     invalid_json: "Invalid JSON body"
+ *                     not_an_object: "Request body must be a JSON object"
+ *                     no_fields: "At least one of content or rating must be provided"
+ *                     content_type: "Content must be a string"
+ *                     content_length: "Content must be between 1 and 1000 characters"
+ *                     content_nul: "Content must not contain NUL characters"
+ *                     rating_type: "Rating must be an integer"
+ *                     invalid_rating: "Rating must be between 1 and 5"
  *       401:
  *         description: "Unauthorized - Authentication required"
  *         content:
@@ -231,33 +243,19 @@ export async function PUT(request: Request, { params }: { params: Promise<{ slug
 		}
 
 		const { commentId } = await params;
-		const body = await request.json();
-		const { content, rating } = body;
-
-		// Validate at least one field is being updated
-		if (content === undefined && rating === undefined) {
-			return NextResponse.json({ error: 'At least one of content or rating must be provided' }, { status: 400 });
+		let body: unknown;
+		try {
+			body = await request.json();
+		} catch {
+			return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
 		}
 
-		// Validate content if provided
-		if (content !== undefined) {
-			if (typeof content !== 'string') {
-				return NextResponse.json({ error: 'Content must be a string' }, { status: 400 });
-			}
-			if (!content.trim() || content.length > 1000) {
-				return NextResponse.json({ error: 'Content must be between 1 and 1000 characters' }, { status: 400 });
-			}
+		// Same rules as a new comment (POST); either field may be left out, but not both
+		const input = validateCommentInput(body, { partial: true });
+		if (!input.ok) {
+			return NextResponse.json({ error: input.error }, { status: 400 });
 		}
-
-		// Validate rating if provided
-		if (rating !== undefined) {
-			if (typeof rating !== 'number' || !Number.isInteger(rating)) {
-				return NextResponse.json({ error: 'Rating must be an integer' }, { status: 400 });
-			}
-			if (rating < 1 || rating > 5) {
-				return NextResponse.json({ error: 'Rating must be between 1 and 5' }, { status: 400 });
-			}
-		}
+		const { content, rating } = input.value;
 
 		// Check if comment exists and user owns it
 		const [existingComment] = await db
@@ -278,7 +276,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ slug
 
 		// Update comment
 		await updateComment(commentId, {
-			...(content !== undefined && { content: content.trim() }),
+			...(content !== undefined && { content }),
 			...(rating !== undefined && { rating })
 		});
 
