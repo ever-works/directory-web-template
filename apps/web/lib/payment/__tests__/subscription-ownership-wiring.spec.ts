@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { readdirSync, readFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join, relative } from 'node:path';
 import { describe, it } from 'node:test';
 
@@ -110,11 +110,23 @@ const guarded: Guarded[] = [
  * Routes that change a subscription at a provider but check ownership their own way.
  * Adding a route here needs a reviewer to confirm its check.
  */
-const ownCheck: Record<string, string> = {
-	'api/stripe/subscription/[subscriptionId]/update/route.ts': 'Stripe-scoped row + userId compare',
-	'api/polar/subscription/[subscriptionId]/cancel/route.ts': 'Polar customer id compare',
-	'api/payment/[subscriptionId]/route.ts': 'provider-scoped row + userId compare',
-	'api/stripe/subscriptions/route.ts': 'local row by id + userId compare (no provider call)'
+const ownCheck: Record<string, { why: string; check: string }> = {
+	'api/stripe/subscription/[subscriptionId]/update/route.ts': {
+		why: 'Stripe-scoped row + userId compare',
+		check: 'userSubscription.userId !== session.user.id'
+	},
+	'api/polar/subscription/[subscriptionId]/cancel/route.ts': {
+		why: 'Polar customer id compare',
+		check: 'subscriptionCustomerId !== userPolarCustomerId'
+	},
+	'api/payment/[subscriptionId]/route.ts': {
+		why: 'provider-scoped row + userId compare',
+		check: 'subscription.userId !== session.user.id'
+	},
+	'api/stripe/subscriptions/route.ts': {
+		why: 'local row by id + userId compare (no provider call)',
+		check: 'subscription.userId !== session.user.id'
+	}
 };
 
 describe('subscription ownership wiring', () => {
@@ -161,6 +173,16 @@ describe('subscription ownership wiring', () => {
 					);
 				});
 			}
+		});
+	}
+
+	for (const [file, { why, check }] of Object.entries(ownCheck)) {
+		it(`${file} keeps its own ownership check (${why})`, () => {
+			assert.ok(
+				existsSync(join(appDir, file)),
+				`${file} is listed as checking ownership itself but no longer exists`
+			);
+			assert.ok(read(file).includes(check), `${file} no longer contains its ownership check: ${check}`);
 		});
 	}
 
