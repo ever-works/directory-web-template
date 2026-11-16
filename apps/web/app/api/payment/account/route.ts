@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
+import { requireAdminSession } from '@/lib/auth/admin-guard';
 import { PaymentProvider } from '@/lib/constants/payment';
 import { setupUserPaymentAccount } from '@/lib/db/queries';
 
@@ -13,7 +13,9 @@ const SUPPORTED_PROVIDERS: ReadonlySet<string> = new Set(Object.values(PaymentPr
  *   post:
  *     tags: ["Payment Accounts"]
  *     summary: "Create payment account"
- *     description: "Creates a new payment account for a user with a specific payment provider. Links the user to their customer ID in the payment provider's system. This is typically called after a successful customer creation in the payment provider."
+ *     description: "Admin only (401 without a session, 403 for a signed-in non-admin). Creates a new payment account for a user with a specific payment provider. Links the user to their customer ID in the payment provider's system. The payment providers do not call this route; they write through the database queries."
+ *     security:
+ *       - cookieAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -116,9 +118,12 @@ const SUPPORTED_PROVIDERS: ReadonlySet<string> = new Set(Object.values(PaymentPr
  */
 export async function POST(request: NextRequest) {
   try {
-    const session = await auth();
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    // Admin only: the stored customer id is trusted by the billing portal, the invoice list and
+    // the Polar ownership check, so a signed-in user must not be able to point their own row at
+    // another customer. The providers write rows through the database queries, not this route.
+    const adminResult = await requireAdminSession();
+    if (adminResult instanceof NextResponse) {
+      return adminResult;
     }
 
     // Parse body explicitly so malformed JSON / wrong content-type
@@ -155,11 +160,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Prevent writing another user's payment account
-    if (session.user.id !== userId) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
-    }
-
     const paymentAccount = await setupUserPaymentAccount(provider, userId, customerId);
 
     return NextResponse.json({
@@ -189,7 +189,9 @@ export async function POST(request: NextRequest) {
  *   put:
  *     tags: ["Payment Accounts"]
  *     summary: "Update payment account"
- *     description: "Updates an existing payment account with new provider or customer information. Requires the account ID to identify which account to update. This is typically used when a customer ID changes in the payment provider's system."
+ *     description: "Admin only (401 without a session, 403 for a signed-in non-admin). Updates an existing payment account with new provider or customer information. Requires the account ID to identify which account to update. This is typically used when a customer ID changes in the payment provider's system."
+ *     security:
+ *       - cookieAuth: []
  *     requestBody:
  *       required: true
  *       content:
@@ -301,9 +303,10 @@ export async function POST(request: NextRequest) {
  */
 export async function PUT(request: NextRequest) {
   try {
-    const session = await auth();
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    // Admin only, same as POST.
+    const adminResult = await requireAdminSession();
+    if (adminResult instanceof NextResponse) {
+      return adminResult;
     }
 
     let body: { id?: unknown; provider?: unknown; userId?: unknown; customerId?: unknown } = {};
@@ -343,11 +346,6 @@ export async function PUT(request: NextRequest) {
         { error: 'Customer ID is required' },
         { status: 400 }
       );
-    }
-
-    // Prevent updating another user's payment account
-    if (session.user.id !== userId) {
-      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
     const paymentAccount = await setupUserPaymentAccount(provider, userId, customerId);

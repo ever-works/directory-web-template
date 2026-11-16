@@ -108,7 +108,10 @@ import {
   UpdateSubscriptionParams,
   SetupIntent,
 } from '../../types/payment-types';
-import { paymentAccountClient } from '../client/payment-account-client';
+import {
+  getUserPaymentAccountByProvider,
+  setupUserPaymentAccount,
+} from '@/lib/db/queries';
 
 // Provider-specific configuration
 export interface PayFastConfig extends PaymentProviderConfig {
@@ -226,10 +229,7 @@ export class PayFastProvider implements PaymentProviderInterface {
     if (!user?.id) return null;
 
     // Check database for existing customer
-    const account = await paymentAccountClient.getPaymentAccount(
-      user.id,
-      'payfast',
-    );
+    const account = await getUserPaymentAccountByProvider(user.id, 'payfast');
     if (account?.customerId) return account.customerId;
 
     // Create new customer if none exists
@@ -239,11 +239,7 @@ export class PayFastProvider implements PaymentProviderInterface {
       userId: user.id,
     });
 
-    await paymentAccountClient.upsertPaymentAccount(
-      user.id,
-      'payfast',
-      result.customerId,
-    );
+    await setupUserPaymentAccount('payfast', user.id, result.customerId);
 
     return result.customerId;
   }
@@ -557,7 +553,7 @@ lib/constants/
 |-------|----------|
 | Factory throws "unsupported provider" | Ensure you added the case to the `switch` statement and updated the `SupportedProvider` type. |
 | Webhook signature verification fails | Check that you are reading the raw body (`request.text()`) before parsing JSON. Many providers sign the raw string. |
-| Customer ID not persisted | Call `paymentAccountClient.upsertPaymentAccount()` after creating a customer. |
+| Customer ID not persisted | Call `setupUserPaymentAccount(provider, userId, customerId)` from `@/lib/db/queries` after creating a customer. Do not call `POST /api/payment/account`: it is admin-only. |
 | Provider not available in checkout UI | Check that the provider is included in the `PaymentProvider` enum and enabled in the config. |
 | Sandbox vs. production mismatch | Use environment variables to toggle sandbox mode; never hardcode URLs. |
 

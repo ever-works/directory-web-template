@@ -11,9 +11,10 @@ import { after, beforeEach, describe, it } from 'node:test';
  * under `tsx --test`, so these guards read the source instead (same approach as
  * `lib/seo/__tests__/item-rating-wiring.spec.ts`).
  *
- * POST/PUT /api/payment/account write payment_account rows. They must only act for the signed-in
- * user, and the payment providers must write through the database layer instead of calling the
- * route over HTTP (a server-side fetch carries no session cookie and would now get a 401).
+ * POST/PUT /api/payment/account write payment_account rows, and the Stripe billing portal, the
+ * invoice list and the Polar ownership check trust the stored customer id. They are admin-only
+ * (the /api/admin guard), and the payment providers write through the database layer instead of
+ * calling the route over HTTP (a server-side fetch carries no session cookie).
  */
 const source = (relative: string) => readFileSync(join(__dirname, relative), 'utf8').replace(/\s+/g, ' ');
 
@@ -31,39 +32,29 @@ function handler(method: 'POST' | 'PUT'): string {
 	return route.slice(start, next === -1 ? undefined : next);
 }
 
-describe('/api/payment/account write handlers require the owner', () => {
-	it('imports auth from the session helper', () => {
-		assert.ok(route.includes("import { auth } from '@/lib/auth';"));
+describe('/api/payment/account write handlers are admin-only', () => {
+	it('imports the admin guard', () => {
+		assert.ok(route.includes("import { requireAdminSession } from '@/lib/auth/admin-guard';"));
+		assert.ok(!route.includes("from '@/lib/auth';"), 'the route still reads the session directly');
 	});
 
 	for (const method of ['POST', 'PUT'] as const) {
-		it(`${method} returns 401 without a session and 403 for another user, before writing`, () => {
+		it(`${method} runs the admin guard before reading the body and before writing`, () => {
 			const body = handler(method);
-			// Each guard must be the whole `if` block: the condition, then a return carrying the
-			// status, so a loosened condition or a dropped `return` is caught.
-			const unauthorizedGuard =
-				"if (!session?.user?.id) { return NextResponse.json({ error: 'Unauthorized' }, { status: 401 }); }";
-			const forbiddenGuard =
-				"if (session.user.id !== userId) { return NextResponse.json({ error: 'Forbidden' }, { status: 403 }); }";
+			// The guard must be the whole `if` block: the condition, then a return of the guard's
+			// response, so a loosened condition or a dropped `return` is caught.
+			const guard =
+				'const adminResult = await requireAdminSession(); if (adminResult instanceof NextResponse) { return adminResult; }';
 
-			const authCall = body.indexOf('const session = await auth();');
-			const unauthorized = body.indexOf(unauthorizedGuard);
+			const guardAt = body.indexOf(guard);
 			const bodyParse = body.indexOf('await request.json()');
-			const userIdRead = body.search(/const \{[^}]*\buserId\b[^}]*\} = body;/);
-			const ownership = body.indexOf(forbiddenGuard);
 			const write = body.indexOf('await setupUserPaymentAccount(');
 
-			assert.ok(authCall >= 0, `${method} does not call auth()`);
-			assert.ok(unauthorized > authCall, `${method} does not return 401 when there is no session.user.id`);
-			assert.ok(unauthorized < bodyParse, `${method} reads the body before the 401 check`);
-			assert.ok(userIdRead > unauthorized, `${method} does not read userId from the body`);
-			assert.ok(
-				ownership > userIdRead,
-				`${method} does not return 403 when session.user.id differs from userId`
-			);
-			assert.ok(write > ownership, `${method} writes before the ownership check`);
+			assert.ok(guardAt >= 0, `${method} does not return the admin guard's response`);
+			assert.ok(guardAt < bodyParse, `${method} reads the body before the admin check`);
+			assert.ok(write > guardAt, `${method} writes before the admin check`);
 			assert.equal(body.split('setupUserPaymentAccount(').length - 1, 1, `${method} has an unguarded write`);
-			assert.equal(body.split('session.user.id !== userId').length - 1, 1);
+			assert.equal(body.split('requireAdminSession(').length - 1, 1);
 		});
 
 		it(`${method} refuses provider names the app does not ship, before writing`, () => {
@@ -106,19 +97,41 @@ describe('server code does not pull the providers into the browser bundle', () =
 });
 
 /**
- * Behavioural checks: load the real route module with its three imports replaced (the session
- * helper, the database queries and `next/server`) and call POST / PUT. This catches a guard that
+ * Behavioural checks: load the real route module with its three imports replaced (the admin
+ * guard, the database queries and `next/server`) and call POST / PUT. This catches a guard that
  * is present in the source but no longer stops the handler (for example a dropped `return`).
- * The module graph is CommonJS under `tsx --test`, so intercepting `Module._load` is enough.
+ * The guard stub mirrors `requireAdminSession`: 401 without a user id, 403 for a non-admin, the
+ * session otherwise. The module graph is CommonJS under `tsx --test`, so intercepting
+ * `Module._load` is enough.
  */
 type Handler = (request: Request) => Promise<Response>;
 type Session = { user?: { id?: string } } | null;
 
-const state: { session: Session; writes: unknown[][] } = { session: null, writes: [] };
+const state: { session: Session; admin: boolean; writes: unknown[][] } = { session: null, admin: false, writes: [] };
+
+// The route tests `result instanceof NextResponse`, so the stub must be a real class.
+class StubNextResponse extends Response {
+	static json(body: unknown, init?: ResponseInit) {
+		return new StubNextResponse(JSON.stringify(body), {
+			...init,
+			headers: { 'content-type': 'application/json' }
+		});
+	}
+}
 
 const stubs: Record<string, unknown> = {
-	'next/server': { NextResponse: { json: (body: unknown, init?: ResponseInit) => Response.json(body, init) } },
-	'@/lib/auth': { auth: async () => state.session },
+	'next/server': { NextResponse: StubNextResponse },
+	'@/lib/auth/admin-guard': {
+		requireAdminSession: async () => {
+			if (!state.session?.user?.id) {
+				return StubNextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+			}
+			if (!state.admin) {
+				return StubNextResponse.json({ success: false, error: 'Forbidden' }, { status: 403 });
+			}
+			return { session: state.session };
+		}
+	},
 	'@/lib/db/queries': {
 		setupUserPaymentAccount: async (...args: unknown[]) => {
 			state.writes.push(args);
@@ -148,6 +161,7 @@ const jsonRequest = (method: string, payload: unknown) =>
 describe('/api/payment/account write handlers (behaviour)', () => {
 	beforeEach(() => {
 		state.session = null;
+		state.admin = false;
 		state.writes = [];
 	});
 	after(() => {
@@ -187,8 +201,18 @@ describe('/api/payment/account write handlers (behaviour)', () => {
 			assert.equal(state.writes.length, 0);
 		});
 
-		it(`${method} writes once and returns the account for the owner`, async () => {
+		it(`${method} returns 403 and does not write for a signed-in non-admin who owns the account`, async () => {
+			// Owning the row is no longer enough: the stored customer id is trusted by the billing
+			// portal and the invoice list, so a user must not be able to repoint their own row.
 			state.session = { user: { id: 'user_1' } };
+			const response = await handlerFn(jsonRequest(method, payload));
+			assert.equal(response.status, 403);
+			assert.equal(state.writes.length, 0);
+		});
+
+		it(`${method} writes once and returns the account for an admin`, async () => {
+			state.session = { user: { id: 'admin_1' } };
+			state.admin = true;
 			const response = await handlerFn(jsonRequest(method, payload));
 			assert.equal(response.status, 200);
 			assert.deepEqual(state.writes, [['stripe', 'user_1', 'cus_1']]);
@@ -197,9 +221,18 @@ describe('/api/payment/account write handlers (behaviour)', () => {
 			assert.equal(body.customerId, 'cus_1');
 		});
 
-		it(`${method} still returns 400 for a malformed body from the owner`, async () => {
-			state.session = { user: { id: 'user_1' } };
+		it(`${method} still returns 400 for a malformed body from an admin`, async () => {
+			state.session = { user: { id: 'admin_1' } };
+			state.admin = true;
 			const response = await handlerFn(jsonRequest(method, 'not json'));
+			assert.equal(response.status, 400);
+			assert.equal(state.writes.length, 0);
+		});
+
+		it(`${method} still refuses a provider the app does not ship, even from an admin`, async () => {
+			state.session = { user: { id: 'admin_1' } };
+			state.admin = true;
+			const response = await handlerFn(jsonRequest(method, { ...payload, provider: 'not-a-provider' }));
 			assert.equal(response.status, 400);
 			assert.equal(state.writes.length, 0);
 		});
