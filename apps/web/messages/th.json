@@ -248,7 +248,9 @@
 		"BASIC_INFO": "Basic Info",
 		"CLOSE": "Close",
 		"VS": "vs",
-		"COMPARISONS": "การเปรียบเทียบ"
+		"COMPARISONS": "การเปรียบเทียบ",
+		"RATE_STARS": "{count, plural, other {ให้ # ดาว}}",
+		"RATED_OUT_OF": "คะแนน {value, number} จาก {max, number}"
 	},
 	"survey": {
 		"SURVEYS": "Surveys",

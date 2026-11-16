@@ -247,7 +247,9 @@
 		"BASIC_INFO": "基本信息",
 		"CLOSE": "关闭",
 		"VS": "vs",
-		"COMPARISONS": "对比"
+		"COMPARISONS": "对比",
+		"RATE_STARS": "{count, plural, other {评为 # 星}}",
+		"RATED_OUT_OF": "评分：{value, number}（满分 {max, number}）"
 	},
 	"survey": {
 		"SURVEYS": "调查问卷",

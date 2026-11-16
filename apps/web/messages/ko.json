@@ -274,7 +274,9 @@
 		"BASIC_INFO": "기본 정보",
 		"CLOSE": "닫기",
 		"VS": "대",
-		"COMPARISONS": "비교"
+		"COMPARISONS": "비교",
+		"RATE_STARS": "{count, plural, other {별점 #점 주기}}",
+		"RATED_OUT_OF": "평점: {max, number}점 만점에 {value, number}점"
 	},
 	"survey": {
 		"SURVEYS": "설문조사",

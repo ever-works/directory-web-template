@@ -280,7 +280,9 @@
 		"AVG": "Avg",
 		"BASIC_INFO": "Basic Info",
 		"CLOSE": "Close",
-		"VS": "vs"
+		"VS": "vs",
+		"RATE_STARS": "{count, plural, one {Rate # star} other {Rate # stars}}",
+		"RATED_OUT_OF": "Rated {value, number} out of {max, number}"
 	},
 	"survey": {
 		"SURVEYS": "Surveys",

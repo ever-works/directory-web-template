@@ -274,7 +274,9 @@
 		"BASIC_INFO": "Thông tin cơ bản",
 		"CLOSE": "Đóng",
 		"VS": "vs",
-		"COMPARISONS": "So sánh"
+		"COMPARISONS": "So sánh",
+		"RATE_STARS": "{count, plural, other {Đánh giá # sao}}",
+		"RATED_OUT_OF": "Được đánh giá {value, number} trên {max, number}"
 	},
 	"survey": {
 		"SURVEYS": "Khảo sát",
