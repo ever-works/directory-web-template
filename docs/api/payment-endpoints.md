@@ -26,6 +26,7 @@ Stripe is the most feature-complete integration with 17 route handlers covering 
 | `GET` | `/api/stripe/subscription` | Get current user's active subscription |
 | `POST` | `/api/stripe/subscription` | Create a new subscription |
 | `GET` | `/api/stripe/subscriptions` | List all user subscriptions |
+| `POST` / `PUT` | `/api/stripe/subscriptions` | Admin only: create or edit a subscription row (401 signed out, 403 non-admin) |
 | `POST` | `/api/stripe/subscription/[subscriptionId]/cancel` | Cancel a subscription |
 | `POST` | `/api/stripe/subscription/[subscriptionId]/reactivate` | Reactivate a cancelled subscription |
 | `POST` | `/api/stripe/subscription/[subscriptionId]/update` | Update subscription (change plan) |
