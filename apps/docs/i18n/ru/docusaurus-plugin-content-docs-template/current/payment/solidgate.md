@@ -234,7 +234,8 @@ private generatePaymentIntentSignature(
 
 Поставщик следует трехуровневой стратегии поиска идентификаторов клиентов:
 
-1. **Метаданные пользователя** – отметьте `user.user_metadata.solidgate_customer_id` 2. **База данных** — запрос таблицы `PaymentAccount` через `getUserPaymentAccountByProvider` (`@/lib/db/queries`) .
+1. **Метаданные пользователя** – отметьте `user.user_metadata.solidgate_customer_id`
+2. **База данных** — запрос таблицы `PaymentAccount` через `getUserPaymentAccountByProvider` (`@/lib/db/queries`).
 3. **Создать новый** – вызвать Solidgate `/customers` API и выполнить обратную синхронизацию с базой данных.
 
 ```ts

@@ -236,7 +236,8 @@ private generatePaymentIntentSignature(
 
 يتبع الموفر إستراتيجية بحث ثلاثية المستويات لمعرفات العملاء:
 
-1. **بيانات تعريف المستخدم** - حدد `user.user_metadata.solidgate_customer_id` 2. **قاعدة البيانات** - الاستعلام عن الجدول 1 عبر 2
+1. **بيانات تعريف المستخدم** - حدد `user.user_metadata.solidgate_customer_id`
+2. **قاعدة البيانات** - الاستعلام عن الجدول `PaymentAccount` عبر `getUserPaymentAccountByProvider` (`@/lib/db/queries`)
 3. **إنشاء جديد** - اتصل بـ Solidgate `/customers` API وقم بالمزامنة مرة أخرى مع قاعدة البيانات
 
 ```ts

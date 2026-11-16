@@ -236,7 +236,9 @@ private generatePaymentIntentSignature(
 
 Il fornitore segue una strategia di ricerca a tre livelli per gli ID cliente:
 
-1. **Metadati utente** -- seleziona `user.user_metadata.solidgate_customer_id` 2. **Database** -- interroga la tabella `PaymentAccount` tramite `getUserPaymentAccountByProvider` (`@/lib/db/queries`) 3. **Crea nuovo**: richiama l'API Solidgate `/customers` e sincronizza nuovamente con il database
+1. **Metadati utente** -- seleziona `user.user_metadata.solidgate_customer_id`
+2. **Database** -- interroga la tabella `PaymentAccount` tramite `getUserPaymentAccountByProvider` (`@/lib/db/queries`)
+3. **Crea nuovo**: richiama l'API Solidgate `/customers` e sincronizza nuovamente con il database
 
 ```ts
 async getCustomerId(user: User | null): Promise<string | null> {
