@@ -236,7 +236,9 @@ private generatePaymentIntentSignature(
 
 הספק עוקב אחר אסטרטגיית חיפוש תלת-שכבתית עבור מזהי לקוחות:
 
-1. **מטא נתונים של משתמש** -- סמן `user.user_metadata.solidgate_customer_id` 2. **מסד נתונים** - שאילתה בטבלה `PaymentAccount` באמצעות `paymentAccountClient` 3. **צור חדש** -- קרא ל-Solidgate `/customers` API וסנכרן בחזרה למסד הנתונים
+1. **מטא נתונים של משתמש** -- סמן `user.user_metadata.solidgate_customer_id`
+2. **מסד נתונים** - שאילתה בטבלה `PaymentAccount` באמצעות `getUserPaymentAccountByProvider` (`@/lib/db/queries`)
+3. **צור חדש** -- קרא ל-Solidgate `/customers` API וסנכרן בחזרה למסד הנתונים
 
 ```ts
 async getCustomerId(user: User | null): Promise<string | null> {
