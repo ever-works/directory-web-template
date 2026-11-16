@@ -2,8 +2,9 @@ import { NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { db } from '@/lib/db/drizzle';
 import { accounts } from '@/lib/db/schema';
-import { eq, and } from 'drizzle-orm';
+import { eq, and, isNull, or } from 'drizzle-orm';
 import { getTenantId } from '@/lib/auth/tenant';
+import { summarizeConnectedAccounts } from '@/lib/auth/connected-accounts';
 
 /**
  * @swagger
@@ -41,26 +42,19 @@ export async function GET() {
 				email: accounts.email,
 				type: accounts.type,
 				passwordHash: accounts.passwordHash,
+				tenantId: accounts.tenantId,
 			})
 			.from(accounts)
 			.where(
 				and(
 					eq(accounts.userId, userId),
-					eq(accounts.tenantId, tenantId)
+					// The Auth.js adapter links OAuth/OIDC accounts without a tenant (NULL
+					// `tenant_id`), so those rows must match too or they never appear.
+					or(eq(accounts.tenantId, tenantId), isNull(accounts.tenantId))
 				)
 			);
 
-		const oauthAccounts = connectedAccounts.filter((a) => a.type === 'oauth');
-		// Client passwords are stored in accounts (type='credentials'), not users.passwordHash
-		// 'credentials' accounts exist in the DB but are outside the AdapterAccountType union
-		const hasPassword = connectedAccounts.some((a) => (a.type as string) === 'credentials' && !!a.passwordHash);
-
-		const data = oauthAccounts.map((a) => ({
-			provider: a.provider,
-			providerAccountId: a.providerAccountId,
-			email: a.email ?? null,
-			canDisconnect: hasPassword || oauthAccounts.length > 1,
-		}));
+		const { data, hasPassword } = summarizeConnectedAccounts(connectedAccounts, tenantId);
 
 		return NextResponse.json({ success: true, data, hasPassword });
 	} catch (error) {
