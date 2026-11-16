@@ -14,10 +14,13 @@ test.describe('Surveys API — anonymous access pattern', () => {
 	for (const query of ['', '?status=draft', '?status=closed', '?status=bogus&type=bogus']) {
 		test(`GET /api/surveys${query} lists only published surveys to anonymous callers`, async ({ request }) => {
 			const resp = await request.get(`/api/surveys${query}`);
-			expect(resp.status(), `surveys list ${query}`).toBeLessThan(500);
-			if (resp.status() !== 200) return; // database or surveys unavailable in this environment
+			// 503 is the documented answer when the database is unavailable; any other
+			// non-200 (401, 403, 404, 500) means anonymous listing broke and must fail.
+			test.skip(resp.status() === 503, 'surveys database unavailable in this environment');
+			expect(resp.status(), `surveys list ${query}`).toBe(200);
 			const body = await resp.json();
-			const surveys: Array<{ status?: string }> = body?.data?.surveys ?? [];
+			const surveys: Array<{ status?: string }> = body?.data?.surveys;
+			expect(Array.isArray(surveys), `surveys list ${query} has a data.surveys array`).toBe(true);
 			for (const survey of surveys) {
 				expect(survey.status, `anonymous list ${query}`).toBe('published');
 			}
