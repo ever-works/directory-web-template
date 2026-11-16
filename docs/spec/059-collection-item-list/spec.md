@@ -24,8 +24,10 @@ the collection page be understood as a curated list of the item pages.
 
 - **R1.** Each item of the collection becomes a `ListItem` with a 1-based `position`,
   `name` and `url` (the localized item page, `/items/{slug}`). Positions follow the
-  collection's own curated slug order (`collection.items`), not the visible grid, which
-  visitors re-sort in the browser. Slugs with no matching item are skipped.
+  order the grid opens with: name ascending, the same `sortItems(..., "name-asc")` that
+  `CollectionDetail` starts from, so the 50-item cap also keeps the first names a
+  visitor sees. Visitors can re-sort the grid in the browser; the markup does not follow.
+  Slugs with no matching item are skipped.
 - **R2.** Entries with a blank name or URL are dropped before positions are assigned.
 - **R3.** At most 50 entries are listed (`MAX_COLLECTION_SCHEMA_ITEMS`), so a large
   collection cannot bloat the HTML. `numberOfItems` still states the true count (the
