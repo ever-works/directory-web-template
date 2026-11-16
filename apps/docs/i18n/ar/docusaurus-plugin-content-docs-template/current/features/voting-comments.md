@@ -101,10 +101,6 @@ const {
   isUpdating,
   deleteComment,         // (commentId) => Promise
   isDeleting,
-  rateComment,           // ({ commentId, rating }) => void
-  isRatingComment,
-  updateCommentRating,   // ({ commentId, rating }) => void
-  isUpdatingRating,
   commentRating,         // number
   isLoadingRating,
 } = useComments(itemId);
@@ -116,8 +112,8 @@ const {
 - `id` -- المعرف الفريد
 - `content` -- نص التعليق
 - `rating` -- تصنيف النجوم الاختياري (1-5)
-- 3 - مرجع المؤلف
-- 4-- البند المرتبط
+- `userId` -- مرجع المؤلف
+- `itemId` -- البند المرتبط
 - `user` -- بيانات المستخدم المعبأة (الاسم والبريد الإلكتروني والصورة)
 - `createdAt` / `updatedAt` -- الطوابع الزمنية
 
@@ -126,7 +122,7 @@ const {
 التعليقات والتقييمات متكاملة بإحكام:
 - يؤدي إنشاء تعليق بتقييم إلى تحديث التصنيف الإجمالي للعنصر
 - يؤدي تحرير تقييم التعليق إلى إعادة الحساب
-- تتم إعادة جلب الاستعلام 8 بعد أي تغيير في التعليق
+- تتم إعادة جلب الاستعلام `["item-rating", itemId]` بعد أي تغيير في التعليق
 
 ### الأحداث المشتركة بين المكونات
 
@@ -159,13 +155,11 @@ const {
 
 | الطريقة | نقطة النهاية | الوصف |
 |--------|----------|-------------|
-| احصل على | `/api/items/:id/comments` | جلب التعليقات لعنصر |
-| مشاركة | `/api/items/:id/comments` | قم بإنشاء تعليق جديد |
-| ضع | `/api/items/:id/comments/:commentId` | تحديث تعليق |
-| حذف | `/api/items/:id/comments/:commentId` | احذف تعليق |
-| مشاركة | 4ـ | قيم التعليق |
-| ضع | 5 ــ | تحديث تقييم التعليق |
-| احصل على | 6ـ | احصل على التقييم الإجمالي |
+| GET | `/api/items/:id/comments` | جلب التعليقات لعنصر |
+| POST | `/api/items/:id/comments` | قم بإنشاء تعليق جديد |
+| PUT | `/api/items/:id/comments/:commentId` | تحديث تعليق |
+| DELETE | `/api/items/:id/comments/:commentId` | احذف تعليق |
+| GET | `/api/items/:id/comments/rating` | احصل على التقييم الإجمالي |
 
 ## ميزة تكامل العلم
 

@@ -101,10 +101,6 @@ const {
   isUpdating,
   deleteComment,         // (commentId) => Promise
   isDeleting,
-  rateComment,           // ({ commentId, rating }) => void
-  isRatingComment,
-  updateCommentRating,   // ({ commentId, rating }) => void
-  isUpdatingRating,
   commentRating,         // number
   isLoadingRating,
 } = useComments(itemId);
@@ -163,8 +159,6 @@ const {
 | PUBLICAR | `/api/items/:id/comments` | Crear un nuevo comentario |
 | PONER | `/api/items/:id/comments/:commentId` | Actualizar un comentario |
 | BORRAR | `/api/items/:id/comments/:commentId` | Eliminar un comentario |
-| PUBLICAR | `/api/items/:id/comments/rating` | Califica un comentario |
-| PONER | `/api/items/:id/comments/rating` | Actualizar calificación de comentarios |
 | OBTENER | `/api/items/:id/comments/rating` | Obtener calificación agregada |
 
 ## Integración de indicador de funciones
