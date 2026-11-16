@@ -72,13 +72,34 @@ describe('subscription ownership wiring', () => {
 			});
 
 			it('checks ownership before any provider call or database write', () => {
-				const lookupAt = route.indexOf('findOwnedSubscription(', route.indexOf('export async function POST'));
+				const handlerAt = route.indexOf('export async function POST');
+				const lookupAt = route.indexOf('findOwnedSubscription(', handlerAt);
 				assert.ok(lookupAt > 0, `${name} never calls the helper`);
+				// The lookup must be followed straight away by `if (!row) { return ... status: 404 }`.
+				const rejection = /findOwnedSubscription\([^;]*\); if \(!\w+\) \{ return [^;]*?status: 404 \}/.exec(
+					route.slice(lookupAt)
+				);
+				assert.ok(rejection && rejection.index === 0, `${name} does not return 404 right after the lookup`);
+				const rejectedBy = lookupAt + rejection[0].length;
+				// Every provider call and every DB write (not just the first) comes after the early return.
 				for (const mutation of mutations) {
-					const at = route.indexOf(mutation);
+					let at = route.indexOf(mutation, handlerAt);
 					assert.ok(at > 0, `${name}: ${mutation} not found`);
-					assert.ok(lookupAt < at, `${name} calls ${mutation} before checking ownership`);
+					while (at !== -1) {
+						assert.ok(at > rejectedBy, `${name} reaches ${mutation} before rejecting a non-owner`);
+						at = route.indexOf(mutation, at + 1);
+					}
 				}
+			});
+
+			it('checks ownership after the request body is validated', () => {
+				const handlerAt = route.indexOf('export async function POST');
+				const parsedAt = route.indexOf('.safeParse(', handlerAt);
+				assert.ok(parsedAt > 0 || name.startsWith('stripe/'), `${name} lost body validation`);
+				assert.ok(
+					route.indexOf('findOwnedSubscription(', handlerAt) > parsedAt,
+					`${name} checks ownership before validating the request`
+				);
 			});
 		});
 	}
