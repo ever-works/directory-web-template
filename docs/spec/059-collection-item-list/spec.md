@@ -29,6 +29,9 @@ the collection page be understood as a curated list of the item pages.
   visitor sees. Visitors can re-sort the grid in the browser; the markup does not follow.
   Slugs with no matching item are skipped.
 - **R2.** Entries with a blank name or URL are dropped before positions are assigned.
+  Item YAML is not validated: a numeric name (`name: 1984`) is listed as text, and a
+  missing or non-text name counts as blank, so one bad item never fails the page. A URL
+  already listed is dropped, so a slug repeated in `collection.items` is listed once.
 - **R3.** At most 50 entries are listed (`MAX_COLLECTION_SCHEMA_ITEMS`), so a large
   collection cannot bloat the HTML. `numberOfItems` still states the true count (the
   page's count, or every valid item when the caller gives none).

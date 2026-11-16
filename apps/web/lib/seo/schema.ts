@@ -93,6 +93,16 @@ export function generateProductSchema(input: ProductSchemaInput) {
 }
 
 /**
+ * Item YAML is not validated, so a field typed as a string can arrive as a number
+ * (`name: 1984`) or be missing. Numbers become text; anything else counts as blank.
+ */
+function schemaText(value: unknown): string {
+	if (typeof value === 'string') return value.trim();
+	if (typeof value === 'number' && Number.isFinite(value)) return String(value);
+	return '';
+}
+
+/**
  * Generate CollectionPage schema for curated collection detail pages
  */
 export function generateCollectionSchema(input: CollectionSchemaInput) {
@@ -112,7 +122,16 @@ export function generateCollectionSchema(input: CollectionSchemaInput) {
 	}
 
 	// Entries without a name or URL cannot be a ListItem, so they are dropped before positions are assigned.
-	const valid = (input.items ?? []).filter((item) => item.name.trim().length > 0 && item.url.trim().length > 0);
+	// A URL already listed is dropped too, so one page is never listed twice.
+	const valid: CollectionSchemaItem[] = [];
+	const seenUrls = new Set<string>();
+	for (const item of input.items ?? []) {
+		const name = schemaText(item?.name);
+		const url = schemaText(item?.url);
+		if (!name || !url || seenUrls.has(url)) continue;
+		seenUrls.add(url);
+		valid.push({ name, url });
+	}
 	const listed = valid.slice(0, MAX_COLLECTION_SCHEMA_ITEMS);
 
 	if (typeof input.itemCount === 'number' || listed.length > 0) {
@@ -126,7 +145,7 @@ export function generateCollectionSchema(input: CollectionSchemaInput) {
 			itemList.itemListElement = listed.map((item, index) => ({
 				'@type': 'ListItem',
 				position: index + 1,
-				name: item.name.trim(),
+				name: item.name,
 				url: item.url
 			}));
 		}

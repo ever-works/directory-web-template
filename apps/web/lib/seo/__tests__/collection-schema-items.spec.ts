@@ -81,6 +81,45 @@ describe('generateCollectionSchema itemListElement', () => {
 		assert.equal(entity?.numberOfItems, total);
 	});
 
+	it('does not throw on a non-string name from item YAML', () => {
+		// `yaml.parse('name: 1984')` gives a number; a missing key gives undefined, an empty one null.
+		const items = [
+			{ name: 1984, url: 'https://example.com/items/1984' },
+			{ name: undefined, url: 'https://example.com/items/missing' },
+			{ name: null, url: 'https://example.com/items/empty' },
+			{ name: 'Beta', url: 'https://example.com/items/beta' }
+		] as unknown as Array<{ name: string; url: string }>;
+		const schema = generateCollectionSchema({ ...base, itemCount: 4, items });
+		const list = mainEntity(schema)?.itemListElement as Array<Record<string, unknown>>;
+		assert.deepEqual(
+			list.map((entry) => [entry.position, entry.name]),
+			[
+				[1, '1984'],
+				[2, 'Beta']
+			]
+		);
+	});
+
+	it('lists a repeated URL once', () => {
+		const schema = generateCollectionSchema({
+			...base,
+			items: [
+				{ name: 'Alpha', url: 'https://example.com/items/alpha' },
+				{ name: 'Alpha', url: 'https://example.com/items/alpha' },
+				{ name: 'Beta', url: 'https://example.com/items/beta' }
+			]
+		});
+		const list = mainEntity(schema)?.itemListElement as Array<Record<string, unknown>>;
+		assert.deepEqual(
+			list.map((entry) => [entry.position, entry.url]),
+			[
+				[1, 'https://example.com/items/alpha'],
+				[2, 'https://example.com/items/beta']
+			]
+		);
+		assert.equal(mainEntity(schema)?.numberOfItems, 2);
+	});
+
 	it('keeps the old shape when no items are given', () => {
 		assert.deepEqual(mainEntity(generateCollectionSchema({ ...base, itemCount: 3 })), {
 			'@type': 'ItemList',
