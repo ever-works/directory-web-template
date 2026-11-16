@@ -247,7 +247,9 @@
 		"BASIC_INFO": "Basic Info",
 		"CLOSE": "סגור",
 		"VS": "vs",
-		"COMPARISONS": "השוואות"
+		"COMPARISONS": "השוואות",
+		"RATE_STARS": "{count, plural, one {דירוג של כוכב אחד} two {דירוג של שני כוכבים} other {דירוג של # כוכבים}}",
+		"RATED_OUT_OF": "דירוג {value, number} מתוך {max, number}"
 	},
 	"survey": {
 		"SURVEYS": "Surveys",

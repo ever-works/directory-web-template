@@ -248,7 +248,9 @@
 		"BASIC_INFO": "Basic Info",
 		"CLOSE": "Close",
 		"VS": "vs",
-		"COMPARISONS": "Порівняння"
+		"COMPARISONS": "Порівняння",
+		"RATE_STARS": "{count, plural, one {Оцінити в # зірку} few {Оцінити в # зірки} many {Оцінити в # зірок} other {Оцінити в # зірки}}",
+		"RATED_OUT_OF": "Оцінка: {value, number} з {max, number}"
 	},
 	"survey": {
 		"SURVEYS": "Surveys",
