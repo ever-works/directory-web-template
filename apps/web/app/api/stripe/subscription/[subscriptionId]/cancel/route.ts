@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth, getOrCreateStripeProvider } from '@/lib/auth';
 import { paymentEmailService } from '@/lib/payment/services/payment-email.service';
-import { updateSubscriptionBySubscriptionId } from '@/lib/db/queries';
+import { getSubscriptionByUserIdAndSubscriptionId, updateSubscriptionBySubscriptionId } from '@/lib/db/queries';
+import { findOwnedSubscription, SUBSCRIPTION_NOT_FOUND_MESSAGE } from '@/lib/payment/subscription-ownership';
 
 /**
  * @swagger
@@ -155,8 +156,17 @@ export async function POST(
     const { cancelAtPeriodEnd = true } = await request.json();
     const { subscriptionId } = await params;
 
+    const ownedSubscription = await findOwnedSubscription(
+      session.user.id,
+      subscriptionId,
+      getSubscriptionByUserIdAndSubscriptionId,
+    );
+    if (!ownedSubscription) {
+      return NextResponse.json({ error: SUBSCRIPTION_NOT_FOUND_MESSAGE }, { status: 404 });
+    }
+
     const stripeProvider = getOrCreateStripeProvider();
-     
+
     const cancelledSubscription = await stripeProvider.cancelSubscription(
         subscriptionId,
       cancelAtPeriodEnd

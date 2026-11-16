@@ -1,5 +1,10 @@
 import { auth } from "@/lib/auth";
 import { getOrCreateLemonsqueezyProvider } from "@/lib/payment/config/payment-provider-manager";
+import { getSubscriptionByUserIdAndSubscriptionId } from "@/lib/db/queries";
+import {
+  findOwnedSubscription,
+  SUBSCRIPTION_NOT_FOUND_MESSAGE,
+} from "@/lib/payment/subscription-ownership";
 import { safeErrorMessage } from "@/lib/utils/api-error";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
@@ -182,6 +187,15 @@ export async function POST(request: NextRequest) {
     }
 
     const { subscriptionId, cancelAtPeriodEnd } = validationResult.data;
+
+    const ownedSubscription = await findOwnedSubscription(
+      session.user.id,
+      subscriptionId,
+      getSubscriptionByUserIdAndSubscriptionId,
+    );
+    if (!ownedSubscription) {
+      return NextResponse.json({ error: SUBSCRIPTION_NOT_FOUND_MESSAGE }, { status: 404 });
+    }
 
     const lemonsqueezy = getOrCreateLemonsqueezyProvider();
 
