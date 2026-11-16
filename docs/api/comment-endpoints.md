@@ -71,7 +71,7 @@ Returns all comments for a specific item including user profile information. No 
       "user": {
         "id": "client_456def",
         "name": "John Doe",
-        "avatar": "https://example.com/avatars/john.jpg"
+        "image": "https://example.com/avatars/john.jpg"
       }
     }
   ]
@@ -142,7 +142,7 @@ Creates a new comment with a rating on an item. Requires authentication and a va
     "user": {
       "id": "client_456def",
       "name": "John Doe",
-      "avatar": "https://example.com/avatars/john.jpg"
+      "image": "https://example.com/avatars/john.jpg"
     }
   }
 }
