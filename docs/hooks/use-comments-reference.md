@@ -205,7 +205,7 @@ function CommentRating({ comment, itemId }) {
 }
 ```
 
-Only the comment's author can change its rating (the same rule applies to `PATCH /api/items/{slug}/comments/rating/{commentId}`).
+`updateComment` calls `PUT /api/items/{slug}/comments/{commentId}`, which only lets the comment's author edit it.
 
 ## Event System
 
