@@ -13,33 +13,59 @@ export function isOAuthAccountType(type: string): boolean {
 	return OAUTH_ACCOUNT_TYPE_SET.has(type);
 }
 
-export interface ConnectedAccountRow {
+/** The `accounts` columns the "last sign-in method" rule reads. */
+export interface SignInAccountRow {
+	type: string;
 	provider: string;
+	passwordHash: string | null;
+	tenantId: string | null;
+}
+
+export interface ConnectedAccountRow extends SignInAccountRow {
 	providerAccountId: string;
 	email: string | null;
-	type: string;
-	passwordHash: string | null;
 }
 
 /**
- * True when removing one linked provider would leave the user with no way to sign in:
- * no password and at most one linked provider.
+ * True when one of the rows is a password the user can sign in with in `tenantId`. Client
+ * sign-in (`verifyClientPassword`) reads the `credentials` provider row of the current
+ * tenant only, so a password row with a NULL or other tenant does not count. Older password
+ * rows were written as `type: 'email'`, so the provider counts as well as the type (as in
+ * `two-factor.ts`). Client passwords live in `accounts`, not `users.passwordHash`.
  */
-export function wouldLeaveNoSignInMethod(hasPassword: boolean, linkedProviderCount: number): boolean {
-	return !hasPassword && linkedProviderCount <= 1;
+export function hasPasswordSignIn(rows: readonly SignInAccountRow[], tenantId: string): boolean {
+	return rows.some(
+		(row) =>
+			(row.type === 'credentials' || row.provider === 'credentials') &&
+			!!row.passwordHash &&
+			row.tenantId === tenantId
+	);
+}
+
+/**
+ * True when the user can still sign in after every linked `provider` row is removed:
+ * they have a password, or a link to a different provider. The disconnect route deletes
+ * all rows of the provider, so two links of the same provider (two Google accounts)
+ * never count as each other's fallback. A link counts whatever its tenant: Auth.js signs
+ * in by provider account and writes these rows without a tenant.
+ */
+export function canDisconnectProvider(rows: readonly SignInAccountRow[], provider: string, tenantId: string): boolean {
+	return (
+		hasPasswordSignIn(rows, tenantId) ||
+		rows.some((row) => isOAuthAccountType(row.type) && row.provider !== provider)
+	);
 }
 
 /** Builds the GET response body from a user's `accounts` rows. */
-export function summarizeConnectedAccounts(rows: ConnectedAccountRow[]) {
-	const linked = rows.filter((row) => isOAuthAccountType(row.type));
-	// Client passwords are stored in accounts (type='credentials'), not users.passwordHash
-	// 'credentials' accounts exist in the DB but are outside the AdapterAccountType union
-	const hasPassword = rows.some((row) => row.type === 'credentials' && !!row.passwordHash);
-	const data = linked.map((row) => ({
-		provider: row.provider,
-		providerAccountId: row.providerAccountId,
-		email: row.email ?? null,
-		canDisconnect: !wouldLeaveNoSignInMethod(hasPassword, linked.length),
-	}));
+export function summarizeConnectedAccounts(rows: ConnectedAccountRow[], tenantId: string) {
+	const hasPassword = hasPasswordSignIn(rows, tenantId);
+	const data = rows
+		.filter((row) => isOAuthAccountType(row.type))
+		.map((row) => ({
+			provider: row.provider,
+			providerAccountId: row.providerAccountId,
+			email: row.email ?? null,
+			canDisconnect: canDisconnectProvider(rows, row.provider, tenantId),
+		}));
 	return { data, hasPassword };
 }

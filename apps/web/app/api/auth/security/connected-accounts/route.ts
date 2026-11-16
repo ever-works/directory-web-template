@@ -42,6 +42,7 @@ export async function GET() {
 				email: accounts.email,
 				type: accounts.type,
 				passwordHash: accounts.passwordHash,
+				tenantId: accounts.tenantId,
 			})
 			.from(accounts)
 			.where(
@@ -53,7 +54,7 @@ export async function GET() {
 				)
 			);
 
-		const { data, hasPassword } = summarizeConnectedAccounts(connectedAccounts);
+		const { data, hasPassword } = summarizeConnectedAccounts(connectedAccounts, tenantId);
 
 		return NextResponse.json({ success: true, data, hasPassword });
 	} catch (error) {
