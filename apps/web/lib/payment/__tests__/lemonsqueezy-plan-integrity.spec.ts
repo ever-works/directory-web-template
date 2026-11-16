@@ -393,3 +393,23 @@ test('a sponsor-ad confirmation that writes nothing is retried, as on the Stripe
 		false
 	);
 });
+
+test('a sponsor-ad renewal or cancellation that writes nothing is retried', async () => {
+	const bound = { id: 'ad_1', status: 'active', interval: 'weekly', subscriptionId: '42' };
+	const failing = createLemonSqueezySubscriptionEvents({
+		plans: {} as never,
+		sponsorAds: {
+			getSponsorAdById: async (id: string) => (id === 'ad_1' ? bound : null),
+			confirmPayment: async () => null,
+			cancelSponsorAd: async () => null,
+			renewSponsorAd: async () => null
+		} as never,
+		loadVariantCatalog: async () => catalog,
+		logger: { log() {}, warn() {}, error() {} }
+	});
+	assert.equal(await failing.paymentSucceeded(invoice('42', 'renewal', { type: 'sponsor_ad', sponsorAdId: 'ad_1' })), false);
+	assert.equal(
+		await failing.cancelled(subscription(SPONSOR_WEEKLY_VARIANT, { type: 'sponsor_ad', sponsorAdId: 'ad_1' })),
+		false
+	);
+});

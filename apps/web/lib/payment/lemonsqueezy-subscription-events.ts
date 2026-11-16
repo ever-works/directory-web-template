@@ -234,8 +234,12 @@ export function createLemonSqueezySubscriptionEvents(
 				}
 				log.log(`🔄 Cancelling sponsor ad via LemonSqueezy: ${ad.id}`);
 				const cancelledAd = await sponsorAds.cancelSponsorAd(ad.id, 'LemonSqueezy subscription cancelled');
-				if (cancelledAd) log.log(`✅ Sponsor ad cancelled successfully: ${ad.id}`);
-				else log.error(`❌ Failed to cancel sponsor ad: ${ad.id}`);
+				if (!cancelledAd) {
+					// Nothing was written: answer 503 so LemonSqueezy redelivers it.
+					log.error(`❌ Failed to cancel sponsor ad: ${ad.id}`);
+					return false;
+				}
+				log.log(`✅ Sponsor ad cancelled successfully: ${ad.id}`);
 				return true;
 			}
 
@@ -269,8 +273,12 @@ export function createLemonSqueezySubscriptionEvents(
 				}
 				log.log(`🔄 Renewing sponsor ad via LemonSqueezy: ${ad.id}`);
 				const renewedAd = await sponsorAds.renewSponsorAd(ad.id);
-				if (renewedAd) log.log(`✅ Sponsor ad renewed successfully: ${ad.id}`);
-				else log.error(`❌ Failed to renew sponsor ad: ${ad.id}`);
+				if (!renewedAd) {
+					// Nothing was written: answer 503 so a paid renewal is not lost.
+					log.error(`❌ Failed to renew sponsor ad: ${ad.id}`);
+					return false;
+				}
+				log.log(`✅ Sponsor ad renewed successfully: ${ad.id}`);
 				return true;
 			}
 

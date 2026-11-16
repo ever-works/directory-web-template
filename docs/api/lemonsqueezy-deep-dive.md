@@ -199,6 +199,10 @@ if (calculatedSignature !== signature) {
 |-------------------|---------------|
 | `subscription_created` | `SUBSCRIPTION_CREATED` |
 | `subscription_updated` | `SUBSCRIPTION_UPDATED` |
+| `subscription_resumed` | `SUBSCRIPTION_UPDATED` |
+| `subscription_expired` | `SUBSCRIPTION_UPDATED` |
+| `subscription_paused` | `SUBSCRIPTION_UPDATED` |
+| `subscription_unpaused` | `SUBSCRIPTION_UPDATED` |
 | `subscription_cancelled` | `SUBSCRIPTION_CANCELLED` |
 | `subscription_payment_success` | `SUBSCRIPTION_PAYMENT_SUCCEEDED` |
 | `subscription_payment_failed` | `SUBSCRIPTION_PAYMENT_FAILED` |

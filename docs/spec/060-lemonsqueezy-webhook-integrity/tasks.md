@@ -17,10 +17,10 @@ sidebar_label: 060 Tasks
 - [x] **T-004** `apps/web/lib/payment/lemonsqueezy-subscription-events.ts`: create needs a plan variant; updates and
   invoices touch existing rows only (`createIfMissing: false`); sponsor ads by variant and binding (R3, R6–R8,
   R11, R13).
-- [x] **T-005** `apps/web/lib/payment/lemonsqueezy-checkout-params.ts` + `app/api/lemonsqueezy/checkout/route.ts`:
+- [x] **T-005** `apps/web/lib/payment/lemonsqueezy-checkout-params.ts` + `apps/web/app/api/lemonsqueezy/checkout/route.ts`:
   server-built custom data; only `variantId` and `dark` from the body (R10).
-- [x] **T-006** `app/api/lemonsqueezy/{update-plan,update}/route.ts`: catalog plan variants only, 400 otherwise (R12).
-- [x] **T-007** `apps/web/lib/payment/lemonsqueezy-list-access.ts` + `app/api/lemonsqueezy/list/route.ts`: session
+- [x] **T-006** `apps/web/app/api/lemonsqueezy/{update-plan,update}/route.ts`: catalog plan variants only, 400 otherwise (R12).
+- [x] **T-007** `apps/web/lib/payment/lemonsqueezy-list-access.ts` + `apps/web/app/api/lemonsqueezy/list/route.ts`: session
   email; another email only for a live admin (R5).
 - [x] **T-008** Unit specs in `test:unit`: `lemonsqueezy-webhook.spec.ts`, `lemonsqueezy-plan-integrity.spec.ts`,
   `lemonsqueezy-checkout-wiring.spec.ts`, `sponsor-ad-subscription.spec.ts`.
