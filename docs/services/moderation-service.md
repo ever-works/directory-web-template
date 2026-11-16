@@ -81,11 +81,12 @@ Before deletion, the service resolves the content owner via `getContentOwner()` 
 import { getContentOwner } from '@/lib/services/moderation.service';
 
 const owner = await getContentOwner('item', 'item-id-123');
-// { success: true, userId: 'user-456' }
+// { success: true, userId: 'profile-789' } (a client_profiles.id)
 // or { success: false, error: 'Item not found' }
+// or { success: false, error: 'Item submitter has no client profile' }
 ```
 
-For comments, the owner is the `userId` field on the comment record. For items, the owner is the `submitted_by` field from the item data.
+The `userId` returned is always a `client_profiles.id`, which is what `warnUser`, `suspendUser`, `banUser` and `moderation_history.user_id` use. For comments, the owner is the `userId` field on the comment record. For items, `submitted_by` holds a `users.id`, so `resolveItemOwnerProfileId()` (in `lib/services/moderation-content-owner.ts`) maps it to the submitter's client profile with `getClientProfileByUserId()`; a submitter with no profile (`'anonymous'`, `'import'`, `'admin'`) is a failure.
 
 ## User Warning
 
