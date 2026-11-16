@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { auth } from '@/lib/auth';
 import { setupUserPaymentAccount } from '@/lib/db/queries';
 
 /**
@@ -110,6 +111,11 @@ import { setupUserPaymentAccount } from '@/lib/db/queries';
  */
 export async function POST(request: NextRequest) {
   try {
+    const session = await auth();
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     // Parse body explicitly so malformed JSON / wrong content-type
     // returns a clean 400 rather than the generic 500 catch.
     let body: { provider?: unknown; userId?: unknown; customerId?: unknown } = {};
@@ -138,6 +144,11 @@ export async function POST(request: NextRequest) {
         { error: 'Customer ID is required' },
         { status: 400 }
       );
+    }
+
+    // Prevent writing another user's payment account
+    if (session.user.id !== userId) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
     const paymentAccount = await setupUserPaymentAccount(provider, userId, customerId);
@@ -281,6 +292,11 @@ export async function POST(request: NextRequest) {
  */
 export async function PUT(request: NextRequest) {
   try {
+    const session = await auth();
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     let body: { id?: unknown; provider?: unknown; userId?: unknown; customerId?: unknown } = {};
     try {
       body = await request.json();
@@ -314,6 +330,11 @@ export async function PUT(request: NextRequest) {
         { error: 'Customer ID is required' },
         { status: 400 }
       );
+    }
+
+    // Prevent updating another user's payment account
+    if (session.user.id !== userId) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
     const paymentAccount = await setupUserPaymentAccount(provider, userId, customerId);
