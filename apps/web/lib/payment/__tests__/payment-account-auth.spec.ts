@@ -65,7 +65,44 @@ describe('/api/payment/account write handlers require the owner', () => {
 			assert.equal(body.split('setupUserPaymentAccount(').length - 1, 1, `${method} has an unguarded write`);
 			assert.equal(body.split('session.user.id !== userId').length - 1, 1);
 		});
+
+		it(`${method} refuses provider names the app does not ship, before writing`, () => {
+			// setupUserPaymentAccount inserts a payment_provider row for any unknown name.
+			const body = handler(method);
+			const allowlist = body.indexOf(
+				"if (!SUPPORTED_PROVIDERS.has(provider)) { return NextResponse.json({ error: 'Unsupported provider' }, { status: 400 }); }"
+			);
+			assert.ok(allowlist >= 0, `${method} does not check the provider against SUPPORTED_PROVIDERS`);
+			assert.ok(allowlist < body.indexOf('await setupUserPaymentAccount('), `${method} writes before the provider check`);
+		});
 	}
+
+	it('builds the provider allowlist from the PaymentProvider enum', () => {
+		assert.ok(route.includes("import { PaymentProvider } from '@/lib/constants/payment';"));
+		assert.ok(route.includes('const SUPPORTED_PROVIDERS: ReadonlySet<string> = new Set(Object.values(PaymentProvider));'));
+	});
+});
+
+describe('server code does not pull the providers into the browser bundle', () => {
+	// lib/payment/index.ts re-exports the 'use client' usePayment hook. When a server module imports
+	// that barrel, Next bundles the hook's graph (PaymentService -> factory -> providers ->
+	// @/lib/db/queries -> postgres) for the browser and `next build` fails on fs/net/tls.
+	const manager = source('../config/payment-provider-manager.ts');
+
+	it('payment-provider-manager imports each provider from its own file', () => {
+		assert.ok(!/from '\.\.';/.test(manager), 'payment-provider-manager imports the lib/payment barrel');
+		for (const [name, cls] of [
+			['stripe', 'StripeProvider'],
+			['lemonsqueezy', 'LemonSqueezyProvider'],
+			['polar', 'PolarProvider'],
+			['solidgate', 'SolidgateProvider']
+		]) {
+			assert.ok(
+				manager.includes(`import { ${cls} } from '../lib/providers/${name}-provider';`),
+				`payment-provider-manager does not import ${cls} from its own file`
+			);
+		}
+	});
 });
 
 /**

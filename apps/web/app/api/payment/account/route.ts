@@ -1,6 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
+import { PaymentProvider } from '@/lib/constants/payment';
 import { setupUserPaymentAccount } from '@/lib/db/queries';
+
+// setupUserPaymentAccount creates a payment_provider row for any name it has not seen,
+// so only the providers this app ships may reach it.
+const SUPPORTED_PROVIDERS: ReadonlySet<string> = new Set(Object.values(PaymentProvider));
 
 /**
  * @swagger
@@ -130,6 +135,10 @@ export async function POST(request: NextRequest) {
         { error: 'Provider is required' },
         { status: 400 }
       );
+    }
+
+    if (!SUPPORTED_PROVIDERS.has(provider)) {
+      return NextResponse.json({ error: 'Unsupported provider' }, { status: 400 });
     }
 
     if (!userId || typeof userId !== 'string') {
@@ -316,6 +325,10 @@ export async function PUT(request: NextRequest) {
         { error: 'Provider is required' },
         { status: 400 }
       );
+    }
+
+    if (!SUPPORTED_PROVIDERS.has(provider)) {
+      return NextResponse.json({ error: 'Unsupported provider' }, { status: 400 });
     }
 
     if (!userId || typeof userId !== 'string') {
