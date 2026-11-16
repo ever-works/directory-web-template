@@ -27,6 +27,39 @@ confirm, override, or refine.
 
 ---
 
+## Spec 060 — LemonSqueezy webhook integrity
+
+### Q-060a Cross-pod webhook de-duplication
+
+- **Context.** Redelivered LemonSqueezy events are de-duplicated per pod only
+  (an in-memory set); subscription rows are idempotent on (provider, subscription id),
+  but the order-created email can repeat if a redelivery reaches another pod.
+- **Options.**
+  - Keep the per-pod set.
+  - Add a table of processed event keys (needs a migration).
+- **Default.** **Keep the per-pod set** until a migration is acceptable.
+- **Owner.** Template maintainers.
+- **Status.** `open`.
+
+### Q-060b A plan subscription moved to a variant that is not a plan variant
+
+- **Context.** The plan comes from the paid variant (spec 060 R9). If an existing plan subscription is
+  switched to a variant that is not configured for any plan (a sponsor-ad variant, or one missing from the
+  configuration after an env change), its update event cannot say which plan it now grants.
+  `POST /api/lemonsqueezy/update-plan` accepts any variant id and does not check that the subscription
+  belongs to the caller.
+- **Options.**
+  - Keep the stored plan and update only the status and dates.
+  - Downgrade the row to `free` (a configuration mistake would then downgrade paying customers).
+  - Restrict `update-plan` to configured plan variants and to the caller's own subscription.
+- **Default.** **Keep the stored plan and update only status and dates**, and restrict `update-plan` and
+  `update` to configured plan variants (spec 060 R12; the owner check is #1114). Only a dashboard change
+  can still move a plan subscription to another variant.
+- **Owner.** Template maintainers.
+- **Status.** `open`.
+
+---
+
 ## Spec 002 — Plugin Architecture
 
 ### Q-002a SDK package name

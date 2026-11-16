@@ -10,6 +10,8 @@ import {
 import { safeErrorResponse } from "@/lib/utils/api-error";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
+import { loadLemonSqueezyVariantCatalog } from "@/lib/payment/lemonsqueezy-variant-catalog";
+import { isLemonSqueezyPlanVariant } from "@/lib/payment/lemonsqueezy-variant-plan";
 
 const updatePlanSchema = z.object({
   subscriptionId: z.string().min(1),
@@ -259,6 +261,19 @@ export async function POST(request: NextRequest) {
     }
 
     const { subscriptionId, variantId, proration, invoiceImmediately, disableProrations, billingAnchor } = validationResult.data;
+
+    // Only a configured plan variant (spec 060 R12): the webhook keeps the stored plan for any
+    // other variant, so a move to a sponsor-ad or unlisted variant would keep the paid plan.
+    if (!isLemonSqueezyPlanVariant(await loadLemonSqueezyVariantCatalog(), variantId)) {
+      return NextResponse.json(
+        {
+          error: 'Invalid request data',
+          message: 'Variant ID is not a plan this subscription can move to',
+          code: 'VALIDATION_ERROR'
+        },
+        { status: 400 }
+      );
+    }
 
     if (!(await isEmailVerifiedForOwnership(session.user.id, session.user.email, loadEmailVerificationState))) {
       return NextResponse.json({ error: EMAIL_NOT_VERIFIED_MESSAGE, code: 'EMAIL_NOT_VERIFIED' }, { status: 403 });
