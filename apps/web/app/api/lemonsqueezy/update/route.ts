@@ -1,6 +1,12 @@
 import { auth } from '@/lib/auth';
 import { PaymentProviderManager } from '@/lib/auth';
-import { findOwnedLemonSqueezySubscription, SUBSCRIPTION_NOT_FOUND_MESSAGE } from '@/lib/payment/subscription-ownership';
+import { loadEmailVerificationState } from '@/lib/payment/subscription-email-verification';
+import {
+	EMAIL_NOT_VERIFIED_MESSAGE,
+	findOwnedLemonSqueezySubscription,
+	isEmailVerifiedForOwnership,
+	SUBSCRIPTION_NOT_FOUND_MESSAGE
+} from '@/lib/payment/subscription-ownership';
 import { safeErrorMessage } from '@/lib/utils/api-error';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
@@ -285,6 +291,19 @@ export async function POST(request: NextRequest) {
 		}
 
 		const { subscriptionId, status, cancelAtPeriodEnd, priceId, metadata } = validationResult.data;
+
+		if (!(await isEmailVerifiedForOwnership(session.user.id, loadEmailVerificationState))) {
+			return NextResponse.json(
+				{
+					success: false,
+					error: EMAIL_NOT_VERIFIED_MESSAGE,
+					code: 'EMAIL_NOT_VERIFIED',
+					requestId,
+					timestamp: new Date().toISOString()
+				},
+				{ status: 403 }
+			);
+		}
 
 		const lemonsqueezy = PaymentProviderManager.getLemonsqueezyProvider();
 		const ownedSubscription = await findOwnedLemonSqueezySubscription(session.user.email, subscriptionId, (id) =>

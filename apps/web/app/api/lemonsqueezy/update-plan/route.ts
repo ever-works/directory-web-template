@@ -1,7 +1,10 @@
 import { auth } from "@/lib/auth";
 import { getOrCreateLemonsqueezyProvider } from "@/lib/payment/config/payment-provider-manager";
+import { loadEmailVerificationState } from "@/lib/payment/subscription-email-verification";
 import {
+  EMAIL_NOT_VERIFIED_MESSAGE,
   findOwnedLemonSqueezySubscription,
+  isEmailVerifiedForOwnership,
   SUBSCRIPTION_NOT_FOUND_MESSAGE,
 } from "@/lib/payment/subscription-ownership";
 import { safeErrorResponse } from "@/lib/utils/api-error";
@@ -244,6 +247,10 @@ export async function POST(request: NextRequest) {
     }
 
     const { subscriptionId, variantId, proration, invoiceImmediately, disableProrations, billingAnchor } = validationResult.data;
+
+    if (!(await isEmailVerifiedForOwnership(session.user.id, loadEmailVerificationState))) {
+      return NextResponse.json({ error: EMAIL_NOT_VERIFIED_MESSAGE, code: 'EMAIL_NOT_VERIFIED' }, { status: 403 });
+    }
 
     // Initialize LemonSqueezy provider
     const lemonsqueezy = getOrCreateLemonsqueezyProvider();

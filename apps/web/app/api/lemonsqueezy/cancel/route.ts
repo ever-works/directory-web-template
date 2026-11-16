@@ -1,7 +1,10 @@
 import { auth } from "@/lib/auth";
 import { getOrCreateLemonsqueezyProvider } from "@/lib/payment/config/payment-provider-manager";
+import { loadEmailVerificationState } from "@/lib/payment/subscription-email-verification";
 import {
+  EMAIL_NOT_VERIFIED_MESSAGE,
   findOwnedLemonSqueezySubscription,
+  isEmailVerifiedForOwnership,
   SUBSCRIPTION_NOT_FOUND_MESSAGE,
 } from "@/lib/payment/subscription-ownership";
 import { safeErrorMessage } from "@/lib/utils/api-error";
@@ -135,6 +138,18 @@ const cancelSubscriptionSchema = z.object({
  *                 code:
  *                   type: string
  *                   example: "AUTH_REQUIRED"
+ *       403:
+ *         description: "The signed-in user's email address is not verified"
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                 code:
+ *                   type: string
+ *                   example: "EMAIL_NOT_VERIFIED"
  *       404:
  *         description: "Subscription not found, or it does not belong to the signed-in user"
  *         content:
@@ -196,6 +211,10 @@ export async function POST(request: NextRequest) {
     }
 
     const { subscriptionId, cancelAtPeriodEnd } = validationResult.data;
+
+    if (!(await isEmailVerifiedForOwnership(session.user.id, loadEmailVerificationState))) {
+      return NextResponse.json({ error: EMAIL_NOT_VERIFIED_MESSAGE, code: 'EMAIL_NOT_VERIFIED' }, { status: 403 });
+    }
 
     const lemonsqueezy = getOrCreateLemonsqueezyProvider();
 

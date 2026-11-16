@@ -19,6 +19,9 @@
  *   user's email. That is the same identity `GET /api/lemonsqueezy/list` uses to
  *   show a user their subscriptions. The local table cannot be used: the
  *   LemonSqueezy webhook does not write owner rows, and users can insert rows.
+ *   The email is only trusted when {@link isEmailVerifiedForOwnership} is true,
+ *   so each LemonSqueezy route answers 403 before the owner lookup otherwise.
+ *   The database lookup lives in `subscription-email-verification.ts`.
  */
 
 /** Body of the 404 every route returns when a helper gives `null`. */
@@ -46,6 +49,40 @@ export async function findOwnedProviderSubscription<T extends { userId: string |
 	if (!isNonBlank(userId) || !isNonBlank(paymentProvider) || !isNonBlank(subscriptionId)) return null;
 	const row = await lookup(paymentProvider, subscriptionId);
 	return row && row.userId === userId ? row : null;
+}
+
+/** Body of the 403 a LemonSqueezy route returns when the signed-in email is not verified. */
+export const EMAIL_NOT_VERIFIED_MESSAGE =
+	'Verify your email address before managing a subscription. Check your inbox for the verification link.';
+
+/** What {@link isEmailVerifiedForOwnership} needs to know about a user. */
+export interface EmailVerificationState {
+	/** `users.emailVerified`: set once the user confirmed the address. */
+	emailVerified: Date | string | null | undefined;
+	/** The user has a linked OAuth / OIDC row in `accounts` (the provider verified the address). */
+	hasOAuthAccount: boolean;
+}
+
+/** Loads {@link EmailVerificationState}; `null` when the user does not exist. */
+export type EmailVerificationLookup = (userId: string) => Promise<EmailVerificationState | null | undefined>;
+
+/**
+ * True when the email on the user's account is proven to belong to them, so it may
+ * be used as the identity for a LemonSqueezy subscription (which is matched by
+ * customer email). Credentials sign-up does not verify the address, so without this
+ * check someone could register another person's email first and take over that
+ * person's subscriptions. OAuth sign-ins verify the address at the provider, and
+ * Auth.js leaves `users.emailVerified` null for them, so a linked OAuth / OIDC
+ * account counts too. A missing user id or user never counts.
+ */
+export async function isEmailVerifiedForOwnership(
+	userId: string | null | undefined,
+	lookup: EmailVerificationLookup
+): Promise<boolean> {
+	if (!isNonBlank(userId)) return false;
+	const state = await lookup(userId);
+	if (!state) return false;
+	return Boolean(state.emailVerified) || state.hasOAuthAccount === true;
 }
 
 /** What the owner check needs from a LemonSqueezy subscription. */

@@ -4,8 +4,47 @@ import { describe, it } from 'node:test';
 import {
 	findOwnedLemonSqueezySubscription,
 	findOwnedProviderSubscription,
-	SUBSCRIPTION_NOT_FOUND_MESSAGE
+	isEmailVerifiedForOwnership,
+	SUBSCRIPTION_NOT_FOUND_MESSAGE,
+	type EmailVerificationState
 } from '../subscription-ownership';
+
+describe('isEmailVerifiedForOwnership', () => {
+	const users: Record<string, EmailVerificationState> = {
+		credentialsUnverified: { emailVerified: null, hasOAuthAccount: false },
+		credentialsVerified: { emailVerified: new Date('2026-01-01T00:00:00Z'), hasOAuthAccount: false },
+		oauth: { emailVerified: null, hasOAuthAccount: true }
+	};
+	const lookupCalls: string[] = [];
+	const lookup = async (userId: string) => {
+		lookupCalls.push(userId);
+		return users[userId] ?? null;
+	};
+
+	it('refuses a credentials user whose email is not verified', async () => {
+		assert.equal(await isEmailVerifiedForOwnership('credentialsUnverified', lookup), false);
+	});
+
+	it('accepts a user with a verified email', async () => {
+		assert.equal(await isEmailVerifiedForOwnership('credentialsVerified', lookup), true);
+	});
+
+	it('accepts a user with a linked OAuth account even though emailVerified is null', async () => {
+		assert.equal(await isEmailVerifiedForOwnership('oauth', lookup), true);
+	});
+
+	it('refuses an unknown user', async () => {
+		assert.equal(await isEmailVerifiedForOwnership('ghost', lookup), false);
+	});
+
+	it('refuses a missing or blank user id without calling the lookup', async () => {
+		lookupCalls.length = 0;
+		for (const id of [undefined, null, '', '   ']) {
+			assert.equal(await isEmailVerifiedForOwnership(id, lookup), false);
+		}
+		assert.deepEqual(lookupCalls, []);
+	});
+});
 
 /**
  * Run with: `pnpm --filter @ever-works/web test:unit`
