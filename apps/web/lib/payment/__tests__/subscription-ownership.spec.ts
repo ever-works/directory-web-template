@@ -4,8 +4,137 @@ import { describe, it } from 'node:test';
 import {
 	findOwnedLemonSqueezySubscription,
 	findOwnedProviderSubscription,
-	SUBSCRIPTION_NOT_FOUND_MESSAGE
+	isEmailVerifiedForOwnership,
+	SUBSCRIPTION_NOT_FOUND_MESSAGE,
+	type EmailVerificationState
 } from '../subscription-ownership';
+
+describe('isEmailVerifiedForOwnership', () => {
+	const verifiedAt = new Date('2026-01-01T00:00:00Z');
+	const users: Record<string, EmailVerificationState> = {
+		credentialsUnverified: {
+			email: 'a@example.com',
+			emailVerified: null,
+			oauthAccounts: [],
+			hasPasswordSignIn: true
+		},
+		credentialsVerified: {
+			email: 'b@example.com',
+			emailVerified: verifiedAt,
+			oauthAccounts: [],
+			hasPasswordSignIn: true
+		},
+		oauth: {
+			email: 'c@example.com',
+			emailVerified: null,
+			oauthAccounts: [{ email: null }],
+			hasPasswordSignIn: false
+		},
+		oauthBoundHere: {
+			email: 'd@example.com',
+			emailVerified: null,
+			oauthAccounts: [{ email: 'D@Example.com' }],
+			hasPasswordSignIn: false
+		},
+		// Verified or OAuth-linked under an earlier address, then switched to another one.
+		oauthBoundElsewhere: {
+			email: 'victim@example.com',
+			emailVerified: null,
+			oauthAccounts: [{ email: 'old@example.com' }],
+			hasPasswordSignIn: false
+		},
+		// Not verified, no OAuth row: credentials-only, address never proven.
+		noOAuth: { email: 'e@example.com', emailVerified: null, oauthAccounts: [], hasPasswordSignIn: true },
+		// Signed up with a password under someone else's address, then (while signed in)
+		// linked their OWN Google account: Auth.js links it whatever its address.
+		passwordThenLinkedOAuth: {
+			email: 'victim@example.com',
+			emailVerified: null,
+			oauthAccounts: [{ email: null }],
+			hasPasswordSignIn: true
+		},
+		passwordThenLinkedOAuthVerified: {
+			email: 'f@example.com',
+			emailVerified: verifiedAt,
+			oauthAccounts: [{ email: null }],
+			hasPasswordSignIn: true
+		}
+	};
+	const lookupCalls: string[] = [];
+	const lookup = async (userId: string) => {
+		lookupCalls.push(userId);
+		return users[userId] ?? null;
+	};
+	const check = (userId: string | null | undefined, email: string | null | undefined) =>
+		isEmailVerifiedForOwnership(userId, email, lookup);
+
+	it('refuses a credentials user whose email is not verified', async () => {
+		assert.equal(await check('credentialsUnverified', 'a@example.com'), false);
+		assert.equal(await check('noOAuth', 'e@example.com'), false);
+	});
+
+	it('accepts a user with a verified email', async () => {
+		assert.equal(await check('credentialsVerified', 'b@example.com'), true);
+	});
+
+	it('accepts a user with a linked OAuth account even though emailVerified is null', async () => {
+		assert.equal(await check('oauth', 'c@example.com'), true);
+		assert.equal(await check('oauthBoundHere', 'd@example.com'), true);
+	});
+
+	it('compares addresses ignoring case and surrounding spaces', async () => {
+		assert.equal(await check('credentialsVerified', '  B@EXAMPLE.com '), true);
+	});
+
+	it('refuses when the address being matched is not the address stored on the user', async () => {
+		// The session still carries the address from sign-in; the stored one has changed.
+		assert.equal(await check('credentialsVerified', 'victim@example.com'), false);
+		assert.equal(await check('oauth', 'victim@example.com'), false);
+	});
+
+	it('refuses the email-change flow: register with the victim address, switch to your own, verify it', async () => {
+		// The attacker signed up with the victim's address (the session keeps it), called
+		// updateAccount to store their own address, then verified that address.
+		users.attackerSwitched = { email: 'attacker@example.com', emailVerified: verifiedAt, oauthAccounts: [], hasPasswordSignIn: true };
+		// The address LemonSqueezy would match against is the victim's, from the session.
+		assert.equal(await check('attackerSwitched', 'victim@example.com'), false);
+		// Matching the attacker's own address is fine: it is verified and it is theirs.
+		assert.equal(await check('attackerSwitched', 'attacker@example.com'), true);
+	});
+
+	it('refuses an OAuth row that was bound to a different address', async () => {
+		assert.equal(await check('oauthBoundElsewhere', 'victim@example.com'), false);
+	});
+
+	it('refuses a password user whose only proof is an OAuth account they linked later', async () => {
+		assert.equal(await check('passwordThenLinkedOAuth', 'victim@example.com'), false);
+	});
+
+	it('accepts a password user with a linked OAuth account once the address is verified', async () => {
+		assert.equal(await check('passwordThenLinkedOAuthVerified', 'f@example.com'), true);
+	});
+
+	it('fails closed when the lookup does not say whether the user has a password', async () => {
+		const state = { email: 'g@example.com', emailVerified: null, oauthAccounts: [{ email: null }] };
+		const partial = async () => state as unknown as EmailVerificationState;
+		assert.equal(await isEmailVerifiedForOwnership('partial', 'g@example.com', partial), false);
+	});
+
+	it('refuses an unknown user', async () => {
+		assert.equal(await check('ghost', 'x@example.com'), false);
+	});
+
+	it('refuses a missing or blank user id or email without calling the lookup', async () => {
+		lookupCalls.length = 0;
+		for (const id of [undefined, null, '', '   ']) {
+			assert.equal(await check(id, 'b@example.com'), false);
+		}
+		for (const email of [undefined, null, '', '   ']) {
+			assert.equal(await check('credentialsVerified', email), false);
+		}
+		assert.deepEqual(lookupCalls, []);
+	});
+});
 
 /**
  * Run with: `pnpm --filter @ever-works/web test:unit`

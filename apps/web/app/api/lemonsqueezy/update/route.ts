@@ -1,6 +1,12 @@
 import { auth } from '@/lib/auth';
 import { PaymentProviderManager } from '@/lib/auth';
-import { findOwnedLemonSqueezySubscription, SUBSCRIPTION_NOT_FOUND_MESSAGE } from '@/lib/payment/subscription-ownership';
+import { loadEmailVerificationState } from '@/lib/payment/subscription-email-verification';
+import {
+	EMAIL_NOT_VERIFIED_MESSAGE,
+	findOwnedLemonSqueezySubscription,
+	isEmailVerifiedForOwnership,
+	SUBSCRIPTION_NOT_FOUND_MESSAGE
+} from '@/lib/payment/subscription-ownership';
 import { safeErrorMessage } from '@/lib/utils/api-error';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
@@ -178,6 +184,18 @@ export type UpdateSubscriptionRequest = z.infer<typeof updateSubscriptionSchema>
  *                   type: string
  *                   format: date-time
  *                   example: "2024-01-20T10:30:00.000Z"
+ *       403:
+ *         description: "The signed-in user's email address is not verified"
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                 code:
+ *                   type: string
+ *                   example: "EMAIL_NOT_VERIFIED"
  *       404:
  *         description: "Subscription not found"
  *         content:
@@ -303,6 +321,19 @@ export async function POST(request: NextRequest) {
 		}
 
 		const { subscriptionId, status, cancelAtPeriodEnd, priceId, metadata } = validationResult.data;
+
+		if (!(await isEmailVerifiedForOwnership(session.user.id, session.user.email, loadEmailVerificationState))) {
+			return NextResponse.json(
+				{
+					success: false,
+					error: EMAIL_NOT_VERIFIED_MESSAGE,
+					code: 'EMAIL_NOT_VERIFIED',
+					requestId,
+					timestamp: new Date().toISOString()
+				},
+				{ status: 403 }
+			);
+		}
 
 		const lemonsqueezy = PaymentProviderManager.getLemonsqueezyProvider();
 		const ownedSubscription = await findOwnedLemonSqueezySubscription(session.user.email, subscriptionId, (id) =>

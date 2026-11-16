@@ -1,4 +1,4 @@
-import { eq, sql, and } from 'drizzle-orm';
+import { eq, sql, and, inArray, isNull } from 'drizzle-orm';
 import { db } from '../drizzle';
 import { users, clientProfiles, accounts, roles, userRoles, type NewUser, type User } from '../schema';
 import { getTenantId } from '@/lib/auth/tenant';
@@ -108,10 +108,26 @@ export async function updateUserPassword(newPasswordHash: string, userId: string
 export async function updateUser(values: Pick<NewUser, 'email'>, userId: string) {
 	const tenantId = await getTenantId();
 	if (!tenantId) throw new Error('Tenant ID not found');
-	return db
-		.update(users)
-		.set(values)
-		.where(and(eq(users.id, userId), eq(users.tenantId, tenantId)));
+	const where = and(eq(users.id, userId), eq(users.tenantId, tenantId));
+	return db.transaction(async (tx) => {
+		const [current] = await tx.select({ email: users.email }).from(users).where(where).limit(1);
+		const normalise = (email: string | null | undefined) => (email ?? '').trim().toLowerCase();
+		const previousEmail = current?.email ?? null;
+		const emailChanged = current !== undefined && values.email !== undefined && normalise(previousEmail) !== normalise(values.email);
+		if (!emailChanged) return tx.update(users).set(values).where(where);
+
+		// A verification belongs to the address that was verified. Clear it, and bind the
+		// user's OAuth rows to the address they verified, so neither proves the new one
+		// (see `isEmailVerifiedForOwnership`).
+		await tx
+			.update(accounts)
+			.set({ email: previousEmail })
+			.where(and(eq(accounts.userId, userId), inArray(accounts.type, ['oauth', 'oidc']), isNull(accounts.email)));
+		return tx
+			.update(users)
+			.set({ ...values, emailVerified: null })
+			.where(where);
+	});
 }
 
 /**

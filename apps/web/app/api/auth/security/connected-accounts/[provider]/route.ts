@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { db } from '@/lib/db/drizzle';
 import { accounts } from '@/lib/db/schema';
-import { eq, and, count } from 'drizzle-orm';
+import { eq, and, count, inArray } from 'drizzle-orm';
 import { getTenantId } from '@/lib/auth/tenant';
 
 /**
@@ -94,6 +94,10 @@ export async function DELETE(
 				and(
 					eq(accounts.userId, userId),
 					eq(accounts.provider, provider),
+					// Only OAuth links can be disconnected here. Removing the password row
+					// would turn a password user into an OAuth-only one, and an OAuth-only
+					// user's address counts as verified (`isEmailVerifiedForOwnership`).
+					inArray(accounts.type, ['oauth', 'oidc']),
 					eq(accounts.tenantId, tenantId)
 				)
 			)
