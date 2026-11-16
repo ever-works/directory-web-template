@@ -150,7 +150,7 @@ interface UpdateCommentData {
 | `createComment` | `(data) => Promise` | Създайте нов коментар |
 | `updateComment` | `(data) => Promise` | Редактиране на съществуващ коментар |
 | `deleteComment` | `(id) => Promise` | Премахване на коментар |
-| `commentRating` | `number` | Обща оценка за артикула |
+| `commentRating` | `{ averageRating: number; totalRatings: number }` | Обща оценка за артикула |
 
 ### Кръстокомпонентна система за събития
 

@@ -2,11 +2,10 @@
 import { apiUtils, serverClient } from "@/lib/api/server-api-client";
 import { useQuery } from "@tanstack/react-query";
 import { useFeatureFlagsWithSimulation } from "@/hooks/use-feature-flags-with-simulation";
+import type { CommentRatingSummary } from "@/lib/types/comment-rating";
 
-interface RatingData {
-  averageRating: number;
-  totalRatings: number;
-}
+/** Same body as `useComments().commentRating`: the rating route's summary. */
+type RatingData = CommentRatingSummary;
 
 export function useItemRating(itemId: string, enabled: boolean = true) {
   const { features } = useFeatureFlagsWithSimulation();

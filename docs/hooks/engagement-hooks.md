@@ -140,7 +140,7 @@ function useComments(itemId: string): {
   isUpdating: boolean;
   deleteComment: (commentId: string) => Promise<void>;
   isDeleting: boolean;
-  commentRating: number;
+  commentRating: { averageRating: number; totalRatings: number };
   isLoadingRating: boolean;
 }
 ```
