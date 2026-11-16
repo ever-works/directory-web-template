@@ -1,9 +1,8 @@
 import { eq } from 'drizzle-orm';
 import { db } from '@/lib/db/drizzle';
 import { accounts, users } from '@/lib/db/schema';
+import { isOAuthAccountType } from '@/lib/auth/connected-accounts';
 import type { EmailVerificationState } from './subscription-ownership';
-
-const OAUTH_ACCOUNT_TYPES: ReadonlySet<string> = new Set(['oauth', 'oidc']);
 
 /**
  * Database lookup for `isEmailVerifiedForOwnership` (see `subscription-ownership.ts`).
@@ -27,7 +26,7 @@ export async function loadEmailVerificationState(userId: string): Promise<EmailV
 		.select({ type: accounts.type, email: accounts.email })
 		.from(accounts)
 		.where(eq(accounts.userId, userId));
-	const oauthAccounts = rows.filter((row) => OAUTH_ACCOUNT_TYPES.has(row.type)).map((row) => ({ email: row.email }));
-	const hasPasswordSignIn = hasUserPassword || rows.some((row) => !OAUTH_ACCOUNT_TYPES.has(row.type));
+	const oauthAccounts = rows.filter((row) => isOAuthAccountType(row.type)).map((row) => ({ email: row.email }));
+	const hasPasswordSignIn = hasUserPassword || rows.some((row) => !isOAuthAccountType(row.type));
 	return { email, emailVerified, oauthAccounts, hasPasswordSignIn };
 }

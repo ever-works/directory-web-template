@@ -217,7 +217,7 @@ describe('subscription ownership wiring', () => {
 		assert.ok(start >= 0, 'the disconnect route no longer deletes from accounts');
 		const statement = source.slice(start, source.indexOf('.returning(', start));
 		assert.ok(
-			statement.includes("inArray(accounts.type, ['oauth', 'oidc'])"),
+			statement.includes('inArray(accounts.type, [...OAUTH_ACCOUNT_TYPES])'),
 			'the disconnect route can delete a credentials row'
 		);
 	});
