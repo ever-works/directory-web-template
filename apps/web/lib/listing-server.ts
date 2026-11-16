@@ -28,7 +28,8 @@ function toEpochMs(v: Date | string | null | undefined): number {
 // value), so the sort comparator was returning 0 for every pair and
 // the page kept its source-array order regardless of asc/desc.
 function nameKey(it: ItemData): string {
-  const name = (it.name || '').trim();
+  // Item YAML is not validated, so an unquoted `name: 1984` arrives as a number.
+  const name = String(it.name ?? '').trim();
   if (name) return name.toLowerCase();
   return (it.slug || '').toLowerCase();
 }
