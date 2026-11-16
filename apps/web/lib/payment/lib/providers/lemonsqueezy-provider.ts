@@ -33,7 +33,7 @@ import {
 } from '@lemonsqueezy/lemonsqueezy.js';
 
 import { env } from '@/lib/config/env';
-import { paymentAccountClient } from '../client/payment-account-client';
+import { getUserPaymentAccountByProvider, setupUserPaymentAccount } from '@/lib/db/queries';
 
 export interface LemonSqueezyConfig extends PaymentProviderConfig {
 	apiKey: string;
@@ -150,7 +150,7 @@ export class LemonSqueezyProvider implements PaymentProviderInterface {
 
 	private async retrieveCustomerIdFromDatabase(userId: string): Promise<string | null> {
 		try {
-			const existingPaymentAccount = await paymentAccountClient.getPaymentAccount(userId, 'lemonsqueezy');
+			const existingPaymentAccount = await getUserPaymentAccountByProvider(userId, 'lemonsqueezy');
 
 			if (existingPaymentAccount?.customerId) {
 				this.logger.debug('Existing PaymentAccount found in database', {
@@ -262,11 +262,7 @@ export class LemonSqueezyProvider implements PaymentProviderInterface {
 
 	private async synchronizePaymentAccount(userId: string, customerId: string): Promise<void> {
 		try {
-			const paymentAccount = await paymentAccountClient.setupPaymentAccount({
-				provider: 'lemonsqueezy',
-				userId,
-				customerId
-			});
+			const paymentAccount = await setupUserPaymentAccount('lemonsqueezy', userId, customerId);
 			this.logger.info('PaymentAccount synchronized successfully in database', {
 				userId,
 				customerId,
@@ -284,7 +280,7 @@ export class LemonSqueezyProvider implements PaymentProviderInterface {
 
 				// Try to get the existing account and update it
 				try {
-					const existingAccount = await paymentAccountClient.getPaymentAccount(userId, 'lemonsqueezy');
+					const existingAccount = await getUserPaymentAccountByProvider(userId, 'lemonsqueezy');
 					if (existingAccount) {
 						this.logger.info('Found existing payment account - synchronization completed', {
 							userId,
