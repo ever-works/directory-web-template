@@ -7,6 +7,7 @@ import { logger } from "@/lib/logger";
 import { generateListingMetadata } from "@/lib/seo/listing-metadata";
 import { getLocalizedUrl } from "@/lib/seo/hreflang";
 import { generateBreadcrumbSchema, generateCollectionSchema } from "@/lib/seo/schema";
+import { sortItems, SORT_OPTIONS } from "@/components/shared-card/utils/sort-utils";
 import type { Locale } from "@/lib/constants";
 
 // Force dynamic rendering — the page consults dynamic APIs
@@ -103,13 +104,23 @@ export default async function CollectionPage({
   const collectionItems = items
     .filter((item) => collectionItemIds.includes(item.slug))
     .map((item) => ({ ...item, tags: normalizeItemTags(item.tags) }));
+  const schemaItems = sortItems(
+    items.filter((item) => collectionItemIds.includes(item.slug)),
+    SORT_OPTIONS.NAME_ASC
+  );
   const collectionUrl = getLocalizedUrl(`/collections/${slug}`, locale as Locale);
   const collectionSchema = generateCollectionSchema({
     name: collection.name,
     description: collection.description,
     url: collectionUrl,
     image: collection.icon_url,
-    itemCount: collectionItems.length
+    itemCount: collectionItems.length,
+    // Same default order the grid opens with (CollectionDetail's FilterProvider starts at "name-asc"),
+    // so positions and the 50-item cap match what a visitor sees first.
+    items: schemaItems.map((item) => ({
+      name: item.name,
+      url: getLocalizedUrl(`/items/${item.slug}`, locale as Locale)
+    }))
   });
   const breadcrumbSchema = generateBreadcrumbSchema([
     { name: "Home", url: getLocalizedUrl("/", locale as Locale) },
