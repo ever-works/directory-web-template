@@ -150,7 +150,7 @@ interface UpdateCommentData {
 | `createComment` | `(data) => Promise` | 创建新评论 |
 | `updateComment` | `(data) => Promise` | 编辑现有评论 |
 | `deleteComment` | `(id) => Promise` | 删除评论 |
-| `commentRating` | `number` | 项目的综合评分 |
+| `commentRating` | `{ averageRating: number; totalRatings: number }` | 项目的综合评分 |
 
 ### 跨组件事件系统
 

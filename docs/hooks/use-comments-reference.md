@@ -32,7 +32,7 @@ function useComments(itemId: string): UseCommentsResult
 const {
   // Data
   comments,            // CommentWithUser[] -- Array of comments with user data
-  commentRating,       // number -- Aggregate comment rating for the item
+  commentRating,       // { averageRating: number; totalRatings: number } -- Aggregate comment rating for the item ({ averageRating: 0, totalRatings: 0 } while loading or when there are no ratings)
   isPending,           // boolean -- True while loading comments
   isLoadingRating,     // boolean -- True while loading aggregate rating
 

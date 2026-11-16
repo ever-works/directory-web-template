@@ -1,6 +1,7 @@
 "use client";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { CommentWithUser } from "@/lib/types/comment";
+import { EMPTY_COMMENT_RATING, type CommentRatingSummary } from "@/lib/types/comment-rating";
 import { useLoginModal } from "./use-login-modal";
 import { serverClient, apiUtils } from "@/lib/api/server-api-client";
 
@@ -171,11 +172,11 @@ export function useComments(itemId: string) {
     },
   });
 
-  const { data: commentRating = 0, isLoading: isLoadingRating } = useQuery({
+  const { data: commentRating = EMPTY_COMMENT_RATING, isLoading: isLoadingRating } = useQuery<CommentRatingSummary>({
     queryKey: ["commentRating", itemId],
     queryFn: async () => {
       const encodedItemId = encodeURIComponent(itemId);
-      const response = await serverClient.get(`/api/items/${encodedItemId}/comments/rating`);
+      const response = await serverClient.get<CommentRatingSummary>(`/api/items/${encodedItemId}/comments/rating`);
       if (!apiUtils.isSuccess(response)) {
         throw new Error(apiUtils.getErrorMessage(response));
       }

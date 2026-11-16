@@ -150,7 +150,7 @@ interface UpdateCommentData {
 | `createComment` | `(data) => Promise` | Crear un nuevo comentario |
 | `updateComment` | `(data) => Promise` | Editar un comentario existente |
 | `deleteComment` | `(id) => Promise` | Eliminar un comentario |
-| `commentRating` | `number` | Calificación agregada para el artículo |
+| `commentRating` | `{ averageRating: number; totalRatings: number }` | Calificación agregada para el artículo |
 
 ### Sistema de eventos entre componentes
 
