@@ -91,7 +91,17 @@ describe('connected accounts', () => {
 			assert.ok(source.includes('wouldLeaveNoSignInMethod(hasPassword, oauthCount)'));
 		});
 
-		// The Auth.js adapter links OAuth/OIDC accounts without a tenant, so their
+		it('the auth adapter records the tenant when it links an OAuth/OIDC account', () => {
+			const source = readFileSync(join(__dirname, '../index.ts'), 'utf8').replace(/\s+/g, ' ');
+			const start = source.indexOf('linkAccount: async');
+			assert.ok(start >= 0, 'the adapter no longer wraps linkAccount');
+			assert.ok(
+				source.slice(start, start + 300).includes('baseAdapter.linkAccount!(tenantId ? { ...data, tenantId } : data)'),
+				'linkAccount does not pass the tenant to the base adapter'
+			);
+		});
+
+		// Rows linked before that (or without a resolvable tenant) keep a NULL tenant: the Auth.js adapter links OAuth/OIDC accounts without a tenant, so their
 		// `tenant_id` is NULL; an exact tenant match would hide them from both routes.
 		it('both routes also match account rows with a NULL tenant', () => {
 			for (const file of ['route.ts', '[provider]/route.ts']) {

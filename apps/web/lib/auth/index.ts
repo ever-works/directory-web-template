@@ -80,6 +80,14 @@ const baseAdapter = isDatabaseAvailable
 const drizzle = baseAdapter
 	? {
 			...baseAdapter,
+			// Record the tenant on OAuth/OIDC account links too (the base adapter writes
+			// none, leaving `accounts.tenant_id` NULL). Rows that already exist stay NULL;
+			// the connected-accounts routes match those as well.
+			linkAccount: async (data: any) => {
+				const { getTenantId } = await import('./tenant');
+				const tenantId = await getTenantId();
+				return baseAdapter.linkAccount!(tenantId ? { ...data, tenantId } : data);
+			},
 			createUser: async (data: any) => {
 				// Dynamically import to prevent circular dependency with lib/auth/tenant.ts
 				const { getTenantId } = await import('./tenant');
