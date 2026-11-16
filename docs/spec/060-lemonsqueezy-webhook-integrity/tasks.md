@@ -26,4 +26,6 @@ sidebar_label: 060 Tasks
   `lemonsqueezy-checkout-wiring.spec.ts`, `sponsor-ad-subscription.spec.ts`.
 - [x] **T-009** Docs: spec 060, index row, Q-060a/Q-060b in `docs/questions.md`,
   `docs/api/lemonsqueezy-deep-dive.md`, `docs/log.md`.
-- [ ] **T-010** The plan's follow-ups (persisted event ids, email-user fallback, unknown-variant payment failure).
+- [x] **T-010** Verified-email user fallback (R14) and acknowledged payment failure for a missing row (R15);
+  `lemonsqueezy-webhook-followups.spec.ts`.
+- [ ] **T-011** Persisted event ids for cross-pod de-duplication (Q-060a, needs a migration).

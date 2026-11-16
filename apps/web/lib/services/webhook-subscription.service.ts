@@ -518,7 +518,10 @@ export class WebhookSubscriptionService {
 	 * Process subscription payment failed webhook
 	 * Updates subscription status and handles retry logic
 	 */
-	async handleSubscriptionPaymentFailed(data: any): Promise<WebhookProcessingResult> {
+	async handleSubscriptionPaymentFailed(
+		data: any,
+		options: SubscriptionWriteOptions = {}
+	): Promise<WebhookProcessingResult> {
 		const response = formatData(data, this.paymentProvider);
 		try {
 			console.log(`🔄 Processing subscription payment failed: ${data.subscriptionId}`);
@@ -528,6 +531,13 @@ export class WebhookSubscriptionService {
 				this.paymentProvider,
 				response.subscriptionId
 			);
+
+			// A failed payment never creates a row; with `createIfMissing: false` (LemonSqueezy) a missing
+			// one is not an error either: no retry can make it appear (spec 060 R15).
+			if (!existingSubscription && options.createIfMissing === false) {
+				console.log(`⚠️ Subscription ${response.subscriptionId} not found for payment failure; nothing to update`);
+				return { success: true, message: 'Subscription not found; nothing to update' };
+			}
 
 			if (!existingSubscription) {
 				throw new Error(`Subscription not found: ${data.subscriptionId}`);

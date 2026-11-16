@@ -63,6 +63,8 @@ sidebar_label: 060 Plan
 ## Follow-ups
 
 1. A persisted webhook event-id table for cross-pod de-duplication (Q-060a).
-2. `handleSubscriptionCreated` ignores a user found by email when `custom_data.user_id` is missing
-   (LemonSqueezy-only fallback; the shared service is also used by Stripe).
-3. Skip the retry for a payment failure on an unknown-variant subscription.
+2. ~~`handleSubscriptionCreated` ignores a user found by email when the user id is missing~~ Done (R14):
+   `lemonsqueezy-verified-email-user.ts` + `planData` in `lemonsqueezy-subscription-events.ts`; the shared
+   service is unchanged because Stripe also uses it.
+3. ~~Skip the retry for a payment failure on an unknown-variant subscription.~~ Done (R15): `createIfMissing: false`
+   on `handleSubscriptionPaymentFailed`.
