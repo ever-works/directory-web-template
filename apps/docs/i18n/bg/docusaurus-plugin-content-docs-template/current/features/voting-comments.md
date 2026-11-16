@@ -101,10 +101,6 @@ const {
   isUpdating,
   deleteComment,         // (commentId) => Promise
   isDeleting,
-  rateComment,           // ({ commentId, rating }) => void
-  isRatingComment,
-  updateCommentRating,   // ({ commentId, rating }) => void
-  isUpdatingRating,
   commentRating,         // number
   isLoadingRating,
 } = useComments(itemId);
@@ -163,8 +159,6 @@ const {
 | ПУБЛИКАЦИЯ | `/api/items/:id/comments` | Създайте нов коментар |
 | ПОСТАВЕТЕ | `/api/items/:id/comments/:commentId` | Актуализиране на коментар |
 | ИЗТРИВАНЕ | `/api/items/:id/comments/:commentId` | Изтриване на коментар |
-| ПУБЛИКАЦИЯ | `/api/items/:id/comments/rating` | Оценете коментар |
-| ПОСТАВЕТЕ | `/api/items/:id/comments/rating` | Актуализиране на оценката на коментара |
 | ВЗЕМЕТЕ | `/api/items/:id/comments/rating` | Вземете обобщена оценка |
 
 ## Интегриране на флаг за функции
