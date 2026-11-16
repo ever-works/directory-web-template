@@ -29,7 +29,6 @@ loader._load = function (this: unknown, request: string, ...rest: unknown[]) {
 	if (request === '@/lib/repositories/item.repository') return { ItemRepository: class {} };
 	return originalLoad.call(this, request, ...rest);
 };
-// eslint-disable-next-line @typescript-eslint/no-require-imports
 const { ItemImportService } = require('../item-import.service') as {
 	ItemImportService: typeof ItemImportServiceType;
 };
