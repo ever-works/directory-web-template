@@ -1,7 +1,8 @@
 import { auth } from "@/lib/auth";
 import { getOrCreateLemonsqueezyProvider } from "@/lib/payment/config/payment-provider-manager";
 import { statuses } from "@/lib/payment/lib/providers/lemonsqueezy-provider";
-import { resolveListCustomerEmail } from "@/lib/payment/lemonsqueezy-list-access";
+import { requestsAnotherCustomer, resolveListCustomerEmail } from "@/lib/payment/lemonsqueezy-list-access";
+import { isAdmin } from "@/lib/db/roles";
 import { safeErrorMessage } from "@/lib/utils/api-error";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
@@ -18,6 +19,17 @@ const queryParamsSchema = z.object({
   dateTo: z.string().datetime().optional(),
   storeId: z.string().optional(),
 });
+
+/**
+ * Whose subscriptions the caller may list. Another customer's email needs a live
+ * admin role (the JWT `isAdmin` claim stays set for 30 days after the role is
+ * removed); the lookup only runs when another email is requested.
+ */
+async function resolveListAccess(user: { id?: string | null; email: string }, customerEmail?: string) {
+  const callerIsAdmin =
+    requestsAnotherCustomer(user.email, customerEmail) && !!user.id ? await isAdmin(user.id) : false;
+  return resolveListCustomerEmail({ email: user.email, isAdmin: callerIsAdmin }, customerEmail);
+}
 
 /**
  * @swagger
@@ -355,10 +367,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Only admins may list another customer's subscriptions.
-    const access = resolveListCustomerEmail(
-      { email: session.user.email, isAdmin: session.user.isAdmin },
-      customerEmail
-    );
+    const access = await resolveListAccess({ id: session.user.id, email: session.user.email }, customerEmail);
     if (!access.allowed) {
       return NextResponse.json(
         {
@@ -636,10 +645,7 @@ export async function POST(request: NextRequest) {
       storeId 
     } = validationResult.data;
 
-    const access = resolveListCustomerEmail(
-      { email: session.user.email, isAdmin: session.user.isAdmin },
-      customerEmail
-    );
+    const access = await resolveListAccess({ id: session.user.id, email: session.user.email }, customerEmail);
     if (!access.allowed) {
       return NextResponse.json(
         {

@@ -48,6 +48,12 @@ signed-in user list another customer's subscriptions by passing `customerEmail`.
   round cents to whole units (never a decimal, never NaN) so the row is saved.
 - **R5.** `GET` and `POST /api/lemonsqueezy/list` use the session email. A `customerEmail` equal to it
   (case-insensitive) is accepted; a different one is `403 ACCESS_DENIED` unless the caller is an admin.
+  Admin is a live role lookup (`isAdmin(userId)`), not the JWT `isAdmin` claim, and only runs when another
+  email is requested.
+- **R8.** A sponsor-ad subscription (`custom_data.type = 'sponsor_ad'`) never reaches the plan subscription
+  service on `subscription_updated` (and the events routed to it) or `subscription_payment_failed`, so a
+  sponsor-ad purchase does not create a plan row. Its first invoice (`billing_reason: 'initial'`) is
+  acknowledged, not counted as a renewal.
 
 ## 4. Out of scope / open
 

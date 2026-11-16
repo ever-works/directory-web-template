@@ -162,6 +162,14 @@ export function toSubscriptionServiceData(resource: WebhookResource, now: number
 }
 
 /**
+ * True for the first invoice of a subscription (`billing_reason: 'initial'`). It pays for
+ * the period `subscription_created` already started, so it must not count as a renewal.
+ */
+export function isInitialSubscriptionInvoice(resource: Pick<WebhookResource, 'type' | 'attributes'>): boolean {
+	return resource.type === 'subscription-invoices' && resource.attributes?.billing_reason === 'initial';
+}
+
+/**
  * Map a LemonSqueezy order onto the layout the payment-success email reads.
  * `total` stays in cents.
  */

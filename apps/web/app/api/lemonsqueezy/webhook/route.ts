@@ -17,6 +17,7 @@ import { PaymentProvider } from '@/lib/constants';
 import { RelayEventCoordinator } from '@/lib/payment/relay-event-coordinator';
 import {
 	getLemonSqueezyEventKey,
+	isInitialSubscriptionInvoice,
 	parseLemonSqueezyEvent,
 	toOrderEmailData,
 	toSubscriptionServiceData
@@ -170,6 +171,14 @@ async function handleSubscriptionCreated(data: any): Promise<boolean> {
 }
 
 async function handleSubscriptionUpdated(data: any): Promise<boolean> {
+	// A sponsor-ad subscription is not a plan subscription. The plan service creates a
+	// plan row for a subscription it cannot find, so letting this through would book
+	// every sponsor-ad purchase as a Standard plan (same guard as the Stripe dispatch, CC05-04).
+	if (isSponsorAdSubscription(data)) {
+		console.log('📢 LemonSqueezy sponsor ad subscription update acknowledged');
+		return true;
+	}
+
 	return runSubscriptionHandler('subscription updated', () =>
 		webhookSubscriptionService.handleSubscriptionUpdated(toSubscriptionServiceData(data))
 	);
@@ -235,6 +244,12 @@ async function handlePaymentFailed(data: any) {
 async function handleSubscriptionPaymentSucceeded(data: any): Promise<boolean> {
 	// Check if this is a sponsor ad subscription (for renewals)
 	if (isSponsorAdSubscription(data)) {
+		// The first invoice pays for the period subscription_created already confirmed;
+		// only later invoices extend the ad.
+		if (isInitialSubscriptionInvoice(data)) {
+			console.log('📢 LemonSqueezy sponsor ad initial payment acknowledged');
+			return true;
+		}
 		console.log('📢 LemonSqueezy sponsor ad payment succeeded (renewal)');
 		return handleSponsorAdRenewal(data);
 	}
@@ -245,6 +260,12 @@ async function handleSubscriptionPaymentSucceeded(data: any): Promise<boolean> {
 }
 
 async function handleSubscriptionPaymentFailed(data: any): Promise<boolean> {
+	// Sponsor-ad subscriptions have no plan row to update.
+	if (isSponsorAdSubscription(data)) {
+		console.log('📢 LemonSqueezy sponsor ad payment failure acknowledged');
+		return true;
+	}
+
 	return runSubscriptionHandler('subscription payment failed', () =>
 		webhookSubscriptionService.handleSubscriptionPaymentFailed(toSubscriptionServiceData(data))
 	);

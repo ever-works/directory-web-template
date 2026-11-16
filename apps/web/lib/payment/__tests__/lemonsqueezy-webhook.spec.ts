@@ -1,12 +1,15 @@
 import assert from 'node:assert/strict';
 import { createHmac } from 'node:crypto';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { test } from 'node:test';
 
-import { resolveListCustomerEmail } from '../lemonsqueezy-list-access';
+import { requestsAnotherCustomer, resolveListCustomerEmail } from '../lemonsqueezy-list-access';
 import { toStoredAmount } from '../stored-amount';
 import { RelayEventCoordinator } from '../relay-event-coordinator';
 import {
 	getLemonSqueezyEventKey,
+	isInitialSubscriptionInvoice,
 	parseLemonSqueezyEvent,
 	toOrderEmailData,
 	toSubscriptionServiceData,
@@ -188,4 +191,58 @@ test('the list endpoint lets admins list another customer', () => {
 		allowed: true,
 		email: 'victim@example.com'
 	});
+});
+
+test('requestsAnotherCustomer is true only for a different, non-blank email', () => {
+	assert.equal(requestsAnotherCustomer('me@example.com'), false);
+	assert.equal(requestsAnotherCustomer('me@example.com', ''), false);
+	assert.equal(requestsAnotherCustomer('me@example.com', '  ME@Example.com '), false);
+	assert.equal(requestsAnotherCustomer('me@example.com', 'victim@example.com'), true);
+	assert.equal(requestsAnotherCustomer('me@example.com', 'me@example.com.evil'), true);
+});
+
+test('only the initial subscription invoice is treated as the first payment', () => {
+	assert.equal(
+		isInitialSubscriptionInvoice({ type: 'subscription-invoices', attributes: { billing_reason: 'initial' } }),
+		true
+	);
+	assert.equal(
+		isInitialSubscriptionInvoice({ type: 'subscription-invoices', attributes: { billing_reason: 'renewal' } }),
+		false
+	);
+	assert.equal(isInitialSubscriptionInvoice({ type: 'subscriptions', attributes: { billing_reason: 'initial' } }), false);
+	assert.equal(isInitialSubscriptionInvoice({ type: 'subscription-invoices', attributes: {} }), false);
+});
+
+// Source guards: the route functions are not exported, so check the wiring in the file.
+const routeSource = (path: string) => readFileSync(join(__dirname, path), 'utf8');
+const functionBody = (source: string, name: string) => {
+	const start = source.indexOf(`async function ${name}(`);
+	assert.ok(start >= 0, `${name} not found`);
+	const next = source.indexOf('\nasync function ', start + 1);
+	return source.slice(start, next < 0 ? undefined : next);
+};
+
+test('sponsor-ad subscriptions never reach the plan service on update or payment failure', () => {
+	const route = routeSource('../../../app/api/lemonsqueezy/webhook/route.ts');
+	for (const name of ['handleSubscriptionUpdated', 'handleSubscriptionPaymentFailed']) {
+		const body = functionBody(route, name);
+		const guard = body.indexOf('isSponsorAdSubscription(data)');
+		const service = body.indexOf('webhookSubscriptionService.');
+		assert.ok(guard >= 0 && service > guard, `${name} must check for a sponsor ad before the plan service`);
+	}
+	const paid = functionBody(route, 'handleSubscriptionPaymentSucceeded');
+	assert.ok(
+		paid.indexOf('isInitialSubscriptionInvoice(data)') >= 0 &&
+			paid.indexOf('isInitialSubscriptionInvoice(data)') < paid.indexOf('handleSponsorAdRenewal(data)'),
+		'the first sponsor-ad invoice must not count as a renewal'
+	);
+});
+
+test('the list route resolves admin access with a live role lookup, not the JWT claim', () => {
+	const route = routeSource('../../../app/api/lemonsqueezy/list/route.ts');
+	assert.ok(!route.includes('session.user.isAdmin'), 'list route still trusts the JWT isAdmin claim');
+	assert.ok(route.includes('await isAdmin(user.id)'));
+	const call = 'await resolveListAccess({ id: session.user.id, email: session.user.email }, customerEmail)';
+	assert.equal(route.split(call).length - 1, 2, 'GET and POST must both use the live admin lookup');
 });
