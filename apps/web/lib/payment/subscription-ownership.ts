@@ -57,32 +57,49 @@ export const EMAIL_NOT_VERIFIED_MESSAGE =
 
 /** What {@link isEmailVerifiedForOwnership} needs to know about a user. */
 export interface EmailVerificationState {
-	/** `users.emailVerified`: set once the user confirmed the address. */
+	/** `users.email` as stored now. */
+	email: string | null | undefined;
+	/** `users.emailVerified`: set once the user confirmed the address in `email`. */
 	emailVerified: Date | string | null | undefined;
-	/** The user has a linked OAuth / OIDC row in `accounts` (the provider verified the address). */
-	hasOAuthAccount: boolean;
+	/**
+	 * Linked OAuth / OIDC rows in `accounts` (the provider verified an address).
+	 * `email` is the address the row was bound to, or null when it was never recorded.
+	 */
+	oauthAccounts: ReadonlyArray<{ email: string | null | undefined }>;
 }
 
 /** Loads {@link EmailVerificationState}; `null` when the user does not exist. */
 export type EmailVerificationLookup = (userId: string) => Promise<EmailVerificationState | null | undefined>;
 
 /**
- * True when the email on the user's account is proven to belong to them, so it may
- * be used as the identity for a LemonSqueezy subscription (which is matched by
- * customer email). Credentials sign-up does not verify the address, so without this
- * check someone could register another person's email first and take over that
- * person's subscriptions. OAuth sign-ins verify the address at the provider, and
- * Auth.js leaves `users.emailVerified` null for them, so a linked OAuth / OIDC
- * account counts too. A missing user id or user never counts.
+ * True when `email` - the address a LemonSqueezy subscription is matched against - is
+ * proven to belong to the user. Credentials sign-up does not verify the address, so
+ * without this check someone could register another person's email first and take
+ * over that person's subscriptions.
+ *
+ * The proof has to be about the address being matched, not just about the user:
+ * - `email` must be the address stored on the user now. A session carries the address
+ *   from sign-in, and an address change must not inherit an earlier verification.
+ * - `users.emailVerified` being set counts (`updateUser` clears it on an address change).
+ * - A linked OAuth / OIDC account counts (Auth.js leaves `emailVerified` null for these
+ *   users), but a row bound to a different address proves nothing about this one.
+ *
+ * A missing user id, email or user never counts.
  */
 export async function isEmailVerifiedForOwnership(
 	userId: string | null | undefined,
+	email: string | null | undefined,
 	lookup: EmailVerificationLookup
 ): Promise<boolean> {
-	if (!isNonBlank(userId)) return false;
+	if (!isNonBlank(userId) || !isNonBlank(email)) return false;
 	const state = await lookup(userId);
-	if (!state) return false;
-	return Boolean(state.emailVerified) || state.hasOAuthAccount === true;
+	if (!state || !isNonBlank(state.email)) return false;
+	const current = normaliseEmail(state.email);
+	if (normaliseEmail(email) !== current) return false;
+	if (state.emailVerified) return true;
+	return state.oauthAccounts.some(
+		(account) => !isNonBlank(account.email) || normaliseEmail(account.email) === current
+	);
 }
 
 /** What the owner check needs from a LemonSqueezy subscription. */

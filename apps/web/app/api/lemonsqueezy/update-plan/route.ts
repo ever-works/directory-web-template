@@ -248,7 +248,7 @@ export async function POST(request: NextRequest) {
 
     const { subscriptionId, variantId, proration, invoiceImmediately, disableProrations, billingAnchor } = validationResult.data;
 
-    if (!(await isEmailVerifiedForOwnership(session.user.id, loadEmailVerificationState))) {
+    if (!(await isEmailVerifiedForOwnership(session.user.id, session.user.email, loadEmailVerificationState))) {
       return NextResponse.json({ error: EMAIL_NOT_VERIFIED_MESSAGE, code: 'EMAIL_NOT_VERIFIED' }, { status: 403 });
     }
 

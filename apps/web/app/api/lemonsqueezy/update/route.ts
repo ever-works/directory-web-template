@@ -292,7 +292,7 @@ export async function POST(request: NextRequest) {
 
 		const { subscriptionId, status, cancelAtPeriodEnd, priceId, metadata } = validationResult.data;
 
-		if (!(await isEmailVerifiedForOwnership(session.user.id, loadEmailVerificationState))) {
+		if (!(await isEmailVerifiedForOwnership(session.user.id, session.user.email, loadEmailVerificationState))) {
 			return NextResponse.json(
 				{
 					success: false,

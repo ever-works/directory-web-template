@@ -30,7 +30,7 @@ const STRIPE_CHECK =
 const LEMONSQUEEZY_CHECK =
 	'findOwnedLemonSqueezySubscription(session.user.email, subscriptionId, (id) => lemonsqueezy.getSubscriptionOwner(id))';
 
-const EMAIL_CHECK = 'isEmailVerifiedForOwnership(session.user.id, loadEmailVerificationState)';
+const EMAIL_CHECK = 'isEmailVerifiedForOwnership(session.user.id, session.user.email, loadEmailVerificationState)';
 
 type Guarded = {
 	name: string;
@@ -199,6 +199,15 @@ describe('subscription ownership wiring', () => {
 			);
 		});
 	}
+
+	it('updateUser clears emailVerified when the address changes, so a verification never moves to a new address', () => {
+		const source = squash(readFileSync(join(__dirname, '../../db/queries/user.queries.ts'), 'utf8'));
+		const start = source.indexOf('export async function updateUser(');
+		assert.ok(start >= 0, 'updateUser is missing');
+		const body = source.slice(start, source.indexOf('export async function', start + 1));
+		assert.ok(body.includes('emailVerified: null'), 'updateUser keeps emailVerified when the email changes');
+		assert.ok(body.includes("inArray(accounts.type, ['oauth', 'oidc'])"), 'updateUser does not bind OAuth rows');
+	});
 
 	for (const [file, { why, check }] of Object.entries(ownCheck)) {
 		it(`${file} keeps its own ownership check (${why})`, () => {

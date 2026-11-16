@@ -6,21 +6,20 @@ import type { EmailVerificationState } from './subscription-ownership';
 /**
  * Database lookup for `isEmailVerifiedForOwnership` (see `subscription-ownership.ts`).
  * Account types written by the credentials flow (`credentials`, legacy `email`) say
- * nothing about the address, so only `oauth` and `oidc` rows count.
+ * nothing about the address, so only `oauth` and `oidc` rows are returned.
  */
 export async function loadEmailVerificationState(userId: string): Promise<EmailVerificationState | null> {
 	const [user] = await db
-		.select({ emailVerified: users.emailVerified })
+		.select({ email: users.email, emailVerified: users.emailVerified })
 		.from(users)
 		.where(eq(users.id, userId))
 		.limit(1);
 	if (!user) return null;
-	if (user.emailVerified) return { emailVerified: user.emailVerified, hasOAuthAccount: false };
+	if (user.emailVerified) return { ...user, oauthAccounts: [] };
 
-	const linked = await db
-		.select({ provider: accounts.provider })
+	const oauthAccounts = await db
+		.select({ email: accounts.email })
 		.from(accounts)
-		.where(and(eq(accounts.userId, userId), inArray(accounts.type, ['oauth', 'oidc'])))
-		.limit(1);
-	return { emailVerified: null, hasOAuthAccount: linked.length > 0 };
+		.where(and(eq(accounts.userId, userId), inArray(accounts.type, ['oauth', 'oidc'])));
+	return { ...user, oauthAccounts };
 }

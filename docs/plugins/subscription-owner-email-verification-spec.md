@@ -19,14 +19,27 @@ any LemonSqueezy subscription bought under that address in the same store.
 
 ## Contract
 
-- `isEmailVerifiedForOwnership(userId, lookup)` (`subscription-ownership.ts`) is `true`
-  when `users.emailVerified` is set, or when the user has a linked account of type
-  `oauth` or `oidc` (the provider verified the address; Auth.js leaves `emailVerified`
-  null for these users, so they are not locked out). It is `false` for a missing user
-  id or an unknown user.
+- `isEmailVerifiedForOwnership(userId, email, lookup)` (`subscription-ownership.ts`)
+  proves the address being matched (`session.user.email`), not just the user. It is
+  `false` unless `email` equals `users.email` as stored now (case and spaces ignored;
+  the session keeps the address from sign-in, so a changed address never inherits an
+  earlier proof). Then it is `true` when `users.emailVerified` is set, or when the user
+  has a linked account of type `oauth` or `oidc` whose recorded `accounts.email` is
+  empty or equals the current address (Auth.js leaves `emailVerified` null for OAuth
+  users, so they are not locked out; a row bound to another address proves nothing).
+  It is `false` for a missing user id, email or user.
+- `updateUser` (`lib/db/queries/user.queries.ts`, used by the account settings action)
+  clears `users.emailVerified` when the address changes, and first writes the old
+  address into the user's `oauth` / `oidc` rows that had none recorded. Without this a
+  verified or OAuth user could switch to another person's address and keep the proof.
 - The database lookup is `loadEmailVerificationState` in
   `subscription-email-verification.ts`. Account rows of type `credentials` (and the
   legacy `email` type) never count.
+- Known gap: an OAuth user who changed their address before this change has no
+  recorded address on the row, so the row still counts. Admin edits through
+  `UserDbService.updateUser` still change `users.email` without clearing
+  `emailVerified`; the stored-address comparison does not cover that path. Both are
+  follow-ups.
 - Each of the four LemonSqueezy routes calls the check after body validation and before
   `findOwnedLemonSqueezySubscription`, and returns **403** with code
   `EMAIL_NOT_VERIFIED` and the message `EMAIL_NOT_VERIFIED_MESSAGE` when it is false.

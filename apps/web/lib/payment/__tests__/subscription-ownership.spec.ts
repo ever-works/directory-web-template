@@ -10,37 +10,64 @@ import {
 } from '../subscription-ownership';
 
 describe('isEmailVerifiedForOwnership', () => {
+	const verifiedAt = new Date('2026-01-01T00:00:00Z');
 	const users: Record<string, EmailVerificationState> = {
-		credentialsUnverified: { emailVerified: null, hasOAuthAccount: false },
-		credentialsVerified: { emailVerified: new Date('2026-01-01T00:00:00Z'), hasOAuthAccount: false },
-		oauth: { emailVerified: null, hasOAuthAccount: true }
+		credentialsUnverified: { email: 'a@example.com', emailVerified: null, oauthAccounts: [] },
+		credentialsVerified: { email: 'b@example.com', emailVerified: verifiedAt, oauthAccounts: [] },
+		oauth: { email: 'c@example.com', emailVerified: null, oauthAccounts: [{ email: null }] },
+		oauthBoundHere: { email: 'd@example.com', emailVerified: null, oauthAccounts: [{ email: 'D@Example.com' }] },
+		// Verified or OAuth-linked under an earlier address, then switched to another one.
+		oauthBoundElsewhere: { email: 'victim@example.com', emailVerified: null, oauthAccounts: [{ email: 'old@example.com' }] },
+		// Not verified, no OAuth row: credentials-only, address never proven.
+		noOAuth: { email: 'e@example.com', emailVerified: null, oauthAccounts: [] }
 	};
 	const lookupCalls: string[] = [];
 	const lookup = async (userId: string) => {
 		lookupCalls.push(userId);
 		return users[userId] ?? null;
 	};
+	const check = (userId: string | null | undefined, email: string | null | undefined) =>
+		isEmailVerifiedForOwnership(userId, email, lookup);
 
 	it('refuses a credentials user whose email is not verified', async () => {
-		assert.equal(await isEmailVerifiedForOwnership('credentialsUnverified', lookup), false);
+		assert.equal(await check('credentialsUnverified', 'a@example.com'), false);
+		assert.equal(await check('noOAuth', 'e@example.com'), false);
 	});
 
 	it('accepts a user with a verified email', async () => {
-		assert.equal(await isEmailVerifiedForOwnership('credentialsVerified', lookup), true);
+		assert.equal(await check('credentialsVerified', 'b@example.com'), true);
 	});
 
 	it('accepts a user with a linked OAuth account even though emailVerified is null', async () => {
-		assert.equal(await isEmailVerifiedForOwnership('oauth', lookup), true);
+		assert.equal(await check('oauth', 'c@example.com'), true);
+		assert.equal(await check('oauthBoundHere', 'd@example.com'), true);
+	});
+
+	it('compares addresses ignoring case and surrounding spaces', async () => {
+		assert.equal(await check('credentialsVerified', '  B@EXAMPLE.com '), true);
+	});
+
+	it('refuses when the address being matched is not the address stored on the user', async () => {
+		// The session still carries the address from sign-in; the stored one has changed.
+		assert.equal(await check('credentialsVerified', 'victim@example.com'), false);
+		assert.equal(await check('oauth', 'victim@example.com'), false);
+	});
+
+	it('refuses an OAuth row that was bound to a different address', async () => {
+		assert.equal(await check('oauthBoundElsewhere', 'victim@example.com'), false);
 	});
 
 	it('refuses an unknown user', async () => {
-		assert.equal(await isEmailVerifiedForOwnership('ghost', lookup), false);
+		assert.equal(await check('ghost', 'x@example.com'), false);
 	});
 
-	it('refuses a missing or blank user id without calling the lookup', async () => {
+	it('refuses a missing or blank user id or email without calling the lookup', async () => {
 		lookupCalls.length = 0;
 		for (const id of [undefined, null, '', '   ']) {
-			assert.equal(await isEmailVerifiedForOwnership(id, lookup), false);
+			assert.equal(await check(id, 'b@example.com'), false);
+		}
+		for (const email of [undefined, null, '', '   ']) {
+			assert.equal(await check('credentialsVerified', email), false);
 		}
 		assert.deepEqual(lookupCalls, []);
 	});
