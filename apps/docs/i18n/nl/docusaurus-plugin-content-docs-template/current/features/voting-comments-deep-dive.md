@@ -150,7 +150,7 @@ interface UpdateCommentData {
 | `createComment` | `(data) => Promise` | Creëer een nieuwe reactie |
 | `updateComment` | `(data) => Promise` | Een bestaande opmerking bewerken |
 | `deleteComment` | `(id) => Promise` | Een reactie verwijderen |
-| `commentRating` | `number` | Totale beoordeling voor het artikel |
+| `commentRating` | `{ averageRating: number; totalRatings: number }` | Totale beoordeling voor het artikel |
 
 ### Component-gebeurtenissysteem
 

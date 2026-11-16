@@ -83,7 +83,7 @@ const {
   isUpdating,
   deleteComment,    // (commentId: string) => Promise<void>
   isDeleting,
-  commentRating,    // number
+  commentRating,    // { averageRating: number; totalRatings: number }
   isLoadingRating,
 } = useComments(itemId);
 ```

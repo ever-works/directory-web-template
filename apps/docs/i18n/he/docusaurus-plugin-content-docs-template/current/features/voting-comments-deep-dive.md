@@ -150,7 +150,7 @@ interface UpdateCommentData {
 | `createComment` | `(data) => Promise` | צור תגובה חדשה |
 | `updateComment` | `(data) => Promise` | ערוך הערה קיימת |
 | `deleteComment` | `(id) => Promise` | הסר תגובה |
-| `commentRating` | `number` | דירוג מצטבר עבור הפריט |
+| `commentRating` | `{ averageRating: number; totalRatings: number }` | דירוג מצטבר עבור הפריט |
 
 ### מערכת אירועים חוצת רכיבים
 

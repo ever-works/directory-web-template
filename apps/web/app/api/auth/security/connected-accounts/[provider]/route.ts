@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { db } from '@/lib/db/drizzle';
-import { accounts } from '@/lib/db/schema';
-import { eq, and, count, inArray } from 'drizzle-orm';
+import { accounts, users } from '@/lib/db/schema';
+import { eq, and, inArray, isNull, or } from 'drizzle-orm';
 import { getTenantId } from '@/lib/auth/tenant';
+import { OAUTH_ACCOUNT_TYPES, canDisconnectProvider } from '@/lib/auth/connected-accounts';
 
 /**
  * @swagger
@@ -48,37 +49,49 @@ export async function DELETE(
 		const { provider } = await params;
 		const userId = session.user.id;
 
-		const [credRows, [{ oauthCount }]] = await Promise.all([
-			db
-				.select({ passwordHash: accounts.passwordHash })
+		// The Auth.js adapter links OAuth/OIDC accounts without a tenant, so those rows have a
+		// NULL `tenant_id`; matching only `tenantId` would hide (and refuse to delete) them.
+		const inTenant = or(eq(accounts.tenantId, tenantId), isNull(accounts.tenantId));
+
+		const outcome = await db.transaction(async (tx) => {
+			// Lock the user row first so two disconnects sent at the same time run one after
+			// the other. Without the lock each request can count the other's link as the one
+			// that remains, both delete, and the user is left with no way to sign in.
+			await tx.select({ id: users.id }).from(users).where(eq(users.id, userId)).for('update');
+
+			const rows = await tx
+				.select({
+					type: accounts.type,
+					provider: accounts.provider,
+					passwordHash: accounts.passwordHash,
+					tenantId: accounts.tenantId,
+				})
 				.from(accounts)
+				.where(and(eq(accounts.userId, userId), inTenant));
+
+			// Refuse unless a password or a link to ANOTHER provider remains: the delete below
+			// removes every row of `provider`, so a second link of the same provider is no fallback.
+			if (!canDisconnectProvider(rows, provider, tenantId)) return 'last-sign-in-method' as const;
+
+			const deleted = await tx
+				.delete(accounts)
 				.where(
 					and(
 						eq(accounts.userId, userId),
-						// 'credentials' is outside AdapterAccountType union but valid at runtime
-						eq(accounts.type, 'credentials' as any),
-						eq(accounts.tenantId, tenantId)
+						eq(accounts.provider, provider),
+						// Only OAuth links can be disconnected here. Removing the password row
+						// would turn a password user into an OAuth-only one, and an OAuth-only
+						// user's address counts as verified (`isEmailVerifiedForOwnership`).
+						inArray(accounts.type, [...OAUTH_ACCOUNT_TYPES]),
+						inTenant
 					)
 				)
-				.limit(1),
+				.returning({ provider: accounts.provider });
 
-			db
-				.select({ oauthCount: count() })
-				.from(accounts)
-				.where(
-					and(
-						eq(accounts.userId, userId),
-						eq(accounts.type, 'oauth'),
-						eq(accounts.tenantId, tenantId)
-					)
-				),
-		]);
+			return deleted.length === 0 ? ('not-connected' as const) : ('disconnected' as const);
+		});
 
-		// Client passwords are stored in accounts (type='credentials'), not users.passwordHash
-		const hasPassword = credRows.length > 0 && !!credRows[0].passwordHash;
-		const wouldHaveNoAuth = !hasPassword && oauthCount <= 1;
-
-		if (wouldHaveNoAuth) {
+		if (outcome === 'last-sign-in-method') {
 			return NextResponse.json(
 				{
 					success: false,
@@ -88,22 +101,7 @@ export async function DELETE(
 			);
 		}
 
-		const result = await db
-			.delete(accounts)
-			.where(
-				and(
-					eq(accounts.userId, userId),
-					eq(accounts.provider, provider),
-					// Only OAuth links can be disconnected here. Removing the password row
-					// would turn a password user into an OAuth-only one, and an OAuth-only
-					// user's address counts as verified (`isEmailVerifiedForOwnership`).
-					inArray(accounts.type, ['oauth', 'oidc']),
-					eq(accounts.tenantId, tenantId)
-				)
-			)
-			.returning({ provider: accounts.provider });
-
-		if (result.length === 0) {
+		if (outcome === 'not-connected') {
 			return NextResponse.json(
 				{ success: false, error: `Provider "${provider}" is not connected to your account.` },
 				{ status: 404 }

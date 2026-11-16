@@ -5,6 +5,7 @@
 
 import NextAuth from 'next-auth';
 import { DrizzleAdapter } from '@auth/drizzle-adapter';
+import type { Adapter } from 'next-auth/adapters';
 import { db, getDrizzleInstance } from '../db/drizzle';
 import { eq } from 'drizzle-orm';
 import { users, accounts, sessions, verificationTokens } from '../db/schema';
@@ -80,6 +81,14 @@ const baseAdapter = isDatabaseAvailable
 const drizzle = baseAdapter
 	? {
 			...baseAdapter,
+			// Record the tenant on OAuth/OIDC account links too (the base adapter writes
+			// none, leaving `accounts.tenant_id` NULL). Rows that already exist stay NULL;
+			// the connected-accounts routes match those as well.
+			linkAccount: (async (data: any) => {
+				const { getTenantId } = await import('./tenant');
+				const tenantId = await getTenantId();
+				return baseAdapter.linkAccount!(tenantId ? { ...data, tenantId } : data);
+			}) as NonNullable<Adapter['linkAccount']>,
 			createUser: async (data: any) => {
 				// Dynamically import to prevent circular dependency with lib/auth/tenant.ts
 				const { getTenantId } = await import('./tenant');

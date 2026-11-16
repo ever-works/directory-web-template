@@ -150,7 +150,7 @@ interface UpdateCommentData {
 | `createComment` | `(data) => Promise` | Создать новый комментарий |
 | `updateComment` | `(data) => Promise` | Редактировать существующий комментарий |
 | `deleteComment` | `(id) => Promise` | Удалить комментарий |
-| `commentRating` | `number` | Совокупный рейтинг товара |
+| `commentRating` | `{ averageRating: number; totalRatings: number }` | Совокупный рейтинг товара |
 
 ### Межкомпонентная система событий
 
