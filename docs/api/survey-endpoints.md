@@ -19,7 +19,7 @@ The Surveys API provides full CRUD operations for surveys and response collectio
 
 | Method | Path | Auth | Description |
 |--------|------|------|-------------|
-| GET | `/api/surveys` | Optional | List surveys with filters |
+| GET | `/api/surveys` | Optional | List surveys with filters (published only unless the caller is an admin) |
 | POST | `/api/surveys` | Admin | Create a new survey |
 | GET | `/api/surveys/{surveyId}` | Conditional | Get a single survey by ID or slug |
 | PUT | `/api/surveys/{surveyId}` | Admin | Update a survey |
@@ -34,13 +34,19 @@ The Surveys API provides full CRUD operations for surveys and response collectio
 
 Retrieves a paginated list of surveys with optional filtering. Database availability is checked before processing.
 
+### Access Control
+
+The list needs no session, and each survey comes back with its full `surveyJson` and response count. So a caller who is not an admin (anonymous or signed in) only ever gets **published** surveys: the `status` filter is set to `published` whatever the query asks for, the same rule `GET /api/surveys/{surveyId}` applies. Admins get the status they ask for, or every status when they send none (the admin survey list).
+
+The filters are built by `buildSurveyListFilters(searchParams, isAdmin)` in `apps/web/lib/services/survey-list-filters.ts`. A `type` or `status` value that is not one of the values below is ignored (no filter) instead of being passed to the query.
+
 ### Query Parameters
 
 | Parameter | Type | Required | Default | Description |
 |-----------|------|----------|---------|-------------|
-| `type` | `"global"` or `"item"` | No | -- | Filter by survey type |
+| `type` | `"global"` or `"item"` | No | -- | Filter by survey type; other values are ignored |
 | `itemId` | string | No | -- | Filter by associated item ID |
-| `status` | `"draft"`, `"published"`, or `"closed"` | No | -- | Filter by status |
+| `status` | `"draft"`, `"published"`, or `"closed"` | No | -- | Filter by status (admins only; non-admins always get `published`); other values are ignored |
 | `page` | integer | No | 1 | Page number (minimum 1) |
 | `limit` | integer | No | 10 | Items per page (1-100) |
 
