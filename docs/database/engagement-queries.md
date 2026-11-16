@@ -186,7 +186,7 @@ export async function getItemsSortedByVotes(limit = 10, offset = 0) {
 | `getCommentById(id)` | Raw comment record |
 | `getCommentWithUserById(id)` | Comment with user profile join |
 | `updateComment(id, { content?, rating? })` | Update with `editedAt` timestamp |
-| `updateCommentRating(id, rating)` | Rating-only update |
+| `updateCommentRatingForOwner(id, clientProfileId, rating)` | Rating-only update, limited to the comment's author |
 | `deleteComment(id)` | Soft delete (`deletedAt = new Date()`) |
 
 ### Comments with User Data

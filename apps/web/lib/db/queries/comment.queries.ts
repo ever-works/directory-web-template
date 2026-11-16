@@ -177,19 +177,29 @@ export async function updateComment(id: string, data: { content?: string; rating
 }
 
 /**
- * Update comment rating
+ * Update the rating of a comment, only when it belongs to the given author.
+ * Comment ids are public, so the owner condition is part of the WHERE clause.
+ * Soft-deleted comments are skipped, like the comment PUT/DELETE routes do.
  * @param id - Comment ID
+ * @param clientProfileId - Client profile ID of the comment author
  * @param rating - New rating
- * @returns Updated comment
+ * @returns Updated comment, or undefined when no live comment matches the id and author
  */
-export async function updateCommentRating(id: string, rating: number) {
+export async function updateCommentRatingForOwner(id: string, clientProfileId: string, rating: number) {
 	const tenantId = await getTenantId();
 	if (!tenantId) return;
 	return (
 		await db
 			.update(comments)
 			.set({ rating })
-			.where(and(eq(comments.id, id), eq(comments.tenantId, tenantId)))
+			.where(
+				and(
+					eq(comments.id, id),
+					eq(comments.userId, clientProfileId),
+					isNull(comments.deletedAt),
+					eq(comments.tenantId, tenantId)
+				)
+			)
 			.returning()
 	)[0];
 }
