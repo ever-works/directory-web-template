@@ -6,6 +6,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { subscriptionService } from '@/lib/services/subscription.service';
+import { requireAdminSession } from '@/lib/auth/admin-guard';
+import { omitImmutableSubscriptionFields } from '@/lib/payment/subscription-identity';
 
 /**
  * @swagger
@@ -359,6 +361,8 @@ export async function GET(request: NextRequest) {
  *                 error:
  *                   type: string
  *                   example: "Unauthorized"
+ *       403:
+ *         description: "Forbidden - Admin access required"
  *       409:
  *         description: "Conflict - User already has active subscription"
  *         content:
@@ -383,10 +387,14 @@ export async function GET(request: NextRequest) {
 // POST /api/subscriptions - Create a new subscription
 export async function POST(request: NextRequest) {
   try {
-    const session = await auth();
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    // Admin only: a row carries a provider and a provider subscription id, and the payment
+    // routes act on that id at the provider. Checkout and the provider webhooks create the
+    // rows customers own; no signed-in user may write one by hand.
+    const adminResult = await requireAdminSession();
+    if (adminResult instanceof NextResponse) {
+      return adminResult;
     }
+    const session = adminResult.session;
 
     const body = await request.json();
     const {
@@ -483,10 +491,11 @@ export async function PUT(request: NextRequest) {
       );
     }
 
-    // Update subscription
+    // Update subscription. Identity fields (owner, provider, provider ids) are not editable
+    // here: rewriting them would forge a row pointing at another customer's subscription.
     const updatedSubscription = await subscriptionService.updateSubscription(
       subscriptionId,
-      updateData
+      omitImmutableSubscriptionFields(updateData)
     );
 
     return NextResponse.json({
