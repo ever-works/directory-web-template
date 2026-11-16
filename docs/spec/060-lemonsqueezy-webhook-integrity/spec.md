@@ -59,7 +59,10 @@ subscription grants comes from the variant that was paid for, never from the che
 - **R5.** `GET` and `POST /api/lemonsqueezy/list` use the session email. A `customerEmail` equal to it
   (case-insensitive) is accepted; a different one is `403 ACCESS_DENIED` unless the caller is an admin.
   Admin is a live role lookup (`isAdmin(userId)`), not the JWT `isAdmin` claim, and only runs when another
-  email is requested.
+  email is requested. The caller's own email is only listed when it is verified
+  (`isEmailVerifiedForOwnership`), else `403 EMAIL_NOT_VERIFIED`, before LemonSqueezy is called; an admin
+  listing another email is not subject to their own email's verification (see the
+  [subscription owner email verification spec](../../plugins/subscription-owner-email-verification-spec.md)).
 - **R8.** A sponsor-ad subscription never creates a plan row: its variant is not a plan variant (R9), so
   `subscription_updated` (and the events routed to it) can only update an existing plan row, and a payment
   failure of a bound sponsor ad (R11) is acknowledged. Its first invoice (`billing_reason: 'initial'`) is

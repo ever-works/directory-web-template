@@ -1,7 +1,9 @@
 import { auth } from "@/lib/auth";
 import { getOrCreateLemonsqueezyProvider } from "@/lib/payment/config/payment-provider-manager";
 import { statuses } from "@/lib/payment/lib/providers/lemonsqueezy-provider";
-import { requestsAnotherCustomer, resolveListCustomerEmail } from "@/lib/payment/lemonsqueezy-list-access";
+import { resolveListAccess as decideListAccess } from "@/lib/payment/lemonsqueezy-list-access";
+import { loadEmailVerificationState } from "@/lib/payment/subscription-email-verification";
+import { EMAIL_NOT_VERIFIED_MESSAGE, isEmailVerifiedForOwnership } from "@/lib/payment/subscription-ownership";
 import { isAdmin } from "@/lib/db/roles";
 import { safeErrorMessage } from "@/lib/utils/api-error";
 import { NextRequest, NextResponse } from "next/server";
@@ -23,12 +25,23 @@ const queryParamsSchema = z.object({
 /**
  * Whose subscriptions the caller may list. Another customer's email needs a live
  * admin role (the JWT `isAdmin` claim stays set for 30 days after the role is
- * removed); the lookup only runs when another email is requested.
+ * removed); the caller's own email needs to be verified. See `decideListAccess`.
  */
-async function resolveListAccess(user: { id?: string | null; email: string }, customerEmail?: string) {
-  const callerIsAdmin =
-    requestsAnotherCustomer(user.email, customerEmail) && !!user.id ? await isAdmin(user.id) : false;
-  return resolveListCustomerEmail({ email: user.email, isAdmin: callerIsAdmin }, customerEmail);
+function resolveListAccess(user: { id?: string | null; email: string }, customerEmail?: string) {
+  return decideListAccess(user, customerEmail, {
+    isAdmin,
+    isEmailVerified: (userId, email) => isEmailVerifiedForOwnership(userId, email, loadEmailVerificationState),
+  });
+}
+
+/** The 403 body for a refused list request. */
+function listAccessDenied(reason: 'ACCESS_DENIED' | 'EMAIL_NOT_VERIFIED') {
+  return NextResponse.json(
+    reason === 'EMAIL_NOT_VERIFIED'
+      ? { error: EMAIL_NOT_VERIFIED_MESSAGE, code: 'EMAIL_NOT_VERIFIED' }
+      : { error: 'Forbidden', message: 'You can only view your own checkouts', code: 'ACCESS_DENIED' },
+    { status: 403 }
+  );
 }
 
 /**
@@ -257,6 +270,22 @@ async function resolveListAccess(user: { id?: string | null; email: string }, cu
  *                 code:
  *                   type: string
  *                   example: "AUTH_REQUIRED"
+ *       403:
+ *         description: "Forbidden - the signed-in user's email address is not verified (EMAIL_NOT_VERIFIED), or customerEmail names another user and the caller is not an admin (ACCESS_DENIED)"
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                 message:
+ *                   type: string
+ *                   example: "You can only view your own checkouts"
+ *                 code:
+ *                   type: string
+ *                   enum: ["EMAIL_NOT_VERIFIED", "ACCESS_DENIED"]
+ *                   example: "EMAIL_NOT_VERIFIED"
  *       500:
  *         description: "Internal server error"
  *         content:
@@ -366,17 +395,10 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Only admins may list another customer's subscriptions.
+    // Only admins may list another customer's subscriptions; one's own need a verified email.
     const access = await resolveListAccess({ id: session.user.id, email: session.user.email }, customerEmail);
     if (!access.allowed) {
-      return NextResponse.json(
-        {
-          error: 'Forbidden',
-          message: 'You can only view your own checkouts',
-          code: 'ACCESS_DENIED'
-        },
-        { status: 403 }
-      );
+      return listAccessDenied(access.reason);
     }
 
     // 4. Initialize LemonSqueezy provider
@@ -555,7 +577,7 @@ export async function GET(request: NextRequest) {
  *                   type: string
  *                   example: "AUTH_REQUIRED"
  *       403:
- *         description: "Forbidden - Cannot access other users' checkouts"
+ *         description: "Forbidden - the signed-in user's email address is not verified (EMAIL_NOT_VERIFIED), or customerEmail names another user and the caller is not an admin (ACCESS_DENIED)"
  *         content:
  *           application/json:
  *             schema:
@@ -569,7 +591,8 @@ export async function GET(request: NextRequest) {
  *                   example: "You can only view your own checkouts"
  *                 code:
  *                   type: string
- *                   example: "ACCESS_DENIED"
+ *                   enum: ["EMAIL_NOT_VERIFIED", "ACCESS_DENIED"]
+ *                   example: "EMAIL_NOT_VERIFIED"
  *       500:
  *         description: "Internal server error"
  *         content:
@@ -647,14 +670,7 @@ export async function POST(request: NextRequest) {
 
     const access = await resolveListAccess({ id: session.user.id, email: session.user.email }, customerEmail);
     if (!access.allowed) {
-      return NextResponse.json(
-        {
-          error: 'Forbidden',
-          message: 'You can only view your own checkouts',
-          code: 'ACCESS_DENIED'
-        },
-        { status: 403 }
-      );
+      return listAccessDenied(access.reason);
     }
 
     // 4. Initialize provider and fetch data

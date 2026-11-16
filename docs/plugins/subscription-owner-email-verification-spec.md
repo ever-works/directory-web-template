@@ -57,6 +57,15 @@ any LemonSqueezy subscription bought under that address in the same store.
   `findOwnedLemonSqueezySubscription`, and returns **403** with code
   `EMAIL_NOT_VERIFIED` and the message `EMAIL_NOT_VERIFIED_MESSAGE` when it is false.
   No LemonSqueezy call is made in that case.
+- `GET` and `POST /api/lemonsqueezy/list` match purchases by the same email, so they
+  need the same proof. `resolveListAccess` (`lemonsqueezy-list-access.ts`) runs before
+  LemonSqueezy is called. Listing the caller's own email (no `customerEmail`, or the
+  same one) requires `isEmailVerifiedForOwnership`; otherwise **403** `EMAIL_NOT_VERIFIED`
+  with `EMAIL_NOT_VERIFIED_MESSAGE`. Listing another email stays admin-only (live
+  `isAdmin` lookup, **403** `ACCESS_DENIED` for everyone else) and does **not** consult
+  the admin's own email verification: the admin role is granted by an operator and cannot
+  be gained by registering someone else's address, and the address being read is not the
+  admin's. An admin listing their own purchases is subject to the check like any user.
 - A verified non-owner still gets **404** `Subscription not found or access denied`; an unverified caller gets the 403 first, before any lookup.
 - Sign-in is unchanged: there is no new verification requirement to log in.
 - Stripe and Polar routes are unaffected (they match on local rows / customer ids, not
@@ -70,6 +79,11 @@ any LemonSqueezy subscription bought under that address in the same store.
   without a lookup.
 - `apps/web/lib/payment/__tests__/subscription-ownership-wiring.spec.ts`: each
   LemonSqueezy route must call the verification check, answer 403 right after it fails,
-  and do so before the owner lookup.
+  and do so before the owner lookup; the list route's GET and POST must resolve access
+  (and return the 403) before calling LemonSqueezy.
+- `apps/web/lib/payment/__tests__/lemonsqueezy-list-access.spec.ts`: unverified caller
+  refused (own email, with or without `customerEmail`); verified caller accepted; admin
+  listing another email accepted without the verification lookup; non-admin asking for
+  another email refused with `ACCESS_DENIED`.
 
 Run with `pnpm --filter @ever-works/web test:unit`.

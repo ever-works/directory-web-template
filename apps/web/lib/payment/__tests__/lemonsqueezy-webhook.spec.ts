@@ -257,7 +257,24 @@ test('the webhook route takes plan and sponsor-ad decisions from the variant, no
 test('the list route resolves admin access with a live role lookup, not the JWT claim', () => {
 	const route = routeSource('../../../app/api/lemonsqueezy/list/route.ts');
 	assert.ok(!route.includes('session.user.isAdmin'), 'list route still trusts the JWT isAdmin claim');
-	assert.ok(route.includes('await isAdmin(user.id)'));
+	// The route hands the live role lookup to `resolveListAccess`, which calls it with the user id.
+	assert.ok(/import \{ isAdmin \} from ["']@\/lib\/db\/roles["']/.test(route), 'list route does not import isAdmin');
+	assert.ok(
+		/decideListAccess\(user, customerEmail, \{\s*isAdmin,/.test(route),
+		'list route does not pass the live isAdmin lookup'
+	);
+	const helper = routeSource('../lemonsqueezy-list-access.ts');
+	assert.ok(helper.includes('await checks.isAdmin(user.id)'), 'resolveListAccess does not run the live admin lookup');
 	const call = 'await resolveListAccess({ id: session.user.id, email: session.user.email }, customerEmail)';
 	assert.equal(route.split(call).length - 1, 2, 'GET and POST must both use the live admin lookup');
+	// LemonSqueezy is only ever asked for the email the access decision returned.
+	for (const method of ['GET', 'POST']) {
+		const start = route.indexOf(`export async function ${method}(`);
+		const end = route.indexOf('export async function ', start + 1);
+		const handler = route.slice(start, end < 0 ? undefined : end).replace(/\s+/g, ' ');
+		assert.ok(
+			/const filterOptions = \{[^}]*customerEmail: access\.email,/.test(handler),
+			`${method} does not list by the decided email`
+		);
+	}
 });
