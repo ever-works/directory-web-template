@@ -1,0 +1,56 @@
+import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { describe, it } from 'node:test';
+
+/**
+ * Run with: `pnpm --filter @ever-works/web test:unit`
+ *
+ * `POST /api/version/sync` pulls the data repository, flushes every content cache and
+ * rebuilds the location index, so only an admin may trigger it. Before this guard any
+ * signed-in user (including one who had just registered) could call it in a loop.
+ * The route handler imports Next.js and the auth stack and cannot be loaded under
+ * `tsx --test`, so these checks read the source.
+ */
+const route = readFileSync(join(__dirname, '../../app/api/version/sync/route.ts'), 'utf8').replace(/\s+/g, ' ');
+
+/** The text of one exported function, up to the next top-level export. */
+const functionBody = (src: string, signature: string) => {
+	const start = src.indexOf(signature);
+	assert.ok(start >= 0, `${signature} not found`);
+	const next = src.indexOf(' export ', start + signature.length);
+	return src.slice(start, next < 0 ? undefined : next);
+};
+
+describe('POST /api/version/sync is admin-only', () => {
+	const post = functionBody(route, 'export async function POST(');
+
+	it('imports requireAdminSession from the shared admin guard', () => {
+		assert.ok(
+			/import \{[^}]*\brequireAdminSession\b[^}]*\} from ["']@\/lib\/auth\/admin-guard["']/.test(route),
+			'the route does not import requireAdminSession from @/lib/auth/admin-guard'
+		);
+	});
+
+	it('POST runs requireAdminSession() and returns its response before triggerManualSync()', () => {
+		const guard = post.indexOf('await requireAdminSession()');
+		const bail = post.indexOf('if (authResult instanceof NextResponse) return authResult;');
+		const sync = post.indexOf('triggerManualSync()');
+		assert.ok(guard > 0, 'POST does not call requireAdminSession()');
+		assert.ok(bail > guard, 'POST does not return the 401/403 response from requireAdminSession()');
+		assert.ok(sync > 0, 'POST no longer calls triggerManualSync()');
+		assert.ok(bail < sync, 'the admin check must run before triggerManualSync()');
+	});
+
+	it('POST no longer accepts any signed-in user', () => {
+		assert.ok(!post.includes('if (!session?.user)'), 'POST still gates only on a signed-in session');
+		assert.ok(!post.includes('await auth()'), 'POST still resolves the session with a bare auth() call');
+	});
+
+	it('GET stays a public status read', () => {
+		const get = functionBody(route, 'export async function GET(');
+		assert.ok(get.includes('getSyncStatus()'), 'GET does not read the sync status');
+		assert.ok(!get.includes('requireAdminSession'), 'GET must stay public');
+		assert.ok(!get.includes('triggerManualSync'), 'GET must not trigger a sync');
+	});
+});
