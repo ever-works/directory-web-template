@@ -1,4 +1,9 @@
 /**
+ * @deprecated Unused. The payment providers now call getUserPaymentAccountByProvider /
+ * setupUserPaymentAccount from '@/lib/db/queries' directly, because POST/PUT
+ * /api/payment/account require a signed-in owner and a server-side fetch has no session.
+ * Safe to delete.
+ *
  * Client service for payment account operations
  * Handles API calls to payment account endpoints with React Query caching
  */

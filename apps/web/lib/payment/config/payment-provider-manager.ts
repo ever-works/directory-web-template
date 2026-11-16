@@ -1,4 +1,11 @@
-import { LemonSqueezyProvider, StripeProvider, PolarProvider, SolidgateProvider } from '..';
+// Import each provider from its own file, never from the `..` barrel: the barrel re-exports the
+// 'use client' `usePayment` hook, so importing it from here (a server module) makes Next bundle the
+// hook's graph for the browser. The providers read and write payment accounts through
+// `@/lib/db/queries`, and that graph cannot be bundled for the browser.
+import { StripeProvider } from '../lib/providers/stripe-provider';
+import { LemonSqueezyProvider } from '../lib/providers/lemonsqueezy-provider';
+import { PolarProvider } from '../lib/providers/polar-provider';
+import { SolidgateProvider } from '../lib/providers/solidgate-provider';
 import { PaymentProviderInterface } from '../types/payment-types';
 import { paymentConfig, coreConfig } from '@/lib/config/config-service';
 
