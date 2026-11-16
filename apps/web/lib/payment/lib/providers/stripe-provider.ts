@@ -24,7 +24,7 @@ import {
 } from '../../types/payment-types';
 import StripeElementsWrapper from '../../ui/stripe/stripe-elements';
 import { PRICES } from '../utils/prices';
-import { paymentAccountClient } from '../client/payment-account-client';
+import { getUserPaymentAccountByProvider, setupUserPaymentAccount } from '@/lib/db/queries';
 
 const stripeCardBrands: CardBrandIcon[] = [
 	{
@@ -165,7 +165,7 @@ export class StripeProvider implements PaymentProviderInterface {
 
 	private async retrieveCustomerIdFromDatabase(userId: string): Promise<string | null> {
 		try {
-			const existingPaymentAccount = await paymentAccountClient.getPaymentAccount(userId, 'stripe');
+			const existingPaymentAccount = await getUserPaymentAccountByProvider(userId, 'stripe');
 
 			if (existingPaymentAccount?.customerId) {
 				this.logger.debug('Existing PaymentAccount found in database', {
@@ -228,11 +228,7 @@ export class StripeProvider implements PaymentProviderInterface {
 
 	private async synchronizePaymentAccount(userId: string, customerId: string): Promise<void> {
 		try {
-			const paymentAccount = await paymentAccountClient.setupPaymentAccount({
-				provider: 'stripe',
-				userId,
-				customerId
-			});
+			const paymentAccount = await setupUserPaymentAccount('stripe', userId, customerId);
 			this.logger.info('PaymentAccount synchronized successfully in database', {
 				userId,
 				customerId,
@@ -250,7 +246,7 @@ export class StripeProvider implements PaymentProviderInterface {
 
 				// Try to get the existing account and update it
 				try {
-					const existingAccount = await paymentAccountClient.getPaymentAccount(userId, 'stripe');
+					const existingAccount = await getUserPaymentAccountByProvider(userId, 'stripe');
 					if (existingAccount) {
 						this.logger.info('Found existing payment account - synchronization completed', {
 							userId,

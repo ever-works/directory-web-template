@@ -19,7 +19,7 @@ import {
 	SetupIntent,
 	SubscriptionStatus
 } from '../../types/payment-types';
-import { paymentAccountClient } from '../client/payment-account-client';
+import { getUserPaymentAccountByProvider, setupUserPaymentAccount } from '@/lib/db/queries';
 import { PRICES } from '../utils/prices';
 import SolidgateElementsWrapper from '../../ui/solidgate/solidgate-elements';
 // Edge-compatible crypto helpers (avoid Node.js 'crypto' module)
@@ -294,7 +294,7 @@ export class SolidgateProvider implements PaymentProviderInterface {
 
 	private async retrieveCustomerIdFromDatabase(userId: string): Promise<string | null> {
 		try {
-			const existingPaymentAccount = await paymentAccountClient.getPaymentAccount(userId, 'solidgate');
+			const existingPaymentAccount = await getUserPaymentAccountByProvider(userId, 'solidgate');
 
 			if (existingPaymentAccount?.customerId) {
 				this.logger.debug('Existing PaymentAccount found in database', {
@@ -357,11 +357,7 @@ export class SolidgateProvider implements PaymentProviderInterface {
 
 	private async synchronizePaymentAccount(userId: string, customerId: string): Promise<void> {
 		try {
-			const paymentAccount = await paymentAccountClient.setupPaymentAccount({
-				provider: 'solidgate',
-				userId,
-				customerId
-			});
+			const paymentAccount = await setupUserPaymentAccount('solidgate', userId, customerId);
 			this.logger.info('PaymentAccount synchronized successfully in database', {
 				userId,
 				customerId,
@@ -379,7 +375,7 @@ export class SolidgateProvider implements PaymentProviderInterface {
 
 				// Try to get the existing account and update it
 				try {
-					const existingAccount = await paymentAccountClient.getPaymentAccount(userId, 'solidgate');
+					const existingAccount = await getUserPaymentAccountByProvider(userId, 'solidgate');
 					if (existingAccount) {
 						this.logger.info('Found existing payment account - synchronization completed', {
 							userId,
