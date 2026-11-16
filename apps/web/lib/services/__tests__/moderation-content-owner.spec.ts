@@ -85,7 +85,13 @@ describe('PUT /api/admin/reports/{id} runs the moderation action before it saves
 	it('looks up the owner and runs the action before updateReport', () => {
 		const save = put.indexOf('await updateReport(id, {');
 		assert.ok(save > 0, 'PUT does not call updateReport');
-		for (const call of ['await removeContent(', 'await getContentOwner(', 'await warnUser(', 'await suspendUser(', 'await banUser(']) {
+		for (const call of [
+			'await removeContent(',
+			'await getContentOwner(',
+			'await warnUser(',
+			'await suspendUser(',
+			'await banUser('
+		]) {
 			const at = put.indexOf(call);
 			assert.ok(at > 0, `PUT does not call ${call}`);
 			assert.ok(at < save, `PUT saves the report before ${call}`);
@@ -98,7 +104,10 @@ describe('PUT /api/admin/reports/{id} runs the moderation action before it saves
 		assert.ok(failed > 0 && failed < save, 'PUT does not stop on a failed moderation action before it saves');
 		const branch = put.slice(failed, put.indexOf('}', put.indexOf('return NextResponse.json(', failed)) + 1);
 		assert.ok(branch.includes('return NextResponse.json('), 'a failed moderation action does not return');
-		assert.ok(branch.includes('error: moderationResult.message'), 'the error response does not carry the action message');
+		assert.ok(
+			branch.includes('error: moderationResult.message'),
+			'the error response does not carry the action message'
+		);
 		assert.ok(!branch.includes('success: true'), 'a failed moderation action still answers success: true');
 		assert.ok(!put.includes("don't fail the request"), 'PUT still swallows a failed moderation action');
 	});

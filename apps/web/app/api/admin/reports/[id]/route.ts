@@ -14,7 +14,8 @@ import {
 	warnUser,
 	suspendUser,
 	banUser,
-	getContentOwner
+	getContentOwner,
+	type ModerationResult
 } from '@/lib/services/moderation.service';
 
 export const runtime = 'nodejs';
@@ -22,6 +23,15 @@ export const runtime = 'nodejs';
 // Valid values for validation
 const VALID_STATUSES = Object.values(ReportStatus);
 const VALID_RESOLUTIONS = Object.values(ReportResolution);
+
+/**
+ * HTTP status for a moderation action that did not run. `ALREADY_*` and `NOT_FOUND` describe
+ * the target's current state (already suspended or banned, content or user gone): 409.
+ * Anything else failed inside the action: 500.
+ */
+function moderationFailureStatus(code: string | undefined): number {
+	return code === 'ALREADY_SUSPENDED' || code === 'ALREADY_BANNED' || code === 'NOT_FOUND' ? 409 : 500;
+}
 
 /**
  * @swagger
@@ -86,7 +96,7 @@ export async function GET(
  *   put:
  *     tags: ["Admin - Reports"]
  *     summary: "Update report status and resolution"
- *     description: "Updates a report's status, resolution, and/or review note. Requires admin privileges."
+ *     description: "Updates a report's status, resolution, and/or review note. Requires admin privileges. A resolution other than no_action runs its moderation action first (remove the content, or warn / suspend / ban its owner's client profile); if that action fails, the report is left unchanged and the response is an error."
  *     security:
  *       - sessionAuth: []
  *     parameters:
@@ -115,13 +125,15 @@ export async function GET(
  *       200:
  *         description: "Report updated successfully"
  *       400:
- *         description: "Bad request - Invalid input"
+ *         description: "Bad request - Invalid input, or the content owner could not be identified for warn / suspend / ban (for example 'Item submitter has no client profile'); the report is unchanged"
  *       403:
  *         description: "Forbidden - Admin access required"
  *       404:
  *         description: "Report not found"
+ *       409:
+ *         description: "The moderation action does not fit the target's current state (for example 'User is already banned', or the content is gone); the report is unchanged"
  *       500:
- *         description: "Internal server error"
+ *         description: "Internal server error, or the moderation action failed (for example 'Failed to warn user'); the report is unchanged"
  */
 export async function PUT(
 	request: Request,
@@ -164,39 +176,9 @@ export async function PUT(
 			);
 		}
 
-		// Update the report
-		const updatedReport = await updateReport(id, {
-			status: status as ReportStatusValues | undefined,
-			resolution: resolution as ReportResolutionValues | undefined,
-			reviewNote: typeof reviewNote === 'string' ? reviewNote.trim() || undefined : undefined,
-			reviewedBy: session.user.id
-		});
-
-		if (!updatedReport) {
-			return NextResponse.json({ success: false, error: 'Failed to update report' }, { status: 500 });
-		}
-
-		// EW-120 push mode: emit WEBSITE_REPORT_RESOLVED on any terminal
-		// status transition. Fire-and-forget; never block the admin response.
-		const becameTerminal =
-			(status === ReportStatus.RESOLVED || status === ReportStatus.DISMISSED) &&
-			existingReport.status !== status;
-		if (becameTerminal) {
-			void emitActivityEvent({
-				actionType: 'WEBSITE_REPORT_RESOLVED',
-				summary: `Report resolved (${status}${resolution ? `, ${resolution}` : ''})`,
-				metadata: {
-					reportId: id,
-					previousStatus: existingReport.status,
-					newStatus: status,
-					resolution: resolution ?? null,
-					reviewedBy: session.user.id
-				}
-			});
-		}
-
-		// Execute moderation action based on resolution
-		let moderationResult = null;
+		// Execute the moderation action before the report is saved, so a failed action
+		// leaves the report as it was and the admin sees the failure.
+		let moderationResult: ModerationResult | null = null;
 		if (resolution && resolution !== ReportResolution.NO_ACTION) {
 			const adminId = session.user.id!; // Non-null assertion - validated by isAdmin check above
 
@@ -237,11 +219,44 @@ export async function PUT(
 				}
 			}
 
-			// Check if moderation action failed
+			// A failed action answers an error and leaves the report unchanged
 			if (moderationResult && !moderationResult.success) {
-				// Log the error but don't fail the request since report was updated
-				console.error('Moderation action failed:', moderationResult.error);
+				return NextResponse.json(
+					{ success: false, error: moderationResult.message },
+					{ status: moderationFailureStatus(moderationResult.error) }
+				);
 			}
+		}
+
+		// Update the report
+		const updatedReport = await updateReport(id, {
+			status: status as ReportStatusValues | undefined,
+			resolution: resolution as ReportResolutionValues | undefined,
+			reviewNote: typeof reviewNote === 'string' ? reviewNote.trim() || undefined : undefined,
+			reviewedBy: session.user.id
+		});
+
+		if (!updatedReport) {
+			return NextResponse.json({ success: false, error: 'Failed to update report' }, { status: 500 });
+		}
+
+		// EW-120 push mode: emit WEBSITE_REPORT_RESOLVED on any terminal
+		// status transition. Fire-and-forget; never block the admin response.
+		const becameTerminal =
+			(status === ReportStatus.RESOLVED || status === ReportStatus.DISMISSED) &&
+			existingReport.status !== status;
+		if (becameTerminal) {
+			void emitActivityEvent({
+				actionType: 'WEBSITE_REPORT_RESOLVED',
+				summary: `Report resolved (${status}${resolution ? `, ${resolution}` : ''})`,
+				metadata: {
+					reportId: id,
+					previousStatus: existingReport.status,
+					newStatus: status,
+					resolution: resolution ?? null,
+					reviewedBy: session.user.id
+				}
+			});
 		}
 
 		// Fetch updated report with full details

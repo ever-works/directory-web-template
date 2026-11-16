@@ -44,7 +44,7 @@ async function getContentOwner(
 // Returns: { success: boolean, userId?: string, error?: string }
 ```
 
-Resolves the author of reported content by looking up comments via `getCommentById()` or items via `ItemRepository.findById()`.
+Resolves the author of reported content as a `client_profiles.id`, by looking up comments via `getCommentById()` or items via `ItemRepository.findById()`. An item's `submitted_by` is a `users.id`, so it is mapped to the submitter's client profile with `getClientProfileByUserId()`; a submitter without one fails.
 
 ### Moderation Actions
 
