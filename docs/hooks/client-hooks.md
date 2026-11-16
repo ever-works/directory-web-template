@@ -83,10 +83,6 @@ const {
   isUpdating,
   deleteComment,    // (commentId: string) => Promise<void>
   isDeleting,
-  rateComment,      // ({ commentId, rating }) => void
-  isRatingComment,
-  updateCommentRating, // ({ commentId, rating }) => void
-  isUpdatingRating,
   commentRating,    // number
   isLoadingRating,
 } = useComments(itemId);
