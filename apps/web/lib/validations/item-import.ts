@@ -2,6 +2,14 @@ import { z } from 'zod';
 import { ITEM_VALIDATION } from '@/lib/types/item';
 
 /**
+ * Slugs an import may write: lowercase letters and digits in groups joined by single hyphens.
+ * The slug becomes the item's folder and file name in the data repository
+ * (`data/<slug>/<slug>.yml`), so anything else (`../x`, `a/b`) is refused.
+ */
+export const IMPORT_SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+export const IMPORT_SLUG_MESSAGE = 'Slug may only contain lowercase letters, numbers and single hyphens';
+
+/**
  * Schema for validating a single import row after column mapping.
  */
 export const importRowSchema = z.object({
@@ -29,7 +37,7 @@ export const importRowSchema = z.object({
 		.optional()
 		.default('')
 		.transform((val) => (val ? val.split(';').map((s) => s.trim()).filter(Boolean) : [])),
-	slug: z.string().optional(),
+	slug: z.string().regex(IMPORT_SLUG_PATTERN, IMPORT_SLUG_MESSAGE).optional().or(z.literal('')),
 	featured: z
 		.string()
 		.optional()
@@ -59,6 +67,30 @@ export const importRowSchema = z.object({
 });
 
 export type ImportRowInput = z.infer<typeof importRowSchema>;
+
+const importedList = z.array(z.string()).optional();
+
+/**
+ * Server-side check of a row the browser sends back to the execute step
+ * (`ImportRowValidation.data`, which `validateRows` has already split into arrays).
+ * Reuses the name, description and URL rules of {@link importRowSchema}; the slug is required.
+ */
+export const importRowDataSchema = z.object({
+	name: importRowSchema.shape.name,
+	description: importRowSchema.shape.description,
+	source_url: importRowSchema.shape.source_url,
+	slug: z.string().regex(IMPORT_SLUG_PATTERN, IMPORT_SLUG_MESSAGE),
+	category: importedList,
+	tags: importedList,
+	collections: importedList,
+	featured: z.boolean().optional(),
+	icon_url: importRowSchema.shape.icon_url,
+	brand: z.string().optional(),
+	brand_logo_url: importRowSchema.shape.brand_logo_url,
+	images: importedList
+});
+
+export type ImportRowData = z.infer<typeof importRowDataSchema>;
 
 /**
  * Schema for the export query parameter.
