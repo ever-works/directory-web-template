@@ -100,7 +100,9 @@ subscription grants comes from the variant that was paid for, never from the che
   no user id in its custom data, the handler looks the user up by the customer email and passes the id to the
   subscription service as `metadata.userId`. Only a verified address is matched: the same rule as the LemonSqueezy
   management routes (`isEmailVerifiedForOwnership`: `users.emailVerified`, or a linked OAuth/OIDC account for a
-  user without a password; the match is case-insensitive). With no verified user the event is handled as before. A
+  user without a password). The customer email is looked up as sent and then lower-cased (sign-up and OAuth store
+  lower-cased addresses); the first user found decides, so an unverified account holding the exact spelling blocks
+  the match instead of letting it fall through. With no verified user the event is handled as before. A
   user id in the custom data is never replaced. The fallback lives in
   `lemonsqueezy-subscription-events.ts`, not in the shared service, which Stripe also uses: a Stripe invoice that
   arrives before its subscription must not create a row from an email match. A failing lookup makes the event retry.

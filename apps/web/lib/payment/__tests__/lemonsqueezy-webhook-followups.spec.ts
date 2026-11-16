@@ -124,10 +124,15 @@ test('events without a usable email, or a lookup that fails, never match a user'
 		return 'user_by_email';
 	};
 	const noEmail = harness({ findUserIdByVerifiedEmail: lookup });
-	await noEmail.events.created(subscription({}, undefined));
+	// `subscription({}, undefined)` would fall back to the default email, so drop the key instead.
+	const withoutEmail = subscription({});
+	delete (withoutEmail.attributes as Record<string, unknown>).user_email;
+	await noEmail.events.created(withoutEmail);
+	await noEmail.events.created(subscription({}, null));
 	await noEmail.events.created(subscription({}, '   '));
 	assert.equal(lookups, 0);
-	assert.equal(noEmail.calls[0].data.metadata.userId, undefined);
+	assert.equal(noEmail.calls.length, 3);
+	assert.ok(noEmail.calls.every((call) => call.data.metadata.userId === undefined));
 
 	// A lookup that throws makes the event retry rather than writing a row for nobody.
 	const failing = harness({
@@ -207,6 +212,24 @@ test('the email lookup is case-insensitive and ignores blank or unknown emails',
 	assert.equal(await find('nobody@example.com'), null);
 	assert.equal(await find('   '), null);
 	assert.equal(await find(undefined), null);
+});
+
+test('an unverified account holding the exact spelling blocks the match instead of falling through', async () => {
+	// Someone registered `Buyer@Example.com` (unverified) before the real owner of `buyer@example.com`
+	// bought: the finder stops at that account and matches nobody, it never tries the next spelling.
+	const asked: string[] = [];
+	const find = createVerifiedEmailUserFinder({
+		getUserByEmail: async (email) => {
+			asked.push(email);
+			return email === 'Buyer@Example.com' ? { id: 'squatter' } : { id: 'owner' };
+		},
+		loadVerificationState: async (userId) =>
+			userId === 'squatter'
+				? stored({ email: 'Buyer@Example.com' })
+				: stored({ email: 'buyer@example.com', emailVerified: new Date() })
+	});
+	assert.equal(await find('Buyer@Example.com'), null);
+	assert.deepEqual(asked, ['Buyer@Example.com']);
 });
 
 test('a payment failure with no subscription row is acknowledged, not retried', async () => {

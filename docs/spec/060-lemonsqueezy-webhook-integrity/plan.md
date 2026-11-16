@@ -21,12 +21,18 @@ sidebar_label: 060 Plan
   custom data on the server (`lemonsqueezy-checkout-params.ts`): `{ userId, email, name }` from the session,
   and only `variantId` and `dark` from the body; a client `customPrice` or metadata is never forwarded.
 - **Event handling (R3–R8, R11, R13).** `lemonsqueezy-subscription-events.ts` dispatches subscription and
-  invoice events. Creation needs a plan variant; updates and invoices only touch an existing row
+  invoice events. Creation needs a plan variant (a plan-variant update with no row creates it); updates on
+  other variants and invoices only touch an existing row
   (`createIfMissing: false`, a new option of the shared subscription service whose default keeps the
   Stripe, Polar and Solidgate paths unchanged). Sponsor ads are identified by sponsor-ad variant and by the
   subscription they are bound to, never by custom data, and use the sponsor-ad lifecycle decisions.
   Invoice rows store the invoice's own id. A failed write answers 503 so LemonSqueezy redelivers it; a
   per-pod bounded set acknowledges a redelivery once.
+- **Email-only purchases and payment failures (R14–R15).** A plan-variant create (or an update that has to
+  create the row) with no user id in its custom data gets the owner from `lemonsqueezy-verified-email-user.ts`
+  (`getUserByEmail` + #1123's `isEmailVerifiedForOwnership`). `subscription_payment_failed` passes
+  `createIfMissing: false`, so a missing row is acknowledged; the option's default keeps the other providers'
+  error.
 - **Plan changes (R12).** `update-plan` and `update` accept only catalog plan variants (400 otherwise)
   before calling LemonSqueezy; ownership is checked by #1114's `findOwnedLemonSqueezySubscription`.
 - **List access (R5).** `lemonsqueezy-list-access.ts`: the list routes use the session email; another
@@ -57,7 +63,8 @@ sidebar_label: 060 Plan
 - [x] **VIII — No Removal Without Migration** — no schema change; client-sent checkout fields are ignored,
   not rejected, so existing callers keep working.
 - [x] **IX — Test Coverage Bar** — `lemonsqueezy-webhook.spec.ts`, `lemonsqueezy-plan-integrity.spec.ts`,
-  `lemonsqueezy-checkout-wiring.spec.ts`, `sponsor-ad-subscription.spec.ts` in `test:unit`.
+  `lemonsqueezy-checkout-wiring.spec.ts`, `sponsor-ad-subscription.spec.ts`, `lemonsqueezy-webhook-followups.spec.ts`
+  in `test:unit`.
 - [x] **X — Modular Packages** — no package changes.
 
 ## Follow-ups
