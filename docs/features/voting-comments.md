@@ -114,7 +114,7 @@ Each comment includes:
 - `rating` -- Optional star rating (1-5)
 - `userId` -- Author reference
 - `itemId` -- Associated item
-- `user` -- Populated public profile data (name, image; never the email)
+- `user` -- Populated public profile data (id, name, image, username, bio, jobTitle, company, location; never the email)
 - `createdAt` / `updatedAt` -- Timestamps
 
 ### Rating Integration

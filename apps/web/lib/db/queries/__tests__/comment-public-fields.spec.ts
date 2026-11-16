@@ -65,7 +65,29 @@ describe('public comment responses do not expose commenter emails', () => {
 	it('the GET route still answers with getCommentsByItemId, without a session', () => {
 		const get = functionBody(listRoute, 'export async function GET(');
 		assert.ok(get.includes('getCommentsByItemId('), 'GET no longer reads getCommentsByItemId');
+		assert.ok(get.includes('comments: itemComments'), 'GET no longer answers with the getCommentsByItemId rows');
 		assert.ok(!get.includes('auth()'), 'GET is expected to stay public');
+	});
+
+	it('the POST route answers with getCommentWithUserById, and neither route reads an email itself', () => {
+		const post = functionBody(listRoute, 'export async function POST(');
+		assert.ok(
+			post.includes('const commentWithUser = await getCommentWithUserById(comment.id)'),
+			'POST no longer reads getCommentWithUserById'
+		);
+		assert.ok(
+			post.includes('comment: commentWithUser'),
+			'POST no longer answers with the getCommentWithUserById row'
+		);
+		for (const [label, src] of [
+			['comments/route.ts', listRoute],
+			['comments/[commentId]/route.ts', commentRoute]
+		] as const) {
+			// Code only: the JSDoc blocks are checked by the OpenAPI test below.
+			const code = src.replace(/\/\*[\s\S]*?\*\//g, ' ');
+			assert.ok(!/\b(clientProfiles|users)\.email\b/.test(code), `${label} reads an email column`);
+			assert.ok(!/\bemail\s*:/.test(code), `${label} puts an email field in a response`);
+		}
 	});
 
 	it('the CommentWithUser user shapes have no email field', () => {
