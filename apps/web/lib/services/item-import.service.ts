@@ -1,7 +1,13 @@
 import Papa from 'papaparse';
 import ExcelJS from 'exceljs';
 import { ItemRepository } from '@/lib/repositories/item.repository';
-import { importRowSchema } from '@/lib/validations/item-import';
+import {
+	importRowSchema,
+	importRowDataSchema,
+	IMPORT_SLUG_MESSAGE,
+	IMPORT_SLUG_PATTERN,
+	type ImportRowData,
+} from '@/lib/validations/item-import';
 import { slugify } from '@/lib/utils/slug';
 import type { CreateItemRequest } from '@/lib/types/item';
 import type {
@@ -171,7 +177,8 @@ export class ItemImportService {
 		rows: ImportRowRaw[],
 		options: ValidateOptions
 	): Promise<ValidateResult> {
-		const existingItems = await this.repository.findAll({ includeDeleted: false });
+		// Deleted items still have their YAML file, so they count as duplicates too (as in executeImport).
+		const existingItems = await this.repository.findAll({ includeDeleted: true });
 		const existingSlugs = new Set(existingItems.map((item) => item.slug));
 		const existingUrls = new Set(existingItems.map((item) => item.source_url));
 
@@ -224,6 +231,14 @@ export class ItemImportService {
 
 	/**
 	 * Execute the import: write valid rows to git data repo and commit.
+	 *
+	 * The rows come back from the browser, so their `valid` / `duplicate` flags and their data are
+	 * not trusted: every row is checked again against {@link importRowDataSchema}, and duplicates
+	 * are looked up again among all items (deleted ones included) by slug and by source_url. A row
+	 * whose slug already exists never reaches `batchCreate`: it is skipped, or updated when the
+	 * strategy is 'update'. `clientMode` (the client import route) never updates an existing item,
+	 * forces `featured` to false and drops `collections`, `brand_logo_url` and `images`, which the
+	 * client submit form cannot set either.
 	 */
 	async executeImport(
 		validatedRows: ImportRowValidation[],
@@ -231,16 +246,45 @@ export class ItemImportService {
 			duplicateStrategy: ImportDuplicateStrategy;
 			defaultStatus: 'draft' | 'pending' | 'approved';
 			submittedBy?: string;
+			clientMode?: boolean;
 		}
 	): Promise<ImportResult> {
-		const rowsToCreate = validatedRows.filter((r) => r.valid && !r.duplicate?.slug && !r.duplicate?.source_url);
-		const rowsToUpdate = validatedRows.filter(
-			(r) => r.valid && r.duplicate?.slug && options.duplicateStrategy === 'update'
-		);
-		const skippedDuplicates = validatedRows.filter(
-			(r) => r.valid && (r.duplicate?.slug || r.duplicate?.source_url) && options.duplicateStrategy === 'skip'
-		);
-		const invalidRows = validatedRows.filter((r) => !r.valid);
+		const clientMode = options.clientMode === true;
+		const duplicateStrategy: ImportDuplicateStrategy = clientMode ? 'skip' : options.duplicateStrategy;
+
+		const existingItems = await this.repository.findAll({ includeDeleted: true });
+		const existingBySlug = new Map(existingItems.map((item) => [item.slug, item]));
+		const existingUrls = new Set(existingItems.map((item) => item.source_url));
+		const batchSlugs = new Set<string>();
+
+		const rowsToCreate: Array<{ rowIndex: number; data: ImportRowData }> = [];
+		const rowsToUpdate: Array<{ rowIndex: number; id: string; data: ImportRowData }> = [];
+		const invalidRows: ImportResult['errors'] = [];
+		let skippedCount = 0;
+
+		for (const row of validatedRows) {
+			const checked = this.recheckRow(row, clientMode);
+			if (!checked.ok) {
+				invalidRows.push({ rowIndex: checked.rowIndex, message: checked.message });
+				continue;
+			}
+			const { rowIndex, data } = checked;
+
+			if (batchSlugs.has(data.slug)) {
+				invalidRows.push({ rowIndex, message: `slug: "${data.slug}" appears more than once in this import` });
+				continue;
+			}
+			batchSlugs.add(data.slug);
+
+			const existing = existingBySlug.get(data.slug);
+			if (existing && duplicateStrategy === 'update') {
+				rowsToUpdate.push({ rowIndex, id: existing.id, data });
+			} else if (existing || existingUrls.has(data.source_url)) {
+				skippedCount++;
+			} else {
+				rowsToCreate.push({ rowIndex, data });
+			}
+		}
 
 		const totalToProcess = rowsToCreate.length + rowsToUpdate.length;
 		if (totalToProcess === 0) {
@@ -248,8 +292,8 @@ export class ItemImportService {
 				total: validatedRows.length,
 				created: 0,
 				updated: 0,
-				skipped: skippedDuplicates.length,
-				errors: invalidRows.map((r) => ({ rowIndex: r.rowIndex, message: r.errors.join('; ') })),
+				skipped: skippedCount,
+				errors: invalidRows,
 			};
 		}
 
@@ -270,33 +314,24 @@ export class ItemImportService {
 		// Build create requests
 		const createRequests: Array<CreateItemRequest & { brand?: string; brand_logo_url?: string; images?: string[]; markdown?: string }> = [];
 
-		for (const row of rowsToCreate) {
-			if (!row.data) continue;
-			const data = row.data as Partial<ItemExportData>;
-			const slug = data.slug || slugify(data.name || '');
-
-			try {
-				createRequests.push({
-					id: slug,
-					name: data.name || '',
-					slug,
-					description: data.description || '',
-					source_url: data.source_url || '',
-					category: data.category || [],
-					tags: (data.tags as string[]) || [],
-					collections: (data.collections as string[]) || [],
-					featured: data.featured ?? false,
-					icon_url: data.icon_url || undefined,
-					status: options.defaultStatus,
-					submitted_by: options.submittedBy || 'import',
-					brand: data.brand || undefined,
-					brand_logo_url: data.brand_logo_url || undefined,
-					images: (data.images as string[]) || undefined,
-				});
-			} catch (err) {
-				const message = err instanceof Error ? err.message : String(err);
-				errors.push({ rowIndex: row.rowIndex, message });
-			}
+		for (const { data } of rowsToCreate) {
+			createRequests.push({
+				id: data.slug,
+				name: data.name,
+				slug: data.slug,
+				description: data.description,
+				source_url: data.source_url,
+				category: data.category || [],
+				tags: data.tags || [],
+				collections: data.collections || [],
+				featured: data.featured ?? false,
+				icon_url: data.icon_url || undefined,
+				status: options.defaultStatus,
+				submitted_by: options.submittedBy || 'import',
+				brand: data.brand || undefined,
+				brand_logo_url: data.brand_logo_url || undefined,
+				images: data.images || undefined,
+			});
 		}
 
 		// Execute batch create
@@ -317,20 +352,17 @@ export class ItemImportService {
 		if (rowsToUpdate.length > 0) {
 			const updates: Array<{ id: string; data: import('@/lib/types/item').UpdateItemRequest }> = [];
 
-			for (const row of rowsToUpdate) {
-				if (!row.data || !row.duplicate?.slug) continue;
-				const data = row.data as Partial<ItemExportData>;
-
+			for (const { id, data } of rowsToUpdate) {
 				updates.push({
-					id: row.duplicate.slug,
+					id,
 					data: {
-						id: row.duplicate.slug,
+						id,
 						name: data.name,
 						description: data.description,
 						source_url: data.source_url,
 						category: data.category,
-						tags: data.tags as string[],
-						collections: data.collections as string[],
+						tags: data.tags,
+						collections: data.collections,
 						featured: data.featured,
 						icon_url: data.icon_url,
 					},
@@ -349,16 +381,46 @@ export class ItemImportService {
 		}
 
 		// Include validation errors from invalid rows
-		for (const row of invalidRows) {
-			errors.push({ rowIndex: row.rowIndex, message: row.errors.join('; ') });
-		}
+		errors.push(...invalidRows);
 
 		return {
 			total: validatedRows.length,
 			created: createdCount,
 			updated: updatedCount,
-			skipped: skippedDuplicates.length,
+			skipped: skippedCount,
 			errors,
+		};
+	}
+
+	/**
+	 * Check one row of an execute request again on the server (see {@link executeImport}).
+	 * A row without a slug gets one from its name, as in `validateSingleRow`.
+	 */
+	private recheckRow(
+		row: ImportRowValidation,
+		clientMode: boolean
+	): { ok: true; rowIndex: number; data: ImportRowData } | { ok: false; rowIndex: number; message: string } {
+		const rowIndex = typeof row?.rowIndex === 'number' ? row.rowIndex : -1;
+		if (!row || row.valid !== true || !row.data || typeof row.data !== 'object') {
+			const message = Array.isArray(row?.errors) ? row.errors.join('; ') : '';
+			return { ok: false, rowIndex, message: message || 'Invalid row' };
+		}
+
+		const input = row.data as Record<string, unknown>;
+		const parsed = importRowDataSchema.safeParse({
+			...input,
+			slug: input.slug || slugify(typeof input.name === 'string' ? input.name : ''),
+		});
+		if (!parsed.success) {
+			const message = parsed.error.issues.map((issue) => `${issue.path.join('.')}: ${issue.message}`).join('; ');
+			return { ok: false, rowIndex, message };
+		}
+
+		if (!clientMode) return { ok: true, rowIndex, data: parsed.data };
+		return {
+			ok: true,
+			rowIndex,
+			data: { ...parsed.data, featured: false, collections: undefined, brand_logo_url: undefined, images: undefined },
 		};
 	}
 
@@ -415,6 +477,15 @@ export class ItemImportService {
 				rowIndex,
 				valid: false,
 				errors: ['Could not generate a valid slug from the name'],
+				warnings: [],
+			};
+		}
+		// A slug made from the name can still hold characters the import refuses (e.g. `_`).
+		if (!IMPORT_SLUG_PATTERN.test(slug)) {
+			return {
+				rowIndex,
+				valid: false,
+				errors: [`slug: "${slug}" (made from the name): ${IMPORT_SLUG_MESSAGE}. Add a slug for this row.`],
 				warnings: [],
 			};
 		}
