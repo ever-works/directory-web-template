@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
+import { requireAdminSession } from "@/lib/auth/admin-guard";
 import { triggerManualSync, getSyncStatus } from "@/lib/services/sync-service";
 import { safeErrorMessage } from '@/lib/utils/api-error';
 
@@ -9,7 +9,9 @@ import { safeErrorMessage } from '@/lib/utils/api-error';
  *   post:
  *     tags: ["System"]
  *     summary: "Trigger manual repository synchronization"
- *     description: "Manually triggers a background synchronization of the Git repository. Prevents concurrent sync operations and provides detailed status information including duration and success metrics."
+ *     description: "Manually triggers a background synchronization of the Git repository. Admin only: every sync pulls the data repository and flushes all content caches. Prevents concurrent sync operations and provides detailed status information including duration and success metrics."
+ *     security:
+ *       - sessionAuth: []
  *     requestBody:
  *       required: false
  *       content:
@@ -90,6 +92,32 @@ import { safeErrorMessage } from '@/lib/utils/api-error';
  *                   duration: 50
  *                   message: "Sync was already in progress"
  *                   details: "Another sync operation is currently running"
+ *       401:
+ *         description: "Not signed in"
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 error:
+ *                   type: string
+ *                   example: "Unauthorized"
+ *       403:
+ *         description: "Signed in, but not an admin"
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 error:
+ *                   type: string
+ *                   example: "Forbidden"
  *       500:
  *         description: "Sync operation failed"
  *         content:
@@ -250,13 +278,11 @@ export async function POST(request: Request) {
   const startTime = Date.now();
 
   try {
-    // Require authentication — manual sync trigger is admin / operator
-    // territory; anonymous callers should not be able to thrash the
-    // git layer.
-    const session = await auth();
-    if (!session?.user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
+    // Admin only: every sync pulls the data repository, flushes all content
+    // caches and rebuilds the location index, so a signed-in non-admin must
+    // not be able to trigger it (401 anonymous, 403 non-admin).
+    const authResult = await requireAdminSession();
+    if (authResult instanceof NextResponse) return authResult;
 
     // Parse request body for options
     let options = {};

@@ -48,7 +48,7 @@ const version = await response.json();
 
 ### POST /api/version/sync
 
-Triggers a manual background synchronization of the Git content repository. Prevents concurrent sync operations -- if a sync is already in progress, it returns immediately with a status message.
+Triggers a manual background synchronization of the Git content repository. Admin only (see [Authentication](#authentication)). Prevents concurrent sync operations -- if a sync is already in progress, it returns immediately with a status message.
 
 **Request**
 ```typescript
@@ -134,7 +134,9 @@ if (status.syncInProgress) {
 
 ## Authentication
 
-All version and sync endpoints are **public** -- no authentication is required. These endpoints are designed for monitoring dashboards and administrative tooling.
+`GET /api/version` and `GET /api/version/sync` are **public** -- no authentication is required. They are designed for monitoring dashboards and administrative tooling.
+
+`POST /api/version/sync` needs a signed-in **admin**. Every sync pulls the data repository, flushes all content caches and rebuilds the location index, so other callers are refused: anonymous callers get `401` and signed-in users who are not admins get `403` (both with a `{ success: false, error }` body). The admin role is checked against the database on every call (`requireAdminSession()` in `apps/web/lib/auth/admin-guard.ts`).
 
 ## Error Responses
 
@@ -155,6 +157,8 @@ Error responses include a structured body with `error`, `code`, `timestamp`, and
 | Status | Description |
 |--------|-------------|
 | 200 | Sync completed successfully or was already in progress |
+| 401 | Not signed in (`{ success: false, error: "Unauthorized" }`) |
+| 403 | Signed in, but not an admin (`{ success: false, error: "Forbidden" }`) |
 | 500 | Sync operation failed (includes duration and error details) |
 
 ## Rate Limiting
