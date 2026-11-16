@@ -10,7 +10,7 @@ export interface CommentRatingSummary {
 }
 
 /** Value `useComments().commentRating` has until the request answers. */
-export const EMPTY_COMMENT_RATING: CommentRatingSummary = Object.freeze({
+export const EMPTY_COMMENT_RATING: Readonly<CommentRatingSummary> = Object.freeze({
   averageRating: 0,
   totalRatings: 0,
 });
