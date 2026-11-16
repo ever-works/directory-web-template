@@ -76,11 +76,7 @@ DELETE handlers share the same gate chain:
    found'`.
 4. **`getTenantId()` resolution** — null → 403 PLAIN-
    TEXT `'Tenant not found'`.
-5. **Drizzle ownership query** with embedded `userId`
-   + `tenantId` + `deletedAt IS NULL` filters.
-   Comment not found → 404 PLAIN-TEXT `'Comment not
-   found or not authorized'`.
-6. **(PUT only)** body parse in its own
+5. **(PUT only)** body parse in its own
    `try/catch` (malformed JSON → 400 JSON `{ error:
    'Invalid JSON body' }`) + partial-update
    validation through `validateCommentInput(body,
@@ -89,6 +85,13 @@ DELETE handlers share the same gate chain:
    of content or rating must be provided' }`. Content
    type-check (string), non-empty trim, length ≤ 1000
    after trim, no NUL; rating an integer from 1 to 5.
+   This runs BEFORE the ownership query, so a bad
+   body returns 400 even for a comment the caller
+   does not own (DELETE has no body step).
+6. **Drizzle ownership query** with embedded `userId`
+   + `tenantId` + `deletedAt IS NULL` filters.
+   Comment not found → 404 PLAIN-TEXT `'Comment not
+   found or not authorized'`.
 7. **(PUT)** `updateComment(...)` →
    `commentWithUser` JSON payload (200). **(DELETE)**
    `deleteComment(commentId)` → 204 No Content.
