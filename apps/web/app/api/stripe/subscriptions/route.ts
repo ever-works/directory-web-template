@@ -390,6 +390,12 @@ export async function POST(request: NextRequest) {
     // Admin only: a row carries a provider and a provider subscription id, and the payment
     // routes act on that id at the provider. Checkout and the provider webhooks create the
     // rows customers own; no signed-in user may write one by hand.
+    // Anonymous callers get the same bare 401 envelope as GET / PUT / DELETE on this route;
+    // a signed-in non-admin gets the guard's 403.
+    const anonymousCheck = await auth();
+    if (!anonymousCheck?.user?.id) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
     const adminResult = await requireAdminSession();
     if (adminResult instanceof NextResponse) {
       return adminResult;

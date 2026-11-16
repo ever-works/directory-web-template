@@ -65,7 +65,11 @@ test('POST /api/stripe/subscriptions checks for an admin before it reads the bod
 	assert.ok(guard !== -1, 'POST must call requireAdminSession()');
 	assert.ok(guard < post.indexOf('request.json()'), 'guard must run before the body is read');
 	assert.ok(guard < post.indexOf('createSubscription('), 'guard must run before the row is written');
-	assert.ok(!post.includes('await auth()'), 'POST must not fall back to a plain session check');
+	// The anonymous 401 keeps the bare `{ error }` envelope the other methods return
+	// (the e2e smoke compares all four); it must come before the admin check, never replace it.
+	const anonymous = post.indexOf("{ error: 'Unauthorized' }, { status: 401 }");
+	assert.ok(anonymous !== -1 && anonymous < guard, 'anonymous 401 must precede the admin guard');
+	assert.ok(post.includes('adminResult instanceof NextResponse'), 'a non-admin must be turned away');
 });
 
 test('PUT /api/stripe/subscriptions strips identity fields before updating', () => {
