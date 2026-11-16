@@ -472,11 +472,20 @@ export async function POST(request: NextRequest) {
 // PUT /api/subscriptions - Update subscription
 export async function PUT(request: NextRequest) {
   try {
-    const session = await auth();
-    
-    if (!session?.user?.id) {
+    // Admin only, like POST: plan, status and dates decide what a user is entitled to
+    // (getUserPlan reads planId, status and endDate), so an owner who could edit them could
+    // grant themselves a paid plan. Checkout and the provider webhooks keep customer rows in
+    // sync; nothing in the app calls this method.
+    // Anonymous callers keep the bare 401 envelope shared by all four methods.
+    const anonymousCheck = await auth();
+    if (!anonymousCheck?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
+    const adminResult = await requireAdminSession();
+    if (adminResult instanceof NextResponse) {
+      return adminResult;
+    }
+    const session = adminResult.session;
 
     const body = await request.json();
     const { subscriptionId, ...updateData } = body;

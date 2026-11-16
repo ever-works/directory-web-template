@@ -322,11 +322,11 @@ async function updateSubscription(
 
 #### `updateSubscriptionBySubscriptionId`
 
-Updates subscription matching by the provider's `subscriptionId` field (not the internal ID).
+Updates the subscription matching the provider's `subscriptionId` field (not the internal ID) **and** `paymentProvider`, within the current tenant. Both fields are required (it throws without them): provider ids are only unique per provider, so an update for one provider never touches another provider's row with the same id.
 
 ```typescript
 async function updateSubscriptionBySubscriptionId(
-  updateData: Partial<NewSubscription>
+  updateData: Partial<NewSubscription> & { subscriptionId: string; paymentProvider: string }
 ): Promise<Subscription | null>
 ```
 

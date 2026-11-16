@@ -77,6 +77,19 @@ test('PUT /api/stripe/subscriptions strips identity fields before updating', () 
 	assert.match(put, /updateSubscription\(\s*subscriptionId,\s*omitImmutableSubscriptionFields\(updateData\)\s*\)/);
 });
 
+test('PUT /api/stripe/subscriptions checks for an admin before it reads the body or updates a row', () => {
+	// planId, status and endDate decide the user's plan (getUserPlan); an owner who could
+	// write them could grant themselves a paid plan.
+	const put = handlerSource(read('app/api/stripe/subscriptions/route.ts'), 'PUT');
+	const guard = put.indexOf('requireAdminSession()');
+	assert.ok(guard !== -1, 'PUT must call requireAdminSession()');
+	assert.ok(guard < put.indexOf('request.json()'), 'guard must run before the body is read');
+	assert.ok(guard < put.indexOf('updateSubscription('), 'guard must run before the row is updated');
+	const anonymous = put.indexOf("{ error: 'Unauthorized' }, { status: 401 }");
+	assert.ok(anonymous !== -1 && anonymous < guard, 'anonymous 401 must precede the admin guard');
+	assert.ok(put.includes('adminResult instanceof NextResponse'), 'a non-admin must be turned away');
+});
+
 test('updateSubscriptionBySubscriptionId matches on provider as well as id', () => {
 	const source = read('lib/db/queries/subscription.queries.ts');
 	const start = source.indexOf('export async function updateSubscriptionBySubscriptionId');
