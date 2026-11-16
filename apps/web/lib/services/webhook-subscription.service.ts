@@ -99,6 +99,16 @@ export const formatData = (
 	} as WebhookSubscriptionData;
 };
 
+export interface SubscriptionWriteOptions {
+	/**
+	 * Create the row when none exists for the subscription (default true). The LemonSqueezy
+	 * webhook passes false for events that cannot say which plan was bought (an invoice, or a
+	 * variant no plan is configured for): they may only update a row that already exists
+	 * (spec 060 R9).
+	 */
+	createIfMissing?: boolean;
+}
+
 export interface WebhookProcessingResult {
 	success: boolean;
 	message: string;
@@ -211,7 +221,10 @@ export class WebhookSubscriptionService {
 	 * Process subscription updated webhook
 	 * Updates existing subscription and logs changes
 	 */
-	async handleSubscriptionUpdated(data: any): Promise<WebhookProcessingResult> {
+	async handleSubscriptionUpdated(
+		data: any,
+		options: SubscriptionWriteOptions = {}
+	): Promise<WebhookProcessingResult> {
 		const response = formatData(data, this.paymentProvider);
 		try {
 			// Find existing subscription
@@ -219,6 +232,11 @@ export class WebhookSubscriptionService {
 				this.paymentProvider,
 				response.subscriptionId
 			);
+
+			if (!existingSubscription && options.createIfMissing === false) {
+				console.log(`⚠️ Subscription ${response.subscriptionId} not found; this event does not create one`);
+				return { success: true, message: 'Subscription not found; not created from this event' };
+			}
 
 			if (!existingSubscription) {
 				console.log(existingSubscription, `⚠️ Subscription not found, creating new one: ${data}`);
@@ -388,13 +406,23 @@ export class WebhookSubscriptionService {
 	 * Process subscription payment succeeded webhook
 	 * Updates subscription status and extends period if needed
 	 */
-	async handleSubscriptionPaymentSucceeded(data: any): Promise<WebhookProcessingResult> {
+	async handleSubscriptionPaymentSucceeded(
+		data: any,
+		options: SubscriptionWriteOptions = {}
+	): Promise<WebhookProcessingResult> {
 		const response = formatData(data, this.paymentProvider);
 		try {
 			const existingSubscription = await queries.getSubscriptionByProviderSubscriptionId(
 				this.paymentProvider,
 				response.subscription!
 			);
+
+			if (!existingSubscription && options.createIfMissing === false) {
+				console.log(
+					`⚠️ Subscription ${response.subscription} not found for payment success; not created from an invoice`
+				);
+				return { success: true, message: 'Subscription not found; not created from this event' };
+			}
 
 			if (!existingSubscription) {
 				console.log(existingSubscription, `⚠️ Subscription not found for payment success: ${response}`);

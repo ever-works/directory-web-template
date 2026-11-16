@@ -81,18 +81,29 @@ test('the event key is stable per delivery and differs per body', () => {
 
 test('a subscription event maps id, customer, user, plan, status and dates', () => {
 	const event = parseLemonSqueezyEvent(RAW_BODY)!;
-	const mapped = toSubscriptionServiceData({ ...event.data, meta: event.meta });
+	// The plan is the one the paid variant stands for (spec 060 R9), passed in by the caller.
+	const mapped = toSubscriptionServiceData({ ...event.data, meta: event.meta }, Date.now(), 'standard');
 
 	assert.equal(mapped.id, '42');
 	assert.equal(mapped.customer, '7');
 	assert.equal(mapped.customer_email, 'buyer@example.com');
 	assert.equal(mapped.status, 'active');
 	assert.equal(mapped.metadata.userId, 'user_1');
-	assert.equal(mapped.metadata.planId, 'premium');
+	assert.equal(mapped.metadata.planId, 'standard');
 	assert.equal(mapped.period_end, Date.parse('2026-02-01T00:00:00Z') / 1000);
 	assert.equal(mapped.start_date, Date.parse('2026-01-01T00:00:00Z') / 1000);
 	assert.equal(mapped.cancel_at_period_end, false);
 	assert.equal(mapped.items?.data[0]?.price.id, '99');
+});
+
+test('custom_data.planId never reaches the stored plan', () => {
+	// The buyer controls the custom data (checkout links accept checkout[custom][planId]).
+	const event = parseLemonSqueezyEvent(RAW_BODY)!;
+	assert.equal(event.meta.custom_data?.planId, 'premium');
+
+	const withoutPlan = toSubscriptionServiceData({ ...event.data, meta: event.meta });
+	assert.equal(withoutPlan.metadata.planId, undefined);
+	assert.equal(withoutPlan.metadata.userId, 'user_1');
 });
 
 const cancelledResource = {
@@ -223,19 +234,21 @@ const functionBody = (source: string, name: string) => {
 	return source.slice(start, next < 0 ? undefined : next);
 };
 
-test('sponsor-ad subscriptions never reach the plan service on update or payment failure', () => {
+test('the webhook route takes plan and sponsor-ad decisions from the variant, not the custom data', () => {
 	const route = routeSource('../../../app/api/lemonsqueezy/webhook/route.ts');
-	for (const name of ['handleSubscriptionUpdated', 'handleSubscriptionPaymentFailed']) {
-		const body = functionBody(route, name);
-		const guard = body.indexOf('isSponsorAdSubscription(data)');
-		const service = body.indexOf('webhookSubscriptionService.');
-		assert.ok(guard >= 0 && service > guard, `${name} must check for a sponsor ad before the plan service`);
-	}
-	const paid = functionBody(route, 'handleSubscriptionPaymentSucceeded');
 	assert.ok(
-		paid.indexOf('isInitialSubscriptionInvoice(data)') >= 0 &&
-			paid.indexOf('isInitialSubscriptionInvoice(data)') < paid.indexOf('handleSponsorAdRenewal(data)'),
-		'the first sponsor-ad invoice must not count as a renewal'
+		route.includes('createLemonSqueezySubscriptionEvents({'),
+		'subscription events must go through the variant-checked handlers'
+	);
+	assert.ok(route.includes('loadVariantCatalog: loadLemonSqueezyVariantCatalog'));
+	assert.ok(!route.includes('isSponsorAdSubscription('), 'the route still classifies sponsor ads by custom data');
+	assert.ok(!route.includes('toSubscriptionServiceData('), 'the route must not map plan rows on its own');
+	for (const name of ['created', 'updated', 'cancelled', 'paymentSucceeded', 'paymentFailed', 'trialEnding']) {
+		assert.ok(route.includes(`subscriptionEvents.${name}(data)`), `${name} is not wired`);
+	}
+	assert.ok(
+		functionBody(route, 'dispatchEvent').includes('subscriptionEvents.created(data)'),
+		'dispatchEvent must route subscription_created to the variant-checked handler'
 	);
 });
 

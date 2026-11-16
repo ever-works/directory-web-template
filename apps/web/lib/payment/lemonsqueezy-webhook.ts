@@ -74,7 +74,12 @@ function toNumber(value: unknown): number | undefined {
 	return typeof value === 'number' && Number.isFinite(value) ? value : undefined;
 }
 
-type WebhookResource = { id: string; type?: string; attributes?: Record<string, any>; meta?: LemonSqueezyEvent['meta'] };
+export type WebhookResource = {
+	id: string;
+	type?: string;
+	attributes?: Record<string, any>;
+	meta?: LemonSqueezyEvent['meta'];
+};
 
 /**
  * The raw (pre-`formatData`) layout `WebhookSubscriptionService` reads:
@@ -107,13 +112,22 @@ export interface SubscriptionServiceInput {
  * field layout `WebhookSubscriptionService` reads (timestamps in seconds,
  * amounts in cents). The service stores rows under the provider it was built
  * with, so this carries only the data.
+ *
+ * `planId` is the plan the paid variant stands for (spec 060 R9), resolved by
+ * the caller from server configuration. `custom_data.planId` is never used: the
+ * buyer controls the custom data. Without `planId` the result carries no plan,
+ * so the service keeps the stored one.
  */
-export function toSubscriptionServiceData(resource: WebhookResource, now: number = Date.now()): SubscriptionServiceInput {
+export function toSubscriptionServiceData(
+	resource: WebhookResource,
+	now: number = Date.now(),
+	planId?: string
+): SubscriptionServiceInput {
 	const attrs = resource.attributes ?? {};
 	const custom = (resource.meta?.custom_data ?? {}) as Record<string, unknown>;
 	const metadata: Record<string, unknown> = { ...custom };
+	delete metadata.planId;
 	const userId = toId(custom.userId);
-	const planId = toId(custom.planId);
 	if (userId) metadata.userId = userId;
 	if (planId) metadata.planId = planId;
 

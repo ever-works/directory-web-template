@@ -41,6 +41,22 @@ confirm, override, or refine.
 - **Owner.** Template maintainers.
 - **Status.** `open`.
 
+### Q-060b A plan subscription moved to a variant that is not a plan variant
+
+- **Context.** The plan comes from the paid variant (spec 060 R9). If an existing plan subscription is
+  switched to a variant that is not configured for any plan (a sponsor-ad variant, or one missing from the
+  configuration after an env change), its update event cannot say which plan it now grants.
+  `POST /api/lemonsqueezy/update-plan` accepts any variant id and does not check that the subscription
+  belongs to the caller.
+- **Options.**
+  - Keep the stored plan and update only the status and dates.
+  - Downgrade the row to `free` (a configuration mistake would then downgrade paying customers).
+  - Restrict `update-plan` to configured plan variants and to the caller's own subscription.
+- **Default.** **Keep the stored plan and update only status and dates**; restricting `update-plan` is a
+  follow-up.
+- **Owner.** Template maintainers.
+- **Status.** `open`.
+
 ---
 
 ## Spec 002 — Plugin Architecture

@@ -175,16 +175,20 @@ test('the in-app cancel routes opt in; the webhook-driven cancels do not', () =>
 	]) {
 		assert.ok(/stopProviderSubscription:\s*true/.test(source(route)), `${route} does not stop the subscription`);
 	}
-	for (const webhook of [
-		'../webhook-dispatch.ts',
-		'../../../app/api/polar/webhook/handlers.ts',
-		'../../../app/api/lemonsqueezy/webhook/route.ts'
+	for (const [webhook, cancelCall] of [
+		['../webhook-dispatch.ts', 'sponsorAdService.cancelSponsorAd('],
+		['../../../app/api/polar/webhook/handlers.ts', 'sponsorAdService.cancelSponsorAd('],
+		// The LemonSqueezy route hands sponsorAdService to these handlers (spec 060 R11).
+		['../lemonsqueezy-subscription-events.ts', 'sponsorAds.cancelSponsorAd(']
 	]) {
 		const text = source(webhook);
-		assert.ok(text.includes('sponsorAdService.cancelSponsorAd('), `${webhook} no longer cancels ads`);
+		assert.ok(text.includes(cancelCall), `${webhook} no longer cancels ads`);
 		assert.ok(
 			!text.includes('stopProviderSubscription'),
 			`${webhook} must not cancel an already-deleted subscription`
 		);
 	}
+	const lemonSqueezyRoute = source('../../../app/api/lemonsqueezy/webhook/route.ts');
+	assert.ok(lemonSqueezyRoute.includes('sponsorAds: sponsorAdService'), 'LemonSqueezy no longer cancels ads');
+	assert.ok(!lemonSqueezyRoute.includes('stopProviderSubscription'));
 });
