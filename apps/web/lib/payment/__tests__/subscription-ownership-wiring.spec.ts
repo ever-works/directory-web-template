@@ -190,7 +190,7 @@ describe('subscription ownership wiring', () => {
 				`${route.name} looks up the owner before checking the email is verified`
 			);
 			assert.ok(
-				/^[^;]*\)\)\) \{ return [^;]*?status: 403 \}/.test(handler.slice(verifyAt)),
+				/^[^;]*\)\)\) \{ return [^;]*?code: ['"]EMAIL_NOT_VERIFIED['"][^;]*?status: 403 \}/.test(handler.slice(verifyAt)),
 				`${route.name} does not return 403 right after a failed email check`
 			);
 			assert.ok(

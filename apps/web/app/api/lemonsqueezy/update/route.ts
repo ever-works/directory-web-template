@@ -182,6 +182,18 @@ export type UpdateSubscriptionRequest = z.infer<typeof updateSubscriptionSchema>
  *                   type: string
  *                   format: date-time
  *                   example: "2024-01-20T10:30:00.000Z"
+ *       403:
+ *         description: "The signed-in user's email address is not verified"
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                 code:
+ *                   type: string
+ *                   example: "EMAIL_NOT_VERIFIED"
  *       404:
  *         description: "Subscription not found"
  *         content:

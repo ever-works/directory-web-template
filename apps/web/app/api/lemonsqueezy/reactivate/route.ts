@@ -139,6 +139,18 @@ const reactivateSubscriptionSchema = z.object({
  *                 code:
  *                   type: string
  *                   example: "AUTH_REQUIRED"
+ *       403:
+ *         description: "The signed-in user's email address is not verified"
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                 code:
+ *                   type: string
+ *                   example: "EMAIL_NOT_VERIFIED"
  *       404:
  *         description: "Subscription not found, or it does not belong to the signed-in user"
  *         content:

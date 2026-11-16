@@ -12,7 +12,7 @@ Extends the ownership checks in `apps/web/lib/payment/subscription-ownership.ts`
 
 `POST /api/lemonsqueezy/{cancel,reactivate,update-plan,update}` decide ownership by
 comparing the subscription's customer email at LemonSqueezy with `session.user.email`.
-Credentials sign-up does not require a verified email (`lib/auth/credentials.ts` signs
+Credentials sign-up does not require a verified email (`apps/web/lib/auth/credentials.ts` signs
 in regardless of `users.emailVerified`). Someone who registers first with another
 person's address, before that person has an account, could therefore cancel or change
 any LemonSqueezy subscription bought under that address in the same store.
@@ -51,7 +51,7 @@ any LemonSqueezy subscription bought under that address in the same store.
   `findOwnedLemonSqueezySubscription`, and returns **403** with code
   `EMAIL_NOT_VERIFIED` and the message `EMAIL_NOT_VERIFIED_MESSAGE` when it is false.
   No LemonSqueezy call is made in that case.
-- Non-owners still get **404** `Subscription not found or access denied`.
+- A verified non-owner still gets **404** `Subscription not found or access denied`; an unverified caller gets the 403 first, before any lookup.
 - Sign-in is unchanged: there is no new verification requirement to log in.
 - Stripe and Polar routes are unaffected (they match on local rows / customer ids, not
   on email).
