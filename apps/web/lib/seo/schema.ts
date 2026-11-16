@@ -25,7 +25,17 @@ export interface CollectionSchemaInput {
 	url: string;
 	image?: string;
 	itemCount?: number;
+	/** Items in the collection, in display order; published as `itemListElement` (capped, see below). */
+	items?: ReadonlyArray<CollectionSchemaItem>;
 }
+
+export interface CollectionSchemaItem {
+	name: string;
+	url: string;
+}
+
+/** Upper bound on `itemListElement` entries, so a very large collection cannot bloat the page's HTML. */
+export const MAX_COLLECTION_SCHEMA_ITEMS = 50;
 
 export interface ComparisonSchemaInput {
 	title: string;
@@ -83,6 +93,16 @@ export function generateProductSchema(input: ProductSchemaInput) {
 }
 
 /**
+ * Item YAML is not validated, so a field typed as a string can arrive as a number
+ * (`name: 1984`) or be missing. Numbers become text; anything else counts as blank.
+ */
+function schemaText(value: unknown): string {
+	if (typeof value === 'string') return value.trim();
+	if (typeof value === 'number' && Number.isFinite(value)) return String(value);
+	return '';
+}
+
+/**
  * Generate CollectionPage schema for curated collection detail pages
  */
 export function generateCollectionSchema(input: CollectionSchemaInput) {
@@ -101,11 +121,36 @@ export function generateCollectionSchema(input: CollectionSchemaInput) {
 		schema.image = input.image;
 	}
 
-	if (typeof input.itemCount === 'number') {
-		schema.mainEntity = {
+	// Entries without a name or URL cannot be a ListItem, so they are dropped before positions are assigned.
+	// A URL already listed is dropped too, so one page is never listed twice.
+	const valid: CollectionSchemaItem[] = [];
+	const seenUrls = new Set<string>();
+	for (const item of input.items ?? []) {
+		const name = schemaText(item?.name);
+		const url = schemaText(item?.url);
+		if (!name || !url || seenUrls.has(url)) continue;
+		seenUrls.add(url);
+		valid.push({ name, url });
+	}
+	const listed = valid.slice(0, MAX_COLLECTION_SCHEMA_ITEMS);
+
+	if (typeof input.itemCount === 'number' || listed.length > 0) {
+		const itemList: Record<string, unknown> = {
 			'@type': 'ItemList',
-			numberOfItems: input.itemCount
+			// Without an explicit count, report every valid item, not just the capped slice.
+			numberOfItems: typeof input.itemCount === 'number' ? input.itemCount : valid.length
 		};
+
+		if (listed.length > 0) {
+			itemList.itemListElement = listed.map((item, index) => ({
+				'@type': 'ListItem',
+				position: index + 1,
+				name: item.name,
+				url: item.url
+			}));
+		}
+
+		schema.mainEntity = itemList;
 	}
 
 	return schema;

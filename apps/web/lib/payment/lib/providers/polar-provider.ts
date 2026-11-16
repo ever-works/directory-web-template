@@ -22,7 +22,7 @@ import {
 	PaymentFormProps,
 	SubscriptionStatus
 } from '../../types/payment-types';
-import { paymentAccountClient } from '../client/payment-account-client';
+import { getUserPaymentAccountByProvider, setupUserPaymentAccount } from '@/lib/db/queries';
 import {
 	getPolarSubscription,
 	cancelSubscriptionImmediately,
@@ -233,7 +233,7 @@ export class PolarProvider implements PaymentProviderInterface {
 
 	private async retrieveCustomerIdFromDatabase(userId: string): Promise<string | null> {
 		try {
-			const existingPaymentAccount = await paymentAccountClient.getPaymentAccount(userId, 'polar');
+			const existingPaymentAccount = await getUserPaymentAccountByProvider(userId, 'polar');
 
 			if (existingPaymentAccount?.customerId) {
 				this.logger.debug('Existing PaymentAccount found in database', {
@@ -320,11 +320,7 @@ export class PolarProvider implements PaymentProviderInterface {
 
 	private async synchronizePaymentAccount(userId: string, customerId: string): Promise<void> {
 		try {
-			const paymentAccount = await paymentAccountClient.setupPaymentAccount({
-				provider: 'polar',
-				userId,
-				customerId
-			});
+			const paymentAccount = await setupUserPaymentAccount('polar', userId, customerId);
 			this.logger.info('PaymentAccount synchronized successfully in database', {
 				userId,
 				customerId,
@@ -342,7 +338,7 @@ export class PolarProvider implements PaymentProviderInterface {
 
 				// Try to get the existing account and update it
 				try {
-					const existingAccount = await paymentAccountClient.getPaymentAccount(userId, 'polar');
+					const existingAccount = await getUserPaymentAccountByProvider(userId, 'polar');
 					if (existingAccount) {
 						this.logger.info('Found existing payment account - synchronization completed', {
 							userId,
