@@ -49,7 +49,10 @@ const ITEM: ItemExportData = {
 	brand: '+1+1',
 	markdown: '@SUM(1,1)',
 	location: {
+		address: "'=1+1",
 		city: '-2+3',
+		state: '\t=1+1',
+		country: '\r=1+1',
 		latitude: -33.8688,
 		longitude: 151.2093
 	}
@@ -81,7 +84,7 @@ for (const [label, options] of [
 			assert.deepEqual(formulaCells, [], `unescaped formula cells:\n${data}`);
 		});
 
-		it('escapes a multi-line description, and the +, @ and - prefixes', async () => {
+		it('escapes a multi-line description, the +, @, -, tab and CR prefixes, and a value that already starts with an apostrophe', async () => {
 			const { data } = await new ItemExportService(fakeRepository([ITEM])).exportToCSV(options);
 			const row = firstRow(data);
 
@@ -89,6 +92,9 @@ for (const [label, options] of [
 			assert.equal(row.brand, "'+1+1");
 			assert.equal(row.markdown, "'@SUM(1,1)");
 			assert.equal(row['location.city'], "'-2+3");
+			assert.equal(row['location.state'], "'\t=1+1");
+			assert.equal(row['location.country'], "'\r=1+1");
+			assert.equal(row['location.address'], "''=1+1");
 		});
 
 		it('CONTROL: leaves plain numbers such as a negative latitude unescaped', async () => {
@@ -112,13 +118,16 @@ describe('ItemImportService.parseCSV reads an escaped export back unchanged', ()
 		assert.equal(rows[0].brand, '+1+1');
 		assert.equal(rows[0].markdown, '@SUM(1,1)');
 		assert.equal(rows[0]['location.city'], '-2+3');
+		assert.equal(rows[0]['location.state'], '\t=1+1');
+		assert.equal(rows[0]['location.country'], '\r=1+1');
+		assert.equal(rows[0]['location.address'], "'=1+1");
 		assert.equal(rows[0]['location.latitude'], '-33.8688');
 	});
 
 	it('removes the one apostrophe placed before =, +, -, @, tab or CR', () => {
 		const csv = [
-			'name,description,brand,markdown,slug,tags',
-			`'=1+1,'+1+1,'-2+3,"'@SUM(1,1)","'\tindented","'\rreturn"`
+			'name,description,brand,markdown,slug,tags,category',
+			`'=1+1,'+1+1,'-2+3,"'@SUM(1,1)","'\tindented","'\rreturn",''=1+1`
 		].join('\n');
 		const { rows } = new ItemImportService(fakeRepository([])).parseCSV(csv);
 
@@ -128,16 +137,17 @@ describe('ItemImportService.parseCSV reads an escaped export back unchanged', ()
 			brand: '-2+3',
 			markdown: '@SUM(1,1)',
 			slug: '\tindented',
-			tags: '\rreturn'
+			tags: '\rreturn',
+			category: "'=1+1"
 		});
 	});
 
 	it('CONTROL: keeps an apostrophe that is not followed by a formula character', () => {
-		const csv = "name,description,brand\n'Quoted name,It's a tool that does things.,''=1+1\n";
+		const csv = "name,description,brand\n'Quoted name,It's a tool that does things.,''1+1\n";
 		const { rows } = new ItemImportService(fakeRepository([])).parseCSV(csv);
 
 		assert.equal(rows[0].name, "'Quoted name");
 		assert.equal(rows[0].description, "It's a tool that does things.");
-		assert.equal(rows[0].brand, "''=1+1");
+		assert.equal(rows[0].brand, "''1+1");
 	});
 });

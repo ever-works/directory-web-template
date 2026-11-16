@@ -198,11 +198,14 @@ spreadsheet app. `ItemExportService.exportToCSV()`
 (used by this route and by the public
 `GET /api/items/export`) therefore writes such a cell
 with a leading `'`, so `=1+1` is exported as `'=1+1`.
-The check looks at the first character only, so a
-multi-line value is covered too. Plain numbers such as
-a negative latitude (`-33.8688`) are not formulas and
-are written unchanged. The XLSX export writes string
-cells and is not affected.
+The check looks at the first character (after any
+leading `'`), so a multi-line value is covered too.
+The one exception is a value that is a plain number,
+such as a negative latitude (`-33.8688`): it is not a
+formula and is written unchanged. A value that already
+starts with `'` before one of those characters gets one
+more, so `'=1+1` is exported as `''=1+1`. The XLSX
+export writes string cells and is not affected.
 
 `ItemImportService.parseCSV()` removes that one `'`
 again, so an exported CSV imports back with its
