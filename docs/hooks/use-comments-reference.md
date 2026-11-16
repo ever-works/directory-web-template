@@ -47,12 +47,6 @@ const {
   // Delete
   deleteComment,       // (commentId: string) => Promise<void>
   isDeleting,          // boolean
-
-  // Rating
-  rateComment,         // (data: { commentId: string; rating: number }) => void
-  isRatingComment,     // boolean
-  updateCommentRating, // (data: { commentId: string; rating: number }) => void
-  isUpdatingRating,    // boolean
 } = useComments(itemId);
 ```
 
@@ -88,7 +82,7 @@ interface UpdateCommentData {
 
 ## Authentication Handling
 
-When an unauthenticated user attempts to create, update, delete, or rate a comment, the hook:
+When an unauthenticated user attempts to create or update a comment, the hook:
 
 1. Detects the `401 Unauthorized` response
 2. Opens the login modal with a contextual message (e.g., "Please sign in to comment")
@@ -119,7 +113,7 @@ function CommentForm({ itemId }) {
 On success, the new comment is:
 1. Added to the beginning of the `['comments', itemId]` cache (newest first)
 2. Duplicate-checked to prevent the same comment appearing twice
-3. The `['item-rating', itemId]` query is immediately refetched to update aggregate ratings
+3. The `['item-rating', itemId]` query is immediately refetched to update aggregate ratings, and `['commentRating', itemId]` is invalidated
 
 A custom `comment:mutated` DOM event is dispatched for cross-component synchronization.
 
@@ -127,18 +121,12 @@ A custom `comment:mutated` DOM event is dispatched for cross-component synchroni
 
 On success:
 1. The updated comment replaces its previous version in the cache
-2. The `['item-rating', itemId]` query is refetched
+2. The `['item-rating', itemId]` query is refetched and `['commentRating', itemId]` is invalidated, so a rating change moves both aggregates
 3. A `comment:mutated` DOM event is dispatched
 
 ### Delete Comment
 
-On success, the entire `['comments', itemId]` query is refetched from the server.
-
-### Rate / Update Rating
-
-On success:
-1. The `['comments', itemId]` query is invalidated
-2. The `['item-rating', itemId]` query is refetched
+On success, the entire `['comments', itemId]` query is refetched from the server, and `['item-rating', itemId]` and `['commentRating', itemId]` are invalidated (the deleted comment's rating leaves the aggregates).
 
 ## Usage: Comment List with Create
 
@@ -199,21 +187,32 @@ function EditableComment({ comment, itemId }) {
 }
 ```
 
-## Usage: Comment Rating
+## Usage: Changing a Comment's Rating
+
+The hook has no dedicated rating mutation. Change a rating through `updateComment`, which accepts an optional `rating`:
 
 ```tsx
 function CommentRating({ comment, itemId }) {
-  const { rateComment, isRatingComment } = useComments(itemId);
+  const { updateComment, isUpdating } = useComments(itemId);
 
   return (
     <StarRating
       value={comment.rating}
-      onChange={(rating) => rateComment({ commentId: comment.id, rating })}
-      disabled={isRatingComment}
+      onChange={async (rating) => {
+        try {
+          await updateComment({ commentId: comment.id, rating });
+        } catch (err) {
+          if (err.message === 'Unauthorized') return; // login modal is already open
+          // Handle other errors
+        }
+      }}
+      disabled={isUpdating}
     />
   );
 }
 ```
+
+`updateComment` calls `PUT /api/items/{slug}/comments/{commentId}`, which only lets the comment's author edit it.
 
 ## Event System
 
@@ -236,7 +235,6 @@ useEffect(() => {
 | `createComment` | Opens login modal, throws `'Unauthorized'` | Throws with server error message |
 | `updateComment` | Opens login modal, throws `'Unauthorized'` | Throws with server error message |
 | `deleteComment` | Throws `'Please login to delete comment'` | Throws with server error message |
-| `rateComment` | Opens login modal, returns silently | Throws with server error message |
 
 ## Related Hooks
 
