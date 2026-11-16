@@ -1,5 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { auth } from '@/lib/auth';
+import { PaymentProvider } from '@/lib/constants/payment';
 import { setupUserPaymentAccount } from '@/lib/db/queries';
+
+// setupUserPaymentAccount creates a payment_provider row for any name it has not seen,
+// so only the providers this app ships may reach it.
+const SUPPORTED_PROVIDERS: ReadonlySet<string> = new Set(Object.values(PaymentProvider));
 
 /**
  * @swagger
@@ -110,6 +116,11 @@ import { setupUserPaymentAccount } from '@/lib/db/queries';
  */
 export async function POST(request: NextRequest) {
   try {
+    const session = await auth();
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     // Parse body explicitly so malformed JSON / wrong content-type
     // returns a clean 400 rather than the generic 500 catch.
     let body: { provider?: unknown; userId?: unknown; customerId?: unknown } = {};
@@ -126,6 +137,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    if (!SUPPORTED_PROVIDERS.has(provider)) {
+      return NextResponse.json({ error: 'Unsupported provider' }, { status: 400 });
+    }
+
     if (!userId || typeof userId !== 'string') {
       return NextResponse.json(
         { error: 'User ID is required' },
@@ -138,6 +153,11 @@ export async function POST(request: NextRequest) {
         { error: 'Customer ID is required' },
         { status: 400 }
       );
+    }
+
+    // Prevent writing another user's payment account
+    if (session.user.id !== userId) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
     const paymentAccount = await setupUserPaymentAccount(provider, userId, customerId);
@@ -281,6 +301,11 @@ export async function POST(request: NextRequest) {
  */
 export async function PUT(request: NextRequest) {
   try {
+    const session = await auth();
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     let body: { id?: unknown; provider?: unknown; userId?: unknown; customerId?: unknown } = {};
     try {
       body = await request.json();
@@ -302,6 +327,10 @@ export async function PUT(request: NextRequest) {
       );
     }
 
+    if (!SUPPORTED_PROVIDERS.has(provider)) {
+      return NextResponse.json({ error: 'Unsupported provider' }, { status: 400 });
+    }
+
     if (!userId || typeof userId !== 'string') {
       return NextResponse.json(
         { error: 'User ID is required' },
@@ -314,6 +343,11 @@ export async function PUT(request: NextRequest) {
         { error: 'Customer ID is required' },
         { status: 400 }
       );
+    }
+
+    // Prevent updating another user's payment account
+    if (session.user.id !== userId) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
     const paymentAccount = await setupUserPaymentAccount(provider, userId, customerId);
