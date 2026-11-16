@@ -3,6 +3,7 @@ import { auth } from '@/lib/auth';
 import { getCommentsByItemId, createComment, getCommentWithUserById, getClientProfileByUserId } from '@/lib/db/queries';
 import { isUserBlocked, getBlockReasonMessage } from '@/lib/db/queries/moderation.queries';
 import { checkDatabaseAvailability } from '@/lib/utils/database-check';
+import { validateCommentInput } from '@/lib/validations/comment';
 
 /**
  * @swagger
@@ -158,7 +159,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ slug
  *   post:
  *     tags: ["Item Comments"]
  *     summary: "Create item comment"
- *     description: "Creates a new comment for a specific item with a rating. Requires user authentication and a valid client profile. The comment content is required and the rating must be between 1 and 5. Returns the created comment with user information."
+ *     description: "Creates a new comment for a specific item with a rating. Requires user authentication and a valid client profile. The content must be a string of 1 to 1000 characters after trimming and the rating an integer from 1 to 5 (the same rules as editing a comment); a malformed JSON body is a 400. Returns the created comment with user information."
  *     security:
  *       - sessionAuth: []
  *     parameters:
@@ -179,7 +180,8 @@ export async function GET(request: Request, { params }: { params: Promise<{ slug
  *               content:
  *                 type: string
  *                 minLength: 1
- *                 description: "Comment content (required, non-empty)"
+ *                 maxLength: 1000
+ *                 description: "Comment content (required, 1-1000 characters after trimming; stored trimmed)"
  *                 example: "This is an amazing tool! Really helped boost my productivity."
  *               rating:
  *                 type: integer
@@ -284,7 +286,11 @@ export async function GET(request: Request, { params }: { params: Promise<{ slug
  *                 error:
  *                   type: string
  *                   examples:
+ *                     invalid_json: "Invalid JSON body"
  *                     empty_content: "Content is required"
+ *                     content_type: "Content must be a string"
+ *                     content_length: "Content must be between 1 and 1000 characters"
+ *                     rating_type: "Rating must be an integer"
  *                     invalid_rating: "Rating must be between 1 and 5"
  *       401:
  *         description: "Unauthorized - Authentication required"
@@ -337,13 +343,16 @@ export async function POST(request: Request, { params }: { params: Promise<{ slu
 			return NextResponse.json({ success: false, error: 'Authentication required' }, { status: 401 });
 		}
 
-		const { content, rating } = await request.json();
-		if (!content?.trim()) {
-			return NextResponse.json({ success: false, error: 'Content is required' }, { status: 400 });
+		let body: unknown;
+		try {
+			body = await request.json();
+		} catch {
+			return NextResponse.json({ success: false, error: 'Invalid JSON body' }, { status: 400 });
 		}
 
-		if (typeof rating !== 'number' || rating < 1 || rating > 5) {
-			return NextResponse.json({ success: false, error: 'Rating must be between 1 and 5' }, { status: 400 });
+		const input = validateCommentInput(body);
+		if (!input.ok) {
+			return NextResponse.json({ success: false, error: input.error }, { status: 400 });
 		}
 
 		const clientProfile = await getClientProfileByUserId(session.user.id!);
@@ -360,8 +369,8 @@ export async function POST(request: Request, { params }: { params: Promise<{ slu
 		}
 
 		const comment = await createComment({
-			content,
-			rating,
+			content: input.value.content,
+			rating: input.value.rating,
 			userId: clientProfile.id,
 			itemId: (await params).slug
 		});

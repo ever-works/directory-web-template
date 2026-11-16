@@ -54,14 +54,30 @@ exports `GET` and `POST`. The POST handler combines:
    false, error: 'Authentication required' }`.
    NOTE: the message is **`'Authentication
    required'`**, NOT `'Unauthorized'`.
-4. **JSON body parse via `await request.json()`**.
-5. **Content validation** — `!content?.trim()` →
-   400 `{ success: false, error: 'Content is
-   required' }`.
-6. **Rating range validation** — `typeof rating !==
-   'number' || rating < 1 || rating > 5` → 400
-   `{ success: false, error: 'Rating must be
-   between 1 and 5' }`.
+4. **JSON body parse via `await request.json()`**
+   in its own `try/catch` — a malformed body → 400
+   `{ success: false, error: 'Invalid JSON body' }`
+   (before T-2502 it fell through to the outer
+   catch and answered 500).
+5. **Content and rating validation** —
+   `validateCommentInput(body)` from
+   `apps/web/lib/validations/comment.ts`, the same
+   helper the edit `PUT` calls: content must be a
+   string of 1-1000 characters after trimming
+   (`'Content is required'`, `'Content must be a
+   string'`, `'Content must be between 1 and 1000
+   characters'`) and rating an integer from 1 to 5
+   (`'Rating is required'`, `'Rating must be an
+   integer'`, `'Rating must be between 1 and 5'`),
+   each → 400 `{ success: false, error }`. A body
+   that is not a JSON object → 400 `'Request body
+   must be a JSON object'`.
+6. **Trimmed content** — `createComment` receives
+   the trimmed content and the checked rating.
+   Before T-2502 a rating of `3.5` reached the
+   integer column (500), a non-string content threw
+   a `TypeError` (500), and content had no length
+   cap.
 7. **`getClientProfileByUserId(session.user.id!)`
    lookup** — if not found → 404 `{ success: false,
    error: 'Client profile not found' }`.
