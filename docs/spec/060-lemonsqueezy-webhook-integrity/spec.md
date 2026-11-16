@@ -44,7 +44,8 @@ subscription grants comes from the variant that was paid for, never from the che
   Invoice events are keyed on their subscription id and carry amounts in cents. Rows use provider
   `lemonsqueezy`. `subscription_resumed`, `_expired`, `_paused` and `_unpaused` are stored through the
   updated handler.
-- **R4.** A redelivery of the same event (same name, resource id and body) is acknowledged once per pod.
+- **R4.** A redelivery of the same event (same name, resource id and body) is acknowledged once per pod,
+  within a bounded set (the coordinator clears its keys after 1000 events; a later redelivery runs again).
   Only a successfully handled event is remembered: if the subscription handler fails (or the same event is
   in flight) the route answers 503 so LemonSqueezy redelivers it. Subscription rows are idempotent on
   (provider, subscription id), which is the durable boundary.
@@ -85,15 +86,26 @@ subscription grants comes from the variant that was paid for, never from the che
   the ad named in the custom data (`type: 'sponsor_ad'`), and only while the ad awaits payment;
   `confirmPayment` binds the ad to that subscription. Renewal, cancellation and payment-failure events act on
   a sponsor ad only when the custom data names an ad already bound to the same subscription id. A plan
-  subscription carrying someone's `sponsorAdId` therefore cannot activate, renew or cancel that ad.
+  subscription carrying someone's `sponsorAdId` therefore cannot activate, renew or cancel that ad. An ad
+  already past the state an event applies to (a redelivered activation, a cancellation of an ended ad, a
+  renewal of a cancelled or rejected ad) is acknowledged, not retried, using the Stripe path's
+  `sponsor-ad-lifecycle.ts` decisions.
+- **R12.** `POST /api/lemonsqueezy/update-plan` (`variantId`) and `POST /api/lemonsqueezy/update` (`priceId`)
+  only move a subscription to a plan variant of the R9 catalog; any other variant (a sponsor-ad variant, one
+  not configured) answers 400 before LemonSqueezy is called. The webhook keeps the stored plan for a
+  non-plan variant (Q-060b), so without this a paying user could keep Premium at another variant's price.
+- **R13.** Invoice events store the invoice's own id as the row's `invoice_id` (the subscription id is only
+  the lookup key).
 
 ## 4. Out of scope / open
 
 - A persisted event-id table for cross-pod de-duplication (needs a migration); see `docs/questions.md`.
 - The subscription service remains shaped around Stripe objects; LemonSqueezy data is adapted to it.
 - A plan row whose subscription moves to a variant that is not a plan variant keeps its stored plan (R9);
-  see `docs/questions.md` Q-060b. `POST /api/lemonsqueezy/update-plan` accepts any variant and does not check
-  that the subscription belongs to the caller; that route is not changed here.
+  see `docs/questions.md` Q-060b. Our routes can no longer make that move (R12); a change made in the
+  LemonSqueezy dashboard still can. The owner check on `update-plan` and `update` is #1114's.
+- `update-plan` still forwards the client's `disableProrations` / `invoiceImmediately`, so an upgrade can be
+  billed only from the next renewal.
 - LemonSqueezy sponsor-ad renewal subscriptions (`type: 'sponsor_ad_renewal'`) are acknowledged without
   extending the ad (before this change they were booked as a Standard plan row).
 

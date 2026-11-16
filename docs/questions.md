@@ -52,8 +52,9 @@ confirm, override, or refine.
   - Keep the stored plan and update only the status and dates.
   - Downgrade the row to `free` (a configuration mistake would then downgrade paying customers).
   - Restrict `update-plan` to configured plan variants and to the caller's own subscription.
-- **Default.** **Keep the stored plan and update only status and dates**; restricting `update-plan` is a
-  follow-up.
+- **Default.** **Keep the stored plan and update only status and dates**, and restrict `update-plan` and
+  `update` to configured plan variants (spec 060 R12; the owner check is #1114). Only a dashboard change
+  can still move a plan subscription to another variant.
 - **Owner.** Template maintainers.
 - **Status.** `open`.
 

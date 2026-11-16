@@ -208,21 +208,22 @@ if (calculatedSignature !== signature) {
 
 ### Webhook Handler Structure
 
-Each handler follows a consistent pattern:
+Subscription events go through `createLemonSqueezySubscriptionEvents` (`lib/payment/lemonsqueezy-subscription-events.ts`).
+Each handler resolves `true` (acknowledge) or `false` (answer 503 so LemonSqueezy redelivers it), and
+dispatches on the paid variant, not on `custom_data`:
 
 ```typescript
-async function handleSubscriptionCreated(data: any) {
-  if (isSponsorAdSubscription(data)) {
-    await handleSponsorAdActivation(data);
-    return;
+created: guarded('subscription created', async (resource) => {
+  const variant = await variantOf(resource); // variant_id → plan / sponsor ad / unknown
+  if (variant.kind === 'plan') {
+    return runPlan('subscription created', () =>
+      plans.handleSubscriptionCreated(toSubscriptionServiceData(resource, now(), variant.planId))
+    );
   }
-  try {
-    const result = await webhookSubscriptionService.handleSubscriptionCreated(data);
-    // ... log result
-  } catch (error) {
-    console.error('Error handling subscription created:', error);
-  }
-}
+  if (variant.kind === 'sponsor_ad') return activateSponsorAd(resource, variant.interval);
+  warnUnknownVariant(resource, 'no subscription row written');
+  return true;
+}),
 ```
 
 ### Plan and Sponsor Ad Detection
@@ -232,7 +233,9 @@ what a subscription grants ([spec 060](../spec/060-lemonsqueezy-webhook-integrit
 `lib/payment/lemonsqueezy-subscription-events.ts`):
 
 - The plan comes from the event's `variant_id`, looked up in the variant catalog built from the pricing
-  configuration (`lib/payment/lemonsqueezy-variant-catalog.ts`). An unknown variant writes no row.
+  configuration (`lib/payment/lemonsqueezy-variant-catalog.ts`). On `subscription_created` an unknown variant
+  writes no row; an update on one only changes the status and dates of a row that already exists, never its
+  plan. `update-plan` and `update` only move a subscription to a plan variant (R12).
 - A sponsor ad is activated only by a `LEMONSQUEEZY_SPONSOR_{WEEKLY,MONTHLY}_VARIANT_ID` subscription whose
   interval matches the ad named in `custom_data.sponsorAdId`. Renewals, cancellations and payment failures
   act on the ad only when it is already bound to the same subscription id.

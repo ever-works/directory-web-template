@@ -3,6 +3,8 @@ import { PaymentProviderManager } from '@/lib/auth';
 import { safeErrorMessage } from '@/lib/utils/api-error';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
+import { loadLemonSqueezyVariantCatalog } from '@/lib/payment/lemonsqueezy-variant-catalog';
+import { isLemonSqueezyPlanVariant } from '@/lib/payment/lemonsqueezy-variant-plan';
 
 // Validation schema for update subscription request
 const updateSubscriptionSchema = z.object({
@@ -276,6 +278,22 @@ export async function POST(request: NextRequest) {
 					error: 'Invalid request data',
 					code: 'VALIDATION_ERROR',
 					details: validationResult.error.issues,
+					requestId,
+					timestamp: new Date().toISOString()
+				},
+				{ status: 400 }
+			);
+		}
+		// A new variant must be a configured plan variant, as in update-plan (spec 060 R12).
+		if (
+			validationResult.data.priceId &&
+			!isLemonSqueezyPlanVariant(await loadLemonSqueezyVariantCatalog(), validationResult.data.priceId)
+		) {
+			return NextResponse.json(
+				{
+					success: false,
+					error: 'priceId is not a plan this subscription can move to',
+					code: 'VALIDATION_ERROR',
 					requestId,
 					timestamp: new Date().toISOString()
 				},

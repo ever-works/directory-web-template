@@ -21,7 +21,11 @@ export interface LemonSqueezyCheckoutParams {
 	metadata: { userId?: string; email?: string; name?: string };
 }
 
-/** `body` has passed `validateCheckoutRequestBody` (variantId a positive integer, dark coerced). */
+/**
+ * `body` has passed `validateCheckoutRequestBody`: `variantId`, when present, is a positive integer and
+ * `dark` is coerced. A missing `variantId` is passed on as `undefined` (as before), and LemonSqueezy
+ * refuses the checkout.
+ */
 export function buildLemonSqueezyCheckoutParams(
 	user: CheckoutSessionUser,
 	body: Record<string, unknown>

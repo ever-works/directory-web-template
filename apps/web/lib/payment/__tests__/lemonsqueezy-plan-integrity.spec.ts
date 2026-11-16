@@ -1,10 +1,13 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { test } from 'node:test';
 
 import { createLemonSqueezySubscriptionEvents, type SponsorAdRecord } from '../lemonsqueezy-subscription-events';
 import {
 	buildLemonSqueezyVariantCatalog,
 	collectLemonSqueezyVariantSources,
+	isLemonSqueezyPlanVariant,
 	matchLemonSqueezyVariant
 } from '../lemonsqueezy-variant-plan';
 import type { SubscriptionServiceInput } from '../lemonsqueezy-webhook';
@@ -311,4 +314,82 @@ test('a variant configured for two different plans is ambiguous and grants nothi
 	});
 	assert.deepEqual(matchLemonSqueezyVariant(built, '500'), { kind: 'unknown' });
 	assert.deepEqual(matchLemonSqueezyVariant(built, '501'), { kind: 'unknown' });
+});
+
+test('an ad already past an event is acknowledged, not retried (sponsor-ad-lifecycle decisions)', async () => {
+	const ads = {
+		confirmed: { id: 'confirmed', status: 'pending', interval: 'weekly', subscriptionId: '42' },
+		ended: { id: 'ended', status: 'cancelled', interval: 'weekly', subscriptionId: '42' },
+		review: { id: 'review', status: 'pending', interval: 'weekly', subscriptionId: '42' }
+	};
+	const { events, sponsorCalls } = harness(ads);
+
+	// A redelivered subscription_created for an ad whose payment is already confirmed.
+	assert.equal(
+		await events.created(subscription(SPONSOR_WEEKLY_VARIANT, { type: 'sponsor_ad', sponsorAdId: 'confirmed' })),
+		true
+	);
+	// A cancellation or renewal of an ad that is already cancelled.
+	assert.equal(
+		await events.cancelled(subscription(SPONSOR_WEEKLY_VARIANT, { type: 'sponsor_ad', sponsorAdId: 'ended' })),
+		true
+	);
+	assert.equal(await events.paymentSucceeded(invoice('42', 'renewal', { sponsorAdId: 'ended' })), true);
+	assert.deepEqual(sponsorCalls, []);
+
+	// A renewal while the ad still awaits admin review may succeed later: retried.
+	assert.equal(await events.paymentSucceeded(invoice('42', 'renewal', { sponsorAdId: 'review' })), false);
+	assert.deepEqual(sponsorCalls, []);
+});
+
+test('only a plan variant is a variant a subscription may move to (R12)', () => {
+	assert.equal(isLemonSqueezyPlanVariant(catalog, STANDARD_VARIANT), true);
+	assert.equal(isLemonSqueezyPlanVariant(catalog, String(PREMIUM_VARIANT)), true);
+	assert.equal(isLemonSqueezyPlanVariant(catalog, SPONSOR_WEEKLY_VARIANT), false);
+	assert.equal(isLemonSqueezyPlanVariant(catalog, UNKNOWN_VARIANT), false);
+	assert.equal(isLemonSqueezyPlanVariant(catalog, undefined), false);
+});
+
+test('update-plan and update refuse a non-plan variant before calling LemonSqueezy (R12)', () => {
+	// The routes import `auth` and cannot be loaded under `tsx --test`, so the wiring is checked in the source.
+	const source = (path: string) => readFileSync(join(__dirname, path), 'utf8').replace(/\s+/g, ' ');
+	const checks: Array<[string, string]> = [
+		[
+			'../../../app/api/lemonsqueezy/update-plan/route.ts',
+			'isLemonSqueezyPlanVariant(await loadLemonSqueezyVariantCatalog(), variantId)'
+		],
+		[
+			'../../../app/api/lemonsqueezy/update/route.ts',
+			'isLemonSqueezyPlanVariant(await loadLemonSqueezyVariantCatalog(), validationResult.data.priceId)'
+		]
+	];
+	for (const [path, check] of checks) {
+		const route = source(path);
+		const at = route.indexOf(check);
+		assert.ok(at >= 0, `${path} does not check the variant`);
+		assert.ok(at < route.indexOf('.updateSubscription('), `${path} checks the variant after calling LemonSqueezy`);
+	}
+});
+
+test('a sponsor-ad confirmation that writes nothing is retried, as on the Stripe path', async () => {
+	const failing = createLemonSqueezySubscriptionEvents({
+		plans: {} as never,
+		sponsorAds: {
+			getSponsorAdById: async (id: string) => ({
+				id,
+				status: 'pending_payment',
+				interval: 'weekly',
+				subscriptionId: null
+			}),
+			confirmPayment: async () => null,
+			cancelSponsorAd: async () => null,
+			renewSponsorAd: async () => null
+		},
+		loadVariantCatalog: async () => catalog,
+		logger: { log() {}, warn() {}, error() {} }
+	});
+	assert.equal(
+		await failing.created(subscription(SPONSOR_WEEKLY_VARIANT, { type: 'sponsor_ad', sponsorAdId: 'ad_1' })),
+		false
+	);
 });

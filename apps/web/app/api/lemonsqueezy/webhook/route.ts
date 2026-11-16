@@ -30,8 +30,9 @@ const subscriptionEvents = createLemonSqueezySubscriptionEvents({
 	loadVariantCatalog: loadLemonSqueezyVariantCatalog
 });
 
-// Per-pod burst de-duplication of redelivered events. The subscription handlers
-// are idempotent on (provider, subscription id), which is the durable boundary.
+// Per-pod burst de-duplication of redelivered events, bounded (the coordinator clears its keys
+// after 1000 events). Only subscription rows are idempotent on (provider, subscription id); an
+// order email is sent again and a sponsor-ad renewal extends the ad again if a redelivery gets past it.
 const processedEvents = new RelayEventCoordinator();
 
 // Utility function to create email data with secure configuration

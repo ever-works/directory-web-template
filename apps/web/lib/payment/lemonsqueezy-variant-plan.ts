@@ -86,6 +86,15 @@ export function matchLemonSqueezyVariant(
 	return (id && catalog.targets.get(id)) || { kind: 'unknown' };
 }
 
+/**
+ * True when the variant is configured for a plan (spec 060 R12). A subscription may only be moved
+ * to such a variant: the webhook keeps the stored plan when the new variant is not a plan variant,
+ * so a move to a sponsor-ad or unlisted variant would keep the paid plan at another price.
+ */
+export function isLemonSqueezyPlanVariant(catalog: LemonSqueezyVariantCatalog, variantId: unknown): boolean {
+	return matchLemonSqueezyVariant(catalog, variantId).kind === 'plan';
+}
+
 export interface LemonSqueezyVariantConfig {
 	/** `LEMONSQUEEZY_CONFIG` (`lib/config/billing/lemonsqueezy.config.ts`). */
 	billing: Partial<Record<string, PlanConfig>>;

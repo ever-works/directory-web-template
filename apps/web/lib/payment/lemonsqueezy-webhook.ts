@@ -1,4 +1,8 @@
 import { createHash, createHmac, timingSafeEqual } from 'node:crypto';
+// Type only (erased at runtime): the service owns its input layout, and this module stays free of app imports.
+import type { SubscriptionServiceInput } from '@/lib/services/webhook-subscription.service';
+
+export type { SubscriptionServiceInput };
 
 /**
  * Pure helpers for the LemonSqueezy webhook route.
@@ -82,32 +86,6 @@ export type WebhookResource = {
 };
 
 /**
- * The raw (pre-`formatData`) layout `WebhookSubscriptionService` reads:
- * timestamps in seconds, amounts in cents. Every field is optional because
- * the service tolerates missing ones; the index signature admits the other
- * fields it passes through.
- */
-export interface SubscriptionServiceInput {
-	id: string;
-	status?: string;
-	customer?: string;
-	customer_email?: string;
-	customer_name?: string;
-	metadata: Record<string, unknown>;
-	currency?: string;
-	start_date?: number;
-	period_end?: number;
-	trial_end?: number;
-	cancel_at_period_end?: boolean;
-	amount_due?: number;
-	amount_paid?: number;
-	hosted_invoice_url?: string;
-	parent?: { subscription_details: { subscription: string } };
-	items?: { data: Array<{ price: { id?: string } }> };
-	[key: string]: unknown;
-}
-
-/**
  * Map a LemonSqueezy subscription or subscription-invoice resource onto the
  * field layout `WebhookSubscriptionService` reads (timestamps in seconds,
  * amounts in cents). The service stores rows under the provider it was built
@@ -146,6 +124,8 @@ export function toSubscriptionServiceData(
 			...common,
 			// The service keys subscription rows on `id`; for an invoice that is the subscription.
 			id: subscriptionId,
+			// ...and stores this as the row's invoice id (it would otherwise be the subscription id).
+			invoice_id: toId(resource.id),
 			parent: { subscription_details: { subscription: subscriptionId } },
 			status: attrs.status === 'paid' ? 'active' : undefined,
 			currency: typeof attrs.currency === 'string' ? attrs.currency.toLowerCase() : undefined,

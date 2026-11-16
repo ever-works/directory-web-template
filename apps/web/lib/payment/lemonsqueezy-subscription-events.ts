@@ -1,5 +1,10 @@
 import { SPONSOR_AD_TYPE } from './sponsor-ad-event';
 import {
+	sponsorAdActivationDecision,
+	sponsorAdCancellationDecision,
+	sponsorAdRenewalDecision
+} from './sponsor-ad-lifecycle';
+import {
 	isInitialSubscriptionInvoice,
 	toSubscriptionServiceData,
 	type SubscriptionServiceInput,
@@ -172,11 +177,21 @@ export function createLemonSqueezySubscriptionEvents(
 			);
 			return true;
 		}
+		if (sponsorAdActivationDecision(ad.status) !== 'act') {
+			// Already confirmed (a redelivery) or moved on: confirmPayment would throw, and no retry
+			// can change that, so acknowledge it (lib/payment/sponsor-ad-lifecycle.ts).
+			log.warn(`⚠️ Sponsor ad ${ad.id} is ${ad.status}; LemonSqueezy subscription ${resource.id} acknowledged`);
+			return true;
+		}
 
 		log.log(`🔄 Confirming payment for sponsor ad via LemonSqueezy: ${ad.id}`);
 		const confirmed = await sponsorAds.confirmPayment(ad.id, resource.id, toId(resource.attributes?.customer_id));
-		if (confirmed) log.log(`✅ Sponsor ad payment confirmed, now pending admin review: ${ad.id}`);
-		else log.error(`❌ Failed to confirm sponsor ad payment: ${ad.id}`);
+		if (!confirmed) {
+			// As in the Stripe and Polar handlers: a paid ad left awaiting payment is retried.
+			log.error(`❌ Failed to confirm sponsor ad payment: ${ad.id}`);
+			return false;
+		}
+		log.log(`✅ Sponsor ad payment confirmed, now pending admin review: ${ad.id}`);
 		return true;
 	}
 
@@ -213,6 +228,10 @@ export function createLemonSqueezySubscriptionEvents(
 		cancelled: guarded('subscription cancelled', async (resource) => {
 			const ad = await boundSponsorAd(resource, resource.id);
 			if (ad) {
+				if (sponsorAdCancellationDecision(ad.status) !== 'act') {
+					log.log(`📢 Sponsor ad ${ad.id} is already ${ad.status}; LemonSqueezy cancellation acknowledged`);
+					return true;
+				}
 				log.log(`🔄 Cancelling sponsor ad via LemonSqueezy: ${ad.id}`);
 				const cancelledAd = await sponsorAds.cancelSponsorAd(ad.id, 'LemonSqueezy subscription cancelled');
 				if (cancelledAd) log.log(`✅ Sponsor ad cancelled successfully: ${ad.id}`);
@@ -240,6 +259,13 @@ export function createLemonSqueezySubscriptionEvents(
 				if (isInitialSubscriptionInvoice(resource)) {
 					log.log('📢 LemonSqueezy sponsor ad initial payment acknowledged');
 					return true;
+				}
+				const decision = sponsorAdRenewalDecision(ad.status);
+				if (decision !== 'act') {
+					// `retry`: still pending payment or admin review, which may change; otherwise the ad
+					// was cancelled or rejected and a redelivery cannot renew it.
+					log.warn(`⚠️ Sponsor ad ${ad.id} is ${ad.status}; LemonSqueezy renewal ${decision}`);
+					return decision === 'acknowledge';
 				}
 				log.log(`🔄 Renewing sponsor ad via LemonSqueezy: ${ad.id}`);
 				const renewedAd = await sponsorAds.renewSponsorAd(ad.id);

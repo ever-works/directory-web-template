@@ -154,6 +154,8 @@ test('an invoice event is keyed on its subscription and carries cents', () => {
 		attributes: { subscription_id: 42, customer_id: 7, status: 'paid', total: 1999, currency: 'USD' }
 	});
 	assert.equal(mapped.id, '42');
+	// The row's invoice id is the invoice's own id, not the subscription it is keyed on.
+	assert.equal(mapped.invoice_id, '555');
 	assert.equal(mapped.parent?.subscription_details.subscription, '42');
 	assert.equal(mapped.amount_paid, 1999);
 	assert.equal(mapped.currency, 'usd');

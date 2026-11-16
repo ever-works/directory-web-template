@@ -14,7 +14,34 @@ import {
 import { PaymentPlan, PaymentProvider } from '@/lib/constants';
 import { convertCentsToDecimal, convertNumberToDate, WebhookEventType } from '@/lib/payment/types/payment-types';
 import { toStoredAmount } from '@/lib/payment/stored-amount';
-import type { SubscriptionServiceInput } from '@/lib/payment/lemonsqueezy-webhook';
+
+/**
+ * The raw (pre-`formatData`) layout the service reads, for providers that adapt their events to it
+ * (LemonSqueezy: `lib/payment/lemonsqueezy-webhook.ts`): timestamps in seconds, amounts in cents.
+ * Every field is optional because the service tolerates missing ones; the index signature admits
+ * the other fields it passes through.
+ */
+export interface SubscriptionServiceInput {
+	id: string;
+	status?: string;
+	customer?: string;
+	customer_email?: string;
+	customer_name?: string;
+	metadata: Record<string, unknown>;
+	currency?: string;
+	start_date?: number;
+	period_end?: number;
+	trial_end?: number;
+	cancel_at_period_end?: boolean;
+	amount_due?: number;
+	amount_paid?: number;
+	hosted_invoice_url?: string;
+	/** An invoice's own id when `id` carries its subscription id (LemonSqueezy invoices). */
+	invoice_id?: string;
+	parent?: { subscription_details: { subscription: string } };
+	items?: { data: Array<{ price: { id?: string } }> };
+	[key: string]: unknown;
+}
 
 export interface WebhookSubscriptionData {
 	id: string;
@@ -81,7 +108,7 @@ export const formatData = (
 		cancelledAt: data.cancel_at,
 		cancelAtPeriodEnd: data.cancel_at_period_end,
 		cancelReason: data.billing_reason,
-		invoiceId: data.id,
+		invoiceId: data.invoice_id ?? data.id,
 		metadata: {
 			...data.metadata,
 			stripeCustomerId: data.customer,
@@ -623,7 +650,7 @@ export class WebhookSubscriptionService {
 	): Promise<WebhookProcessingResult> {
 		try {
 			const response = formatData(data, this.paymentProvider);
-			console.log(`🔄 Processing subscription trial ending: ${data.subscriptionId}`);
+			console.log(`🔄 Processing subscription trial ending: ${response.subscriptionId}`);
 
 			// Find existing subscription
 			const existingSubscription = await queries.getSubscriptionByProviderSubscriptionId(
@@ -632,7 +659,7 @@ export class WebhookSubscriptionService {
 			);
 
 			if (!existingSubscription) {
-				throw new Error(`Subscription not found: ${data.subscriptionId}`);
+				throw new Error(`Subscription not found: ${response.subscriptionId}`);
 			}
 
 			// Log trial ending event

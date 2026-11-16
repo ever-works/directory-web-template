@@ -65,4 +65,13 @@ test('the checkout route forwards no client price or metadata to LemonSqueezy', 
 		route.includes('buildLemonSqueezyCheckoutParams(session.user, body)'),
 		'POST must build its LemonSqueezy parameters from the session'
 	);
+	// ...and send exactly those, with nothing from the body spread or added on top.
+	assert.ok(
+		route.includes('createCustomCheckout(checkoutParams)'),
+		'POST must pass the session-built parameters to LemonSqueezy unchanged'
+	);
+	assert.ok(
+		route.includes('createCustomCheckout({ email, variantId })'),
+		'GET must forward only email and variantId'
+	);
 });
