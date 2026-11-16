@@ -47,12 +47,6 @@ const {
   // Delete
   deleteComment,       // (commentId: string) => Promise<void>
   isDeleting,          // boolean
-
-  // Rating
-  rateComment,         // (data: { commentId: string; rating: number }) => void
-  isRatingComment,     // boolean
-  updateCommentRating, // (data: { commentId: string; rating: number }) => void
-  isUpdatingRating,    // boolean
 } = useComments(itemId);
 ```
 
@@ -88,7 +82,7 @@ interface UpdateCommentData {
 
 ## Authentication Handling
 
-When an unauthenticated user attempts to create, update, delete, or rate a comment, the hook:
+When an unauthenticated user attempts to create, update, or delete a comment, the hook:
 
 1. Detects the `401 Unauthorized` response
 2. Opens the login modal with a contextual message (e.g., "Please sign in to comment")
@@ -133,12 +127,6 @@ On success:
 ### Delete Comment
 
 On success, the entire `['comments', itemId]` query is refetched from the server.
-
-### Rate / Update Rating
-
-On success:
-1. The `['comments', itemId]` query is invalidated
-2. The `['item-rating', itemId]` query is refetched
 
 ## Usage: Comment List with Create
 
@@ -199,21 +187,25 @@ function EditableComment({ comment, itemId }) {
 }
 ```
 
-## Usage: Comment Rating
+## Usage: Changing a Comment's Rating
+
+The hook has no dedicated rating mutation. Change a rating through `updateComment`, which accepts an optional `rating`:
 
 ```tsx
 function CommentRating({ comment, itemId }) {
-  const { rateComment, isRatingComment } = useComments(itemId);
+  const { updateComment, isUpdating } = useComments(itemId);
 
   return (
     <StarRating
       value={comment.rating}
-      onChange={(rating) => rateComment({ commentId: comment.id, rating })}
-      disabled={isRatingComment}
+      onChange={(rating) => updateComment({ commentId: comment.id, rating })}
+      disabled={isUpdating}
     />
   );
 }
 ```
+
+Only the comment's author can change its rating (the same rule applies to `PATCH /api/items/{slug}/comments/rating/{commentId}`).
 
 ## Event System
 
@@ -236,7 +228,6 @@ useEffect(() => {
 | `createComment` | Opens login modal, throws `'Unauthorized'` | Throws with server error message |
 | `updateComment` | Opens login modal, throws `'Unauthorized'` | Throws with server error message |
 | `deleteComment` | Throws `'Please login to delete comment'` | Throws with server error message |
-| `rateComment` | Opens login modal, returns silently | Throws with server error message |
 
 ## Related Hooks
 
