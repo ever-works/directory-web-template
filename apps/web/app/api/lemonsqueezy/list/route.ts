@@ -1,6 +1,7 @@
 import { auth } from "@/lib/auth";
 import { getOrCreateLemonsqueezyProvider } from "@/lib/payment/config/payment-provider-manager";
 import { statuses } from "@/lib/payment/lib/providers/lemonsqueezy-provider";
+import { resolveListCustomerEmail } from "@/lib/payment/lemonsqueezy-list-access";
 import { safeErrorMessage } from "@/lib/utils/api-error";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
@@ -353,6 +354,22 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    // Only admins may list another customer's subscriptions.
+    const access = resolveListCustomerEmail(
+      { email: session.user.email, isAdmin: session.user.isAdmin },
+      customerEmail
+    );
+    if (!access.allowed) {
+      return NextResponse.json(
+        {
+          error: 'Forbidden',
+          message: 'You can only view your own checkouts',
+          code: 'ACCESS_DENIED'
+        },
+        { status: 403 }
+      );
+    }
+
     // 4. Initialize LemonSqueezy provider
     const lemonsqueezy = getOrCreateLemonsqueezyProvider();
 
@@ -360,7 +377,7 @@ export async function GET(request: NextRequest) {
       status,
       limit,
       page,
-      customerEmail: customerEmail || session.user.email, 
+      customerEmail: access.email,
       dateFrom: dateFrom ? new Date(dateFrom) : undefined,
       dateTo: dateTo ? new Date(dateTo) : undefined,
       storeId,
@@ -381,11 +398,11 @@ export async function GET(request: NextRequest) {
       },
       filters: {
         status: status || 'all',
-        customerEmail: customerEmail || session.user.email,
-        dateRange: dateFrom && dateTo 
+        customerEmail: access.email,
+        dateRange: dateFrom && dateTo
           ? `${dateFrom} to ${dateTo}`
           : 'all',
-        appliedFilters: Object.keys(filterOptions).filter(key => 
+        appliedFilters: Object.keys(filterOptions).filter(key =>
           filterOptions[key as keyof typeof filterOptions] !== undefined
         ),
       },
@@ -619,19 +636,19 @@ export async function POST(request: NextRequest) {
       storeId 
     } = validationResult.data;
 
-    if (customerEmail && customerEmail !== session.user.email) {
-      const isAdmin = session.user.isAdmin;
-      
-      if (!isAdmin) {
-        return NextResponse.json(
-          { 
-            error: 'Forbidden',
-            message: 'You can only view your own checkouts',
-            code: 'ACCESS_DENIED'
-          },
-          { status: 403 }
-        );
-      }
+    const access = resolveListCustomerEmail(
+      { email: session.user.email, isAdmin: session.user.isAdmin },
+      customerEmail
+    );
+    if (!access.allowed) {
+      return NextResponse.json(
+        {
+          error: 'Forbidden',
+          message: 'You can only view your own checkouts',
+          code: 'ACCESS_DENIED'
+        },
+        { status: 403 }
+      );
     }
 
     // 4. Initialize provider and fetch data
@@ -641,7 +658,7 @@ export async function POST(request: NextRequest) {
       status,
       limit,
       page,
-      customerEmail: customerEmail || session.user.email,
+      customerEmail: access.email,
       dateFrom: dateFrom ? new Date(dateFrom) : undefined,
       dateTo: dateTo ? new Date(dateTo) : undefined,
       storeId,
@@ -663,7 +680,7 @@ export async function POST(request: NextRequest) {
       },
       filters: {
         status: status || 'all',
-        customerEmail: customerEmail || session.user.email,
+        customerEmail: access.email,
         dateRange: dateFrom && dateTo 
           ? `${dateFrom} to ${dateTo}`
           : 'all',

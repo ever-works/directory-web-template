@@ -13,8 +13,21 @@ import { getEmailConfig } from '@/lib/config/server-config';
 import { WebhookSubscriptionService } from '@/lib/services/webhook-subscription.service';
 import { sponsorAdService } from '@/lib/services/sponsor-ad.service';
 import { getOrCreateLemonsqueezyProvider } from '@/lib/auth';
+import { PaymentProvider } from '@/lib/constants';
+import { RelayEventCoordinator } from '@/lib/payment/relay-event-coordinator';
+import {
+	getLemonSqueezyEventKey,
+	parseLemonSqueezyEvent,
+	toOrderEmailData,
+	toSubscriptionServiceData
+} from '@/lib/payment/lemonsqueezy-webhook';
 
-const webhookSubscriptionService = new WebhookSubscriptionService();
+// Rows must be stored under the LemonSqueezy provider (the default is Stripe).
+const webhookSubscriptionService = new WebhookSubscriptionService(PaymentProvider.LEMONSQUEEZY);
+
+// Per-pod burst de-duplication of redelivered events. The subscription handlers
+// are idempotent on (provider, subscription id), which is the durable boundary.
+const processedEvents = new RelayEventCoordinator();
 
 // Utility function to create email data with secure configuration
 function createEmailData(baseData: any, emailConfig: Awaited<ReturnType<typeof getEmailConfig>>) {
@@ -31,6 +44,7 @@ function createEmailData(baseData: any, emailConfig: Awaited<ReturnType<typeof g
 
 export async function POST(request: NextRequest) {
 	try {
+		// Read the body exactly once: the signature covers these raw bytes.
 		const body = await request.text();
 		const headersList = await headers();
 		const signature = headersList.get('x-signature');
@@ -39,45 +53,28 @@ export async function POST(request: NextRequest) {
 			return NextResponse.json({ error: 'No signature provided' }, { status: 400 });
 		}
 
-		// Get or create LemonSqueezy provider (singleton)
+		// Get or create LemonSqueezy provider (singleton). It verifies the signature
+		// over the raw body, then parses that same text.
 		const lemonSqueezyProvider = getOrCreateLemonsqueezyProvider();
-		const webhookResult = await lemonSqueezyProvider.handleWebhook(body, signature);
+		const webhookResult = await lemonSqueezyProvider.handleWebhook(null, signature, body);
 
 		if (!webhookResult.received) {
 			return NextResponse.json({ error: 'Webhook not processed' }, { status: 400 });
 		}
 
-		// Map LemonSqueezy event types to our generic types
-		const eventType = mapLemonSqueezyEventType(webhookResult.type);
+		const event = parseLemonSqueezyEvent(body);
+		if (!event) {
+			return NextResponse.json({ error: 'Invalid payload' }, { status: 400 });
+		}
 
-		switch (eventType) {
-			case WebhookEventType.SUBSCRIPTION_CREATED:
-				await handleSubscriptionCreated(webhookResult.data);
-				break;
-			case WebhookEventType.SUBSCRIPTION_UPDATED:
-				console.log('Subscription updated:', webhookResult.data);
-				await handleSubscriptionUpdated(webhookResult.data);
-				break;
-			case WebhookEventType.SUBSCRIPTION_CANCELLED:
-				await handleSubscriptionCancelled(webhookResult.data);
-				break;
-			case WebhookEventType.PAYMENT_SUCCEEDED:
-				await handlePaymentSucceeded(webhookResult.data);
-				break;
-			case WebhookEventType.SUBSCRIPTION_PAYMENT_SUCCEEDED:
-				await handleSubscriptionPaymentSucceeded(webhookResult.data);
-				break;
-			case WebhookEventType.SUBSCRIPTION_PAYMENT_FAILED:
-				await handleSubscriptionPaymentFailed(webhookResult.data);
-				break;
-			case WebhookEventType.PAYMENT_FAILED:
-				await handlePaymentFailed(webhookResult.data);
-				break;
-			case WebhookEventType.SUBSCRIPTION_TRIAL_ENDING:
-				await handleSubscriptionTrialEnding(webhookResult.data);
-				break;
-			default:
-				console.log(`Unhandled webhook event: ${eventType}`);
+		const outcome = await processedEvents.process(getLemonSqueezyEventKey(event, body), async () => {
+			await dispatchEvent(webhookResult.type, webhookResult.data);
+			return true;
+		});
+
+		// A concurrent redelivery of an in-flight event: ask LemonSqueezy to retry.
+		if (outcome === 'retry') {
+			return NextResponse.json({ error: 'Event is being processed' }, { status: 409 });
 		}
 
 		return NextResponse.json({ received: true });
@@ -87,12 +84,51 @@ export async function POST(request: NextRequest) {
 	}
 }
 
+async function dispatchEvent(lemonsqueezyEventType: string, data: any): Promise<void> {
+	// Map LemonSqueezy event types to our generic types
+	const eventType = mapLemonSqueezyEventType(lemonsqueezyEventType);
+
+	switch (eventType) {
+		case WebhookEventType.SUBSCRIPTION_CREATED:
+			await handleSubscriptionCreated(data);
+			break;
+		case WebhookEventType.SUBSCRIPTION_UPDATED:
+			await handleSubscriptionUpdated(data);
+			break;
+		case WebhookEventType.SUBSCRIPTION_CANCELLED:
+			await handleSubscriptionCancelled(data);
+			break;
+		case WebhookEventType.PAYMENT_SUCCEEDED:
+			await handlePaymentSucceeded(data);
+			break;
+		case WebhookEventType.SUBSCRIPTION_PAYMENT_SUCCEEDED:
+			await handleSubscriptionPaymentSucceeded(data);
+			break;
+		case WebhookEventType.SUBSCRIPTION_PAYMENT_FAILED:
+			await handleSubscriptionPaymentFailed(data);
+			break;
+		case WebhookEventType.PAYMENT_FAILED:
+			await handlePaymentFailed(data);
+			break;
+		case WebhookEventType.SUBSCRIPTION_TRIAL_ENDING:
+			await handleSubscriptionTrialEnding(data);
+			break;
+		default:
+			console.log(`Unhandled webhook event: ${eventType}`);
+	}
+}
+
 // Map LemonSqueezy event types to our generic webhook event types
 function mapLemonSqueezyEventType(lemonsqueezyEventType: string): string {
 	const eventMapping: Record<string, string> = {
 		'subscription_created': WebhookEventType.SUBSCRIPTION_CREATED,
 		'subscription_updated': WebhookEventType.SUBSCRIPTION_UPDATED,
 		'subscription_cancelled': WebhookEventType.SUBSCRIPTION_CANCELLED,
+		// These carry the subscription with its new status; the updated handler stores it.
+		'subscription_resumed': WebhookEventType.SUBSCRIPTION_UPDATED,
+		'subscription_expired': WebhookEventType.SUBSCRIPTION_UPDATED,
+		'subscription_paused': WebhookEventType.SUBSCRIPTION_UPDATED,
+		'subscription_unpaused': WebhookEventType.SUBSCRIPTION_UPDATED,
 		'subscription_payment_success': WebhookEventType.SUBSCRIPTION_PAYMENT_SUCCEEDED,
 		'subscription_payment_failed': WebhookEventType.SUBSCRIPTION_PAYMENT_FAILED,
 		'subscription_trial_will_end': WebhookEventType.SUBSCRIPTION_TRIAL_ENDING,
@@ -113,7 +149,7 @@ async function handleSubscriptionCreated(data: any) {
 	}
 
 	try {
-		const result = await webhookSubscriptionService.handleSubscriptionCreated(data);
+		const result = await webhookSubscriptionService.handleSubscriptionCreated(toSubscriptionServiceData(data));
 		if (result.success) {
 			console.log('✅ LemonSqueezy subscription created successfully');
 		} else {
@@ -126,7 +162,7 @@ async function handleSubscriptionCreated(data: any) {
 
 async function handleSubscriptionUpdated(data: any) {
 	try {
-		const result = await webhookSubscriptionService.handleSubscriptionUpdated(data);
+		const result = await webhookSubscriptionService.handleSubscriptionUpdated(toSubscriptionServiceData(data));
 		if (result.success) {
 			console.log('✅ LemonSqueezy subscription updated successfully');
 		} else {
@@ -146,7 +182,7 @@ async function handleSubscriptionCancelled(data: any) {
 	}
 
 	try {
-		const result = await webhookSubscriptionService.handleSubscriptionCancelled(data);
+		const result = await webhookSubscriptionService.handleSubscriptionCancelled(toSubscriptionServiceData(data));
 		if (result.success) {
 			console.log('✅ LemonSqueezy subscription cancelled successfully');
 		} else {
@@ -157,8 +193,9 @@ async function handleSubscriptionCancelled(data: any) {
 	}
 }
 
-async function handlePaymentSucceeded(data: any) {
+async function handlePaymentSucceeded(resource: any) {
 	try {
+		const data = toOrderEmailData(resource);
 		const emailConfig = await getEmailConfig();
 		
 		// Extract customer info from LemonSqueezy data
@@ -207,7 +244,9 @@ async function handleSubscriptionPaymentSucceeded(data: any) {
 	}
 
 	try {
-		const result = await webhookSubscriptionService.handleSubscriptionPaymentSucceeded(data);
+		const result = await webhookSubscriptionService.handleSubscriptionPaymentSucceeded(
+			toSubscriptionServiceData(data)
+		);
 		if (result.success) {
 			console.log('✅ LemonSqueezy subscription payment processed successfully');
 		} else {
@@ -220,7 +259,7 @@ async function handleSubscriptionPaymentSucceeded(data: any) {
 
 async function handleSubscriptionPaymentFailed(data: any) {
 	try {
-		const result = await webhookSubscriptionService.handleSubscriptionPaymentFailed(data);
+		const result = await webhookSubscriptionService.handleSubscriptionPaymentFailed(toSubscriptionServiceData(data));
 		if (result.success) {
 			console.log('✅ LemonSqueezy subscription payment failure handled successfully');
 		} else {
@@ -233,7 +272,7 @@ async function handleSubscriptionPaymentFailed(data: any) {
 
 async function handleSubscriptionTrialEnding(data: any) {
 	try {
-		const result = await webhookSubscriptionService.handleSubscriptionTrialEnding(data);
+		const result = await webhookSubscriptionService.handleSubscriptionTrialEnding(toSubscriptionServiceData(data));
 		if (result.success) {
 			console.log('✅ LemonSqueezy subscription trial ending handled successfully');
 		} else {

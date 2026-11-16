@@ -33,6 +33,7 @@ import {
 
 import { env } from '@/lib/config/env';
 import { paymentAccountClient } from '../client/payment-account-client';
+import { parseLemonSqueezyEvent, verifyLemonSqueezySignature } from '../../lemonsqueezy-webhook';
 
 export interface LemonSqueezyConfig extends PaymentProviderConfig {
 	apiKey: string;
@@ -687,35 +688,23 @@ export class LemonSqueezyProvider implements PaymentProviderInterface {
 	/**
 	 * Verify and normalise an inbound LemonSqueezy webhook.
 	 *
-	 * Hand-rolled HMAC-SHA256 verification via the Web Crypto API
-	 * (rather than Node's `crypto.createHmac`) so the same code path
-	 * runs on edge runtimes; the webhook secret signs the body.
+	 * HMAC-SHA256 over the raw body with a constant-time compare (see
+	 * `lemonsqueezy-webhook.ts`). The event is parsed from the same verified text.
 	 *
-	 * **Two known limitations worth surfacing:**
-	 *
-	 * 1. **Non-constant-time signature comparison.** Line below uses
-	 *    a plain `!==` on the hex-encoded signatures, which is
-	 *    technically vulnerable to a timing oracle. The HMAC output
-	 *    space is large enough (256 bits) that timing-side-channel
-	 *    leaks on a hex-string compare are not a practical attack
-	 *    here — but if you're hardening this surface further,
-	 *    upgrade to a constant-time comparator. Stripe's SDK and
-	 *    Node's `crypto.timingSafeEqual` both do this for you.
-	 *
-	 * 2. **Returns `{ received: false }` instead of throwing on
-	 *    signature mismatch.** This is the OPPOSITE of how
-	 *    `StripeProvider.handleWebhook` behaves (which throws). The
-	 *    route handler MUST check `result.received` and respond 4xx
-	 *    when false — a controller that just returns 200 OK on the
-	 *    presence of any WebhookResult would silently ack invalid
-	 *    signatures here.
+	 * **Returns `{ received: false }` instead of throwing on
+	 * signature mismatch.** This is the OPPOSITE of how
+	 * `StripeProvider.handleWebhook` behaves (which throws). The
+	 * route handler MUST check `result.received` and respond 4xx
+	 * when false — a controller that just returns 200 OK on the
+	 * presence of any WebhookResult would silently ack invalid
+	 * signatures here.
 	 *
 	 * The `rawBody ?? JSON.stringify(payload)` fallback exists so a
 	 * caller that doesn't pre-capture the wire bytes still gets a
 	 * verification attempt — but JSON.stringify of a re-parsed body
 	 * can shuffle whitespace and key order vs the original signed
 	 * bytes, so this fallback usually fails verification. Always
-	 * pass `rawBody` from a body-parser verify hook in production.
+	 * pass `rawBody` (`await request.text()`).
 	 */
 	async handleWebhook(
 		payload: unknown,
@@ -725,24 +714,11 @@ export class LemonSqueezyProvider implements PaymentProviderInterface {
 		_webhookId?: string
 	): Promise<WebhookResult> {
 		try {
-			// Convert webhook secret to key for Web Crypto API
-			const encoder = new TextEncoder();
-			const keyData = encoder.encode(this.webhookSecret);
-			// Use rawBody when available to avoid signature verification failures
-			// caused by JSON re-serialization differences (whitespace, key order, etc.)
-			const messageData = encoder.encode(rawBody ?? JSON.stringify(payload));
-
-			// Import key for HMAC
-			const cryptoKey = await crypto.subtle.importKey('raw', keyData, { name: 'HMAC', hash: 'SHA-256' }, false, [
-				'sign'
-			]);
-
-			// Sign the message
-			const signatureBuffer = await crypto.subtle.sign('HMAC', cryptoKey, messageData);
-			const hashArray = Array.from(new Uint8Array(signatureBuffer));
-			const calculatedSignature = hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
-
-			if (calculatedSignature !== signature) {
+			// Verify over the exact bytes LemonSqueezy signed (constant-time compare).
+			// The JSON.stringify fallback only exists for callers that have no raw
+			// body and usually fails verification; routes must pass `rawBody`.
+			const signedBody = rawBody ?? JSON.stringify(payload);
+			if (!verifyLemonSqueezySignature(signedBody, signature, this.webhookSecret)) {
 				return {
 					received: false,
 					type: 'verification_failed',
@@ -751,12 +727,23 @@ export class LemonSqueezyProvider implements PaymentProviderInterface {
 				};
 			}
 
-			const event = payload as { meta: { event_name: string }; data: { id: string } };
+			// Parse the same verified text, never a re-serialised copy.
+			const event = parseLemonSqueezyEvent(signedBody);
+			if (!event) {
+				return {
+					received: false,
+					type: 'processing_error',
+					id: '',
+					data: { error: 'Invalid webhook payload' }
+				};
+			}
+
 			return {
 				received: true,
 				type: event.meta.event_name,
 				id: event.data.id,
-				data: event.data
+				// `meta` carries the checkout custom data (user id, sponsor ad id).
+				data: { ...event.data, meta: event.meta }
 			};
 		} catch (error) {
 			console.error('Error handling LemonSqueezy webhook:', error);

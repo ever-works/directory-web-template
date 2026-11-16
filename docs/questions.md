@@ -27,6 +27,22 @@ confirm, override, or refine.
 
 ---
 
+## Spec 059 — LemonSqueezy webhook integrity
+
+### Q-059a Cross-pod webhook de-duplication
+
+- **Context.** Redelivered LemonSqueezy events are de-duplicated per pod only
+  (an in-memory set); subscription rows are idempotent on (provider, subscription id),
+  but the order-created email can repeat if a redelivery reaches another pod.
+- **Options.**
+  - Keep the per-pod set.
+  - Add a table of processed event keys (needs a migration).
+- **Default.** **Keep the per-pod set** until a migration is acceptable.
+- **Owner.** Template maintainers.
+- **Status.** `open`.
+
+---
+
 ## Spec 002 — Plugin Architecture
 
 ### Q-002a SDK package name

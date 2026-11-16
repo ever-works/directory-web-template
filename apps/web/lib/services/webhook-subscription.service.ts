@@ -150,7 +150,7 @@ export class WebhookSubscriptionService {
 				planId: (response?.planId as any) || PaymentPlan.STANDARD,
 				status: this.mapProviderStatusToInternal(response.status),
 				startDate: new Date(),
-				endDate: new Date() || null,
+				endDate: convertNumberToDate(response.endDate as unknown as number) ?? new Date(),
 				paymentProvider: this.paymentProvider,
 				subscriptionId: response.subscriptionId,
 				priceId: response.priceId || null,
@@ -217,7 +217,8 @@ export class WebhookSubscriptionService {
 
 			if (!existingSubscription) {
 				console.log(existingSubscription, `⚠️ Subscription not found, creating new one: ${data}`);
-				return await this.handleSubscriptionCreated(response);
+				// Pass the original payload: `response` is already formatted and would lose its fields.
+				return await this.handleSubscriptionCreated(data);
 			}
 
 			// Prepare update data
@@ -230,7 +231,7 @@ export class WebhookSubscriptionService {
 			const updateData = {
 				status: newStatus,
 				planId: response.planId || existingSubscription.planId,
-				endDate: response.endDate || existingSubscription.endDate,
+				endDate: convertNumberToDate(response.endDate as unknown as number) ?? existingSubscription.endDate,
 				amount:
 					response.planId === 'free'
 						? 0
@@ -385,7 +386,8 @@ export class WebhookSubscriptionService {
 			// Update subscription with successful payment
 			const updateData = {
 				status: SubscriptionStatus.ACTIVE,
-				endDate: convertNumberToDate(response.periodEnd!),
+				// Keep the stored end date when the event carries no period end.
+				endDate: convertNumberToDate(response.periodEnd) ?? existingSubscription.endDate,
 				amountDue: convertCentsToDecimal(response.amountDue!),
 				amountPaid: convertCentsToDecimal(response.amountPaid!),
 				periodEnd: convertNumberToDate(response.periodEnd),
