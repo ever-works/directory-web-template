@@ -12,6 +12,9 @@ interface ClientImportRequestBody {
  * POST /api/client/items/import
  * Execute client import. All items set to status: pending, submitted_by: userId.
  * No update-existing option — always creates new items (duplicates are skipped).
+ * The rows come from the browser, so `clientMode` makes the service check them again, look up
+ * duplicates itself and drop the fields the client submit form cannot set (featured, collections,
+ * brand_logo_url, images).
  */
 export async function POST(request: NextRequest) {
 	try {
@@ -34,6 +37,7 @@ export async function POST(request: NextRequest) {
 			duplicateStrategy: 'skip',
 			defaultStatus: 'pending',
 			submittedBy: userId,
+			clientMode: true,
 		});
 
 		return NextResponse.json({

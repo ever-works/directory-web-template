@@ -223,6 +223,8 @@ export class ItemRepository {
   /**
    * Create multiple items without committing after each one, then commit once.
    * Used for batch import operations.
+   * An item whose file already exists (its slug was taken after the caller's duplicate check) is left
+   * alone and is not in the returned list, so callers can count it as skipped.
    */
   async batchCreate(
     items: Array<CreateItemRequest & { brand?: string; brand_logo_url?: string; images?: string[]; markdown?: string }>,
@@ -233,11 +235,18 @@ export class ItemRepository {
     const results: ItemData[] = [];
 
     for (const data of items) {
-      const item = await gitService.createItemWithoutCommit(data);
-      results.push(item);
+      try {
+        const item = await gitService.createItemWithoutCommit(data);
+        results.push(item);
+      } catch (error) {
+        if ((error as NodeJS.ErrnoException)?.code === 'EEXIST') continue;
+        throw error;
+      }
     }
 
-    await gitService.commitAndPushBatch(commitMessage);
+    if (results.length > 0) {
+      await gitService.commitAndPushBatch(commitMessage);
+    }
 
     // Log all creations to audit trail after successful commit (best-effort)
     for (const item of results) {
