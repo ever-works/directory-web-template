@@ -167,6 +167,7 @@ export async function updateCommentRatingForOwner(
         and(
           eq(comments.id, id),
           eq(comments.userId, clientProfileId),
+          isNull(comments.deletedAt),
           eq(comments.tenantId, tenantId)
         )
       )
@@ -175,7 +176,7 @@ export async function updateCommentRatingForOwner(
 }
 ```
 
-Comment ids are public, so the update only matches a comment written by the given client profile.
+Comment ids are public, so the update only matches a comment written by the given client profile. Soft-deleted comments are skipped, as in the comment PUT and DELETE routes.
 
 ### Soft Deletion
 

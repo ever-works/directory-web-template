@@ -12,7 +12,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ sl
         // Require authentication — without this gate any anonymous caller
         // could mutate any comment's rating.
         const session = await auth();
-        if (!session?.user) {
+        if (!session?.user?.id) {
             return NextResponse.json(
                 { error: "Unauthorized" },
                 { status: 401 }
@@ -33,9 +33,10 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ sl
             );
         }
         const { rating } = payload;
-        if (typeof rating !== "number" || rating < 1 || rating > 5) {
+        // The column is an integer, so 2.5 would fail in Postgres and surface as a 500.
+        if (typeof rating !== "number" || !Number.isInteger(rating) || rating < 1 || rating > 5) {
             return NextResponse.json(
-                { error: "Rating must be a number between 1 and 5" },
+                { error: "Rating must be an integer between 1 and 5" },
                 { status: 400 }
             );
         }

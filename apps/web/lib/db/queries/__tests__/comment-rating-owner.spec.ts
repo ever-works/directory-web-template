@@ -38,21 +38,47 @@ describe('comment rating is author-only', () => {
 		assert.ok(!/export async function updateCommentRating\(/.test(queries), 'the unscoped query still exists');
 	});
 
+	it('PATCH requires a session user id before it resolves the profile', () => {
+		const guard = patch.indexOf('if (!session?.user?.id)');
+		assert.ok(guard > 0, 'PATCH does not require session.user.id');
+		assert.ok(
+			guard < patch.indexOf('getClientProfileByUserId('),
+			'the user id guard must run before the profile lookup'
+		);
+	});
+
+	it('PATCH only accepts an integer rating from 1 to 5', () => {
+		assert.ok(patch.includes('!Number.isInteger(rating)'), 'PATCH accepts a non-integer rating');
+		assert.ok(patch.includes('rating < 1 || rating > 5'), 'PATCH does not bound the rating to 1-5');
+	});
+
 	it('PATCH returns 404 when the caller has no profile or the update matches no row', () => {
 		const noProfile = patch.indexOf('if (!clientProfile)');
+		const update = patch.indexOf('updateCommentRatingForOwner(');
 		assert.ok(noProfile > 0, 'PATCH does not handle a missing client profile');
-		assert.ok(patch.indexOf('status: 404', noProfile) > noProfile);
+		// Only the text between the profile check and the update call, so the later
+		// "not found" 404 cannot satisfy this assertion.
+		const profileBranch = patch.slice(noProfile, update);
+		assert.ok(profileBranch.includes('status: 404'), 'PATCH does not return 404 when the caller has no profile');
+		const afterUpdate = patch.slice(update);
 		assert.ok(
-			patch.includes('"Comment not found or not authorized"'),
+			afterUpdate.includes('"Comment not found or not authorized"') && afterUpdate.includes('status: 404'),
 			'PATCH does not return 404 when no row is updated'
 		);
 	});
 
-	it('the rating update WHERE includes the comment author', () => {
-		const update = functionBody(queries, 'export async function updateCommentRatingForOwner(');
-		const where =
-			'.where(and(eq(comments.id, id), eq(comments.userId, clientProfileId), eq(comments.tenantId, tenantId)))';
-		assert.ok(update.includes(where), 'the rating update does not filter on comments.userId');
+	it('the rating update WHERE includes the comment author and skips deleted comments', () => {
+		const update = functionBody(queries, 'export async function updateCommentRatingForOwner(').replace(/\s+/g, '');
+		const where = update.slice(update.indexOf('.where(and('));
+		assert.ok(update.includes('.where(and('), 'the rating update has no and(...) WHERE');
+		for (const condition of [
+			'eq(comments.id,id)',
+			'eq(comments.userId,clientProfileId)',
+			'isNull(comments.deletedAt)',
+			'eq(comments.tenantId,tenantId)'
+		]) {
+			assert.ok(where.includes(condition), `the rating update WHERE is missing ${condition}`);
+		}
 	});
 
 	it('GET stays public and unscoped', () => {
