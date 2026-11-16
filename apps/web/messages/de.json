@@ -248,7 +248,9 @@
 		"BASIC_INFO": "Grundinformationen",
 		"CLOSE": "Schließen",
 		"VS": "vs",
-		"COMPARISONS": "Vergleiche"
+		"COMPARISONS": "Vergleiche",
+		"RATE_STARS": "{count, plural, one {Mit # Stern bewerten} other {Mit # Sternen bewerten}}",
+		"RATED_OUT_OF": "Bewertung: {value, number} von {max, number}"
 	},
 	"survey": {
 		"SURVEYS": "Umfragen",

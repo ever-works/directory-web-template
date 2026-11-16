@@ -248,7 +248,9 @@
 		"BASIC_INFO": "Basic Info",
 		"CLOSE": "Close",
 		"VS": "vs",
-		"COMPARISONS": "比較"
+		"COMPARISONS": "比較",
+		"RATE_STARS": "{count, plural, other {星#つで評価}}",
+		"RATED_OUT_OF": "評価: {max, number}点中{value, number}点"
 	},
 	"survey": {
 		"SURVEYS": "Surveys",

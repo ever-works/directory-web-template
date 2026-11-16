@@ -248,7 +248,9 @@
 		"BASIC_INFO": "Basic Info",
 		"CLOSE": "Close",
 		"VS": "vs",
-		"COMPARISONS": "Porównania"
+		"COMPARISONS": "Porównania",
+		"RATE_STARS": "{count, plural, one {Oceń na # gwiazdkę} few {Oceń na # gwiazdki} many {Oceń na # gwiazdek} other {Oceń na # gwiazdki}}",
+		"RATED_OUT_OF": "Ocena: {value, number} na {max, number}"
 	},
 	"survey": {
 		"SURVEYS": "Surveys",

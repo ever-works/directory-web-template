@@ -274,7 +274,9 @@
 		"BASIC_INFO": "Info Dasar",
 		"CLOSE": "Tutup",
 		"VS": "vs",
-		"COMPARISONS": "Perbandingan"
+		"COMPARISONS": "Perbandingan",
+		"RATE_STARS": "{count, plural, other {Beri # bintang}}",
+		"RATED_OUT_OF": "Dinilai {value, number} dari {max, number}"
 	},
 	"survey": {
 		"SURVEYS": "Survei",
