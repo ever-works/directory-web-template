@@ -80,11 +80,15 @@ DELETE handlers share the same gate chain:
    + `tenantId` + `deletedAt IS NULL` filters.
    Comment not found → 404 PLAIN-TEXT `'Comment not
    found or not authorized'`.
-6. **(PUT only)** body parse + partial-update
-   validation. Both fields missing → 400 JSON
-   `{ error: 'At least one of content or rating must
-   be provided' }`. Content type-check (string), non-
-   empty trim, length ≤ 1000.
+6. **(PUT only)** body parse in its own
+   `try/catch` (malformed JSON → 400 JSON `{ error:
+   'Invalid JSON body' }`) + partial-update
+   validation through `validateCommentInput(body,
+   { partial: true })`, the helper POST uses. Both
+   fields missing → 400 JSON `{ error: 'At least one
+   of content or rating must be provided' }`. Content
+   type-check (string), non-empty trim, length ≤ 1000
+   after trim, no NUL; rating an integer from 1 to 5.
 7. **(PUT)** `updateComment(...)` →
    `commentWithUser` JSON payload (200). **(DELETE)**
    `deleteComment(commentId)` → 204 No Content.

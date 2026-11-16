@@ -137,7 +137,9 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ s
  *             properties:
  *               content:
  *                 type: string
- *                 description: "Updated comment content"
+ *                 minLength: 1
+ *                 maxLength: 1000
+ *                 description: "Updated comment content (1-1000 characters after trimming; stored trimmed)"
  *                 example: "This is my updated review of this amazing tool!"
  *               rating:
  *                 type: integer
@@ -182,7 +184,7 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ s
  *                     image:
  *                       type: string
  *       400:
- *         description: "Bad request - validation failed"
+ *         description: "Bad request - validation failed (same rules as creating a comment)"
  *         content:
  *           application/json:
  *             schema:
@@ -190,6 +192,15 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ s
  *               properties:
  *                 error:
  *                   type: string
+ *                   examples:
+ *                     invalid_json: "Invalid JSON body"
+ *                     not_an_object: "Request body must be a JSON object"
+ *                     no_fields: "At least one of content or rating must be provided"
+ *                     content_type: "Content must be a string"
+ *                     content_length: "Content must be between 1 and 1000 characters"
+ *                     content_nul: "Content must not contain NUL characters"
+ *                     rating_type: "Rating must be an integer"
+ *                     invalid_rating: "Rating must be between 1 and 5"
  *       401:
  *         description: "Unauthorized - Authentication required"
  *         content:
@@ -232,7 +243,12 @@ export async function PUT(request: Request, { params }: { params: Promise<{ slug
 		}
 
 		const { commentId } = await params;
-		const body = await request.json();
+		let body: unknown;
+		try {
+			body = await request.json();
+		} catch {
+			return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
+		}
 
 		// Same rules as a new comment (POST); either field may be left out, but not both
 		const input = validateCommentInput(body, { partial: true });

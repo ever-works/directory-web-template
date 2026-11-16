@@ -25,6 +25,10 @@ function checkContent(content: unknown): FieldResult<string> {
 	if (trimmed.length === 0 || trimmed.length > COMMENT_CONTENT_MAX_LENGTH) {
 		return { ok: false, error: `Content must be between 1 and ${COMMENT_CONTENT_MAX_LENGTH} characters` };
 	}
+	// Postgres `text` cannot hold U+0000, so the insert would fail with a 500
+	if (trimmed.includes('\u0000')) {
+		return { ok: false, error: 'Content must not contain NUL characters' };
+	}
 	return { ok: true, value: trimmed };
 }
 

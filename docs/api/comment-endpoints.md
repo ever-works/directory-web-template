@@ -127,7 +127,7 @@ Creates a new comment with a rating on an item. Requires authentication and a va
 | `content` | string | Yes | 1-1000 characters after trimming; stored trimmed |
 | `rating` | integer | Yes | Whole number from 1 to 5 inclusive (`3.5` is refused) |
 
-Both routes check the body with `validateCommentInput` (`apps/web/lib/validations/comment.ts`), so a new comment and an edit follow the same rules.
+Both routes check the body with `validateCommentInput` (`apps/web/lib/validations/comment.ts`), so a new comment and an edit follow the same rules, and both answer 400 `Invalid JSON body` for a malformed JSON body.
 
 **Success Response (200):**
 
@@ -152,7 +152,7 @@ Both routes check the body with `validateCommentInput` (`apps/web/lib/validation
 
 | Status | Condition |
 |---|---|
-| 400 | Malformed JSON, missing or non-string content, content empty or longer than 1000 characters, missing or non-integer rating, or rating outside 1-5 |
+| 400 | Malformed JSON, a body that is not a JSON object, missing or non-string content, content empty or longer than 1000 characters or containing a NUL character, missing or non-integer rating, or rating outside 1-5 |
 | 401 | Not authenticated |
 | 403 | User is suspended or banned |
 | 404 | Client profile not found |
@@ -187,7 +187,7 @@ The response includes the updated comment with an `editedAt` timestamp.
 
 | Status | Condition |
 |---|---|
-| 400 | No fields provided, content too long, or invalid rating |
+| 400 | Malformed JSON, a body that is not a JSON object, no fields provided, non-string content, content empty or longer than 1000 characters or containing a NUL character, or a rating that is not an integer from 1 to 5 |
 | 401 | Not authenticated |
 | 404 | Comment not found or user is not the author |
 

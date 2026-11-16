@@ -287,9 +287,12 @@ export async function GET(request: Request, { params }: { params: Promise<{ slug
  *                   type: string
  *                   examples:
  *                     invalid_json: "Invalid JSON body"
- *                     empty_content: "Content is required"
+ *                     not_an_object: "Request body must be a JSON object"
+ *                     missing_content: "Content is required"
  *                     content_type: "Content must be a string"
  *                     content_length: "Content must be between 1 and 1000 characters"
+ *                     content_nul: "Content must not contain NUL characters"
+ *                     missing_rating: "Rating is required"
  *                     rating_type: "Rating must be an integer"
  *                     invalid_rating: "Rating must be between 1 and 5"
  *       401:

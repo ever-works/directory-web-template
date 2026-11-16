@@ -66,7 +66,10 @@ exports `GET` and `POST`. The POST handler combines:
    string of 1-1000 characters after trimming
    (`'Content is required'`, `'Content must be a
    string'`, `'Content must be between 1 and 1000
-   characters'`) and rating an integer from 1 to 5
+   characters'`, and no NUL character: `'Content
+   must not contain NUL characters'`, since Postgres
+   `text` cannot store one) and rating an integer
+   from 1 to 5
    (`'Rating is required'`, `'Rating must be an
    integer'`, `'Rating must be between 1 and 5'`),
    each → 400 `{ success: false, error }`. A body

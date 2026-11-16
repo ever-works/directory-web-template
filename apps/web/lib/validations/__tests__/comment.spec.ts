@@ -57,6 +57,13 @@ describe('validateCommentInput (new comment: both fields required)', () => {
 		assert.equal(validateCommentInput({ content: '   ', rating: 4 }).ok, false);
 	});
 
+	it('rejects content with a NUL character (Postgres text cannot store it)', () => {
+		assert.deepEqual(validateCommentInput({ content: 'a\u0000b', rating: 4 }), {
+			ok: false,
+			error: 'Content must not contain NUL characters'
+		});
+	});
+
 	it('rejects a body that is not a JSON object', () => {
 		for (const body of [null, 5, 'text', [], undefined]) {
 			assert.equal(validateCommentInput(body).ok, false, `${JSON.stringify(body)} was accepted`);
@@ -84,6 +91,7 @@ describe('validateCommentInput (edit: partial)', () => {
 		assert.equal(validateCommentInput({ rating: 3.5 }, { partial: true }).ok, false);
 		assert.equal(validateCommentInput({ content: 5 }, { partial: true }).ok, false);
 		assert.equal(validateCommentInput({ content: 'a'.repeat(1001) }, { partial: true }).ok, false);
+		assert.equal(validateCommentInput({ content: 'a\u0000b' }, { partial: true }).ok, false);
 	});
 });
 
@@ -135,5 +143,15 @@ describe('comment routes validate with validateCommentInput', () => {
 		assert.ok(validate > 0, 'PUT does not call validateCommentInput');
 		assert.ok(update > validate, 'PUT updates before it validates');
 		assert.ok(!put.includes('Number.isInteger(rating)'), 'PUT keeps its own copy of the rating rules');
+	});
+
+	it('PUT answers 400 for a malformed JSON body, like POST', () => {
+		const put = functionBody(editRoute, 'export async function PUT(');
+		const parse = put.indexOf('body = await request.json();');
+		assert.ok(parse > 0, 'PUT does not read the body into its own variable');
+		const caught = put.indexOf('} catch {', parse);
+		const badRequest = put.indexOf('{ status: 400 }', caught);
+		assert.ok(caught > parse, 'PUT does not parse the JSON body in its own try/catch');
+		assert.ok(badRequest > caught && badRequest - caught < 200, 'a malformed JSON body does not answer 400');
 	});
 });
