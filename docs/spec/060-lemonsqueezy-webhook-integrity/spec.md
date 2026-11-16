@@ -96,6 +96,21 @@ subscription grants comes from the variant that was paid for, never from the che
   non-plan variant (Q-060b), so without this a paying user could keep Premium at another variant's price.
 - **R13.** Invoice events store the invoice's own id as the row's `invoice_id` (the subscription id is only
   the lookup key).
+- **R14.** When a plan-variant `subscription_created` (or a `subscription_updated` that has to create the row) has
+  no user id in its custom data, the handler looks the user up by the customer email and passes the id to the
+  subscription service as `metadata.userId`. Only a verified address is matched: the same rule as the LemonSqueezy
+  management routes (`isEmailVerifiedForOwnership`: `users.emailVerified`, or a linked OAuth/OIDC account for a
+  user without a password). The customer email is looked up as sent and then lower-cased (sign-up and OAuth store
+  lower-cased addresses); the first user found decides, so an unverified account holding the exact spelling blocks
+  the match instead of letting it fall through. With no verified user the event is handled as before. A
+  user id in the custom data is never replaced. The fallback lives in
+  `lemonsqueezy-subscription-events.ts`, not in the shared service, which Stripe also uses: a Stripe invoice that
+  arrives before its subscription must not create a row from an email match. A failing lookup makes the event retry.
+- **R15.** A `subscription_payment_failed` for a subscription with no stored row is acknowledged (2xx, logged):
+  the handler passes `createIfMissing: false` to `handleSubscriptionPaymentFailed`, which returns success for a
+  missing row. A subscription of a variant that is neither a catalog plan nor a sponsor-ad variant never gets a row
+  (R9), and an invoice carries no variant, so the missing row is how it shows up. A failed write on an existing
+  row still answers 503. Without the option the service still fails on a missing row (Stripe, Polar, Solidgate).
 
 ## 4. Out of scope / open
 
@@ -121,3 +136,7 @@ renewals and cancellations act only on the ad bound to the subscription; the cat
 page's variant sources and treats a doubly configured id as unknown. `lemonsqueezy-checkout-wiring.spec.ts`:
 the checkout parameters ignore a client `customPrice`, `planId`, `type`, `sponsorAdId` and `metadata`, and
 the route uses them for POST and forwards no query price or metadata on GET.
+`lemonsqueezy-webhook-followups.spec.ts` (R14–R15): a plan purchase with no user id is stored for the verified-email
+user (create and update-that-creates), an id in the custom data is kept, an unverified or password-user email, a
+blank email, invoices, cancellations and unknown variants never match, a failing lookup retries; a payment failure
+with no row is acknowledged while a failed write on a row still retries.
