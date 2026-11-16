@@ -25,7 +25,17 @@ export interface CollectionSchemaInput {
 	url: string;
 	image?: string;
 	itemCount?: number;
+	/** Items in the collection, in display order; published as `itemListElement` (capped, see below). */
+	items?: ReadonlyArray<CollectionSchemaItem>;
 }
+
+export interface CollectionSchemaItem {
+	name: string;
+	url: string;
+}
+
+/** Upper bound on `itemListElement` entries, so a very large collection cannot bloat the page's HTML. */
+export const MAX_COLLECTION_SCHEMA_ITEMS = 50;
 
 export interface ComparisonSchemaInput {
 	title: string;
@@ -101,11 +111,27 @@ export function generateCollectionSchema(input: CollectionSchemaInput) {
 		schema.image = input.image;
 	}
 
-	if (typeof input.itemCount === 'number') {
-		schema.mainEntity = {
+	// Entries without a name or URL cannot be a ListItem, so they are dropped before positions are assigned.
+	const listed = (input.items ?? [])
+		.filter((item) => item.name.trim().length > 0 && item.url.trim().length > 0)
+		.slice(0, MAX_COLLECTION_SCHEMA_ITEMS);
+
+	if (typeof input.itemCount === 'number' || listed.length > 0) {
+		const itemList: Record<string, unknown> = {
 			'@type': 'ItemList',
-			numberOfItems: input.itemCount
+			numberOfItems: typeof input.itemCount === 'number' ? input.itemCount : listed.length
 		};
+
+		if (listed.length > 0) {
+			itemList.itemListElement = listed.map((item, index) => ({
+				'@type': 'ListItem',
+				position: index + 1,
+				name: item.name.trim(),
+				url: item.url
+			}));
+		}
+
+		schema.mainEntity = itemList;
 	}
 
 	return schema;

@@ -7,6 +7,10 @@ sidebar_position: 99
 
 # Documentation & Specs Change Log
 
+## 2026-11-16
+
+- `spec-059` `apps/web/lib/seo/schema.ts` `apps/web/app/[locale]/collections/[slug]/page.tsx`: a collection page's `CollectionPage` JSON-LD now lists its items as `ItemList.itemListElement` (1-based position, name, localized item URL; blank entries dropped, capped at 50, `numberOfItems` keeps the true count); before it carried only the count. Unit spec `apps/web/lib/seo/__tests__/collection-schema-items.spec.ts` ([059](spec/059-collection-item-list/spec.md), PR number to be added).
+
 ## 2026-11-15
 
 - `apps/web/tailwind.config.ts`, `apps/web/app/[locale]/globals.scss`, `apps/web/app/layout.tsx`: Geist Mono was loaded and preloaded in `app/layout.tsx` but nothing used it, because `font-mono` fell back to Tailwind's default stack and the only rule naming `--font-geist-mono` sat in `globals.css`, which no file imports. `font-mono` now maps to `var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace`, and the base layer gives `code, kbd, pre, samp` the same stack. The app has about 50 real monospace uses (help pages, billing/security settings, admin id/slug cells, promo codes, MDX `prose-code`), so the preload stays. The base-layer rule writes `var(--font-geist-mono, ui-monospace)` so it stays valid where the variable is not set (`app/global-error.tsx` renders its own `<body>`); without the fallback its `<pre>` drew the stack trace in the sans font. `Geist_Mono` now uses `adjustFontFallback: false`: next/font's `Geist Mono Fallback` face is Arial scaled to 134.59%, and it drew Arabic and Hebrew letters in code (Geist Mono has none) about a third larger than the code around them, and Latin code before Geist Mono loaded. Consolas/Menlo/Courier New from the CSS stack take over instead, as before. Trivial-fix exception (no spec). (#1113)

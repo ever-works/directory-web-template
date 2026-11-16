@@ -109,7 +109,11 @@ export default async function CollectionPage({
     description: collection.description,
     url: collectionUrl,
     image: collection.icon_url,
-    itemCount: collectionItems.length
+    itemCount: collectionItems.length,
+    items: collectionItems.map((item) => ({
+      name: item.name,
+      url: getLocalizedUrl(`/items/${item.slug}`, locale as Locale)
+    }))
   });
   const breadcrumbSchema = generateBreadcrumbSchema([
     { name: "Home", url: getLocalizedUrl("/", locale as Locale) },
