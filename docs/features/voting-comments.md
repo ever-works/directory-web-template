@@ -159,8 +159,6 @@ const {
 | POST | `/api/items/:id/comments` | Create a new comment |
 | PUT | `/api/items/:id/comments/:commentId` | Update a comment |
 | DELETE | `/api/items/:id/comments/:commentId` | Delete a comment |
-| POST | `/api/items/:id/comments/rating` | Rate a comment |
-| PUT | `/api/items/:id/comments/rating` | Update comment rating |
 | GET | `/api/items/:id/comments/rating` | Get aggregate rating |
 
 ## Feature Flag Integration

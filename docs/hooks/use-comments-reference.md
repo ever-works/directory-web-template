@@ -82,7 +82,7 @@ interface UpdateCommentData {
 
 ## Authentication Handling
 
-When an unauthenticated user attempts to create, update, or delete a comment, the hook:
+When an unauthenticated user attempts to create or update a comment, the hook:
 
 1. Detects the `401 Unauthorized` response
 2. Opens the login modal with a contextual message (e.g., "Please sign in to comment")
@@ -198,7 +198,14 @@ function CommentRating({ comment, itemId }) {
   return (
     <StarRating
       value={comment.rating}
-      onChange={(rating) => updateComment({ commentId: comment.id, rating })}
+      onChange={async (rating) => {
+        try {
+          await updateComment({ commentId: comment.id, rating });
+        } catch (err) {
+          if (err.message === 'Unauthorized') return; // login modal is already open
+          // Handle other errors
+        }
+      }}
       disabled={isUpdating}
     />
   );

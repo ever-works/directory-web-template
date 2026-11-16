@@ -230,8 +230,6 @@ function useAdminComments({ page, limit, search }) {
 | POST | `/api/items/:id/comments` | Create a new comment |
 | PUT | `/api/items/:id/comments/:commentId` | Update a comment |
 | DELETE | `/api/items/:id/comments/:commentId` | Delete a comment |
-| POST | `/api/items/:id/comments/rating` | Rate a comment |
-| PUT | `/api/items/:id/comments/rating` | Update a comment rating |
 | GET | `/api/items/:id/comments/rating` | Get aggregate item rating |
 
 ## Feature Flag Integration

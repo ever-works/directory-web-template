@@ -57,7 +57,6 @@ These endpoints handle public-facing item features. Some require authentication 
 | Method | Path | Description | Auth |
 |--------|------|-------------|------|
 | `GET` | `/api/items/[slug]/comments/rating` | Get rating summary | Public |
-| `POST` | `/api/items/[slug]/comments/rating` | Submit a rating | Required |
 | `GET` | `/api/items/[slug]/comments/rating/[commentId]` | Get rating for a comment | Public |
 
 ### Votes
