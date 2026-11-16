@@ -22194,7 +22194,7 @@
 			"get": {
 				"tags": ["Surveys"],
 				"summary": "Get surveys",
-				"description": "Retrieve surveys with optional filters",
+				"description": "Retrieve surveys with optional filters. Non-admins (including anonymous callers) only get published surveys: their status filter is always published. Unknown type or status values are ignored.",
 				"parameters": [
 					{
 						"name": "type",
@@ -22223,7 +22223,7 @@
 							"type": "string",
 							"enum": ["draft", "published", "closed"]
 						},
-						"description": "Filter by status"
+						"description": "Filter by status (admins only; non-admins always get published)"
 					},
 					{
 						"name": "page",
