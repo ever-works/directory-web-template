@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { db } from '@/lib/db/drizzle';
 import { accounts } from '@/lib/db/schema';
-import { eq, and } from 'drizzle-orm';
+import { eq, and, isNull, or } from 'drizzle-orm';
 import { getTenantId } from '@/lib/auth/tenant';
 import { summarizeConnectedAccounts } from '@/lib/auth/connected-accounts';
 
@@ -47,7 +47,9 @@ export async function GET() {
 			.where(
 				and(
 					eq(accounts.userId, userId),
-					eq(accounts.tenantId, tenantId)
+					// The Auth.js adapter links OAuth/OIDC accounts without a tenant (NULL
+					// `tenant_id`), so those rows must match too or they never appear.
+					or(eq(accounts.tenantId, tenantId), isNull(accounts.tenantId))
 				)
 			);
 

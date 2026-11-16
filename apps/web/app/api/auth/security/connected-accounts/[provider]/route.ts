@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import { db } from '@/lib/db/drizzle';
 import { accounts } from '@/lib/db/schema';
-import { eq, and, count, inArray } from 'drizzle-orm';
+import { eq, and, count, inArray, isNull, or } from 'drizzle-orm';
 import { getTenantId } from '@/lib/auth/tenant';
 import { OAUTH_ACCOUNT_TYPES, wouldLeaveNoSignInMethod } from '@/lib/auth/connected-accounts';
 
@@ -49,6 +49,10 @@ export async function DELETE(
 		const { provider } = await params;
 		const userId = session.user.id;
 
+		// The Auth.js adapter links OAuth/OIDC accounts without a tenant, so those rows have a
+		// NULL `tenant_id`; matching only `tenantId` would hide (and refuse to delete) them.
+		const inTenant = or(eq(accounts.tenantId, tenantId), isNull(accounts.tenantId));
+
 		const [credRows, [{ oauthCount }]] = await Promise.all([
 			db
 				.select({ passwordHash: accounts.passwordHash })
@@ -58,7 +62,7 @@ export async function DELETE(
 						eq(accounts.userId, userId),
 						// 'credentials' is outside AdapterAccountType union but valid at runtime
 						eq(accounts.type, 'credentials' as any),
-						eq(accounts.tenantId, tenantId)
+						inTenant
 					)
 				)
 				.limit(1),
@@ -70,7 +74,7 @@ export async function DELETE(
 					and(
 						eq(accounts.userId, userId),
 						inArray(accounts.type, [...OAUTH_ACCOUNT_TYPES]),
-						eq(accounts.tenantId, tenantId)
+						inTenant
 					)
 				),
 		]);
@@ -99,7 +103,7 @@ export async function DELETE(
 					// would turn a password user into an OAuth-only one, and an OAuth-only
 					// user's address counts as verified (`isEmailVerifiedForOwnership`).
 					inArray(accounts.type, [...OAUTH_ACCOUNT_TYPES]),
-					eq(accounts.tenantId, tenantId)
+					inTenant
 				)
 			)
 			.returning({ provider: accounts.provider });

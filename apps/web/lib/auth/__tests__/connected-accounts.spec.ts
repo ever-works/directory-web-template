@@ -91,6 +91,20 @@ describe('connected accounts', () => {
 			assert.ok(source.includes('wouldLeaveNoSignInMethod(hasPassword, oauthCount)'));
 		});
 
+		// The Auth.js adapter links OAuth/OIDC accounts without a tenant, so their
+		// `tenant_id` is NULL; an exact tenant match would hide them from both routes.
+		it('both routes also match account rows with a NULL tenant', () => {
+			for (const file of ['route.ts', '[provider]/route.ts']) {
+				const source = read(file);
+				assert.ok(
+					source.includes('or(eq(accounts.tenantId, tenantId), isNull(accounts.tenantId))'),
+					`${file} filters by tenant without allowing a NULL tenant`
+				);
+				// No bare tenant equality left as a query condition.
+				assert.equal(/^\s*eq\(accounts\.tenantId, tenantId\)\s*$/m.test(source), false, file);
+			}
+		});
+
 		it('the list route builds its response from the shared helper', () => {
 			const source = read('route.ts');
 			assert.equal(source.includes("'oauth'"), false, 'a hard-coded oauth literal is back');
