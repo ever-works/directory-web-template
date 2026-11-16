@@ -150,7 +150,7 @@ interface UpdateCommentData {
 | `createComment` | `(data) => Promise` | قم بإنشاء تعليق جديد |
 | `updateComment` | `(data) => Promise` | تحرير تعليق موجود |
 | `deleteComment` | `(id) => Promise` | إزالة تعليق |
-| `commentRating` | `number` | التقييم الإجمالي للعنصر |
+| `commentRating` | `{ averageRating: number; totalRatings: number }` | التقييم الإجمالي للعنصر |
 
 ### نظام الأحداث عبر المكونات
 

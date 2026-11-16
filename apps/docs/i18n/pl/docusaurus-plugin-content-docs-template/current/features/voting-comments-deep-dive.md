@@ -150,7 +150,7 @@ interface UpdateCommentData {
 | `createComment` | `(data) => Promise` | Utwórz nowy komentarz |
 | `updateComment` | `(data) => Promise` | Edytuj istniejący komentarz |
 | `deleteComment` | `(id) => Promise` | Usuń komentarz |
-| `commentRating` | `number` | Łączna ocena przedmiotu |
+| `commentRating` | `{ averageRating: number; totalRatings: number }` | Łączna ocena przedmiotu |
 
 ### Międzyskładnikowy system zdarzeń
 
