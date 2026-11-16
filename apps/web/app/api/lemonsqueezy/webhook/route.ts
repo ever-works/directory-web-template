@@ -18,6 +18,9 @@ import { RelayEventCoordinator } from '@/lib/payment/relay-event-coordinator';
 import { getLemonSqueezyEventKey, parseLemonSqueezyEvent, toOrderEmailData } from '@/lib/payment/lemonsqueezy-webhook';
 import { createLemonSqueezySubscriptionEvents } from '@/lib/payment/lemonsqueezy-subscription-events';
 import { loadLemonSqueezyVariantCatalog } from '@/lib/payment/lemonsqueezy-variant-catalog';
+import { createVerifiedEmailUserFinder } from '@/lib/payment/lemonsqueezy-verified-email-user';
+import { loadEmailVerificationState } from '@/lib/payment/subscription-email-verification';
+import { getUserByEmail } from '@/lib/db/queries';
 
 // Rows must be stored under the LemonSqueezy provider (the default is Stripe).
 const webhookSubscriptionService = new WebhookSubscriptionService(PaymentProvider.LEMONSQUEEZY);
@@ -27,7 +30,12 @@ const webhookSubscriptionService = new WebhookSubscriptionService(PaymentProvide
 const subscriptionEvents = createLemonSqueezySubscriptionEvents({
 	plans: webhookSubscriptionService,
 	sponsorAds: sponsorAdService,
-	loadVariantCatalog: loadLemonSqueezyVariantCatalog
+	loadVariantCatalog: loadLemonSqueezyVariantCatalog,
+	// An event with no user id in its custom data is matched by a verified email (spec 060 R14).
+	findUserIdByVerifiedEmail: createVerifiedEmailUserFinder({
+		getUserByEmail,
+		loadVerificationState: loadEmailVerificationState
+	})
 });
 
 // Per-pod burst de-duplication of redelivered events, bounded (the coordinator clears its keys

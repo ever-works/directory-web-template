@@ -49,7 +49,7 @@ export interface PlanSubscriptionWriter {
 	handleSubscriptionUpdated(data: SubscriptionServiceInput, options?: WriteOptions): Promise<ServiceResult>;
 	handleSubscriptionCancelled(data: SubscriptionServiceInput): Promise<ServiceResult>;
 	handleSubscriptionPaymentSucceeded(data: SubscriptionServiceInput, options?: WriteOptions): Promise<ServiceResult>;
-	handleSubscriptionPaymentFailed(data: SubscriptionServiceInput): Promise<ServiceResult>;
+	handleSubscriptionPaymentFailed(data: SubscriptionServiceInput, options?: WriteOptions): Promise<ServiceResult>;
 	handleSubscriptionTrialEnding(data: SubscriptionServiceInput): Promise<ServiceResult>;
 }
 
@@ -73,6 +73,11 @@ export interface LemonSqueezySubscriptionEventDeps {
 	plans: PlanSubscriptionWriter;
 	sponsorAds: SponsorAdWriter;
 	loadVariantCatalog: () => Promise<LemonSqueezyVariantCatalog>;
+	/**
+	 * The user whose verified email is `email` (R14), used only when the event names no user. Left out,
+	 * an event without a user id is handled as before.
+	 */
+	findUserIdByVerifiedEmail?: (email: string) => Promise<string | null>;
 	now?: () => number;
 	logger?: Pick<Console, 'log' | 'warn' | 'error'>;
 }
@@ -137,6 +142,29 @@ export function createLemonSqueezySubscriptionEvents(
 		return matchLemonSqueezyVariant(await deps.loadVariantCatalog(), resource.attributes?.variant_id);
 	}
 
+	/**
+	 * Plan data for a row that may be created. The shared service writes `metadata.userId` as the
+	 * row's owner and ignores a user it finds by email, so when the custom data names no user the
+	 * verified-email match is put there (LemonSqueezy only: a Stripe invoice that arrives before its
+	 * subscription must not create a row for an email match). Only a plan variant gets here.
+	 */
+	async function planData(
+		resource: LemonSqueezySubscriptionResource,
+		planId: string
+	): Promise<SubscriptionServiceInput> {
+		const data = toSubscriptionServiceData(resource, now(), planId);
+		const email = resource.attributes?.user_email;
+		if (data.metadata.userId || !deps.findUserIdByVerifiedEmail || typeof email !== 'string' || !email.trim()) {
+			return data;
+		}
+		const userId = await deps.findUserIdByVerifiedEmail(email);
+		if (userId) {
+			log.log(`🔄 LemonSqueezy subscription ${resource.id} has no user id; matched to a user by verified email`);
+			data.metadata = { ...data.metadata, userId };
+		}
+		return data;
+	}
+
 	function warnUnknownVariant(resource: LemonSqueezySubscriptionResource, action: string) {
 		log.warn(
 			`⚠️ LemonSqueezy subscription ${resource.id}: variant ${String(resource.attributes?.variant_id)} is not a ` +
@@ -199,9 +227,8 @@ export function createLemonSqueezySubscriptionEvents(
 		created: guarded('subscription created', async (resource) => {
 			const variant = await variantOf(resource);
 			if (variant.kind === 'plan') {
-				return runPlan('subscription created', () =>
-					plans.handleSubscriptionCreated(toSubscriptionServiceData(resource, now(), variant.planId))
-				);
+				const data = await planData(resource, variant.planId);
+				return runPlan('subscription created', () => plans.handleSubscriptionCreated(data));
 			}
 			if (variant.kind === 'sponsor_ad') return activateSponsorAd(resource, variant.interval);
 
@@ -212,9 +239,9 @@ export function createLemonSqueezySubscriptionEvents(
 		updated: guarded('subscription updated', async (resource) => {
 			const variant = await variantOf(resource);
 			if (variant.kind === 'plan') {
-				return runPlan('subscription updated', () =>
-					plans.handleSubscriptionUpdated(toSubscriptionServiceData(resource, now(), variant.planId))
-				);
+				// With no row yet the service creates one, so the same user match applies.
+				const data = await planData(resource, variant.planId);
+				return runPlan('subscription updated', () => plans.handleSubscriptionUpdated(data));
 			}
 
 			// Not a plan variant: it may only update the status and dates of an existing plan row
@@ -297,8 +324,14 @@ export function createLemonSqueezySubscriptionEvents(
 				return true; // a sponsor ad has no plan row to update
 			}
 
+			// An invoice carries no variant, so a subscription of a variant no plan or sponsor ad is
+			// configured for shows up only as a missing row. That is acknowledged (a redelivery cannot
+			// create the row, and LemonSqueezy would retry until it gives up); a failed write on an
+			// existing row still answers 503 (R15).
 			return runPlan('subscription payment failed', () =>
-				plans.handleSubscriptionPaymentFailed(toSubscriptionServiceData(resource, now()))
+				plans.handleSubscriptionPaymentFailed(toSubscriptionServiceData(resource, now()), {
+					createIfMissing: false
+				})
 			);
 		}),
 
