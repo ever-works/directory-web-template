@@ -21,7 +21,7 @@ app/api/items/[id]/
   votes/route.ts             # GET/POST/DELETE vote endpoints
   comments/route.ts          # GET/POST comment endpoints
   comments/[commentId]/route.ts  # PUT/DELETE single comment
-  comments/rating/route.ts   # POST/PUT/GET rating endpoints
+  comments/rating/route.ts   # GET rating endpoint
 
 lib/db/schema.ts             # votes and comments table definitions
 ```
@@ -150,8 +150,6 @@ interface UpdateCommentData {
 | `createComment` | `(data) => Promise` | Create a new comment |
 | `updateComment` | `(data) => Promise` | Edit an existing comment |
 | `deleteComment` | `(id) => Promise` | Remove a comment |
-| `rateComment` | `(data) => void` | Rate a comment |
-| `updateCommentRating` | `(data) => void` | Update an existing rating |
 | `commentRating` | `number` | Aggregate rating for the item |
 
 ### Cross-Component Event System
@@ -232,8 +230,6 @@ function useAdminComments({ page, limit, search }) {
 | POST | `/api/items/:id/comments` | Create a new comment |
 | PUT | `/api/items/:id/comments/:commentId` | Update a comment |
 | DELETE | `/api/items/:id/comments/:commentId` | Delete a comment |
-| POST | `/api/items/:id/comments/rating` | Rate a comment |
-| PUT | `/api/items/:id/comments/rating` | Update a comment rating |
 | GET | `/api/items/:id/comments/rating` | Get aggregate item rating |
 
 ## Feature Flag Integration

@@ -21,7 +21,7 @@ app/api/items/[id]/
   votes/route.ts             # GET/POST/DELETE vote endpoints
   comments/route.ts          # GET/POST comment endpoints
   comments/[commentId]/route.ts  # PUT/DELETE single comment
-  comments/rating/route.ts   # POST/PUT/GET rating endpoints
+  comments/rating/route.ts   # GET rating endpoint
 
 lib/db/schema.ts             # votes and comments table definitions
 ```
@@ -150,8 +150,6 @@ interface UpdateCommentData {
 | `createComment` | `(data) => Promise` | Utwórz nowy komentarz |
 | `updateComment` | `(data) => Promise` | Edytuj istniejący komentarz |
 | `deleteComment` | `(id) => Promise` | Usuń komentarz |
-| `rateComment` | `(data) => void` | Oceń komentarz |
-| `updateCommentRating` | `(data) => void` | Zaktualizuj istniejącą ocenę |
 | `commentRating` | `number` | Łączna ocena przedmiotu |
 
 ### Międzyskładnikowy system zdarzeń
@@ -232,8 +230,6 @@ function useAdminComments({ page, limit, search }) {
 | POST | `/api/items/:id/comments` | Utwórz nowy komentarz |
 | POSTAW | `/api/items/:id/comments/:commentId` | Zaktualizuj komentarz |
 | USUŃ | `/api/items/:id/comments/:commentId` | Usuń komentarz |
-| POST | `/api/items/:id/comments/rating` | Oceń komentarz |
-| POSTAW | `/api/items/:id/comments/rating` | Zaktualizuj ocenę komentarza |
 | OTRZYMAJ | `/api/items/:id/comments/rating` | Uzyskaj zbiorczą ocenę przedmiotu |
 
 ## Integracja flagi funkcji

@@ -21,7 +21,7 @@ app/api/items/[id]/
   votes/route.ts             # GET/POST/DELETE vote endpoints
   comments/route.ts          # GET/POST comment endpoints
   comments/[commentId]/route.ts  # PUT/DELETE single comment
-  comments/rating/route.ts   # POST/PUT/GET rating endpoints
+  comments/rating/route.ts   # GET rating endpoint
 
 lib/db/schema.ts             # votes and comments table definitions
 ```
@@ -150,8 +150,6 @@ interface UpdateCommentData {
 | `createComment` | `(data) => Promise` | Creëer een nieuwe reactie |
 | `updateComment` | `(data) => Promise` | Een bestaande opmerking bewerken |
 | `deleteComment` | `(id) => Promise` | Een reactie verwijderen |
-| `rateComment` | `(data) => void` | Beoordeel een reactie |
-| `updateCommentRating` | `(data) => void` | Een bestaande beoordeling bijwerken |
 | `commentRating` | `number` | Totale beoordeling voor het artikel |
 
 ### Component-gebeurtenissysteem
@@ -232,8 +230,6 @@ function useAdminComments({ page, limit, search }) {
 | POST | `/api/items/:id/comments` | Creëer een nieuwe reactie |
 | ZET | `/api/items/:id/comments/:commentId` | Een reactie bijwerken |
 | VERWIJDEREN | `/api/items/:id/comments/:commentId` | Een opmerking verwijderen |
-| POST | `/api/items/:id/comments/rating` | Beoordeel een reactie |
-| ZET | `/api/items/:id/comments/rating` | Een commentaarbeoordeling bijwerken |
 | KRIJG | `/api/items/:id/comments/rating` | Verzamelde itembeoordeling verkrijgen |
 
 ## Functievlag-integratie

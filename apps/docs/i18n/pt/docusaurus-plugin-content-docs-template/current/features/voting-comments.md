@@ -101,10 +101,6 @@ const {
   isUpdating,
   deleteComment,         // (commentId) => Promise
   isDeleting,
-  rateComment,           // ({ commentId, rating }) => void
-  isRatingComment,
-  updateCommentRating,   // ({ commentId, rating }) => void
-  isUpdatingRating,
   commentRating,         // number
   isLoadingRating,
 } = useComments(itemId);
@@ -163,8 +159,6 @@ const {
 | POSTAR | `/api/items/:id/comments` | Crie um novo comentário |
 | COLOCAR | `/api/items/:id/comments/:commentId` | Atualizar um comentário |
 | EXCLUIR | `/api/items/:id/comments/:commentId` | Excluir um comentário |
-| POSTAR | `/api/items/:id/comments/rating` | Avalie um comentário |
-| COLOCAR | `/api/items/:id/comments/rating` | Atualizar classificação de comentários |
 | OBTER | `/api/items/:id/comments/rating` | Obtenha classificação agregada |
 
 ## Integração de sinalizadores de recursos
