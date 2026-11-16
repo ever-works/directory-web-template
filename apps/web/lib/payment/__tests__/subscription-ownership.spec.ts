@@ -12,14 +12,53 @@ import {
 describe('isEmailVerifiedForOwnership', () => {
 	const verifiedAt = new Date('2026-01-01T00:00:00Z');
 	const users: Record<string, EmailVerificationState> = {
-		credentialsUnverified: { email: 'a@example.com', emailVerified: null, oauthAccounts: [] },
-		credentialsVerified: { email: 'b@example.com', emailVerified: verifiedAt, oauthAccounts: [] },
-		oauth: { email: 'c@example.com', emailVerified: null, oauthAccounts: [{ email: null }] },
-		oauthBoundHere: { email: 'd@example.com', emailVerified: null, oauthAccounts: [{ email: 'D@Example.com' }] },
+		credentialsUnverified: {
+			email: 'a@example.com',
+			emailVerified: null,
+			oauthAccounts: [],
+			hasPasswordSignIn: true
+		},
+		credentialsVerified: {
+			email: 'b@example.com',
+			emailVerified: verifiedAt,
+			oauthAccounts: [],
+			hasPasswordSignIn: true
+		},
+		oauth: {
+			email: 'c@example.com',
+			emailVerified: null,
+			oauthAccounts: [{ email: null }],
+			hasPasswordSignIn: false
+		},
+		oauthBoundHere: {
+			email: 'd@example.com',
+			emailVerified: null,
+			oauthAccounts: [{ email: 'D@Example.com' }],
+			hasPasswordSignIn: false
+		},
 		// Verified or OAuth-linked under an earlier address, then switched to another one.
-		oauthBoundElsewhere: { email: 'victim@example.com', emailVerified: null, oauthAccounts: [{ email: 'old@example.com' }] },
+		oauthBoundElsewhere: {
+			email: 'victim@example.com',
+			emailVerified: null,
+			oauthAccounts: [{ email: 'old@example.com' }],
+			hasPasswordSignIn: false
+		},
 		// Not verified, no OAuth row: credentials-only, address never proven.
-		noOAuth: { email: 'e@example.com', emailVerified: null, oauthAccounts: [] }
+		noOAuth: { email: 'e@example.com', emailVerified: null, oauthAccounts: [], hasPasswordSignIn: true },
+		// Signed up with a password under someone else's address, then (while signed in)
+		// linked their OWN Google account: Auth.js links it whatever its address.
+		passwordThenLinkedOAuth: {
+			email: 'victim@example.com',
+			emailVerified: null,
+			oauthAccounts: [{ email: null }],
+			hasPasswordSignIn: true
+		},
+		passwordThenLinkedOAuthVerified: {
+			email: 'f@example.com',
+			emailVerified: verifiedAt,
+			oauthAccounts: [{ email: null }],
+			hasPasswordSignIn: true
+		}
 	};
 	const lookupCalls: string[] = [];
 	const lookup = async (userId: string) => {
@@ -65,6 +104,20 @@ describe('isEmailVerifiedForOwnership', () => {
 
 	it('refuses an OAuth row that was bound to a different address', async () => {
 		assert.equal(await check('oauthBoundElsewhere', 'victim@example.com'), false);
+	});
+
+	it('refuses a password user whose only proof is an OAuth account they linked later', async () => {
+		assert.equal(await check('passwordThenLinkedOAuth', 'victim@example.com'), false);
+	});
+
+	it('accepts a password user with a linked OAuth account once the address is verified', async () => {
+		assert.equal(await check('passwordThenLinkedOAuthVerified', 'f@example.com'), true);
+	});
+
+	it('fails closed when the lookup does not say whether the user has a password', async () => {
+		const state = { email: 'g@example.com', emailVerified: null, oauthAccounts: [{ email: null }] };
+		const partial = async () => state as unknown as EmailVerificationState;
+		assert.equal(await isEmailVerifiedForOwnership('partial', 'g@example.com', partial), false);
 	});
 
 	it('refuses an unknown user', async () => {

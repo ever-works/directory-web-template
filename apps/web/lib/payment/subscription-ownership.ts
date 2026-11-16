@@ -66,6 +66,14 @@ export interface EmailVerificationState {
 	 * `email` is the address the row was bound to, or null when it was never recorded.
 	 */
 	oauthAccounts: ReadonlyArray<{ email: string | null | undefined }>;
+	/**
+	 * The user can sign in with a password (`users.passwordHash`, or any `accounts` row
+	 * that is not `oauth` / `oidc`, such as the `credentials` row sign-up writes). Then
+	 * `email` was typed in, not taken from a provider, and an OAuth row only shows that
+	 * the user linked some provider account while signed in (Auth.js links any OAuth
+	 * account to the signed-in user, whatever its address), so it proves nothing.
+	 */
+	hasPasswordSignIn: boolean;
 }
 
 /** Loads {@link EmailVerificationState}; `null` when the user does not exist. */
@@ -83,6 +91,9 @@ export type EmailVerificationLookup = (userId: string) => Promise<EmailVerificat
  * - `users.emailVerified` being set counts (`updateUser` clears it on an address change).
  * - A linked OAuth / OIDC account counts (Auth.js leaves `emailVerified` null for these
  *   users), but a row bound to a different address proves nothing about this one.
+ * - The OAuth shortcut is only for users without a password: a user who signed up with
+ *   a password and then linked their own Google or GitHub account has proven nothing
+ *   about the address they typed, so they must verify it by email.
  *
  * A missing user id, email or user never counts.
  */
@@ -97,6 +108,8 @@ export async function isEmailVerifiedForOwnership(
 	const current = normaliseEmail(state.email);
 	if (normaliseEmail(email) !== current) return false;
 	if (state.emailVerified) return true;
+	// Fail closed when the lookup does not say.
+	if (state.hasPasswordSignIn !== false) return false;
 	return state.oauthAccounts.some(
 		(account) => !isNonBlank(account.email) || normaliseEmail(account.email) === current
 	);

@@ -27,7 +27,14 @@ any LemonSqueezy subscription bought under that address in the same store.
   has a linked account of type `oauth` or `oidc` whose recorded `accounts.email` is
   empty or equals the current address (Auth.js leaves `emailVerified` null for OAuth
   users, so they are not locked out; a row bound to another address proves nothing).
+  The OAuth rule only applies to users without a password (no `users.passwordHash` and
+  no `accounts` row other than `oauth` / `oidc`): Auth.js links any OAuth account to the
+  signed-in user whatever its address, so a password user who registered with someone
+  else's address and then linked their own Google or GitHub account has proven nothing.
+  Password users must verify the address by email.
   It is `false` for a missing user id, email or user.
+- `DELETE /api/auth/security/connected-accounts/{provider}` only deletes `oauth` /
+  `oidc` rows, so a password user cannot remove the password row and become OAuth-only.
 - `updateUser` (`lib/db/queries/user.queries.ts`, used by the account settings action)
   clears `users.emailVerified` when the address changes, and first writes the old
   address into the user's `oauth` / `oidc` rows that had none recorded. Without this a
@@ -52,8 +59,9 @@ any LemonSqueezy subscription bought under that address in the same store.
 ## Tests
 
 - `apps/web/lib/payment/__tests__/subscription-ownership.spec.ts`: unverified credentials
-  user refused; verified user accepted; OAuth-only user accepted; unknown or blank user
-  id refused without a lookup.
+  user refused; verified user accepted; OAuth-only user accepted; password user with a
+  later-linked OAuth account refused until verified; unknown or blank user id refused
+  without a lookup.
 - `apps/web/lib/payment/__tests__/subscription-ownership-wiring.spec.ts`: each
   LemonSqueezy route must call the verification check, answer 403 right after it fails,
   and do so before the owner lookup.

@@ -209,6 +209,19 @@ describe('subscription ownership wiring', () => {
 		assert.ok(body.includes("inArray(accounts.type, ['oauth', 'oidc'])"), 'updateUser does not bind OAuth rows');
 	});
 
+	// An OAuth-only user's address counts as verified, so a password user must not be able
+	// to delete their password row and become OAuth-only after linking their own account.
+	it('the connected-accounts disconnect only deletes OAuth rows, never the password row', () => {
+		const source = squash(read('api/auth/security/connected-accounts/[provider]/route.ts'));
+		const start = source.indexOf('.delete(accounts)');
+		assert.ok(start >= 0, 'the disconnect route no longer deletes from accounts');
+		const statement = source.slice(start, source.indexOf('.returning(', start));
+		assert.ok(
+			statement.includes("inArray(accounts.type, ['oauth', 'oidc'])"),
+			'the disconnect route can delete a credentials row'
+		);
+	});
+
 	for (const [file, { why, check }] of Object.entries(ownCheck)) {
 		it(`${file} keeps its own ownership check (${why})`, () => {
 			assert.ok(
