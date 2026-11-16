@@ -448,7 +448,10 @@ export class ItemGitService {
       const content = yaml.stringify(itemData);
       await fs.writeFile(itemFile, content, { encoding: 'utf-8', flag: options.createOnly ? 'wx' : 'w' });
     } catch (error) {
-      console.error('❌ Error writing item file:', error);
+      // EEXIST from the exclusive create is an expected skip (another import or submission took the slug)
+      if ((error as NodeJS.ErrnoException)?.code !== 'EEXIST') {
+        console.error('❌ Error writing item file:', error);
+      }
       throw error;
     }
   }

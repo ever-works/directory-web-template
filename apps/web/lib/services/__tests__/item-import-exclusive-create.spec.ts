@@ -142,10 +142,13 @@ describe('import never replaces an existing item file (T-2527)', () => {
 	it('of two overlapping imports of the same new slug, the later one is skipped, not written over the first', async () => {
 		let releaseLookup!: () => void;
 		const lookupHeld = new Promise<void>((resolve) => (releaseLookup = resolve));
+		let lookupDone!: () => void;
+		const lookedUp = new Promise<void>((resolve) => (lookupDone = resolve));
 		const slowRepository = repositoryWith(git);
 		const findAll = slowRepository.findAll.bind(slowRepository);
 		slowRepository.findAll = async (options) => {
 			const items = await findAll(options);
+			lookupDone();
 			await lookupHeld;
 			return items;
 		};
@@ -160,7 +163,7 @@ describe('import never replaces an existing item file (T-2527)', () => {
 			...clientOptions,
 			submittedBy: 'slow-user'
 		});
-		await new Promise((resolve) => setTimeout(resolve, 20));
+		await lookedUp;
 		const fast = await new ItemImportService(repositoryWith(git)).executeImport(
 			[row('fresh', 'https://fast.example.com')],
 			{ ...clientOptions, submittedBy: 'fast-user' }
