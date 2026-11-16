@@ -113,7 +113,7 @@ function CommentForm({ itemId }) {
 On success, the new comment is:
 1. Added to the beginning of the `['comments', itemId]` cache (newest first)
 2. Duplicate-checked to prevent the same comment appearing twice
-3. The `['item-rating', itemId]` query is immediately refetched to update aggregate ratings
+3. The `['item-rating', itemId]` query is immediately refetched to update aggregate ratings, and `['commentRating', itemId]` is invalidated
 
 A custom `comment:mutated` DOM event is dispatched for cross-component synchronization.
 
@@ -121,12 +121,12 @@ A custom `comment:mutated` DOM event is dispatched for cross-component synchroni
 
 On success:
 1. The updated comment replaces its previous version in the cache
-2. The `['item-rating', itemId]` query is refetched
+2. The `['item-rating', itemId]` query is refetched and `['commentRating', itemId]` is invalidated, so a rating change moves both aggregates
 3. A `comment:mutated` DOM event is dispatched
 
 ### Delete Comment
 
-On success, the entire `['comments', itemId]` query is refetched from the server.
+On success, the entire `['comments', itemId]` query is refetched from the server, and `['item-rating', itemId]` and `['commentRating', itemId]` are invalidated (the deleted comment's rating leaves the aggregates).
 
 ## Usage: Comment List with Create
 

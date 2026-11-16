@@ -85,6 +85,8 @@ export function useComments(itemId: string) {
         dispatchCommentEvent(newComment);
         // Force refetch rating query to show updated data immediately
         await queryClient.refetchQueries({ queryKey: ["item-rating", itemId] });
+        // The aggregate comment rating includes the new comment's rating
+        queryClient.invalidateQueries({ queryKey: ["commentRating", itemId] });
         // Sync Statistics card (comments count + avgRating) with server
         queryClient.invalidateQueries({ queryKey: ['item-activity', itemId] });
       }
@@ -121,6 +123,9 @@ export function useComments(itemId: string) {
         queryKey: ["comments", itemId],
         exact: true
       });
+      // A deleted comment's rating leaves the aggregates
+      queryClient.invalidateQueries({ queryKey: ["item-rating", itemId] });
+      queryClient.invalidateQueries({ queryKey: ["commentRating", itemId] });
       // Sync Statistics card (comments count + avgRating) with server
       queryClient.invalidateQueries({ queryKey: ['item-activity', itemId] });
     },
@@ -158,6 +163,8 @@ export function useComments(itemId: string) {
         dispatchCommentEvent(updatedComment);
         // Force refetch rating to reflect updated rating immediately
         await queryClient.refetchQueries({ queryKey: ["item-rating", itemId] });
+        // A rating change through updateComment also moves the aggregate comment rating
+        queryClient.invalidateQueries({ queryKey: ["commentRating", itemId] });
         // Sync avgRating in Statistics card
         queryClient.invalidateQueries({ queryKey: ['item-activity', itemId] });
       }
