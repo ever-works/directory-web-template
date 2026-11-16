@@ -79,6 +79,7 @@ or architectural change.
 | 056 | [`pagination-params`](056-pagination-params/spec.md) ([plan](056-pagination-params/plan.md), [tasks](056-pagination-params/tasks.md)) | in-progress | Shared `parsePaginationParams()` turns `page` / `limit` query values into safe, clamped integers; non-numeric values fall back to the defaults instead of a `NaN` offset. First user: `GET /api/auth/security/login-activity`, which answered 500 for `?page=abc`. |
 | 057 | [`item-aggregate-rating`](057-item-aggregate-rating/spec.md) ([plan](057-item-aggregate-rating/plan.md), [tasks](057-item-aggregate-rating/tasks.md)) | in-progress | An item page with reviews adds `aggregateRating` (mean of valid 1-5 ratings, review count) to its `Product` JSON-LD, computed from the comments the page already loads; no valid rating, no key. |
 | 058 | [`duplicate-submission-guard`](058-duplicate-submission-guard/spec.md) ([plan](058-duplicate-submission-guard/plan.md), [tasks](058-duplicate-submission-guard/tasks.md)) | in-progress | `POST /api/client/items` answers 409 when a pending or approved item already uses the submitted link (compared ignoring http/https, `www.`, trailing slash, fragment and tracking parameters), instead of queueing a duplicate for review. |
+| 059 | [`collection-item-list`](059-collection-item-list/spec.md) | in-progress | A collection page's `CollectionPage` JSON-LD lists its items (name, item-page URL, position; capped at 50) as `itemListElement`, not only the count. |
 
 > **Status legend:**
 > _proposed_ = spec drafted, not yet planned/approved.
