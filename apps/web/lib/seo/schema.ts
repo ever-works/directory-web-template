@@ -112,14 +112,14 @@ export function generateCollectionSchema(input: CollectionSchemaInput) {
 	}
 
 	// Entries without a name or URL cannot be a ListItem, so they are dropped before positions are assigned.
-	const listed = (input.items ?? [])
-		.filter((item) => item.name.trim().length > 0 && item.url.trim().length > 0)
-		.slice(0, MAX_COLLECTION_SCHEMA_ITEMS);
+	const valid = (input.items ?? []).filter((item) => item.name.trim().length > 0 && item.url.trim().length > 0);
+	const listed = valid.slice(0, MAX_COLLECTION_SCHEMA_ITEMS);
 
 	if (typeof input.itemCount === 'number' || listed.length > 0) {
 		const itemList: Record<string, unknown> = {
 			'@type': 'ItemList',
-			numberOfItems: typeof input.itemCount === 'number' ? input.itemCount : listed.length
+			// Without an explicit count, report every valid item, not just the capped slice.
+			numberOfItems: typeof input.itemCount === 'number' ? input.itemCount : valid.length
 		};
 
 		if (listed.length > 0) {

@@ -22,11 +22,14 @@ the collection page be understood as a curated list of the item pages.
 
 ## 3. Requirements
 
-- **R1.** Each item shown on the page becomes a `ListItem` with a 1-based `position`
-  (page order), `name` and `url` (the localized item page, `/items/{slug}`).
+- **R1.** Each item of the collection becomes a `ListItem` with a 1-based `position`,
+  `name` and `url` (the localized item page, `/items/{slug}`). Positions follow the
+  collection's own curated slug order (`collection.items`), not the visible grid, which
+  visitors re-sort in the browser. Slugs with no matching item are skipped.
 - **R2.** Entries with a blank name or URL are dropped before positions are assigned.
 - **R3.** At most 50 entries are listed (`MAX_COLLECTION_SCHEMA_ITEMS`), so a large
-  collection cannot bloat the HTML. `numberOfItems` still states the true count.
+  collection cannot bloat the HTML. `numberOfItems` still states the true count (the
+  page's count, or every valid item when the caller gives none).
 - **R4.** With no items passed, the output is unchanged (`numberOfItems` only, or no
   `mainEntity` without a count).
 - **R5.** No new route, setting, dependency or outbound call.

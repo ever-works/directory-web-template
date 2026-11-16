@@ -110,7 +110,12 @@ export default async function CollectionPage({
     url: collectionUrl,
     image: collection.icon_url,
     itemCount: collectionItems.length,
-    items: collectionItems.map((item) => ({
+    // Curated order of the collection's own slug list. The visible grid is re-sorted in the browser
+    // (sort control), so the page's DOM order is not a stable ranking to publish.
+    items: collectionItemIds
+      .map((id) => collectionItems.find((item) => item.slug === id))
+      .filter((item): item is (typeof collectionItems)[number] => Boolean(item))
+      .map((item) => ({
       name: item.name,
       url: getLocalizedUrl(`/items/${item.slug}`, locale as Locale)
     }))

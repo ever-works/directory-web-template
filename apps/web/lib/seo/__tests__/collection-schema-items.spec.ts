@@ -70,6 +70,17 @@ describe('generateCollectionSchema itemListElement', () => {
 		assert.equal(mainEntity(schema)?.numberOfItems, MAX_COLLECTION_SCHEMA_ITEMS + 25);
 	});
 
+	it('without an itemCount, a capped list still reports every valid item', () => {
+		const total = MAX_COLLECTION_SCHEMA_ITEMS + 25;
+		const items = Array.from({ length: total }, (_, i) => ({
+			name: `Item ${i}`,
+			url: `https://example.com/items/${i}`
+		}));
+		const entity = mainEntity(generateCollectionSchema({ ...base, items }));
+		assert.equal((entity?.itemListElement as unknown[]).length, MAX_COLLECTION_SCHEMA_ITEMS);
+		assert.equal(entity?.numberOfItems, total);
+	});
+
 	it('keeps the old shape when no items are given', () => {
 		assert.deepEqual(mainEntity(generateCollectionSchema({ ...base, itemCount: 3 })), {
 			'@type': 'ItemList',

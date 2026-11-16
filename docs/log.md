@@ -9,7 +9,7 @@ sidebar_position: 99
 
 ## 2026-11-16
 
-- `spec-059` `apps/web/lib/seo/schema.ts` `apps/web/app/[locale]/collections/[slug]/page.tsx`: a collection page's `CollectionPage` JSON-LD now lists its items as `ItemList.itemListElement` (1-based position, name, localized item URL; blank entries dropped, capped at 50, `numberOfItems` keeps the true count); before it carried only the count. Unit spec `apps/web/lib/seo/__tests__/collection-schema-items.spec.ts` ([059](spec/059-collection-item-list/spec.md), PR number to be added).
+- `spec-059` `apps/web/lib/seo/schema.ts` `apps/web/app/[locale]/collections/[slug]/page.tsx`: a collection page's `CollectionPage` JSON-LD now lists its items as `ItemList.itemListElement` (1-based position, name, localized item URL; blank entries dropped, capped at 50, `numberOfItems` keeps the true count); before it carried only the count. Unit spec `apps/web/lib/seo/__tests__/collection-schema-items.spec.ts` ([059](spec/059-collection-item-list/spec.md), #1117). Review fixes: positions follow the collection's curated slug order instead of the (client-sortable) grid order, and `numberOfItems` without an explicit count reports every valid item rather than the capped 50.
 
 ## 2026-11-15
 
