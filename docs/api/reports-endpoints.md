@@ -271,10 +271,10 @@ The following automated actions are triggered based on the resolution value:
 
 | Status | Condition |
 |---|---|
-| 400 | Invalid status or resolution value; content owner not found for user-level actions (for example `Item submitter has no client profile`) |
+| 400 | Invalid status or resolution value; content owner not found for user-level actions (for example `Item submitter has no client profile`, or `Item not found` when the content is gone) |
 | 403 | Not an admin |
 | 404 | Report not found |
-| 409 | The moderation action does not fit the target's state (`User is already banned`, `User is already suspended`, or the content or user is gone) |
+| 409 | The moderation action does not fit the target's state (`User is already banned`, `User is already suspended`, `User not found`, or `content_removed` on content that is already gone) |
 | 500 | The moderation action failed (for example `Failed to warn user`), or the report could not be saved |
 
 On every moderation error (400 owner not found, 409, 500 action failed) the report is **left unchanged**: the action runs before the report is saved. The `error` field carries the action's message, which the admin reports page shows in its error toast.
@@ -300,3 +300,5 @@ When a report is resolved with a user-level resolution (`user_warned`, `user_sus
 4. Saves the report and records the admin's ID as the reviewer
 
 The moderation action runs before the report is saved. If the owner cannot be identified or the action fails, the route answers an error with the action's message and the report stays as it was, so the admin can pick another resolution.
+
+The action runs only when the resolution changes. The review dialog sends the saved resolution back with every edit, so a resolution the report already has is not run again: editing the note or status of a completed report saves without banning, suspending, warning or removing a second time. To run an action again, save the report with another resolution first.

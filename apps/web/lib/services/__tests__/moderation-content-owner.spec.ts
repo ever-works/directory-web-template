@@ -102,13 +102,33 @@ describe('PUT /api/admin/reports/{id} runs the moderation action before it saves
 		const save = put.indexOf('await updateReport(id, {');
 		const failed = put.indexOf('if (moderationResult && !moderationResult.success) {');
 		assert.ok(failed > 0 && failed < save, 'PUT does not stop on a failed moderation action before it saves');
-		const branch = put.slice(failed, put.indexOf('}', put.indexOf('return NextResponse.json(', failed)) + 1);
+		const branch = put.slice(failed, put.indexOf(');', put.indexOf('return NextResponse.json(', failed)) + 2);
 		assert.ok(branch.includes('return NextResponse.json('), 'a failed moderation action does not return');
 		assert.ok(
 			branch.includes('error: moderationResult.message'),
 			'the error response does not carry the action message'
 		);
+		assert.ok(
+			branch.includes('status: moderationFailureStatus(moderationResult.error)'),
+			'a failed moderation action does not answer an error status'
+		);
 		assert.ok(!branch.includes('success: true'), 'a failed moderation action still answers success: true');
 		assert.ok(!put.includes("don't fail the request"), 'PUT still swallows a failed moderation action');
+
+		const statusFn = functionBody(route, 'function moderationFailureStatus(');
+		assert.ok(statusFn.includes('? 409 : 500'), 'moderationFailureStatus does not answer 409 or 500');
+	});
+
+	it('does not run the action again for a resolution the report already has', () => {
+		// The review dialog sends the saved resolution with every edit; re-running a ban or
+		// suspension fails with ALREADY_BANNED / ALREADY_SUSPENDED and would block the edit.
+		assert.ok(
+			put.includes('const resolutionChanged = resolution !== existingReport.resolution;'),
+			'PUT does not compare the resolution with the saved one'
+		);
+		assert.ok(
+			put.includes('if (resolution && resolution !== ReportResolution.NO_ACTION && resolutionChanged) {'),
+			'PUT runs the moderation action for an unchanged resolution'
+		);
 	});
 });

@@ -96,7 +96,7 @@ export async function GET(
  *   put:
  *     tags: ["Admin - Reports"]
  *     summary: "Update report status and resolution"
- *     description: "Updates a report's status, resolution, and/or review note. Requires admin privileges. A resolution other than no_action runs its moderation action first (remove the content, or warn / suspend / ban its owner's client profile); if that action fails, the report is left unchanged and the response is an error."
+ *     description: "Updates a report's status, resolution, and/or review note. Requires admin privileges. A resolution other than no_action runs its moderation action first (remove the content, or warn / suspend / ban its owner's client profile); if that action fails, the report is left unchanged and the response is an error. A resolution the report already has is not run again, so the note and status of a completed report can still be edited."
  *     security:
  *       - sessionAuth: []
  *     parameters:
@@ -125,13 +125,13 @@ export async function GET(
  *       200:
  *         description: "Report updated successfully"
  *       400:
- *         description: "Bad request - Invalid input, or the content owner could not be identified for warn / suspend / ban (for example 'Item submitter has no client profile'); the report is unchanged"
+ *         description: "Bad request - Invalid input, or the content owner could not be identified for warn / suspend / ban (for example 'Item submitter has no client profile', or 'Item not found' when the content is gone); the report is unchanged"
  *       403:
  *         description: "Forbidden - Admin access required"
  *       404:
  *         description: "Report not found"
  *       409:
- *         description: "The moderation action does not fit the target's current state (for example 'User is already banned', or the content is gone); the report is unchanged"
+ *         description: "The moderation action does not fit the target's current state (for example 'User is already banned', or content_removed on content that is already gone); the report is unchanged"
  *       500:
  *         description: "Internal server error, or the moderation action failed (for example 'Failed to warn user'); the report is unchanged"
  */
@@ -178,8 +178,13 @@ export async function PUT(
 
 		// Execute the moderation action before the report is saved, so a failed action
 		// leaves the report as it was and the admin sees the failure.
+		// The review dialog sends the saved resolution back with every edit. Running it again
+		// would fail (user already banned or suspended, item already removed) and block a note
+		// or status edit on a completed report, or warn the user a second time, so only a new
+		// resolution runs its action.
+		const resolutionChanged = resolution !== existingReport.resolution;
 		let moderationResult: ModerationResult | null = null;
-		if (resolution && resolution !== ReportResolution.NO_ACTION) {
+		if (resolution && resolution !== ReportResolution.NO_ACTION && resolutionChanged) {
 			const adminId = session.user.id!; // Non-null assertion - validated by isAdmin check above
 
 			if (resolution === ReportResolution.CONTENT_REMOVED) {
