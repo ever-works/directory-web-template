@@ -46,12 +46,14 @@ GROUP BY "customerId"
 HAVING count(DISTINCT "userId") > 1;
 
 -- 2. Rows whose customer id was rewritten after creation
---    (setupUserPaymentAccount touches updated_at when it changes the id,
---    and last-used bumps only touch lastUsed, so inspect these first).
+--    (setupUserPaymentAccount sets updated_at when it changes the id, and
+--    last-used bumps only touch lastUsed. Insert sets both columns to the
+--    same now(), so any later value means an update, however soon after
+--    creation: no time margin, or a quick rewrite would be missed).
 SELECT pa."id", pa."userId", p."name" AS provider, pa."customerId", pa.created_at, pa.updated_at
 FROM "paymentAccounts" pa
 JOIN "paymentProviders" p ON p."id" = pa."providerId"
-WHERE pa.updated_at > pa.created_at + interval '1 minute'
+WHERE pa.updated_at > pa.created_at
 ORDER BY pa.updated_at DESC;
 
 -- 3. Stripe rows whose customer id does not look like a Stripe customer id.

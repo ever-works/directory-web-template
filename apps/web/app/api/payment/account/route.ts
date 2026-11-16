@@ -15,7 +15,7 @@ const SUPPORTED_PROVIDERS: ReadonlySet<string> = new Set(Object.values(PaymentPr
  *     summary: "Create payment account"
  *     description: "Admin only (401 without a session, 403 for a signed-in non-admin). Creates a new payment account for a user with a specific payment provider. Links the user to their customer ID in the payment provider's system. The payment providers do not call this route; they write through the database queries."
  *     security:
- *       - cookieAuth: []
+ *       - session: []
  *     requestBody:
  *       required: true
  *       content:
@@ -191,7 +191,7 @@ export async function POST(request: NextRequest) {
  *     summary: "Update payment account"
  *     description: "Admin only (401 without a session, 403 for a signed-in non-admin). Updates an existing payment account with new provider or customer information. Requires the account ID to identify which account to update. This is typically used when a customer ID changes in the payment provider's system."
  *     security:
- *       - cookieAuth: []
+ *       - session: []
  *     requestBody:
  *       required: true
  *       content:
