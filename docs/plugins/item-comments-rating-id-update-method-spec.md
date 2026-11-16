@@ -25,6 +25,23 @@ the CURRENT contract — a future PR that adds auth
 would explicitly break this spec, prompting an
 update.
 
+## Current contract (2026-11-16, PR #1116)
+
+The "no auth gate" description below is history. `PATCH` now:
+
+- answers **401** without a signed-in user (`session.user.id`);
+- answers **400** for a malformed JSON body or a rating that is not an
+  integer from 1 to 5;
+- answers **404** when the caller has no client profile, or is not the
+  comment's author, or the comment is soft-deleted:
+  `updateCommentRatingForOwner(id, clientProfileId, rating)` matches the
+  author in the SQL `WHERE`, so another user's request changes no row;
+- returns the updated comment row (no wrapper envelope) on success.
+
+The smoke spec runs without a session, so every probe gets 401, which still
+satisfies its `< 500`, not-403 and same-status assertions. The owner rule is
+covered by the unit spec `apps/web/lib/db/queries/__tests__/comment-rating-owner.spec.ts`.
+
 ## What's distinct from EVERY prior mutating-method smoke
 
 - **NO `auth()` gate** — the FIRST per-source-file
@@ -115,8 +132,8 @@ bodies) and **six hand-written scenarios**.
   surface with detailed invariants.
 - The parent route's PUT / DELETE handlers at
   [`item-comments-id-method-spec.md`](item-comments-id-method-spec.md)
-  DO enforce auth + ownership; this child rating-
-  update route does not.
+  DO enforce auth + ownership; since PR #1116 this
+  child rating-update route does too.
 - The companion comment-create POST sibling
   [`item-comments-create-body-spec.md`](item-comments-create-body-spec.md)
   uses the SAME `checkDatabaseAvailability()` helper
