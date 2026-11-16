@@ -200,6 +200,46 @@ describe('subscription ownership wiring', () => {
 		});
 	}
 
+	// The list matches purchases by the session email too, so it needs the same proof
+	// (`resolveListAccess` in lemonsqueezy-list-access.ts runs the check; admins listing
+	// another email are exempt there and covered by lemonsqueezy-list-access.spec.ts).
+	for (const method of ['GET', 'POST']) {
+		it(`lemonsqueezy/list ${method} decides list access, answering 403, before calling LemonSqueezy`, () => {
+			const file = 'api/lemonsqueezy/list/route.ts';
+			const handler = handlerSource(file, method);
+			const accessAt = handler.indexOf(
+				'resolveListAccess({ id: session.user.id, email: session.user.email }, customerEmail)'
+			);
+			assert.ok(accessAt > 0, `${method} does not resolve list access`);
+			assert.ok(
+				/^[^;]*; if \(!access\.allowed\) \{ return listAccessDenied\(access\.reason\); \}/.test(
+					handler.slice(accessAt)
+				),
+				`${method} does not return the 403 right after a refused access decision`
+			);
+			const providerAt = handler.indexOf('getOrCreateLemonsqueezyProvider(');
+			assert.ok(providerAt > accessAt, `${method} reaches LemonSqueezy before the access decision`);
+			assert.ok(!handler.slice(0, accessAt).includes('listCheckouts('), `${method} lists before the decision`);
+		});
+	}
+
+	it('the lemonsqueezy/list route wires the verified-email check and the EMAIL_NOT_VERIFIED 403', () => {
+		const source = squash(read('api/lemonsqueezy/list/route.ts'));
+		assert.ok(
+			source.includes('isEmailVerified: (userId, email) => isEmailVerifiedForOwnership(userId, email, loadEmailVerificationState)'),
+			'the list route does not pass the verified-email check'
+		);
+		assert.ok(
+			source.includes("{ error: EMAIL_NOT_VERIFIED_MESSAGE, code: 'EMAIL_NOT_VERIFIED' }") &&
+				source.includes('{ status: 403 }'),
+			'the list route does not answer 403 EMAIL_NOT_VERIFIED'
+		);
+		assert.ok(
+			source.includes('enum: ["EMAIL_NOT_VERIFIED", "ACCESS_DENIED"]'),
+			'the list route lost its Swagger 403'
+		);
+	});
+
 	it('updateUser clears emailVerified when the address changes, so a verification never moves to a new address', () => {
 		const source = squash(readFileSync(join(__dirname, '../../db/queries/user.queries.ts'), 'utf8'));
 		const start = source.indexOf('export async function updateUser(');
