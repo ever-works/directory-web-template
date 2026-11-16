@@ -247,7 +247,9 @@
 		"BASIC_INFO": "المعلومات الأساسية",
 		"CLOSE": "إغلاق",
 		"VS": "مقابل",
-		"COMPARISONS": "المقارنات"
+		"COMPARISONS": "المقارنات",
+		"RATE_STARS": "{count, plural, one {تقييم بنجمة واحدة} two {تقييم بنجمتين} few {تقييم بـ # نجوم} many {تقييم بـ # نجمة} other {تقييم بـ # نجمة}}",
+		"RATED_OUT_OF": "التقييم {value, number} من {max, number}"
 	},
 	"survey": {
 		"SURVEYS": "الاستطلاعات",

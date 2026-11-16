@@ -274,7 +274,9 @@
 		"BASIC_INFO": "Temel Bilgi",
 		"CLOSE": "Kapat",
 		"VS": "karşısında",
-		"COMPARISONS": "Karşılaştırmalar"
+		"COMPARISONS": "Karşılaştırmalar",
+		"RATE_STARS": "{count, plural, other {# yıldız ver}}",
+		"RATED_OUT_OF": "{max, number} üzerinden {value, number} puan"
 	},
 	"survey": {
 		"SURVEYS": "Anketler",

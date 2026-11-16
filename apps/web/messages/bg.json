@@ -274,7 +274,9 @@
 		"BASIC_INFO": "Основна информация",
 		"CLOSE": "Затвори",
 		"VS": "срещу",
-		"COMPARISONS": "Сравнения"
+		"COMPARISONS": "Сравнения",
+		"RATE_STARS": "{count, plural, one {Оценете с # звезда} other {Оценете с # звезди}}",
+		"RATED_OUT_OF": "Оценка {value, number} от {max, number}"
 	},
 	"survey": {
 		"SURVEYS": "Анкети",

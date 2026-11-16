@@ -248,7 +248,9 @@
 		"BASIC_INFO": "Basic Info",
 		"CLOSE": "Close",
 		"VS": "vs",
-		"COMPARISONS": "तुलनाएँ"
+		"COMPARISONS": "तुलनाएँ",
+		"RATE_STARS": "{count, plural, one {# स्टार दें} other {# स्टार दें}}",
+		"RATED_OUT_OF": "रेटिंग: {max, number} में से {value, number}"
 	},
 	"survey": {
 		"SURVEYS": "Surveys",
