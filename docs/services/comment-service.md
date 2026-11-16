@@ -152,16 +152,28 @@ export async function updateComment(
 ### Rating-Only Update
 
 ```ts
-export async function updateCommentRating(id: string, rating: number) {
+export async function updateCommentRatingForOwner(
+  id: string,
+  clientProfileId: string,
+  rating: number
+) {
   return (
     await db
       .update(comments)
       .set({ rating })
-      .where(eq(comments.id, id))
+      .where(
+        and(
+          eq(comments.id, id),
+          eq(comments.userId, clientProfileId),
+          eq(comments.tenantId, tenantId)
+        )
+      )
       .returning()
   )[0];
 }
 ```
+
+Comment ids are public, so the update only matches a comment written by the given client profile.
 
 ### Soft Deletion
 

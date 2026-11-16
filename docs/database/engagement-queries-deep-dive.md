@@ -373,12 +373,12 @@ RETURNING *;
 
 ---
 
-### `updateCommentRating`
+### `updateCommentRatingForOwner`
 
-Updates only the rating on a comment.
+Updates only the rating on a comment, and only when the comment was written by the given client profile. Comment ids are public, so the author check is part of the `WHERE` clause.
 
 ```typescript
-async function updateCommentRating(id: string, rating: number)
+async function updateCommentRatingForOwner(id: string, clientProfileId: string, rating: number)
 ```
 
 ---

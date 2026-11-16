@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
-import { getCommentById, updateCommentRating } from "@/lib/db/queries";
+import { getClientProfileByUserId, getCommentById, updateCommentRatingForOwner } from "@/lib/db/queries";
 import { checkDatabaseAvailability } from "@/lib/utils/database-check";
 
 export async function PATCH(request: Request, { params }: { params: Promise<{ slug: string; commentId: string }> }) {
@@ -39,10 +39,19 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ sl
                 { status: 400 }
             );
         }
-        const comment = await updateCommentRating(commentId, rating);
+        // Comment ids are public (returned by the comments list), so only the
+        // comment's author may change its rating.
+        const clientProfile = await getClientProfileByUserId(session.user.id);
+        if (!clientProfile) {
+            return NextResponse.json(
+                { error: "Client profile not found" },
+                { status: 404 }
+            );
+        }
+        const comment = await updateCommentRatingForOwner(commentId, clientProfile.id, rating);
         if (!comment) {
             return NextResponse.json(
-                { error: "Comment not found" },
+                { error: "Comment not found or not authorized" },
                 { status: 404 }
             );
         }
