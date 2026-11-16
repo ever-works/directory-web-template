@@ -68,7 +68,7 @@ export function Rating({
       >
         {stars.map((star) => (
           <span key={star} aria-hidden="true" className="p-1">
-            <StarIcon filled={star <= value} sizeClass={sizeClass} />
+            <StarIcon filled={star <= rounded} sizeClass={sizeClass} />
           </span>
         ))}
       </div>

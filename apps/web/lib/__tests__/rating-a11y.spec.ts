@@ -33,6 +33,13 @@ function localeFiles(): string[] {
 	return readdirSync(MESSAGES_DIR).filter((file) => file.endsWith('.json'));
 }
 
+/** The source of the read-only branch: from `if (readOnly)` up to the interactive radiogroup ('' when missing). */
+function readOnlyBlock(): string {
+	const start = COMPONENT.search(/if\s*\(\s*readOnly\s*\)/);
+	const end = start === -1 ? -1 : COMPONENT.indexOf('role="radiogroup"', start);
+	return end === -1 ? '' : COMPONENT.slice(start, end);
+}
+
 describe('star rating control', () => {
 	it('has no hard-coded English labels', () => {
 		assert.doesNotMatch(COMPONENT, /Rate \$\{/, 'the `Rate ${star} star` template is still there');
@@ -57,13 +64,27 @@ describe('star rating control', () => {
 	});
 
 	it('renders a read-only rating as one named image, not as disabled radio buttons', () => {
-		assert.match(COMPONENT, /role="img"/, 'the read-only wrapper has no role="img"');
-		assert.doesNotMatch(COMPONENT, /disabled=\{readOnly\}/, 'read-only stars are still disabled buttons');
-		assert.match(COMPONENT, /aria-hidden="true"/, 'the read-only stars are not aria-hidden');
+		const block = readOnlyBlock();
+		assert.ok(block, 'no `if (readOnly)` branch returns before the radiogroup');
+		assert.match(block, /role="img"/, 'the read-only wrapper has no role="img"');
 		assert.match(
-			COMPONENT,
+			block,
+			/aria-label=\{\s*t\(\s*["']common\.RATED_OUT_OF["']/,
+			'the read-only image is not named by common.RATED_OUT_OF'
+		);
+		assert.doesNotMatch(block, /<button\b/, 'read-only stars are still buttons');
+		assert.doesNotMatch(COMPONENT, /disabled=\{readOnly\}/, 'read-only stars are still disabled buttons');
+		assert.match(block, /<span\b[^>]*aria-hidden="true"/, 'the read-only stars are not aria-hidden');
+		assert.match(
+			block,
 			/Math\.round\(\s*value\s*\*\s*10\s*\)\s*\/\s*10/,
 			'the read-only value is not rounded to one decimal'
+		);
+		// 4.96 is announced as "5 out of 5", so five stars must show, not four.
+		assert.match(
+			block,
+			/filled=\{\s*star\s*<=\s*rounded\s*\}/,
+			'the read-only stars do not fill from the rounded value the label announces'
 		);
 	});
 
