@@ -38,14 +38,14 @@ const {
 
 ### 投票行为
 
-|当前状态 |行动|结果 |
+| 当前状态 | 行动 | 结果 |
 |--------------|--------|--------|
-|没有投票 |点击向上|点赞 (+1) |
-|没有投票 |单击向下|否决票 (-1) |
-|已投票 |点击向上|删除投票（切换）|
-|已投票 |单击向下|切换到否决票（-2 净值）|
-|投了反对票 |单击向下|删除投票（切换）|
-|投了反对票 |点击向上|切换到点赞（+2 净值）|
+| 没有投票 | 点击向上 | 点赞 (+1) |
+| 没有投票 | 单击向下 | 否决票 (-1) |
+| 已投票 | 点击向上 | 删除投票（切换） |
+| 已投票 | 单击向下 | 切换到否决票（-2 净值） |
+| 投了反对票 | 单击向下 | 删除投票（切换） |
+| 投了反对票 | 点击向上 | 切换到点赞（+2 净值） |
 
 ### 乐观更新
 
@@ -57,7 +57,7 @@ const {
 
 ### 身份验证
 
-尝试投票的未经身份验证的用户会通过 0 看到登录模式：
+尝试投票的未经身份验证的用户会通过 `useLoginModal` 看到登录模式：
 
 ```typescript
 if (!user) {
@@ -68,7 +68,7 @@ if (!user) {
 
 ### 缓存管理
 
-0 实用程序挂钩提供跨组件缓存操作：
+`useVoteCache` 实用程序挂钩提供跨组件缓存操作：
 
 ```typescript
 import { useVoteCache } from '@/hooks/use-item-vote';
@@ -101,10 +101,6 @@ const {
   isUpdating,
   deleteComment,         // (commentId) => Promise
   isDeleting,
-  rateComment,           // ({ commentId, rating }) => void
-  isRatingComment,
-  updateCommentRating,   // ({ commentId, rating }) => void
-  isUpdatingRating,
   commentRating,         // number
   isLoadingRating,
 } = useComments(itemId);
@@ -113,20 +109,20 @@ const {
 ### 评论数据模型
 
 每条评论包括：
-- 0 -- 唯一标识符
-- 1 -- 评论文本
-- 2 -- 可选星级 (1-5)
-- 3 -- 作者参考
-- 4 -- 相关项目
-- 5 -- 填充的用户数据（姓名、电子邮件、图像）
-- 6/7-- 时间戳
+- `id` -- 唯一标识符
+- `content` -- 评论文本
+- `rating` -- 可选星级 (1-5)
+- `userId` -- 作者参考
+- `itemId` -- 相关项目
+- `user` -- 填充的用户数据（姓名、电子邮件、图像）
+- `createdAt` / `updatedAt` -- 时间戳
 
 ### 评级整合
 
 评论和评分紧密结合：
 - 创建带有评级的评论会更新项目的总体评级
 - 编辑评论的评级会触发重新计算
-- 任何评论突变后都会重新获取8查询
+- 任何评论突变后都会重新获取 `["item-rating", itemId]` 查询
 
 ### 跨组件事件
 
@@ -141,7 +137,7 @@ window.dispatchEvent(new CustomEvent(COMMENT_MUTATION_EVENT, { detail: comment }
 
 ### 管理员审核
 
-0 挂钩提供管理员级别的评论管理：
+`useAdminComments` 挂钩提供管理员级别的评论管理：
 
 ```typescript
 import { useAdminComments } from '@/hooks/use-admin-comments';
@@ -157,15 +153,13 @@ const {
 
 ### API 端点
 
-|方法|端点 |描述 |
+| 方法 | 端点 | 描述 |
 |--------|----------|-------------|
-|获取 | 0 |获取某个项目的评论 |
-|发布 | 1 |创建新评论 |
-|放置| 2 |更新评论 |
-|删除 | 3 |删除评论 |
-|发布 | 4 |评价评论 |
-|放置| 5 |更新评论评分 |
-|获取 | 6 |获取综合评级 |
+| GET | `/api/items/:id/comments` | 获取某个项目的评论 |
+| POST | `/api/items/:id/comments` | 创建新评论 |
+| PUT | `/api/items/:id/comments/:commentId` | 更新评论 |
+| DELETE | `/api/items/:id/comments/:commentId` | 删除评论 |
+| GET | `/api/items/:id/comments/rating` | 获取综合评级 |
 
 ## 功能标志集成
 
@@ -177,4 +171,4 @@ const flags = getFeatureFlags();
 // flags.comments -- Controls comment section visibility
 ```
 
-当数据库未配置时（缺少0），这些功能将自动禁用。
+当数据库未配置时（缺少 `DATABASE_URL`），这些功能将自动禁用。

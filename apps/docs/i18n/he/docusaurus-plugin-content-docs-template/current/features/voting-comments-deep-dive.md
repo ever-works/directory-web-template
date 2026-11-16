@@ -21,7 +21,7 @@ app/api/items/[id]/
   votes/route.ts             # GET/POST/DELETE vote endpoints
   comments/route.ts          # GET/POST comment endpoints
   comments/[commentId]/route.ts  # PUT/DELETE single comment
-  comments/rating/route.ts   # POST/PUT/GET rating endpoints
+  comments/rating/route.ts   # GET rating endpoint
 
 lib/db/schema.ts             # votes and comments table definitions
 ```
@@ -150,8 +150,6 @@ interface UpdateCommentData {
 | `createComment` | `(data) => Promise` | צור תגובה חדשה |
 | `updateComment` | `(data) => Promise` | ערוך הערה קיימת |
 | `deleteComment` | `(id) => Promise` | הסר תגובה |
-| `rateComment` | `(data) => void` | דרג תגובה |
-| `updateCommentRating` | `(data) => void` | עדכן דירוג קיים |
 | `commentRating` | `number` | דירוג מצטבר עבור הפריט |
 
 ### מערכת אירועים חוצת רכיבים
@@ -232,8 +230,6 @@ function useAdminComments({ page, limit, search }) {
 | פוסט | `/api/items/:id/comments` | צור תגובה חדשה |
 | PUT | `/api/items/:id/comments/:commentId` | עדכן תגובה |
 | מחק | `/api/items/:id/comments/:commentId` | מחק תגובה |
-| פוסט | `/api/items/:id/comments/rating` | דרג תגובה |
-| PUT | `/api/items/:id/comments/rating` | עדכן דירוג תגובה |
 | קבל | `/api/items/:id/comments/rating` | קבל דירוג פריט מצטבר |
 
 ## שילוב דגל תכונה

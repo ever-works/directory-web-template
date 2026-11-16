@@ -21,7 +21,7 @@ app/api/items/[id]/
   votes/route.ts             # GET/POST/DELETE vote endpoints
   comments/route.ts          # GET/POST comment endpoints
   comments/[commentId]/route.ts  # PUT/DELETE single comment
-  comments/rating/route.ts   # POST/PUT/GET rating endpoints
+  comments/rating/route.ts   # GET rating endpoint
 
 lib/db/schema.ts             # votes and comments table definitions
 ```
@@ -45,18 +45,18 @@ function useItemVote(itemId: string) {
 
 ### 投票状态机
 
-0 函数实现基于切换的状态机：
+`handleVote` 函数实现基于切换的状态机：
 
-|当前状态 |行动|结果 |净变化|
+| 当前状态 | 行动 | 结果 | 净变化 |
 |--------------|--------|--------|------------|
-|没有投票 |点击向上|点赞 | +1 |
-|没有投票 |单击向下|否决票 | -1 |
-|已投票 |点击向上|删除投票（关闭）| -1 |
-|已投票 |单击向下|切换到否决票 | -2 |
-|投了反对票 |单击向下|删除投票（关闭）| +1 |
-|投了反对票 |点击向上|切换到点赞 | +2 |
+| 没有投票 | 点击向上 | 点赞 | +1 |
+| 没有投票 | 单击向下 | 否决票 | -1 |
+| 已投票 | 点击向上 | 删除投票（关闭） | -1 |
+| 已投票 | 单击向下 | 切换到否决票 | -2 |
+| 投了反对票 | 单击向下 | 删除投票（关闭） | +1 |
+| 投了反对票 | 点击向上 | 切换到点赞 | +2 |
 
-当用户当前的投票与请求的类型匹配时，挂钩调用1（删除）。否则它会调用 2 (POST)。
+当用户当前的投票与请求的类型匹配时，挂钩调用 `unvote()`（DELETE）。否则它会调用 `vote(type)` (POST)。
 
 ### 乐观计数计算
 
@@ -79,7 +79,7 @@ onMutate: async (type) => {
 },
 ```
 
-0 计算处理三种情况：切换（减 1）、新投票（加 1）和切换方向（全范围加 2）。
+`countDiff` 计算处理三种情况：切换（减 1）、新投票（加 1）和切换方向（全范围加 2）。
 
 ### 身份验证门
 
@@ -92,7 +92,7 @@ if (!user) {
 }
 ```
 
-该错误由突变的 0 处理程序捕获，该处理程序检查身份验证消息并抑制错误 toast。
+该错误由突变的 `onError` 处理程序捕获，该处理程序检查身份验证消息并抑制错误 toast。
 
 ### 查询配置
 
@@ -108,7 +108,7 @@ retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 10000),
 
 ### 投票缓存实用程序
 
-0 钩子提供跨组件缓存操作：
+`useVoteCache` 钩子提供跨组件缓存操作：
 
 ```ts
 function useVoteCache() {
@@ -143,16 +143,14 @@ interface UpdateCommentData {
 
 ### 返回值
 
-|物业 |类型 |描述 |
+| 属性 | 类型 | 描述 |
 |----------|------|-------------|
-| 0 | 1 |带有填充用户数据的评论 |
-| 2 | 3 |初始获取期间为 True |
-| 4 | 5 |创建新评论 |
-| 6 | 7 |编辑现有评论 |
-| 8 | 9 |删除评论 |
-| 10 | 11 |评价评论 |
-| 12 | 13 |更新现有评级 |
-| 14 | 15 |项目的综合评分 |
+| `comments` | `CommentWithUser[]` | 带有填充用户数据的评论 |
+| `isPending` | `boolean` | 初始获取期间为 True |
+| `createComment` | `(data) => Promise` | 创建新评论 |
+| `updateComment` | `(data) => Promise` | 编辑现有评论 |
+| `deleteComment` | `(id) => Promise` | 删除评论 |
+| `commentRating` | `number` | 项目的综合评分 |
 
 ### 跨组件事件系统
 
@@ -218,23 +216,21 @@ function useAdminComments({ page, limit, search }) {
 
 1. 管理员导航至评论管理页面。
 2.评论显示带有搜索和分页。
-3. 0状态跟踪正在删除的评论，禁用其行。
-4. 删除会触发通过 1 向评论作者发出通知。
+3. `isDeleting` 状态跟踪正在删除的评论，禁用其行。
+4. 删除会触发通过 `NotificationService` 向评论作者发出通知。
 
 ## API 端点
 
-|方法|端点 |描述 |
+| 方法 | 端点 | 描述 |
 |--------|----------|-------------|
-|获取 | 2 |获取投票数和用户的投票 |
-|发布 | 3 |投票或更改投票 |
-|删除 | 4 |删除投票 |
-|获取 | 5 |获取带有用户数据的评论 |
-|发布 | 6 |创建新评论 |
-|放置| 7 |更新评论 |
-|删除 | 8 |删除评论 |
-|发布 | 9 |评价评论 |
-|放置| 10 |更新评论评级 |
-|获取 | 11 |获取总项目评级 |
+| GET | `/api/items/:id/votes` | 获取投票数和用户的投票 |
+| POST | `/api/items/:id/votes` | 投票或更改投票 |
+| DELETE | `/api/items/:id/votes` | 删除投票 |
+| GET | `/api/items/:id/comments` | 获取带有用户数据的评论 |
+| POST | `/api/items/:id/comments` | 创建新评论 |
+| PUT | `/api/items/:id/comments/:commentId` | 更新评论 |
+| DELETE | `/api/items/:id/comments/:commentId` | 删除评论 |
+| GET | `/api/items/:id/comments/rating` | 获取总项目评级 |
 
 ## 功能标志集成
 
@@ -250,12 +246,12 @@ const flags = getFeatureFlags();
 
 ## 辅助功能
 
-- 投票按钮使用0指示当前投票状态。
+- 投票按钮使用 `aria-pressed` 指示当前投票状态。
 - 未经身份验证的投票尝试触发的登录模式受到焦点限制。
-- 评论表单使用正确的 1 关联和验证消息。
+- 评论表单使用正确的 `<label>` 关联和验证消息。
 - 星级组件支持带有方向键的键盘导航。
 - 管理审核表包括行级状态指示器和键盘可访问的操作。
-- 加载和错误状态分别提供2和3属性。
+- 加载和错误状态分别提供 `aria-busy` 和 `role="alert"` 属性。
 
 ## 相关文档
 

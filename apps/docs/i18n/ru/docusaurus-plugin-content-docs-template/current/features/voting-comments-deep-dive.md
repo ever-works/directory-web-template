@@ -21,7 +21,7 @@ app/api/items/[id]/
   votes/route.ts             # GET/POST/DELETE vote endpoints
   comments/route.ts          # GET/POST comment endpoints
   comments/[commentId]/route.ts  # PUT/DELETE single comment
-  comments/rating/route.ts   # POST/PUT/GET rating endpoints
+  comments/rating/route.ts   # GET rating endpoint
 
 lib/db/schema.ts             # votes and comments table definitions
 ```
@@ -150,8 +150,6 @@ interface UpdateCommentData {
 | `createComment` | `(data) => Promise` | Создать новый комментарий |
 | `updateComment` | `(data) => Promise` | Редактировать существующий комментарий |
 | `deleteComment` | `(id) => Promise` | Удалить комментарий |
-| `rateComment` | `(data) => void` | Оценить комментарий |
-| `updateCommentRating` | `(data) => void` | Обновить существующий рейтинг |
 | `commentRating` | `number` | Совокупный рейтинг товара |
 
 ### Межкомпонентная система событий
@@ -232,8 +230,6 @@ function useAdminComments({ page, limit, search }) {
 | ПОСТ | `/api/items/:id/comments` | Создать новый комментарий |
 | ПУТЬ | `/api/items/:id/comments/:commentId` | Обновить комментарий |
 | УДАЛИТЬ | `/api/items/:id/comments/:commentId` | Удалить комментарий |
-| ПОСТ | `/api/items/:id/comments/rating` | Оценить комментарий |
-| ПУТЬ | `/api/items/:id/comments/rating` | Обновить рейтинг комментариев |
 | ПОЛУЧИТЬ | `/api/items/:id/comments/rating` | Получить совокупный рейтинг товара |
 
 ## Интеграция флагов функций

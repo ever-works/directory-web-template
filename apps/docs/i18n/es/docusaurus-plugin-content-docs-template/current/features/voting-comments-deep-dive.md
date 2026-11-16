@@ -21,7 +21,7 @@ app/api/items/[id]/
   votes/route.ts             # GET/POST/DELETE vote endpoints
   comments/route.ts          # GET/POST comment endpoints
   comments/[commentId]/route.ts  # PUT/DELETE single comment
-  comments/rating/route.ts   # POST/PUT/GET rating endpoints
+  comments/rating/route.ts   # GET rating endpoint
 
 lib/db/schema.ts             # votes and comments table definitions
 ```
@@ -150,8 +150,6 @@ interface UpdateCommentData {
 | `createComment` | `(data) => Promise` | Crear un nuevo comentario |
 | `updateComment` | `(data) => Promise` | Editar un comentario existente |
 | `deleteComment` | `(id) => Promise` | Eliminar un comentario |
-| `rateComment` | `(data) => void` | Califica un comentario |
-| `updateCommentRating` | `(data) => void` | Actualizar una calificación existente |
 | `commentRating` | `number` | Calificación agregada para el artículo |
 
 ### Sistema de eventos entre componentes
@@ -232,8 +230,6 @@ function useAdminComments({ page, limit, search }) {
 | PUBLICAR | `/api/items/:id/comments` | Crear un nuevo comentario |
 | PONER | `/api/items/:id/comments/:commentId` | Actualizar un comentario |
 | BORRAR | `/api/items/:id/comments/:commentId` | Eliminar un comentario |
-| PUBLICAR | `/api/items/:id/comments/rating` | Califica un comentario |
-| PONER | `/api/items/:id/comments/rating` | Actualizar la calificación de un comentario |
 | OBTENER | `/api/items/:id/comments/rating` | Obtener calificación agregada del artículo |
 
 ## Integración de indicador de funciones
