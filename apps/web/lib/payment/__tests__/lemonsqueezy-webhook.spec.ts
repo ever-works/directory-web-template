@@ -89,7 +89,7 @@ test('a subscription event maps id, customer, user, plan, status and dates', () 
 	assert.equal(mapped.period_end, Date.parse('2026-02-01T00:00:00Z') / 1000);
 	assert.equal(mapped.start_date, Date.parse('2026-01-01T00:00:00Z') / 1000);
 	assert.equal(mapped.cancel_at_period_end, false);
-	assert.equal(mapped.items.data[0].price.id, '99');
+	assert.equal(mapped.items?.data[0]?.price.id, '99');
 });
 
 const cancelledResource = {
@@ -140,7 +140,7 @@ test('an invoice event is keyed on its subscription and carries cents', () => {
 		attributes: { subscription_id: 42, customer_id: 7, status: 'paid', total: 1999, currency: 'USD' }
 	});
 	assert.equal(mapped.id, '42');
-	assert.equal(mapped.parent.subscription_details.subscription, '42');
+	assert.equal(mapped.parent?.subscription_details.subscription, '42');
 	assert.equal(mapped.amount_paid, 1999);
 	assert.equal(mapped.currency, 'usd');
 });

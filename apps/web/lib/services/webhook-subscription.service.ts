@@ -14,6 +14,7 @@ import {
 import { PaymentPlan, PaymentProvider } from '@/lib/constants';
 import { convertCentsToDecimal, convertNumberToDate, WebhookEventType } from '@/lib/payment/types/payment-types';
 import { toStoredAmount } from '@/lib/payment/stored-amount';
+import type { SubscriptionServiceInput } from '@/lib/payment/lemonsqueezy-webhook';
 
 export interface WebhookSubscriptionData {
 	id: string;
@@ -589,7 +590,9 @@ export class WebhookSubscriptionService {
 	 * Process subscription trial ending webhook
 	 * Notifies about trial ending and prepares for billing
 	 */
-	async handleSubscriptionTrialEnding(data: WebhookSubscriptionData): Promise<WebhookProcessingResult> {
+	async handleSubscriptionTrialEnding(
+		data: WebhookSubscriptionData | SubscriptionServiceInput
+	): Promise<WebhookProcessingResult> {
 		try {
 			const response = formatData(data, this.paymentProvider);
 			console.log(`🔄 Processing subscription trial ending: ${data.subscriptionId}`);

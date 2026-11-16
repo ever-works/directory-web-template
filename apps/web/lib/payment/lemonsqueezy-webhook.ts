@@ -77,12 +77,38 @@ function toNumber(value: unknown): number | undefined {
 type WebhookResource = { id: string; type?: string; attributes?: Record<string, any>; meta?: LemonSqueezyEvent['meta'] };
 
 /**
+ * The raw (pre-`formatData`) layout `WebhookSubscriptionService` reads:
+ * timestamps in seconds, amounts in cents. Every field is optional because
+ * the service tolerates missing ones; the index signature admits the other
+ * fields it passes through.
+ */
+export interface SubscriptionServiceInput {
+	id: string;
+	status?: string;
+	customer?: string;
+	customer_email?: string;
+	customer_name?: string;
+	metadata: Record<string, unknown>;
+	currency?: string;
+	start_date?: number;
+	period_end?: number;
+	trial_end?: number;
+	cancel_at_period_end?: boolean;
+	amount_due?: number;
+	amount_paid?: number;
+	hosted_invoice_url?: string;
+	parent?: { subscription_details: { subscription: string } };
+	items?: { data: Array<{ price: { id?: string } }> };
+	[key: string]: unknown;
+}
+
+/**
  * Map a LemonSqueezy subscription or subscription-invoice resource onto the
  * field layout `WebhookSubscriptionService` reads (timestamps in seconds,
  * amounts in cents). The service stores rows under the provider it was built
  * with, so this carries only the data.
  */
-export function toSubscriptionServiceData(resource: WebhookResource, now: number = Date.now()): Record<string, any> {
+export function toSubscriptionServiceData(resource: WebhookResource, now: number = Date.now()): SubscriptionServiceInput {
 	const attrs = resource.attributes ?? {};
 	const custom = (resource.meta?.custom_data ?? {}) as Record<string, unknown>;
 	const metadata: Record<string, unknown> = { ...custom };

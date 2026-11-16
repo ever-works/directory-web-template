@@ -252,8 +252,7 @@ async function handleSubscriptionPaymentFailed(data: any): Promise<boolean> {
 
 async function handleSubscriptionTrialEnding(data: any): Promise<boolean> {
 	return runSubscriptionHandler('subscription trial ending', () =>
-		// The service types this one as the formatted shape; it formats the raw layout itself.
-		webhookSubscriptionService.handleSubscriptionTrialEnding(toSubscriptionServiceData(data) as any)
+		webhookSubscriptionService.handleSubscriptionTrialEnding(toSubscriptionServiceData(data))
 	);
 }
 
