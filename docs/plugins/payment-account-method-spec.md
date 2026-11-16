@@ -12,6 +12,72 @@ Per-source-file reference for the Playwright e2e suite's
 header smoke spec** paired with
 [`apps/web-e2e/tests/api/payment-account-method.spec.ts`](https://github.com/ever-works/directory-web-template/tree/develop/apps/web-e2e/tests/api/payment-account-method.spec.ts).
 
+## Current contract (2026-11-16)
+
+`POST` and `PUT` `/api/payment/account` are **admin-only**: they use
+`requireAdminSession` (live database role check). An anonymous caller gets
+401, a signed-in non-admin gets 403, both before the body is read; only an
+admin reaches the field checks and the `setupUserPaymentAccount` write. The
+older "no auth gate" text below is kept as history: PR #1115 added the
+session and ownership checks, and the admin-only guard replaced the
+ownership check (a signed-in owner could still point their own row at any
+provider customer id, which the Stripe billing portal, the invoice list and
+the Polar ownership check trust). The payment providers write rows through
+`@/lib/db/queries`, not through this route. `paymentAccountClient` (the
+unused HTTP wrapper in `lib/payment/lib/client/payment-account-client.ts`)
+was deleted, because nothing imported it. `GET
+/api/payment/account/[userId]` is unchanged. Unit spec:
+`apps/web/lib/payment/__tests__/payment-account-auth.spec.ts`.
+
+### Audit query: rows that may come from the old anonymous hole (read-only)
+
+Run by hand against the production database; nothing here changes data.
+`paymentAccounts` has a unique index on (`customerId`, `providerId`) since the
+first migration, so two users can never share a customer id under one provider
+and a plain "shared by more than one user" check finds nothing there. These
+queries look for what the index cannot rule out. Review each row against the
+provider dashboard before acting.
+
+```sql
+-- 1. The same customer id under more than one user, whatever the provider
+--    (the index is per provider, so a hit here is a cross-provider id
+--    collision to review, not proof of abuse).
+SELECT "customerId", count(DISTINCT "userId") AS users, array_agg("userId") AS user_ids
+FROM "paymentAccounts"
+GROUP BY "customerId"
+HAVING count(DISTINCT "userId") > 1;
+
+-- 2. Rows whose customer id was rewritten after creation
+--    (setupUserPaymentAccount sets updated_at when it changes the id, and
+--    last-used bumps only touch lastUsed. Insert sets both columns to the
+--    same now(), so any later value means an update, however soon after
+--    creation: no time margin, or a quick rewrite would be missed).
+SELECT pa."id", pa."userId", p."name" AS provider, pa."customerId", pa.created_at, pa.updated_at
+FROM "paymentAccounts" pa
+JOIN "paymentProviders" p ON p."id" = pa."providerId"
+WHERE pa.updated_at > pa.created_at
+ORDER BY pa.updated_at DESC;
+
+-- 3. Stripe rows whose customer id does not look like a Stripe customer id.
+SELECT pa."id", pa."userId", pa."customerId"
+FROM "paymentAccounts" pa
+JOIN "paymentProviders" p ON p."id" = pa."providerId"
+WHERE p."name" = 'stripe' AND pa."customerId" NOT LIKE 'cus\_%';
+```
+
+Query 2 also lists rows an admin or the checkout flow legitimately updated, so
+it is a review list, not a verdict.
+
+These queries cannot find a row that was inserted once, through the old
+route, with a well-formed customer id that belongs to someone else: it looks
+exactly like a row the checkout flow wrote. Only the provider can confirm
+those, by comparing the customer's email with the user's email.
+
+## History: the contract before PR #1115
+
+Everything below describes the route before PR #1115 and is kept as a record.
+It is not the current contract (see "Current contract" above).
+
 This is the **first per-source-file dual-method
 smoke** the docs tree publishes that documents a
 **Q-010-style NO-AUTH-GATE finding for a non-admin
