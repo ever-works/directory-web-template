@@ -95,7 +95,7 @@ describe('isEmailVerifiedForOwnership', () => {
 	it('refuses the email-change flow: register with the victim address, switch to your own, verify it', async () => {
 		// The attacker signed up with the victim's address (the session keeps it), called
 		// updateAccount to store their own address, then verified that address.
-		users.attackerSwitched = { email: 'attacker@example.com', emailVerified: verifiedAt, oauthAccounts: [] };
+		users.attackerSwitched = { email: 'attacker@example.com', emailVerified: verifiedAt, oauthAccounts: [], hasPasswordSignIn: true };
 		// The address LemonSqueezy would match against is the victim's, from the session.
 		assert.equal(await check('attackerSwitched', 'victim@example.com'), false);
 		// Matching the attacker's own address is fine: it is verified and it is theirs.
