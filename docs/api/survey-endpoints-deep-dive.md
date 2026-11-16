@@ -15,15 +15,15 @@ The Surveys API provides full CRUD operations for surveys and their responses. S
 
 ### GET /api/surveys
 
-Retrieve surveys with optional filters and pagination. Checks database availability before processing.
+Retrieve surveys with optional filters and pagination. Checks database availability before processing. Callers who are not admins (anonymous or signed in) only get published surveys: their `status` filter is always `published`. Unknown `type` or `status` values are ignored.
 
 **Request**
 
-| Parameter | Type    | In    | Description                                               |
-| --------- | ------- | ----- | --------------------------------------------------------- |
-| type      | string  | query | Filter by type: `"global"` or `"item"`                    |
-| itemId    | string  | query | Filter by item ID                                         |
-| status    | string  | query | Filter by status: `"draft"`, `"published"`, or `"closed"` |
+| Parameter | Type    | In    | Description                                                                                          |
+| --------- | ------- | ----- | ---------------------------------------------------------------------------------------------------- |
+| type      | string  | query | Filter by type: `"global"` or `"item"`                                                               |
+| itemId    | string  | query | Filter by item ID                                                                                    |
+| status    | string  | query | Filter by status: `"draft"`, `"published"`, or `"closed"` (admins only; non-admins get `published`) |
 | page      | integer | query | Page number (default: 1, minimum: 1)                      |
 | limit     | integer | query | Items per page (default: 10, min: 1, max: 100)            |
 
@@ -296,7 +296,7 @@ Retrieve a specific survey response by ID. Requires admin authentication.
 
 | Endpoint                                  | Auth Required                                |
 | ----------------------------------------- | -------------------------------------------- |
-| GET /api/surveys                          | Public (database must be available)          |
+| GET /api/surveys                          | Public for published; admin for draft/closed |
 | POST /api/surveys                         | Admin only                                   |
 | `GET /api/surveys/{surveyId}`             | Public for published; admin for draft/closed |
 | `PUT /api/surveys/{surveyId}`             | Admin only                                   |
