@@ -38,17 +38,31 @@ describe('/api/payment/account write handlers require the owner', () => {
 	for (const method of ['POST', 'PUT'] as const) {
 		it(`${method} returns 401 without a session and 403 for another user, before writing`, () => {
 			const body = handler(method);
-			const authCall = body.indexOf('await auth()');
-			const unauthorized = body.indexOf('!session?.user?.id');
-			const ownership = body.indexOf('session.user.id !== userId');
-			const write = body.indexOf('setupUserPaymentAccount(');
+			// Each guard must be the whole `if` block: the condition, then a return carrying the
+			// status, so a loosened condition or a dropped `return` is caught.
+			const unauthorizedGuard =
+				"if (!session?.user?.id) { return NextResponse.json({ error: 'Unauthorized' }, { status: 401 }); }";
+			const forbiddenGuard =
+				"if (session.user.id !== userId) { return NextResponse.json({ error: 'Forbidden' }, { status: 403 }); }";
+
+			const authCall = body.indexOf('const session = await auth();');
+			const unauthorized = body.indexOf(unauthorizedGuard);
+			const bodyParse = body.indexOf('await request.json()');
+			const userIdRead = body.search(/const \{[^}]*\buserId\b[^}]*\} = body;/);
+			const ownership = body.indexOf(forbiddenGuard);
+			const write = body.indexOf('await setupUserPaymentAccount(');
 
 			assert.ok(authCall >= 0, `${method} does not call auth()`);
-			assert.ok(unauthorized > authCall, `${method} does not check session.user.id`);
-			assert.ok(body.includes("{ status: 401 }"), `${method} does not return 401`);
-			assert.ok(ownership > unauthorized, `${method} does not compare session.user.id with userId`);
-			assert.ok(body.includes("{ status: 403 }"), `${method} does not return 403`);
+			assert.ok(unauthorized > authCall, `${method} does not return 401 when there is no session.user.id`);
+			assert.ok(unauthorized < bodyParse, `${method} reads the body before the 401 check`);
+			assert.ok(userIdRead > unauthorized, `${method} does not read userId from the body`);
+			assert.ok(
+				ownership > userIdRead,
+				`${method} does not return 403 when session.user.id differs from userId`
+			);
 			assert.ok(write > ownership, `${method} writes before the ownership check`);
+			assert.equal(body.split('setupUserPaymentAccount(').length - 1, 1, `${method} has an unguarded write`);
+			assert.equal(body.split('session.user.id !== userId').length - 1, 1);
 		});
 	}
 });
