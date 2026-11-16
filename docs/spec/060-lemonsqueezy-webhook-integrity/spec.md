@@ -1,10 +1,10 @@
 ---
-id: spec-059-lemonsqueezy-webhook-integrity
-title: Spec 059 — LemonSqueezy webhook integrity and list access
-sidebar_label: 059 LemonSqueezy webhook integrity
+id: spec-060-lemonsqueezy-webhook-integrity
+title: Spec 060 — LemonSqueezy webhook integrity and list access
+sidebar_label: 060 LemonSqueezy webhook integrity
 ---
 
-# Feature spec — `059-lemonsqueezy-webhook-integrity`
+# Feature spec — `060-lemonsqueezy-webhook-integrity`
 
 > **Status:** in-progress · **Code:** `apps/web/lib/payment/lemonsqueezy-webhook.ts`, `apps/web/lib/payment/lemonsqueezy-list-access.ts`, `apps/web/app/api/lemonsqueezy/{webhook,list}/route.ts`
 

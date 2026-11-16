@@ -27,9 +27,9 @@ confirm, override, or refine.
 
 ---
 
-## Spec 059 — LemonSqueezy webhook integrity
+## Spec 060 — LemonSqueezy webhook integrity
 
-### Q-059a Cross-pod webhook de-duplication
+### Q-060a Cross-pod webhook de-duplication
 
 - **Context.** Redelivered LemonSqueezy events are de-duplicated per pod only
   (an in-memory set); subscription rows are idempotent on (provider, subscription id),
