@@ -13,6 +13,35 @@ import {
 } from '@/lib/db/schema';
 import { PaymentPlan, PaymentProvider } from '@/lib/constants';
 import { convertCentsToDecimal, convertNumberToDate, WebhookEventType } from '@/lib/payment/types/payment-types';
+import { toStoredAmount } from '@/lib/payment/stored-amount';
+
+/**
+ * The raw (pre-`formatData`) layout the service reads, for providers that adapt their events to it
+ * (LemonSqueezy: `lib/payment/lemonsqueezy-webhook.ts`): timestamps in seconds, amounts in cents.
+ * Every field is optional because the service tolerates missing ones; the index signature admits
+ * the other fields it passes through.
+ */
+export interface SubscriptionServiceInput {
+	id: string;
+	status?: string;
+	customer?: string;
+	customer_email?: string;
+	customer_name?: string;
+	metadata: Record<string, unknown>;
+	currency?: string;
+	start_date?: number;
+	period_end?: number;
+	trial_end?: number;
+	cancel_at_period_end?: boolean;
+	amount_due?: number;
+	amount_paid?: number;
+	hosted_invoice_url?: string;
+	/** An invoice's own id when `id` carries its subscription id (LemonSqueezy invoices). */
+	invoice_id?: string;
+	parent?: { subscription_details: { subscription: string } };
+	items?: { data: Array<{ price: { id?: string } }> };
+	[key: string]: unknown;
+}
 
 export interface WebhookSubscriptionData {
 	id: string;
@@ -79,7 +108,7 @@ export const formatData = (
 		cancelledAt: data.cancel_at,
 		cancelAtPeriodEnd: data.cancel_at_period_end,
 		cancelReason: data.billing_reason,
-		invoiceId: data.id,
+		invoiceId: data.invoice_id ?? data.id,
 		metadata: {
 			...data.metadata,
 			stripeCustomerId: data.customer,
@@ -96,6 +125,16 @@ export const formatData = (
 		invoicePdf: data?.invoice_pdf
 	} as WebhookSubscriptionData;
 };
+
+export interface SubscriptionWriteOptions {
+	/**
+	 * Create the row when none exists for the subscription (default true). The LemonSqueezy
+	 * webhook passes false for events that cannot say which plan was bought (an invoice, or a
+	 * variant no plan is configured for): they may only update a row that already exists
+	 * (spec 060 R9).
+	 */
+	createIfMissing?: boolean;
+}
 
 export interface WebhookProcessingResult {
 	success: boolean;
@@ -150,19 +189,22 @@ export class WebhookSubscriptionService {
 				planId: (response?.planId as any) || PaymentPlan.STANDARD,
 				status: this.mapProviderStatusToInternal(response.status),
 				startDate: new Date(),
-				endDate: new Date() || null,
+				// Unknown period end stays open (null): "now" would end paid access immediately.
+				endDate: convertNumberToDate(response.endDate as unknown as number) ?? null,
 				paymentProvider: this.paymentProvider,
 				subscriptionId: response.subscriptionId,
 				priceId: response.priceId || null,
 				customerId: response.customerId,
 				currency: response.currency || 'usd',
-				amount: convertCentsToDecimal(response.amount) || null,
+				amount: toStoredAmount(response.amount) || null,
 				interval: response.interval || 'month',
 				intervalCount: response.intervalCount || 1,
 				trialStart: convertNumberToDate(response.trialStart) || null,
 				trialEnd: convertNumberToDate(response.trialEnd) || null,
 				cancelledAt: null,
 				cancelAtPeriodEnd: response.cancelAtPeriodEnd || false,
+				// The table forbids auto-renewal together with cancel-at-period-end.
+				autoRenewal: !response.cancelAtPeriodEnd,
 				cancelReason: null,
 				metadata: response.metadata ? JSON.stringify(response.metadata) : null,
 				createdAt: new Date(),
@@ -206,7 +248,10 @@ export class WebhookSubscriptionService {
 	 * Process subscription updated webhook
 	 * Updates existing subscription and logs changes
 	 */
-	async handleSubscriptionUpdated(data: any): Promise<WebhookProcessingResult> {
+	async handleSubscriptionUpdated(
+		data: any,
+		options: SubscriptionWriteOptions = {}
+	): Promise<WebhookProcessingResult> {
 		const response = formatData(data, this.paymentProvider);
 		try {
 			// Find existing subscription
@@ -215,9 +260,15 @@ export class WebhookSubscriptionService {
 				response.subscriptionId
 			);
 
+			if (!existingSubscription && options.createIfMissing === false) {
+				console.log(`⚠️ Subscription ${response.subscriptionId} not found; this event does not create one`);
+				return { success: true, message: 'Subscription not found; not created from this event' };
+			}
+
 			if (!existingSubscription) {
 				console.log(existingSubscription, `⚠️ Subscription not found, creating new one: ${data}`);
-				return await this.handleSubscriptionCreated(response);
+				// Pass the original payload: `response` is already formatted and would lose its fields.
+				return await this.handleSubscriptionCreated(data);
 			}
 
 			// Prepare update data
@@ -226,16 +277,20 @@ export class WebhookSubscriptionService {
 			const newStatus = this.mapProviderStatusToInternal(response.status);
 			const trialStart = convertNumberToDate(response.trialStart) || existingSubscription.trialStart;
 			const trialEnd = convertNumberToDate(response.trialEnd) || existingSubscription.trialEnd;
+			const cancelAtPeriodEnd =
+				response.cancelAtPeriodEnd !== undefined
+					? response.cancelAtPeriodEnd
+					: (existingSubscription.cancelAtPeriodEnd ?? false);
 
 			const updateData = {
 				status: newStatus,
 				planId: response.planId || existingSubscription.planId,
-				endDate: response.endDate || existingSubscription.endDate,
+				endDate: convertNumberToDate(response.endDate as unknown as number) ?? existingSubscription.endDate,
 				amount:
 					response.planId === 'free'
 						? 0
 						: response.amount > 0
-							? convertCentsToDecimal(response.amount)
+							? toStoredAmount(response.amount)
 							: existingSubscription.amount,
 				priceId: response.priceId || existingSubscription.priceId,
 				currency: response.currency || existingSubscription.currency,
@@ -243,10 +298,9 @@ export class WebhookSubscriptionService {
 				intervalCount: response.intervalCount || existingSubscription.intervalCount,
 				trialStart: trialStart !== undefined ? trialStart : existingSubscription.trialStart,
 				trialEnd: trialEnd !== undefined ? trialEnd : existingSubscription.trialEnd,
-				cancelAtPeriodEnd:
-					response.cancelAtPeriodEnd !== undefined
-						? response.cancelAtPeriodEnd
-						: existingSubscription.cancelAtPeriodEnd,
+				cancelAtPeriodEnd,
+				// The table forbids auto-renewal together with cancel-at-period-end.
+				autoRenewal: !cancelAtPeriodEnd,
 				metadata: response.metadata ? JSON.stringify(response.metadata) : existingSubscription.metadata,
 				updatedAt: new Date()
 			};
@@ -315,11 +369,21 @@ export class WebhookSubscriptionService {
 			const previousStatus = existingSubscription.status;
 			const cancelReason = response.metadata?.cancel_reason || 'Cancelled via webhook';
 
-			// Update subscription to cancelled
+			// A subscription cancelled with time left in the paid period keeps its access
+			// until that date (the provider sends an expiry event at the end). Otherwise
+			// it is cancelled now.
+			const cancelAtPeriodEnd = response.cancelAtPeriodEnd ?? false;
+			const paidUntil = convertNumberToDate(response.endDate as unknown as number);
+			const keepUntilPeriodEnd = cancelAtPeriodEnd && !!paidUntil && paidUntil.getTime() > Date.now();
+			const newStatus = keepUntilPeriodEnd ? SubscriptionStatus.ACTIVE : SubscriptionStatus.CANCELLED;
+
 			const updateData = {
-				status: SubscriptionStatus.CANCELLED,
-				cancelledAt: response.cancelledAt || new Date(),
-				cancelAtPeriodEnd: response.cancelAtPeriodEnd ?? false,
+				status: newStatus,
+				cancelledAt: convertNumberToDate(response.cancelledAt as unknown as number) ?? new Date(),
+				cancelAtPeriodEnd,
+				// The table forbids auto-renewal together with cancel-at-period-end.
+				autoRenewal: !cancelAtPeriodEnd,
+				...(keepUntilPeriodEnd ? { endDate: paidUntil } : {}),
 				cancelReason,
 				updatedAt: new Date()
 			};
@@ -335,7 +399,7 @@ export class WebhookSubscriptionService {
 				existingSubscription.id,
 				'subscription_cancelled',
 				previousStatus,
-				SubscriptionStatus.CANCELLED,
+				newStatus,
 				existingSubscription.planId,
 				existingSubscription.planId,
 				cancelReason,
@@ -369,13 +433,23 @@ export class WebhookSubscriptionService {
 	 * Process subscription payment succeeded webhook
 	 * Updates subscription status and extends period if needed
 	 */
-	async handleSubscriptionPaymentSucceeded(data: any): Promise<WebhookProcessingResult> {
+	async handleSubscriptionPaymentSucceeded(
+		data: any,
+		options: SubscriptionWriteOptions = {}
+	): Promise<WebhookProcessingResult> {
 		const response = formatData(data, this.paymentProvider);
 		try {
 			const existingSubscription = await queries.getSubscriptionByProviderSubscriptionId(
 				this.paymentProvider,
 				response.subscription!
 			);
+
+			if (!existingSubscription && options.createIfMissing === false) {
+				console.log(
+					`⚠️ Subscription ${response.subscription} not found for payment success; not created from an invoice`
+				);
+				return { success: true, message: 'Subscription not found; not created from this event' };
+			}
 
 			if (!existingSubscription) {
 				console.log(existingSubscription, `⚠️ Subscription not found for payment success: ${response}`);
@@ -385,9 +459,10 @@ export class WebhookSubscriptionService {
 			// Update subscription with successful payment
 			const updateData = {
 				status: SubscriptionStatus.ACTIVE,
-				endDate: convertNumberToDate(response.periodEnd!),
-				amountDue: convertCentsToDecimal(response.amountDue!),
-				amountPaid: convertCentsToDecimal(response.amountPaid!),
+				// Keep the stored end date when the event carries no period end.
+				endDate: convertNumberToDate(response.periodEnd) ?? existingSubscription.endDate,
+				amountDue: toStoredAmount(response.amountDue),
+				amountPaid: toStoredAmount(response.amountPaid),
 				periodEnd: convertNumberToDate(response.periodEnd),
 				periodStart: convertNumberToDate(response.periodStart),
 				invoicePdf: response.invoicePdf,
@@ -570,10 +645,12 @@ export class WebhookSubscriptionService {
 	 * Process subscription trial ending webhook
 	 * Notifies about trial ending and prepares for billing
 	 */
-	async handleSubscriptionTrialEnding(data: WebhookSubscriptionData): Promise<WebhookProcessingResult> {
+	async handleSubscriptionTrialEnding(
+		data: WebhookSubscriptionData | SubscriptionServiceInput
+	): Promise<WebhookProcessingResult> {
 		try {
 			const response = formatData(data, this.paymentProvider);
-			console.log(`🔄 Processing subscription trial ending: ${data.subscriptionId}`);
+			console.log(`🔄 Processing subscription trial ending: ${response.subscriptionId}`);
 
 			// Find existing subscription
 			const existingSubscription = await queries.getSubscriptionByProviderSubscriptionId(
@@ -582,7 +659,7 @@ export class WebhookSubscriptionService {
 			);
 
 			if (!existingSubscription) {
-				throw new Error(`Subscription not found: ${data.subscriptionId}`);
+				throw new Error(`Subscription not found: ${response.subscriptionId}`);
 			}
 
 			// Log trial ending event

@@ -29,8 +29,8 @@ LemonSqueezy is a merchant-of-record payment provider that handles tax collectio
 interface LemonSqueezyCheckoutRequest {
   variantId: string;                        // LemonSqueezy product variant ID
   dark?: boolean;                           // Enable dark mode checkout
-  customPrice?: number;                     // Custom price in cents (optional)
-  metadata?: Record<string, string>;        // Additional metadata
+  customPrice?: number;                     // Ignored: the variant's own price is charged (spec 060 R10)
+  metadata?: Record<string, string>;        // Ignored: custom data is set from the session
 }
 ```
 
@@ -42,8 +42,7 @@ curl -X POST /api/lemonsqueezy/checkout \
   -H "Cookie: session=..." \
   -d '{
     "variantId": "123456",
-    "dark": true,
-    "metadata": { "plan": "pro", "source": "website" }
+    "dark": true
   }'
 ```
 
@@ -51,7 +50,8 @@ curl -X POST /api/lemonsqueezy/checkout \
 
 1. Authenticates the user via `auth()`
 2. Validates the request body using `validateCheckoutRequestBody()`
-3. Calls `lemonsqueezyProvider.createCustomCheckout()` with user metadata
+3. Builds the parameters with `buildLemonSqueezyCheckoutParams()` (variant and dark mode from the body,
+   custom data `{ userId, email, name }` from the session) and calls `lemonsqueezyProvider.createCustomCheckout()`
 4. Returns the checkout URL
 
 ### Provider Implementation
@@ -92,13 +92,11 @@ const { data, error } = await createCheckout(Number(this.storeId), Number(params
   "data": {
     "checkoutUrl": "https://checkout.lemonsqueezy.com/checkout/custom/abc123",
     "email": "user@example.com",
-    "customPrice": 2999,
     "variantId": "123456",
     "metadata": {
       "userId": "user_123abc",
       "email": "user@example.com",
-      "name": "John Doe",
-      "plan": "pro"
+      "name": "John Doe"
     }
   },
   "message": "Checkout session created successfully"
@@ -113,8 +111,8 @@ The GET endpoint supports creating checkouts via query parameters for direct lin
 |-----------|----------|-------------|
 | `variantId` | Yes | LemonSqueezy variant ID |
 | `email` | Yes | Customer email |
-| `customPrice` | No | Custom price in cents |
-| `metadata` | No | JSON string of metadata |
+| `customPrice` | No | Validated, then ignored: the variant's own price is charged |
+| `metadata` | No | Validated, then ignored: no client custom data is forwarded |
 
 ## Subscription Management
 
@@ -201,6 +199,10 @@ if (calculatedSignature !== signature) {
 |-------------------|---------------|
 | `subscription_created` | `SUBSCRIPTION_CREATED` |
 | `subscription_updated` | `SUBSCRIPTION_UPDATED` |
+| `subscription_resumed` | `SUBSCRIPTION_UPDATED` |
+| `subscription_expired` | `SUBSCRIPTION_UPDATED` |
+| `subscription_paused` | `SUBSCRIPTION_UPDATED` |
+| `subscription_unpaused` | `SUBSCRIPTION_UPDATED` |
 | `subscription_cancelled` | `SUBSCRIPTION_CANCELLED` |
 | `subscription_payment_success` | `SUBSCRIPTION_PAYMENT_SUCCEEDED` |
 | `subscription_payment_failed` | `SUBSCRIPTION_PAYMENT_FAILED` |
@@ -210,35 +212,37 @@ if (calculatedSignature !== signature) {
 
 ### Webhook Handler Structure
 
-Each handler follows a consistent pattern:
+Subscription events go through `createLemonSqueezySubscriptionEvents` (`lib/payment/lemonsqueezy-subscription-events.ts`).
+Each handler resolves `true` (acknowledge) or `false` (answer 503 so LemonSqueezy redelivers it), and
+dispatches on the paid variant, not on `custom_data`:
 
 ```typescript
-async function handleSubscriptionCreated(data: any) {
-  if (isSponsorAdSubscription(data)) {
-    await handleSponsorAdActivation(data);
-    return;
+created: guarded('subscription created', async (resource) => {
+  const variant = await variantOf(resource); // variant_id → plan / sponsor ad / unknown
+  if (variant.kind === 'plan') {
+    return runPlan('subscription created', () =>
+      plans.handleSubscriptionCreated(toSubscriptionServiceData(resource, now(), variant.planId))
+    );
   }
-  try {
-    const result = await webhookSubscriptionService.handleSubscriptionCreated(data);
-    // ... log result
-  } catch (error) {
-    console.error('Error handling subscription created:', error);
-  }
-}
+  if (variant.kind === 'sponsor_ad') return activateSponsorAd(resource, variant.interval);
+  warnUnknownVariant(resource, 'no subscription row written');
+  return true;
+}),
 ```
 
-### Sponsor Ad Detection
+### Plan and Sponsor Ad Detection
 
-LemonSqueezy uses `custom_data` instead of Stripe's `metadata`:
+`custom_data` is buyer-controlled (a checkout link accepts `checkout[custom][...]`), so it never decides
+what a subscription grants ([spec 060](../spec/060-lemonsqueezy-webhook-integrity/spec.md) R9-R11,
+`lib/payment/lemonsqueezy-subscription-events.ts`):
 
-```typescript
-function isSponsorAdSubscription(data: Record<string, unknown>): boolean {
-  const customData = data.custom_data as Record<string, string> | undefined;
-  const meta = data.meta as Record<string, unknown> | undefined;
-  const metaCustomData = meta?.custom_data as Record<string, string> | undefined;
-  return customData?.type === 'sponsor_ad' || metaCustomData?.type === 'sponsor_ad';
-}
-```
+- The plan comes from the event's `variant_id`, looked up in the variant catalog built from the pricing
+  configuration (`lib/payment/lemonsqueezy-variant-catalog.ts`). On `subscription_created` an unknown variant
+  writes no row; an update on one only changes the status and dates of a row that already exists, never its
+  plan. `update-plan` and `update` only move a subscription to a plan variant (R12).
+- A sponsor ad is activated only by a `LEMONSQUEEZY_SPONSOR_{WEEKLY,MONTHLY}_VARIANT_ID` subscription whose
+  interval matches the ad named in `custom_data.sponsorAdId`. Renewals, cancellations and payment failures
+  act on the ad only when it is already bound to the same subscription id.
 
 ## Customer Management
 

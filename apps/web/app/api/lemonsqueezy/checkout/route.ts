@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { validateCheckoutRequestBody, validateCheckoutQueryParams } from '@/lib/payment/config/validation';
 import { HTTP_STATUS, ERROR_TYPES, CreateCheckoutResponse, CreateCheckoutError } from '@/lib/payment/config/types';
 import { auth, getOrCreateLemonsqueezyProvider, PaymentProviderManager } from '@/lib/auth';
+import { buildLemonSqueezyCheckoutParams } from '@/lib/payment/lemonsqueezy-checkout-params';
 
 /**
  * @swagger
@@ -9,7 +10,7 @@ import { auth, getOrCreateLemonsqueezyProvider, PaymentProviderManager } from '@
  *   post:
  *     tags: ["LemonSqueezy - Core"]
  *     summary: "Create checkout session"
- *     description: "Creates a new LemonSqueezy checkout session for the authenticated user. Validates the request data, creates a custom checkout with user metadata, and returns the checkout URL. Requires user authentication and handles various error scenarios including configuration and validation errors."
+ *     description: "Creates a new LemonSqueezy checkout session for the authenticated user. Validates the request data, creates a custom checkout with user metadata, and returns the checkout URL. Requires user authentication and handles various error scenarios including configuration and validation errors. Only variantId and dark are taken from the body: the variant's own price is charged and the checkout custom data is set from the session (spec 060 R10)."
  *     security:
  *       - sessionAuth: []
  *     requestBody:
@@ -30,15 +31,16 @@ import { auth, getOrCreateLemonsqueezyProvider, PaymentProviderManager } from '@
  *               customPrice:
  *                 type: number
  *                 minimum: 0
- *                 description: "Custom price in cents (optional)"
+ *                 deprecated: true
+ *                 description: "Ignored: the checkout charges the variant's own price (still validated)"
  *                 example: 2999
  *               metadata:
  *                 type: object
- *                 description: "Additional metadata for the checkout"
+ *                 deprecated: true
+ *                 description: "Ignored: the checkout custom data is set from the session"
  *                 additionalProperties:
  *                   type: string
  *                 example:
- *                   plan: "pro"
  *                   source: "website"
  *             required: ["variantId"]
  *     responses:
@@ -65,17 +67,13 @@ import { auth, getOrCreateLemonsqueezyProvider, PaymentProviderManager } from '@
  *                       format: email
  *                       description: "User email"
  *                       example: "user@example.com"
- *                     customPrice:
- *                       type: number
- *                       description: "Custom price in cents"
- *                       example: 2999
  *                     variantId:
  *                       type: string
  *                       description: "Product variant ID"
  *                       example: "123456"
  *                     metadata:
  *                       type: object
- *                       description: "Checkout metadata including user info"
+ *                       description: "Checkout custom data, set from the session"
  *                       properties:
  *                         userId:
  *                           type: string
@@ -86,8 +84,6 @@ import { auth, getOrCreateLemonsqueezyProvider, PaymentProviderManager } from '@
  *                         name:
  *                           type: string
  *                           example: "John Doe"
- *                       additionalProperties:
- *                         type: string
  *                 message:
  *                   type: string
  *                   example: "Checkout session created successfully"
@@ -97,14 +93,11 @@ import { auth, getOrCreateLemonsqueezyProvider, PaymentProviderManager } from '@
  *               data:
  *                 checkoutUrl: "https://checkout.lemonsqueezy.com/checkout/custom/abc123"
  *                 email: "user@example.com"
- *                 customPrice: 2999
  *                 variantId: "123456"
  *                 metadata:
  *                   userId: "user_123abc"
  *                   email: "user@example.com"
  *                   name: "John Doe"
- *                   plan: "pro"
- *                   source: "website"
  *               message: "Checkout session created successfully"
  *       400:
  *         description: "Bad request - Validation error"
@@ -191,42 +184,29 @@ export async function POST(request: NextRequest) {
 			);
 		}
 
+		// Only the variant and dark mode come from the body. The variant's own price is charged and
+		// the custom data the webhook reads is set from the session (spec 060 R10): a client
+		// customPrice, metadata, planId, type or sponsorAdId is never forwarded.
+		const checkoutParams = buildLemonSqueezyCheckoutParams(session.user, body);
+
 		// Debug: Log the request parameters (development only, with sanitized PII)
 		if (process.env.NODE_ENV === 'development') {
 			console.log('[LemonSqueezy Checkout] Creating checkout with:', {
-				email: session.user.email ? `${session.user.email.substring(0, 3)}***` : undefined,
-				variantId: body.variantId,
-				customPrice: body.customPrice ? '[REDACTED]' : undefined,
-				dark: body.dark
+				email: checkoutParams.email ? `${checkoutParams.email.substring(0, 3)}***` : undefined,
+				variantId: checkoutParams.variantId,
+				dark: checkoutParams.dark
 			});
 		}
 
-		const checkoutUrl = await lemonsqueezyProvider.createCustomCheckout({
-			email: session.user.email!,
-			customPrice: body.customPrice,
-			variantId: body.variantId,
-			metadata: {
-				...body.metadata,
-				userId: session.user.id,
-				email: session.user.email!,
-				name: session.user.name!
-			},
-			dark: body.dark
-		});
+		const checkoutUrl = await lemonsqueezyProvider.createCustomCheckout(checkoutParams);
 
 		const response: CreateCheckoutResponse = {
 			success: true,
 			data: {
 				checkoutUrl,
 				email: session.user.email!,
-				customPrice: body.customPrice,
-				variantId: body.variantId,
-				metadata: {
-					...body.metadata,
-					userId: session.user.id,
-					email: session.user.email!,
-					name: session.user.name!
-				}
+				variantId: checkoutParams.variantId,
+				metadata: checkoutParams.metadata
 			},
 			message: 'Checkout session created successfully'
 		};
@@ -294,7 +274,7 @@ export async function POST(request: NextRequest) {
  *   get:
  *     tags: ["LemonSqueezy - Core"]
  *     summary: "Create checkout session via query parameters"
- *     description: "Creates a new LemonSqueezy checkout session using query parameters instead of request body. Useful for direct links and simple integrations. Validates query parameters and creates a custom checkout session."
+ *     description: "Creates a new LemonSqueezy checkout session using query parameters instead of request body. Useful for direct links and simple integrations. Validates query parameters and creates a custom checkout session. customPrice and metadata are validated but not forwarded: the variant's own price is charged and no client custom data is set (spec 060 R10)."
  *     parameters:
  *       - name: "variantId"
  *         in: "query"
@@ -314,17 +294,19 @@ export async function POST(request: NextRequest) {
  *       - name: "customPrice"
  *         in: "query"
  *         required: false
+ *         deprecated: true
  *         schema:
  *           type: number
  *           minimum: 0
- *         description: "Custom price in cents"
+ *         description: "Ignored: the checkout charges the variant's own price"
  *         example: 2999
  *       - name: "metadata"
  *         in: "query"
  *         required: false
+ *         deprecated: true
  *         schema:
  *           type: string
- *         description: "JSON string of additional metadata"
+ *         description: "Ignored: no client custom data is forwarded"
  *         example: '{"plan":"pro","source":"website"}'
  *     responses:
  *       200:
@@ -350,19 +332,10 @@ export async function POST(request: NextRequest) {
  *                       format: email
  *                       description: "Customer email"
  *                       example: "user@example.com"
- *                     customPrice:
- *                       type: number
- *                       description: "Custom price in cents"
- *                       example: 2999
  *                     variantId:
  *                       type: string
  *                       description: "Product variant ID"
  *                       example: "123456"
- *                     metadata:
- *                       type: object
- *                       description: "Checkout metadata"
- *                       additionalProperties:
- *                         type: string
  *                 message:
  *                   type: string
  *                   example: "Checkout session created successfully"
@@ -425,18 +398,15 @@ export async function GET(request: NextRequest) {
 			);
 		}
 
+		// The query price and metadata are not forwarded (spec 060 R10): the variant's own price is
+		// charged and the custom data the webhook reads is never client-supplied.
+		const { email, variantId } = validation.data!;
 		const lemonsqueezyProvider = PaymentProviderManager.getLemonsqueezyProvider();
-		const checkoutUrl = await lemonsqueezyProvider.createCustomCheckout(validation.data!);
+		const checkoutUrl = await lemonsqueezyProvider.createCustomCheckout({ email, variantId });
 
 		const response: CreateCheckoutResponse = {
 			success: true,
-			data: {
-				checkoutUrl,
-				email: validation.data!.email,
-				customPrice: validation.data!.customPrice,
-				variantId: validation.data!.variantId,
-				metadata: validation.data!.metadata
-			},
+			data: { checkoutUrl, email, variantId },
 			message: 'Checkout session created successfully'
 		};
 

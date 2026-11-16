@@ -432,7 +432,9 @@ export function usePricingSection(params: UsePricingSectionParams = {}): UsePric
 						setShowPaymentForm(true);
 					}
 
-					// Lemonsqueezy checkout hook
+					// Lemonsqueezy checkout hook. The server charges the variant's own price and sets the
+					// checkout custom data from the session; the webhook takes the plan from the paid
+					// variant, so `metadata` (planId included) is not forwarded (spec 060 R9-R10).
 					await lemonsqueezyHook.handleSubmitWithParams({
 						variantId: Number(variantId),
 						defaultPrice: plan.price,
