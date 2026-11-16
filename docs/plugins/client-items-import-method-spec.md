@@ -81,19 +81,27 @@ service-derived result aggregate
   `body.rows` is the `validationResults` array the
   validate step returned, so its `valid` and
   `duplicate` flags and its `data` come from the
-  browser. `executeImport` ignores the flags: it
-  checks every row's data again (name, description
-  and URL rules of `importRowSchema`; slug must match
-  `/^[a-z0-9]+(?:-[a-z0-9]+)*$/`) and looks duplicates
-  up itself among all items, deleted ones included,
-  by slug and by `source_url`. A row whose slug or
-  link already exists is skipped, never written. In
-  client mode `featured` is forced to `false`,
+  browser. `executeImport` does not trust them: a
+  row marked `valid: false` is still reported as an
+  error, a row marked `valid: true` is checked again
+  (name, description and URL rules of
+  `importRowSchema`; slug must match
+  `/^[a-z0-9]+(?:-[a-z0-9]+)*$/`), and the `duplicate`
+  flag is ignored: duplicates are looked up again
+  among all items, deleted ones included, by slug and
+  by exact `source_url`. A row whose slug or link
+  already exists is skipped, never written. The file
+  write itself refuses to replace an existing item
+  file (`wx`), so a slug that an overlapping import or
+  submission takes after the lookup is also skipped.
+  In client mode `featured` is forced to `false`,
   `collections`, `brand_logo_url` and `images` are
   dropped (the client submit form cannot set them
   either), and no existing item is ever updated.
-  Behaviour is covered by the unit spec
-  `apps/web/lib/services/__tests__/item-import-execute.spec.ts`.
+  Behaviour is covered by the unit specs
+  `apps/web/lib/services/__tests__/item-import-execute.spec.ts`
+  and
+  `apps/web/lib/services/__tests__/item-import-exclusive-create.spec.ts`.
 
 ## Why this spec is the first POST batch-import smoke
 

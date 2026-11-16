@@ -365,6 +365,9 @@ export class ItemGitService {
   /**
    * Create an item file without committing to git.
    * Used for batch import (write many files, then commit once).
+   * Never replaces an existing item file: when `data/<slug>/<slug>.yml` already exists (for example an
+   * overlapping import or submission took the slug after the caller's duplicate check), it throws an
+   * error whose `code` is 'EEXIST' and leaves that file alone.
    */
   async createItemWithoutCommit(data: CreateItemRequest & { brand?: string; brand_logo_url?: string; images?: string[]; markdown?: string }): Promise<ItemData> {
     const newItem: ItemData = {
@@ -392,11 +395,11 @@ export class ItemGitService {
     if (data.images?.length) extendedItem.images = data.images;
     if (data.markdown) extendedItem.markdown = data.markdown;
 
-    await this.writeItemFile(extendedItem);
+    await this.writeItemFile(extendedItem, { createOnly: true });
     return newItem;
   }
 
-  private async writeItemFile(item: ItemData): Promise<void> {
+  private async writeItemFile(item: ItemData, options: { createOnly?: boolean } = {}): Promise<void> {
     try {
       const dataDir = path.join(this.config.dataDir, 'data');
       const itemDir = path.join(dataDir, item.slug);
@@ -441,9 +444,9 @@ export class ItemGitService {
       if (extItem.images?.length) itemData.images = extItem.images;
       if (extItem.markdown) itemData.markdown = extItem.markdown;
 
-      // Write item data
+      // Write item data ('wx' for a create: fail with EEXIST instead of replacing another item's file)
       const content = yaml.stringify(itemData);
-      await fs.writeFile(itemFile, content, 'utf-8');
+      await fs.writeFile(itemFile, content, { encoding: 'utf-8', flag: options.createOnly ? 'wx' : 'w' });
     } catch (error) {
       console.error('❌ Error writing item file:', error);
       throw error;

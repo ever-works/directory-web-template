@@ -342,6 +342,8 @@ export class ItemImportService {
 					`Import ${createRequests.length} items`
 				);
 				createdCount = created.length;
+				// batchCreate leaves out a row whose slug an overlapping import or submission took after the lookup above.
+				skippedCount += createRequests.length - created.length;
 			} catch (err) {
 				const message = err instanceof Error ? err.message : String(err);
 				errors.push({ rowIndex: -1, message: `Batch create failed: ${message}` });
