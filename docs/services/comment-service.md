@@ -157,6 +157,8 @@ export async function updateCommentRatingForOwner(
   clientProfileId: string,
   rating: number
 ) {
+  const tenantId = await getTenantId();
+  if (!tenantId) return;
   return (
     await db
       .update(comments)
