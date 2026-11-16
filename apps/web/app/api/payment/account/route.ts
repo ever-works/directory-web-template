@@ -189,7 +189,7 @@ export async function POST(request: NextRequest) {
  *   put:
  *     tags: ["Payment Accounts"]
  *     summary: "Update payment account"
- *     description: "Admin only (401 without a session, 403 for a signed-in non-admin). Updates an existing payment account with new provider or customer information. Requires the account ID to identify which account to update. This is typically used when a customer ID changes in the payment provider's system."
+ *     description: "Admin only (401 without a session, 403 for a signed-in non-admin). Sets the customer ID of a user's payment account for one provider (same write as POST). The row is matched by userId and provider; `id` is required but does not pick the row. This is typically used when a customer ID changes in the payment provider's system."
  *     security:
  *       - session: []
  *     requestBody:
@@ -201,7 +201,7 @@ export async function POST(request: NextRequest) {
  *             properties:
  *               id:
  *                 type: string
- *                 description: "Payment account ID to update"
+ *                 description: "Payment account ID (required, but the row is matched by userId and provider)"
  *                 example: "pay_acc_123abc"
  *               provider:
  *                 type: string

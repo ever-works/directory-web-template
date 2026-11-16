@@ -23,8 +23,9 @@ session and ownership checks, and the admin-only guard replaced the
 ownership check (a signed-in owner could still point their own row at any
 provider customer id, which the Stripe billing portal, the invoice list and
 the Polar ownership check trust). The payment providers write rows through
-`@/lib/db/queries`, not through this route, and `paymentAccountClient`
-(the HTTP wrapper) is no longer documented or used. `GET
+`@/lib/db/queries`, not through this route. `paymentAccountClient` (the
+unused HTTP wrapper in `lib/payment/lib/client/payment-account-client.ts`)
+was deleted, because nothing imported it. `GET
 /api/payment/account/[userId]` is unchanged. Unit spec:
 `apps/web/lib/payment/__tests__/payment-account-auth.spec.ts`.
 
@@ -39,7 +40,8 @@ provider dashboard before acting.
 
 ```sql
 -- 1. The same customer id under more than one user, whatever the provider
---    (a customer id belongs to one provider, so this should return no rows).
+--    (the index is per provider, so a hit here is a cross-provider id
+--    collision to review, not proof of abuse).
 SELECT "customerId", count(DISTINCT "userId") AS users, array_agg("userId") AS user_ids
 FROM "paymentAccounts"
 GROUP BY "customerId"
@@ -65,6 +67,16 @@ WHERE p."name" = 'stripe' AND pa."customerId" NOT LIKE 'cus\_%';
 
 Query 2 also lists rows an admin or the checkout flow legitimately updated, so
 it is a review list, not a verdict.
+
+These queries cannot find a row that was inserted once, through the old
+route, with a well-formed customer id that belongs to someone else: it looks
+exactly like a row the checkout flow wrote. Only the provider can confirm
+those, by comparing the customer's email with the user's email.
+
+## History: the contract before PR #1115
+
+Everything below describes the route before PR #1115 and is kept as a record.
+It is not the current contract (see "Current contract" above).
 
 This is the **first per-source-file dual-method
 smoke** the docs tree publishes that documents a
