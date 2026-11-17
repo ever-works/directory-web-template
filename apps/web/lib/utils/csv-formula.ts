@@ -2,8 +2,8 @@
  * Cells a spreadsheet app would run as a formula.
  *
  * CSV exports carry text that users wrote (item names and descriptions, survey answers and answer
- * keys, analytics labels), and a cell beginning `=`, `+`, `-`, `@`, tab or CR runs as a formula when
- * an admin opens the CSV in a spreadsheet app. Papa's own `escapeFormulae: true` uses
+ * keys, sign-up emails in analytics), and a cell beginning `=`, `+`, `-`, `@`, tab or CR runs as a
+ * formula when an admin opens the CSV in a spreadsheet app. Papa's own `escapeFormulae: true` uses
  * `/^[=+\-@\t\r].*$/`, which does not match a value with a line break, so a multi-line value starting
  * with `=` would get through; this pattern only looks at the first character. Plain numbers such as
  * a negative latitude are left alone: they are not formulas and must stay numbers.

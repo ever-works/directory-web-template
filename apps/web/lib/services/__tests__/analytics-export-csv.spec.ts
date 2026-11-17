@@ -6,10 +6,12 @@ import Papa from 'papaparse';
 /**
  * Run with: `pnpm --filter @ever-works/web test:unit`
  *
- * Analytics CSV exports carry item names and activity descriptions that users wrote. A cell that
- * begins with `=`, `+`, `-`, `@`, tab or CR runs as a formula when an admin opens the file in a
- * spreadsheet app, so both CSV paths of `AnalyticsExportService` (row arrays and the nested
- * comprehensive report) must prefix such cells with `'`.
+ * Analytics CSV exports carry text that users chose: the recent-activity `user` column holds sign-up
+ * emails, and an email may start with `=`, `+` or `-`. The fake repository below puts formula text in
+ * several columns, so a column fed by user text later is covered as well. A cell that begins with
+ * `=`, `+`, `-`, `@`, tab or CR runs as a formula when an admin opens the file in a spreadsheet app,
+ * so both CSV paths of `AnalyticsExportService` (row arrays and the nested comprehensive report)
+ * must prefix such cells with `'`.
  *
  * The service imports `AdminAnalyticsOptimizedRepository`, which reaches the database client on
  * import. The module graph is CommonJS under `tsx --test`, so the repository module is replaced

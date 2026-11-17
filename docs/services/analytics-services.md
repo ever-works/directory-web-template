@@ -113,7 +113,7 @@ The summary section includes total users, total votes, total comments, and the t
 
 ### CSV Generation
 
-CSV export handles both flat arrays and nested objects. Array data produces standard tabular CSV with headers derived from the union of all row keys. Object data (such as the comprehensive report) recursively flattens nested structures with dot-notation keys. All values are properly escaped with RFC 4180-compliant quoting, after `escapeCsvFormula` (`apps/web/lib/utils/csv-formula.ts`) prefixes `'` to a value starting with `=`, `+`, `-`, `@`, tab or CR (item names and activity descriptions are user text), so a spreadsheet app does not run it as a formula. Plain numbers such as `-2` stay unchanged.
+CSV export handles both flat arrays and nested objects. Array data produces standard tabular CSV with headers derived from the union of all row keys. Object data (such as the comprehensive report) recursively flattens nested structures with dot-notation keys. All values are properly escaped with RFC 4180-compliant quoting, after `escapeCsvFormula` (`apps/web/lib/utils/csv-formula.ts`) prefixes `'` to a value starting with `=`, `+`, `-`, `@`, tab or CR (the recent-activity `user` column holds sign-up emails, which users choose; item names are `Item <id>` and activity descriptions are fixed text today), so a spreadsheet app does not run it as a formula. Plain numbers such as `-2` stay unchanged.
 
 ### JSON Export with Metadata
 

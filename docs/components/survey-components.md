@@ -212,7 +212,7 @@ exportResponsesToCSV(responses: SurveyCSVResponse[], filename: string): void
 
 Exports survey responses to a CSV file with proper escaping, BOM for Excel compatibility, and auto-download. Columns include Response ID, User ID, Completed At, and all dynamic response data fields.
 
-The CSV text comes from `buildSurveyResponsesCsv` in `apps/web/lib/utils/survey-responses-csv.ts`; this function only adds the BOM and starts the download. Anyone can answer a published survey with any keys and values, so every header and data cell goes through `escapeCsvFormula` (`apps/web/lib/utils/csv-formula.ts`) before quoting: a cell starting with `=`, `+`, `-`, `@`, tab or CR gets a leading `'`, so a spreadsheet app shows it as text instead of running it as a formula. Plain numbers such as `-12.5` stay unchanged.
+The CSV text comes from `buildSurveyResponsesCsv` in `apps/web/lib/utils/survey-responses-csv.ts`; `exportResponsesToCSV` only adds the BOM and starts the download. Anyone can answer a published survey with any keys and values, so every header and data cell goes through `escapeCsvFormula` (`apps/web/lib/utils/csv-formula.ts`) before quoting: a cell starting with `=`, `+`, `-`, `@`, tab or CR gets a leading `'`, so a spreadsheet app shows it as text instead of running it as a formula. Plain numbers such as `-12.5` stay unchanged.
 
 ### Formatting Helpers
 
