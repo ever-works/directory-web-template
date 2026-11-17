@@ -95,8 +95,13 @@ export const credentialsProvider = Credentials({
 				if (isPasswordValid) {
 					void logActivity(ActivityType.SIGN_IN, foundUser.id, 'user', undefined, foundUser.tenantId || undefined).catch(() => {});
 
+					// Only the fields the jwt callback and the default token need. Spreading the
+					// `users` row handed `passwordHash` to the signIn callback (and its logs).
+					// `users` has no name column, so `name` stays unset, as it was before.
 					return {
-						...foundUser,
+						id: foundUser.id,
+						email: foundUser.email,
+						image: foundUser.image,
 						tenantId: foundUser.tenantId ?? undefined,
 						isClient: false,
 						isAdmin: true
