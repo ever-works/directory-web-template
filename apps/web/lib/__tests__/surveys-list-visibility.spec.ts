@@ -110,11 +110,17 @@ describe('GET /api/surveys uses the helper', () => {
 	const end = route.indexOf('export async function POST(');
 	const get = route.slice(start, end);
 
-	it('builds the filters with buildSurveyListFilters and the admin flag from the session', () => {
+	it('builds the filters with buildSurveyListFilters and the live admin role (T-2566)', () => {
 		assert.ok(start >= 0 && end > start, 'GET handler not found');
+		// The session's isAdmin claim is set at sign-in and outlives a role removal,
+		// so the role comes from the database (lib/db/roles.ts isAdmin).
 		assert.ok(
-			get.includes('buildSurveyListFilters(searchParams, !!session?.user?.isAdmin)'),
-			'GET does not call buildSurveyListFilters(searchParams, !!session?.user?.isAdmin)'
+			get.includes('session?.user?.id ? await isAdmin(session.user.id) : false'),
+			'GET does not read the live admin role with isAdmin(session.user.id)'
+		);
+		assert.ok(
+			get.includes('buildSurveyListFilters(searchParams, userIsAdmin)'),
+			'GET does not call buildSurveyListFilters(searchParams, userIsAdmin)'
 		);
 	});
 
