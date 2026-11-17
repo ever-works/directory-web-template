@@ -112,7 +112,9 @@ exports only `POST`. The handler combines:
    `setUserPasswordHash(...)`** — load-bearing
    password-write call (credentials account, plus
    `users.passwordHash` when already set or when
-   there is no credentials account).
+   there is no credentials account). It also stamps
+   `users.password_changed_at`, which ends every
+   session that signed in before the change.
 10. **`sendPasswordChangeConfirmationEmail(...)`
     side-effect** wrapped in try/catch (fault-
     tolerant; failure does NOT fail the password

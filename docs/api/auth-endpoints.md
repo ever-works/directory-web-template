@@ -56,7 +56,7 @@ When a user authenticates with an OAuth provider:
    -> Never logs the user, account (OAuth tokens) or profile, nor the email;
       logs only the provider name, plus (in development only) whether an id and email are set
 6. jwt callback enriches token
-   -> Sets userId, provider, isAdmin
+   -> Sets userId, provider, isAdmin, and signedInAt (the sign-in time)
    -> Creates client profile for new OAuth users
 7. Session created, user redirected to callback URL
 ```
@@ -91,6 +91,8 @@ NextAuth is configured to use custom authentication pages rather than the defaul
 ### Authentication
 
 Requires a valid session. The endpoint verifies the current password before updating.
+
+A successful change (like a password reset) stamps `users.password_changed_at`, which ends every session that signed in before it, the caller's own included: the client then signs out and goes to `/auth/signin`. See [Session Management](../authentication/session-management.md#a-password-reset-or-change-ends-older-sessions).
 
 ### Response
 

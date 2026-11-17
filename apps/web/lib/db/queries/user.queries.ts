@@ -108,6 +108,8 @@ export async function updateUserPassword(newPasswordHash: string, userId: string
  * has a hash (the admin case), so a user without one does not gain a second password store.
  * A user with no credentials account keeps the old behaviour: the users row is written, so
  * an admin who signed up through OAuth can still set a password with a reset.
+ * The same transaction stamps `users.password_changed_at` for admins and clients alike, which
+ * ends every session that signed in before the change (the jwt callback in lib/auth).
  * @param userId - User ID
  * @param newPasswordHash - New password hash
  * @returns How many `accounts` and `users` rows now hold the new hash
@@ -115,6 +117,7 @@ export async function updateUserPassword(newPasswordHash: string, userId: string
 export async function setUserPasswordHash(userId: string, newPasswordHash: string) {
 	const tenantId = await getTenantId();
 	if (!tenantId) throw new Error('Tenant ID not found');
+	const changedAt = new Date();
 	return db.transaction(async (tx) => {
 		const updatedAccounts = await tx
 			.update(accounts)
@@ -125,7 +128,7 @@ export async function setUserPasswordHash(userId: string, newPasswordHash: strin
 			.returning({ userId: accounts.userId });
 		const updatedUsers = await tx
 			.update(users)
-			.set({ passwordHash: newPasswordHash, updatedAt: new Date() })
+			.set({ passwordHash: newPasswordHash, updatedAt: changedAt })
 			.where(
 				and(
 					eq(users.id, userId),
@@ -134,6 +137,12 @@ export async function setUserPasswordHash(userId: string, newPasswordHash: strin
 				)
 			)
 			.returning({ id: users.id });
+		// Not tied to the condition above: a client's users row holds no hash and is skipped
+		// there, but its sessions must end too.
+		await tx
+			.update(users)
+			.set({ passwordChangedAt: changedAt })
+			.where(and(eq(users.id, userId), eq(users.tenantId, tenantId)));
 		return { accounts: updatedAccounts.length, users: updatedUsers.length };
 	});
 }

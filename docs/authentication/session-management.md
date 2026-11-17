@@ -68,6 +68,17 @@ jwt: async ({ token, user, account }) => {
 | `clientProfileId` | `string` | Client profile ID (for non-admin users) |
 | `provider` | `string` | Authentication provider used (`credentials`, `google`, etc.) |
 | `isAdmin` | `boolean` | Whether the user has admin privileges |
+| `signedInAt` | `number` | When the user signed in (ms since the epoch); set on sign-in only |
+
+### A Password Reset or Change Ends Older Sessions
+
+A JWT cannot be revoked on the server, so without a check a session stayed valid for up to 30 days after its password was reset or changed, and a reset after a password theft did not lock the attacker out.
+
+- `setUserPasswordHash` (`lib/db/queries/user.queries.ts`) sets `users.password_changed_at` to now on every password reset and change, for admins and clients, in the same transaction as the new hash.
+- The jwt callback stamps `token.signedInAt = Date.now()` when a user signs in (`user` is present). It never takes the stamp from `trigger: 'update'` data, which the browser sends, and does not use `iat`, which Auth.js re-issues on every refresh.
+- On every later read of the session, the jwt callback reads `password_changed_at` in the same query as `deactivatedAt`. `sessionPredatesPasswordChange` (`lib/auth/password-change.ts`) ends the session when the change is later than `signedInAt`, or when the column is set and the token has no stamp. To end it, the callback returns `null`: `auth()` then returns no session, and the Auth.js session endpoint (`/api/auth/session`) clears the session cookie.
+- After a change from `/client/settings/security`, `useChangePassword` signs the browser out and sends the user to `/auth/signin`. The reset page already ends on a "Go to Login" button.
+- The column starts NULL for every user (no backfill), so sessions signed in before this release last until the user next resets or changes the password. A database error while reading it keeps the session, like the deactivation check.
 
 ## Session Callback
 

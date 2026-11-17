@@ -248,7 +248,7 @@ function TwoFactorToggle() {
 
 - **Authentication Required**: All endpoints require an authenticated session. If the user is not logged in, the queries will fail with an unauthorized error. Combine with an auth guard or redirect logic.
 - **Pagination Key Uniqueness**: Each `(page, limit)` combination creates a separate cache entry. Changing `limit` will trigger a new fetch even if the same data could be derived from existing cache entries.
-- **Stale Data After Password Change**: After a password change, call `invalidateSecuritySettings()` to update the `lastPasswordChange` field. The `useChangePassword` hook does this automatically.
+- **After a Password Change**: `lastPasswordChange` is `users.password_changed_at`, set by every password reset and change (`null` until the first one). A change ends the current session, so `useChangePassword` removes the security caches, signs out and sends the user to `/auth/signin` instead of refetching.
 - **Account Lock State**: The `accountLocked` field is fetched from the server. If the account becomes locked during the stale period (5 minutes), the UI will not reflect this until the next refetch.
 
 ## Related Hooks

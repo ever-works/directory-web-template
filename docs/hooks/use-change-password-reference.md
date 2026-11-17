@@ -181,7 +181,7 @@ function ChangePasswordFormZod() {
 
 - **API Client**: Uses `serverClient.post()` from `@/lib/api/server-api-client` to send the password change request to `/api/auth/change-password`.
 - **Toast Notifications**: On success, a `toast.success()` notification is displayed automatically using `sonner`. On error, a `toast.error()` is shown with the error message.
-- **Cache Invalidation on Success**: After a successful password change, the following query caches are invalidated: `["user"]`, `["profile"]`, `["security-settings"]`. The `["auth"]` cache is removed entirely to clear stale authentication data.
+- **Sign-Out and Redirect on Success**: A password change ends every session that signed in before it, the current one included (see [Session Management](../authentication/session-management.md#a-password-reset-or-change-ends-older-sessions)). On success the hook removes the `["auth-session"]`, `["user"]`, `["profile"]`, `["security-settings"]` and `["auth"]` caches (refetching them would only answer 401), signs out with `signOut({ redirect: false })` from `next-auth/react` and sends the user to `/auth/signin` (`router.replace` from `@/i18n/navigation`, so the toast stays visible) to sign in with the new password.
 - **Custom Retry Logic**: The mutation does not retry on validation errors (`"Invalid input"`), incorrect password (`"Current password is incorrect"`), or rate limiting (`"Too many"`). Server errors are retried up to 2 times with exponential backoff (`1s, 2s, 4s...` capped at 30 seconds).
 - **Non-Throwing API**: The `changePassword` function wraps `mutation.mutateAsync` in a try/catch, always returning a `ChangePasswordResponse` object. This makes it safe to use without requiring try/catch in the calling code.
 
@@ -189,12 +189,12 @@ function ChangePasswordFormZod() {
 
 - **Password Confirmation**: The hook sends `confirmPassword` to the server, but does not validate that it matches `newPassword` on the client side. Perform client-side validation in your form before calling `changePassword`.
 - **Rate Limiting**: The API may return a rate limit error if too many attempts are made. The hook does not retry on rate limit errors, but the error message is displayed via toast.
-- **Session Invalidation**: After a successful password change, some authentication systems invalidate the current session. The hook removes the `["auth"]` query cache, but you may need additional logic to redirect to the login page if the session is terminated.
+- **Session Ends**: After a successful password change the server ends the current session, so the hook always signs out and navigates to `/auth/signin`. The success toast is what the user sees; a success state in the calling form is replaced by the sign-in page.
 - **Validation Error Details**: The `ChangePasswordError.details` array provides field-level validation errors from the server (Zod validation). Each entry has a `path` (field name), `message`, and `code`. These are logged to the console but not displayed in the toast -- you may want to surface them in the form UI.
 - **Mutation Key**: The mutation uses `["change-password"]` as its key, allowing you to track its status globally if needed.
 
 ## Related Hooks
 
-- [useSecuritySettings](./use-security-settings-reference.md) -- Fetches security settings including `lastPasswordChange`, updated after a successful password change.
-- [useCurrentUser](./use-current-user-reference.md) -- Provides the authenticated user context; its cache is invalidated on password change.
-- [useLoginModal](./use-login-modal-reference.md) -- May be needed to re-authenticate after a password change invalidates the session.
+- [useSecuritySettings](./use-security-settings-reference.md) -- Fetches security settings including `lastPasswordChange`, the time of the last password reset or change.
+- [useCurrentUser](./use-current-user-reference.md) -- Provides the authenticated user context; its cache is removed on password change.
+- [useLoginModal](./use-login-modal-reference.md) -- Another way to sign in again after a password change ends the session.

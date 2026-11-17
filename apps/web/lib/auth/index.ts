@@ -14,6 +14,7 @@ import { invalidateSessionCache } from './cached-session';
 import { getClientProfileByUserId, createClientProfile } from '../db/queries/client.queries';
 import { coreConfig } from '@/lib/config/config-service';
 import { getRuntimeAuthSecret, getRuntimeAuthSecretSource } from './auth-secret';
+import { sessionPredatesPasswordChange } from './password-change';
 export * from '../payment/config/payment-provider-manager';
 
 // Define proper interface for user objects with admin/client properties
@@ -191,6 +192,13 @@ export const { handlers, auth, signIn, signOut, unstable_update } = NextAuth({
 			const extendedUser = user as ExtendedUser;
 
 			try {
+				// Stamp the sign-in time; a later password reset or change ends this session (see
+				// the refresh branch below). Only on sign-in, when `user` is present: never from
+				// `trigger === 'update'` data, which the browser sends, and not `iat`, which
+				// Auth.js re-issues on every refresh.
+				if (user) {
+					token.signedInAt = Date.now();
+				}
 				if (extendedUser?.id && typeof extendedUser.id === 'string') {
 					token.userId = extendedUser.id;
 				}
@@ -266,15 +274,23 @@ export const { handlers, auth, signIn, signOut, unstable_update } = NextAuth({
 				// On subsequent JWT refreshes (no user object), sync deactivation state
 				// from the DB so a reactivation takes effect without requiring a new login.
 				if (!user && token.userId && isDatabaseAvailable) {
+					let passwordChangedAt: Date | null | undefined;
 					try {
 						const [dbUser] = await getDrizzleInstance()
-							.select({ deactivatedAt: users.deactivatedAt })
+							.select({ deactivatedAt: users.deactivatedAt, passwordChangedAt: users.passwordChangedAt })
 							.from(users)
 							.where(eq(users.id, token.userId))
 							.limit(1);
 						token.isDeactivated = dbUser?.deactivatedAt != null;
+						passwordChangedAt = dbUser?.passwordChangedAt;
 					} catch {
 						// Non-critical — keep existing token value on DB error
+					}
+					// A password reset or change after this session signed in ends it, so a reset
+					// after a password theft locks the old sessions out. Returning null ends it:
+					// auth() returns no session, and the Auth.js session endpoint clears the cookie.
+					if (sessionPredatesPasswordChange(token.signedInAt, passwordChangedAt)) {
+						return null;
 					}
 				}
 
