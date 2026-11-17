@@ -3,6 +3,7 @@ import ExcelJS from 'exceljs';
 import { ItemRepository } from '@/lib/repositories/item.repository';
 import type { ItemExportData } from '@/lib/types/item-import-export';
 import { EXPORT_COLUMNS } from '@/lib/types/item-import-export';
+import { CSV_FORMULA_PREFIX } from '@/lib/utils/csv-formula';
 
 interface CSVExportResult {
 	data: string;
@@ -20,20 +21,6 @@ interface ExportOptions {
 	/** Only export approved, non-deleted items (for public export) */
 	publicOnly?: boolean;
 }
-
-/**
- * Cells Papa.unparse prefixes with `'` so a spreadsheet app shows them as text.
- *
- * The rows carry client-submitted text (name, description, brand, markdown, location), and a
- * cell beginning `=`, `+`, `-`, `@`, tab or CR runs as a formula when an admin opens the CSV in
- * a spreadsheet app. Papa's own `escapeFormulae: true` uses `/^[=+\-@\t\r].*$/`, which does not
- * match a value with a line break, so a multi-line description starting with `=` would get
- * through; this pattern only looks at the first character. Plain numbers such as a negative
- * latitude are left alone: they are not formulas and must stay numbers. `ItemImportService.parseCSV`
- * takes the apostrophe off again. A value that already starts with `'` before one of those
- * characters (for example `'=1+1`) gets one more, so that import gives it back unchanged.
- */
-const CSV_FORMULA_PREFIX = /^(?![-+]?\d+(?:\.\d+)?$)'*[=+\-@\t\r]/;
 
 const SAMPLE_ROWS: Record<string, string>[] = [
 	{
@@ -102,6 +89,8 @@ export class ItemExportService {
 		const rows = await this.getExportRows(options);
 		const csv = Papa.unparse(rows, {
 			columns: EXPORT_COLUMNS as unknown as string[],
+			// The rows carry client-submitted text (name, description, brand, markdown, location):
+			// Papa prefixes `'` to every cell this pattern matches (lib/utils/csv-formula.ts).
 			escapeFormulae: CSV_FORMULA_PREFIX,
 		});
 		const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
