@@ -34,7 +34,11 @@ class SyncManager {
   private retryCount = 0;
   /** Content commit the caches were last invalidated for; see performSync. */
   private lastInvalidatedRevision: string | null = null;
-  private lastInvalidatedAt = 0;
+  /** Starts at process start: the hourly safety net first fires an hour after start-up. */
+  private lastInvalidatedAt = Date.now();
+  private hasSynced = false;
+  /** Content commit the location index was last rebuilt for, without failures. */
+  private lastIndexedRevision: string | null = null;
 
   /**
    * Perform a single sync operation with mutex lock and timeout
@@ -73,6 +77,11 @@ class SyncManager {
 
       // Dynamic import to prevent webpack from bundling Node.js modules
       const { trySyncRepository } = await import('@/lib/repository');
+      const { readGitHeadRevision } = await import('@/lib/content-revision');
+      const { getContentPath } = await import('@/lib/lib');
+      // HEAD before the pull: lets the first sync after start-up skip the flush when the
+      // pull brought nothing (the caches were filled from this same commit).
+      const revisionBefore = await readGitHeadRevision(getContentPath());
 
       // Timeout wrapper
       const syncPromise = trySyncRepository();
@@ -108,9 +117,13 @@ class SyncManager {
       // locale's caches on each run, even when the pull brought nothing, kept a 20-locale site
       // cold under crawler load. Content that is not a git checkout (no readable HEAD) is
       // invalidated on every sync, as before.
-      const { readGitHeadRevision } = await import('@/lib/content-revision');
-      const { getContentPath } = await import('@/lib/lib');
       const revision = await readGitHeadRevision(getContentPath());
+      if (!this.hasSynced) {
+        this.hasSynced = true;
+        if (revision && revision === revisionBefore) {
+          this.lastInvalidatedRevision = revision;
+        }
+      }
       // Safety net: an edit written to disk whose commit failed leaves HEAD unchanged,
       // so invalidate at least once an hour even when the revision did not move.
       const invalidationDue = Date.now() - this.lastInvalidatedAt >= MAX_INVALIDATION_INTERVAL_MS;
@@ -131,7 +144,10 @@ class SyncManager {
       // Location Index: Rebuild index after content sync (non-blocking)
       try {
         const { getLocationEnabled } = await import('@/lib/utils/settings');
-        if (contentChanged && getLocationEnabled()) {
+        // Rebuilt for every new commit, and retried on every sync until a rebuild for the
+        // current commit succeeds without failed items (independent of cache invalidation).
+        const indexOutdated = contentChanged || !revision || revision !== this.lastIndexedRevision;
+        if (indexOutdated && getLocationEnabled()) {
           const { getLocationIndexService } = await import('@/lib/services/location');
           const { ItemRepository } = await import('@/lib/repositories/item.repository');
 
@@ -140,6 +156,7 @@ class SyncManager {
           const allItems = await itemRepository.findAll();
 
           const rebuildResult = await locationIndexService.rebuildIndex(allItems);
+          this.lastIndexedRevision = rebuildResult.failed > 0 ? null : revision;
           console.log('[SYNC_MANAGER] Location index rebuilt', {
             indexed: rebuildResult.indexed,
             skipped: rebuildResult.skipped,

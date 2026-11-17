@@ -1491,6 +1491,10 @@ async function fetchItemsImpl(options: FetchOptions = {}, repairAttempted = fals
 	// Recorded only after the repair finished, so walks that start meanwhile join the
 	// running repair (and return repaired data) and a failed repair is tried again.
 	const missingSignature = `${dest}|${[...snapshot.missing].sort().join('|')}`;
+	if (missingItemDataCount === 0) {
+		// Repaired (or never broken): the same set appearing again later gets a new repair.
+		repairState.lastSignature = null;
+	}
 	if (missingItemDataCount > 0 && !repairAttempted && missingSignature !== repairState.lastSignature) {
 		await repairContentRepositoryAfterMissingItems();
 		repairState.lastSignature = missingSignature;
