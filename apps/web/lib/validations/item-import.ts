@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { ITEM_VALIDATION } from '@/lib/types/item';
+import { httpUrlSchema } from './http-url';
 
 /**
  * Slugs an import may write: lowercase letters and digits in groups joined by single hyphens.
@@ -27,7 +28,7 @@ export const importRowSchema = z.object({
 			ITEM_VALIDATION.DESCRIPTION_MAX_LENGTH,
 			`Description must be at most ${ITEM_VALIDATION.DESCRIPTION_MAX_LENGTH} characters`
 		),
-	source_url: z.string().url('Invalid URL format'),
+	source_url: httpUrlSchema,
 	category: z
 		.string()
 		.min(1, 'Category is required')

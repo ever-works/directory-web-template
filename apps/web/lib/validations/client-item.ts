@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { ITEM_VALIDATION } from '@/lib/types/item';
 import { locationSchema } from './item';
+import { httpUrlSchema } from './http-url';
 
 // Item status options
 export const itemStatus = ['pending', 'approved', 'rejected'] as const;
@@ -21,10 +22,7 @@ export const clientUpdateItemSchema = z.object({
     .min(ITEM_VALIDATION.DESCRIPTION_MIN_LENGTH, `Description must be at least ${ITEM_VALIDATION.DESCRIPTION_MIN_LENGTH} characters`)
     .max(ITEM_VALIDATION.DESCRIPTION_MAX_LENGTH, `Description must be at most ${ITEM_VALIDATION.DESCRIPTION_MAX_LENGTH} characters`)
     .optional(),
-  source_url: z
-    .string()
-    .url('Invalid URL format')
-    .optional(),
+  source_url: httpUrlSchema.optional(),
   category: z
     .union([
       z.string().min(1, 'Category is required'),
@@ -100,9 +98,7 @@ export const clientCreateItemSchema = z.object({
     .string()
     .min(ITEM_VALIDATION.DESCRIPTION_MIN_LENGTH, `Description must be at least ${ITEM_VALIDATION.DESCRIPTION_MIN_LENGTH} characters`)
     .max(ITEM_VALIDATION.DESCRIPTION_MAX_LENGTH, `Description must be at most ${ITEM_VALIDATION.DESCRIPTION_MAX_LENGTH} characters`),
-  source_url: z
-    .string()
-    .url('Invalid URL format'),
+  source_url: httpUrlSchema,
   category: z
     .union([
       z.string().min(1, 'Category is required'),

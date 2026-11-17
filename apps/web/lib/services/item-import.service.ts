@@ -9,6 +9,7 @@ import {
 	type ImportRowData,
 } from '@/lib/validations/item-import';
 import { slugify } from '@/lib/utils/slug';
+import { normalizeSourceUrl } from '@/lib/utils/source-url';
 import type { CreateItemRequest } from '@/lib/types/item';
 import type {
 	ImportRowRaw,
@@ -71,6 +72,20 @@ const FIELD_ALIASES: Record<string, string[]> = {
 	status: ['status', 'state'],
 	collections: ['collections', 'collection', 'groups'],
 };
+
+/**
+ * The comparison keys ({@link normalizeSourceUrl}) of the items' links, so a row is matched the way
+ * POST /api/client/items matches a submission: `www.`, a trailing slash, http vs https, a fragment
+ * or tracking parameters do not make a link new.
+ */
+function sourceUrlKeys(items: ReadonlyArray<{ source_url?: string | null }>): Set<string> {
+	const keys = new Set<string>();
+	for (const item of items) {
+		const key = normalizeSourceUrl(item.source_url);
+		if (key) keys.add(key);
+	}
+	return keys;
+}
 
 interface ParsedFile {
 	headers: string[];
@@ -192,10 +207,12 @@ export class ItemImportService {
 		// Deleted items still have their YAML file, so they count as duplicates too (as in executeImport).
 		const existingItems = await this.repository.findAll({ includeDeleted: true });
 		const existingSlugs = new Set(existingItems.map((item) => item.slug));
-		const existingUrls = new Set(existingItems.map((item) => item.source_url));
+		const existingUrls = sourceUrlKeys(existingItems);
 
 		// Track slugs created within this batch to avoid intra-batch collisions
 		const batchSlugs = new Set<string>();
+		// Links of earlier rows: a later row with the same link is a duplicate (executeImport skips it)
+		const batchUrls = new Set<string>();
 
 		let validationResults: ImportRowValidation[] = [];
 		let validCount = 0;
@@ -209,6 +226,7 @@ export class ItemImportService {
 				existingSlugs,
 				existingUrls,
 				batchSlugs,
+				batchUrls,
 				duplicateStrategy: options.duplicateStrategy,
 				defaultStatus: options.defaultStatus,
 			});
@@ -216,6 +234,8 @@ export class ItemImportService {
 			if (result.valid && result.data?.slug) {
 				batchSlugs.add(result.data.slug);
 			}
+			const urlKey = result.valid ? normalizeSourceUrl(result.data?.source_url) : null;
+			if (urlKey) batchUrls.add(urlKey);
 
 			if (result.valid) validCount++;
 			else errorCount++;
@@ -246,11 +266,12 @@ export class ItemImportService {
 	 *
 	 * The rows come back from the browser, so their `valid` / `duplicate` flags and their data are
 	 * not trusted: every row is checked again against {@link importRowDataSchema}, and duplicates
-	 * are looked up again among all items (deleted ones included) by slug and by source_url. A row
-	 * whose slug already exists never reaches `batchCreate`: it is skipped, or updated when the
-	 * strategy is 'update'. `clientMode` (the client import route) never updates an existing item,
-	 * forces `featured` to false and drops `collections`, `brand_logo_url` and `images`, which the
-	 * client submit form cannot set either.
+	 * are looked up again among all items (deleted ones included) by slug and by source_url, links
+	 * compared with {@link normalizeSourceUrl} as the single submit does. A row whose link an earlier
+	 * row of the same import has is skipped too. A row whose slug already exists never reaches
+	 * `batchCreate`: it is skipped, or updated when the strategy is 'update'. `clientMode` (the
+	 * client import route) never updates an existing item, forces `featured` to false and drops
+	 * `collections`, `brand_logo_url` and `images`, which the client submit form cannot set either.
 	 */
 	async executeImport(
 		validatedRows: ImportRowValidation[],
@@ -266,8 +287,9 @@ export class ItemImportService {
 
 		const existingItems = await this.repository.findAll({ includeDeleted: true });
 		const existingBySlug = new Map(existingItems.map((item) => [item.slug, item]));
-		const existingUrls = new Set(existingItems.map((item) => item.source_url));
+		const existingUrls = sourceUrlKeys(existingItems);
 		const batchSlugs = new Set<string>();
+		const batchUrls = new Set<string>();
 
 		const rowsToCreate: Array<{ rowIndex: number; data: ImportRowData }> = [];
 		const rowsToUpdate: Array<{ rowIndex: number; id: string; data: ImportRowData }> = [];
@@ -288,10 +310,14 @@ export class ItemImportService {
 			}
 			batchSlugs.add(data.slug);
 
+			const urlKey = normalizeSourceUrl(data.source_url);
+			const urlTaken = urlKey !== null && (existingUrls.has(urlKey) || batchUrls.has(urlKey));
+			if (urlKey) batchUrls.add(urlKey);
+
 			const existing = existingBySlug.get(data.slug);
 			if (existing && duplicateStrategy === 'update') {
 				rowsToUpdate.push({ rowIndex, id: existing.id, data });
-			} else if (existing || existingUrls.has(data.source_url)) {
+			} else if (existing || urlTaken) {
 				skippedCount++;
 			} else {
 				rowsToCreate.push({ rowIndex, data });
@@ -461,8 +487,11 @@ export class ItemImportService {
 		rowIndex: number,
 		context: {
 			existingSlugs: Set<string>;
+			/** {@link normalizeSourceUrl} keys of the existing items' links. */
 			existingUrls: Set<string>;
 			batchSlugs: Set<string>;
+			/** {@link normalizeSourceUrl} keys of the links of earlier valid rows. */
+			batchUrls: Set<string>;
 			duplicateStrategy: ImportDuplicateStrategy;
 			defaultStatus: 'draft' | 'pending' | 'approved';
 		}
@@ -515,16 +544,19 @@ export class ItemImportService {
 
 		// Check for duplicate slug against existing items
 		const duplicateSlug = context.existingSlugs.has(slug) ? slug : undefined;
-		const duplicateUrl = data.source_url && context.existingUrls.has(data.source_url)
+		// Links are compared as the single submit compares them, against existing items and earlier rows.
+		const urlKey = normalizeSourceUrl(data.source_url);
+		const duplicateUrl = urlKey && (context.existingUrls.has(urlKey) || context.batchUrls.has(urlKey))
 			? data.source_url
 			: undefined;
 
 		const hasDuplicate = !!duplicateSlug || !!duplicateUrl;
 
-		if (hasDuplicate && context.duplicateStrategy === 'skip') {
-			warnings.push('Duplicate detected — will be skipped');
-		} else if (hasDuplicate && context.duplicateStrategy === 'update') {
+		// executeImport updates only an item with the row's slug; a link-only duplicate is skipped.
+		if (duplicateSlug && context.duplicateStrategy === 'update') {
 			warnings.push('Duplicate detected — existing item will be updated');
+		} else if (hasDuplicate) {
+			warnings.push('Duplicate detected — will be skipped');
 		}
 
 		// Override status with default
