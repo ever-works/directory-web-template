@@ -477,6 +477,8 @@
 		"GLOBAL_SERVICE": "全球服务",
 		"COMMENTS_DELETE_WARNING": "确定要删除这条评论吗？此操作无法撤销。",
 		"COMMENTS_HAVE_THOUGHTS": "有什么想法？",
+		"COMMENTS_VIEW_PROFILE": "查看个人资料",
+		"COMMENTS_PROFILE": "个人资料",
 		"COMMENTS_SHORTCUT": "Cmd/Ctrl + Enter 发布",
 		"COMMENTS_POSTING": "正在发布",
 		"COMMENTS_DELETE_TITLE": "删除评论",
