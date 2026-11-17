@@ -81,6 +81,7 @@ or architectural change.
 | 058 | [`duplicate-submission-guard`](058-duplicate-submission-guard/spec.md) ([plan](058-duplicate-submission-guard/plan.md), [tasks](058-duplicate-submission-guard/tasks.md)) | in-progress | `POST /api/client/items` answers 409 when a pending or approved item already uses the submitted link (compared ignoring http/https, `www.`, trailing slash, fragment and tracking parameters), instead of queueing a duplicate for review. |
 | 059 | [`collection-item-list`](059-collection-item-list/spec.md) | in-progress | A collection page's `CollectionPage` JSON-LD lists its items (name, item-page URL, position; capped at 50) as `itemListElement`, not only the count. |
 | 060 | [`lemonsqueezy-webhook-integrity`](060-lemonsqueezy-webhook-integrity/spec.md) | in-progress | The LemonSqueezy webhook verifies `X-Signature` over the raw body (constant-time), maps events to the right fields and provider, and `GET /api/lemonsqueezy/list` ignores another customer's `customerEmail` unless the caller is an admin. |
+| 061 | [`shared-item-parse-cache`](061-shared-item-parse-cache/spec.md) | in-progress | Item YAML is parsed once per file version and shared by every locale (a locale only copies and overlays its translations); the 5-minute content sync invalidates caches only when the checkout's HEAD moved; tag counts on the tags pages are no longer doubled. |
 
 > **Status legend:**
 > _proposed_ = spec drafted, not yet planned/approved.

@@ -30,6 +30,8 @@ class SyncManager {
   private lastSyncTime: Date | null = null;
   private lastSyncResult: SyncResult | null = null;
   private retryCount = 0;
+  /** Content commit the caches were last invalidated for; see performSync. */
+  private lastInvalidatedRevision: string | null = null;
 
   /**
    * Perform a single sync operation with mutex lock and timeout
@@ -98,15 +100,29 @@ class SyncManager {
         console.log(`[SYNC_MANAGER] Sync completed successfully in ${duration}ms`);
       }
 
-      // Invalidate content caches after successful sync
-      const { invalidateContentCaches } = await import('@/lib/cache-invalidation');
-      await invalidateContentCaches();
-      console.log('[SYNC_MANAGER] Content caches invalidated');
+      // Invalidate content caches only when the content checkout moved to another commit
+      // since the last invalidation (Spec 061). The sync runs every 5 minutes; flushing every
+      // locale's caches on each run, even when the pull brought nothing, kept a 20-locale site
+      // cold under crawler load. Content that is not a git checkout (no readable HEAD) is
+      // invalidated on every sync, as before.
+      const { readGitHeadRevision } = await import('@/lib/content-revision');
+      const { getContentPath } = await import('@/lib/lib');
+      const revision = await readGitHeadRevision(getContentPath());
+      const contentChanged = !revision || revision !== this.lastInvalidatedRevision;
+
+      if (contentChanged) {
+        const { invalidateContentCaches } = await import('@/lib/cache-invalidation');
+        await invalidateContentCaches();
+        this.lastInvalidatedRevision = revision;
+        console.log('[SYNC_MANAGER] Content caches invalidated', revision ? `(revision ${revision.slice(0, 12)})` : '');
+      } else if (coreConfig.NODE_ENV !== 'development') {
+        console.log(`[SYNC_MANAGER] Content unchanged at ${revision!.slice(0, 12)}; caches kept`);
+      }
 
       // Location Index: Rebuild index after content sync (non-blocking)
       try {
         const { getLocationEnabled } = await import('@/lib/utils/settings');
-        if (getLocationEnabled()) {
+        if (contentChanged && getLocationEnabled()) {
           const { getLocationIndexService } = await import('@/lib/services/location');
           const { ItemRepository } = await import('@/lib/repositories/item.repository');
 
