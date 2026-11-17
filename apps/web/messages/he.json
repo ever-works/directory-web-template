@@ -477,6 +477,8 @@
 		"GLOBAL_SERVICE": "שירות גלובלי",
 		"COMMENTS_DELETE_WARNING": "האם אתה בטוח שברצונך למחוק תגובה זו? לא ניתן לבטל פעולה זו.",
 		"COMMENTS_HAVE_THOUGHTS": "יש לך מה לומר?",
+		"COMMENTS_VIEW_PROFILE": "הצג פרופיל",
+		"COMMENTS_PROFILE": "פרופיל",
 		"COMMENTS_SHORTCUT": "Cmd/Ctrl + Enter לפרסום",
 		"COMMENTS_POSTING": "מפרסם",
 		"COMMENTS_DELETE_TITLE": "מחיקת תגובה",

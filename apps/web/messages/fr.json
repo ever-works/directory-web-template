@@ -479,6 +479,8 @@
 		"GLOBAL_SERVICE": "Service mondial",
 		"COMMENTS_DELETE_WARNING": "Voulez-vous vraiment supprimer ce commentaire ? Cette action est irréversible.",
 		"COMMENTS_HAVE_THOUGHTS": "Un avis à partager ?",
+		"COMMENTS_VIEW_PROFILE": "Voir le profil",
+		"COMMENTS_PROFILE": "Profil",
 		"COMMENTS_SHORTCUT": "Cmd/Ctrl + Enter pour publier",
 		"COMMENTS_POSTING": "Publication en cours",
 		"COMMENTS_DELETE_TITLE": "Supprimer le commentaire",
