@@ -1,17 +1,14 @@
 import { Logger } from '@/lib/logger';
 import { surveyCanonicalPath, type SurveyLocation } from '@/lib/seo/survey-urls';
+import { buildSurveyResponsesCsv, type SurveyCSVResponse } from '@/lib/utils/survey-responses-csv';
 
 const logger = Logger.create('SurveyHelpers');
 
-export interface SurveyCSVResponse{
-  id: string
-  userId?: string | null
-  completedAt?: string | Date | null
-  data?: Record<string, unknown>
-}
+export type { SurveyCSVResponse };
 
 /**
- * Export survey responses to CSV
+ * Export survey responses to CSV. The text comes from `buildSurveyResponsesCsv`
+ * (lib/utils/survey-responses-csv.ts), which escapes spreadsheet formulas.
  */
 export function exportResponsesToCSV(
   responses: SurveyCSVResponse[],
@@ -19,43 +16,7 @@ export function exportResponsesToCSV(
 ) {
   if (!Array.isArray(responses) || responses.length === 0) return;
   if (typeof window === 'undefined' || typeof document === 'undefined') return;
-  const escapeCell = (val: unknown): string => {
-    if (val === null || val === undefined) return '';
-    let s: unknown = val;
-    if (typeof s === 'object') {
-      try {
-        s = JSON.stringify(s);
-      } catch {
-        s = String(s);
-      }
-    }
-    const str = String(s);
-    return /[,"\r\n]/.test(str) ? `"${str.replace(/"/g, '""')}"` : str;
-  };
-  const allKeys = new Set<string>();
-  for (const r of responses) {
-    const data = r?.data ?? {};
-    Object.keys(data).forEach(k => allKeys.add(k));
-  }
-  const keys = Array.from(allKeys).sort();
-  const header = ['Response ID', 'User ID', 'Completed At', ...keys]
-    .map(escapeCell)
-    .join(',');
-  const rows: string[] = [header];
-  for (const r of responses) {
-    const completed = r?.completedAt
-      ? new Date(r.completedAt).toISOString()
-      : '';
-    rows.push(
-      [
-        escapeCell(r.id),
-        escapeCell(r.userId ?? 'Anonymous'),
-        escapeCell(completed),
-        ...keys.map(k => escapeCell(r?.data?.[k])),
-      ].join(',')
-    );
-  }
-  const csvContent = '\ufeff' + rows.join('\r\n');
+  const csvContent = '\ufeff' + buildSurveyResponsesCsv(responses);
   const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
