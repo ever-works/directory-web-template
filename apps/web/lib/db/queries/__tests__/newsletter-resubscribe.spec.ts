@@ -50,17 +50,33 @@ describe('newsletter resubscribe', () => {
 			ternary.test(subscribe) || ifElse.test(subscribe) || ifNotElse.test(subscribe),
 			'subscribeToNewsletter does not re-activate an existing row and insert only when there is none'
 		);
+		// Each write happens once, on its own side of the check: a second insert anywhere
+		// (for example after the re-activation) hits the unique constraint again.
+		const calls = (name: string) => subscribe.split(`${name}(`).length - 1;
+		assert.equal(calls('resubscribeToNewsletter'), 1, 'subscribeToNewsletter re-activates the row more than once');
+		assert.equal(
+			calls('createNewsletterSubscription'),
+			1,
+			'subscribeToNewsletter inserts a row on more than one path'
+		);
 		// The row the check looked up must reach the action: without it every inactive row
 		// takes the insert path again and hits the unique constraint.
 		const helperStart = actions.indexOf('const validateExistingSubscription = async');
 		assert.ok(helperStart >= 0, 'validateExistingSubscription not found');
 		const helper = actions.slice(helperStart, actions.indexOf('export const subscribeToNewsletter =', helperStart));
+		const row = /const (\w+) = await getNewsletterSubscriptionByEmail\(email\)/.exec(helper)?.[1];
+		assert.ok(
+			row,
+			'validateExistingSubscription does not look the row up with getNewsletterSubscriptionByEmail(email)'
+		);
 		const validReturns = (helper.match(/return \{[^}]*\}/g) ?? []).filter((r) => /isValid: true/.test(r));
 		assert.ok(validReturns.length > 0, 'validateExistingSubscription never returns isValid: true');
-		assert.ok(
-			validReturns.every((r) => /\bexistingSubscription\b/.test(r)),
-			'validateExistingSubscription does not return the row it looked up'
-		);
+		// `existingSubscription: undefined` (or any other value) would send every inactive row
+		// down the insert path, so the property must be the looked-up row itself.
+		const returnsRow = (r: string) =>
+			new RegExp(`[{,] existingSubscription ?: ?${row} ?[,}]`).test(r) ||
+			(row === 'existingSubscription' && /[{,] existingSubscription ?[,}]/.test(r));
+		assert.ok(validReturns.every(returnsRow), 'validateExistingSubscription does not return the row it looked up');
 	});
 
 	it('subscribe still refuses an email whose subscription is active', () => {
