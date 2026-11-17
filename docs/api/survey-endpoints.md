@@ -28,6 +28,8 @@ The Surveys API provides full CRUD operations for surveys and response collectio
 | POST | `/api/surveys/{surveyId}/responses` | Optional | Submit a response |
 | GET | `/api/surveys/responses/{responseId}` | Admin | Get a single response |
 
+"Admin" means the caller's role is checked in the database on every request: the admin-only handlers call `checkAdminAuth()` from `apps/web/lib/auth/admin-guard.ts`, and the list and single-survey reads call `isAdmin(userId)` from `apps/web/lib/db/roles.ts`. The session's `isAdmin` claim is not used, because it is set at sign-in and stays `true` for the JWT's 30-day lifetime after the role is removed. A signed-out caller gets `401 Unauthorized` from an admin-only endpoint and a signed-in non-admin gets `403 Forbidden`.
+
 ---
 
 ## GET `/api/surveys`
@@ -38,7 +40,7 @@ Retrieves a paginated list of surveys with optional filtering. Database availabi
 
 The list needs no session, and each survey comes back with its full `surveyJson` and response count. So a caller who is not an admin (anonymous or signed in) only ever gets **published** surveys: the `status` filter is set to `published` whatever the query asks for, the same rule `GET /api/surveys/{surveyId}` applies. Admins get the status they ask for, or every status when they send none (the admin survey list).
 
-The filters are built by `buildSurveyListFilters(searchParams, isAdmin)` in `apps/web/lib/services/survey-list-filters.ts`. A `type` or `status` value that is not one of the values below is ignored (no filter) instead of being passed to the query.
+The filters are built by `buildSurveyListFilters(searchParams, isAdmin)` in `apps/web/lib/services/survey-list-filters.ts`; for a signed-in caller the admin flag is the live role from `isAdmin(session.user.id)`. A `type` or `status` value that is not one of the values below is ignored (no filter) instead of being passed to the query.
 
 ### Query Parameters
 
@@ -125,8 +127,10 @@ Retrieves a single survey by its ID or slug. Non-published surveys are only visi
 ```ts
 // Published surveys are visible to everyone
 if (survey.status !== 'published') {
+  // Live role from the database, not the session's isAdmin claim
   const session = await auth();
-  if (!session?.user?.isAdmin) {
+  const userIsAdmin = session?.user?.id ? await isAdmin(session.user.id) : false;
+  if (!userIsAdmin) {
     return NextResponse.json(
       { success: false, error: 'Survey not found' },
       { status: 404 }
