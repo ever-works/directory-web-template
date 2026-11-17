@@ -112,6 +112,15 @@ export async function invalidateContentCaches(): Promise<boolean> {
 }
 
 /**
+ * Marks every cached item page stale (they carry the ITEMS tag through getCachedItem).
+ *
+ * @returns `false` when Next could not revalidate in this context (render phase, or no request).
+ */
+export function revalidateItemPages(): boolean {
+  return safeRevalidateTag(CACHE_TAGS.ITEMS);
+}
+
+/**
  * Invalidates cache for a specific item
  * @param slug - Item slug to invalidate
  */

@@ -54,18 +54,21 @@ export default function NotFound({ locale }: { locale?: string } = {}) {
           </Button>
         </div>
 
-        {/* Search Suggestion */}
-        <div className="mt-12 p-4 bg-white/50 dark:bg-white/3 rounded-lg border border-gray-200/50 dark:border-white/4">
-          <div className="flex items-center gap-3 mb-3">
-            <Search className="w-5 h-5 text-gray-500 dark:text-gray-400" />
-            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-              Try searching instead
-            </span>
+        {/* Search Suggestion: only inside a locale, where the site header (and its search
+            bar) is rendered; the global 404 has no header. */}
+        {locale ? (
+          <div className="mt-12 p-4 bg-white/50 dark:bg-white/3 rounded-lg border border-gray-200/50 dark:border-white/4">
+            <div className="flex items-center gap-3 mb-3">
+              <Search className="w-5 h-5 text-gray-500 dark:text-gray-400" />
+              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                Try searching instead
+              </span>
+            </div>
+            <p className="text-sm text-gray-600 dark:text-gray-400">
+              Use the search bar above to find what you&apos;re looking for.
+            </p>
           </div>
-          <p className="text-sm text-gray-600 dark:text-gray-400">
-            Use the search bar above to find what you&apos;re looking for.
-          </p>
-        </div>
+        ) : null}
 
         {/* Helpful Links */}
         <div className="mt-8 text-sm text-gray-500 dark:text-gray-400">

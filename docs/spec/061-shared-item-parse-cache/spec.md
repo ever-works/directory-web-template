@@ -65,6 +65,8 @@ Found on a local production build with that data repo:
   (`TENANT_ID`, else the tenant of a database with exactly one tenant row, if active),
   looked up in parallel with the item. Otherwise it prefetches nothing (and the Product
   JSON-LD has no `aggregateRating`) and the browser loads the comments through the API.
+  Inserting a tenant row marks cached item pages stale, so they regenerate without the
+  previous single tenant's comments.
   The comments hook always refetches on mount, as the hydrated ones can be minutes old, and
   cancels that refetch before writing a new or edited comment, then reloads the list. A
   failed item read is an error, not a 404, so a regeneration that fails keeps the last good

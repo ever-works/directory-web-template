@@ -62,14 +62,22 @@ async function ensureTenantExists(tenantId: string, name: string) {
 		const { db } = await import('@/lib/db/drizzle');
 		const { tenant } = await import('@/lib/db/schema');
 		
-		await db.insert(tenant).values({
+		const inserted = await db.insert(tenant).values({
 			id: tenantId,
 			name,
 			status: 'active'
-		}).onConflictDoNothing();
-		
+		}).onConflictDoNothing().returning({ id: tenant.id });
+
 		ensuredTenants.add(tenantId);
 		console.log(`[DB Init] Ensured tenant '${tenantId}' (${name}) exists`);
+		if (inserted.length > 0) {
+			// Cached item pages embed the comments of what was the only tenant
+			// (getTenantIdForSharedRender, Spec 061): with another tenant they must regenerate
+			// without them. Skipped where Next cannot revalidate (a render); ISR then
+			// regenerates them within their 10-minute lifetime.
+			const { revalidateItemPages } = await import('@/lib/cache-invalidation');
+			revalidateItemPages();
+		}
 	} catch (e) {
 		console.warn(`[DB Init] Could not ensure tenant exists:`, e);
 	}
