@@ -5,19 +5,11 @@ import bcrypt from 'bcryptjs';
 import { db } from '@/lib/db/drizzle';
 import { accounts, users } from '@/lib/db/schema';
 import { eq, and } from 'drizzle-orm';
-import { setUserPasswordHash } from '@/lib/db/queries';
+import { isUserAdmin, setUserPasswordHash } from '@/lib/db/queries';
 import { ratelimit } from '@/lib/utils/rate-limit';
 import { sendPasswordChangeConfirmationEmail } from '@/lib/mail';
 import { passwordSchema } from '@/lib/validations/auth';
 import { getTenantId } from '@/lib/auth/tenant';
-
-/** The first stored hash that `password` matches, in the order given, or null. */
-async function findMatchingHash(password: string, hashes: (string | null | undefined)[]): Promise<string | null> {
-	for (const hash of hashes) {
-		if (hash && (await bcrypt.compare(password, hash))) return hash;
-	}
-	return null;
-}
 
 // Validation schema
 const changePasswordSchema = z
@@ -290,8 +282,7 @@ export async function POST(request: NextRequest) {
 		}
 
 		// Client passwords live on the user's `credentials` row in `accounts` (what client
-		// sign-in reads); admin passwords live on users.passwordHash. Try the account hash
-		// first, then the users hash, as deleteAccount does.
+		// sign-in reads); admin passwords live on users.passwordHash.
 		const [credentialsAccount] = await db
 			.select({ passwordHash: accounts.passwordHash })
 			.from(accounts)
@@ -311,10 +302,14 @@ export async function POST(request: NextRequest) {
 			);
 		}
 
-		// Verify current password: the account hash first, then the users hash
-		const storedHashes = [credentialsAccount?.passwordHash, user.passwordHash];
-		const currentHash = await findMatchingHash(currentPassword, storedHashes);
-		if (!currentHash) {
+		// Verify the current password against the one hash sign-in accepts for this user
+		// (lib/auth/credentials.ts): an admin with users.passwordHash signs in with that hash
+		// only, everyone else with the credentials account hash. Accepting the other store as
+		// well would let a stale hash authorize the change, e.g. the seed password still on a
+		// seeded admin's credentials row after an earlier change wrote users.passwordHash only.
+		const isAdmin = user.passwordHash ? await isUserAdmin(user.id) : false;
+		const currentHash = isAdmin ? user.passwordHash : (credentialsAccount?.passwordHash ?? user.passwordHash);
+		if (!currentHash || !(await bcrypt.compare(currentPassword, currentHash))) {
 			return NextResponse.json({ success: false, error: 'Current password is incorrect' }, { status: 400 });
 		}
 

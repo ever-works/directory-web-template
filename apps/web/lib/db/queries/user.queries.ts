@@ -106,6 +106,8 @@ export async function updateUserPassword(newPasswordHash: string, userId: string
  * row in `accounts`; admin sign-in reads `users.passwordHash`. One transaction writes the
  * credentials account of this user in this tenant, and the users row only when it already
  * has a hash (the admin case), so a user without one does not gain a second password store.
+ * A user with no credentials account keeps the old behaviour: the users row is written, so
+ * an admin who signed up through OAuth can still set a password with a reset.
  * @param userId - User ID
  * @param newPasswordHash - New password hash
  * @returns How many `accounts` and `users` rows now hold the new hash
@@ -124,7 +126,13 @@ export async function setUserPasswordHash(userId: string, newPasswordHash: strin
 		const updatedUsers = await tx
 			.update(users)
 			.set({ passwordHash: newPasswordHash, updatedAt: new Date() })
-			.where(and(eq(users.id, userId), eq(users.tenantId, tenantId), isNotNull(users.passwordHash)))
+			.where(
+				and(
+					eq(users.id, userId),
+					eq(users.tenantId, tenantId),
+					updatedAccounts.length > 0 ? isNotNull(users.passwordHash) : undefined
+				)
+			)
 			.returning({ id: users.id });
 		return { accounts: updatedAccounts.length, users: updatedUsers.length };
 	});

@@ -61,12 +61,12 @@ describe('password reset and change write the hash client sign-in reads', () => 
 		);
 	});
 
-	it('setUserPasswordHash updates users.passwordHash only where the user already has one (the admin case)', () => {
+	it('setUserPasswordHash updates users.passwordHash where the user already has one, or has no credentials account', () => {
 		const helper = functionBody(userQueries, 'export async function setUserPasswordHash(');
 		assert.ok(helper.includes('.update(users)'), 'setUserPasswordHash does not update users');
 		assert.ok(
-			helper.includes('isNotNull(users.passwordHash)'),
-			'setUserPasswordHash writes users.passwordHash for users that have none'
+			helper.includes('updatedAccounts.length > 0 ? isNotNull(users.passwordHash) : undefined'),
+			'setUserPasswordHash gives a client with a credentials account a users.passwordHash, or never writes users for a user with no credentials account'
 		);
 		assert.ok(helper.includes('eq(users.id, userId)'), 'setUserPasswordHash does not filter users by id');
 		assert.ok(
@@ -92,7 +92,7 @@ describe('password reset and change write the hash client sign-in reads', () => 
 		assert.ok(!post.includes('.update(users)'), 'POST still updates users directly');
 	});
 
-	it('the change-password route checks the credentials account hash first, then users.passwordHash', () => {
+	it('the change-password route checks the current password against the hash sign-in accepts, not either store', () => {
 		const post = functionBody(changePasswordRoute, 'export async function POST(');
 		assert.ok(post.includes('.from(accounts)'), 'POST does not read the credentials account');
 		assert.ok(
@@ -101,21 +101,27 @@ describe('password reset and change write the hash client sign-in reads', () => 
 		);
 		assert.ok(post.includes('eq(accounts.userId, user.id)'), 'POST does not read the account of this user');
 		assert.ok(post.includes('eq(accounts.tenantId, tenantId)'), 'POST does not read the account of this tenant');
+		// Sign-in (lib/auth/credentials.ts) uses users.passwordHash for an admin that has one and
+		// the credentials account hash for everyone else. A stale hash in the other store (the
+		// seed password on a seeded admin's credentials row) must not authorize a change.
 		assert.ok(
-			post.includes('const storedHashes = [credentialsAccount?.passwordHash, user.passwordHash];') &&
-				post.includes('findMatchingHash(currentPassword, storedHashes)'),
-			'POST does not try the credentials account hash before users.passwordHash'
+			post.includes('const isAdmin = user.passwordHash ? await isUserAdmin(user.id) : false;'),
+			'POST does not pick the store by role, as sign-in does'
 		);
-		const matcher = changePasswordRoute.slice(changePasswordRoute.indexOf('async function findMatchingHash('));
 		assert.ok(
-			/^async function findMatchingHash\([^)]*\)[^{]*\{ for \(const hash of hashes\) \{ if \(hash && \(await bcrypt\.compare\(password, hash\)\)\) return hash; \} return null; \}/.test(
-				matcher
+			post.includes(
+				'const currentHash = isAdmin ? user.passwordHash : (credentialsAccount?.passwordHash ?? user.passwordHash);'
 			),
-			'findMatchingHash no longer returns the first stored hash the password matches'
+			'POST does not check an admin against users.passwordHash and everyone else against the credentials account hash'
 		);
+		assert.ok(
+			post.includes('!(await bcrypt.compare(currentPassword, currentHash))'),
+			'POST does not check the current password against the sign-in hash'
+		);
+		assert.ok(!post.includes('findMatchingHash('), 'POST accepts a match in either password store');
 		assert.ok(
 			post.includes('bcrypt.compare(newPassword, currentHash)'),
-			'POST does not run the same-password check against the hash the current password matched'
+			'POST does not run the same-password check against the sign-in hash'
 		);
 		assert.ok(
 			!post.includes('bcrypt.compare(currentPassword, user.passwordHash)'),

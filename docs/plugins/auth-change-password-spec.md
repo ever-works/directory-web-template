@@ -130,23 +130,29 @@ exports only `POST`. The POST handler combines:
    exists → 400 `{ success: false, error: 'Password
    change not available for OAuth accounts. Please
    contact support.' }`.
-9. **`findMatchingHash(currentPassword, [account hash,
-   users.passwordHash])`** — `bcrypt.compare` against
-   the account hash first, then the users hash (the
-   order `deleteAccount` uses); no match → 400
+9. **`bcrypt.compare(currentPassword, currentHash)`**
+   — `currentHash` is the one hash sign-in accepts
+   for this user (`lib/auth/credentials.ts`):
+   `users.passwordHash` for an admin
+   (`isUserAdmin`) that has one, otherwise the
+   credentials account hash (falling back to
+   `users.passwordHash` when there is none). The other
+   store is not tried, so a stale hash there (the seed
+   password on a seeded admin's credentials row) cannot
+   authorize a change. No match → 400
    `{ success: false, error: 'Current password is
    incorrect' }`.
 10. **`bcrypt.compare(newPassword, currentHash)`** —
-    against the hash the current password matched;
-    `true` → 400 `{ success: false, error: 'New
+    against that same hash; `true` → 400 `{ success: false, error: 'New
     password must be different from current password' }`.
 11. **`bcrypt.hash(newPassword, 12)`** — load-bearing
     rehash with 12 salt rounds.
 12. **`setUserPasswordHash(user.id, hash)`** — load-
     bearing DB write: one transaction updates the
     credentials account hash (what client sign-in
-    reads) and `users.passwordHash` only when that row
-    already has one (the admin case).
+    reads) and `users.passwordHash` when that row
+    already has one (the admin case) or the user has no
+    credentials account.
 13. **`sendPasswordChangeConfirmationEmail(...)`** —
     fire-and-forget email; failures inside the inner
     try/catch are swallowed (the password change has

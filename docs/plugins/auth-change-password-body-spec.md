@@ -94,18 +94,21 @@ exports only `POST`. The handler combines:
    available for OAuth accounts. Please contact
    support.'`.
 7. **`bcrypt.compare(currentPassword, hash)`** —
-   against the credentials account hash first, then
-   `users.passwordHash`; no match → 400 `'Current
-   password is incorrect'`.
+   against the one hash sign-in accepts:
+   `users.passwordHash` for an admin that has one,
+   otherwise the credentials account hash (or
+   `users.passwordHash` when there is none); no match
+   → 400 `'Current password is incorrect'`.
 8. **`bcrypt.compare(newPassword, hash)` for
-   duplicate detection** — against the hash the
-   current password matched; true → 400 `'New
+   duplicate detection** — against that same hash;
+   true → 400 `'New
    password must be different from current
    password'`.
 9. **`bcrypt.hash(newPassword, 12)` +
    `setUserPasswordHash(...)`** — load-bearing
    password-write call (credentials account, plus
-   `users.passwordHash` when already set).
+   `users.passwordHash` when already set or when
+   there is no credentials account).
 10. **`sendPasswordChangeConfirmationEmail(...)`
     side-effect** wrapped in try/catch (fault-
     tolerant; failure does NOT fail the password

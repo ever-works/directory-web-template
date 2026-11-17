@@ -132,7 +132,7 @@ async function updateUserPassword(
 UPDATE users SET password_hash = ? WHERE id = ?;
 ```
 
-This writes `users.passwordHash` only, which only admin sign-in reads. Password reset and change-password use `setUserPasswordHash` instead.
+This writes `users.passwordHash` only. Admin sign-in reads that column and client sign-in does not; account deletion and deactivation also accept it as a fallback. Password reset and change-password use `setUserPasswordHash` instead.
 
 ---
 
@@ -162,10 +162,11 @@ async function setUserPasswordHash(
 UPDATE accounts SET password_hash = ?
   WHERE "userId" = ? AND provider = 'credentials' AND tenant_id = ?;
 UPDATE users SET password_hash = ?, updated_at = now()
-  WHERE id = ? AND tenant_id = ? AND password_hash IS NOT NULL;
+  WHERE id = ? AND tenant_id = ?
+    AND password_hash IS NOT NULL;  -- this condition only when an accounts row was updated
 ```
 
-The users row is written only when it already has a hash (the admin case), so a user without one does not gain a second password store.
+When a credentials account was updated, the users row is written only if it already has a hash (the admin case), so a client does not gain a second password store. A user with no credentials account has the users row written, as before, so an admin who signed up through OAuth can still set a password with a reset.
 
 ---
 
