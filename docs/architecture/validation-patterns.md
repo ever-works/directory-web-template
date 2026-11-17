@@ -216,7 +216,7 @@ export const clientCreateItemSchema = z.object({
   description: z.string()
     .min(ITEM_VALIDATION.DESCRIPTION_MIN_LENGTH)
     .max(ITEM_VALIDATION.DESCRIPTION_MAX_LENGTH),
-  source_url: z.string().url('Invalid URL format'),
+  source_url: httpUrlSchema, // http(s) links only: lib/validations/http-url.ts
   category: z.union([
     z.string().min(1),
     z.array(z.string().min(1)).min(1),

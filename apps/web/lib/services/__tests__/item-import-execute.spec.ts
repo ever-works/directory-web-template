@@ -295,6 +295,167 @@ describe('importRowSchema slug rule (T-2527)', () => {
 	});
 });
 
+describe('links are compared as the single submit compares them (T-2610)', () => {
+	// POST /api/client/items refuses these with 409 (findItemBySourceUrl / normalizeSourceUrl).
+	const variantsOfTaken = [
+		'https://www.taken.example.com',
+		'https://taken.example.com/',
+		'http://Taken.Example.com/#top',
+		'https://taken.example.com/?utm_source=newsletter'
+	];
+
+	it('executeImport skips a www, trailing-slash, scheme or tracking variant of an existing link', async () => {
+		const result = await service.executeImport(
+			variantsOfTaken.map((source_url, i) => row(i, { source_url })),
+			clientOptions
+		);
+
+		assert.deepEqual(createdSlugs(), []);
+		assert.equal(result.created, 0);
+		assert.equal(result.skipped, variantsOfTaken.length);
+		assert.deepEqual(result.errors, []);
+	});
+
+	it('executeImport creates one item for two rows with one link and different names', async () => {
+		const result = await service.executeImport(
+			[
+				row(0, { name: 'Tool A', slug: 'tool-a', source_url: 'https://shared.example.com/tool' }),
+				row(1, { name: 'Tool B', slug: 'tool-b', source_url: 'https://shared.example.com/tool' }),
+				row(2, { name: 'Tool C', slug: 'tool-c', source_url: 'https://www.shared.example.com/tool/' })
+			],
+			clientOptions
+		);
+
+		assert.deepEqual(createdSlugs(), ['tool-a']);
+		assert.equal(result.created, 1);
+		assert.equal(result.skipped, 2);
+	});
+
+	it('executeImport still creates a row whose link is another page of a known site', async () => {
+		const result = await service.executeImport(
+			[row(0, { source_url: 'https://taken.example.com/pricing' })],
+			clientOptions
+		);
+
+		assert.equal(result.created, 1);
+	});
+
+	it('executeImport reports javascript: and data: links as errors and writes nothing', async () => {
+		const result = await service.executeImport(
+			[
+				row(0, { source_url: 'javascript:alert(1)' }),
+				row(1, { source_url: 'data:text/html,<script>alert(1)</script>' })
+			],
+			adminOptions
+		);
+
+		assert.deepEqual(repo.created, []);
+		assert.deepEqual(
+			result.errors.map((error) => error.rowIndex),
+			[0, 1]
+		);
+	});
+
+	const raw = (overrides: Record<string, string>) => ({
+		name: 'New Tool',
+		description: 'A brand new tool for the directory.',
+		source_url: 'https://new.example.com',
+		category: 'tools',
+		...overrides
+	});
+	const options = { columnMapping: {}, duplicateStrategy: 'skip' as const, defaultStatus: 'pending' as const };
+
+	it('validateRows flags a www or trailing-slash variant of an existing link as a duplicate', async () => {
+		const result = await service.validateRows(
+			[
+				raw({ source_url: 'https://www.taken.example.com/' }),
+				raw({ name: 'Other Tool', source_url: 'https://taken.example.com/' })
+			],
+			options
+		);
+
+		assert.deepEqual(
+			result.validationResults.map((r) => r.duplicate?.source_url),
+			['https://www.taken.example.com/', 'https://taken.example.com/']
+		);
+		assert.equal(result.summary.duplicates, 2);
+		assert.match(result.validationResults[0].warnings.join(' '), /skipped/);
+	});
+
+	it('validateRows flags a later row whose link an earlier row of the file already has', async () => {
+		const result = await service.validateRows(
+			[
+				raw({ name: 'Tool A', source_url: 'https://shared.example.com/tool' }),
+				raw({ name: 'Tool B', source_url: 'https://shared.example.com/tool' }),
+				raw({ name: 'Tool C', source_url: 'https://www.shared.example.com/tool/' })
+			],
+			options
+		);
+
+		assert.deepEqual(
+			result.validationResults.map((r) => r.duplicate?.source_url),
+			[undefined, 'https://shared.example.com/tool', 'https://www.shared.example.com/tool/']
+		);
+		assert.equal(result.summary.duplicates, 2);
+	});
+
+	it('validateRows says "will be skipped" for a link-only duplicate with the update strategy, as executeImport skips it', async () => {
+		const result = await service.validateRows([raw({ source_url: 'https://www.taken.example.com' })], {
+			...options,
+			duplicateStrategy: 'update'
+		});
+
+		assert.equal(result.validationResults[0].duplicate?.source_url, 'https://www.taken.example.com');
+		assert.match(result.validationResults[0].warnings.join(' '), /will be skipped/);
+	});
+
+	it('a row skipped for its existing slug does not take its free link from a later row', async () => {
+		const result = await service.executeImport(
+			[
+				row(0, { slug: 'taken', source_url: 'https://free.example.com' }),
+				row(1, { slug: 'free-tool', source_url: 'https://free.example.com' })
+			],
+			clientOptions
+		);
+
+		assert.deepEqual(createdSlugs(), ['free-tool']);
+		assert.equal(result.skipped, 1);
+
+		const preview = await service.validateRows(
+			[
+				raw({ name: 'Taken Tool', slug: 'taken', source_url: 'https://free.example.com' }),
+				raw({ name: 'Free Tool', source_url: 'https://free.example.com' })
+			],
+			options
+		);
+
+		assert.deepEqual(
+			preview.validationResults.map((r) => [r.duplicate?.slug, r.duplicate?.source_url]),
+			[
+				['taken', undefined],
+				[undefined, undefined]
+			]
+		);
+	});
+
+	it('a row that updates an item by its slug still claims its link (admin update strategy)', async () => {
+		const result = await service.executeImport(
+			[
+				row(0, { slug: 'taken', source_url: 'https://moved.example.com' }),
+				row(1, { slug: 'moved-tool', source_url: 'https://www.moved.example.com/' })
+			],
+			{ ...adminOptions, duplicateStrategy: 'update' }
+		);
+
+		assert.deepEqual(
+			repo.updated.map((update) => update.id),
+			['taken']
+		);
+		assert.deepEqual(createdSlugs(), []);
+		assert.equal(result.skipped, 1);
+	});
+});
+
 describe('client import route (T-2527)', () => {
 	it('runs the import in client mode', () => {
 		const route = readFileSync(join(__dirname, '../../../app/api/client/items/import/route.ts'), 'utf8');

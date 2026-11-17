@@ -95,7 +95,7 @@ export const clientCreateItemSchema = z.object({
   description: z.string()
     .min(ITEM_VALIDATION.DESCRIPTION_MIN_LENGTH)
     .max(ITEM_VALIDATION.DESCRIPTION_MAX_LENGTH),
-  source_url: z.string().url('Invalid URL format'),
+  source_url: httpUrlSchema, // http(s) links only: lib/validations/http-url.ts
   category: z.union([
     z.string().min(1, 'Category is required'),
     z.array(z.string().min(1)).min(1, 'At least one category is required'),
@@ -112,7 +112,7 @@ export const clientCreateItemSchema = z.object({
 export const clientUpdateItemSchema = z.object({
   name: z.string().min(...).max(...).optional(),
   description: z.string().min(...).max(...).optional(),
-  source_url: z.string().url('Invalid URL format').optional(),
+  source_url: httpUrlSchema.optional(),
   category: z.union([...]).optional(),
   tags: z.array(z.string().min(1)).optional(),
   icon_url: z.string().url('Invalid icon URL format').optional().or(z.literal('')),
