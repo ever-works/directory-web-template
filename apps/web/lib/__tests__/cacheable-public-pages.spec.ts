@@ -89,6 +89,17 @@ describe('cacheable public pages (spec 061)', () => {
 		assert.ok(proxy.includes('if (isCachedListingTwinPath(resolveLocalePrefix(originalPathname).pathWithoutLocale)) { return new NextResponse(null, { status: 404 }); }'));
 	});
 
+	it('server-side React Query clients schedule no garbage-collection timers', () => {
+		// A timer started during a request keeps that request's async context (render
+		// streams, RSC payload) alive until it fires: ~1 MB per page for 10 minutes.
+		assert.ok(code('lib/query-client.ts').includes('gcTime: isServer ? Infinity : 10 * 60 * 1000,'));
+		// Hooks pass their own gcTime (5 min to a day) during SSR: long TanStack timers are
+		// not scheduled on the server at all.
+		const qc = code('lib/query-client.ts');
+		assert.ok(qc.includes('const SERVER_MAX_QUERY_TIMER_MS = 60_000; if (isServer) { timeoutManager.setTimeoutProvider'));
+		assert.ok(qc.includes('setTimeout: (callback, delay) => (delay >= SERVER_MAX_QUERY_TIMER_MS ? 0 : setTimeout(callback, delay))'));
+	});
+
 	it('the runtime page cache stays in memory and bounded unless asked otherwise', () => {
 		const config = flat('next.config.ts');
 		assert.ok(config.includes("isrFlushToDisk: process.env.NEXT_ISR_FLUSH_TO_DISK === 'true'"));

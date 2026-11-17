@@ -22,11 +22,13 @@ const nextConfig: NextConfig = {
 	// RSC payload), and a directory with 4,000 items in 21 locales has ~86,000 of them, so
 	// writing every rendered page to disk (Next's default) can grow a pod's filesystem by
 	// tens of GB under crawler traffic. Keep the runtime page cache in memory, bounded by
-	// `NEXT_CACHE_MAX_MEMORY_MB` (default 256), and evict least recently used pages; a
-	// CDN in front (Cloudflare) caches them too, from the `s-maxage` header. Set
-	// `NEXT_ISR_FLUSH_TO_DISK=true` to also write them to disk. Both are read at build time.
+	// `NEXT_CACHE_MAX_MEMORY_MB`, and evict least recently used pages; a CDN in front
+	// (Cloudflare) caches them too, from the `s-maxage` header. Next counts a cached item
+	// page as ~0.65 MB; it measured ~0.9 MB of heap + buffers, so the default 64 keeps the
+	// cache under ~90 MB. Raise it on pods with memory to spare. Set
+	// `NEXT_ISR_FLUSH_TO_DISK=true` to also write pages to disk. Both are read at build time.
 	cacheMaxMemorySize:
-		(Number(process.env.NEXT_CACHE_MAX_MEMORY_MB) > 0 ? Number(process.env.NEXT_CACHE_MAX_MEMORY_MB) : 256) *
+		(Number(process.env.NEXT_CACHE_MAX_MEMORY_MB) > 0 ? Number(process.env.NEXT_CACHE_MAX_MEMORY_MB) : 64) *
 		1024 *
 		1024,
 	experimental: {

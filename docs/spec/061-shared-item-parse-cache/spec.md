@@ -71,7 +71,8 @@ Found on a local production build with that data repo:
   boundary (categories, tags, tags/collections paging, collections) are pinned to
   `force-dynamic`: rendered per request, as before.
 - **R6.** The runtime page cache stays in memory, LRU-bounded by `NEXT_CACHE_MAX_MEMORY_MB`
-  (default 256), and is written to disk only with `NEXT_ISR_FLUSH_TO_DISK=true`.
+  (default 64: a cached item page is counted as ~0.65 MB and measured ~0.9 MB of heap),
+  and is written to disk only with `NEXT_ISR_FLUSH_TO_DISK=true`.
 
 **Content loading**
 
@@ -106,6 +107,17 @@ Found on a local production build with that data repo:
   that throws is retried on the next sync, one with failed items at most hourly.
 - **R13.** The missing-YAML repair runs once per distinct set of YAML-less directories;
   concurrent walks wait for it.
+
+**Memory**
+
+- **R14.** On the server, React Query schedules no timer of 60 s or more, and the server
+  query client's `gcTime` is `Infinity` (`lib/query-client.ts`). During SSR every
+  `useQuery` scheduled its garbage-collection timer (hooks pass 5 minutes to a day), and a
+  timer started during a request keeps that request's whole async context alive until it
+  fires: render streams, RSC payload, request stores. Under crawler load that grew the
+  heap by gigabytes (a heap snapshot after 75 s of load: 452 MB under the 5-minute timer
+  list alone, ~11 timers per request). Short timers (retry back-off, at most 30 s) still
+  run.
 
 ## 4. Out of scope
 
@@ -147,6 +159,23 @@ time are much lower, and every later view is a cache hit. The very first request
 process start (module loading plus the first parse of every item file) took 4.2 s before
 and 4.7–8.4 s after across runs; it is dominated by module loading on this machine.
 
+**Sync under load.** A prod-like content checkout (isomorphic-git clone, as the sync
+makes it) rewound to the commit before the 106-item merge that preceded the
+`mcpserver.ever.works` OOM kills; 9 minutes of crawler load (4 concurrent, item, home,
+category and tag pages over 21 locales); the regular 5-minute sync pulls the merge
+mid-load. RSS sampled every 0.5 s.
+
+| | Before | After |
+|---|---|---|
+| RSS under load | climbs linearly, 3.3 GB at 5 min | flat, 0.85–1.15 GB |
+| Peak RSS | 4,603 MB | 1,160 MB |
+| At the sync | +~800 MB in ~45 s, requests stalled 17 s | no spike, no stall; done in 9 s |
+| Cache tags revalidated by the sync | no (skipped: render phase) | yes |
+| Live after a forced GC at the end | 4,277 MB | 509 MB |
+
+The growth was R14's timers, present on `origin/develop` too; without R14 this change grew
+faster in the same test (5.3 GB: more pages served per second, each leaving its timers).
+
 ## 6. Tests
 
 - `apps/web/lib/__tests__/item-file-cache.spec.ts` — parse once, single-flight, mtime
@@ -154,7 +183,8 @@ and 4.7–8.4 s after across runs; it is dominated by module loading on this mac
 - `apps/web/lib/__tests__/content-revision.spec.ts` — loose, packed, detached and unborn
   HEAD, refs outside `.git`.
 - `apps/web/lib/__tests__/cacheable-public-pages.spec.ts` — source guards against the
-  request-scoped reads that made pages dynamic, and for the rewrite conditions.
+  request-scoped reads that made pages dynamic, for the rewrite conditions and for the
+  server-side React Query timers (R14).
 - `apps/web/lib/auth/__tests__/shared-render-tenant.spec.ts` — the shared-render tenant pick.
 - `apps/web/lib/seo/__tests__/item-rating-wiring.spec.ts` — updated for the shared-render
   tenant.

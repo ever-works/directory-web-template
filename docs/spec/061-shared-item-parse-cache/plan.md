@@ -60,6 +60,8 @@ sits outside `categories/` so that a category named `category` cannot resolve to
   its own writes, which also revalidate the content tag. `getCachedConfig` is keyed by the
   content revision (10-minute TTL).
 - `lib/content-revision.ts`: HEAD reader shared by `getContentRevision()` and the sync.
+- `lib/query-client.ts`: server-only `timeoutManager` provider that drops TanStack Query
+  timers of 60 s or more; server `gcTime: Infinity` (R14).
 - `lib/services/sync-service.ts` + `lib/cache-invalidation.ts`: invalidate on HEAD change
   (or hourly); in-memory caches always, cache tags retried while the timer's context cannot
   revalidate them; warm the default locale afterwards; location index rebuilt per commit,
@@ -69,7 +71,7 @@ sits outside `categories/` so that a category named `category` cannot resolve to
 
 | Variable | Default | Read at |
 |---|---|---|
-| `NEXT_CACHE_MAX_MEMORY_MB` | 256 | build (`next.config.ts`) |
+| `NEXT_CACHE_MAX_MEMORY_MB` | 64 | build (`next.config.ts`) |
 | `NEXT_ISR_FLUSH_TO_DISK` | off | build |
 | `CONTENT_LISTING_CACHE_MAX_ENTRIES` | 16 | runtime |
 
