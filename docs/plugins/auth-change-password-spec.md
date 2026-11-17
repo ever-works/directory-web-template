@@ -122,21 +122,31 @@ exports only `POST`. The POST handler combines:
    session.user.id), eq(users.tenantId, tenantId)))
    .limit(1)`** — null → 404 `{ success: false,
    error: 'User not found' }`.
-8. **`!user.passwordHash`** — OAuth-account guard →
-   400 `{ success: false, error: 'Password change
-   not available for OAuth accounts. Please contact
-   support.' }`.
-9. **`bcrypt.compare(currentPassword, user.passwordHash)`**
-   — `false` → 400 `{ success: false, error:
-   'Current password is incorrect' }`.
-10. **`bcrypt.compare(newPassword, user.passwordHash)`**
-    — `true` → 400 `{ success: false, error: 'New
+8. **Credentials-account lookup + OAuth-account guard** —
+   the route reads the hash on the user's
+   `provider = 'credentials'` row in `accounts` (same
+   user, same tenant), where client passwords live.
+   Only when neither that hash nor `users.passwordHash`
+   exists → 400 `{ success: false, error: 'Password
+   change not available for OAuth accounts. Please
+   contact support.' }`.
+9. **`findMatchingHash(currentPassword, [account hash,
+   users.passwordHash])`** — `bcrypt.compare` against
+   the account hash first, then the users hash (the
+   order `deleteAccount` uses); no match → 400
+   `{ success: false, error: 'Current password is
+   incorrect' }`.
+10. **`bcrypt.compare(newPassword, currentHash)`** —
+    against the hash the current password matched;
+    `true` → 400 `{ success: false, error: 'New
     password must be different from current password' }`.
 11. **`bcrypt.hash(newPassword, 12)`** — load-bearing
     rehash with 12 salt rounds.
-12. **`db.update(users).set({ passwordHash,
-    updatedAt }).where(...)`** — load-bearing DB
-    write.
+12. **`setUserPasswordHash(user.id, hash)`** — load-
+    bearing DB write: one transaction updates the
+    credentials account hash (what client sign-in
+    reads) and `users.passwordHash` only when that row
+    already has one (the admin case).
 13. **`sendPasswordChangeConfirmationEmail(...)`** —
     fire-and-forget email; failures inside the inner
     try/catch are swallowed (the password change has

@@ -3,12 +3,21 @@ import { auth } from '@/lib/auth';
 import { z } from 'zod';
 import bcrypt from 'bcryptjs';
 import { db } from '@/lib/db/drizzle';
-import { users } from '@/lib/db/schema';
+import { accounts, users } from '@/lib/db/schema';
 import { eq, and } from 'drizzle-orm';
+import { setUserPasswordHash } from '@/lib/db/queries';
 import { ratelimit } from '@/lib/utils/rate-limit';
 import { sendPasswordChangeConfirmationEmail } from '@/lib/mail';
 import { passwordSchema } from '@/lib/validations/auth';
 import { getTenantId } from '@/lib/auth/tenant';
+
+/** The first stored hash that `password` matches, in the order given, or null. */
+async function findMatchingHash(password: string, hashes: (string | null | undefined)[]): Promise<string | null> {
+	for (const hash of hashes) {
+		if (hash && (await bcrypt.compare(password, hash))) return hash;
+	}
+	return null;
+}
 
 // Validation schema
 const changePasswordSchema = z
@@ -280,8 +289,19 @@ export async function POST(request: NextRequest) {
 			return NextResponse.json({ success: false, error: 'User not found' }, { status: 404 });
 		}
 
+		// Client passwords live on the user's `credentials` row in `accounts` (what client
+		// sign-in reads); admin passwords live on users.passwordHash. Try the account hash
+		// first, then the users hash, as deleteAccount does.
+		const [credentialsAccount] = await db
+			.select({ passwordHash: accounts.passwordHash })
+			.from(accounts)
+			.where(
+				and(eq(accounts.userId, user.id), eq(accounts.provider, 'credentials'), eq(accounts.tenantId, tenantId))
+			)
+			.limit(1);
+
 		// Check if user has a password (OAuth users might not have one)
-		if (!user.passwordHash) {
+		if (!credentialsAccount?.passwordHash && !user.passwordHash) {
 			return NextResponse.json(
 				{
 					success: false,
@@ -291,14 +311,15 @@ export async function POST(request: NextRequest) {
 			);
 		}
 
-		// Verify current password
-		const isCurrentPasswordValid = await bcrypt.compare(currentPassword, user.passwordHash);
-		if (!isCurrentPasswordValid) {
+		// Verify current password: the account hash first, then the users hash
+		const storedHashes = [credentialsAccount?.passwordHash, user.passwordHash];
+		const currentHash = await findMatchingHash(currentPassword, storedHashes);
+		if (!currentHash) {
 			return NextResponse.json({ success: false, error: 'Current password is incorrect' }, { status: 400 });
 		}
 
 		// Check if new password is different from current
-		const isSamePassword = await bcrypt.compare(newPassword, user.passwordHash);
+		const isSamePassword = await bcrypt.compare(newPassword, currentHash);
 		if (isSamePassword) {
 			return NextResponse.json(
 				{ success: false, error: 'New password must be different from current password' },
@@ -310,14 +331,8 @@ export async function POST(request: NextRequest) {
 		const saltRounds = 12;
 		const hashedNewPassword = await bcrypt.hash(newPassword, saltRounds);
 
-		// Update password in database
-		await db
-			.update(users)
-			.set({
-				passwordHash: hashedNewPassword,
-				updatedAt: new Date()
-			})
-			.where(and(eq(users.id, session.user.id), eq(users.tenantId, tenantId)));
+		// Update password in database: the credentials account, and users.passwordHash when set
+		await setUserPasswordHash(user.id, hashedNewPassword);
 
 		// Send confirmation email
 		try {

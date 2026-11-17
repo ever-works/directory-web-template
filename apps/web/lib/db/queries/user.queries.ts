@@ -1,4 +1,4 @@
-import { eq, sql, and, inArray, isNull } from 'drizzle-orm';
+import { eq, sql, and, inArray, isNull, isNotNull } from 'drizzle-orm';
 import { db } from '../drizzle';
 import { users, clientProfiles, accounts, roles, userRoles, type NewUser, type User } from '../schema';
 import { getTenantId } from '@/lib/auth/tenant';
@@ -98,6 +98,36 @@ export async function updateUserPassword(newPasswordHash: string, userId: string
 		.update(users)
 		.set({ passwordHash: newPasswordHash })
 		.where(and(eq(users.id, userId), eq(users.tenantId, tenantId)));
+}
+
+/**
+ * Store a new password hash where sign-in reads it (password reset and change).
+ * Client sign-in (`verifyClientPassword`) reads only the hash on the user's `credentials`
+ * row in `accounts`; admin sign-in reads `users.passwordHash`. One transaction writes the
+ * credentials account of this user in this tenant, and the users row only when it already
+ * has a hash (the admin case), so a user without one does not gain a second password store.
+ * @param userId - User ID
+ * @param newPasswordHash - New password hash
+ * @returns How many `accounts` and `users` rows now hold the new hash
+ */
+export async function setUserPasswordHash(userId: string, newPasswordHash: string) {
+	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
+	return db.transaction(async (tx) => {
+		const updatedAccounts = await tx
+			.update(accounts)
+			.set({ passwordHash: newPasswordHash })
+			.where(
+				and(eq(accounts.userId, userId), eq(accounts.provider, 'credentials'), eq(accounts.tenantId, tenantId))
+			)
+			.returning({ userId: accounts.userId });
+		const updatedUsers = await tx
+			.update(users)
+			.set({ passwordHash: newPasswordHash, updatedAt: new Date() })
+			.where(and(eq(users.id, userId), eq(users.tenantId, tenantId), isNotNull(users.passwordHash)))
+			.returning({ id: users.id });
+		return { accounts: updatedAccounts.length, users: updatedUsers.length };
+	});
 }
 
 /**

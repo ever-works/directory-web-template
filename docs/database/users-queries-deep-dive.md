@@ -132,6 +132,41 @@ async function updateUserPassword(
 UPDATE users SET password_hash = ? WHERE id = ?;
 ```
 
+This writes `users.passwordHash` only, which only admin sign-in reads. Password reset and change-password use `setUserPasswordHash` instead.
+
+---
+
+### `setUserPasswordHash`
+
+Stores a new password hash where sign-in reads it. Client sign-in (`verifyClientPassword`) reads only the hash on the user's `credentials` row in `accounts`; admin sign-in reads `users.passwordHash`. Used by the password reset (`newPasswordAction`) and `POST /api/auth/change-password`.
+
+```typescript
+async function setUserPasswordHash(
+  userId: string,
+  newPasswordHash: string
+): Promise<{ accounts: number; users: number }>
+```
+
+**Parameters:**
+
+| Parameter         | Type     | Required | Description          |
+|-------------------|----------|----------|----------------------|
+| `userId`          | `string` | Yes      | Target user ID       |
+| `newPasswordHash` | `string` | Yes      | New bcrypt hash      |
+
+**Returns:** how many `accounts` and `users` rows now hold the new hash.
+
+**SQL Pattern (one transaction, current tenant):**
+
+```sql
+UPDATE accounts SET password_hash = ?
+  WHERE "userId" = ? AND provider = 'credentials' AND tenant_id = ?;
+UPDATE users SET password_hash = ?, updated_at = now()
+  WHERE id = ? AND tenant_id = ? AND password_hash IS NOT NULL;
+```
+
+The users row is written only when it already has a hash (the admin case), so a user without one does not gain a second password store.
+
 ---
 
 ### `updateUser`

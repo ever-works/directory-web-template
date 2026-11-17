@@ -44,7 +44,8 @@ detailed invariants.
   distinct from all prior 401 messages
   (`'Unauthorized'`, `'Authentication required'`,
   `'Authentication required'` two-key, etc.).
-- **OAuth-account check:** `!user.passwordHash` →
+- **OAuth-account check:** no hash on the
+  credentials account and no `users.passwordHash` →
   400 `'Password change not available for OAuth
   accounts. Please contact support.'`. The FIRST
   per-source-file POST smoke that pins an OAuth-
@@ -87,18 +88,24 @@ exports only `POST`. The handler combines:
    `'Tenant not found'`.
 5. **User lookup by `id` AND `tenantId`** — not
    found → 404 `'User not found'`.
-6. **OAuth-account check** — `!user.passwordHash` →
-   400 `'Password change not available for OAuth
-   accounts. Please contact support.'`.
+6. **OAuth-account check** — no hash on the user's
+   `credentials` account row AND no
+   `users.passwordHash` → 400 `'Password change not
+   available for OAuth accounts. Please contact
+   support.'`.
 7. **`bcrypt.compare(currentPassword, hash)`** —
-   false → 400 `'Current password is incorrect'`.
+   against the credentials account hash first, then
+   `users.passwordHash`; no match → 400 `'Current
+   password is incorrect'`.
 8. **`bcrypt.compare(newPassword, hash)` for
-   duplicate detection** — true → 400 `'New
+   duplicate detection** — against the hash the
+   current password matched; true → 400 `'New
    password must be different from current
    password'`.
 9. **`bcrypt.hash(newPassword, 12)` +
-   `db.update(users)`** — load-bearing password-
-   write call.
+   `setUserPasswordHash(...)`** — load-bearing
+   password-write call (credentials account, plus
+   `users.passwordHash` when already set).
 10. **`sendPasswordChangeConfirmationEmail(...)`
     side-effect** wrapped in try/catch (fault-
     tolerant; failure does NOT fail the password
