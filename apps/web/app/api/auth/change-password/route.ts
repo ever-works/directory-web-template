@@ -3,8 +3,9 @@ import { auth } from '@/lib/auth';
 import { z } from 'zod';
 import bcrypt from 'bcryptjs';
 import { db } from '@/lib/db/drizzle';
-import { users } from '@/lib/db/schema';
+import { accounts, users } from '@/lib/db/schema';
 import { eq, and } from 'drizzle-orm';
+import { isUserAdminOrThrow, setUserPasswordHash } from '@/lib/db/queries';
 import { ratelimit } from '@/lib/utils/rate-limit';
 import { sendPasswordChangeConfirmationEmail } from '@/lib/mail';
 import { passwordSchema } from '@/lib/validations/auth';
@@ -280,8 +281,18 @@ export async function POST(request: NextRequest) {
 			return NextResponse.json({ success: false, error: 'User not found' }, { status: 404 });
 		}
 
+		// Client passwords live on the user's `credentials` row in `accounts` (what client
+		// sign-in reads); admin passwords live on users.passwordHash.
+		const [credentialsAccount] = await db
+			.select({ passwordHash: accounts.passwordHash })
+			.from(accounts)
+			.where(
+				and(eq(accounts.userId, user.id), eq(accounts.provider, 'credentials'), eq(accounts.tenantId, tenantId))
+			)
+			.limit(1);
+
 		// Check if user has a password (OAuth users might not have one)
-		if (!user.passwordHash) {
+		if (!credentialsAccount?.passwordHash && !user.passwordHash) {
 			return NextResponse.json(
 				{
 					success: false,
@@ -291,14 +302,21 @@ export async function POST(request: NextRequest) {
 			);
 		}
 
-		// Verify current password
-		const isCurrentPasswordValid = await bcrypt.compare(currentPassword, user.passwordHash);
-		if (!isCurrentPasswordValid) {
+		// Verify the current password against the one hash sign-in accepts for this user
+		// (lib/auth/credentials.ts): an admin with users.passwordHash signs in with that hash
+		// only, everyone else with the credentials account hash. Accepting the other store as
+		// well would let a stale hash authorize the change, e.g. the seed password still on a
+		// seeded admin's credentials row after an earlier change wrote users.passwordHash only.
+		// The role lookup fails closed: an error goes to the 500 below instead of reading as
+		// "not an admin", which would check an admin against the credentials account hash.
+		const isAdmin = user.passwordHash ? await isUserAdminOrThrow(user.id) : false;
+		const currentHash = isAdmin ? user.passwordHash : (credentialsAccount?.passwordHash ?? user.passwordHash);
+		if (!currentHash || !(await bcrypt.compare(currentPassword, currentHash))) {
 			return NextResponse.json({ success: false, error: 'Current password is incorrect' }, { status: 400 });
 		}
 
 		// Check if new password is different from current
-		const isSamePassword = await bcrypt.compare(newPassword, user.passwordHash);
+		const isSamePassword = await bcrypt.compare(newPassword, currentHash);
 		if (isSamePassword) {
 			return NextResponse.json(
 				{ success: false, error: 'New password must be different from current password' },
@@ -310,14 +328,8 @@ export async function POST(request: NextRequest) {
 		const saltRounds = 12;
 		const hashedNewPassword = await bcrypt.hash(newPassword, saltRounds);
 
-		// Update password in database
-		await db
-			.update(users)
-			.set({
-				passwordHash: hashedNewPassword,
-				updatedAt: new Date()
-			})
-			.where(and(eq(users.id, session.user.id), eq(users.tenantId, tenantId)));
+		// Update password in database: the credentials account, and users.passwordHash when set
+		await setUserPasswordHash(user.id, hashedNewPassword);
 
 		// Send confirmation email
 		try {

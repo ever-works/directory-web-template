@@ -132,6 +132,42 @@ async function updateUserPassword(
 UPDATE users SET password_hash = ? WHERE id = ?;
 ```
 
+This writes `users.passwordHash` only. Admin sign-in reads that column and client sign-in does not; account deletion and deactivation also accept it as a fallback. Password reset and change-password use `setUserPasswordHash` instead.
+
+---
+
+### `setUserPasswordHash`
+
+Stores a new password hash where sign-in reads it. Client sign-in (`verifyClientPassword`) reads only the hash on the user's `credentials` row in `accounts`; admin sign-in reads `users.passwordHash`. Used by the password reset (`newPasswordAction`) and `POST /api/auth/change-password`.
+
+```typescript
+async function setUserPasswordHash(
+  userId: string,
+  newPasswordHash: string
+): Promise<{ accounts: number; users: number }>
+```
+
+**Parameters:**
+
+| Parameter         | Type     | Required | Description          |
+|-------------------|----------|----------|----------------------|
+| `userId`          | `string` | Yes      | Target user ID       |
+| `newPasswordHash` | `string` | Yes      | New bcrypt hash      |
+
+**Returns:** how many `accounts` and `users` rows now hold the new hash.
+
+**SQL Pattern (one transaction, current tenant):**
+
+```sql
+UPDATE accounts SET password_hash = ?
+  WHERE "userId" = ? AND provider = 'credentials' AND tenant_id = ?;
+UPDATE users SET password_hash = ?, updated_at = now()
+  WHERE id = ? AND tenant_id = ?
+    AND password_hash IS NOT NULL;  -- this condition only when an accounts row was updated
+```
+
+When a credentials account was updated, the users row is written only if it already has a hash (the admin case), so a client does not gain a second password store. A user with no credentials account has the users row written, as before, so an admin who signed up through OAuth can still set a password with a reset.
+
 ---
 
 ### `updateUser`
@@ -259,6 +295,20 @@ LIMIT 1;
 - Uses `INNER JOIN` for efficient filtering
 - Checks both `isAdmin` flag and `active` status
 - Returns `false` silently when `DATABASE_URL` is not set
+- Returns `false` on a database error (logged); the query itself lives in `isUserAdminOrThrow`
+
+---
+
+### `isUserAdminOrThrow`
+
+The same role check, failing closed: a missing tenant or a database error throws instead of
+reading as "not an admin". `POST /api/auth/change-password` uses it to pick the password store
+it verifies against, so a failed lookup answers 500 rather than checking an admin against the
+credentials account hash.
+
+```typescript
+async function isUserAdminOrThrow(userId: string): Promise<boolean>
+```
 
 ---
 

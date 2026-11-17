@@ -504,6 +504,8 @@
 		"GLOBAL_SERVICE": "Küresel hizmet",
 		"COMMENTS_DELETE_WARNING": "Bu yorumu silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.",
 		"COMMENTS_HAVE_THOUGHTS": "Söyleyecekleriniz mi var?",
+		"COMMENTS_VIEW_PROFILE": "Profili görüntüle",
+		"COMMENTS_PROFILE": "Profil",
 		"COMMENTS_SHORTCUT": "Göndermek için Cmd/Ctrl + Enter",
 		"COMMENTS_POSTING": "Gönderiliyor",
 		"COMMENTS_DELETE_TITLE": "Yorumu Sil",

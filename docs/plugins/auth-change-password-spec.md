@@ -122,21 +122,42 @@ exports only `POST`. The POST handler combines:
    session.user.id), eq(users.tenantId, tenantId)))
    .limit(1)`** — null → 404 `{ success: false,
    error: 'User not found' }`.
-8. **`!user.passwordHash`** — OAuth-account guard →
-   400 `{ success: false, error: 'Password change
-   not available for OAuth accounts. Please contact
-   support.' }`.
-9. **`bcrypt.compare(currentPassword, user.passwordHash)`**
-   — `false` → 400 `{ success: false, error:
-   'Current password is incorrect' }`.
-10. **`bcrypt.compare(newPassword, user.passwordHash)`**
-    — `true` → 400 `{ success: false, error: 'New
+8. **Credentials-account lookup + OAuth-account guard** —
+   the route reads the hash on the user's
+   `provider = 'credentials'` row in `accounts` (same
+   user, same tenant), where client passwords live.
+   Only when neither that hash nor `users.passwordHash`
+   exists → 400 `{ success: false, error: 'Password
+   change not available for OAuth accounts. Please
+   contact support.' }`.
+9. **`bcrypt.compare(currentPassword, currentHash)`**
+   — `currentHash` is the hash sign-in accepts
+   for this user (`lib/auth/credentials.ts`):
+   `users.passwordHash` for an admin
+   (`isUserAdminOrThrow`, which fails closed: a
+   lookup error → 500) that has one, otherwise the
+   credentials account hash. When there is no
+   credentials account hash the route falls back to
+   `users.passwordHash`; that is route compatibility
+   only, since sign-in never reads it for a non-admin
+   (an OAuth-only non-admin still needs a credentials
+   account to sign in with a password). The other
+   store is not tried, so a stale hash there (the seed
+   password on a seeded admin's credentials row) cannot
+   authorize a change. No match → 400
+   `{ success: false, error: 'Current password is
+   incorrect' }`.
+10. **`bcrypt.compare(newPassword, currentHash)`** —
+    against that same hash; `true` → 400 `{ success: false, error: 'New
     password must be different from current password' }`.
 11. **`bcrypt.hash(newPassword, 12)`** — load-bearing
     rehash with 12 salt rounds.
-12. **`db.update(users).set({ passwordHash,
-    updatedAt }).where(...)`** — load-bearing DB
-    write.
+12. **`setUserPasswordHash(user.id, hash)`** — load-
+    bearing DB write: one transaction updates the
+    credentials account hash (what client sign-in
+    reads) and `users.passwordHash` when that row
+    already has one (the admin case) or the user has no
+    credentials account.
 13. **`sendPasswordChangeConfirmationEmail(...)`** —
     fire-and-forget email; failures inside the inner
     try/catch are swallowed (the password change has

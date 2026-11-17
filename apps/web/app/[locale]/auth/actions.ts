@@ -24,6 +24,7 @@ import {
 	logActivity,
 	updateUser,
 	updateUserPassword,
+	setUserPasswordHash,
 	updateUserVerification,
 	getClientAccountByEmail,
 	getClientProfileByUserId,
@@ -679,7 +680,8 @@ export const newPasswordAction = validatedAction(newPasswordSchema, async (data)
 
 	const hashedPassword = await hashPassword(data.newPassword);
 
-	await Promise.all([updateUserPassword(hashedPassword, result.userId), deletePasswordResetToken(data.token)]);
+	// Client passwords live on the credentials account, not users.passwordHash (see setUserPasswordHash).
+	await Promise.all([setUserPasswordHash(result.userId, hashedPassword), deletePasswordResetToken(data.token)]);
 
 	await logActivity(ActivityType.UPDATE_PASSWORD, result.userId, 'user');
 
