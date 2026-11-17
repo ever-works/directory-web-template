@@ -1,4 +1,4 @@
-import { eq, sql, and, inArray, isNull } from 'drizzle-orm';
+import { eq, sql, and, inArray, isNull, isNotNull } from 'drizzle-orm';
 import { db } from '../drizzle';
 import { users, clientProfiles, accounts, roles, userRoles, type NewUser, type User } from '../schema';
 import { getTenantId } from '@/lib/auth/tenant';
@@ -98,6 +98,44 @@ export async function updateUserPassword(newPasswordHash: string, userId: string
 		.update(users)
 		.set({ passwordHash: newPasswordHash })
 		.where(and(eq(users.id, userId), eq(users.tenantId, tenantId)));
+}
+
+/**
+ * Store a new password hash where sign-in reads it (password reset and change).
+ * Client sign-in (`verifyClientPassword`) reads only the hash on the user's `credentials`
+ * row in `accounts`; admin sign-in reads `users.passwordHash`. One transaction writes the
+ * credentials account of this user in this tenant, and the users row only when it already
+ * has a hash (the admin case), so a user without one does not gain a second password store.
+ * A user with no credentials account keeps the old behaviour: the users row is written, so
+ * an admin who signed up through OAuth can still set a password with a reset.
+ * @param userId - User ID
+ * @param newPasswordHash - New password hash
+ * @returns How many `accounts` and `users` rows now hold the new hash
+ */
+export async function setUserPasswordHash(userId: string, newPasswordHash: string) {
+	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
+	return db.transaction(async (tx) => {
+		const updatedAccounts = await tx
+			.update(accounts)
+			.set({ passwordHash: newPasswordHash })
+			.where(
+				and(eq(accounts.userId, userId), eq(accounts.provider, 'credentials'), eq(accounts.tenantId, tenantId))
+			)
+			.returning({ userId: accounts.userId });
+		const updatedUsers = await tx
+			.update(users)
+			.set({ passwordHash: newPasswordHash, updatedAt: new Date() })
+			.where(
+				and(
+					eq(users.id, userId),
+					eq(users.tenantId, tenantId),
+					updatedAccounts.length > 0 ? isNotNull(users.passwordHash) : undefined
+				)
+			)
+			.returning({ id: users.id });
+		return { accounts: updatedAccounts.length, users: updatedUsers.length };
+	});
 }
 
 /**
@@ -237,9 +275,36 @@ export async function updateClientProfileName(userId: string, name: string) {
 }
 
 /**
- * Check if a user has an admin role
+ * Check if a user has an admin role, failing closed: a missing tenant or a database error
+ * throws instead of reading as "not an admin". Use it where a wrong `false` would pick a
+ * weaker check, such as the password store the change-password route verifies against.
  * @param userId - User ID
  * @returns true if user has an admin role, false otherwise
+ */
+export async function isUserAdminOrThrow(userId: string): Promise<boolean> {
+	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
+	const result = await db
+		.select({ isAdmin: roles.isAdmin })
+		.from(userRoles)
+		.innerJoin(roles, eq(userRoles.roleId, roles.id))
+		.where(
+			and(
+				eq(userRoles.userId, userId),
+				eq(roles.isAdmin, true),
+				eq(roles.status, 'active'),
+				eq(userRoles.tenantId, tenantId)
+			)
+		)
+		.limit(1);
+
+	return result.length > 0;
+}
+
+/**
+ * Check if a user has an admin role
+ * @param userId - User ID
+ * @returns true if user has an admin role, false otherwise (also on a database error)
  */
 export async function isUserAdmin(userId: string): Promise<boolean> {
 	if (!process.env.DATABASE_URL) {
@@ -248,23 +313,7 @@ export async function isUserAdmin(userId: string): Promise<boolean> {
 	}
 
 	try {
-		const tenantId = await getTenantId();
-		if (!tenantId) throw new Error('Tenant ID not found');
-		const result = await db
-			.select({ isAdmin: roles.isAdmin })
-			.from(userRoles)
-			.innerJoin(roles, eq(userRoles.roleId, roles.id))
-			.where(
-				and(
-					eq(userRoles.userId, userId),
-					eq(roles.isAdmin, true),
-					eq(roles.status, 'active'),
-					eq(userRoles.tenantId, tenantId)
-				)
-			)
-			.limit(1);
-
-		return result.length > 0;
+		return await isUserAdminOrThrow(userId);
 	} catch (error) {
 		console.error('Database error in isUserAdmin:', error);
 		return false;
