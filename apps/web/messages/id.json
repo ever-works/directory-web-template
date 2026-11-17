@@ -504,6 +504,8 @@
 		"GLOBAL_SERVICE": "Layanan global",
 		"COMMENTS_DELETE_WARNING": "Yakin ingin menghapus komentar ini? Tindakan ini tidak dapat dibatalkan.",
 		"COMMENTS_HAVE_THOUGHTS": "Punya pendapat?",
+		"COMMENTS_VIEW_PROFILE": "Lihat profil",
+		"COMMENTS_PROFILE": "Profil",
 		"COMMENTS_SHORTCUT": "Cmd/Ctrl + Enter untuk mengirim",
 		"COMMENTS_POSTING": "Mengirim",
 		"COMMENTS_DELETE_TITLE": "Hapus Komentar",

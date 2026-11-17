@@ -504,6 +504,8 @@
 		"GLOBAL_SERVICE": "글로벌 서비스",
 		"COMMENTS_DELETE_WARNING": "이 댓글을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.",
 		"COMMENTS_HAVE_THOUGHTS": "의견이 있으신가요?",
+		"COMMENTS_VIEW_PROFILE": "프로필 보기",
+		"COMMENTS_PROFILE": "프로필",
 		"COMMENTS_SHORTCUT": "Cmd/Ctrl + Enter로 게시",
 		"COMMENTS_POSTING": "게시 중",
 		"COMMENTS_DELETE_TITLE": "댓글 삭제",

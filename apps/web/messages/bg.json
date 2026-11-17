@@ -504,6 +504,8 @@
 		"GLOBAL_SERVICE": "Глобална услуга",
 		"COMMENTS_DELETE_WARNING": "Сигурни ли сте, че искате да изтриете този коментар? Това действие не може да бъде отменено.",
 		"COMMENTS_HAVE_THOUGHTS": "Имате мнение?",
+		"COMMENTS_VIEW_PROFILE": "Виж профила",
+		"COMMENTS_PROFILE": "Профил",
 		"COMMENTS_SHORTCUT": "Cmd/Ctrl + Enter за публикуване",
 		"COMMENTS_POSTING": "Публикуване",
 		"COMMENTS_DELETE_TITLE": "Изтриване на коментар",

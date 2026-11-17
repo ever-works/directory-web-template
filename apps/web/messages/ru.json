@@ -504,6 +504,8 @@
 		"GLOBAL_SERVICE": "Глобальный сервис",
 		"COMMENTS_DELETE_WARNING": "Вы уверены, что хотите удалить этот комментарий? Это действие нельзя отменить.",
 		"COMMENTS_HAVE_THOUGHTS": "Есть что сказать?",
+		"COMMENTS_VIEW_PROFILE": "Открыть профиль",
+		"COMMENTS_PROFILE": "Профиль",
 		"COMMENTS_SHORTCUT": "Cmd/Ctrl + Enter, чтобы опубликовать",
 		"COMMENTS_POSTING": "Публикация",
 		"COMMENTS_DELETE_TITLE": "Удалить комментарий",

@@ -479,6 +479,8 @@
 		"GLOBAL_SERVICE": "Servicio global",
 		"COMMENTS_DELETE_WARNING": "¿Seguro que quieres eliminar este comentario? Esta acción no se puede deshacer.",
 		"COMMENTS_HAVE_THOUGHTS": "¿Tienes algo que decir?",
+		"COMMENTS_VIEW_PROFILE": "Ver perfil",
+		"COMMENTS_PROFILE": "Perfil",
 		"COMMENTS_SHORTCUT": "Cmd/Ctrl + Enter para publicar",
 		"COMMENTS_POSTING": "Publicando",
 		"COMMENTS_DELETE_TITLE": "Eliminar comentario",
