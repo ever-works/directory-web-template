@@ -100,7 +100,8 @@ the before/after benchmark in [spec.md](./spec.md); unit and source-guard specs.
   changes.
 - [x] **II — TypeScript Everywhere** — all new source is TypeScript except
   `apps/web/cache-handler.cjs`: Next imports the cache handler at run time, outside the
-  bundler, so it must be JavaScript (`// @ts-check`, covered by a unit spec).
+  bundler, so it must be JavaScript (`// @ts-check`, covered by a unit spec). The exception
+  is recorded in [`docs/architecture/cache-system.md`](../../architecture/cache-system.md).
 - [x] **III — Spec Before Code** — spec, plan and tasks in this folder.
 - [x] **IV — Documentation First-Class** — spec folder, index row, `docs/log.md`,
   `docs/performance/{content-loading,cdn-cacheability}.md`, Q-061a–e.

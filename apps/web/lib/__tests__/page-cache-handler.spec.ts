@@ -36,13 +36,37 @@ describe('page cache handler (spec 061)', () => {
 		assert.equal(Object.getPrototypeOf(PageMemoryCache), FileSystemCache);
 	});
 
-	it('writes nothing to disk unless NEXT_ISR_FLUSH_TO_DISK=true', () => {
+	it('writes a cached page to disk only with NEXT_ISR_FLUSH_TO_DISK=true', async () => {
+		const page = {
+			kind: 'APP_PAGE',
+			html: '<html></html>',
+			rscData: Buffer.from('rsc'),
+			headers: {},
+			status: 200,
+			postponed: undefined,
+			segmentData: undefined
+		};
+		const write = async (flushToDisk: boolean) => {
+			const written: string[] = [];
+			const fs = {
+				mkdir: async () => {},
+				writeFile: async (filePath: string) => {
+					written.push(filePath.replace(/\\/g, '/'));
+				}
+			};
+			const cache = new PageMemoryCache({ ...context(flushToDisk), fs, serverDistDir: '/dist/server' });
+			await cache.set('/en/items/alpha', page, { cacheControl: { revalidate: 600 } });
+			return written;
+		};
+
 		delete process.env.NEXT_ISR_FLUSH_TO_DISK;
-		assert.equal(new PageMemoryCache(context(true)).flushToDisk, false);
+		assert.deepEqual(await write(true), []);
+
 		process.env.NEXT_ISR_FLUSH_TO_DISK = 'true';
-		assert.equal(new PageMemoryCache(context(true)).flushToDisk, true);
+		const written = await write(true);
+		assert.ok(written.some((file) => file.endsWith('/app/en/items/alpha.html')), written.join(', '));
 		// Next itself asked for no disk writes (minimal mode): still none.
-		assert.equal(new PageMemoryCache(context(false)).flushToDisk, false);
+		assert.deepEqual(await write(false), []);
 	});
 
 	it('refuses data-cache entries over 2 MB, as Next does with its own handler', async () => {

@@ -1,4 +1,4 @@
-import { getCachedItem, getCachedSimilarItems } from '@/lib/content';
+import { getCachedItem, getCachedSimilarItems, isItemSlug } from '@/lib/content';
 import { notFound, unstable_rethrow } from 'next/navigation';
 import { getCategoriesName } from '@/lib/utils';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
@@ -172,7 +172,8 @@ export default async function ItemDetails({ params }: { params: Promise<{ slug: 
 	// from the request headers, which makes a page render per request (Spec 061).
 	setRequestLocale(locale);
 
-	if (slug.length > MAX_SLUG_LENGTH) {
+	// A slug that cannot name an item is a 404, not a read failure (the catch below rethrows those).
+	if (slug.length > MAX_SLUG_LENGTH || !isItemSlug(slug)) {
 		return notFound();
 	}
 

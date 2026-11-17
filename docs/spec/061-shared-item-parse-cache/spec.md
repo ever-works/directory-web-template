@@ -66,8 +66,9 @@ Found on a local production build with that data repo:
   looked up in parallel with the item. Otherwise it prefetches nothing (and the Product
   JSON-LD has no `aggregateRating`) and the browser loads the comments through the API.
   The comments hook always refetches on mount, as the hydrated ones can be minutes old, and
-  cancels that refetch before writing a new or edited comment. A failed item read is an
-  error, not a 404, so a regeneration that fails keeps the last good page.
+  cancels that refetch before writing a new or edited comment, then reloads the list. A
+  failed item read is an error, not a 404, so a regeneration that fails keeps the last good
+  page; a slug that cannot name an item is still a 404.
 - **R5.** Per-visitor segments (auth, dashboard, client, admin, favorites, submit, pricing,
   surveys, sponsor, newsletter) and the index grids that read `useSearchParams()` without a
   boundary (categories, tags, tags/collections paging, collections) are pinned to

@@ -1891,6 +1891,11 @@ async function getCachedTagsInternal(options: FetchOptions = {}): Promise<Map<st
 	return tags;
 }
 
+/** Whether `slug` has the form of an item slug (letters, digits, `-`, `_`), as `fetchItem` requires. */
+export function isItemSlug(slug: string): boolean {
+	return /^[a-zA-Z0-9_-]+$/.test(slug);
+}
+
 export async function fetchItem(slug: string, options: FetchOptions = {}) {
 	// Ensure content is available (copies from build to runtime on Vercel)
 	const { ensureContentAvailable } = await import('./lib');
@@ -1900,7 +1905,7 @@ export async function fetchItem(slug: string, options: FetchOptions = {}) {
 	const sanitizedSlug = sanitizeFilename(slug);
 
 	// Additional validation for slug format (alphanumeric, hyphens, underscores only)
-	if (!/^[a-zA-Z0-9_-]+$/.test(sanitizedSlug)) {
+	if (!isItemSlug(sanitizedSlug)) {
 		throw new Error(`Invalid slug format: ${slug}`);
 	}
 
