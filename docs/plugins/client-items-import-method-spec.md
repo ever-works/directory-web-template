@@ -95,7 +95,8 @@ service-derived result aggregate
   (`normalizeSourceUrl`: `www.`, a trailing slash,
   http vs https, a fragment and tracking parameters
   do not make a link new), and a row whose link an
-  earlier row of the same import has is skipped too;
+  earlier row of the same import creates is skipped
+  too (a skipped row does not claim its link);
   `source_url` must be an `http` or `https` URL
   (T-2610). The file
   write itself refuses to replace an existing item

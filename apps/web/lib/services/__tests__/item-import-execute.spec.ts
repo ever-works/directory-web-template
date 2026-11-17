@@ -408,6 +408,52 @@ describe('links are compared as the single submit compares them (T-2610)', () =>
 		assert.equal(result.validationResults[0].duplicate?.source_url, 'https://www.taken.example.com');
 		assert.match(result.validationResults[0].warnings.join(' '), /will be skipped/);
 	});
+
+	it('a row skipped for its existing slug does not take its free link from a later row', async () => {
+		const result = await service.executeImport(
+			[
+				row(0, { slug: 'taken', source_url: 'https://free.example.com' }),
+				row(1, { slug: 'free-tool', source_url: 'https://free.example.com' })
+			],
+			clientOptions
+		);
+
+		assert.deepEqual(createdSlugs(), ['free-tool']);
+		assert.equal(result.skipped, 1);
+
+		const preview = await service.validateRows(
+			[
+				raw({ name: 'Taken Tool', slug: 'taken', source_url: 'https://free.example.com' }),
+				raw({ name: 'Free Tool', source_url: 'https://free.example.com' })
+			],
+			options
+		);
+
+		assert.deepEqual(
+			preview.validationResults.map((r) => [r.duplicate?.slug, r.duplicate?.source_url]),
+			[
+				['taken', undefined],
+				[undefined, undefined]
+			]
+		);
+	});
+
+	it('a row that updates an item by its slug still claims its link (admin update strategy)', async () => {
+		const result = await service.executeImport(
+			[
+				row(0, { slug: 'taken', source_url: 'https://moved.example.com' }),
+				row(1, { slug: 'moved-tool', source_url: 'https://www.moved.example.com/' })
+			],
+			{ ...adminOptions, duplicateStrategy: 'update' }
+		);
+
+		assert.deepEqual(
+			repo.updated.map((update) => update.id),
+			['taken']
+		);
+		assert.deepEqual(createdSlugs(), []);
+		assert.equal(result.skipped, 1);
+	});
 });
 
 describe('client import route (T-2527)', () => {

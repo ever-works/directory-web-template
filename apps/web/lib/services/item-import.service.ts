@@ -234,7 +234,12 @@ export class ItemImportService {
 			if (result.valid && result.data?.slug) {
 				batchSlugs.add(result.data.slug);
 			}
-			const urlKey = result.valid ? normalizeSourceUrl(result.data?.source_url) : null;
+			// Only a row the import will write claims its link (as in executeImport): a row skipped as a
+			// duplicate leaves a free link to a later row.
+			const writes =
+				result.valid &&
+				(!result.duplicate || (!!result.duplicate.slug && options.duplicateStrategy === 'update'));
+			const urlKey = writes ? normalizeSourceUrl(result.data?.source_url) : null;
 			if (urlKey) batchUrls.add(urlKey);
 
 			if (result.valid) validCount++;
@@ -268,8 +273,9 @@ export class ItemImportService {
 	 * not trusted: every row is checked again against {@link importRowDataSchema}, and duplicates
 	 * are looked up again among all items (deleted ones included) by slug and by source_url, links
 	 * compared with {@link normalizeSourceUrl} as the single submit does. A row whose link an earlier
-	 * row of the same import has is skipped too. A row whose slug already exists never reaches
-	 * `batchCreate`: it is skipped, or updated when the strategy is 'update'. `clientMode` (the
+	 * row of the same import creates or updates is skipped too (a skipped row claims no link). A row
+	 * whose slug already exists never reaches `batchCreate`: it is skipped, or updated when the
+	 * strategy is 'update' (the update does not check the link). `clientMode` (the
 	 * client import route) never updates an existing item, forces `featured` to false and drops
 	 * `collections`, `brand_logo_url` and `images`, which the client submit form cannot set either.
 	 */
@@ -312,16 +318,18 @@ export class ItemImportService {
 
 			const urlKey = normalizeSourceUrl(data.source_url);
 			const urlTaken = urlKey !== null && (existingUrls.has(urlKey) || batchUrls.has(urlKey));
-			if (urlKey) batchUrls.add(urlKey);
 
 			const existing = existingBySlug.get(data.slug);
 			if (existing && duplicateStrategy === 'update') {
 				rowsToUpdate.push({ rowIndex, id: existing.id, data });
 			} else if (existing || urlTaken) {
 				skippedCount++;
+				// A skipped row does not claim its link, so a later row with that free link is still created.
+				continue;
 			} else {
 				rowsToCreate.push({ rowIndex, data });
 			}
+			if (urlKey) batchUrls.add(urlKey);
 		}
 
 		const totalToProcess = rowsToCreate.length + rowsToUpdate.length;

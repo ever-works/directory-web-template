@@ -79,7 +79,7 @@ export type LocationSchemaInput = z.infer<typeof locationSchema>;
 
 ## Client Item Schemas (`client-item.ts`)
 
-`source_url` uses `httpUrlSchema` from `http-url.ts`: an absolute `http` or `https` URL. A `javascript:`, `data:`, `file:` or other link fails with `Invalid URL format`, so the duplicate-link check (`lib/utils/source-url.ts`) always applies. The CSV import row schemas (`item-import.ts`) use the same rule (T-2610).
+`source_url` uses `httpUrlSchema` from `http-url.ts`: an absolute `http` or `https` URL. A `javascript:`, `data:`, `file:` or other link fails with `Invalid URL format`, so the duplicate-link check (`lib/utils/source-url.ts`) of `POST /api/client/items` and of the import always gets a link it can compare. Changing the link with `PUT /api/client/items/{id}` is not checked for duplicates (spec 058, out of scope). The CSV import row schemas (`item-import.ts`) use the same rule (T-2610).
 
 ### Create Item
 
