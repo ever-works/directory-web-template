@@ -78,7 +78,10 @@ describe('newsletter resubscribe', () => {
 			'actions.ts does not import the unsubscribeFromNewsletter query under an alias'
 		);
 		const alias = /unsubscribeFromNewsletter as (\w+)/.exec(actions)?.[1] ?? '';
-		assert.ok(unsubscribe.includes(`${alias}(email)`), 'the unsubscribe action does not call the unsubscribe query');
+		assert.ok(
+			unsubscribe.includes(`${alias}(email)`),
+			'the unsubscribe action does not call the unsubscribe query'
+		);
 		assert.ok(
 			!/updateNewsletterSubscription\(email, \{ isActive: false \}\)/.test(unsubscribe),
 			'the unsubscribe action still only flips isActive and leaves unsubscribedAt null'
