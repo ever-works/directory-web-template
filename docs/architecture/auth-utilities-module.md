@@ -217,7 +217,7 @@ export default async function ProtectedPage() {
 
 ### `requireAdmin(): Promise<Session>`
 
-Requires admin role. Redirects to `/admin/auth/signin` if not authenticated, `/unauthorized` if not admin.
+Requires admin role. Redirects to `/admin/auth/signin` if not authenticated, `/unauthorized` if not admin. The role is read from the database with `isAdmin(userId)` (`lib/db/roles.ts`), not from the session's `isAdmin` claim, which is set at sign-in and stays for the JWT's 30-day lifetime; a failed lookup counts as not admin.
 
 ```typescript
 export default async function AdminPage() {
@@ -232,7 +232,7 @@ Gets the current session without redirecting. Returns `null` for unauthenticated
 
 ### `checkIsAdmin(): Promise<boolean>`
 
-Checks admin status without redirecting.
+Checks admin status without redirecting, with the same live `isAdmin(userId)` lookup as `requireAdmin()`. Returns `false` when signed out, when the session has no user id, or when the lookup fails.
 
 ## API Route Guard (`admin-guard.ts`)
 
