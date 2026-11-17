@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
+import { checkAdminAuth } from '@/lib/auth/admin-guard';
+import { isAdmin } from '@/lib/db/roles';
 import { surveyService } from '@/lib/services/survey.service';
 import type { UpdateSurveyData } from '@/lib/types/survey';
 import { Logger } from '@/lib/logger';
@@ -50,8 +52,10 @@ export async function GET(
         }
         
         if (survey.status !== 'published') {
+            // Live role from the database, not the session's sticky isAdmin claim.
             const session = await auth();
-            if (!session?.user?.isAdmin) {
+            const userIsAdmin = session?.user?.id ? await isAdmin(session.user.id) : false;
+            if (!userIsAdmin) {
                 return NextResponse.json(
                     { success: false, error: 'Survey not found' },
                     { status: 404 }
@@ -107,6 +111,8 @@ export async function GET(
  *         description: "Survey updated successfully"
  *       401:
  *         description: "Unauthorized"
+ *       403:
+ *         description: "Forbidden - the caller is not an admin"
  *       404:
  *         description: "Survey not found"
  *       500:
@@ -117,14 +123,8 @@ export async function PUT(
     { params }: { params: Promise<{ surveyId: string }> }
 ) {
     try {
-        const session = await auth();
-
-        if (!session?.user?.isAdmin) {
-            return NextResponse.json(
-                { success: false, error: 'Unauthorized' },
-                { status: 401 }
-            );
-        }
+        const authError = await checkAdminAuth();
+        if (authError) return authError;
 
         const { surveyId } = await params;
         const body: UpdateSurveyData = await request.json();
@@ -182,6 +182,8 @@ export async function PUT(
  *         description: "Survey deleted successfully"
  *       401:
  *         description: "Unauthorized"
+ *       403:
+ *         description: "Forbidden - the caller is not an admin"
  *       404:
  *         description: "Survey not found"
  *       500:
@@ -192,14 +194,8 @@ export async function DELETE(
     { params }: { params: Promise<{ surveyId: string }> }
 ) {
     try {
-        const session = await auth();
-
-        if (!session?.user?.isAdmin) {
-            return NextResponse.json(
-                { success: false, error: 'Unauthorized' },
-                { status: 401 }
-            );
-        }
+        const authError = await checkAdminAuth();
+        if (authError) return authError;
 
         const { surveyId } = await params;
 

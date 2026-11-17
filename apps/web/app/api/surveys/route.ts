@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
+import { checkAdminAuth } from '@/lib/auth/admin-guard';
+import { isAdmin } from '@/lib/db/roles';
 import { surveyService } from '@/lib/services/survey.service';
 import { buildSurveyListFilters } from '@/lib/services/survey-list-filters';
 import type { CreateSurveyData } from '@/lib/types/survey';
@@ -95,7 +97,10 @@ export async function GET(request: NextRequest) {
         const { searchParams } = new URL(request.url);
 
         // Non-admins only ever see published surveys, whatever `status` asks for.
-        const filters = buildSurveyListFilters(searchParams, !!session?.user?.isAdmin);
+        // The role comes from the database: the session's isAdmin claim is set at
+        // sign-in and stays true for the JWT's lifetime after the role is removed.
+        const userIsAdmin = session?.user?.id ? await isAdmin(session.user.id) : false;
+        const filters = buildSurveyListFilters(searchParams, userIsAdmin);
 
         const result = await surveyService.getMany(filters, session?.user?.id);
 
@@ -166,6 +171,8 @@ export async function GET(request: NextRequest) {
  *         description: "Survey created successfully"
  *       401:
  *         description: "Unauthorized"
+ *       403:
+ *         description: "Forbidden - the caller is not an admin"
  *       500:
  *         description: "Internal server error"
  */
@@ -175,14 +182,8 @@ export async function POST(request: NextRequest) {
         const dbCheck = checkDatabaseAvailability();
         if (dbCheck) return dbCheck;
 
-        const session = await auth();
-
-        if (!session?.user?.isAdmin) {
-            return NextResponse.json(
-                { success: false, error: 'Unauthorized' },
-                { status: 401 }
-            );
-        }
+        const authError = await checkAdminAuth();
+        if (authError) return authError;
 
         const body: CreateSurveyData = await request.json();
         const survey = await surveyService.create(body);

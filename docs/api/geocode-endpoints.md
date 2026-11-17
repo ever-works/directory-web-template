@@ -149,7 +149,7 @@ const status = await response.json();
 ## Authentication
 
 - **GET /api/geocode**: Requires authenticated session (any user).
-- **POST /api/geocode**: Requires authenticated session with **admin role**. Non-admin users receive a `403 Forbidden` response. This restriction prevents API cost abuse.
+- **POST /api/geocode**: Requires authenticated session with **admin role**. Non-admin users receive a `403 Forbidden` response. This restriction prevents API cost abuse. The role is checked in the database with `requireAdminSession()` (`lib/auth/admin-guard.ts`), not from the session's `isAdmin` claim, so a user whose admin role was removed is refused at once.
 
 ## Error Responses
 
