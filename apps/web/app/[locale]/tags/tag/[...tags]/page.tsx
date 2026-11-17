@@ -4,7 +4,7 @@ import { totalPages } from "@/lib/paginate";
 import ListingTags from "../../listing-tags";
 import { notFound } from "next/navigation";
 import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-json-ld";
-import { getTranslations } from "next-intl/server";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 import { DEFAULT_LOCALE } from "@/lib/constants";
 import { generateListingMetadata } from "@/lib/seo/listing-metadata";
 import { resolveTagAlias } from "./resolve-tag-alias";
@@ -81,6 +81,8 @@ export default async function TagListing({
 }) {
   const resolvedParams = await params;
   const { tags: tagMeta, locale } = resolvedParams;
+  // Static rendering for next-intl (Spec 061).
+  setRequestLocale(locale);
 
   // Tags switched off, an unknown tag, a malformed page segment (`abc`,
   // `02`), a page past the last one, or segments after the page: not-found,

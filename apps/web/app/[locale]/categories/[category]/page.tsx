@@ -7,7 +7,7 @@ import { slugify, toTitleCase, filterItems } from "@/lib/utils";
 import { paginateMeta, PER_PAGE } from "@/lib/paginate";
 import { generateListingMetadata } from "@/lib/seo/listing-metadata";
 import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-json-ld";
-import { getTranslations } from "next-intl/server";
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { DEFAULT_LOCALE } from "@/lib/constants";
 
 // Enable ISR with 10 minutes revalidation
@@ -108,6 +108,9 @@ export default async function CategoryListing({
   }
 
   const { locale, category } = await params;
+  // Static rendering for next-intl: without this, getTranslations()/getLocale()
+  // read the request headers and the page renders on every request (Spec 061).
+  setRequestLocale(locale);
   const sp = (await searchParams) ?? {};
 
   const { categories, tags, items: allItems } = await getCachedItems({ lang: locale });

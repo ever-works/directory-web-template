@@ -98,6 +98,55 @@ into dynamic rendering — even if you only read the value.
 the work into a route handler or move the dependency to a client
 component.
 
+### 6. next-intl reading the locale from the headers
+
+`getTranslations('ns')`, `getLocale()` and `getMessages()` without an explicit
+locale read it from the request headers unless the rendering **page** (not
+only its layout) called `setRequestLocale(locale)` first. A root `app/layout.tsx`
+that calls `getLocale()` for `<html lang>` does the same for every page,
+because it renders before `[locale]/layout.tsx`.
+
+**Fix:** call `setRequestLocale(locale)` at the top of every public page, and
+render `<html lang dir>` from `[locale]/layout.tsx` (the template's
+`components/layout/document-shell.tsx`), keeping the root layout a
+pass-through. See [Spec 061](../spec/061-shared-item-parse-cache/spec.md).
+
+### 7. `useSearchParams()` in an app-wide client component
+
+On a statically rendered page `useSearchParams()` bails the client tree out
+to client rendering up to the closest `<Suspense>` boundary; without one, the
+page fails with `missing-suspense-with-csr-bailout`. In a provider that wraps
+the whole app, a boundary around it would leave every page with an empty
+server-rendered body.
+
+**Fix:** read the query string in a small child behind its own
+`<Suspense fallback={null}>` and share it through context
+(`useCurrentSearch()` from `components/providers/navigation-provider.tsx`).
+
+## What is cached (Spec 061)
+
+| Page | Route | Notes |
+|---|---|---|
+| Item | `/[locale]/items/[slug]` | `generateStaticParams() { return [] }`: ISR for every slug |
+| Home, `/discover`, `/discover/<n>` | `/[locale]/discover/[page]/cached` | `next.config.ts` rewrite when no `q` / `sort` / `tags` / `categories` |
+| Category, `?page=<n>` | `/[locale]/cached-category/[category]/[page]` | rewrite when no `q` / `sort` / `tags` |
+| Tag | `/[locale]/tags/[tag]` | ISR for every tag; only the tag's items are sent |
+| About, FAQ, legal, help, comparisons, pages | their routes | static, prerendered for the default locale |
+
+Filtered or sorted listings, the category/tag/collection index grids and
+everything per visitor (auth, account, admin, submit, pricing, favorites,
+surveys, sponsor, newsletter) still render per request.
+
+Cached pages answer `Cache-Control: s-maxage=60, stale-while-revalidate=…`
+(60 s because the shared layout reads `getCachedConfig`, which revalidates
+every 60 s). Cloudflare caches HTML only when a Cache Rule makes it eligible;
+with one, it honours `s-maxage`. Cached responses carry no `Set-Cookie`.
+
+The runtime page cache is kept in memory (LRU, `NEXT_CACHE_MAX_MEMORY_MB`,
+default 256) and not written to disk unless `NEXT_ISR_FLUSH_TO_DISK=true`: a
+cached item page is ~0.65 MB, and a 4,000-item directory in 21 locales has
+~86,000 of them. Both are read by `next build`.
+
 ## How to verify
 
 Before merging a change to a public route, run a quick curl loop
@@ -134,3 +183,5 @@ list above.
   — the JS-bundle gate.
 - [Spec 019 — CDN-Cacheable i18n](../spec/019-cdn-cacheable-i18n/spec.md)
   — the work that produced this page.
+- [Spec 061 — Fast cached directory pages](../spec/061-shared-item-parse-cache/spec.md)
+  — the public pages made cacheable, and the request-scoped reads removed for it.

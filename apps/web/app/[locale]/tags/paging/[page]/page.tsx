@@ -1,4 +1,5 @@
 import { getCachedItems } from "@/lib/content";
+import { setRequestLocale } from 'next-intl/server';
 import { paginateMeta, totalPages } from "@/lib/paginate";
 import ListingTags from "../../listing-tags";
 import type { Metadata } from "next";
@@ -67,6 +68,9 @@ export default async function TagPagingPage({
   params: Promise<{ page: string; locale: string }>;
 }) {
   const { page: pageMeta, locale } = await params;
+  // Static rendering for next-intl: without this, getTranslations()/getLocale()
+  // read the request headers and the page renders on every request (Spec 061).
+  setRequestLocale(locale);
   // `page` is one segment (a string), not a catch-all array: `pageMeta[0]`
   // took its first CHARACTER, so /tags/paging/10..19 all rendered page 1 while
   // each declared itself canonical. Tags switched off, or not a page of the

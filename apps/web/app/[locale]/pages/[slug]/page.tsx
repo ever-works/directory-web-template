@@ -1,5 +1,5 @@
 import { Metadata } from 'next';
-import { getTranslations } from 'next-intl/server';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { notFound } from 'next/navigation';
 import { PageContainer } from '@/components/ui/container';
 import { Breadcrumb, type BreadcrumbItem } from '@/components/ui/breadcrumb';
@@ -79,6 +79,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function DynamicPage({ params }: PageProps) {
 	const { slug, locale } = await params;
+	// Static rendering for next-intl: without this, getTranslations()/getLocale()
+	// read the request headers and the page renders on every request (Spec 061).
+	setRequestLocale(locale);
 	const t = await getTranslations('common');
 	const pageData = await getCachedPageContent(slug, locale);
 

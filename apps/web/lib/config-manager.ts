@@ -89,6 +89,12 @@ export interface AppConfig {
  */
 export class ConfigManager {
 	private configPath: string;
+	/**
+	 * Last parsed config, keyed by the config files' paths, mtimes and sizes (Spec 061).
+	 * Every settings getter calls readConfig(), about 20 times per page render, and each
+	 * call used to re-read and YAML-parse works.yml.
+	 */
+	private parsedConfig: { key: string; config: AppConfig } | null = null;
 	private gitOperationInProgress: Promise<void> = Promise.resolve();
 	private isProcessingGitQueue = false;
 	private gitOperationQueue: Array<{ message?: string; resolve: () => void; reject: (error: unknown) => void }> = [];
@@ -140,6 +146,23 @@ export class ConfigManager {
 			this.configPath = currentPath;
 
 			const configPaths = getContentConfigPaths(contentPath);
+
+			// Reuse the last parse while no config file changed. Hand out a copy: callers
+			// such as updateKey() mutate the object before writing it back.
+			const cacheKey = configPaths
+				.map((configPath) => {
+					try {
+						const stat = fs.statSync(configPath);
+						return `${configPath}:${stat.mtimeMs}:${stat.size}`;
+					} catch {
+						return `${configPath}:-`;
+					}
+				})
+				.join('|');
+			if (this.parsedConfig?.key === cacheKey) {
+				return structuredClone(this.parsedConfig.config);
+			}
+
 			if (!configPaths.some((configPath) => fs.existsSync(configPath))) {
 				// Only warn in development when DATA_REPOSITORY is configured
 				// Suppress warnings during CI/linting since the code handles missing files gracefully
@@ -165,7 +188,9 @@ export class ConfigManager {
 				mergedConfig = mergeConfigObjects<AppConfig>(mergedConfig ?? {}, config as Record<string, unknown>);
 			}
 
-			return mergeConfigObjects<AppConfig>(this.getDefaultConfig(), mergedConfig ?? {});
+			const result = mergeConfigObjects<AppConfig>(this.getDefaultConfig(), mergedConfig ?? {});
+			this.parsedConfig = { key: cacheKey, config: result };
+			return structuredClone(result);
 		} catch (error) {
 			// Always log errors - they indicate real problems (read failures, parse errors, etc.)
 			console.error('Error reading config file:', error);

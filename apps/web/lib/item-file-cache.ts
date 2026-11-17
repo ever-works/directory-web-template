@@ -51,7 +51,13 @@ export interface ItemFileSnapshot<T> {
 }
 
 export interface ItemFileCacheDeps<T> {
+	/**
+	 * `null` for content that cannot be parsed (cached until the file changes).
+	 * Throw for IO errors (EMFILE, EACCES, ...): they are reported in
+	 * `ioErrors`, never cached, and retried on the next walk.
+	 */
 	parseItem(dir: string, filename: string, slug: string): Promise<T | null>;
+	/** Same contract as `parseItem`. */
 	parseTranslation(dir: string, filename: string): Promise<unknown>;
 	/** Returns the safe directory name or throws. */
 	sanitizeSlug(name: string): string;
@@ -257,8 +263,9 @@ export class ItemFileCache<T> {
 		let stat;
 		try {
 			stat = await fsp.stat(filePath);
-		} catch {
-			return null;
+		} catch (error) {
+			if (hasCode(error, 'ENOENT')) return null;
+			throw error;
 		}
 		const cached = entry.translations.get(lang);
 		if (cached && cached.mtimeMs === stat.mtimeMs && cached.size === stat.size) {

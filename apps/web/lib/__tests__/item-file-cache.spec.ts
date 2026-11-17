@@ -171,6 +171,37 @@ describe('ItemFileCache', () => {
 		assert.equal(parsedFiles.length, 1);
 	});
 
+	it('reports an IO error from the parser, does not cache it and retries on the next walk', async () => {
+		await writeItem('alpha', { 'alpha.yml': 'name: Alpha' });
+		let failNext = true;
+		const cache = new ItemFileCache<Parsed>({
+			parseItem: async (dir, filename, slug) => {
+				parsedFiles.push(filename);
+				if (failNext) {
+					failNext = false;
+					throw Object.assign(new Error('EMFILE: too many open files'), { code: 'EMFILE', syscall: 'open' });
+				}
+				return { slug, raw: await fs.readFile(path.join(dir, filename), 'utf8') };
+			},
+			parseTranslation: async () => null,
+			sanitizeSlug: (name) => path.basename(name),
+			assertInside: () => {},
+			concurrency: 2
+		});
+		const options = { dirMtimeMs: await dirMtime(), maxAgeMs: 60_000, reuse: true };
+
+		const first = await cache.getSnapshot(dest, options);
+		assert.deepEqual(first.ioErrors.map((e) => e.slug), ['alpha']);
+		assert.equal(first.entries.has('alpha'), false);
+
+		// A snapshot with IO errors is not kept, and the failed file is parsed again.
+		const second = await cache.getSnapshot(dest, options);
+		assert.notEqual(first, second);
+		assert.equal(second.ioErrors.length, 0);
+		assert.equal(second.entries.get('alpha')?.item?.raw, 'name: Alpha');
+		assert.equal(parsedFiles.length, 2);
+	});
+
 	it('drops items whose directory was removed', async () => {
 		await writeItem('alpha', { 'alpha.yml': 'name: Alpha' });
 		await writeItem('gone', { 'gone.yml': 'name: Gone' });

@@ -1,4 +1,5 @@
 import { CollectionsList } from "@/components/collections";
+import { setRequestLocale } from 'next-intl/server';
 import { getCachedItems } from "@/lib/content";
 import { paginateMeta } from "@/lib/paginate";
 import { Collection } from "@/types/collection";
@@ -33,6 +34,9 @@ export async function generateMetadata({
 }
 
 // Enable ISR with 10 minutes revalidation
+// Rendered per request, as before Spec 061: its grid reads useSearchParams() for
+// pagination without a Suspense boundary, which a cached (static) render cannot do.
+export const dynamic = 'force-dynamic';
 export const revalidate = 600;
 
 // Allow non-English locales to be generated on-demand (ISR)
@@ -49,6 +53,9 @@ export default async function CollectionsPagingPage({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
+  // Static rendering for next-intl: without this, getTranslations()/getLocale()
+  // read the request headers and the page renders on every request (Spec 061).
+  setRequestLocale(locale);
   const { start, page } = paginateMeta(1, COLLECTIONS_PER_PAGE);
 
   // Fetch collections from content

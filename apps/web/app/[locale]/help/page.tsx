@@ -1,6 +1,6 @@
 import HelpPageClient from "./help-client";
 import { Metadata } from "next";
-import { getTranslations } from "next-intl/server";
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { generateHreflangAlternates, getLocalizedUrl } from "@/lib/seo/hreflang";
 import { getSiteName } from '@/lib/seo/site-identity';
 import { Locale, DEFAULT_LOCALE } from "@/lib/constants";
@@ -38,6 +38,9 @@ export async function generateMetadata({
 
 export default async function HelpPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
+  // Static rendering for next-intl: without this, getTranslations()/getLocale()
+  // read the request headers and the page renders on every request (Spec 061).
+  setRequestLocale(locale);
   const [tCommon, tHelp] = await Promise.all([
     getTranslations({ locale, namespace: "common" }),
     getTranslations({ locale, namespace: "help" }),

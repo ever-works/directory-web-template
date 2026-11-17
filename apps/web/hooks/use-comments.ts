@@ -42,7 +42,9 @@ export function useComments(itemId: string) {
     },
     staleTime: 2 * 60 * 1000, // 2 minutes - balance between freshness and stability
     gcTime: 10 * 60 * 1000, // 10 minutes - match global default
-    refetchOnMount: false, // Don't refetch if data is fresh
+    // Refetch on mount only when stale. The item page is cached (ISR, Spec 061), so the
+    // comments it hydrates can be minutes old; this refreshes them after `staleTime`.
+    refetchOnMount: true,
     refetchOnWindowFocus: false, // Prevent flash on window focus
   });
 

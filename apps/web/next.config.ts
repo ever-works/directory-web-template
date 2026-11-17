@@ -18,8 +18,20 @@ const nextConfig: NextConfig = {
 	output: process.env.STANDALONE_BUILD === 'true' ? 'standalone' : undefined,
 	outputFileTracingRoot: path.join(__dirname, '../..'),
 	serverExternalPackages: ['postgres', 'bcryptjs', 'drizzle-orm'],
+	// Spec 061: public pages are cached (ISR). A cached item page is about 0.65 MB (HTML +
+	// RSC payload), and a directory with 4,000 items in 21 locales has ~86,000 of them, so
+	// writing every rendered page to disk (Next's default) can grow a pod's filesystem by
+	// tens of GB under crawler traffic. Keep the runtime page cache in memory, bounded by
+	// `NEXT_CACHE_MAX_MEMORY_MB` (default 256), and evict least recently used pages; a
+	// CDN in front (Cloudflare) caches them too, from the `s-maxage` header. Set
+	// `NEXT_ISR_FLUSH_TO_DISK=true` to also write them to disk. Both are read at build time.
+	cacheMaxMemorySize:
+		(Number(process.env.NEXT_CACHE_MAX_MEMORY_MB) > 0 ? Number(process.env.NEXT_CACHE_MAX_MEMORY_MB) : 256) *
+		1024 *
+		1024,
 	experimental: {
-		optimizePackageImports: ['@heroui/react', 'lucide-react']
+		optimizePackageImports: ['@heroui/react', 'lucide-react'],
+		isrFlushToDisk: process.env.NEXT_ISR_FLUSH_TO_DISK === 'true'
 	},
 	trailingSlash: false,
 	generateEtags: false,
@@ -116,8 +128,40 @@ const nextConfig: NextConfig = {
 			{ source: '/:staticSlug(about|help|pricing|privacy-policy|terms-of-service|cookies|faq).md', destination: `/${DEFAULT_LOCALE}/static-md/:staticSlug` }
 		];
 
+		// Spec 061 — cached listings. `discover/[page]` (which also renders the site root)
+		// and `categories/[category]` read `searchParams` for search / sort / filters, so
+		// they render on every request. The plain URLs that make up nearly all traffic,
+		// and all crawler traffic, carry none of those parameters: send them to cached
+		// (ISR) twins that render once and are then served from the cache. A URL with
+		// any filter parameter skips these rules and reaches the dynamic route as before.
+		// Must come before the generic `/:path` rule below.
+		const query = (key: string) => ({ type: 'query' as const, key });
+		const discoverFilters = ['q', 'sort', 'tags', 'categories'].map(query);
+		const categoryFilters = ['q', 'sort', 'tags'].map(query);
+		const cachedListings = [
+			{ source: `/:locale(${localeGroup})`, missing: discoverFilters, destination: '/:locale/discover/1/cached' },
+			{ source: `/:locale(${localeGroup})/discover`, missing: discoverFilters, destination: '/:locale/discover/1/cached' },
+			{
+				source: `/:locale(${localeGroup})/discover/:page(\\d{1,6})`,
+				missing: discoverFilters,
+				destination: '/:locale/discover/:page/cached'
+			},
+			{
+				source: `/:locale(${localeGroup})/categories/:category`,
+				missing: [...categoryFilters, query('page')],
+				destination: '/:locale/cached-category/:category/1'
+			},
+			{
+				source: `/:locale(${localeGroup})/categories/:category`,
+				has: [{ type: 'query' as const, key: 'page', value: '(?<page>\\d{1,6})' }],
+				missing: categoryFilters,
+				destination: '/:locale/cached-category/:category/:page'
+			}
+		];
+
 		return [
 			...mdMirrors,
+			...cachedListings,
 			{
 				source: '/:path',
 				destination: '/:path/discover/1'

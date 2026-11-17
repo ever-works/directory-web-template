@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import { setRequestLocale } from 'next-intl/server';
 import { getCachedItems } from "@/lib/content";
 import { notFound } from "next/navigation";
 import { CollectionDetail } from "@/components/collections";
@@ -73,6 +74,9 @@ export default async function CollectionPage({
   params: Promise<{ locale: string; slug: string }>;
 }) {
   const { locale, slug } = await params;
+  // Static rendering for next-intl: without this, getTranslations()/getLocale()
+  // read the request headers and the page renders on every request (Spec 061).
+  setRequestLocale(locale);
 
   const { categories: _categories, tags, items, collections } = await getCachedItems({ lang: locale });
   const normalizedCollection = collections.find((c) => c.slug === slug || c.id === slug);

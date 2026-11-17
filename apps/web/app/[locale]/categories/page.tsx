@@ -5,10 +5,13 @@ import { notFound } from 'next/navigation';
 import { getCategoriesEnabled } from '@/lib/utils/settings';
 import { generateListingMetadata } from '@/lib/seo/listing-metadata';
 import { BreadcrumbJsonLd } from '@/components/seo/breadcrumb-json-ld';
-import { getTranslations } from 'next-intl/server';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { DEFAULT_LOCALE } from '@/lib/constants';
 
 // Enable ISR with 10 minutes revalidation
+// Rendered per request, as before Spec 061: its grid reads useSearchParams() for
+// pagination without a Suspense boundary, which a cached (static) render cannot do.
+export const dynamic = 'force-dynamic';
 export const revalidate = 600;
 
 export async function generateMetadata({
@@ -44,6 +47,9 @@ export default async function CategoriesPage({ params }: { params: Promise<{ loc
 	}
 
 	const { locale } = await params;
+	// Static rendering for next-intl: without this, getTranslations()/getLocale()
+	// read the request headers and the page renders on every request (Spec 061).
+	setRequestLocale(locale);
 	const { categories } = await getCachedItems({ lang: locale });
 	const tCommon = await getTranslations('common');
 

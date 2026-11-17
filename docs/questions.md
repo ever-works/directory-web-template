@@ -27,6 +27,47 @@ confirm, override, or refine.
 
 ---
 
+## Spec 061 — Fast, cached directory pages
+
+### Q-061a Send only the message namespaces client components use
+
+- **Context.** Every page embeds the whole `messages/<locale>.json` for
+  `NextIntlClientProvider` (~200 KB of a ~350 KB item page, in the HTML and again in
+  the RSC payload). That is most of each cached page's memory and transfer.
+- **Options.**
+  - Keep sending everything.
+  - Pass only the namespaces client components use (needs an inventory of
+    `useTranslations` calls in client components, and a guard so it stays complete).
+- **Default.** **Keep sending everything** in Spec 061; trimming is a follow-up.
+- **Owner.** Maintainers.
+- **Status.** open
+
+### Q-061b Category / tag / collection index grids stay per request
+
+- **Context.** `/categories`, `/tags`, `/tags/paging`, `/collections` and
+  `/collections/paging` render grids that read `useSearchParams()` without a Suspense
+  boundary, which a cached (static) render cannot do.
+- **Options.**
+  - Pin them to `force-dynamic` (as before Spec 061).
+  - Move their query reading to `useCurrentSearch()` and cache them.
+- **Default.** **Pin them to `force-dynamic`**; caching them is a follow-up.
+- **Owner.** Maintainers.
+- **Status.** open
+
+### Q-061c Runtime page cache: memory only, 256 MB
+
+- **Context.** With public pages cached, a 4,000-item, 21-locale directory has ~86,000
+  cacheable pages of ~0.65 MB each; Next.js writes them all to disk by default.
+- **Options.**
+  - Disk (Next.js default): unbounded growth of the pod filesystem.
+  - Memory only, LRU-bounded; a CDN in front holds the long tail.
+- **Default.** **Memory only, `NEXT_CACHE_MAX_MEMORY_MB=256`**; `NEXT_ISR_FLUSH_TO_DISK=true`
+  restores disk writes.
+- **Owner.** Maintainers.
+- **Status.** open
+
+---
+
 ## Spec 060 — LemonSqueezy webhook integrity
 
 ### Q-060a Cross-pod webhook de-duplication

@@ -1,7 +1,7 @@
 import { getCachedItem, getCachedSimilarItems } from '@/lib/content';
 import { notFound } from 'next/navigation';
 import { getCategoriesName } from '@/lib/utils';
-import { getTranslations } from 'next-intl/server';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { ItemDetailWrapper } from '@/components/item-detail';
 import { ServerItemContent } from '@/components/item-detail/server-item-content';
 import { Container } from '@/components/ui/container';
@@ -15,6 +15,7 @@ import { type Locale } from '@/lib/constants';
 import { HydrationBoundary, dehydrate } from '@tanstack/react-query';
 import { getQueryClient } from '@/lib/query-client';
 import { getCommentsByItemId } from '@/lib/db/queries';
+import { getTenantIdForSharedRender } from '@/lib/auth/tenant';
 import { extractHeadings } from '@/lib/utils/extract-headings';
 import { ratingWhenEnabled, summarizeRatings } from '@/lib/seo/aggregate-rating';
 import { getFeatureFlags } from '@/lib/config/feature-flags';
@@ -23,6 +24,15 @@ import { getFeatureFlags } from '@/lib/config/feature-flags';
 // Using dynamicParams allows on-demand generation without build-time MDX errors
 export const revalidate = 600;
 export const dynamicParams = true;
+
+// An empty list makes every item page ISR: rendered on its first visit, then
+// served from the cache (and cacheable by a CDN) until `revalidate` or a content
+// sync. Without generateStaticParams Next.js renders a dynamic segment on every
+// request, which is what made localized item pages slow under crawler load
+// (Spec 061). Nothing in this route may read cookies() / headers().
+export async function generateStaticParams() {
+	return [];
+}
 
 const appUrl = getBaseUrl();
 
@@ -158,6 +168,9 @@ const MAX_SLUG_LENGTH = 255;
 
 export default async function ItemDetails({ params }: { params: Promise<{ slug: string; locale: string }> }) {
 	const { slug, locale } = await params;
+	// Static rendering for next-intl: without this, getTranslations()/getLocale()
+	// read the request headers and the page renders on every request (Spec 061).
+	setRequestLocale(locale);
 
 	if (slug.length > MAX_SLUG_LENGTH) {
 		return notFound();
@@ -170,12 +183,18 @@ export default async function ItemDetails({ params }: { params: Promise<{ slug: 
 		// Comment prefetch populates the server-side queryClient so HydrationBoundary
 		// below embeds the data in the HTML — CommentsSection renders without a
 		// client-side waterfall.
+		// The page is cached and shared by every visitor, so the comments are read for the
+		// tenant resolved without the request. When that is ambiguous (several tenants in one
+		// deployment) nothing is prefetched and the browser loads them through the API.
+		const sharedTenantId = await getTenantIdForSharedRender().catch(() => null);
 		const [[item, t]] = await Promise.all([
 			Promise.all([getCachedItem(slug, { lang: locale }), getTranslations('common')]),
-			queryClient.prefetchQuery({
-				queryKey: ['comments', slug],
-				queryFn: () => getCommentsByItemId(slug).catch(() => []),
-			}),
+			sharedTenantId
+				? queryClient.prefetchQuery({
+						queryKey: ['comments', slug],
+						queryFn: () => getCommentsByItemId(slug, { tenantId: sharedTenantId }).catch(() => []),
+					})
+				: undefined,
 		]);
 
 		if (!item) {

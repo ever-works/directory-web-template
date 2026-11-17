@@ -1,7 +1,7 @@
 export const revalidate = 3600;
 
 import { Metadata } from 'next';
-import { getTranslations } from 'next-intl/server';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 import Link from 'next/link';
 import { PageContainer } from '@/components/ui/container';
 import { MDX } from '@/components/mdx';
@@ -46,6 +46,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function FaqPage({ params }: PageProps) {
   const { locale } = await params;
+  // Static rendering for next-intl: without this, getTranslations()/getLocale()
+  // read the request headers and the page renders on every request (Spec 061).
+  setRequestLocale(locale);
   const pageData = await getCachedPageContent('faq', locale);
 
   // Use the built-in FAQ when the data repository ships no `faq.<locale>.md`,

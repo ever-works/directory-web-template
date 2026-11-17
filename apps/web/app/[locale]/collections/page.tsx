@@ -3,11 +3,14 @@ import { getCachedItems } from '@/lib/content';
 import CollectionsGridClient from './collections-grid-client';
 import { generateListingMetadata } from '@/lib/seo/listing-metadata';
 import { BreadcrumbJsonLd } from '@/components/seo/breadcrumb-json-ld';
-import { getTranslations } from 'next-intl/server';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { DEFAULT_LOCALE } from '@/lib/constants';
 
 // Enable ISR with 10 minutes revalidation
 // Admin changes will be visible within 10 minutes (acceptable tradeoff for performance)
+// Rendered per request, as before Spec 061: its grid reads useSearchParams() for
+// pagination without a Suspense boundary, which a cached (static) render cannot do.
+export const dynamic = 'force-dynamic';
 export const revalidate = 600;
 
 export async function generateMetadata({
@@ -38,6 +41,9 @@ export async function generateStaticParams() {
 
 export default async function CollectionsPage({ params }: { params: Promise<{ locale: string }> }) {
 	const { locale } = await params;
+	// Static rendering for next-intl: without this, getTranslations()/getLocale()
+	// read the request headers and the page renders on every request (Spec 061).
+	setRequestLocale(locale);
 
 	// Fetch collections from YAML content
 	const { collections } = await getCachedItems({ lang: locale });

@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import { setRequestLocale } from 'next-intl/server';
 import { getCachedItemsByTag, type ItemData } from "@/lib/content";
 import { paginateMeta, PER_PAGE } from "@/lib/paginate";
 import Listing from "../../listing";
@@ -118,6 +119,9 @@ export default async function TagListing({
   searchParams: Promise<SearchParams>;
 }) {
   const { tag: tagMeta, locale } = await params;
+  // Static rendering for next-intl: without this, getTranslations()/getLocale()
+  // read the request headers and the page renders on every request (Spec 061).
+  setRequestLocale(locale);
   const sp = (await searchParams) ?? {};
 
   // Tags switched off, an unknown tag, or a URL that is not one of the tag's

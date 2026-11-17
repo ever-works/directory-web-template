@@ -20,6 +20,8 @@ export interface SyncStatus {
 const SYNC_INTERVAL_MS = 5 * 60 * 1000; // 5 minutes
 const SYNC_TIMEOUT_MS = 5 * 60 * 1000; // 5 minute timeout
 const MAX_RETRIES = 3;
+// Content caches are invalidated when the content HEAD moves, and at least this often.
+const MAX_INVALIDATION_INTERVAL_MS = 60 * 60 * 1000; // 1 hour
 
 /**
  * Singleton sync manager that handles automatic background synchronization
@@ -32,6 +34,7 @@ class SyncManager {
   private retryCount = 0;
   /** Content commit the caches were last invalidated for; see performSync. */
   private lastInvalidatedRevision: string | null = null;
+  private lastInvalidatedAt = 0;
 
   /**
    * Perform a single sync operation with mutex lock and timeout
@@ -108,12 +111,18 @@ class SyncManager {
       const { readGitHeadRevision } = await import('@/lib/content-revision');
       const { getContentPath } = await import('@/lib/lib');
       const revision = await readGitHeadRevision(getContentPath());
-      const contentChanged = !revision || revision !== this.lastInvalidatedRevision;
+      // Safety net: an edit written to disk whose commit failed leaves HEAD unchanged,
+      // so invalidate at least once an hour even when the revision did not move.
+      const invalidationDue = Date.now() - this.lastInvalidatedAt >= MAX_INVALIDATION_INTERVAL_MS;
+      const contentChanged = !revision || revision !== this.lastInvalidatedRevision || invalidationDue;
 
       if (contentChanged) {
         const { invalidateContentCaches } = await import('@/lib/cache-invalidation');
-        await invalidateContentCaches();
-        this.lastInvalidatedRevision = revision;
+        const complete = await invalidateContentCaches();
+        // Remember the revision only when every tag was revalidated; otherwise the
+        // next sync repeats the invalidation.
+        this.lastInvalidatedRevision = complete ? revision : null;
+        this.lastInvalidatedAt = Date.now();
         console.log('[SYNC_MANAGER] Content caches invalidated', revision ? `(revision ${revision.slice(0, 12)})` : '');
       } else if (coreConfig.NODE_ENV !== 'development') {
         console.log(`[SYNC_MANAGER] Content unchanged at ${revision!.slice(0, 12)}; caches kept`);
