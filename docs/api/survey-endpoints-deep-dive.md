@@ -305,12 +305,15 @@ Retrieve a specific survey response by ID. Requires admin authentication.
 | `POST /api/surveys/{surveyId}/responses`  | Public (optional auth for user tracking)     |
 | `GET /api/surveys/responses/{responseId}` | Admin only                                   |
 
+The admin role is read from the database on every request (`checkAdminAuth()` in `lib/auth/admin-guard.ts`, or `isAdmin(userId)` in `lib/db/roles.ts` for the two reads that also serve non-admins), never from the session's `isAdmin` claim, which outlives a role removal.
+
 ## Error Responses
 
 | Status | Description                                                             |
 | ------ | ----------------------------------------------------------------------- |
 | 400    | Invalid request body -- missing required `data` field or malformed JSON |
 | 401    | Unauthorized -- admin authentication required                           |
+| 403    | Forbidden -- signed in, but the caller is not an admin                  |
 | 404    | Survey or response not found                                            |
 | 500    | Internal server error -- database failure                               |
 | 503    | Database unavailable or schema not initialized                          |

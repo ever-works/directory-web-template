@@ -310,7 +310,7 @@ Returns the updated comment object.
 
 ## Company Association
 
-Admin-only endpoints to manage the relationship between items and companies.
+Admin-only endpoints to manage the relationship between items and companies. All three check the caller's admin role in the database with `checkAdminAuth()` (`lib/auth/admin-guard.ts`), not the session's `isAdmin` claim: a signed-out caller gets `401 Unauthorized` and a signed-in non-admin `403 Forbidden`, both as `{ "success": false, "error": ... }`.
 
 ### Get Item Company
 

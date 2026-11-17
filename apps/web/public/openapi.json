@@ -22052,6 +22052,9 @@
 					"401": {
 						"description": "Unauthorized"
 					},
+					"403": {
+						"description": "Forbidden - the caller is not an admin"
+					},
 					"500": {
 						"description": "Internal server error"
 					}
@@ -22180,6 +22183,9 @@
 					},
 					"401": {
 						"description": "Unauthorized"
+					},
+					"403": {
+						"description": "Forbidden - the caller is not an admin"
 					},
 					"404": {
 						"description": "Response not found"
@@ -22347,6 +22353,9 @@
 					"401": {
 						"description": "Unauthorized"
 					},
+					"403": {
+						"description": "Forbidden - the caller is not an admin"
+					},
 					"500": {
 						"description": "Internal server error"
 					}
@@ -22442,6 +22451,9 @@
 					"401": {
 						"description": "Unauthorized"
 					},
+					"403": {
+						"description": "Forbidden - the caller is not an admin"
+					},
 					"404": {
 						"description": "Survey not found"
 					},
@@ -22476,6 +22488,9 @@
 					},
 					"401": {
 						"description": "Unauthorized"
+					},
+					"403": {
+						"description": "Forbidden - the caller is not an admin"
 					},
 					"404": {
 						"description": "Survey not found"
@@ -30529,7 +30544,7 @@
 										},
 										"error": {
 											"type": "string",
-											"example": "Forbidden. Admin access required for geocoding operations."
+											"example": "Forbidden"
 										}
 									}
 								}
