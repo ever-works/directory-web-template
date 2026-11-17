@@ -18,6 +18,18 @@ function formatDateForYaml(date: Date = new Date()): string {
   return `${year}-${month}-${day} ${hours}:${minutes}`;
 }
 
+/**
+ * Thrown by `createItem` when the item's id or slug is taken, whether its read found the item or
+ * another request (an import, an admin create) wrote `data/<slug>/<slug>.yml` after that read.
+ * POST /api/admin/items and POST /api/client/items answer it with 409.
+ */
+export class DuplicateItemError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'DuplicateItemError';
+  }
+}
+
 export interface ItemGitServiceConfig {
   owner: string;
   repo: string;
@@ -456,8 +468,8 @@ export class ItemGitService {
     }
   }
 
-  async writeItem(item: ItemData): Promise<void> {
-    await this.writeItemFile(item);
+  async writeItem(item: ItemData, options: { createOnly?: boolean } = {}): Promise<void> {
+    await this.writeItemFile(item, options);
     await this.commitAndPush(`Update item: ${item.name}`);
   }
 
@@ -530,12 +542,12 @@ export class ItemGitService {
 
     // Check for duplicate ID
     if (items.some(item => item.id === data.id)) {
-      throw new Error(`Item with ID '${data.id}' already exists`);
+      throw new DuplicateItemError(`Item with ID '${data.id}' already exists`);
     }
     
     // Check for duplicate slug
     if (items.some(item => item.slug === data.slug)) {
-      throw new Error(`Item with slug '${data.slug}' already exists`);
+      throw new DuplicateItemError(`Item with slug '${data.slug}' already exists`);
     }
 
     const newItem: ItemData = {
@@ -556,7 +568,15 @@ export class ItemGitService {
       location: data.location,
     };
 
-    await this.writeItem(newItem);
+    try {
+      // 'wx': an item another request wrote after the read above fails with EEXIST instead of being replaced
+      await this.writeItem(newItem, { createOnly: true });
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException)?.code === 'EEXIST') {
+        throw new DuplicateItemError(`Item with slug '${data.slug}' already exists`);
+      }
+      throw error;
+    }
     this.indexLocationAsync(newItem);
     return newItem;
   }
