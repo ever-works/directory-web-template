@@ -131,12 +131,16 @@ exports only `POST`. The POST handler combines:
    change not available for OAuth accounts. Please
    contact support.' }`.
 9. **`bcrypt.compare(currentPassword, currentHash)`**
-   — `currentHash` is the one hash sign-in accepts
+   — `currentHash` is the hash sign-in accepts
    for this user (`lib/auth/credentials.ts`):
    `users.passwordHash` for an admin
    (`isUserAdmin`) that has one, otherwise the
-   credentials account hash (falling back to
-   `users.passwordHash` when there is none). The other
+   credentials account hash. When there is no
+   credentials account hash the route falls back to
+   `users.passwordHash`; that is route compatibility
+   only, since sign-in never reads it for a non-admin
+   (an OAuth-only non-admin still needs a credentials
+   account to sign in with a password). The other
    store is not tried, so a stale hash there (the seed
    password on a seeded admin's credentials row) cannot
    authorize a change. No match → 400
