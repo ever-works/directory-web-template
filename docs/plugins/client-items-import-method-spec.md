@@ -89,8 +89,16 @@ service-derived result aggregate
   `/^[a-z0-9]+(?:-[a-z0-9]+)*$/`), and the `duplicate`
   flag is ignored: duplicates are looked up again
   among all items, deleted ones included, by slug and
-  by exact `source_url`. A row whose slug or link
-  already exists is skipped, never written. The file
+  by `source_url`. A row whose slug or link
+  already exists is skipped, never written. Links are
+  compared as `POST /api/client/items` compares them
+  (`normalizeSourceUrl`: `www.`, a trailing slash,
+  http vs https, a fragment and tracking parameters
+  do not make a link new), and a row whose link an
+  earlier row of the same import creates is skipped
+  too (a skipped row does not claim its link);
+  `source_url` must be an `http` or `https` URL
+  (T-2610). The file
   write itself refuses to replace an existing item
   file (`wx`), so a slug that an overlapping import or
   submission takes after the lookup is also skipped.
