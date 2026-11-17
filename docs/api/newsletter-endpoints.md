@@ -27,7 +27,7 @@ These are Server Actions defined with `'use server'` and invoked from React comp
 subscribeToNewsletter(data: { email: string })
 ```
 
-Subscribes an email address to the newsletter. Validates the email using Zod, checks for duplicate active subscriptions, creates the database record, and sends a welcome email. The email is automatically normalized to lowercase and trimmed.
+Subscribes an email address to the newsletter. Validates the email using Zod, checks for duplicate active subscriptions, creates the database record (or re-activates the record of an email that unsubscribed earlier), and sends a welcome email. The email is automatically normalized to lowercase and trimmed.
 
 **Input Validation (Zod):**
 
@@ -56,15 +56,15 @@ Subscribes an email address to the newsletter. Validates the email using Zod, ch
 |---|---|
 | `"Please enter a valid email address"` | Invalid email format (Zod validation) |
 | `"Email is already subscribed to the newsletter"` | Active subscription already exists |
-| `"Failed to create subscription. Please try again."` | Database insert failed |
+| `"Failed to create subscription. Please try again."` | Database insert or re-activation failed |
 | `"Failed to subscribe to newsletter. Please try again."` | Unexpected error |
 
 **Processing Steps:**
 
 1. Validate and normalize email (lowercase, trim)
 2. Check for existing active subscription via `getNewsletterSubscriptionByEmail`
-3. Create subscription record with source `"footer"` via `createNewsletterSubscription`
-4. Send welcome email using the configured email provider (Resend or Novu)
+3. If an inactive subscription exists (the email unsubscribed earlier), re-activate it via `resubscribeToNewsletter` (sets `isActive: true`, clears `unsubscribedAt`). Unsubscribing keeps the row and `email` is unique, so a new insert would fail. Otherwise create a subscription record with source `"footer"` via `createNewsletterSubscription`
+4. Send welcome email (both for a new and for a re-activated subscription) using the configured email provider (Resend or Novu)
 
 Email send failures are caught silently and do not prevent the subscription from succeeding.
 
@@ -76,7 +76,7 @@ Email send failures are caught silently and do not prevent the subscription from
 unsubscribeFromNewsletter(data: { email: string })
 ```
 
-Unsubscribes an email from the newsletter by setting `isActive` to `false`. Sends an unsubscribe confirmation email.
+Unsubscribes an email from the newsletter via the `unsubscribeFromNewsletter` query, which sets `isActive` to `false` and records `unsubscribedAt`. The row is kept, so subscribing again later re-activates it. Sends an unsubscribe confirmation email.
 
 **Success Response:**
 

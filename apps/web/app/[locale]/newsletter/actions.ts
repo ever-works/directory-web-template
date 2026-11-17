@@ -5,7 +5,8 @@ import { validatedAction } from '@/lib/auth/middleware';
 import {
 	createNewsletterSubscription,
 	getNewsletterSubscriptionByEmail,
-	updateNewsletterSubscription,
+	resubscribeToNewsletter,
+	unsubscribeFromNewsletter as unsubscribeFromNewsletterQuery,
 	getNewsletterStats
 } from '@/lib/db/queries';
 import { EmailService } from '@/lib/mail';
@@ -112,7 +113,11 @@ const sendEmailSafely = async (
 const validateExistingSubscription = async (
 	email: string,
 	shouldBeActive: boolean = true
-): Promise<{ isValid: boolean; error?: string }> => {
+): Promise<{
+	isValid: boolean;
+	error?: string;
+	existingSubscription?: Awaited<ReturnType<typeof getNewsletterSubscriptionByEmail>>;
+}> => {
 	const existingSubscription = await getNewsletterSubscriptionByEmail(email);
 
 	if (shouldBeActive) {
@@ -125,7 +130,7 @@ const validateExistingSubscription = async (
 		}
 	}
 
-	return { isValid: true };
+	return { isValid: true, existingSubscription };
 };
 
 // ============================================================================
@@ -138,7 +143,6 @@ const validateExistingSubscription = async (
 export const subscribeToNewsletter = validatedAction(emailSchema, async (data): Promise<NewsletterActionResult> => {
 	try {
 		const { email } = data;
-		console.log('email', email);
 		// Validate subscription status
 		const validation = await validateExistingSubscription(email, false);
 		if (!validation.isValid) {
@@ -148,8 +152,11 @@ export const subscribeToNewsletter = validatedAction(emailSchema, async (data): 
 			};
 		}
 
-		// Create subscription in database
-		const subscription = await createNewsletterSubscription(email, 'footer');
+		// Unsubscribing keeps the row and the email column is unique, so an email that
+		// unsubscribed earlier gets its row re-activated; only a new email gets a new row.
+		const subscription = validation.existingSubscription
+			? await resubscribeToNewsletter(email)
+			: await createNewsletterSubscription(email, 'footer');
 		if (!subscription) {
 			return {
 				error: 'Failed to create subscription. Please try again.',
@@ -189,8 +196,8 @@ export const unsubscribeFromNewsletter = validatedAction(emailSchema, async (dat
 			};
 		}
 
-		// Update subscription status
-		const updated = await updateNewsletterSubscription(email, { isActive: false });
+		// Deactivate the subscription and record when it ended
+		const updated = await unsubscribeFromNewsletterQuery(email);
 		if (!updated) {
 			return {
 				error: 'Failed to unsubscribe. Please try again.',
