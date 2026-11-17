@@ -65,21 +65,26 @@ Found on a local production build with that data repo:
   (`TENANT_ID`, else the tenant of a database with exactly one tenant row, if active),
   looked up in parallel with the item. Otherwise it prefetches nothing (and the Product
   JSON-LD has no `aggregateRating`) and the browser loads the comments through the API.
-  The comments hook always refetches on mount, as the hydrated ones can be minutes old.
+  The comments hook always refetches on mount, as the hydrated ones can be minutes old, and
+  cancels that refetch before writing a new or edited comment. A failed item read is an
+  error, not a 404, so a regeneration that fails keeps the last good page.
 - **R5.** Per-visitor segments (auth, dashboard, client, admin, favorites, submit, pricing,
   surveys, sponsor, newsletter) and the index grids that read `useSearchParams()` without a
   boundary (categories, tags, tags/collections paging, collections) are pinned to
   `force-dynamic`: rendered per request, as before.
 - **R6.** The runtime page cache stays in memory, LRU-bounded by `NEXT_CACHE_MAX_MEMORY_MB`
   (default 64: a cached item page is counted as ~0.65 MB and measured ~0.9 MB of heap),
-  and is written to disk only with `NEXT_ISR_FLUSH_TO_DISK=true`.
+  and is written to disk only with `NEXT_ISR_FLUSH_TO_DISK=true`: `apps/web/cache-handler.cjs`
+  is Next's own cache handler without disk writes. `experimental.isrFlushToDisk` keeps its
+  default, because turning it off also turns off the optimized-image disk cache.
 
 **Content loading**
 
 - **R7.** An item's base YAML is parsed once and reused until its mtime or size changes,
   shared by all locales and option sets (`lib/item-file-cache.ts`); a locale shallow-copies
   it and overlays `<slug>.<lang>.yml` only when the directory listing shows one. IO errors
-  are reported, never cached, and retried. Concurrent walks share one snapshot.
+  are reported, never cached, and retried. Concurrent walks that saw the same directory
+  version share one walk; only the newest walk's snapshot is kept.
 - **R8.** `categories.yml` / `tags.yml` / `collections.yml` and their overlays are parsed
   once per file version; callers get copies (arrays included). The directory cache stores
   copies, so counts are right for every option set.
@@ -99,14 +104,16 @@ Found on a local production build with that data repo:
 - **R12.** The sync invalidates content caches only when the content checkout's HEAD
   (loose, packed or detached ref) moved since the last invalidation, or at least hourly; a
   checkout without a readable HEAD every time, as before; the first sync after start-up
-  not when its pull did not move HEAD. In-memory caches are always cleared then; cache tags
+  skips it when its pull did not move HEAD. In-memory caches are always cleared then; cache tags
   that could not be revalidated in the timer's context (render phase, or no request) are
   retried on later syncs. After an invalidation the default locale is re-walked in the
   background (stat only; changed files re-parsed) while cached pages keep being served
   (stale-while-revalidate). The location index is rebuilt for each new commit; a rebuild
-  that throws is retried on the next sync, one with failed items at most hourly.
+  that throws or reads no items is retried on the next sync, one with failed items at most
+  hourly.
 - **R13.** The missing-YAML repair runs once per distinct set of YAML-less directories;
-  concurrent walks wait for it.
+  concurrent walks wait for it. A repair whose pull was skipped (too soon after the last)
+  or failed is tried again by a later walk.
 
 **Memory**
 
@@ -185,6 +192,8 @@ faster in the same test (5.3 GB: more pages served per second, each leaving its 
 - `apps/web/lib/__tests__/cacheable-public-pages.spec.ts` — source guards against the
   request-scoped reads that made pages dynamic, for the rewrite conditions and for the
   server-side React Query timers (R14).
+- `apps/web/lib/__tests__/page-cache-handler.spec.ts` — the cache handler extends Next's,
+  writes nothing to disk unless asked, and keeps Next's 2 MB data-cache entry limit.
 - `apps/web/lib/auth/__tests__/shared-render-tenant.spec.ts` — the shared-render tenant pick.
 - `apps/web/lib/seo/__tests__/item-rating-wiring.spec.ts` — updated for the shared-render
   tenant.

@@ -203,10 +203,7 @@ async function resolveFromDatabase(): Promise<string | null> {
 		defaultTenantCachedAt = 0;
 	} catch (error) {
 		const message = error instanceof Error ? error.message : String(error);
-		const isExpectedUnavailable =
-			!coreConfig.DATABASE_URL ||
-			/relation \"tenant\" does not exist/i.test(message) ||
-			/schema may be out of sync/i.test(message);
+		const isExpectedUnavailable = !coreConfig.DATABASE_URL || isTenantTableUnavailable(message);
 
 		if (!isExpectedUnavailable) {
 			console.error('[getTenantId] Fallback DB lookup failed:', message);
@@ -242,12 +239,21 @@ export async function getTenantIdForSharedRender(): Promise<string | null> {
 		const rows = await db.select({ id: tenant.id, status: tenant.status }).from(tenant).limit(2);
 		return pickSharedRenderTenant(rows);
 	} catch (error) {
-		console.error(
-			'[getTenantIdForSharedRender] Tenant lookup failed; rendering without tenant-scoped data:',
-			error instanceof Error ? error.message : String(error)
-		);
+		const message = error instanceof Error ? error.message : String(error);
+		// An unmigrated database is expected (see resolveFromDatabase): no error per render.
+		if (!isTenantTableUnavailable(message)) {
+			console.error(
+				'[getTenantIdForSharedRender] Tenant lookup failed; rendering without tenant-scoped data:',
+				message
+			);
+		}
 		return null;
 	}
+}
+
+/** The tenant table is missing or the schema is behind: expected on a fresh or unmigrated database. */
+function isTenantTableUnavailable(message: string): boolean {
+	return /relation "tenant" does not exist/i.test(message) || /schema may be out of sync/i.test(message);
 }
 
 // --- Main Export --- //

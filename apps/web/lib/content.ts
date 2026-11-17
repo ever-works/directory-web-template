@@ -755,7 +755,7 @@ interface ContentCacheState {
 	categories: Map<string, { data: Map<string, Category>; timestamp: number }>;
 	tags: Map<string, { data: Map<string, Tag>; timestamp: number }>;
 	inFlight: Map<string, Promise<FetchItemsResult>>;
-	repair: { promise: Promise<void> | null; lastSignature: string | null };
+	repair: { promise: Promise<boolean> | null; lastSignature: string | null };
 	/** Bumped by clearFetchItemsCache(): a walk that started before a clear must not store its result. */
 	generation: number;
 }
@@ -1240,23 +1240,27 @@ export async function clearFetchItemsCache() {
 	console.log('[CACHE] In-memory fetchItems, directory, categories, in-flight, and tags caches cleared');
 }
 
-async function repairContentRepositoryAfterMissingItems(): Promise<void> {
+/** @returns `true` when the repository was pulled or cloned (and the caches cleared). */
+async function repairContentRepositoryAfterMissingItems(): Promise<boolean> {
 	if (!process.env.DATA_REPOSITORY) {
-		return;
+		return false;
 	}
 
 	if (!repairState.promise) {
 		repairState.promise = (async () => {
 			console.warn('[CONTENT] Missing item YAML files detected; attempting repository repair before returning listings.');
 			const { trySyncRepository } = await import('./repository');
-			await trySyncRepository();
-			await clearFetchItemsCache();
+			const synced = await trySyncRepository();
+			if (synced) {
+				await clearFetchItemsCache();
+			}
+			return synced;
 		})().finally(() => {
 			repairState.promise = null;
 		});
 	}
 
-	await repairState.promise;
+	return repairState.promise;
 }
 
 /**
@@ -1505,15 +1509,20 @@ async function fetchItemsImpl(options: FetchOptions = {}, repairAttempted = fals
 	// the repository itself leaves without a YAML file (for example an emptied item folder
 	// a pull did not remove) made EVERY listing walk sync the repo and wipe every
 	// locale's caches, so no cache ever stayed warm (Spec 061).
-	// Recorded only after the repair finished, so walks that start meanwhile join the
-	// running repair (and return repaired data) and a failed repair is tried again.
+	// Recorded only after a repair whose pull or clone ran, so walks that start meanwhile
+	// join the running repair (and return repaired data), and a repair whose sync failed
+	// or was skipped (too soon after the last pull) is tried again by a later walk.
 	const missingSignature = `${dest}|${[...snapshot.missing].sort().join('|')}`;
 	if (missingItemDataCount === 0) {
 		// Repaired (or never broken): the same set appearing again later gets a new repair.
 		repairState.lastSignature = null;
 	}
-	if (missingItemDataCount > 0 && !repairAttempted && missingSignature !== repairState.lastSignature) {
-		await repairContentRepositoryAfterMissingItems();
+	if (
+		missingItemDataCount > 0 &&
+		!repairAttempted &&
+		missingSignature !== repairState.lastSignature &&
+		(await repairContentRepositoryAfterMissingItems())
+	) {
 		repairState.lastSignature = missingSignature;
 		// Recurse into the impl directly. Calling the public `fetchItems`
 		// here would deadlock — the single-flight map still has our own

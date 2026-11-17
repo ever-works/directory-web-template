@@ -100,6 +100,20 @@ describe('ItemFileCache', () => {
 		assert.equal(parsedFiles.length, 1);
 	});
 
+	it('does not share a walk started for another directory version, and keeps the newest', async () => {
+		await writeItem('alpha', { 'alpha.yml': 'name: Alpha' });
+		const cache = makeCache();
+		const older = cache.getSnapshot(dest, { dirMtimeMs: 1, maxAgeMs: 60_000, reuse: true });
+		await writeItem('beta', { 'beta.yml': 'name: Beta' });
+		const newer = await cache.getSnapshot(dest, { dirMtimeMs: 2, maxAgeMs: 60_000, reuse: true });
+		const olderSnapshot = await older;
+
+		assert.notEqual(newer, olderSnapshot);
+		assert.ok(newer.entries.has('beta'));
+		// Whichever walk finished last, the newer one is the snapshot kept.
+		assert.equal(await cache.getSnapshot(dest, { dirMtimeMs: 2, maxAgeMs: 60_000, reuse: true }), newer);
+	});
+
 	it('after invalidate() walks again but only re-parses files that changed', async () => {
 		await writeItem('alpha', { 'alpha.yml': 'name: Alpha' });
 		await writeItem('beta', { 'beta.yml': 'name: Beta' });

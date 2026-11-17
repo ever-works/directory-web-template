@@ -3,9 +3,16 @@
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
 import { Home, ArrowLeft, Search } from 'lucide-react';
+import { getPathname } from '@/i18n/navigation';
 
-export default function NotFound() {
+/**
+ * @param locale The page's locale, inside `[locale]`: the links keep it. Without it
+ *               (the global 404, outside any locale) they go to the default locale.
+ */
+export default function NotFound({ locale }: { locale?: string } = {}) {
   const router = useRouter();
+  const homeHref = locale ? getPathname({ href: '/', locale }) : '/';
+  const helpHref = locale ? getPathname({ href: '/help', locale }) : '/help';
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-gray-50 via-white to-gray-100 dark:from-[#0a0a0a]! dark:via-[#0a0a0a]! dark:to-[#0a0a0a]!">
@@ -39,7 +46,7 @@ export default function NotFound() {
           </Button>
           
           <Button
-            onClick={() => router.push('/')}
+            onClick={() => router.push(homeHref)}
             className="flex items-center gap-2 px-6 py-3 bg-theme-primary text-white"
           >
             <Home className="w-4 h-4" />
@@ -65,7 +72,7 @@ export default function NotFound() {
           <p>
             Need help?{' '}
             <button
-              onClick={() => router.push('/help')}
+              onClick={() => router.push(helpHref)}
               className="text-theme-primary hover:text-theme-accent transition-colors underline"
             >
               Contact Support

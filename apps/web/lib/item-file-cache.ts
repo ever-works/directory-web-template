@@ -106,8 +106,10 @@ function pickItemYaml(slug: string, dirents: readonly { name: string; isFile(): 
 export class ItemFileCache<T> {
 	private parsed = new Map<string, ItemFileEntry<T>>();
 	private snapshot: ItemFileSnapshot<T> | null = null;
-	private inFlight: { dest: string; promise: Promise<ItemFileSnapshot<T>> } | null = null;
+	private inFlight: { dest: string; dirMtimeMs: number; promise: Promise<ItemFileSnapshot<T>> } | null = null;
 	private generation = 0;
+	/** Walks started that may keep their snapshot: only the latest one does. */
+	private reusableWalks = 0;
 
 	constructor(private readonly deps: ItemFileCacheDeps<T>) {}
 
@@ -140,20 +142,29 @@ export class ItemFileCache<T> {
 			return current;
 		}
 
-		// Single-flight: all locales asking at once share one directory walk.
-		if (this.inFlight && this.inFlight.dest === dest) {
+		// Single-flight: all locales asking at once share one directory walk, as long as it
+		// lists the directory version they saw (a walk started before an item was added
+		// would miss it).
+		if (this.inFlight && this.inFlight.dest === dest && this.inFlight.dirMtimeMs === options.dirMtimeMs) {
 			return this.inFlight.promise;
 		}
 
 		const generation = this.generation;
+		const walk = options.reuse ? ++this.reusableWalks : 0;
 		const promise = this.build(dest, options.dirMtimeMs).then((snapshot) => {
-			// Keep it only if nobody invalidated the cache while we were walking and the walk was clean.
-			if (options.reuse && generation === this.generation && snapshot.ioErrors.length === 0) {
+			// Keep it only if nobody invalidated the cache or started a newer walk meanwhile,
+			// and the walk was clean.
+			if (
+				options.reuse &&
+				generation === this.generation &&
+				walk === this.reusableWalks &&
+				snapshot.ioErrors.length === 0
+			) {
 				this.snapshot = snapshot;
 			}
 			return snapshot;
 		});
-		const entry = { dest, promise };
+		const entry = { dest, dirMtimeMs: options.dirMtimeMs, promise };
 		this.inFlight = entry;
 		try {
 			return await promise;

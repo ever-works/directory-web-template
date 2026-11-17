@@ -150,7 +150,10 @@ The runtime page cache is kept in memory (LRU, `NEXT_CACHE_MAX_MEMORY_MB`,
 default 64) and not written to disk unless `NEXT_ISR_FLUSH_TO_DISK=true`: a
 cached item page is counted as ~0.65 MB (it measured ~0.9 MB of heap), and a
 4,000-item directory in 21 locales has ~86,000 of them, so the long tail belongs
-in the CDN. Both are read by `next build`.
+in the CDN. `NEXT_CACHE_MAX_MEMORY_MB` is read by `next build`;
+`NEXT_ISR_FLUSH_TO_DISK` at server start by `apps/web/cache-handler.cjs`, Next's
+own cache handler without disk writes. `experimental.isrFlushToDisk` keeps its
+default, so optimized images keep their disk cache.
 
 ## How to verify
 

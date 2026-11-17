@@ -76,6 +76,8 @@ export function useComments(itemId: string) {
     },
     onSuccess: async (newComment) => {
       if (newComment) {
+        // The list refetches on mount: a GET still in flight would overwrite this write.
+        await queryClient.cancelQueries({ queryKey: ["comments", itemId] });
         // Optimistically update cache with server-returned comment data
         queryClient.setQueryData<CommentWithUser[]>(["comments", itemId], (old = []) => {
           // Check if comment already exists to prevent duplicates
@@ -158,6 +160,8 @@ export function useComments(itemId: string) {
     },
     onSuccess: async (updatedComment) => {
       if (updatedComment) {
+        // The list refetches on mount: a GET still in flight would overwrite this write.
+        await queryClient.cancelQueries({ queryKey: ["comments", itemId] });
         // Optimistically update cache with server-returned comment data
         queryClient.setQueryData<CommentWithUser[]>(["comments", itemId], (old = []) => {
           return old.map(comment =>

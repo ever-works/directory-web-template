@@ -63,7 +63,8 @@ confirm, override, or refine.
   - Disk (Next.js default): unbounded growth of the pod filesystem.
   - Memory only, LRU-bounded; a CDN in front holds the long tail.
 - **Default.** **Memory only, `NEXT_CACHE_MAX_MEMORY_MB=64`** (under ~90 MB of heap; sites
-  on 2 GiB pods were OOM-killed); `NEXT_ISR_FLUSH_TO_DISK=true` restores disk writes.
+  on 2 GiB pods were OOM-killed); `NEXT_ISR_FLUSH_TO_DISK=true` (read at server start by
+  `apps/web/cache-handler.cjs`) restores disk writes. Optimized images keep Next's disk cache.
 - **Owner.** Maintainers.
 - **Status.** open
 

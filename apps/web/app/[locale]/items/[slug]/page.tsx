@@ -1,5 +1,5 @@
 import { getCachedItem, getCachedSimilarItems } from '@/lib/content';
-import { notFound } from 'next/navigation';
+import { notFound, unstable_rethrow } from 'next/navigation';
 import { getCategoriesName } from '@/lib/utils';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { ItemDetailWrapper } from '@/components/item-detail';
@@ -257,7 +257,11 @@ export default async function ItemDetails({ params }: { params: Promise<{ slug: 
 			</HydrationBoundary>
 		);
 	} catch (error) {
+		// notFound() and Next's other control-flow errors pass through untouched.
+		unstable_rethrow(error);
 		console.error(`Failed to load item ${slug} for locale ${locale}:`, error);
-		return notFound();
+		// Not notFound(): the page is cached (ISR). A regeneration that throws keeps the
+		// last good page; a 404 would replace it until the next regeneration (Spec 061).
+		throw error;
 	}
 }

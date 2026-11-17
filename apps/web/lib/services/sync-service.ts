@@ -22,6 +22,8 @@ const SYNC_TIMEOUT_MS = 5 * 60 * 1000; // 5 minute timeout
 const MAX_RETRIES = 3;
 // Content caches are invalidated when the content HEAD moves, and at least this often.
 const MAX_INVALIDATION_INTERVAL_MS = 60 * 60 * 1000; // 1 hour
+// A location index rebuild with failed items is retried at most this often.
+const INDEX_RETRY_INTERVAL_MS = 60 * 60 * 1000; // 1 hour
 
 /**
  * Singleton sync manager that handles automatic background synchronization
@@ -172,8 +174,10 @@ class SyncManager {
           const allItems = await itemRepository.findAll();
 
           const rebuildResult = await locationIndexService.rebuildIndex(allItems);
-          this.lastIndexedRevision = revision;
-          this.indexRetryAt = rebuildResult.failed > 0 ? Date.now() + MAX_INVALIDATION_INTERVAL_MS : 0;
+          // `findAll()` returns [] instead of throwing when the data directory cannot be
+          // read: leave the commit unmarked then, so the next sync rebuilds.
+          this.lastIndexedRevision = allItems.length > 0 ? revision : null;
+          this.indexRetryAt = rebuildResult.failed > 0 ? Date.now() + INDEX_RETRY_INTERVAL_MS : 0;
           console.log('[SYNC_MANAGER] Location index rebuilt', {
             indexed: rebuildResult.indexed,
             skipped: rebuildResult.skipped,

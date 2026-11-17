@@ -228,8 +228,15 @@ export class ConfigManager {
 			try {
 				const { revalidateTag } = await import('next/cache');
 				revalidateTag(CACHE_TAGS.CONTENT, 'max');
-			} catch {
-				// Not in a request scope, or in a render: the content sync will catch up.
+			} catch (error) {
+				// Expected outside a request (scripts: "static generation store missing") and in a
+				// render: the content sync revalidates later. Anything else is a real failure.
+				const message = error instanceof Error ? error.message : String(error);
+				if (/static generation store missing|during render|render phase/i.test(message)) {
+					console.warn('[CACHE] Config cache revalidation left to the content sync:', message);
+				} else {
+					console.error('[CACHE] Config cache revalidation failed:', error);
+				}
 			}
 
 			// Queue Git operation to prevent concurrent writes

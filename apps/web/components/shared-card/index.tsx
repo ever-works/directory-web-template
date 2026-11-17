@@ -248,7 +248,11 @@ export function SharedCard(props: ExtendedCardProps) {
   // mode. Filters / sort live in the current URL; we only swap the `page`.
   const buildPageUrl = useCallback(
     (nextPage: number) => {
-      const params = new URLSearchParams(searchParams?.toString() ?? '');
+      // Read the query when the request is made: the context value is '' until the
+      // browser has reported it, and an early fetch would drop the filters.
+      const params = new URLSearchParams(
+        typeof window === 'undefined' ? searchParams?.toString() ?? '' : window.location.search
+      );
       params.set('page', String(nextPage));
       return `/api/items/listing?${params.toString()}`;
     },

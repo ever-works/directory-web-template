@@ -60,14 +60,6 @@ function safeRevalidateTag(tag: string): boolean {
 }
 
 /**
- * Invalidates all content-related caches
- * Should be called after repository sync completes successfully
- *
- * @returns `false` when a tag could not be revalidated (render phase, or no
- *          request), so the caller can retry the tags with revalidateContentTags().
- *          The in-memory caches are always cleared.
- */
-/**
  * Revalidates every content cache tag (Data Cache entries and cached pages).
  *
  * @returns `false` when a tag could not be revalidated in this context (render
@@ -90,6 +82,14 @@ export function revalidateContentTags(): boolean {
     .every(Boolean);
 }
 
+/**
+ * Invalidates all content-related caches
+ * Should be called after repository sync completes successfully
+ *
+ * @returns `false` when a tag could not be revalidated (render phase, or no
+ *          request), so the caller can retry the tags with revalidateContentTags().
+ *          The in-memory caches are always cleared.
+ */
 export async function invalidateContentCaches(): Promise<boolean> {
   console.log('[CACHE] Invalidating all content caches after sync');
 

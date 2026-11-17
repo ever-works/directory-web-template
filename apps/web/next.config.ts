@@ -21,19 +21,21 @@ const nextConfig: NextConfig = {
 	// Spec 061: public pages are cached (ISR). A cached item page is about 0.65 MB (HTML +
 	// RSC payload), and a directory with 4,000 items in 21 locales has ~86,000 of them, so
 	// writing every rendered page to disk (Next's default) can grow a pod's filesystem by
-	// tens of GB under crawler traffic. Keep the runtime page cache in memory, bounded by
-	// `NEXT_CACHE_MAX_MEMORY_MB`, and evict least recently used pages; a CDN in front
-	// (Cloudflare) caches them too, from the `s-maxage` header. Next counts a cached item
-	// page as ~0.65 MB; it measured ~0.9 MB of heap + buffers, so the default 64 keeps the
-	// cache under ~90 MB. Raise it on pods with memory to spare. Set
-	// `NEXT_ISR_FLUSH_TO_DISK=true` to also write pages to disk. Both are read at build time.
+	// tens of GB under crawler traffic. `cache-handler.cjs` keeps the runtime page cache in
+	// memory (unless `NEXT_ISR_FLUSH_TO_DISK=true` at server start), bounded by
+	// `NEXT_CACHE_MAX_MEMORY_MB` (read at build time), evicting least recently used pages;
+	// a CDN in front (Cloudflare) caches them too, from the `s-maxage` header. Next counts
+	// a cached item page as ~0.65 MB; it measured ~0.9 MB of heap + buffers, so the default
+	// 64 keeps the cache under ~90 MB. Raise it on pods with memory to spare.
+	// `experimental.isrFlushToDisk` keeps its default: turning it off would also turn off
+	// the optimized-image disk cache.
+	cacheHandler: path.join(__dirname, 'cache-handler.cjs'),
 	cacheMaxMemorySize:
 		(Number(process.env.NEXT_CACHE_MAX_MEMORY_MB) > 0 ? Number(process.env.NEXT_CACHE_MAX_MEMORY_MB) : 64) *
 		1024 *
 		1024,
 	experimental: {
-		optimizePackageImports: ['@heroui/react', 'lucide-react'],
-		isrFlushToDisk: process.env.NEXT_ISR_FLUSH_TO_DISK === 'true'
+		optimizePackageImports: ['@heroui/react', 'lucide-react']
 	},
 	trailingSlash: false,
 	generateEtags: false,

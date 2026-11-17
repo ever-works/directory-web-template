@@ -6,7 +6,7 @@ sidebar_label: 061 Plan
 
 # Plan — `061-shared-item-parse-cache`
 
-See [spec.md](./spec.md) for what and why.
+See [spec.md](./spec.md) for what and why, and [tasks.md](./tasks.md).
 
 ## Routes
 
@@ -36,7 +36,8 @@ sits outside `categories/` so that a category named `category` cannot resolve to
    with its locale; `app/not-found.tsx` and `app/unauthorized/page.tsx` (outside
    `[locale]`) render it themselves with the default locale (their client content moved
    to `components/errors/`). `app/[locale]/not-found.tsx` renders the same content inside
-   the locale layout, so localized 404s keep their `lang` and `dir`.
+   the locale layout, so localized 404s keep their `lang` and `dir` (and links keep the
+   locale).
 2. Public pages call `setRequestLocale(locale)`.
 3. `AiChatMount`: no `auth()`; the test-override cookie is read only where overrides are
    allowed (never in production). `ChatLauncher` resolves auth with `useCurrentUser()`.
@@ -67,12 +68,22 @@ sits outside `categories/` so that a category named `category` cannot resolve to
   revalidate them; warm the default locale afterwards; location index rebuilt per commit,
   failed rebuilds retried. Listing walks started before a clear do not store results.
 
+## Page cache
+
+- `apps/web/cache-handler.cjs` (`cacheHandler` in `next.config.ts`): Next's
+  `FileSystemCache` with `flushToDisk` off unless `NEXT_ISR_FLUSH_TO_DISK=true`, and Next's
+  2 MB limit for data-cache entries (Next drops it for custom handlers). Pages live in
+  Next's memory LRU (`cacheMaxMemorySize`). JavaScript, because Next imports it at run
+  time outside the bundler.
+- `experimental.isrFlushToDisk` is left at its default: `false` would also disable the
+  image optimizer's disk cache.
+
 ## Configuration
 
 | Variable | Default | Read at |
 |---|---|---|
 | `NEXT_CACHE_MAX_MEMORY_MB` | 64 | build (`next.config.ts`) |
-| `NEXT_ISR_FLUSH_TO_DISK` | off | build |
+| `NEXT_ISR_FLUSH_TO_DISK` | off | server start (`cache-handler.cjs`) |
 | `CONTENT_LISTING_CACHE_MAX_ENTRIES` | 16 | runtime |
 
 ## Verification
@@ -81,3 +92,24 @@ Local `next build` + `next start` against `awesome-mcp-servers-data`: route tabl
 status, `x-nextjs-cache` / `Cache-Control` / `Set-Cookie` headers and HTML content for item,
 home, discover, category (plain, `?page=2`, `?q=`), tag and static pages in `en` and `de`;
 the before/after benchmark in [spec.md](./spec.md); unit and source-guard specs.
+
+## Constitution Check
+
+- [x] **I — Plugin-First** — not applicable: the document shell, routing, the page cache and
+  the content loader are core infrastructure every page renders through; no plugin surface
+  changes.
+- [x] **II — TypeScript Everywhere** — all new source is TypeScript except
+  `apps/web/cache-handler.cjs`: Next imports the cache handler at run time, outside the
+  bundler, so it must be JavaScript (`// @ts-check`, covered by a unit spec).
+- [x] **III — Spec Before Code** — spec, plan and tasks in this folder.
+- [x] **IV — Documentation First-Class** — spec folder, index row, `docs/log.md`,
+  `docs/performance/{content-loading,cdn-cacheability}.md`, Q-061a–e.
+- [x] **V — Performance Budget** — the purpose of the change; measured in spec §5.
+- [x] **VI — Latest Stable Frameworks** — no framework changes (Next.js 16.3.8).
+- [x] **VII — Reuse Before Build** — Next's ISR, incremental cache and handler; no new
+  dependency.
+- [x] **VIII — No Removal Without Migration** — public URLs and per-visitor pages behave as
+  before; the twin routes are internal; the error components moved, not removed.
+- [x] **IX — Test Coverage Bar** — unit and source-guard specs in `test:unit`; the e2e
+  suite was not run (T-014).
+- [x] **X — Modular Packages** — no package changes.

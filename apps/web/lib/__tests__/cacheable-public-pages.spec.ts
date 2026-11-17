@@ -100,9 +100,11 @@ describe('cacheable public pages (spec 061)', () => {
 		assert.ok(qc.includes('setTimeout: (callback, delay) => (delay >= SERVER_MAX_QUERY_TIMER_MS ? 0 : setTimeout(callback, delay))'));
 	});
 
-	it('the runtime page cache stays in memory and bounded unless asked otherwise', () => {
-		const config = flat('next.config.ts');
-		assert.ok(config.includes("isrFlushToDisk: process.env.NEXT_ISR_FLUSH_TO_DISK === 'true'"));
+	it('the runtime page cache stays in memory and bounded, and the image cache keeps its disk', () => {
+		const config = code('next.config.ts');
+		assert.ok(config.includes("cacheHandler: path.join(__dirname, 'cache-handler.cjs'),"));
 		assert.ok(config.includes('cacheMaxMemorySize:'));
+		// isrFlushToDisk: false would also switch off the optimized-image disk cache.
+		assert.doesNotMatch(config, /isrFlushToDisk/);
 	});
 });
