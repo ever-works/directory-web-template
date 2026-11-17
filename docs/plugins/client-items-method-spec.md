@@ -76,6 +76,11 @@ exports `GET` AND `POST`. The handlers combine:
    `clientItemRepository.createAsClient(userId,
    validated)` load-bearing DB write; success
    returns 201 with `{ success, item, message }`.
+   `DuplicateSourceUrlError` (link already listed)
+   and `DuplicateItemError` (another request, such as
+   an import or an admin create, wrote the chosen
+   slug before this item was saved; T-2609) answer
+   409; any other error answers 500.
 3. **Method-resolution surface** — the route
    exports `GET` AND `POST`. `PUT` / `PATCH` /
    `DELETE` must round-trip to a `< 500` status.
