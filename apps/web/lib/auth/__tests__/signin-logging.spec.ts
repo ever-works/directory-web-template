@@ -174,6 +174,23 @@ describe('signIn callback logging (lib/auth/index.ts)', () => {
 		}
 	});
 
+	it('reads no user, account or profile field except the provider and `!!` presence checks', () => {
+		// `account.access_token`, `refresh_token` and `id_token` are live OAuth tokens, and a bracket
+		// read such as `user?.['email']` hides its field name once string text is blanked out.
+		for (const call of signInLogs) {
+			const reads = call.args.matchAll(/(!!\s*)?(?<![\w$.])(user|account|profile)\s*(?:\?\.|\.)\s*(\[|[\w$]+)/g);
+			for (const [read, presence, , field] of reads) {
+				const allowed = field === 'provider' || (presence !== undefined && field !== '[');
+				assert.ok(allowed, `${call.text} reads \`${read.trim()}\``);
+			}
+		}
+	});
+
+	it('destructures its argument, so the checks above see every name it can log', () => {
+		const param = /\bsignIn\s*:\s*async\s*\(\s*(\S)/.exec(indexCode);
+		assert.equal(param?.[1], '{', 'the signIn callback does not destructure its argument');
+	});
+
 	it('logs the sign-in attempt only in development, with the provider and two booleans', () => {
 		const guard = /if\s*\(\s*coreConfig\.NODE_ENV\s*===\s*'development'\s*\)\s*\{/.exec(signInSource);
 		assert.ok(guard, 'the signIn callback has no development-only block');

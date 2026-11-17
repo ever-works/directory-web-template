@@ -54,7 +54,7 @@ When a user authenticates with an OAuth provider:
    -> Validates user email
    -> Allows account linking for OAuth
    -> Never logs the user, account (OAuth tokens) or profile, nor the email;
-      in development only, logs the provider and whether an id and email are set
+      logs only the provider name, plus (in development only) whether an id and email are set
 6. jwt callback enriches token
    -> Sets userId, provider, isAdmin
    -> Creates client profile for new OAuth users
