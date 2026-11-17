@@ -1,7 +1,10 @@
+import { maskEmail } from "@/lib/utils";
 import { EmailMessage, EmailProvider } from ".";
 
 export class MockEmailProvider implements EmailProvider {
   async sendEmail(message: EmailMessage) {
+    // The mock also runs when no provider is configured in production, so the address is masked.
+    const maskedTo = [message.to].flat().map((address) => maskEmail(address)).join(", ");
     const verificationLinkMatch = typeof message.html === 'string'
       ? message.html.match(/href="([^"]*new-verification[^"]*)"/)
       : null;
@@ -13,7 +16,7 @@ export class MockEmailProvider implements EmailProvider {
     console.log(`\n┌${border}┐`);
     console.log(`│  📧 MOCK EMAIL (no provider configured)              │`);
     console.log(`├${border}┤`);
-    console.log(`│  To:      ${String(message.to).padEnd(49)}│`);
+    console.log(`│  To:      ${maskedTo.padEnd(49)}│`);
     console.log(`│  Subject: ${message.subject.slice(0, 49).padEnd(49)}│`);
     if (verificationLinkMatch?.[1]) {
       console.log(`├${border}┤`);

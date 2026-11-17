@@ -223,7 +223,9 @@ export const { handlers, auth, signIn, signOut, unstable_update } = NextAuth({
 									name: userName,
 									displayName: userName
 								});
-								console.log(`[auth][jwt] Created client profile for OAuth user: ${userEmail}`);
+								console.log(
+									`[auth][jwt] Created client profile ${clientProfile.id} for OAuth user ${token.userId}`
+								);
 							}
 						}
 

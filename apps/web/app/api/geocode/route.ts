@@ -308,7 +308,6 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 			console.info('[Geocode] Forward geocoding request', {
 				action: 'forward_geocode',
 				userId: session.user.id,
-				userEmail: session.user.email,
 				address: address.substring(0, 100), // Truncate for logs
 				hasResult: !!result,
 				timestamp: new Date().toISOString(),
@@ -355,7 +354,6 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 			console.info('[Geocode] Reverse geocoding request', {
 				action: 'reverse_geocode',
 				userId: session.user.id,
-				userEmail: session.user.email,
 				coordinates: `${latitude},${longitude}`,
 				hasResult: !!result,
 				timestamp: new Date().toISOString(),

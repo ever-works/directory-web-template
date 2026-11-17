@@ -102,7 +102,7 @@ const sendEmailSafely = async (
 			text: template.text
 		});
 	} catch (error) {
-		console.error(`Failed to send email to ${to}:`, error);
+		console.error(`Failed to send newsletter email (${template.subject}):`, error);
 		// Don't throw - email failure shouldn't break the subscription process
 	}
 };

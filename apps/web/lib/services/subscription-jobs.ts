@@ -140,7 +140,7 @@ export async function subscriptionRenewalReminderJob(): Promise<JobResult> {
 					// Mark reminder as sent
 					await subscriptionService.markRenewalReminderSent(subscription.id);
 					console.log(
-						`[SubscriptionJob] Sent renewal reminder to ${userEmail} for subscription ${subscription.id}`
+						`[SubscriptionJob] Sent renewal reminder to user ${user.id} for subscription ${subscription.id}`
 					);
 				} catch (markError) {
 					console.error(

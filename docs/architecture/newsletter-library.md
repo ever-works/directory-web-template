@@ -182,7 +182,8 @@ import { logNewsletterActivity, trackNewsletterMetric } from '@/lib/newsletter/u
 
 // Log activity for monitoring
 logNewsletterActivity("subscribe", "user@example.com", "footer");
-// Output: Newsletter Activity: { timestamp, action, email, source }
+// Output: Newsletter Activity: { timestamp, action, hasEmail, source }
+// The address itself is never logged; `hasEmail` only records that one was given.
 
 // Track metrics (wraps logNewsletterActivity)
 trackNewsletterMetric("subscription", "user@example.com", "popup");
