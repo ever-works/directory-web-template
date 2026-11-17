@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { ItemRepository } from '@/lib/repositories/item.repository';
+import { DuplicateItemError } from '@/lib/services/item-git.service';
 import { CreateItemRequest, SortField, SortOrder } from '@/lib/types/item';
 import { validatePaginationParams } from '@/lib/utils/pagination-validation';
 import { getLocationEnabled } from '@/lib/utils/settings';
@@ -645,6 +646,10 @@ export async function POST(request: NextRequest) {
     }, { status: 201 });
 
   } catch (error) {
+    // Another request (an import, a submission) created the id or slug after the checks above
+    if (error instanceof DuplicateItemError) {
+      return NextResponse.json({ success: false, error: error.message }, { status: 409 });
+    }
     return safeErrorResponse(error, 'Failed to create item');
   }
 } 
