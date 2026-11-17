@@ -140,8 +140,8 @@ The `getContentOwner()` function determines who owns the reported content:
 
 | Content Type | Owner Source |
 |---|---|
-| `comment` | `comment.userId` field from the comments table |
-| `item` | `item.submitted_by` field from the item repository |
+| `comment` | `comment.userId` field from the comments table (already a `client_profiles.id`) |
+| `item` | The client profile of `item.submitted_by` (a `users.id`), found with `getClientProfileByUserId()`; a submitter with no client profile (`'anonymous'`, `'import'`, `'admin'`) fails with `Item submitter has no client profile` |
 
 This is used by all user-level moderation actions (`user_warned`, `user_suspended`, `user_banned`) to identify the target user for the action.
 

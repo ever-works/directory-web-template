@@ -271,9 +271,13 @@ The following automated actions are triggered based on the resolution value:
 
 | Status | Condition |
 |---|---|
-| 400 | Invalid status or resolution value; content owner not found for user-level actions |
+| 400 | Invalid status or resolution value; content owner not found for user-level actions (for example `Item submitter has no client profile`, or `Item not found` when the content is gone) |
 | 403 | Not an admin |
 | 404 | Report not found |
+| 409 | The moderation action does not fit the target's state (`User is already banned`, `User is already suspended`, `User not found`, or `content_removed` on content that is already gone) |
+| 500 | The moderation action failed (for example `Failed to warn user`), or the report could not be saved |
+
+On every moderation error (400 owner not found, 409, 500 action failed) the report is **left unchanged**: the action runs before the report is saved. The `error` field carries the action's message, which the admin reports page shows in its error toast.
 
 **Source:** `template/app/api/admin/reports/[id]/route.ts`
 
@@ -290,9 +294,11 @@ Reports use the following enums defined in `lib/db/schema`:
 
 When a report is resolved with a user-level resolution (`user_warned`, `user_suspended`, `user_banned`), the system:
 
-1. Looks up the content owner via `getContentOwner()`
+1. Looks up the content owner via `getContentOwner()`, which returns a `client_profiles.id` (for an item it maps `submitted_by`, a `users.id`, to the submitter's client profile)
 2. Executes the appropriate moderation function from `lib/services/moderation.service`
 3. Uses the `reviewNote` as the reason for the moderation action
-4. Records the admin's ID as the reviewer
+4. Saves the report and records the admin's ID as the reviewer
 
-If the moderation action fails, the report update still succeeds but the failure is logged. The `moderationResult` field in the response indicates whether the action succeeded.
+The moderation action runs before the report is saved. If the owner cannot be identified or the action fails, the route answers an error with the action's message and the report stays as it was, so the admin can pick another resolution.
+
+The action runs only when the resolution changes. The review dialog sends the saved resolution back with every edit, so a resolution the report already has is not run again: editing the note or status of a completed report saves without banning, suspending, warning or removing a second time. To run an action again, save the report with another resolution first.
