@@ -504,6 +504,8 @@
 		"GLOBAL_SERVICE": "Dịch vụ toàn cầu",
 		"COMMENTS_DELETE_WARNING": "Bạn có chắc chắn muốn xóa bình luận này không? Hành động này không thể hoàn tác.",
 		"COMMENTS_HAVE_THOUGHTS": "Bạn có suy nghĩ gì?",
+		"COMMENTS_VIEW_PROFILE": "Xem hồ sơ",
+		"COMMENTS_PROFILE": "Hồ sơ",
 		"COMMENTS_SHORTCUT": "Cmd/Ctrl + Enter để đăng",
 		"COMMENTS_POSTING": "Đang đăng",
 		"COMMENTS_DELETE_TITLE": "Xóa bình luận",

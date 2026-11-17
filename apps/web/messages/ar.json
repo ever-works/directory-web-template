@@ -477,6 +477,8 @@
 		"GLOBAL_SERVICE": "خدمة عالمية",
 		"COMMENTS_DELETE_WARNING": "هل أنت متأكد من أنك تريد حذف هذا التعليق؟ لا يمكن التراجع عن هذا الإجراء.",
 		"COMMENTS_HAVE_THOUGHTS": "هل لديك رأي؟",
+		"COMMENTS_VIEW_PROFILE": "عرض الملف الشخصي",
+		"COMMENTS_PROFILE": "الملف الشخصي",
 		"COMMENTS_SHORTCUT": "Cmd/Ctrl + Enter للنشر",
 		"COMMENTS_POSTING": "جارٍ النشر",
 		"COMMENTS_DELETE_TITLE": "حذف التعليق",
