@@ -275,9 +275,36 @@ export async function updateClientProfileName(userId: string, name: string) {
 }
 
 /**
- * Check if a user has an admin role
+ * Check if a user has an admin role, failing closed: a missing tenant or a database error
+ * throws instead of reading as "not an admin". Use it where a wrong `false` would pick a
+ * weaker check, such as the password store the change-password route verifies against.
  * @param userId - User ID
  * @returns true if user has an admin role, false otherwise
+ */
+export async function isUserAdminOrThrow(userId: string): Promise<boolean> {
+	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
+	const result = await db
+		.select({ isAdmin: roles.isAdmin })
+		.from(userRoles)
+		.innerJoin(roles, eq(userRoles.roleId, roles.id))
+		.where(
+			and(
+				eq(userRoles.userId, userId),
+				eq(roles.isAdmin, true),
+				eq(roles.status, 'active'),
+				eq(userRoles.tenantId, tenantId)
+			)
+		)
+		.limit(1);
+
+	return result.length > 0;
+}
+
+/**
+ * Check if a user has an admin role
+ * @param userId - User ID
+ * @returns true if user has an admin role, false otherwise (also on a database error)
  */
 export async function isUserAdmin(userId: string): Promise<boolean> {
 	if (!process.env.DATABASE_URL) {
@@ -286,23 +313,7 @@ export async function isUserAdmin(userId: string): Promise<boolean> {
 	}
 
 	try {
-		const tenantId = await getTenantId();
-		if (!tenantId) throw new Error('Tenant ID not found');
-		const result = await db
-			.select({ isAdmin: roles.isAdmin })
-			.from(userRoles)
-			.innerJoin(roles, eq(userRoles.roleId, roles.id))
-			.where(
-				and(
-					eq(userRoles.userId, userId),
-					eq(roles.isAdmin, true),
-					eq(roles.status, 'active'),
-					eq(userRoles.tenantId, tenantId)
-				)
-			)
-			.limit(1);
-
-		return result.length > 0;
+		return await isUserAdminOrThrow(userId);
 	} catch (error) {
 		console.error('Database error in isUserAdmin:', error);
 		return false;

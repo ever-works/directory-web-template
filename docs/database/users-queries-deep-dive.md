@@ -295,6 +295,20 @@ LIMIT 1;
 - Uses `INNER JOIN` for efficient filtering
 - Checks both `isAdmin` flag and `active` status
 - Returns `false` silently when `DATABASE_URL` is not set
+- Returns `false` on a database error (logged); the query itself lives in `isUserAdminOrThrow`
+
+---
+
+### `isUserAdminOrThrow`
+
+The same role check, failing closed: a missing tenant or a database error throws instead of
+reading as "not an admin". `POST /api/auth/change-password` uses it to pick the password store
+it verifies against, so a failed lookup answers 500 rather than checking an admin against the
+credentials account hash.
+
+```typescript
+async function isUserAdminOrThrow(userId: string): Promise<boolean>
+```
 
 ---
 

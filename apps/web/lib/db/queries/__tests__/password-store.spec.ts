@@ -104,9 +104,15 @@ describe('password reset and change write the hash client sign-in reads', () => 
 		// Sign-in (lib/auth/credentials.ts) uses users.passwordHash for an admin that has one and
 		// the credentials account hash for everyone else. A stale hash in the other store (the
 		// seed password on a seeded admin's credentials row) must not authorize a change.
+		// The role lookup fails closed: isUserAdmin reads a database error as "not an admin",
+		// which would check an admin against the (possibly stale) credentials account hash.
 		assert.ok(
-			post.includes('const isAdmin = user.passwordHash ? await isUserAdmin(user.id) : false;'),
-			'POST does not pick the store by role, as sign-in does'
+			post.includes('const isAdmin = user.passwordHash ? await isUserAdminOrThrow(user.id) : false;'),
+			'POST does not pick the store by role with a lookup that fails closed'
+		);
+		assert.ok(
+			!post.includes('isUserAdmin('),
+			'POST uses isUserAdmin, which reads a lookup error as "not an admin"'
 		);
 		assert.ok(
 			post.includes(
@@ -127,6 +133,18 @@ describe('password reset and change write the hash client sign-in reads', () => 
 			!post.includes('bcrypt.compare(currentPassword, user.passwordHash)'),
 			'POST still checks the current password against users.passwordHash only'
 		);
+	});
+
+	it('isUserAdminOrThrow lets a lookup error through, and isUserAdmin still reads it as false', () => {
+		const strict = functionBody(userQueries, 'export async function isUserAdminOrThrow(');
+		assert.ok(strict.includes('eq(roles.isAdmin, true)'), 'isUserAdminOrThrow does not check the admin flag');
+		assert.ok(!strict.includes('catch'), 'isUserAdminOrThrow swallows a lookup error');
+		const lenient = functionBody(userQueries, 'export async function isUserAdmin(');
+		assert.ok(
+			lenient.includes('return await isUserAdminOrThrow(userId);'),
+			'isUserAdmin does not delegate to isUserAdminOrThrow'
+		);
+		assert.ok(lenient.includes('return false;'), 'isUserAdmin no longer answers false on an error');
 	});
 
 	it('the change-password route answers the OAuth 400 only when neither hash exists', () => {

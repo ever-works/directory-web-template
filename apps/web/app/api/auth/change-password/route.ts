@@ -5,7 +5,7 @@ import bcrypt from 'bcryptjs';
 import { db } from '@/lib/db/drizzle';
 import { accounts, users } from '@/lib/db/schema';
 import { eq, and } from 'drizzle-orm';
-import { isUserAdmin, setUserPasswordHash } from '@/lib/db/queries';
+import { isUserAdminOrThrow, setUserPasswordHash } from '@/lib/db/queries';
 import { ratelimit } from '@/lib/utils/rate-limit';
 import { sendPasswordChangeConfirmationEmail } from '@/lib/mail';
 import { passwordSchema } from '@/lib/validations/auth';
@@ -307,7 +307,9 @@ export async function POST(request: NextRequest) {
 		// only, everyone else with the credentials account hash. Accepting the other store as
 		// well would let a stale hash authorize the change, e.g. the seed password still on a
 		// seeded admin's credentials row after an earlier change wrote users.passwordHash only.
-		const isAdmin = user.passwordHash ? await isUserAdmin(user.id) : false;
+		// The role lookup fails closed: an error goes to the 500 below instead of reading as
+		// "not an admin", which would check an admin against the credentials account hash.
+		const isAdmin = user.passwordHash ? await isUserAdminOrThrow(user.id) : false;
 		const currentHash = isAdmin ? user.passwordHash : (credentialsAccount?.passwordHash ?? user.passwordHash);
 		if (!currentHash || !(await bcrypt.compare(currentPassword, currentHash))) {
 			return NextResponse.json({ success: false, error: 'Current password is incorrect' }, { status: 400 });

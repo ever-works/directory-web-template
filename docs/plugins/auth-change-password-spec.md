@@ -134,7 +134,8 @@ exports only `POST`. The POST handler combines:
    — `currentHash` is the hash sign-in accepts
    for this user (`lib/auth/credentials.ts`):
    `users.passwordHash` for an admin
-   (`isUserAdmin`) that has one, otherwise the
+   (`isUserAdminOrThrow`, which fails closed: a
+   lookup error → 500) that has one, otherwise the
    credentials account hash. When there is no
    credentials account hash the route falls back to
    `users.passwordHash`; that is route compatibility
