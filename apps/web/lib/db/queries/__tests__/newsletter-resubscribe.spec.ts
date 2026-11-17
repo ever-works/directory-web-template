@@ -39,11 +39,27 @@ describe('newsletter resubscribe', () => {
 		assert.ok(resubscribe > 0, 'subscribeToNewsletter never calls resubscribeToNewsletter(email)');
 		assert.ok(create > 0, 'subscribeToNewsletter no longer creates a row for a new email');
 		// The two calls must sit on the two sides of one existing-row check, not run one
-		// after the other: an inactive row is updated, only a missing row is inserted.
-		const pick = subscribe.slice(Math.min(resubscribe, create) - 80, Math.max(resubscribe, create));
+		// after the other: an existing (inactive) row is updated, only a missing row is inserted.
+		const ternary =
+			/(?:=|return|\() (?:\w+\.)?existingSubscription \? await resubscribeToNewsletter\(email\) : await createNewsletterSubscription\(email, 'footer'\)/;
+		const ifElse =
+			/if \( ?(?:\w+\.)?existingSubscription ?\) \{[^{}]*resubscribeToNewsletter\(email\)[^{}]*\} else \{[^{}]*createNewsletterSubscription\(email, 'footer'\)/;
+		const ifNotElse =
+			/if \( ?!(?:\w+\.)?existingSubscription ?\) \{[^{}]*createNewsletterSubscription\(email, 'footer'\)[^{}]*\} else \{[^{}]*resubscribeToNewsletter\(email\)/;
 		assert.ok(
-			/existingSubscription\s*\?/.test(pick) || /if\s*\(\s*!?\s*existingSubscription\b/.test(pick),
-			'subscribeToNewsletter does not choose between resubscribe and create on the existing row'
+			ternary.test(subscribe) || ifElse.test(subscribe) || ifNotElse.test(subscribe),
+			'subscribeToNewsletter does not re-activate an existing row and insert only when there is none'
+		);
+		// The row the check looked up must reach the action: without it every inactive row
+		// takes the insert path again and hits the unique constraint.
+		const helperStart = actions.indexOf('const validateExistingSubscription = async');
+		assert.ok(helperStart >= 0, 'validateExistingSubscription not found');
+		const helper = actions.slice(helperStart, actions.indexOf('export const subscribeToNewsletter =', helperStart));
+		const validReturns = (helper.match(/return \{[^}]*\}/g) ?? []).filter((r) => /isValid: true/.test(r));
+		assert.ok(validReturns.length > 0, 'validateExistingSubscription never returns isValid: true');
+		assert.ok(
+			validReturns.every((r) => /\bexistingSubscription\b/.test(r)),
+			'validateExistingSubscription does not return the row it looked up'
 		);
 	});
 
