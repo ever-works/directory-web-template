@@ -37,8 +37,12 @@ class SyncManager {
   /** Starts at process start: the hourly safety net first fires an hour after start-up. */
   private lastInvalidatedAt = Date.now();
   private hasSynced = false;
-  /** Content commit the location index was last rebuilt for, without failures. */
+  /** Content commit the location index was last rebuilt for. */
   private lastIndexedRevision: string | null = null;
+  /** A rebuild with failed items is retried, but at most this often (see performSync). */
+  private indexRetryAt = 0;
+  /** Cache tags whose revalidation was skipped (render phase / no request) and must be retried. */
+  private tagsPending = false;
 
   /**
    * Perform a single sync operation with mutex lock and timeout
@@ -131,22 +135,34 @@ class SyncManager {
 
       if (contentChanged) {
         const { invalidateContentCaches } = await import('@/lib/cache-invalidation');
-        const complete = await invalidateContentCaches();
-        // Remember the revision only when every tag was revalidated; otherwise the
-        // next sync repeats the invalidation.
-        this.lastInvalidatedRevision = complete ? revision : null;
+        // The in-memory caches are always cleared. Cache tags can be skipped: this timer
+        // may run in the context of the render that started it, or outside any request.
+        // Those are retried on the following syncs without clearing everything again.
+        this.tagsPending = !(await invalidateContentCaches());
+        this.lastInvalidatedRevision = revision;
         this.lastInvalidatedAt = Date.now();
         console.log('[SYNC_MANAGER] Content caches invalidated', revision ? `(revision ${revision.slice(0, 12)})` : '');
-      } else if (coreConfig.NODE_ENV !== 'development') {
-        console.log(`[SYNC_MANAGER] Content unchanged at ${revision!.slice(0, 12)}; caches kept`);
+      } else {
+        if (this.tagsPending) {
+          const { revalidateContentTags } = await import('@/lib/cache-invalidation');
+          this.tagsPending = !revalidateContentTags();
+        }
+        if (coreConfig.NODE_ENV !== 'development') {
+          console.log(`[SYNC_MANAGER] Content unchanged at ${revision!.slice(0, 12)}; caches kept`);
+        }
       }
 
       // Location Index: Rebuild index after content sync (non-blocking)
       try {
         const { getLocationEnabled } = await import('@/lib/utils/settings');
-        // Rebuilt for every new commit, and retried on every sync until a rebuild for the
-        // current commit succeeds without failed items (independent of cache invalidation).
-        const indexOutdated = contentChanged || !revision || revision !== this.lastIndexedRevision;
+        // Rebuilt for every new commit (independent of cache invalidation). A rebuild that
+        // threw is retried on the next sync; one with failed items (e.g. an address that
+        // never geocodes) at most hourly, since a rebuild empties the index while it runs.
+        const indexOutdated =
+          contentChanged ||
+          !revision ||
+          revision !== this.lastIndexedRevision ||
+          (this.indexRetryAt > 0 && Date.now() >= this.indexRetryAt);
         if (indexOutdated && getLocationEnabled()) {
           const { getLocationIndexService } = await import('@/lib/services/location');
           const { ItemRepository } = await import('@/lib/repositories/item.repository');
@@ -156,7 +172,8 @@ class SyncManager {
           const allItems = await itemRepository.findAll();
 
           const rebuildResult = await locationIndexService.rebuildIndex(allItems);
-          this.lastIndexedRevision = rebuildResult.failed > 0 ? null : revision;
+          this.lastIndexedRevision = revision;
+          this.indexRetryAt = rebuildResult.failed > 0 ? Date.now() + MAX_INVALIDATION_INTERVAL_MS : 0;
           console.log('[SYNC_MANAGER] Location index rebuilt', {
             indexed: rebuildResult.indexed,
             skipped: rebuildResult.skipped,

@@ -650,13 +650,22 @@ function applyPricingValidation(config: Record<string, unknown>): Record<string,
 	return { ...config, pricing };
 }
 
-export const getCachedConfig = unstable_cache(
-	async () => {
+const getCachedConfigForRevision = unstable_cache(
+	async (_revision: string) => {
 		return await getConfig();
 	},
 	['config'],
-	{ revalidate: 60 }
+	{ revalidate: CONTENT_CACHE_TTL.CONFIG, tags: [CACHE_TAGS.CONTENT] }
 );
+
+/**
+ * Cached site config, keyed by the content revision (Spec 061). It used to be a
+ * 60-second cache: as every page's layout reads it, that capped every cached
+ * page's lifetime (and its CDN `s-maxage`) at 60 s. Keyed by the checkout's HEAD,
+ * a sync that brings a new commit reads the new works.yml at once, and config
+ * writes from the admin revalidate the content tag (config-manager).
+ */
+export const getCachedConfig = async () => getCachedConfigForRevision(await getContentRevision());
 
 /**
  * A filesystem failure (EMFILE, EACCES, EIO, ...) rather than bad file content.
@@ -747,6 +756,8 @@ interface ContentCacheState {
 	tags: Map<string, { data: Map<string, Tag>; timestamp: number }>;
 	inFlight: Map<string, Promise<FetchItemsResult>>;
 	repair: { promise: Promise<void> | null; lastSignature: string | null };
+	/** Bumped by clearFetchItemsCache(): a walk that started before a clear must not store its result. */
+	generation: number;
 }
 
 const CONTENT_CACHE_STATE_KEY = Symbol.for('ever-works.content-cache-state.v1');
@@ -772,7 +783,8 @@ function contentCacheState(): ContentCacheState {
 			categories: new Map(),
 			tags: new Map(),
 			inFlight: new Map(),
-			repair: { promise: null, lastSignature: null }
+			repair: { promise: null, lastSignature: null },
+			generation: 0
 		};
 	}
 	return holder[CONTENT_CACHE_STATE_KEY]!;
@@ -1207,6 +1219,10 @@ export async function clearFetchItemsCache() {
 	// by mtime/size on the next walk, so unchanged items are not parsed again.
 	itemFileCache.invalidate();
 
+	// Walks still running from before this clear must not store their (old) results
+	// over the ones built after it, e.g. by the post-sync warm-up.
+	contentCacheState().generation++;
+
 	// Clear categories and tags caches
 	categoriesCache.clear();
 	tagsCache.clear();
@@ -1304,6 +1320,7 @@ export async function fetchItems(options: FetchOptions = {}, repairAttempted = f
 async function fetchItemsImpl(options: FetchOptions = {}, repairAttempted = false): Promise<FetchItemsResult> {
 	// Cache key is recomputed here for the post-fetch cache write below.
 	const cacheKey = JSON.stringify(options);
+	const generation = contentCacheState().generation;
 
 	// Ensure content is available (copies from build to runtime on Vercel)
 	const { ensureContentAvailable, dirExists } = await import('./lib');
@@ -1524,8 +1541,10 @@ async function fetchItemsImpl(options: FetchOptions = {}, repairAttempted = fals
 		collections: Array.from(collections.values())
 	};
 
-	// Store in cache
-	if (CONTENT_CACHE_ENABLED) {
+	// Store in cache: not a partial listing (IO errors below the fail-loud threshold),
+	// so the missing items are retried on the next call, and not a result from before
+	// a clearFetchItemsCache() that ran meanwhile.
+	if (CONTENT_CACHE_ENABLED && ioErrors.length === 0 && generation === contentCacheState().generation) {
 		// Age from the snapshot the result was built from, so a listing is never older
 		// than the TTL (an older snapshot reused by a new option set would otherwise
 		// stretch it to twice the TTL).

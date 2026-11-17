@@ -168,8 +168,8 @@ const MAX_SLUG_LENGTH = 255;
 
 export default async function ItemDetails({ params }: { params: Promise<{ slug: string; locale: string }> }) {
 	const { slug, locale } = await params;
-	// Static rendering for next-intl: without this, getTranslations()/getLocale()
-	// read the request headers and the page renders on every request (Spec 061).
+	// Sets the request locale for next-intl's server helpers, so they do not read it
+	// from the request headers, which makes a page render per request (Spec 061).
 	setRequestLocale(locale);
 
 	if (slug.length > MAX_SLUG_LENGTH) {
@@ -186,15 +186,21 @@ export default async function ItemDetails({ params }: { params: Promise<{ slug: 
 		// The page is cached and shared by every visitor, so the comments are read for the
 		// tenant resolved without the request. When that is ambiguous (several tenants in one
 		// deployment) nothing is prefetched and the browser loads them through the API.
-		const sharedTenantId = await getTenantIdForSharedRender().catch(() => null);
+		// Without a prefetch (several tenants) the Product JSON-LD also has no aggregateRating:
+		// the rating is summarised from these comments, and tenant safety comes first.
+		const commentsPrefetch = getTenantIdForSharedRender()
+			.catch(() => null)
+			.then((sharedTenantId) =>
+				sharedTenantId
+					? queryClient.prefetchQuery({
+							queryKey: ['comments', slug],
+							queryFn: () => getCommentsByItemId(slug, { tenantId: sharedTenantId }).catch(() => []),
+						})
+					: undefined
+			);
 		const [[item, t]] = await Promise.all([
 			Promise.all([getCachedItem(slug, { lang: locale }), getTranslations('common')]),
-			sharedTenantId
-				? queryClient.prefetchQuery({
-						queryKey: ['comments', slug],
-						queryFn: () => getCommentsByItemId(slug, { tenantId: sharedTenantId }).catch(() => []),
-					})
-				: undefined,
+			commentsPrefetch,
 		]);
 
 		if (!item) {

@@ -134,6 +134,8 @@ const nextConfig: NextConfig = {
 		// and all crawler traffic, carry none of those parameters: send them to cached
 		// (ISR) twins that render once and are then served from the cache. A URL with
 		// any filter parameter skips these rules and reaches the dynamic route as before.
+		// Page numbers outside 1-999999 or with a leading zero (`/discover/0`, `?page=abc`)
+		// keep going to the dynamic routes, which coerce them as before.
 		// Must come before the generic `/:path` rule below.
 		const query = (key: string) => ({ type: 'query' as const, key });
 		const discoverFilters = ['q', 'sort', 'tags', 'categories'].map(query);
@@ -142,7 +144,7 @@ const nextConfig: NextConfig = {
 			{ source: `/:locale(${localeGroup})`, missing: discoverFilters, destination: '/:locale/discover/1/cached' },
 			{ source: `/:locale(${localeGroup})/discover`, missing: discoverFilters, destination: '/:locale/discover/1/cached' },
 			{
-				source: `/:locale(${localeGroup})/discover/:page(\\d{1,6})`,
+				source: `/:locale(${localeGroup})/discover/:page([1-9]\\d{0,5})`,
 				missing: discoverFilters,
 				destination: '/:locale/discover/:page/cached'
 			},
@@ -153,7 +155,7 @@ const nextConfig: NextConfig = {
 			},
 			{
 				source: `/:locale(${localeGroup})/categories/:category`,
-				has: [{ type: 'query' as const, key: 'page', value: '(?<page>\\d{1,6})' }],
+				has: [{ type: 'query' as const, key: 'page', value: '(?<page>[1-9]\\d{0,5})' }],
 				missing: categoryFilters,
 				destination: '/:locale/cached-category/:category/:page'
 			}

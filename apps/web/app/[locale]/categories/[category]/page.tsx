@@ -108,8 +108,8 @@ export default async function CategoryListing({
   }
 
   const { locale, category } = await params;
-  // Static rendering for next-intl: without this, getTranslations()/getLocale()
-  // read the request headers and the page renders on every request (Spec 061).
+  // Sets the request locale for next-intl's server helpers, so they do not read it
+  // from the request headers, which makes a page render per request (Spec 061).
   setRequestLocale(locale);
   const sp = (await searchParams) ?? {};
 

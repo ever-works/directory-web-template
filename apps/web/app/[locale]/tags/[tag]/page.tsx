@@ -4,7 +4,7 @@ import Listing from "../../(listing)/listing";
 import { notFound } from "next/navigation";
 import { getTagsEnabled } from "@/lib/utils/settings";
 import { generateListingMetadata } from "@/lib/seo/listing-metadata";
-import { toTitleCase, filterItems } from "@/lib/utils";
+import { toTitleCase } from "@/lib/utils";
 import { findTagBySegment } from "@/lib/seo/route-segment";
 import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-json-ld";
 import { getTranslations, setRequestLocale } from "next-intl/server";
@@ -67,7 +67,7 @@ export default async function TagListing({
 
   const resolvedParams = await params;
   const { locale, tag } = resolvedParams;
-  // Static rendering for next-intl (Spec 061).
+  // Sets the request locale for next-intl's server helpers (Spec 061).
   setRequestLocale(locale);
 
   // Fetch all items (filtering will be done client-side via FilterURLParser)
@@ -83,14 +83,8 @@ export default async function TagListing({
     notFound();
   }
 
-  // Only this tag's items go to the page. The whole catalogue used to be sent and
-  // filtered in the browser: 6.4 MB of HTML for one tag page of a 4,000-item
-  // directory, in every locale and in every cache that holds it (Spec 061). The
-  // in-page filter (FilterProvider initialTag) matches the same tag ids.
-  const tagItems = filterItems(items, { selectedTags: [matchedTag.id] });
-
   // Calculate pagination info
-  const total = tagItems.length;
+  const total = items.length;
   const page = 1;
   const start = 0;
   const basePath = `/`; // Use root path for filter URL generation
@@ -115,7 +109,7 @@ export default async function TagListing({
       <Listing
         categories={categories}
         tags={tags}
-        items={tagItems}
+        items={items}
         total={total}
         start={start}
         page={page}

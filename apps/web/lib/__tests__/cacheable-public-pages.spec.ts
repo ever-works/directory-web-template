@@ -52,7 +52,7 @@ describe('cacheable public pages (spec 061)', () => {
 
 	it('the item page reads comments for a tenant resolved without the request', () => {
 		const page = flat('app/[locale]/items/[slug]/page.tsx');
-		assert.ok(page.includes('await getTenantIdForSharedRender()'));
+		assert.ok(page.includes('getTenantIdForSharedRender() .catch(() => null)'));
 		assert.doesNotMatch(page, /getCommentsByItemId\(slug\)/);
 	});
 
@@ -62,6 +62,17 @@ describe('cacheable public pages (spec 061)', () => {
 		assert.ok(config.includes("destination: '/:locale/discover/:page/cached'"));
 		assert.ok(config.includes("destination: '/:locale/cached-category/:category/1'"));
 		assert.ok(config.includes("const discoverFilters = ['q', 'sort', 'tags', 'categories'].map(query);"));
+		assert.ok(config.includes("const categoryFilters = ['q', 'sort', 'tags'].map(query);"));
+		// Every cached rule must be conditioned on the filter parameters being absent.
+		const rules = config.slice(config.indexOf('const cachedListings = ['), config.indexOf('return [ ...mdMirrors'));
+		const destinations = rules.match(/destination: '[^']+'/g) ?? [];
+		const missing = rules.match(/missing: (discoverFilters|categoryFilters|\[\.\.\.categoryFilters, query\('page'\)\])/g) ?? [];
+		assert.equal(destinations.length, 5, 'expected five cached listing rules');
+		assert.equal(missing.length, destinations.length, 'a cached rule without its missing filters would cache filtered URLs');
+		// Only canonical page numbers go to the twins; /discover/0 or ?page=abc stay dynamic.
+		// (next.config.ts holds the regex escaped in a string: `\\d`.)
+		assert.ok(config.includes('/discover/:page([1-9]\\\\d{0,5})'));
+		assert.ok(config.includes("value: '(?<page>[1-9]\\\\d{0,5})'"));
 		// The cached rules must come before the generic `/:path` -> `/:path/discover/1` rule.
 		assert.ok(config.indexOf('...cachedListings') < config.indexOf("source: '/:path', destination: '/:path/discover/1'"));
 	});
@@ -71,6 +82,11 @@ describe('cacheable public pages (spec 061)', () => {
 		assert.ok(provider.includes('<Suspense fallback={null}> <SearchParamsReporter onChange={setSearch} /> </Suspense>'));
 		assert.equal((provider.match(/useSearchParams\(\)/g) ?? []).length, 1, 'only SearchParamsReporter may call it');
 		assert.doesNotMatch(code('components/shared-card/index.tsx'), /useSearchParams/);
+	});
+
+	it('the proxy answers direct requests for the cached twins with 404', () => {
+		const proxy = code('proxy.ts');
+		assert.ok(proxy.includes('if (isCachedListingTwinPath(resolveLocalePrefix(originalPathname).pathWithoutLocale)) { return new NextResponse(null, { status: 404 }); }'));
 	});
 
 	it('the runtime page cache stays in memory and bounded unless asked otherwise', () => {

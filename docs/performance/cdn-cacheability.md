@@ -130,17 +130,21 @@ server-rendered body.
 | Item | `/[locale]/items/[slug]` | `generateStaticParams() { return [] }`: ISR for every slug |
 | Home, `/discover`, `/discover/<n>` | `/[locale]/discover/[page]/cached` | `next.config.ts` rewrite when no `q` / `sort` / `tags` / `categories` |
 | Category, `?page=<n>` | `/[locale]/cached-category/[category]/[page]` | rewrite when no `q` / `sort` / `tags` |
-| Tag | `/[locale]/tags/[tag]` | ISR for every tag; only the tag's items are sent |
+| Tag | `/[locale]/tags/[tag]` | ISR for every tag (the page still carries the whole catalogue, Q-061d) |
 | About, FAQ, legal, help, comparisons, pages | their routes | static, prerendered for the default locale |
 
 Filtered or sorted listings, the category/tag/collection index grids and
 everything per visitor (auth, account, admin, submit, pricing, favorites,
 surveys, sponsor, newsletter) still render per request.
 
-Cached pages answer `Cache-Control: s-maxage=60, stale-while-revalidate=…`
-(60 s because the shared layout reads `getCachedConfig`, which revalidates
-every 60 s). Cloudflare caches HTML only when a Cache Rule makes it eligible;
-with one, it honours `s-maxage`. Cached responses carry no `Set-Cookie`.
+Cached pages answer `Cache-Control: s-maxage=600, stale-while-revalidate=…`
+(measured on a production build). A page's lifetime is the lowest revalidate of
+everything it renders, so a short `unstable_cache` TTL in the shared layout caps
+every page: keep those at 600 s or key them by the content revision, as
+`getCachedConfig` is. Cloudflare caches HTML only when a Cache Rule makes it
+eligible; with one, it honours `s-maxage`. Cached responses carry no `Set-Cookie`.
+Direct requests for the twin paths (`/<locale>/discover/<n>/cached`,
+`/<locale>/cached-category/...`) answer 404 from `proxy.ts`.
 
 The runtime page cache is kept in memory (LRU, `NEXT_CACHE_MAX_MEMORY_MB`,
 default 256) and not written to disk unless `NEXT_ISR_FLUSH_TO_DISK=true`: a

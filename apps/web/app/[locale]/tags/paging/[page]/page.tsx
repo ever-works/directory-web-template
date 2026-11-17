@@ -68,8 +68,8 @@ export default async function TagPagingPage({
   params: Promise<{ page: string; locale: string }>;
 }) {
   const { page: pageMeta, locale } = await params;
-  // Static rendering for next-intl: without this, getTranslations()/getLocale()
-  // read the request headers and the page renders on every request (Spec 061).
+  // Sets the request locale for next-intl's server helpers, so they do not read it
+  // from the request headers, which makes a page render per request (Spec 061).
   setRequestLocale(locale);
   // `page` is one segment (a string), not a catch-all array: `pageMeta[0]`
   // took its first CHARACTER, so /tags/paging/10..19 all rendered page 1 while

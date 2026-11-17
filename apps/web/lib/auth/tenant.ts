@@ -1,5 +1,6 @@
 import { coreConfig } from '@/lib/config/config-service';
 import { tenantHostFromHeaders } from './tenant-host';
+import { pickSharedRenderTenant } from './shared-render-tenant';
 
 // --- Configuration & Caching --- //
 
@@ -218,38 +219,33 @@ async function resolveFromDatabase(): Promise<string | null> {
 	return null;
 }
 
-let cachedSharedRenderTenant: { id: string | null; cachedAt: number } | null = null;
-
 /**
  * Tenant for output that is cached and served to every visitor, such as an
  * ISR item page (Spec 061). It must not read the session or the request:
  * `cookies()` / `headers()` would make the page render per request.
  *
- * `TENANT_ID` when set, else the only active tenant when the database has
- * exactly one (the single-site case, where the request-based lookup lands on
- * the same tenant). `null` when several tenants are active (one deployment
- * serving tenants by host): callers then leave tenant-scoped data out of the
- * shared output and let the browser load it through the API, which resolves
- * the tenant per request.
+ * `TENANT_ID` when set, else the tenant of a single-tenant database (see
+ * `pickSharedRenderTenant`). `null` when the deployment has several tenants or
+ * the lookup fails: callers then leave tenant-scoped data out of the shared
+ * output and let the browser load it through the API, which resolves the tenant
+ * per request. Not cached: a tenant added at runtime must take effect on the
+ * next render, and the query only runs when a cached page is (re)generated.
  */
 export async function getTenantIdForSharedRender(): Promise<string | null> {
 	const fromEnv = await resolveFromEnv();
 	if (fromEnv) return fromEnv;
-
-	if (cachedSharedRenderTenant && Date.now() - cachedSharedRenderTenant.cachedAt < CACHE_TTL_MS) {
-		return cachedSharedRenderTenant.id;
-	}
 	if (!coreConfig.DATABASE_URL) return null;
 
 	try {
 		const { db } = await import('@/lib/db/drizzle');
 		const { tenant } = await import('@/lib/db/schema');
-		const { eq } = await import('drizzle-orm');
-		const active = await db.select({ id: tenant.id }).from(tenant).where(eq(tenant.status, 'active')).limit(2);
-		const id = active.length === 1 ? active[0].id : null;
-		cachedSharedRenderTenant = { id, cachedAt: Date.now() };
-		return id;
-	} catch {
+		const rows = await db.select({ id: tenant.id, status: tenant.status }).from(tenant).limit(2);
+		return pickSharedRenderTenant(rows);
+	} catch (error) {
+		console.error(
+			'[getTenantIdForSharedRender] Tenant lookup failed; rendering without tenant-scoped data:',
+			error instanceof Error ? error.message : String(error)
+		);
 		return null;
 	}
 }

@@ -81,7 +81,7 @@ export default async function TagListing({
 }) {
   const resolvedParams = await params;
   const { tags: tagMeta, locale } = resolvedParams;
-  // Static rendering for next-intl (Spec 061).
+  // Sets the request locale for next-intl's server helpers (Spec 061).
   setRequestLocale(locale);
 
   // Tags switched off, an unknown tag, a malformed page segment (`abc`,

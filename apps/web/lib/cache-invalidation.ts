@@ -46,6 +46,11 @@ function safeRevalidateTag(tag: string): boolean {
     if (error instanceof Error && isRenderPhaseError(error)) {
       console.warn(`[CACHE] Skipping cache invalidation during render phase (tag: ${tag})`);
       return false;
+    } else if (error instanceof Error && error.message.includes('static generation store missing')) {
+      // Called outside any request (e.g. a timer started at process start-up): there is
+      // no cache store to revalidate in. The caller retries later (Spec 061).
+      console.warn(`[CACHE] Skipping cache invalidation outside a request (tag: ${tag})`);
+      return false;
     } else {
       // Log unexpected errors for debugging before re-throwing
       console.error(`[CACHE] Unexpected error during cache invalidation (tag: ${tag}):`, error);
@@ -58,15 +63,20 @@ function safeRevalidateTag(tag: string): boolean {
  * Invalidates all content-related caches
  * Should be called after repository sync completes successfully
  *
- * @returns `false` when a tag could not be revalidated (render phase), so the
- *          caller knows the invalidation has to be repeated.
+ * @returns `false` when a tag could not be revalidated (render phase, or no
+ *          request), so the caller can retry the tags with revalidateContentTags().
+ *          The in-memory caches are always cleared.
  */
-export async function invalidateContentCaches(): Promise<boolean> {
-  console.log('[CACHE] Invalidating all content caches after sync');
-
-  // Invalidate all content-related cache tags
-  // Using safe wrapper to handle render phase restrictions
-  const results = [
+/**
+ * Revalidates every content cache tag (Data Cache entries and cached pages).
+ *
+ * @returns `false` when a tag could not be revalidated in this context (render
+ *          phase, or no request at all), so the caller can retry it later.
+ */
+export function revalidateContentTags(): boolean {
+  // Using safe wrapper to handle render phase restrictions. `map` (not `every`) so that
+  // every tag is attempted even after one is skipped.
+  return [
     CACHE_TAGS.CONTENT,
     CACHE_TAGS.ITEMS,
     CACHE_TAGS.CATEGORIES,
@@ -75,7 +85,16 @@ export async function invalidateContentCaches(): Promise<boolean> {
     CACHE_TAGS.COMPARISONS,
     CACHE_TAGS.POSTS,
     CACHE_TAGS.PAGES
-  ].map((tag) => safeRevalidateTag(tag));
+  ]
+    .map((tag) => safeRevalidateTag(tag))
+    .every(Boolean);
+}
+
+export async function invalidateContentCaches(): Promise<boolean> {
+  console.log('[CACHE] Invalidating all content caches after sync');
+
+  // Invalidate all content-related cache tags
+  const tagsRevalidated = revalidateContentTags();
 
   // Clear in-memory fetchItems cache
   await clearFetchItemsCache();
@@ -89,7 +108,7 @@ export async function invalidateContentCaches(): Promise<boolean> {
   );
 
   console.log('[CACHE] Content caches invalidated successfully');
-  return results.every(Boolean);
+  return tagsRevalidated;
 }
 
 /**

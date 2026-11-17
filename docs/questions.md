@@ -66,6 +66,32 @@ confirm, override, or refine.
 - **Owner.** Maintainers.
 - **Status.** open
 
+### Q-061d The tag page sends the whole catalogue
+
+- **Context.** `/tags/<tag>` passes every item to the page (6.3 MB of HTML on a 4,000-item
+  directory) because its tag filter is a client-side multi-select over those items:
+  deselecting the tag or adding another must show items outside the first tag.
+- **Options.**
+  - Keep it (cached since Spec 061: a hit is fast, a miss renders ~1 s).
+  - Make the tag page URL-driven like categories (Spec 020): server-side filter and
+    slice, filter changes navigate to filtered URLs.
+- **Default.** **Keep it** in Spec 061.
+- **Owner.** Maintainers.
+- **Status.** open
+
+### Q-061e Active-link state on the cached listing twins
+
+- **Context.** Plain home / discover / category URLs are served by cached twin routes
+  through rewrites. The server renders them with the internal path, so components that
+  derive state from `usePathname()` (header active link) render for that path and differ
+  from the browser until the first client navigation.
+- **Options.**
+  - Accept it.
+  - Derive active states after mount, or from the route params instead of the pathname.
+- **Default.** **Accept it** in Spec 061.
+- **Owner.** Maintainers.
+- **Status.** open
+
 ---
 
 ## Spec 060 — LemonSqueezy webhook integrity

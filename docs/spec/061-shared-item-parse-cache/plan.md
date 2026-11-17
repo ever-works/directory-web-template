@@ -18,11 +18,13 @@ See [spec.md](./spec.md) for what and why.
 | the same with any of those parameters | `app/[locale]/categories/[category]/page.tsx` | per request (unchanged) |
 | `/items/<slug>` | `app/[locale]/items/[slug]/page.tsx` | ISR (`generateStaticParams` → `[]`) |
 | `/tags/<tag>` | `app/[locale]/tags/[tag]/page.tsx` | ISR (`generateStaticParams` → `[]`) |
+| `/<locale>/discover/<n>/cached`, `/<locale>/cached-category/...` requested directly | `proxy.ts` | 404 |
 
 The twins re-use the dynamic routes' components and metadata with empty
 `searchParams` (and `page` for categories). The rewrites are `missing`-conditioned
 entries in `next.config.ts` `rewrites()`, placed before the generic
-`/:path → /:path/discover/1` rule. A rewrite that does not match leaves the request
+`/:path → /:path/discover/1` rule, and match only page numbers 1-999999 without a leading
+zero (others keep the dynamic routes' coercion). A rewrite that does not match leaves the request
 on the dynamic route, so a mistake costs speed, not correctness. `cached-category`
 sits outside `categories/` so that a category named `category` cannot resolve to
 `categories/category/[...categorie]`.
@@ -33,14 +35,17 @@ sits outside `categories/` so that a category named `category` cannot resolve to
    renders `<html lang dir>`, fonts and theme providers. `[locale]/layout.tsx` renders it
    with its locale; `app/not-found.tsx` and `app/unauthorized/page.tsx` (outside
    `[locale]`) render it themselves with the default locale (their client content moved
-   to `components/errors/`).
+   to `components/errors/`). `app/[locale]/not-found.tsx` renders the same content inside
+   the locale layout, so localized 404s keep their `lang` and `dir`.
 2. Public pages call `setRequestLocale(locale)`.
 3. `AiChatMount`: no `auth()`; the test-override cookie is read only where overrides are
    allowed (never in production). `ChatLauncher` resolves auth with `useCurrentUser()`.
 4. `NavigationProvider`: `useSearchParams()` moves into `SearchParamsReporter` behind
    `<Suspense fallback={null}>`; the query is shared through context
    (`useCurrentSearch()`), which `SharedCard` uses.
-5. Item page comments: `getTenantIdForSharedRender()` + `getCommentsByItemId(slug, { tenantId })`.
+5. Item page comments: `getTenantIdForSharedRender()` (pure pick in
+   `lib/auth/shared-render-tenant.ts`) + `getCommentsByItemId(slug, { tenantId })`,
+   started in parallel with the item read.
 6. Per-visitor segments get a `layout.tsx` (or an extra export) with
    `dynamic = 'force-dynamic'`; so do the index grid pages (Q-061b).
 
@@ -51,10 +56,14 @@ sits outside `categories/` so that a category named `category` cannot resolve to
 - `lib/content.ts`: process-wide state on `globalThis`
   (`Symbol.for('ever-works.content-cache-state.v1')`); bounded listing LRU; collection
   YAML cache; parse/IO error split (`throwIoErrors`); repair throttle.
-- `lib/config-manager.ts`: parsed config cached by config files' mtime/size.
+- `lib/config-manager.ts`: parsed config cached by config files' mtime/size, dropped after
+  its own writes, which also revalidate the content tag. `getCachedConfig` is keyed by the
+  content revision (10-minute TTL).
 - `lib/content-revision.ts`: HEAD reader shared by `getContentRevision()` and the sync.
 - `lib/services/sync-service.ts` + `lib/cache-invalidation.ts`: invalidate on HEAD change
-  (or hourly), report incomplete invalidations, warm the default locale afterwards.
+  (or hourly); in-memory caches always, cache tags retried while the timer's context cannot
+  revalidate them; warm the default locale afterwards; location index rebuilt per commit,
+  failed rebuilds retried. Listing walks started before a clear do not store results.
 
 ## Configuration
 

@@ -87,7 +87,7 @@ export default async function CategoryListing({
 }) {
   const resolvedParams = await params;
   const { categorie: categoryMeta, locale } = resolvedParams;
-  // Static rendering for next-intl (Spec 061).
+  // Sets the request locale for next-intl's server helpers (Spec 061).
   setRequestLocale(locale);
 
   // Categories switched off, an unknown category (resolved by id, slugified

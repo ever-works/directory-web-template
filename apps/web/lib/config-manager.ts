@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import yaml from 'js-yaml';
 import { getContentPath, ensureContentAvailable } from '@/lib/lib';
+import { CACHE_TAGS } from '@/lib/cache-config';
 import { hasSiteGitCredentials, siteGitAuthCallbacks } from '@/lib/git/site-git-token';
 import {
 	PRIMARY_CONTENT_CONFIG_FILENAME,
@@ -219,6 +220,17 @@ export class ConfigManager {
 			});
 
 			await fs.promises.writeFile(currentPath, yamlString, 'utf8');
+			// Do not rely on mtime/size alone after our own write (same size, same tick).
+			this.parsedConfig = null;
+			// Cached pages read the config (getCachedConfig, keyed by the content revision,
+			// which only moves once the queued commit lands): revalidate them now (Spec 061).
+			// Outside a request (scripts) there is nothing to revalidate.
+			try {
+				const { revalidateTag } = await import('next/cache');
+				revalidateTag(CACHE_TAGS.CONTENT, 'max');
+			} catch {
+				// Not in a request scope, or in a render: the content sync will catch up.
+			}
 
 			// Queue Git operation to prevent concurrent writes
 			// Operations are serialized to avoid conflicts

@@ -33,8 +33,8 @@ export async function generateMetadata({
 }
 
 // Enable ISR with 10 minutes revalidation
-// Rendered per request, as before Spec 061: its grid reads useSearchParams() for
-// pagination without a Suspense boundary, which a cached (static) render cannot do.
+// Rendered per request, as before Spec 061: not made cacheable yet (docs/questions.md,
+// Q-061b). `revalidate` below has no effect while this is set.
 export const dynamic = 'force-dynamic';
 export const revalidate = 600;
 
@@ -57,7 +57,7 @@ export default async function TagPagingPage({
   }
 
   const { locale } = await params
-  // Static rendering for next-intl (Spec 061).
+  // Sets the request locale for next-intl's server helpers (Spec 061).
   setRequestLocale(locale);
   const { start, page } = paginateMeta();
   const { tags } = await getCachedItems({ lang: locale });

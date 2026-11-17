@@ -9,8 +9,8 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { DEFAULT_LOCALE } from "@/lib/constants";
 
 // Enable ISR with 10 minutes revalidation
-// Rendered per request, as before Spec 061: its grid reads useSearchParams() for
-// pagination without a Suspense boundary, which a cached (static) render cannot do.
+// Rendered per request, as before Spec 061: not made cacheable yet (docs/questions.md,
+// Q-061b). `revalidate` below has no effect while this is set.
 export const dynamic = 'force-dynamic';
 export const revalidate = 600;
 
@@ -42,8 +42,8 @@ export default async function TagsPage({
   }
 
   const { locale } = await params;
-  // Static rendering for next-intl: without this, getTranslations()/getLocale()
-  // read the request headers and the page renders on every request (Spec 061).
+  // Sets the request locale for next-intl's server helpers, so they do not read it
+  // from the request headers, which makes a page render per request (Spec 061).
   setRequestLocale(locale);
   const { tags } = await getCachedItems({ lang: locale, sortTags: true });
   const tCommon = await getTranslations("common");
