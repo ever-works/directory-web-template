@@ -146,9 +146,18 @@ export const { handlers, auth, signIn, signOut, unstable_update } = NextAuth({
 			}
 			return baseUrl;
 		},
-		signIn: async ({ user, account, profile }) => {
+		signIn: async ({ user, account }) => {
 			const isCredentials = account?.provider === 'credentials';
-			console.log('Sign-in attempt', { user, account, profile });
+
+			// Debug (dev only): never log `user`, `account` or `profile` themselves. They carry the
+			// OAuth access, refresh and id tokens, the user's email and the provider profile.
+			if (coreConfig.NODE_ENV === 'development') {
+				console.debug('[auth][signIn] sign-in attempt', {
+					provider: account?.provider,
+					hasUserId: !!user?.id,
+					hasEmail: !!user?.email
+				});
+			}
 
 			try {
 				if (!user?.email) {
@@ -164,7 +173,7 @@ export const { handlers, auth, signIn, signOut, unstable_update } = NextAuth({
 
 				// For OAuth providers, allow account linking to prevent OAuthAccountNotLinked errors
 				if (!isCredentials && account?.provider) {
-					console.log(`OAuth sign-in with ${account.provider} for email: ${user.email}`);
+					console.log(`OAuth sign-in with ${account.provider}`);
 					return true;
 				}
 

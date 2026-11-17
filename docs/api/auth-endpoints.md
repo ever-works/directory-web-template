@@ -53,6 +53,8 @@ When a user authenticates with an OAuth provider:
 5. signIn callback runs (lib/auth/index.ts)
    -> Validates user email
    -> Allows account linking for OAuth
+   -> Never logs the user, account (OAuth tokens) or profile, nor the email;
+      in development only, logs the provider and whether an id and email are set
 6. jwt callback enriches token
    -> Sets userId, provider, isAdmin
    -> Creates client profile for new OAuth users
