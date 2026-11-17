@@ -3,6 +3,8 @@ import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, it } from 'node:test';
 
+import { LOCALES } from '../i18n/locales';
+
 /**
  * The item page's rating label and comment strings (`itemDetail.*` in `messages/*.json`).
  *
@@ -44,13 +46,16 @@ function itemDetail(file: string): Record<string, unknown> {
 	return (messages.itemDetail ?? {}) as Record<string, unknown>;
 }
 
+/** One file per supported locale (`lib/i18n/locales.ts`), so a missing locale file fails instead of being skipped. */
 function otherLocaleFiles(): string[] {
-	return readdirSync(MESSAGES_DIR).filter((file) => file.endsWith('.json') && file !== 'en.json');
+	return LOCALES.filter((locale) => locale !== 'en').map((locale) => `${locale}.json`);
 }
 
 describe('item page rating and comment strings', () => {
-	it('checks the 20 locale files besides en.json', () => {
-		assert.equal(otherLocaleFiles().length, 20, 'expected 20 locale files besides en.json');
+	it('checks one messages file per supported locale besides en.json', () => {
+		const onDisk = readdirSync(MESSAGES_DIR).filter((file) => file.endsWith('.json') && file !== 'en.json');
+		assert.equal(otherLocaleFiles().length, 20, 'expected 20 supported locales besides en');
+		assert.deepEqual([...onDisk].sort(), [...otherLocaleFiles()].sort(), 'messages/*.json does not match LOCALES');
 	});
 
 	it('has every key in en.json', () => {
