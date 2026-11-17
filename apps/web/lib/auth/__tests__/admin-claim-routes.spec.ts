@@ -54,8 +54,17 @@ function handler(file: RouteFile, method: Method): string {
 }
 
 const CLAIM = /\buser\??\.isAdmin\b/;
-const LIVE_GUARD = /\bawait (requireAdminSession|checkAdminAuth)\(\)/;
+/**
+ * The DB-backed guard with its answer bound and returned when it refuses:
+ * `const x = await checkAdminAuth(); if (x) return x;` or
+ * `const x = await requireAdminSession(); if (x instanceof NextResponse) return x;`.
+ * Matching the call alone would pass a handler that awaits the guard and then ignores it.
+ */
+const LIVE_GUARD =
+	/\bconst (\w+) = await checkAdminAuth\(\);\s*if \(\1\) return \1;|\bconst (\w+) = await requireAdminSession\(\);\s*if \(\2 instanceof NextResponse\) return \2;/;
 const LIVE_ROLE = /\bawait isAdmin\(session\.user\.id\)/;
+/** The live role, bound to a name (group 1) for the caller to use. */
+const LIVE_ROLE_FLAG = /\bconst (\w+) = session\?\.user\?\.id \? await isAdmin\(session\.user\.id\) : false;/;
 
 const GUARD_IMPORT =
 	/import\s*\{[^}]*\b(requireAdminSession|checkAdminAuth)\b[^}]*\}\s*from\s*'@\/lib\/auth\/admin-guard'/;
@@ -94,21 +103,50 @@ const ADMIN_ONLY: ReadonlyArray<[RouteFile, Method]> = [
 describe('admin-only handlers use requireAdminSession() / checkAdminAuth()', () => {
 	for (const [file, method] of ADMIN_ONLY) {
 		it(`${method} ${file}`, () => {
-			assert.match(
-				handler(file, method),
-				LIVE_GUARD,
-				`${method} in ${file} does not await requireAdminSession() or checkAdminAuth()`
+			const body = handler(file, method);
+			const guard = body.match(LIVE_GUARD);
+			assert.ok(
+				guard && guard.index !== undefined,
+				`${method} in ${file} does not return the response of requireAdminSession() or checkAdminAuth()`
+			);
+			// Nothing is awaited (session, body, database, provider) before the guard has answered.
+			assert.equal(
+				body.indexOf('await '),
+				guard.index + guard[0].indexOf('await '),
+				`${method} in ${file} awaits something before the admin guard`
 			);
 		});
 	}
+
+	it('the guard pattern refuses a guard whose answer is ignored or not returned', () => {
+		for (const ignored of [
+			'await checkAdminAuth();',
+			'const authError = await checkAdminAuth();',
+			'const authError = await checkAdminAuth(); if (authError) console.error(authError);',
+			'const authResult = await requireAdminSession(); const { session } = authResult;',
+			'const authResult = await requireAdminSession(); if (authResult) return authResult;'
+		]) {
+			assert.doesNotMatch(ignored, LIVE_GUARD, ignored);
+		}
+		assert.match('const authError = await checkAdminAuth();\n\t\tif (authError) return authError;', LIVE_GUARD);
+		assert.match(
+			'const authResult = await requireAdminSession();\n\t\tif (authResult instanceof NextResponse) return authResult;',
+			LIVE_GUARD
+		);
+	});
 });
 
 describe('handlers that also answer non-admins check the live role', () => {
 	it('GET /api/surveys builds the list filters from isAdmin(session.user.id)', () => {
 		const get = handler('app/api/surveys/route.ts', 'GET');
 		assert.match(get, LIVE_ROLE, 'GET /api/surveys does not await isAdmin(session.user.id)');
+		const flag = get.match(LIVE_ROLE_FLAG);
 		assert.ok(
-			get.includes('buildSurveyListFilters(searchParams, userIsAdmin)'),
+			flag,
+			'GET /api/surveys does not bind the live role (session?.user?.id ? await isAdmin(...) : false)'
+		);
+		assert.ok(
+			get.includes(`buildSurveyListFilters(searchParams, ${flag[1]})`),
 			'GET /api/surveys does not pass the live role to buildSurveyListFilters'
 		);
 	});
@@ -117,10 +155,17 @@ describe('handlers that also answer non-admins check the live role', () => {
 		const get = handler('app/api/surveys/[surveyId]/route.ts', 'GET');
 		const unpublished = get.indexOf("survey.status !== 'published'");
 		assert.ok(unpublished >= 0, 'unpublished-survey branch not found');
+		const branch = get.slice(unpublished);
+		assert.match(branch, LIVE_ROLE, 'the unpublished branch does not await isAdmin(session.user.id)');
+		const flag = branch.match(LIVE_ROLE_FLAG);
+		assert.ok(flag, 'the unpublished branch does not bind the live role');
+		// A non-admin gets the same 404 as a missing survey.
 		assert.match(
-			get.slice(unpublished),
-			LIVE_ROLE,
-			'the unpublished branch does not await isAdmin(session.user.id)'
+			branch,
+			new RegExp(
+				`if \\(!${flag[1]}\\) \\{\\s*return NextResponse\\.json\\(\\s*\\{ success: false, error: 'Survey not found' \\},\\s*\\{ status: 404 \\}`
+			),
+			'the unpublished branch does not answer 404 when the live role is not admin'
 		);
 	});
 });
