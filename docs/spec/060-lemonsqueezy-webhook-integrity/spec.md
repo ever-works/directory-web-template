@@ -133,7 +133,11 @@ subscription grants comes from the variant that was paid for, never from the che
   (a plan change moves the subscription to another price) the handler reads
   `first_subscription_item.price_id` from the Prices API (`getPriceAttributes`): `unit_price` in cents
   (stored through `toStoredAmount(..., 'lemonsqueezy')`) for a flat price, and
-  `renewal_interval_unit` / `renewal_interval_quantity`. Answers are cached per process (64 prices, 1 hour).
+  `renewal_interval_unit` / `renewal_interval_quantity`. A price read without a flat amount (usage-based, tiered)
+  clears the stored amount, and a zero price stores 0: `updatedSubscriptionAmount` (`stored-amount.ts`) keeps the
+  stored amount only when the event carries no price amount, so a plan change never keeps the previous price's
+  amount (this also applies to Stripe updates, whose prices carry `unit_amount`). Answers are cached per process
+  (64 prices, 1 hour).
   When the API cannot be read, a monthly or yearly variant of `LEMONSQUEEZY_CONFIG` still sets the period and
   the event is handled as before (no retry for a missing price). Before, every row got `amount: null`,
   `interval: 'month'`, a yearly plan included (Greptile on #1151 / #1153). Currency and what the amount

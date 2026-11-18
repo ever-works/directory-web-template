@@ -13,8 +13,12 @@
 
 /** What the subscription row needs; every field may be missing. */
 export interface LemonSqueezyBillingDetails {
-	/** Price per billing period in cents. Missing for usage-based, tiered or pay-what-you-want prices. */
-	unitAmount?: number;
+	/**
+	 * Price per billing period in cents. `null` when the price was read but has no flat amount
+	 * (usage-based or tiered), so a plan change clears the previous amount; missing when the price
+	 * could not be read, so the stored amount is kept.
+	 */
+	unitAmount?: number | null;
 	interval?: 'day' | 'week' | 'month' | 'year';
 	intervalCount?: number;
 }
@@ -44,9 +48,8 @@ export function toLemonSqueezyBillingDetails(attributes: unknown): LemonSqueezyB
 	}
 	const flat = (attrs.scheme === undefined || attrs.scheme === 'standard') && !attrs.usage_aggregation;
 	const unitPrice = attrs.unit_price;
-	if (flat && typeof unitPrice === 'number' && Number.isSafeInteger(unitPrice) && unitPrice >= 0) {
-		details.unitAmount = unitPrice;
-	}
+	details.unitAmount =
+		flat && typeof unitPrice === 'number' && Number.isSafeInteger(unitPrice) && unitPrice >= 0 ? unitPrice : null;
 	return details;
 }
 

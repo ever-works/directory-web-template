@@ -130,6 +130,8 @@ Processes subscription update webhooks. If the subscription does not exist, it f
 
 **Updated fields:** status, planId, endDate, amount, priceId, currency, interval, intervalCount, trialStart, trialEnd, cancelAtPeriodEnd, metadata.
 
+`amount` follows `updatedSubscriptionAmount` (`lib/payment/stored-amount.ts`): the price's `unit_amount` when the event carries one (a zero price stores 0), `null` when the price has no flat amount (`unit_amount: null`: tiered or usage-based), and the stored amount only when the event carries no price amount. The free plan is always 0.
+
 ---
 
 #### `handleSubscriptionCancelled(data: any): Promise<WebhookProcessingResult>`

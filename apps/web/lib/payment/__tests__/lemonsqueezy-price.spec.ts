@@ -16,6 +16,7 @@ import {
 	lemonSqueezyVariantInterval
 } from '../lemonsqueezy-variant-plan';
 import { toSubscriptionServiceData, type SubscriptionServiceInput } from '../lemonsqueezy-webhook';
+import { updatedSubscriptionAmount } from '../stored-amount';
 
 /**
  * Run with: `pnpm --filter @ever-works/web test:unit`
@@ -70,7 +71,7 @@ describe('toLemonSqueezyBillingDetails', () => {
 		);
 	});
 
-	it('keeps no amount for usage-based or tiered prices, where unit_price is per unit', () => {
+	it('says there is no flat amount (null) for usage-based or tiered prices, where unit_price is per unit', () => {
 		for (const extra of [
 			{ usage_aggregation: 'sum' },
 			{ scheme: 'package' },
@@ -79,13 +80,14 @@ describe('toLemonSqueezyBillingDetails', () => {
 		]) {
 			assert.deepEqual(
 				toLemonSqueezyBillingDetails(price(extra)),
-				{ interval: 'year', intervalCount: 1 },
+				{ interval: 'year', intervalCount: 1, unitAmount: null },
 				JSON.stringify(extra)
 			);
 		}
 		assert.deepEqual(toLemonSqueezyBillingDetails(price({ unit_price: 19.5 })), {
 			interval: 'year',
-			intervalCount: 1
+			intervalCount: 1,
+			unitAmount: null
 		});
 	});
 
@@ -201,6 +203,12 @@ describe('the subscription row gets the amount and the billing period', () => {
 			unit_amount: 19900,
 			recurring: { interval: 'year', interval_count: 1 }
 		});
+		// A price with no flat amount clears the stored amount on a plan change (null, not missing).
+		assert.deepEqual(
+			toSubscriptionServiceData(resource(1002), Date.now(), 'standard', { unitAmount: null, interval: 'month' })
+				.items?.data[0]?.price,
+			{ id: '77', unit_amount: null, recurring: { interval: 'month', interval_count: 1 } }
+		);
 		// Without details the service keeps what it has.
 		assert.deepEqual(toSubscriptionServiceData(resource(1002), Date.now(), 'standard').items?.data[0]?.price, {
 			id: '77'
@@ -344,4 +352,48 @@ it('the webhook route reads prices through the cached loader', () => {
 			'loadBillingDetails:createLemonSqueezyPriceLoader((priceId)=>getOrCreateLemonsqueezyProvider().getPriceAttributes(priceId))'
 		)
 	);
+});
+
+describe('updatedSubscriptionAmount (the amount a subscription update stores)', () => {
+	const stored = 199;
+	const update = (minorAmount: unknown, planId: string | null = 'standard') =>
+		updatedSubscriptionAmount({
+			planId,
+			minorAmount,
+			currency: 'eur',
+			provider: 'lemonsqueezy',
+			storedAmount: stored
+		});
+
+	it("stores the new price's amount, a zero price included", () => {
+		assert.equal(update(1900), 19);
+		assert.equal(update(0), 0);
+	});
+
+	it('clears the amount for a price with no flat amount, instead of keeping the previous price', () => {
+		assert.equal(update(null), null);
+	});
+
+	it('keeps the stored amount only when the event carries no price amount', () => {
+		for (const missing of [undefined, Number.NaN, -1, '1900'])
+			assert.equal(update(missing), stored, String(missing));
+	});
+
+	it('stores 0 for the free plan', () => {
+		assert.equal(update(1900, 'free'), 0);
+		assert.equal(update(undefined, 'free'), 0);
+	});
+
+	it('is what handleSubscriptionUpdated stores', () => {
+		const service = readFileSync(join(__dirname, '../../services/webhook-subscription.service.ts'), 'utf8').replace(
+			/\s+/g,
+			' '
+		);
+		assert.ok(
+			service.includes(
+				'amount: updatedSubscriptionAmount({ planId: response.planId, minorAmount: response.amount,'
+			)
+		);
+		assert.ok(!service.includes('response.amount > 0'));
+	});
 });
