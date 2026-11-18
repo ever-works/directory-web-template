@@ -343,14 +343,19 @@ export async function POST(request: NextRequest) {
 			};
 
 			// The provider result is not logged: Nodemailer's holds the recipient in `accepted` and `envelope.to`.
-			await sendPasswordChangeConfirmationEmail(
+			const emailResult = await sendPasswordChangeConfirmationEmail(
 				emailData.email,
 				emailData.userName,
 				emailData.clientIP,
 				emailData.userAgent
 			);
 
-			console.log(`📧 Password change confirmation email sent for user ${session.user.id}`);
+			// Without a configured email service the helper returns `{ skipped: true }` instead of sending.
+			if (emailResult && 'skipped' in emailResult && emailResult.skipped) {
+				console.warn(`📧 Password change confirmation email skipped for user ${session.user.id}`);
+			} else {
+				console.log(`📧 Password change confirmation email sent for user ${session.user.id}`);
+			}
 		} catch (emailError) {
 			// Log email error but don't fail the password change
 			console.error('Email error details:', {

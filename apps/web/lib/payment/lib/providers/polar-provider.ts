@@ -395,11 +395,12 @@ export class PolarProvider implements PaymentProviderInterface {
 							);
 
 							if (emailError) {
-								// Check if it's an invalid email domain error
+								// Callers log this text, so it never carries the address: `emailError.input` is
+								// the address Polar rejected, and the raw message holds it in the JSON body.
 								if (emailError.msg && emailError.msg.includes('does not accept email')) {
-									return `Invalid email address: ${emailError.input}. Polar requires a valid email address with a real domain. Test domains like 'example.com' are not accepted. Please use a real email address.`;
+									return `Invalid email address. Polar requires a valid email address with a real domain. Test domains like 'example.com' are not accepted. Please use a real email address.`;
 								}
-								return emailError.msg || errorMessage;
+								return emailError.msg || 'Invalid email address. Please provide a valid email address.';
 							}
 
 							// Return first error message
