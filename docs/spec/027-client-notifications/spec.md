@@ -115,6 +115,10 @@ notification logic in feature code.
 - [ ] **AC-27** A polite `aria-live` region announces new notifications when the dropdown is closed; throttled to one announcement per 5 s.
 - [ ] **AC-28** All animations respect `prefers-reduced-motion` (collapse to opacity fade).
 
+### Access
+
+- [x] **AC-31** A visitor without a valid session on `/client/notifications` or `/client/notifications/preferences` is redirected to `/{locale}/auth/signin` (the sign-in route, `app/[locale]/auth/signin`) with a locale-prefixed `callbackUrl` back to the page. `proxy.ts` lets a request that carries any session cookie through to the page, so the page's own redirect is what such a visitor sees.
+
 ### Definition of done
 
 - [ ] **AC-29** `pnpm lint`, `pnpm tsc --noEmit`, and `pnpm build` all pass.
