@@ -1,4 +1,5 @@
-import { getCachedItem, getCachedSimilarItems, isItemSlug } from '@/lib/content';
+import { getCachedItem, getCachedSimilarItems } from '@/lib/content';
+import { isItemSlug } from '@/lib/item-slug';
 import { notFound, unstable_rethrow } from 'next/navigation';
 import { getCategoriesName } from '@/lib/utils';
 import { getTranslations, setRequestLocale } from 'next-intl/server';

@@ -8,6 +8,7 @@ import * as path from 'node:path';
 import { parse } from 'date-fns';
 import { dirExists, fsExists, getContentPath } from './lib';
 import { ItemFileCache } from './item-file-cache';
+import { isItemSlug } from './item-slug';
 import { readGitHeadRevision } from './content-revision';
 import { getContentConfigPaths, mergeConfigObjects, PRIMARY_CONTENT_CONFIG_FILENAME } from './content-config-file';
 import { parseWorksPricingConfig } from './config/schemas/works-pricing.schema';
@@ -1889,11 +1890,6 @@ async function getCachedTagsInternal(options: FetchOptions = {}): Promise<Map<st
 	});
 
 	return tags;
-}
-
-/** Whether `slug` has the form of an item slug (letters, digits, `-`, `_`), as `fetchItem` requires. */
-export function isItemSlug(slug: string): boolean {
-	return /^[a-zA-Z0-9_-]+$/.test(slug);
 }
 
 export async function fetchItem(slug: string, options: FetchOptions = {}) {

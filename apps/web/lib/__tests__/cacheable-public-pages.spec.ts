@@ -100,6 +100,13 @@ describe('cacheable public pages (spec 061)', () => {
 		assert.ok(qc.includes('setTimeout: (callback, delay) => (delay >= SERVER_MAX_QUERY_TIMER_MS ? 0 : setTimeout(callback, delay))'));
 	});
 
+	it("lib/content.ts ('use server') exports async functions only", () => {
+		// A synchronous export there fails `next build` ("Server Actions must be async functions").
+		const content = code('lib/content.ts');
+		assert.ok(content.startsWith("'use server';"));
+		assert.doesNotMatch(content, /export function |export const \w+ = (?!async)/);
+	});
+
 	it('the runtime page cache stays in memory and bounded, and the image cache keeps its disk', () => {
 		const config = code('next.config.ts');
 		assert.ok(config.includes("cacheHandler: path.join(__dirname, 'cache-handler.cjs'),"));

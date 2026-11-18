@@ -70,13 +70,17 @@ async function ensureTenantExists(tenantId: string, name: string) {
 
 		ensuredTenants.add(tenantId);
 		console.log(`[DB Init] Ensured tenant '${tenantId}' (${name}) exists`);
-		if (inserted.length > 0) {
+		if (inserted.length > 0 && !process.env.TENANT_ID) {
 			// Cached item pages embed the comments of what was the only tenant
-			// (getTenantIdForSharedRender, Spec 061): with another tenant they must regenerate
-			// without them. Skipped where Next cannot revalidate (a render); ISR then
-			// regenerates them within their 10-minute lifetime.
-			const { revalidateItemPages } = await import('@/lib/cache-invalidation');
-			revalidateItemPages();
+			// (getTenantIdForSharedRender, Spec 061): with a second tenant they must regenerate
+			// without them. Only that step changes them: with TENANT_ID set the shared render
+			// ignores other rows, and from two tenants on it prefetches nothing. Skipped where
+			// Next cannot revalidate (a render); ISR then regenerates them within 10 minutes.
+			const rows = await db.select({ id: tenant.id }).from(tenant).limit(3);
+			if (rows.length === 2) {
+				const { revalidateItemPages } = await import('@/lib/cache-invalidation');
+				revalidateItemPages();
+			}
 		}
 	} catch (e) {
 		console.warn(`[DB Init] Could not ensure tenant exists:`, e);
