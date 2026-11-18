@@ -94,7 +94,7 @@ interface WebhookProcessingResult {
 
 #### `formatData(data: any, paymentProvider?: PaymentProvider): WebhookSubscriptionData`
 
-Standalone utility function that transforms raw Stripe webhook payloads into the normalized `WebhookSubscriptionData` format. Extracts nested fields from Stripe's data structure (e.g., `items.data[0].price.unit_amount`).
+Standalone utility function that transforms raw Stripe webhook payloads into the normalized `WebhookSubscriptionData` format. Extracts nested fields from Stripe's data structure (e.g., `items.data[0].price.unit_amount`). LemonSqueezy events are adapted to the same layout by `toSubscriptionServiceData` (`lib/payment/lemonsqueezy-webhook.ts`); their price and period come from the LemonSqueezy Prices API (spec 060 R17).
 
 **Parameters:**
 | Parameter | Type | Description |

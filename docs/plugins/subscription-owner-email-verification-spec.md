@@ -24,9 +24,12 @@ any LemonSqueezy subscription bought under that address in the same store.
   `false` unless `email` equals `users.email` as stored now (case and spaces ignored;
   the session keeps the address from sign-in, so a changed address never inherits an
   earlier proof). Then it is `true` when `users.emailVerified` is set, or when the user
-  has a linked account of type `oauth` or `oidc` whose recorded `accounts.email` is
-  empty or equals the current address (Auth.js leaves `emailVerified` null for OAuth
-  users, so they are not locked out; a row bound to another address proves nothing).
+  has a linked account of type `oauth` or `oidc` whose recorded `accounts.email` equals
+  the current address (Auth.js leaves `emailVerified` null for OAuth users, so they are
+  not locked out). A row bound to another address proves nothing, and neither does a
+  row with no recorded address: Auth.js links any provider account to the signed-in
+  user whatever its address, so after an address change a newly linked account would
+  otherwise vouch for an address nobody proved (Greptile on #1153).
   The OAuth rule only applies to users without a password (no `users.passwordHash` and
   no `accounts` row other than `oauth` / `oidc`): Auth.js links any OAuth account to the
   signed-in user whatever its address, so a password user who registered with someone
@@ -41,18 +44,34 @@ any LemonSqueezy subscription bought under that address in the same store.
   The guard (`canDisconnectProvider`) refuses unless a password of the current tenant or
   a link to another provider remains, and runs with the user row locked, so no sequence
   of disconnects leaves a password-less user with no sign-in method.
+- Each `oauth` / `oidc` row is bound to the address its provider proved
+  (`lib/auth/oauth-link-email.ts`). Auth.js's adapter `linkAccount` gets no profile, so
+  `events.signIn` in `lib/auth/index.ts` (called in the same callback, for a first
+  sign-in, a link made while signed in, and every later sign-in through the provider)
+  writes the profile's address, trimmed and lower-cased, on the row
+  `(provider, providerAccountId)`. A profile that says the address is not verified
+  (`email_verified: false`, also as the string `"false"`, or Google's older
+  `verified_email: false`) or has no address writes `null`. A failed write is logged
+  and leaves the row as it was (no address for a new link), so it fails closed.
 - `updateUser` (`lib/db/queries/user.queries.ts`, used by the account settings action)
-  clears `users.emailVerified` when the address changes, and first writes the old
-  address into the user's `oauth` / `oidc` rows that had none recorded. Without this a
-  verified or OAuth user could switch to another person's address and keep the proof.
+  clears `users.emailVerified` when the address changes. It no longer writes the old
+  address into OAuth rows that had none: each row keeps the address its provider proved,
+  and binding an empty row to the previous address could make an address the user had
+  set but never proved count as proven after a second change.
 - The database lookup is `loadEmailVerificationState` in
   `subscription-email-verification.ts`. Account rows of type `credentials` (and the
   legacy `email` type) never count.
-- Known gap: an OAuth user who changed their address before this change has no
-  recorded address on the row, so the row still counts. Admin edits through
-  `UserDbService.updateUser` still change `users.email` without clearing
-  `emailVerified`; the stored-address comparison does not cover that path. Both are
-  follow-ups.
+- Legacy links (rows written before links were bound, so with no address) no longer
+  count. The next sign-in through that provider records its address; until then the user
+  verifies the address by email (profile → email verification dialog,
+  `resendVerificationEmailAction`). `EMAIL_NOT_VERIFIED_MESSAGE` names both ways. There
+  is no backfill from `users.email`: an address changed before the change cannot be told
+  apart from one the provider proved (`docs/questions.md` Q-060c).
+- Providers that do not say whether the address is verified (GitHub, Microsoft Entra ID,
+  …) are trusted as before (`docs/questions.md` Q-060d).
+- Known gap: admin edits through `UserDbService.updateUser` still change `users.email`
+  without clearing `emailVerified`; the stored-address comparison does not cover that
+  path. Follow-up.
 - Each of the four LemonSqueezy routes calls the check after body validation and before
   `findOwnedLemonSqueezySubscription`, and returns **403** with code
   `EMAIL_NOT_VERIFIED` and the message `EMAIL_NOT_VERIFIED_MESSAGE` when it is false.
@@ -74,9 +93,13 @@ any LemonSqueezy subscription bought under that address in the same store.
 ## Tests
 
 - `apps/web/lib/payment/__tests__/subscription-ownership.spec.ts`: unverified credentials
-  user refused; verified user accepted; OAuth-only user accepted; password user with a
-  later-linked OAuth account refused until verified; unknown or blank user id refused
-  without a lookup.
+  user refused; verified user accepted; OAuth-only user accepted when a link is bound to
+  the address; a link with no recorded address refused; the change-address-then-link
+  flow refused; password user with a later-linked OAuth account refused until verified;
+  unknown or blank user id refused without a lookup.
+- `apps/web/lib/auth/__tests__/oauth-link-email.spec.ts`: the provider-proven address
+  (trimmed, lower-cased; `null` when unverified or missing), the write only for `oauth` /
+  `oidc` sign-ins, and the `events.signIn` wiring; `updateUser` writes no `accounts` rows.
 - `apps/web/lib/payment/__tests__/subscription-ownership-wiring.spec.ts`: each
   LemonSqueezy route must call the verification check, answer 403 right after it fails,
   and do so before the owner lookup; the list route's GET and POST must resolve access

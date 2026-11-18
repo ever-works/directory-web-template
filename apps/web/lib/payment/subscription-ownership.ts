@@ -92,7 +92,7 @@ export async function isOwnStripeSubscription(
 
 /** Body of the 403 a LemonSqueezy route returns when the signed-in email is not verified. */
 export const EMAIL_NOT_VERIFIED_MESSAGE =
-	'Verify your email address before managing a subscription. Check your inbox for the verification link.';
+	'Verify your email address before managing a subscription: open the verification link we email you (you can resend it from your profile), or sign in again with a connected account that uses this address.';
 
 /** What {@link isEmailVerifiedForOwnership} needs to know about a user. */
 export interface EmailVerificationState {
@@ -102,7 +102,9 @@ export interface EmailVerificationState {
 	emailVerified: Date | string | null | undefined;
 	/**
 	 * Linked OAuth / OIDC rows in `accounts` (the provider verified an address).
-	 * `email` is the address the row was bound to, or null when it was never recorded.
+	 * `email` is the address the provider proved at the last sign-in through it
+	 * (`lib/auth/oauth-link-email.ts`), or null when none was recorded: a link made before
+	 * links were bound, or a provider that reported no verified address.
 	 */
 	oauthAccounts: ReadonlyArray<{ email: string | null | undefined }>;
 	/**
@@ -129,7 +131,12 @@ export type EmailVerificationLookup = (userId: string) => Promise<EmailVerificat
  *   from sign-in, and an address change must not inherit an earlier verification.
  * - `users.emailVerified` being set counts (`updateUser` clears it on an address change).
  * - A linked OAuth / OIDC account counts (Auth.js leaves `emailVerified` null for these
- *   users), but a row bound to a different address proves nothing about this one.
+ *   users) only when the address its provider proved is this one. A row bound to another
+ *   address proves nothing about this one, and neither does a row with no address: Auth.js
+ *   links any provider account to the signed-in user whatever its address, so after an
+ *   address change a newly linked account would otherwise vouch for an address nobody
+ *   proved. A link made before links were bound has no address until the user signs in
+ *   through that provider again; until then the user verifies the address by email.
  * - The OAuth shortcut is only for users without a password: a user who signed up with
  *   a password and then linked their own Google or GitHub account has proven nothing
  *   about the address they typed, so they must verify it by email.
@@ -150,7 +157,7 @@ export async function isEmailVerifiedForOwnership(
 	// Fail closed when the lookup does not say.
 	if (state.hasPasswordSignIn !== false) return false;
 	return state.oauthAccounts.some(
-		(account) => !isNonBlank(account.email) || normaliseEmail(account.email) === current
+		(account) => isNonBlank(account.email) && normaliseEmail(account.email) === current
 	);
 }
 

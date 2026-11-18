@@ -99,50 +99,42 @@ describe('removeContent records an item removal even when the item has no owner 
 describe('PUT /api/admin/reports/{id} runs the moderation action before it saves the report', () => {
 	const route = source('../../../app/api/admin/reports/[id]/route.ts');
 	const put = functionBody(route, 'export async function PUT(');
+	const run = put.indexOf('await runReportModeration(');
 
-	it('looks up the owner and runs the action before updateReport', () => {
+	it('runs the action through runReportModeration before updateReport, with the real actions', () => {
 		const save = put.indexOf('await updateReport(id, {');
 		assert.ok(save > 0, 'PUT does not call updateReport');
-		for (const call of [
-			'await removeContent(',
-			'await getContentOwner(',
-			'await warnUser(',
-			'await suspendUser(',
-			'await banUser('
+		assert.ok(run > 0 && run < save, 'PUT saves the report before the moderation action runs');
+		const call = put.slice(run, put.indexOf(');', put.indexOf('banUser', run)) + 2);
+		for (const dep of [
+			'reportActions: getModerationActionsByReport',
+			'removeContent',
+			'getContentOwner',
+			'warnUser',
+			'suspendUser',
+			'banUser',
+			'savedResolution: existingReport.resolution',
+			'reportId: id'
 		]) {
-			const at = put.indexOf(call);
-			assert.ok(at > 0, `PUT does not call ${call}`);
-			assert.ok(at < save, `PUT saves the report before ${call}`);
+			assert.ok(call.includes(dep), `runReportModeration is not given ${dep}`);
 		}
 	});
 
-	it('answers an error with the action message and leaves the report as it was when the action fails', () => {
+	it('answers the outcome error and leaves the report as it was when the action fails', () => {
 		const save = put.indexOf('await updateReport(id, {');
-		const failed = put.indexOf('if (moderationResult && !moderationResult.success) {');
-		assert.ok(failed > 0 && failed < save, 'PUT does not stop on a failed moderation action before it saves');
+		const failed = put.indexOf('if (!moderation.ok) {');
+		assert.ok(failed > run && failed < save, 'PUT does not stop on a failed moderation action before it saves');
 		const branch = put.slice(failed, put.indexOf(');', put.indexOf('return NextResponse.json(', failed)) + 2);
-		assert.ok(branch.includes('return NextResponse.json('), 'a failed moderation action does not return');
 		assert.ok(
-			branch.includes('error: moderationResult.message'),
-			'the error response does not carry the action message'
+			branch.includes('{ success: false, error: moderation.error }, { status: moderation.status }'),
+			'a failed moderation action does not answer its error and status'
 		);
-		assert.ok(
-			branch.includes('status: moderationFailureStatus(moderationResult.error)'),
-			'a failed moderation action does not answer an error status'
-		);
-		assert.ok(!branch.includes('success: true'), 'a failed moderation action still answers success: true');
 		assert.ok(!put.includes("don't fail the request"), 'PUT still swallows a failed moderation action');
-
-		const statusFn = functionBody(route, 'function moderationFailureStatus(');
-		assert.ok(statusFn.includes('? 409 : 500'), 'moderationFailureStatus does not answer 409 or 500');
 	});
 
 	it('rejects an invalid status, resolution or review note (null included) before any action runs', () => {
 		// `status && ...` let `status: null` through; the action then ran and the report save
 		// failed on the NOT NULL status column, leaving the action applied and the report unchanged.
-		const firstAction = Math.min(
-			...['await removeContent(', 'await getContentOwner('].map((call) => put.indexOf(call))
-		);
 		const checks = [
 			'if (status !== undefined && !isReportStatus(status)) {',
 			'if (resolution !== undefined && !isReportResolution(resolution)) {',
@@ -152,14 +144,14 @@ describe('PUT /api/admin/reports/{id} runs the moderation action before it saves
 		for (const check of checks) {
 			const at = put.indexOf(check);
 			assert.ok(at > 0, `PUT does not check: ${check}`);
-			assert.ok(at < firstAction, `PUT runs a moderation action before: ${check}`);
+			assert.ok(at < run, `PUT runs a moderation action before: ${check}`);
 			const branch = put.slice(at, put.indexOf(');', put.indexOf('return NextResponse.json(', at)) + 2);
 			assert.ok(branch.includes('{ status: 400 }'), `an invalid field does not answer 400: ${check}`);
 		}
 		assert.ok(!put.includes('if (status && '), 'PUT still skips the status check for a falsy status');
 		assert.ok(!put.includes('if (resolution && !'), 'PUT still skips the resolution check for a falsy resolution');
 
-		const guards = route.slice(0, route.indexOf('function moderationFailureStatus('));
+		const guards = route.slice(0, route.indexOf('@swagger'));
 		assert.ok(
 			guards.includes("typeof value === 'string' && (VALID_STATUSES as string[]).includes(value)"),
 			'isReportStatus accepts a value that is not one of the statuses'
@@ -167,19 +159,6 @@ describe('PUT /api/admin/reports/{id} runs the moderation action before it saves
 		assert.ok(
 			guards.includes("typeof value === 'string' && (VALID_RESOLUTIONS as string[]).includes(value)"),
 			'isReportResolution accepts a value that is not one of the resolutions'
-		);
-	});
-
-	it('does not run the action again for a resolution the report already has', () => {
-		// The review dialog sends the saved resolution with every edit; re-running a ban or
-		// suspension fails with ALREADY_BANNED / ALREADY_SUSPENDED and would block the edit.
-		assert.ok(
-			put.includes('const resolutionChanged = resolution !== existingReport.resolution;'),
-			'PUT does not compare the resolution with the saved one'
-		);
-		assert.ok(
-			put.includes('if (resolution && resolution !== ReportResolution.NO_ACTION && resolutionChanged) {'),
-			'PUT runs the moderation action for an unchanged resolution'
 		);
 	});
 });

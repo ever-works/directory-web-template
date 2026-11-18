@@ -1,6 +1,7 @@
 import { createHash, createHmac, timingSafeEqual } from 'node:crypto';
 // Type only (erased at runtime): the service owns its input layout, and this module stays free of app imports.
 import type { SubscriptionServiceInput } from '@/lib/services/webhook-subscription.service';
+import type { LemonSqueezyBillingDetails } from './lemonsqueezy-price';
 
 export type { SubscriptionServiceInput };
 
@@ -16,7 +17,11 @@ export type { SubscriptionServiceInput };
  */
 
 /** Verify `X-Signature` over the exact bytes received, in constant time. */
-export function verifyLemonSqueezySignature(rawBody: string, signature: string | null | undefined, secret: string): boolean {
+export function verifyLemonSqueezySignature(
+	rawBody: string,
+	signature: string | null | undefined,
+	secret: string
+): boolean {
 	// An empty secret would make the HMAC computable by anyone: never accept.
 	if (!secret || typeof rawBody !== 'string' || typeof signature !== 'string') return false;
 
@@ -95,11 +100,16 @@ export type WebhookResource = {
  * the caller from server configuration. `custom_data.planId` is never used: the
  * buyer controls the custom data. Without `planId` the result carries no plan,
  * so the service keeps the stored one.
+ *
+ * `billing` is the subscription's price (amount in cents) and billing period, which subscription
+ * payloads do not carry: the caller reads them from the Prices API or the variant catalog
+ * (`lemonsqueezy-price.ts`). Without it the service keeps the stored values (defaults on create).
  */
 export function toSubscriptionServiceData(
 	resource: WebhookResource,
 	now: number = Date.now(),
-	planId?: string
+	planId?: string,
+	billing?: LemonSqueezyBillingDetails
 ): SubscriptionServiceInput {
 	const attrs = resource.attributes ?? {};
 	const custom = (resource.meta?.custom_data ?? {}) as Record<string, unknown>;
@@ -151,7 +161,19 @@ export function toSubscriptionServiceData(
 		trial_end: toSeconds(attrs.trial_ends_at),
 		// A cancelled subscription keeps access until `ends_at`.
 		cancel_at_period_end: cancelled,
-		items: { data: [{ price: { id: priceId } }] }
+		items: {
+			data: [
+				{
+					price: {
+						id: priceId,
+						...(billing?.unitAmount !== undefined ? { unit_amount: billing.unitAmount } : {}),
+						...(billing?.interval
+							? { recurring: { interval: billing.interval, interval_count: billing.intervalCount ?? 1 } }
+							: {})
+					}
+				}
+			]
+		}
 	};
 }
 
