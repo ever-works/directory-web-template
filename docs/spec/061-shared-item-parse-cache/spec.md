@@ -12,7 +12,7 @@ sidebar_label: 061 Fast cached pages
 
 Public directory pages (home, item, category, tag, static pages) in every locale are
 rendered once and then served from the cache (ISR), and are cacheable by a CDN. Not
-covered: listing URLs with filters (`q`, `sort`, `tags`, `categories`; R1), and the
+covered: listing URLs with filters (`q`, `sort`, `tags`, `categories`; R2), and the
 category/tag/collection index grids and per-visitor pages (R5), which still render per
 request with `private, no-store`. Item YAML
 is parsed once per file version and shared by every locale. Memory stays bounded. A content
@@ -64,19 +64,21 @@ Found on a local production build with that data repo:
   launcher resolves auth in the browser and the test-override cookie is read only where
   test overrides are allowed; app-wide `useSearchParams()` sits behind its own Suspense
   boundary and the listing grid reads the query from context.
-- **R4.** The item page reads comments for a tenant resolved without the request
-  (`TENANT_ID`, else the tenant of a database with exactly one tenant row, if active),
-  looked up in parallel with the item. Otherwise it prefetches nothing (and the Product
-  JSON-LD has no `aggregateRating`) and the browser loads the comments through the API.
-  When a second tenant row is inserted (and `TENANT_ID` is not set), cached item pages
-  are marked stale so they regenerate without the previous single tenant's comments.
+- **R4.** The item page reads comments for a tenant resolved without the request: the
+  tenant of a database with exactly one tenant row, if active (and, when `TENANT_ID` is
+  set, only if that row is `TENANT_ID`), looked up in parallel with the item. Otherwise it
+  prefetches nothing (and the Product JSON-LD has no `aggregateRating`) and the browser
+  loads the comments through the API. `TENANT_ID` alone is not enough: it pins anonymous
+  requests to one tenant, but a signed-in visitor resolves to their session's tenant.
+  When a second tenant row is inserted, cached item pages are marked stale so they
+  regenerate without the previous single tenant's comments.
   Required bound: those comments and the `aggregateRating` built from them leave the
   origin's cached HTML within one page lifetime (600 s) after the insert, and the CDN's
   copy within its `s-maxage` (600 s) after that. Where the insert runs inside a render,
   Next cannot revalidate, and the page lifetime is what enforces the bound; a restart
   clears the in-memory page cache at once. The comments are the first tenant's public
-  comments, already shown to every visitor of its pages. Deployments that add tenants
-  should set `TENANT_ID` first, or keep tenant comments out of shared HTML (Q-061f).
+  comments, already shown to every visitor of its pages. Shared HTML carries no tenant's
+  comments while several tenants exist, until the page cache is tenant-aware (Q-061f).
   The comments hook always refetches on mount, as the hydrated ones can be minutes old, and
   cancels that refetch before writing a new or edited comment, then reloads the list. A
   failed item read is an error, not a 404, so a regeneration that fails keeps the last good

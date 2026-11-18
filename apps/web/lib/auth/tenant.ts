@@ -70,14 +70,14 @@ async function ensureTenantExists(tenantId: string, name: string) {
 
 		ensuredTenants.add(tenantId);
 		console.log(`[DB Init] Ensured tenant '${tenantId}' (${name}) exists`);
-		if (inserted.length > 0 && !process.env.TENANT_ID) {
+		if (inserted.length > 0) {
 			// Cached item pages embed the comments of what was the only tenant
 			// (getTenantIdForSharedRender, Spec 061): with a second tenant they must regenerate
-			// without them. Only that step changes them: with TENANT_ID set the shared render
-			// ignores other rows, and from two tenants on it prefetches nothing. Skipped where
-			// Next cannot revalidate (a render); ISR then regenerates them within 10 minutes.
+			// without them. Only that step changes them: from two tenants on the shared render
+			// prefetches nothing, whether or not TENANT_ID is set. Skipped where Next cannot
+			// revalidate (a render); ISR then regenerates them within 10 minutes.
 			const rows = await db.select({ id: tenant.id }).from(tenant).limit(3);
-			if (tenantInsertChangesSharedRender(rows.length, process.env.TENANT_ID)) {
+			if (tenantInsertChangesSharedRender(rows.length)) {
 				const { revalidateItemPages } = await import('@/lib/cache-invalidation');
 				revalidateItemPages();
 			}
@@ -233,23 +233,27 @@ async function resolveFromDatabase(): Promise<string | null> {
  * ISR item page (Spec 061). It must not read the session or the request:
  * `cookies()` / `headers()` would make the page render per request.
  *
- * `TENANT_ID` when set, else the tenant of a single-tenant database (see
- * `pickSharedRenderTenant`). `null` when the deployment has several tenants or
- * the lookup fails: callers then leave tenant-scoped data out of the shared
- * output and let the browser load it through the API, which resolves the tenant
- * per request. Not cached: a tenant added at runtime must take effect on the
- * next render, and the query only runs when a cached page is (re)generated.
+ * The tenant of a database with exactly one tenant row, if active; with
+ * `TENANT_ID` set, only when that row is `TENANT_ID` (see
+ * `pickSharedRenderTenant`). `TENANT_ID` alone is not enough: signed-in visitors
+ * resolve to their session's tenant, so with several tenant rows the shared
+ * output could show one tenant's comments to another's visitors. `null` when the
+ * deployment has several tenants or the lookup fails: callers then leave
+ * tenant-scoped data out of the shared output and let the browser load it
+ * through the API, which resolves the tenant per request. Not cached: a tenant
+ * added at runtime must take effect on the next render, and the query only runs
+ * when a cached page is (re)generated.
  */
 export async function getTenantIdForSharedRender(): Promise<string | null> {
-	const fromEnv = await resolveFromEnv();
-	if (fromEnv) return fromEnv;
 	if (!coreConfig.DATABASE_URL) return null;
+	// Also creates TENANT_ID's row when it is missing, as a request would.
+	const envTenantId = await resolveFromEnv();
 
 	try {
 		const { db } = await import('@/lib/db/drizzle');
 		const { tenant } = await import('@/lib/db/schema');
 		const rows = await db.select({ id: tenant.id, status: tenant.status }).from(tenant).limit(2);
-		return pickSharedRenderTenant(rows);
+		return pickSharedRenderTenant(rows, envTenantId);
 	} catch (error) {
 		const message = error instanceof Error ? error.message : String(error);
 		// An unmigrated database is expected (see resolveFromDatabase): no error per render.

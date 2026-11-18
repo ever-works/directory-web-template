@@ -45,8 +45,9 @@ sits outside `categories/` so that a category named `category` cannot resolve to
    `<Suspense fallback={null}>`; the query is shared through context
    (`useCurrentSearch()`), which `SharedCard` uses.
 5. Item page comments: `getTenantIdForSharedRender()` (pure pick in
-   `lib/auth/shared-render-tenant.ts`) + `getCommentsByItemId(slug, { tenantId })`,
-   started in parallel with the item read.
+   `lib/auth/shared-render-tenant.ts`: one active tenant row, which must be `TENANT_ID`
+   when that is set) + `getCommentsByItemId(slug, { tenantId })`, started in parallel
+   with the item read.
 6. Per-visitor segments get a `layout.tsx` (or an extra export) with
    `dynamic = 'force-dynamic'`; so do the index grid pages (Q-061b).
 

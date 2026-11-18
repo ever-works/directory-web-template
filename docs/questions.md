@@ -97,18 +97,23 @@ confirm, override, or refine.
 ### Q-061f Tenant comments in shared cached item pages
 
 - **Context.** Cached item pages embed comments (and the Product JSON-LD
-  `aggregateRating`) for the shared-render tenant: `TENANT_ID`, else the only tenant
-  row. After a second tenant row is inserted, pages cached before can serve the first
-  tenant's public comments for up to 600 s at the origin, plus the CDN's `s-maxage`.
-  The insert marks item pages stale when Next can revalidate, which it cannot inside a
-  render.
+  `aggregateRating`) only while the `tenant` table has exactly one row, active (and equal
+  to `TENANT_ID` when that is set). After a second tenant row is inserted, pages cached
+  before can serve the first tenant's public comments for up to 600 s at the origin,
+  plus the CDN's `s-maxage`. The insert marks item pages stale when Next can revalidate,
+  which it cannot inside a render. `TENANT_ID` is for genuinely single-tenant
+  deployments: it overrides host routing for anonymous requests, so host-routed
+  multi-tenant deployments must not set it, and it never makes shared HTML carry one
+  tenant's comments while other tenants exist.
 - **Options.**
   - Accept the bounded window (spec R4).
-  - Keep tenant-scoped comments out of shared HTML unless `TENANT_ID` is set: no window,
-    but no server-rendered comments or `aggregateRating` for deployments without it.
+  - Keep tenant-scoped comments out of shared HTML always: no window, but no
+    server-rendered comments or `aggregateRating` for single-tenant deployments either.
   - Queue the invalidation and run it from a request context that can revalidate.
-- **Default.** **Accept the bounded window**; multi-tenant deployments set `TENANT_ID`
-  before adding tenants.
+  - Make the page cache tenant-aware (one cached copy per tenant host), so multi-tenant
+    deployments get server-rendered comments too.
+- **Default.** **Accept the bounded window**; multi-tenant deployments get comments from
+  the API until the page cache is tenant-aware.
 - **Owner.** Maintainers.
 - **Status.** open
 
