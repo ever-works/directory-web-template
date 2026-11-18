@@ -5,7 +5,9 @@ import { SENTRY_DSN, SENTRY_DEBUG } from '@/lib/constants';
 import { initializeDatabase } from '@/lib/db/initialize';
 
 function warmContentInBackground() {
-  if (process.env.NEXT_PHASE === 'phase-production-build') return;
+  // Long-running servers only: a serverless cold start would read the whole catalogue for a
+  // request that may not need it, and its background work can be frozen after the response.
+  if (process.env.NEXT_PHASE === 'phase-production-build' || process.env.VERCEL) return;
   const started = Date.now();
   void (async () => {
     try {

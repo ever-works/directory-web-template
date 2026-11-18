@@ -15,6 +15,6 @@ describe('content warm-up at server start', () => {
 		assert.ok(register.includes('warmContentInBackground();'));
 		assert.ok(register.indexOf('warmContentInBackground();') < register.indexOf('await initializeDatabase()'));
 		assert.ok(source.includes("const { items } = await fetchItems({ lang: DEFAULT_LOCALE });"));
-		assert.ok(source.includes("if (process.env.NEXT_PHASE === 'phase-production-build') return;"));
+		assert.ok(source.includes("if (process.env.NEXT_PHASE === 'phase-production-build' || process.env.VERCEL) return;"));
 	});
 });
