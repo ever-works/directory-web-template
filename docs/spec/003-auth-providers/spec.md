@@ -80,6 +80,10 @@ modifying core code so my upstream stays clean.
   `token.passwordVersion`) and, on every later `auth()` /
   `/api/auth/session` read, returns `null` for a session that signed in
   before the change, or whose change time cannot be read (fails closed).
+  The client notifications stream (`GET /api/client/notifications/stream`),
+  which checked `auth()` only when it connected, re-reads the user's
+  `password_changed_at` and `deactivated_at` on every 25 s ping and
+  closes once the session it opened with has ended (T-2648).
   See [Session Management](../../authentication/session-management.md#a-password-reset-or-change-ends-older-sessions).
 
 ## 7. Out-of-Scope Considerations
