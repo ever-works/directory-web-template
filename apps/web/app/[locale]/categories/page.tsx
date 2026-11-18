@@ -5,10 +5,13 @@ import { notFound } from 'next/navigation';
 import { getCategoriesEnabled } from '@/lib/utils/settings';
 import { generateListingMetadata } from '@/lib/seo/listing-metadata';
 import { BreadcrumbJsonLd } from '@/components/seo/breadcrumb-json-ld';
-import { getTranslations } from 'next-intl/server';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { DEFAULT_LOCALE } from '@/lib/constants';
 
 // Enable ISR with 10 minutes revalidation
+// Rendered per request, as before Spec 061: not made cacheable yet (docs/questions.md,
+// Q-061b). `revalidate` below has no effect while this is set.
+export const dynamic = 'force-dynamic';
 export const revalidate = 600;
 
 export async function generateMetadata({
@@ -44,6 +47,9 @@ export default async function CategoriesPage({ params }: { params: Promise<{ loc
 	}
 
 	const { locale } = await params;
+	// Sets the request locale for next-intl's server helpers, so they do not read it
+	// from the request headers, which makes a page render per request (Spec 061).
+	setRequestLocale(locale);
 	const { categories } = await getCachedItems({ lang: locale });
 	const tCommon = await getTranslations('common');
 

@@ -2,10 +2,10 @@ import 'server-only';
 import dynamic from 'next/dynamic';
 import { cookies } from 'next/headers';
 import { parseAiChatConfig } from '@ever-works/plugin-ai-chat';
-import { auth } from '@/lib/auth';
 import { configManager } from '@/lib/config-manager';
 import {
 	AI_CHAT_TEST_OVERRIDE_COOKIE,
+	aiChatTestOverridesAllowed,
 	applyAiChatTestOverride,
 	isAiChatTestOverrideCookie
 } from '@/lib/services/ai-chat-test-overrides';
@@ -42,8 +42,16 @@ export async function AiChatMount({ locale }: AiChatMountProps) {
 	const parsed = parseAiChatConfig(appConfig.aiChat);
 	if (!parsed.ok) return null;
 
-	const cookieStore = await cookies();
-	const overrideActive = isAiChatTestOverrideCookie(cookieStore.get(AI_CHAT_TEST_OVERRIDE_COOKIE)?.value);
+	// This component sits in the shared `[locale]` layout, so any request-scoped API
+	// it touches (cookies(), auth()) makes EVERY public page render per request and
+	// uncacheable (Spec 061). The test-override cookie is only honoured outside
+	// production, so it is only read there; the visitor's auth state is resolved
+	// in the browser by the launcher.
+	let overrideActive = false;
+	if (aiChatTestOverridesAllowed()) {
+		const cookieStore = await cookies();
+		overrideActive = isAiChatTestOverrideCookie(cookieStore.get(AI_CHAT_TEST_OVERRIDE_COOKIE)?.value);
+	}
 	const config = applyAiChatTestOverride(parsed.config, overrideActive);
 
 	if (!config.enabled) return null;
@@ -68,8 +76,5 @@ export async function AiChatMount({ locale }: AiChatMountProps) {
 		// operator opts in early.
 	}
 
-	const session = await auth();
-	const isAuthenticated = Boolean(session?.user?.id);
-
-	return <ChatLauncher scenario="browse" locale={locale} isAuthenticated={isAuthenticated} />;
+	return <ChatLauncher scenario="browse" locale={locale} />;
 }

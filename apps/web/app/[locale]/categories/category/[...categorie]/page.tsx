@@ -7,7 +7,7 @@ import { toTitleCase } from "@/lib/utils";
 import { resolveCategoryAlias } from "./resolve-category-alias";
 import Listing from "../../../(listing)/listing";
 import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-json-ld";
-import { getTranslations } from "next-intl/server";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 import { DEFAULT_LOCALE } from "@/lib/constants";
 
 // Force dynamic — getCachedItemsByCategory / Listing consult request-scoped
@@ -87,6 +87,8 @@ export default async function CategoryListing({
 }) {
   const resolvedParams = await params;
   const { categorie: categoryMeta, locale } = resolvedParams;
+  // Sets the request locale for next-intl's server helpers (Spec 061).
+  setRequestLocale(locale);
 
   // Categories switched off, an unknown category (resolved by id, slugified
   // id or name, e.g. a URL-encoded name with spaces), a malformed page

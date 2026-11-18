@@ -34,6 +34,7 @@ flowchart LR
 | `insertNewUser` | `user: NewUser` | `User[]` | Create a new user record |
 | `updateUserPassword` | `hash, userId` | `void` | Update `users.passwordHash` only (admin sign-in store) |
 | `setUserPasswordHash` | `userId, hash` | `{ accounts, users }` | Reset / change password: credentials account hash, plus `users.passwordHash` when set or when there is no credentials account |
+| `getSignInPasswordHash` | `user: { id, passwordHash }` | `string \| null` | The one hash sign-in accepts: `users.passwordHash` for an admin that has one, else the credentials account hash; checks change-password, delete and deactivate |
 | `updateUserVerification` | `email, verified` | `void` | Set email verification status |
 | `softDeleteUser` | `userId: string` | `void` | Soft delete (appends `-deleted` to email) |
 | `isUserAdmin` | `userId: string` | `boolean` | Check admin role via join |

@@ -1,4 +1,5 @@
 import { CollectionsList } from "@/components/collections";
+import { setRequestLocale } from 'next-intl/server';
 import { getCachedItems } from "@/lib/content";
 import { paginateMeta } from "@/lib/paginate";
 import type { Metadata } from "next";
@@ -69,6 +70,9 @@ export default async function CollectionsPagingPageDynamic({
   params: Promise<{ locale: string; page: string }>;
 }) {
   const { locale, page: rawPage } = await params;
+  // Sets the request locale for next-intl's server helpers, so they do not read it
+  // from the request headers, which makes a page render per request (Spec 061).
+  setRequestLocale(locale);
   const { activeCollections: allCollections, page: resolvedPage } = await resolveCollectionsPage(rawPage, locale);
   if (resolvedPage === null) {
     notFound();
