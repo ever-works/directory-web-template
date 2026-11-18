@@ -93,7 +93,7 @@ NextAuth is configured to use custom authentication pages rather than the defaul
 
 Requires a valid session. The endpoint verifies the current password before updating.
 
-A successful change (like a password reset) stamps `users.password_changed_at`, which ends every session that signed in before it, the caller's own included: the client then signs out and goes to `/auth/signin`. See [Session Management](../authentication/session-management.md#a-password-reset-or-change-ends-older-sessions).
+A successful change (like a password reset) stamps `users.password_changed_at`, which ends every session that signed in before it, the caller's own included (the check runs while `DATABASE_URL` is set; without a database there are no password sign-ins to end): the client then signs out and goes to `/auth/signin`. See [Session Management](../authentication/session-management.md#a-password-reset-or-change-ends-older-sessions).
 
 ### Response
 
