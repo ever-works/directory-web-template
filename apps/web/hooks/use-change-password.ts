@@ -2,7 +2,10 @@
 
 import { serverClient } from "@/lib/api/server-api-client";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { signOut } from "next-auth/react";
 import { toast } from "sonner";
+import { useRouter } from "@/i18n/navigation";
+import { CURRENT_USER_QUERY_KEY } from "./use-current-user";
 
 interface ChangePasswordData {
   currentPassword: string;
@@ -42,20 +45,34 @@ const changePasswordApi = async (data: ChangePasswordData): Promise<ChangePasswo
 
 export function useChangePassword() {
   const queryClient = useQueryClient();
+  const router = useRouter();
 
   const mutation = useMutation({
     mutationKey: ["change-password"],
     mutationFn: changePasswordApi,
-    onSuccess: () => {
+    onSuccess: async () => {
       // Show success message
-      toast.success("Password changed successfully! You will receive a confirmation email shortly.");
+      toast.success(
+        "Password changed successfully! Sign in with your new password. You will receive a confirmation email shortly."
+      );
 
-      queryClient.invalidateQueries({ queryKey: ["user"] });
-      queryClient.invalidateQueries({ queryKey: ["profile"] });
-      queryClient.invalidateQueries({ queryKey: ["security-settings"] });
-
-      // Optional: Clear any cached authentication data
+      // The change ends every session that signed in before it, this one included (the jwt
+      // callback in lib/auth), so drop the signed-in data, sign out and send the user to sign in
+      // with the new password. Refetching it here would only answer 401.
+      queryClient.removeQueries({ queryKey: CURRENT_USER_QUERY_KEY });
+      queryClient.removeQueries({ queryKey: ["user"] });
+      queryClient.removeQueries({ queryKey: ["profile"] });
+      // Every security query (settings, sessions, login activity, ...) is keyed under "security"
+      // (SECURITY_QUERY_KEYS); "security-settings" matched none of them.
+      queryClient.removeQueries({ queryKey: ["security"] });
       queryClient.removeQueries({ queryKey: ["auth"] });
+      try {
+        await signOut({ redirect: false });
+      } catch (error) {
+        // The server has already ended the session; going to sign in is still right.
+        console.error("Sign-out after password change failed:", error);
+      }
+      router.replace("/auth/signin");
     },
     onError: (error: ChangePasswordError) => {
       // Show error message

@@ -160,7 +160,12 @@ exports only `POST`. The POST handler combines:
     credentials account hash (what client sign-in
     reads) and `users.passwordHash` when that row
     already has one (the admin case) or the user has no
-    credentials account.
+    credentials account. The same transaction stamps
+    `users.password_changed_at`, which ends every
+    session that signed in before the change, the
+    caller's own included (the jwt callback in
+    `lib/auth/index.ts`; see
+    [Session Management](../authentication/session-management.md#a-password-reset-or-change-ends-older-sessions)).
 13. **`sendPasswordChangeConfirmationEmail(...)`** —
     fire-and-forget email; failures inside the inner
     try/catch are swallowed (the password change has

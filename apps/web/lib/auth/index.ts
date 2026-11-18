@@ -14,6 +14,12 @@ import { invalidateSessionCache } from './cached-session';
 import { getClientProfileByUserId, createClientProfile } from '../db/queries/client.queries';
 import { coreConfig } from '@/lib/config/config-service';
 import { getRuntimeAuthSecret, getRuntimeAuthSecretSource } from './auth-secret';
+import {
+	PASSWORD_CHANGE_UNREADABLE,
+	sessionPredatesPasswordChange,
+	signInPasswordVersion,
+	type PasswordChangeRead
+} from './password-change';
 export * from '../payment/config/payment-provider-manager';
 
 // Define proper interface for user objects with admin/client properties
@@ -24,6 +30,11 @@ interface ExtendedUser {
 	isClient?: boolean;
 	clientProfileId?: string;
 	tenantId?: string;
+	/**
+	 * Credentials only: users.password_changed_at (ms, or null) read in the same query as the
+	 * password hash `authorize` checked (lib/auth/credentials.ts).
+	 */
+	passwordVersion?: number | null;
 }
 
 function createDevelopmentAuthSecret(): string {
@@ -191,6 +202,20 @@ export const { handlers, auth, signIn, signOut, unstable_update } = NextAuth({
 			const extendedUser = user as ExtendedUser;
 
 			try {
+				// Stamp the sign-in; a later password reset or change ends this session (see the
+				// refresh branch below). Only on sign-in, when `user` is present: never from
+				// `trigger === 'update'` data, which the browser sends, and not `iat`, which
+				// Auth.js re-issues on every refresh. A credentials sign-in also carries the
+				// password version its query read with the hash it checked (`passwordVersion`),
+				// which binds the session to that password; other sign-ins check no password and
+				// are judged by `signedInAt` alone (lib/auth/password-change.ts).
+				if (user) {
+					token.signedInAt = Date.now();
+					const passwordVersion = signInPasswordVersion(extendedUser?.passwordVersion);
+					if (passwordVersion !== undefined) {
+						token.passwordVersion = passwordVersion;
+					}
+				}
 				if (extendedUser?.id && typeof extendedUser.id === 'string') {
 					token.userId = extendedUser.id;
 				}
@@ -268,15 +293,31 @@ export const { handlers, auth, signIn, signOut, unstable_update } = NextAuth({
 				// On subsequent JWT refreshes (no user object), sync deactivation state
 				// from the DB so a reactivation takes effect without requiring a new login.
 				if (!user && token.userId && isDatabaseAvailable) {
+					let passwordChangedAt: PasswordChangeRead;
 					try {
 						const [dbUser] = await getDrizzleInstance()
-							.select({ deactivatedAt: users.deactivatedAt })
+							.select({ deactivatedAt: users.deactivatedAt, passwordChangedAt: users.passwordChangedAt })
 							.from(users)
 							.where(eq(users.id, token.userId))
 							.limit(1);
 						token.isDeactivated = dbUser?.deactivatedAt != null;
-					} catch {
-						// Non-critical — keep existing token value on DB error
+						passwordChangedAt = dbUser?.passwordChangedAt;
+					} catch (error) {
+						// The deactivation state keeps its existing token value on a DB error, but the
+						// password check fails closed: an unreadable password_changed_at cannot show
+						// that no reset or change ended this session, so the session ends.
+						passwordChangedAt = PASSWORD_CHANGE_UNREADABLE;
+						console.error(
+							'[auth][jwt] Could not read password_changed_at; ending the session',
+							error instanceof Error ? { name: error.name } : undefined
+						);
+					}
+					// A password reset or change after this session signed in (for credentials: any
+					// change of the password version it signed in with) ends it, so a reset after a
+					// password theft locks the old sessions out. Returning null ends it:
+					// auth() returns no session, and the Auth.js session endpoint clears the cookie.
+					if (sessionPredatesPasswordChange(token, passwordChangedAt)) {
+						return null;
 					}
 				}
 

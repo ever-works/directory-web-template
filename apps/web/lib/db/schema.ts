@@ -55,7 +55,13 @@ export const users = pgTable(
 		createdAt: timestamp('created_at').notNull().defaultNow(),
 		updatedAt: timestamp('updated_at').notNull().defaultNow(),
 		deletedAt: timestamp('deleted_at'),
-		deactivatedAt: timestamp('deactivated_at')
+		deactivatedAt: timestamp('deactivated_at'),
+		/**
+		 * When a password reset or change last set the password (`setUserPasswordHash`), for
+		 * admins and clients. The jwt callback (lib/auth) ends every session that signed in
+		 * before it. NULL: never changed since this column was added.
+		 */
+		passwordChangedAt: timestamp('password_changed_at')
 	},
 	(table) => ({
 		createdAtIndex: index('users_created_at_idx').on(table.createdAt),
