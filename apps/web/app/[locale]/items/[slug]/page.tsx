@@ -1,5 +1,5 @@
 import { getCachedItem, getCachedSimilarItems } from '@/lib/content';
-import { isItemSlug } from '@/lib/item-slug';
+import { isItemSlug, MAX_ITEM_SLUG_LENGTH } from '@/lib/item-slug';
 import { notFound, unstable_rethrow } from 'next/navigation';
 import { getCategoriesName } from '@/lib/utils';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
@@ -48,10 +48,10 @@ export async function generateMetadata({
 }): Promise<Metadata> {
 	const { slug, locale } = await params;
 
-	// See note next to MAX_SLUG_LENGTH below — short-circuit before the
+	// See the note on MAX_ITEM_SLUG_LENGTH (lib/item-slug.ts) — short-circuit before the
 	// git-CMS lookup so a 2KB slug returns a clean noindex envelope
 	// instead of crashing inside `realpath`.
-	if (slug.length > 255) {
+	if (slug.length > MAX_ITEM_SLUG_LENGTH) {
 		return {
 			metadataBase: new URL(appUrl),
 			title: `Not Found | ${await getSiteName()}`,
@@ -161,12 +161,6 @@ export async function generateMetadata({
 //   return (await Promise.all(params)).flat();
 // }
 
-// Filesystems (ext4, NTFS) cap a single path segment at ~255 bytes. A
-// pathological 2KB slug bubbles up as `ENAMETOOLONG` from `realpath`
-// inside the git-CMS lookup and 500s. Reject anything obviously too
-// long up-front — see `directory-traversal-defense.spec.ts`.
-const MAX_SLUG_LENGTH = 255;
-
 export default async function ItemDetails({ params }: { params: Promise<{ slug: string; locale: string }> }) {
 	const { slug, locale } = await params;
 	// Sets the request locale for next-intl's server helpers, so they do not read it
@@ -174,7 +168,7 @@ export default async function ItemDetails({ params }: { params: Promise<{ slug: 
 	setRequestLocale(locale);
 
 	// A slug that cannot name an item is a 404, not a read failure (the catch below rethrows those).
-	if (slug.length > MAX_SLUG_LENGTH || !isItemSlug(slug)) {
+	if (slug.length > MAX_ITEM_SLUG_LENGTH || !isItemSlug(slug)) {
 		return notFound();
 	}
 

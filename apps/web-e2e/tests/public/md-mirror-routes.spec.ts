@@ -299,9 +299,13 @@ test.describe('Markdown mirror routes', () => {
 	// An unknown slug must reach the handler and be rejected by it. The JSON
 	// envelope `expectNotFound` requires is what separates "the handler said
 	// no" from "the route does not exist" — the pre-Spec-047 breakage produced
-	// an HTML 404 for *every* slug and would fail these too.
+	// an HTML 404 for *every* slug and would fail these too. The two malformed
+	// item slugs (a dot, and longer than a path segment) once made `fetchItem`
+	// throw and the handler answer 500.
 	for (const path of [
 		`/items/${MISSING}.md`,
+		'/items/foo.bar.md',
+		`/items/${'a'.repeat(300)}.md`,
 		`/pages/${MISSING}.md`,
 		`/collections/${MISSING}.md`,
 		`/comparisons/${MISSING}.md`,
