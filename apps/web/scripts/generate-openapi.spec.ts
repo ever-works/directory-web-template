@@ -80,3 +80,62 @@ test('without an annotated example the file keeps its own', () => {
 
 	assert.deepEqual(merged['application/json'], { schema: { type: 'object' }, example: { error: 'Kept' } });
 });
+
+test('a summary-only annotation still refreshes the examples of a stored operation, keeping its schema', () => {
+	const storedSchema = { type: 'object', properties: { error: { type: 'string' }, code: { type: 'string' } } };
+	const merged = mergeOpenAPISpecs(
+		{
+			paths: {
+				'/api/example': {
+					post: {
+						description: 'Stored description that is long enough to count as detailed documentation here.',
+						parameters: [{ name: 'q', in: 'query', description: 'Query', example: 'x' }],
+						responses: {
+							400: {
+								description: 'Bad request',
+								content: {
+									'application/json': { schema: storedSchema, example: { error: 'Old message' } }
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		{
+			paths: {
+				'/api/example': {
+					post: {
+						description: 'Short',
+						responses: {
+							400: {
+								content: {
+									'application/json': {
+										schema: { type: 'object' },
+										examples: {
+											invalid: { value: { error: 'New message', code: 'VALIDATION_ERROR' } }
+										}
+									}
+								}
+							},
+							409: { description: 'Conflict' }
+						}
+					}
+				}
+			}
+		}
+	);
+
+	const post = merged.paths['/api/example'].post;
+	assert.equal(post.description, 'Short');
+	assert.deepEqual(post.responses[400], {
+		description: 'Bad request',
+		content: {
+			'application/json': {
+				schema: storedSchema,
+				examples: { invalid: { value: { error: 'New message', code: 'VALIDATION_ERROR' } } }
+			}
+		}
+	});
+	assert.deepEqual(post.responses[409], { description: 'Conflict' });
+});

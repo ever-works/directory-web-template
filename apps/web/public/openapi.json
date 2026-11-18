@@ -15342,9 +15342,12 @@
 											"code": "VALIDATION_ERROR",
 											"details": [
 												{
+													"origin": "number",
 													"code": "too_big",
+													"maximum": 100,
+													"inclusive": true,
 													"path": ["limit"],
-													"message": "Number must be less than or equal to 100"
+													"message": "Too big: expected number to be <=100"
 												}
 											]
 										}
@@ -16206,6 +16209,25 @@
 											"type": "string",
 											"format": "date-time",
 											"example": "2024-01-20T10:30:00.000Z"
+										}
+									}
+								}
+							}
+						}
+					},
+					"403": {
+						"description": "The signed-in user's email address is not verified",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"error": {
+											"type": "string"
+										},
+										"code": {
+											"type": "string",
+											"example": "EMAIL_NOT_VERIFIED"
 										}
 									}
 								}
@@ -20686,6 +20708,22 @@
 							}
 						}
 					},
+					"404": {
+						"description": "Subscription not found, or it does not belong to the signed-in user",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"error": {
+											"type": "string",
+											"example": "Subscription not found or access denied"
+										}
+									}
+								}
+							}
+						}
+					},
 					"500": {
 						"description": "Internal server error",
 						"content": {
@@ -20787,6 +20825,22 @@
 										"error": {
 											"type": "string",
 											"example": "Unauthorized"
+										}
+									}
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "Subscription not found, or it does not belong to the signed-in user",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"error": {
+											"type": "string",
+											"example": "Subscription not found or access denied"
 										}
 									}
 								}
@@ -22953,6 +23007,68 @@
 							}
 						}
 					},
+					"201": {
+						"description": "Response submitted successfully",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"success": {
+											"type": "boolean",
+											"example": true
+										},
+										"data": {
+											"type": "object",
+											"properties": {
+												"id": {
+													"type": "string"
+												},
+												"surveyId": {
+													"type": "string"
+												},
+												"userId": {
+													"type": "string",
+													"nullable": true
+												},
+												"itemId": {
+													"type": "string",
+													"nullable": true
+												},
+												"data": {
+													"type": "object"
+												},
+												"completedAt": {
+													"type": "string",
+													"format": "date-time"
+												},
+												"ipAddress": {
+													"type": "string",
+													"nullable": true
+												},
+												"userAgent": {
+													"type": "string",
+													"nullable": true
+												},
+												"createdAt": {
+													"type": "string",
+													"format": "date-time"
+												},
+												"updatedAt": {
+													"type": "string",
+													"format": "date-time"
+												}
+											}
+										},
+										"message": {
+											"type": "string",
+											"example": "Response submitted successfully"
+										}
+									}
+								}
+							}
+						}
+					},
 					"400": {
 						"description": "Bad request"
 					},
@@ -23191,6 +23307,9 @@
 								}
 							}
 						}
+					},
+					"201": {
+						"description": "Survey created successfully"
 					},
 					"401": {
 						"description": "Unauthorized"
@@ -26809,6 +26928,9 @@
 					"404": {
 						"description": "Report not found"
 					},
+					"409": {
+						"description": "The moderation action does not fit the target's current state (for example 'User is already banned' by another report or by hand, the user to warn, suspend or ban no longer exists, or content_removed on content that cannot be found); the report is unchanged"
+					},
 					"500": {
 						"description": "Internal server error"
 					}
@@ -27793,6 +27915,9 @@
 					},
 					"401": {
 						"description": "Unauthorized - Authentication required"
+					},
+					"409": {
+						"description": "Conflict - A pending or approved item already uses this link (compared ignoring http/https, www, trailing slash, fragment and tracking parameters), or another request created an item with the same slug while this one was being saved"
 					},
 					"500": {
 						"description": "Internal server error"

@@ -575,9 +575,12 @@ export async function GET(request: NextRequest) {
  *                   error: "Invalid request parameters"
  *                   code: "VALIDATION_ERROR"
  *                   details:
- *                     - code: "too_big"
+ *                     - origin: "number"
+ *                       code: "too_big"
+ *                       maximum: 100
+ *                       inclusive: true
  *                       path: ["limit"]
- *                       message: "Number must be less than or equal to 100"
+ *                       message: "Too big: expected number to be <=100"
  *       401:
  *         description: "Unauthorized - Authentication required"
  *         content:

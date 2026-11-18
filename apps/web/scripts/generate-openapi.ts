@@ -241,12 +241,19 @@ function mergeOpenAPISpecs(existing: any, generated: any): any {
 					log(`🔀 Merged route ${path} with existing documentation`);
 				} else {
 					// Preserve detailed existing schemas in this fallback, but still
-					// refresh descriptions supplied by current code annotations and
-					// retain any newly annotated HTTP method.
+					// refresh descriptions and response examples supplied by current code
+					// annotations and retain any newly annotated HTTP method or response.
 					const annotationRefresh = Object.fromEntries(
 						Object.entries(generatedRoute).flatMap(([method, details]: [string, any]) => {
 							if (!existingRoute[method]) return [[method, details]];
-							return details?.description ? [[method, { description: details.description }]] : [];
+							const refresh: Record<string, any> = {};
+							if (details?.description) refresh.description = details.description;
+							const responses = annotatedResponseRefresh(
+								existingRoute[method].responses,
+								details?.responses
+							);
+							if (responses) refresh.responses = responses;
+							return Object.keys(refresh).length ? [[method, refresh]] : [];
 						})
 					);
 					merged.paths[path] = mergeRouteDetails(existingRoute, annotationRefresh);
@@ -409,6 +416,32 @@ function mergeResponses(existing: any, generated: any): any {
 }
 
 /**
+ * What a summary-only annotation still refreshes on a stored operation: the `example` /
+ * `examples` of each response and media type it annotates (the stored schema and description
+ * stay), and any response the stored operation does not have yet. `undefined` when nothing.
+ */
+function annotatedResponseRefresh(existing: any, generated: any): Record<string, any> | undefined {
+	if (!generated || typeof generated !== 'object') return undefined;
+	const refresh: Record<string, any> = {};
+	for (const [statusCode, response] of Object.entries<any>(generated)) {
+		if (!existing?.[statusCode]) {
+			refresh[statusCode] = response;
+			continue;
+		}
+		const content: Record<string, any> = {};
+		for (const [contentType, media] of Object.entries<any>(response?.content ?? {})) {
+			if (media?.example === undefined && media?.examples === undefined) continue;
+			content[contentType] = {
+				...(media.example !== undefined ? { example: media.example } : {}),
+				...(media.examples !== undefined ? { examples: media.examples } : {})
+			};
+		}
+		if (Object.keys(content).length) refresh[statusCode] = { content };
+	}
+	return Object.keys(refresh).length ? refresh : undefined;
+}
+
+/**
  * Merge response content while preserving examples
  */
 function mergeResponseContent(existing: any, generated: any): any {
@@ -488,6 +521,7 @@ export {
 	mergeRouteDetails,
 	mergeResponses,
 	mergeResponseContent,
+	annotatedResponseRefresh,
 	preserveBestExample,
 	preserveBestExamples
 };
