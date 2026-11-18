@@ -28,7 +28,7 @@ export interface ItemData {
   featured?: boolean;
   icon_url?: string;
   updated_at?: string;      // Optional raw timestamp (e.g. "2024-06-15 10:30"); an item without one is still listed
-  updatedAt: Date;           // Parsed Date object
+  updatedAt?: Date;          // Parsed updated_at; undefined when it is missing or not a date
   promo_code?: PromoCode;
   markdown?: string;
   is_source_url_active?: boolean;
@@ -180,9 +180,8 @@ async function parseItem(base: string, filename: string) {
   const content = await safeReadFile(filepath, base);
   const meta = yaml.parse(content) as ItemData;
   meta.slug = path.basename(sanitizedFilename, path.extname(sanitizedFilename));
-  // Optional: undefined when missing or not a date (lib/item-updated-at.ts), never a throw
-  meta.updatedAt = parseItemUpdatedAt(meta.updated_at);
-  return meta;
+  // lib/item-yaml.ts: updatedAt is undefined when updated_at is missing or not a date, never a throw
+  return parseItemYaml(content, slug);
 }
 ```
 
@@ -247,7 +246,7 @@ export async function fetchItems(options: FetchOptions = {}): Promise<FetchItems
     items: items.sort((a, b) => {
       if (a.featured && !b.featured) return -1;
       if (!a.featured && b.featured) return 1;
-      return b.updatedAt.getTime() - a.updatedAt.getTime();
+      return itemDateMs(b.updatedAt) - itemDateMs(a.updatedAt); // undated items sort as the oldest
     }),
     categories: Array.from(categories.values()),
     tags: Array.from(tags.values()),

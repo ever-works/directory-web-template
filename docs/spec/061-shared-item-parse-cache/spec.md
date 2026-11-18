@@ -155,7 +155,7 @@ Found on a local production build with that data repo:
   `updatedAt`. It sorts as the oldest, gets no recency score, uses the sitemap's fallback
   date and is left out of the RSS/Atom/JSON feeds (like an undated post). `yyyy-MM-dd HH:mm`
   is the data repositories' form; an ISO timestamp or a bare date is read too
-  (`lib/item-updated-at.ts`). Before, date-fns `parse(undefined)` threw and the parser
+  (`lib/item-updated-at.ts`, used by `parseItemYaml` in `lib/item-yaml.ts`). Before, date-fns `parse(undefined)` threw and the parser
   dropped the item: three mcpserver.ever.works items were missing until their data was
   fixed. There is no fallback to the file's last commit date, because walking the content
   checkout's history for each undated file costs more than the date is worth.

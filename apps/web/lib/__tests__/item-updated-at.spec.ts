@@ -5,6 +5,7 @@ import { describe, it } from 'node:test';
 
 import type { ItemData } from '../content';
 import { itemDateMs, parseItemUpdatedAt } from '../item-updated-at';
+import { parseItemYaml } from '../item-yaml';
 import { buildFeedEntries, type FeedConfig } from '../seo/feeds';
 
 /**
@@ -49,11 +50,31 @@ describe('itemDateMs', () => {
 });
 
 describe('the item parser', () => {
+	const yamlOf = (extra: string) =>
+		['name: Budna MCP', 'description: An MCP server', 'source_url: https://example.com', 'category: tools', 'tags: [mcp]', extra].join('\n');
+
 	it('keeps an item without updated_at instead of dropping it', () => {
+		const item = parseItemYaml(yamlOf('markdown: "# body"'), 'budna-mcp');
+		assert.equal(item.slug, 'budna-mcp');
+		assert.equal(item.name, 'Budna MCP');
+		assert.deepEqual(item.tags, ['mcp']);
+		assert.equal(item.updatedAt, undefined);
+		assert.equal('updated_at' in item, false);
+		assert.equal('markdown' in item, false);
+	});
+
+	it('parses a dated item, and drops a non-string updated_at', () => {
+		assert.equal(parseItemYaml(yamlOf("updated_at: '2025-03-04 05:06'"), 'x').updatedAt?.getMinutes(), 6);
+		const numeric = parseItemYaml(yamlOf('updated_at: 1700000000'), 'x');
+		assert.equal(numeric.updatedAt, undefined);
+		assert.equal('updated_at' in numeric, false);
+	});
+
+	it('is what parseItem uses (content.ts no longer parses the date itself)', () => {
 		const source = readFileSync(join(__dirname, '../content.ts'), 'utf8');
 		const parseItem = source.slice(source.indexOf('async function parseItem('), source.indexOf('async function parseTranslation('));
-		assert.ok(parseItem.includes('meta.updatedAt = parseItemUpdatedAt(meta.updated_at);'));
-		assert.doesNotMatch(source, /from 'date-fns'/, 'no direct date-fns parse of updated_at left in content.ts');
+		assert.ok(parseItem.includes('return parseItemYaml(content, '));
+		assert.doesNotMatch(source, /from 'date-fns'/);
 	});
 });
 

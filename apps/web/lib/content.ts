@@ -5,7 +5,8 @@ import yaml from 'yaml';
 import * as fs from 'node:fs';
 import * as fsp from 'node:fs/promises';
 import * as path from 'node:path';
-import { itemDateMs, parseItemUpdatedAt } from './item-updated-at';
+import { itemDateMs } from './item-updated-at';
+import { parseItemYaml } from './item-yaml';
 import { dirExists, fsExists, getContentPath } from './lib';
 import { ItemFileCache } from './item-file-cache';
 import { isItemSlug } from './item-slug';
@@ -695,14 +696,8 @@ async function parseItem(
 
 		// Use secure file reading function
 		const content = await safeReadFile(filepath, base);
-		const meta = yaml.parse(content) as ItemData;
-		meta.slug = slugOverride ?? path.basename(sanitizedFilename, path.extname(sanitizedFilename));
-		// Optional: a missing or unreadable date must not drop the item (parse(undefined) throws).
-		meta.updatedAt = parseItemUpdatedAt(meta.updated_at);
-		if (typeof meta.updated_at !== 'string') delete meta.updated_at;
-		delete meta.markdown;
-
-		return meta;
+		// A missing or unreadable updated_at keeps the item (spec 061 R16).
+		return parseItemYaml(content, slugOverride ?? path.basename(sanitizedFilename, path.extname(sanitizedFilename)));
 	} catch (error) {
 		if (isNodeErrorWithCode(error, 'ENOENT')) {
 			if (!missingItemWarnings.has(filename)) {
