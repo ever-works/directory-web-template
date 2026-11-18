@@ -188,6 +188,19 @@ persist across sessions, so that I can showcase work over time.
   inline displayName editor invalidate the `auth-session`
   React-Query key on successful save so active subscribers
   refetch immediately.
+- [x] AC-23: The Private profile setting
+  (`client_profiles.profile_visibility = 'private'`) covers the
+  follow graph too. `/client/profile/<username>/followers` and
+  `/following` 404 for everyone but the owner, like the profile
+  page's private placeholder. `GET`, `POST` and `DELETE
+  /api/user/profile/follow/<username>` keep `isFollowing` (and
+  `GET` keeps `isSelf`) so follow buttons and the comment
+  hovercard still work, but answer `followers: null, following:
+  null` for a Private or deactivated target that is not the
+  viewer. `GET` 404s a deactivated target for everyone but its
+  owner. Guarded by
+  `apps/web/lib/db/queries/__tests__/follow-lists-private.spec.ts`
+  (T-2654).
 
 ## 7. Out-of-Scope Considerations
 
