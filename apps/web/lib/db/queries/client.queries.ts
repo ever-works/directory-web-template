@@ -1,4 +1,4 @@
-import { and, eq, desc, asc, lte, sql, isNull, or, gte, countDistinct, type SQL } from 'drizzle-orm';
+import { and, eq, ne, desc, asc, lte, sql, isNull, or, gte, countDistinct, type SQL } from 'drizzle-orm';
 import { db } from '../drizzle';
 import { clientProfiles, accounts, userRoles, roles, users, type ClientProfile, type NewClientProfile } from '../schema';
 import type { AdapterAccountType } from 'next-auth/adapters';
@@ -101,9 +101,11 @@ export interface PublicProfileRow {
 
 /**
  * Search public profiles within the current tenant for the user-facing
- * directory page. Excludes admins. Searches displayName / username / name /
- * jobTitle / bio / location case-insensitively when `query` is provided.
- * Returns rows + total count for pagination.
+ * directory page. Excludes admins and profiles set to private ("Hidden from the
+ * people directory"). Searches displayName / username / name / jobTitle / bio
+ * case-insensitively when `query` is provided, and location only where
+ * `locationPrivacy` is not 'private'; a private location comes back as `null`,
+ * as on the profile page. Returns rows + total count for pagination.
  */
 export async function searchPublicProfiles(params: {
 	query?: string;
@@ -121,7 +123,9 @@ export async function searchPublicProfiles(params: {
 		eq(clientProfiles.tenantId, tenantId),
 		// Only show active, non-deactivated accounts
 		eq(clientProfiles.status, 'active'),
-		isNull(users.deactivatedAt)
+		isNull(users.deactivatedAt),
+		// A private profile is hidden from the people directory (count and rows alike)
+		ne(clientProfiles.profileVisibility, 'private')
 	];
 
 	if (params.query && params.query.trim()) {
@@ -133,7 +137,7 @@ export async function searchPublicProfiles(params: {
 			     ${clientProfiles.name} ILIKE ${like} OR
 			     ${clientProfiles.jobTitle} ILIKE ${like} OR
 			     ${clientProfiles.bio} ILIKE ${like} OR
-			     ${clientProfiles.location} ILIKE ${like})`
+			     (${clientProfiles.locationPrivacy} IS DISTINCT FROM 'private' AND ${clientProfiles.location} ILIKE ${like}))`
 		);
 	}
 
@@ -150,7 +154,7 @@ export async function searchPublicProfiles(params: {
 
 	const total = Number(countResult?.count ?? 0);
 
-	const rows = await db
+	const selected = await db
 		.select({
 			userId: clientProfiles.userId,
 			username: clientProfiles.username,
@@ -159,7 +163,8 @@ export async function searchPublicProfiles(params: {
 			avatar: clientProfiles.avatar,
 			jobTitle: clientProfiles.jobTitle,
 			bio: clientProfiles.bio,
-			location: clientProfiles.location
+			location: clientProfiles.location,
+			locationPrivacy: clientProfiles.locationPrivacy
 		})
 		.from(clientProfiles)
 		.innerJoin(users, eq(users.id, clientProfiles.userId))
@@ -169,6 +174,12 @@ export async function searchPublicProfiles(params: {
 		.orderBy(desc(clientProfiles.createdAt))
 		.limit(limit)
 		.offset(offset);
+
+	// Honour locationPrivacy as the profile page does: a private location is not shown.
+	const rows: PublicProfileRow[] = selected.map(({ locationPrivacy, ...row }) => ({
+		...row,
+		location: locationPrivacy === 'private' ? null : row.location
+	}));
 
 	return {
 		rows,
