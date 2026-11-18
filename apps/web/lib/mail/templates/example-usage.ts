@@ -67,9 +67,9 @@ export const sendRegularNewsletter = async (subscribers: string[]) => {
         text: template.text,
       });
 
-      console.log(`Newsletter sent successfully to ${email}`);
+      console.log("Newsletter sent successfully");
     } catch (error) {
-      console.error(`Error sending to ${email}:`, error);
+      console.error("Error sending newsletter:", error);
     }
   }
 };

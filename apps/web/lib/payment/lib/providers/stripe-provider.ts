@@ -199,15 +199,13 @@ export class StripeProvider implements PaymentProviderInterface {
 			const customer = await this.createCustomer(customerData);
 			this.logger.debug('Stripe customer created successfully', {
 				userId: user.id,
-				customerId: customer.id,
-				email: customer.email
+				customerId: customer.id
 			});
 			return customer;
 		} catch (error) {
 			this.logger.error('Failed to create Stripe customer', {
 				userId: user.id,
-				error: this.formatErrorMessage(error),
-				customerData
+				error: this.formatErrorMessage(error)
 			});
 			throw error;
 		}
