@@ -51,7 +51,12 @@ when many submissions queue up.
   `apps/web-e2e/tests/admin/`.
 - [x] AC-2: CRUD on items, tags, collections, companies, sponsorships,
   surveys, roles, clients.
-- [x] AC-3: Reports moderation flow with status tabs.
+- [x] AC-3: Reports moderation flow with status tabs. Saving a resolution
+  runs its moderation action first; retrying after a failed report save
+  finishes the save without warning, removing or notifying twice, using
+  the `moderation_history` rows the report wrote
+  (`apps/web/lib/services/report-moderation.ts`,
+  [reports endpoints](../../api/reports-endpoints.md); open case: Q-009a).
 - [x] AC-4: Notifications bell visible in admin header.
 - [x] AC-5: Settings accordion with sections including the analytics
   toggle (per

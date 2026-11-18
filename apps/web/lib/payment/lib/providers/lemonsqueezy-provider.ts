@@ -530,7 +530,9 @@ export class LemonSqueezyProvider implements PaymentProviderInterface {
 		const { statusCode, data, error } = await getLemonSqueezySubscription(subscriptionId);
 		if (error) {
 			if (statusCode === 404) return null;
-			throw new Error(`Lemonsqueezy get subscription error: ${error.message || 'Unknown error'}`, { cause: error });
+			throw new Error(`Lemonsqueezy get subscription error: ${error.message || 'Unknown error'}`, {
+				cause: error
+			});
 		}
 		const subscription = data?.data;
 		if (!subscription?.attributes) return null;
@@ -540,6 +542,20 @@ export class LemonSqueezyProvider implements PaymentProviderInterface {
 			userEmail: subscription.attributes.user_email ?? null,
 			storeId: subscription.attributes.store_id
 		};
+	}
+
+	/**
+	 * Reads one price (`GET /v1/prices/{id}`) for the webhook's subscription amount and billing
+	 * period (`lib/payment/lemonsqueezy-price.ts`). Returns its attributes, `null` when LemonSqueezy
+	 * has no such price, and throws when LemonSqueezy cannot be asked.
+	 */
+	async getPriceAttributes(priceId: string): Promise<Record<string, unknown> | null> {
+		const { statusCode, data, error } = await getPrice(Number(priceId));
+		if (error) {
+			if (statusCode === 404) return null;
+			throw new Error(`Lemonsqueezy get price error: ${error.message || 'Unknown error'}`, { cause: error });
+		}
+		return (data?.data?.attributes as unknown as Record<string, unknown> | undefined) ?? null;
 	}
 
 	async getSubscription(subscriptionId: string): Promise<any> {

@@ -28,7 +28,29 @@ describe('isEmailVerifiedForOwnership', () => {
 		oauth: {
 			email: 'c@example.com',
 			emailVerified: null,
-			oauthAccounts: [{ email: null }],
+			oauthAccounts: [{ email: 'c@example.com' }],
+			hasPasswordSignIn: false
+		},
+		// Linked before links were bound to the address their provider proved (no email recorded).
+		oauthLegacyLink: {
+			email: 'c2@example.com',
+			emailVerified: null,
+			oauthAccounts: [{ email: null }, { email: '  ' }],
+			hasPasswordSignIn: false
+		},
+		// OAuth-only user who changed their address to the victim's, then linked a second provider
+		// account of their own: Auth.js links it whatever its address, and sign-in binds it to the
+		// address that provider proved (or none, if that write failed).
+		oauthSwitchedThenLinked: {
+			email: 'victim@example.com',
+			emailVerified: null,
+			oauthAccounts: [{ email: 'attacker@example.com' }, { email: 'attacker@other.example' }, { email: null }],
+			hasPasswordSignIn: false
+		},
+		oauthTwoLinks: {
+			email: 'h@example.com',
+			emailVerified: null,
+			oauthAccounts: [{ email: 'old@example.com' }, { email: 'H@Example.com' }],
 			hasPasswordSignIn: false
 		},
 		oauthBoundHere: {
@@ -78,9 +100,19 @@ describe('isEmailVerifiedForOwnership', () => {
 		assert.equal(await check('credentialsVerified', 'b@example.com'), true);
 	});
 
-	it('accepts a user with a linked OAuth account even though emailVerified is null', async () => {
+	it('accepts a user with a linked OAuth account bound to this address even though emailVerified is null', async () => {
 		assert.equal(await check('oauth', 'c@example.com'), true);
 		assert.equal(await check('oauthBoundHere', 'd@example.com'), true);
+		// One of several links is enough.
+		assert.equal(await check('oauthTwoLinks', 'h@example.com'), true);
+	});
+
+	it('refuses an OAuth link with no recorded address (a legacy link, or a provider that proved none)', async () => {
+		assert.equal(await check('oauthLegacyLink', 'c2@example.com'), false);
+	});
+
+	it('refuses the change-address-then-link flow: a new link vouches only for the address its provider proved', async () => {
+		assert.equal(await check('oauthSwitchedThenLinked', 'victim@example.com'), false);
 	});
 
 	it('compares addresses ignoring case and surrounding spaces', async () => {
@@ -96,7 +128,12 @@ describe('isEmailVerifiedForOwnership', () => {
 	it('refuses the email-change flow: register with the victim address, switch to your own, verify it', async () => {
 		// The attacker signed up with the victim's address (the session keeps it), called
 		// updateAccount to store their own address, then verified that address.
-		users.attackerSwitched = { email: 'attacker@example.com', emailVerified: verifiedAt, oauthAccounts: [], hasPasswordSignIn: true };
+		users.attackerSwitched = {
+			email: 'attacker@example.com',
+			emailVerified: verifiedAt,
+			oauthAccounts: [],
+			hasPasswordSignIn: true
+		};
 		// The address LemonSqueezy would match against is the victim's, from the session.
 		assert.equal(await check('attackerSwitched', 'victim@example.com'), false);
 		// Matching the attacker's own address is fine: it is verified and it is theirs.

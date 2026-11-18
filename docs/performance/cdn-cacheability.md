@@ -147,7 +147,7 @@ Direct requests for the twin paths (`/<locale>/discover/<n>/cached`,
 `/<locale>/cached-category/...`) answer 404 from `proxy.ts`.
 
 The runtime page cache is kept in memory (LRU, `NEXT_CACHE_MAX_MEMORY_MB`,
-default 64) and not written to disk unless `NEXT_ISR_FLUSH_TO_DISK=true`: a
+default 256, ~390 item pages) and not written to disk unless `NEXT_ISR_FLUSH_TO_DISK=true`: a
 cached item page is counted as ~0.65 MB (it measured ~0.9 MB of heap), and a
 4,000-item directory in 21 locales has ~86,000 of them, so the long tail belongs
 in the CDN. `NEXT_CACHE_MAX_MEMORY_MB` is read by `next build`;
