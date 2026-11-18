@@ -27,7 +27,7 @@ export interface ItemData {
   collections?: string[] | Collection[];
   featured?: boolean;
   icon_url?: string;
-  updated_at: string;       // Raw string timestamp (e.g. "2024-06-15 10:30")
+  updated_at?: string;      // Optional raw timestamp (e.g. "2024-06-15 10:30"); an item without one is still listed
   updatedAt: Date;           // Parsed Date object
   promo_code?: PromoCode;
   markdown?: string;
@@ -180,10 +180,13 @@ async function parseItem(base: string, filename: string) {
   const content = await safeReadFile(filepath, base);
   const meta = yaml.parse(content) as ItemData;
   meta.slug = path.basename(sanitizedFilename, path.extname(sanitizedFilename));
-  meta.updatedAt = parse(meta.updated_at, 'yyyy-MM-dd HH:mm', new Date());
+  // Optional: undefined when missing or not a date (lib/item-updated-at.ts), never a throw
+  meta.updatedAt = parseItemUpdatedAt(meta.updated_at);
   return meta;
 }
 ```
+
+An item without `updated_at` is still listed. It sorts as the oldest, gets no recency score, and is left out of the RSS/Atom/JSON feeds until it has a date (spec 061 R16).
 
 ### Security Utilities
 
