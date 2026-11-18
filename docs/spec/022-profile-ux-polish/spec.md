@@ -150,6 +150,10 @@ persist across sessions, so that I can showcase work over time.
   jobTitle, bio, or location (case-insensitive); results paginate
   at 30/page; each row uses `ProfileRow` with a Follow button
   initialized from the viewer's follow state; admins are excluded.
+  Profiles whose `profileVisibility` is `private` are excluded too
+  ("Hidden from the people directory"), and a location whose
+  `locationPrivacy` is `private` (the default) is neither shown on
+  the row nor matched by the search, as on the profile page.
 - [ ] AC-19: The `/client/profile/<username>` page header card
   shows a "Discover users" link to `/client/users` for any
   authenticated viewer (alongside the Edit-profile / Follow
