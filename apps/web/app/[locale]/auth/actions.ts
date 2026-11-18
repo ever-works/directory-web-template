@@ -409,7 +409,7 @@ export const signUp = validatedAction(signUpSchema, async (data) => {
 
 		if (verificationToken) {
 			sendVerificationEmailWithTemplate(normalizedEmail, verificationToken.token, name)
-				.then(() => console.log(`[SignUp] Verification email sent to ${normalizedEmail}`))
+				.then(() => console.log(`[SignUp] Verification email sent for client profile ${clientProfile.id}`))
 				.catch((err) => console.error(`[SignUp] Failed to send verification email:`, err));
 		}
 

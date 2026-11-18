@@ -170,8 +170,6 @@ export class EmailService {
       companyUrl: this.domain,
     };
 
-    console.log("📝 Template data:", templateData);
-
     const template = getPasswordChangeConfirmationTemplate(templateData);
 
     console.log("📧 Template generated:", {
@@ -195,7 +193,6 @@ export class EmailService {
     console.log("📮 Sending email with provider:", this.provider!.getName());
     console.log("📬 Email message:", {
       from: emailMessage.from,
-      to: emailMessage.to,
       subject: emailMessage.subject,
       hasHtml: !!emailMessage.html,
       hasText: !!emailMessage.text
@@ -203,7 +200,7 @@ export class EmailService {
 
     try {
       const result = await this.provider!.sendEmail(emailMessage);
-      console.log("✅ Provider send result:", result);
+      console.log("✅ Password change confirmation email sent");
       return result;
     } catch (providerError) {
       console.error("❌ Provider send error:", providerError);
