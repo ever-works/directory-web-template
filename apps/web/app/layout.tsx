@@ -2,29 +2,8 @@ import type { Metadata } from 'next';
 import { siteConfig } from '@/lib/config';
 import './tailwind.css';
 import './[locale]/globals.scss';
-import { LayoutProvider, ThemeProvider } from '@/components/providers';
 import { ensureBackgroundJobsInitialized } from '@/app/api/cron/jobs/background-jobs-init';
 import { getBaseUrl } from '@/lib/utils/url-cleaner';
-import { getLocale } from 'next-intl/server';
-import { RTL_LOCALES, type Locale } from '@/lib/constants';
-import { Geist, Geist_Mono } from 'next/font/google';
-import { LocaleCookieRedirect } from '@/components/i18n/locale-cookie-redirect';
-
-const geistSans = Geist({
-    variable: '--font-geist-sans',
-    subsets: ['latin'],
-});
-
-// adjustFontFallback: false drops next/font's 'Geist Mono Fallback' face, which is Arial scaled
-// to 134.59%. Geist Mono has no Arabic or Hebrew letters, so that proportional face would draw
-// them in code at about a third larger than the text around them, and it would also draw Latin
-// code before Geist Mono loads. The CSS stack after var(--font-geist-mono) (Consolas,
-// Menlo, Courier New...) takes over instead, as it did before Geist Mono was wired up.
-const geistMono = Geist_Mono({
-    variable: '--font-geist-mono',
-    subsets: ['latin'],
-    adjustFontFallback: false,
-});
 
 // Public origin: NEXT_PUBLIC_CANONICAL_URL when pinned, else the app URL.
 const appUrl = getBaseUrl();
@@ -47,27 +26,14 @@ ensureBackgroundJobsInitialized().catch(err =>
 	console.error('[BackgroundJobs] Initialization failed:', err)
 );
 
-export default async function RootLayout({ children }: { children: React.ReactNode }) {
-	const locale = await getLocale();
-	const dir = RTL_LOCALES.includes(locale as Locale) ? 'rtl' : 'ltr';
-
-	return (
-		<html lang={locale} dir={dir} suppressHydrationWarning>
-			<head>
-				{/*
-					Returning-visitor locale redirect. Reads `NEXT_LOCALE` cookie
-					and redirects client-side before paint if it disagrees with
-					the current URL. Pairs with `LocaleSuggestionBanner` and the
-					`localeDetection: false` setting in `i18n/routing.ts`.
-					See `docs/performance/locale-detection.md` and Spec 019.
-				*/}
-				<LocaleCookieRedirect />
-			</head>
-			<body className={`${geistSans.variable} ${geistMono.variable} antialiased dark:bg-[#0a0a0a]`} suppressHydrationWarning>
-				<ThemeProvider>
-					<LayoutProvider>{children}</LayoutProvider>
-				</ThemeProvider>
-			</body>
-		</html>
-	);
+/**
+ * Pass-through root layout. The document (`<html lang dir>`, fonts, theme
+ * providers) is rendered by `components/layout/document-shell.tsx`: from
+ * `[locale]/layout.tsx` with the route's locale, and directly by the few pages
+ * outside `[locale]` (`not-found.tsx`, `unauthorized/page.tsx`). Reading the
+ * locale here with `getLocale()` made every page dynamic (Spec 061), because
+ * this layout renders before `[locale]/layout.tsx` calls `setRequestLocale`.
+ */
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+	return children;
 }

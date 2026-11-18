@@ -1,5 +1,6 @@
 import { coreConfig } from '@/lib/config/config-service';
 import { tenantHostFromHeaders } from './tenant-host';
+import { pickSharedRenderTenant, tenantInsertChangesSharedRender } from './shared-render-tenant';
 
 // --- Configuration & Caching --- //
 
@@ -61,14 +62,26 @@ async function ensureTenantExists(tenantId: string, name: string) {
 		const { db } = await import('@/lib/db/drizzle');
 		const { tenant } = await import('@/lib/db/schema');
 		
-		await db.insert(tenant).values({
+		const inserted = await db.insert(tenant).values({
 			id: tenantId,
 			name,
 			status: 'active'
-		}).onConflictDoNothing();
-		
+		}).onConflictDoNothing().returning({ id: tenant.id });
+
 		ensuredTenants.add(tenantId);
 		console.log(`[DB Init] Ensured tenant '${tenantId}' (${name}) exists`);
+		if (inserted.length > 0) {
+			// Cached item pages embed the comments of what was the only tenant
+			// (getTenantIdForSharedRender, Spec 061): with a second tenant they must regenerate
+			// without them. Only that step changes them: from two tenants on the shared render
+			// prefetches nothing, whether or not TENANT_ID is set. Skipped where Next cannot
+			// revalidate (a render); ISR then regenerates them within 10 minutes.
+			const rows = await db.select({ id: tenant.id }).from(tenant).limit(3);
+			if (tenantInsertChangesSharedRender(rows.length)) {
+				const { revalidateItemPages } = await import('@/lib/cache-invalidation');
+				revalidateItemPages();
+			}
+		}
 	} catch (e) {
 		console.warn(`[DB Init] Could not ensure tenant exists:`, e);
 	}
@@ -202,10 +215,7 @@ async function resolveFromDatabase(): Promise<string | null> {
 		defaultTenantCachedAt = 0;
 	} catch (error) {
 		const message = error instanceof Error ? error.message : String(error);
-		const isExpectedUnavailable =
-			!coreConfig.DATABASE_URL ||
-			/relation \"tenant\" does not exist/i.test(message) ||
-			/schema may be out of sync/i.test(message);
+		const isExpectedUnavailable = !coreConfig.DATABASE_URL || isTenantTableUnavailable(message);
 
 		if (!isExpectedUnavailable) {
 			console.error('[getTenantId] Fallback DB lookup failed:', message);
@@ -216,6 +226,50 @@ async function resolveFromDatabase(): Promise<string | null> {
 	}
 
 	return null;
+}
+
+/**
+ * Tenant for output that is cached and served to every visitor, such as an
+ * ISR item page (Spec 061). It must not read the session or the request:
+ * `cookies()` / `headers()` would make the page render per request.
+ *
+ * The tenant of a database with exactly one tenant row, if active; with
+ * `TENANT_ID` set, only when that row is `TENANT_ID` (see
+ * `pickSharedRenderTenant`). `TENANT_ID` alone is not enough: signed-in visitors
+ * resolve to their session's tenant, so with several tenant rows the shared
+ * output could show one tenant's comments to another's visitors. `null` when the
+ * deployment has several tenants or the lookup fails: callers then leave
+ * tenant-scoped data out of the shared output and let the browser load it
+ * through the API, which resolves the tenant per request. Not cached: a tenant
+ * added at runtime must take effect on the next render, and the query only runs
+ * when a cached page is (re)generated.
+ */
+export async function getTenantIdForSharedRender(): Promise<string | null> {
+	if (!coreConfig.DATABASE_URL) return null;
+	// Also creates TENANT_ID's row when it is missing, as a request would.
+	const envTenantId = await resolveFromEnv();
+
+	try {
+		const { db } = await import('@/lib/db/drizzle');
+		const { tenant } = await import('@/lib/db/schema');
+		const rows = await db.select({ id: tenant.id, status: tenant.status }).from(tenant).limit(2);
+		return pickSharedRenderTenant(rows, envTenantId);
+	} catch (error) {
+		const message = error instanceof Error ? error.message : String(error);
+		// An unmigrated database is expected (see resolveFromDatabase): no error per render.
+		if (!isTenantTableUnavailable(message)) {
+			console.error(
+				'[getTenantIdForSharedRender] Tenant lookup failed; rendering without tenant-scoped data:',
+				message
+			);
+		}
+		return null;
+	}
+}
+
+/** The tenant table is missing or the schema is behind: expected on a fresh or unmigrated database. */
+function isTenantTableUnavailable(message: string): boolean {
+	return /relation "tenant" does not exist/i.test(message) || /schema may be out of sync/i.test(message);
 }
 
 // --- Main Export --- //

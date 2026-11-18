@@ -40,8 +40,9 @@ since [Spec 019](../spec/019-cdn-cacheable-i18n/spec.md).
 
 Symptoms:
 
-- `resolveItemDataFilename(base, ...)` returns `null`.
-- The directory exists but contains no `.yml` / `.yaml` file.
+- The item directory contains no `.yml` / `.yaml` file (or vanished
+  between the listing and the read). The pick rule lives in
+  `pickItemYaml` in `apps/web/lib/item-file-cache.ts`.
 
 Behaviour:
 
@@ -51,7 +52,10 @@ Behaviour:
   with no YAML file: <slug>`).
 - After the first pass, if `missingItemDataCount > 0`,
   `fetchItems` calls `repairContentRepositoryAfterMissingItems()`
-  and recurses once.
+  and recurses once. The repair runs once per distinct set of
+  YAML-less directories (Spec 061): a directory the repository itself
+  leaves without YAML no longer triggers a sync and a full cache clear
+  on every walk.
 
 This branch handles the legitimate case where the content sync
 landed a partial repo state (e.g. a folder was created but the
@@ -94,6 +98,35 @@ Two reasons:
 
 If a fork wants retry semantics anyway, it can wrap `fetchItems`
 in its own retry loop in a `lib/services/` helper.
+
+## One parse for every locale
+
+Since [Spec 061](../spec/061-shared-item-parse-cache/spec.md) the walk
+is split in two (`apps/web/lib/item-file-cache.ts`):
+
+1. **A shared snapshot of the data directory.** Each item directory is
+   listed once (`readdir`), its YAML is picked (`<slug>.yml`, else the
+   first YAML without a locale suffix, else any YAML) and `stat`ed, and
+   the YAML is parsed only when its mtime or size changed since the last
+   parse. The snapshot is shared by every locale and option set, kept
+   for 10 minutes or until the data directory's mtime changes, and
+   dropped by `clearFetchItemsCache()`. Walks that start at the same
+   time share one snapshot build.
+2. **A cheap per-locale pass.** `fetchItems({ lang })` copies each
+   parsed item, overlays `<slug>.<lang>.yml` when the directory listing
+   says it exists (also cached by mtime/size), and populates tags,
+   categories and collections.
+
+The same applies to `categories.yml`, `tags.yml`, `collections.yml` and
+their locale overlays. On 4,111 items: the first walk takes about 2.4 s,
+every further locale 5–9 ms, and a walk after a cache clear about 0.36 s
+(stat only). Before, every locale and option set (`{ lang }`,
+`{ lang, sortTags }`) re-parsed every file, about 3.5 s each.
+
+The background sync (`lib/services/sync-service.ts`, every 5 minutes)
+calls `invalidateContentCaches()` only when the content checkout's HEAD
+moved since the last invalidation. A checkout without a readable HEAD is
+invalidated on every sync, as before.
 
 ## Tuning concurrency
 
