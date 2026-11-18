@@ -302,6 +302,13 @@
       "when": 1788417526152,
       "tag": "0042_email_two_factor_auth",
       "breakpoints": true
+    },
+    {
+      "idx": 43,
+      "version": "7",
+      "when": 1794954083551,
+      "tag": "0043_add_password_changed_at",
+      "breakpoints": true
     }
   ]
 }

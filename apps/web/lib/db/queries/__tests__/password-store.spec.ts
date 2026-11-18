@@ -85,6 +85,19 @@ describe('password reset and change write the hash client sign-in reads', () => 
 		assert.ok(!action.includes('.update(users)'), 'newPasswordAction updates users directly');
 	});
 
+	it('the updatePassword server action stores the new hash with setUserPasswordHash', () => {
+		// updateUserPassword writes users.passwordHash only and does not stamp
+		// users.password_changed_at, so a change through it would end no session and leave
+		// lastPasswordChange stale.
+		const action = functionBody(authActions, 'export const updatePassword =');
+		assert.ok(
+			action.includes('setUserPasswordHash(dbUser.id, newPasswordHash)'),
+			'updatePassword does not call setUserPasswordHash'
+		);
+		assert.ok(!action.includes('updateUserPassword('), 'updatePassword still writes users.passwordHash only');
+		assert.ok(!action.includes('.update(users)'), 'updatePassword updates users directly');
+	});
+
 	it('the change-password route stores the new hash with setUserPasswordHash', () => {
 		const post = functionBody(changePasswordRoute, 'export async function POST(');
 		assert.ok(post.includes('setUserPasswordHash('), 'POST does not call setUserPasswordHash');
