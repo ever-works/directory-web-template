@@ -14,7 +14,7 @@ import { invalidateSessionCache } from './cached-session';
 import { getClientProfileByUserId, createClientProfile } from '../db/queries/client.queries';
 import { coreConfig } from '@/lib/config/config-service';
 import { getRuntimeAuthSecret, getRuntimeAuthSecretSource } from './auth-secret';
-import { sessionPredatesPasswordChange } from './password-change';
+import { sessionPredatesPasswordChange, signInStamp } from './password-change';
 export * from '../payment/config/payment-provider-manager';
 
 // Define proper interface for user objects with admin/client properties
@@ -25,6 +25,8 @@ interface ExtendedUser {
 	isClient?: boolean;
 	clientProfileId?: string;
 	tenantId?: string;
+	/** When the credentials `authorize` started, before it read the password hash (ms). */
+	signedInAt?: number;
 }
 
 function createDevelopmentAuthSecret(): string {
@@ -195,9 +197,10 @@ export const { handlers, auth, signIn, signOut, unstable_update } = NextAuth({
 				// Stamp the sign-in time; a later password reset or change ends this session (see
 				// the refresh branch below). Only on sign-in, when `user` is present: never from
 				// `trigger === 'update'` data, which the browser sends, and not `iat`, which
-				// Auth.js re-issues on every refresh.
+				// Auth.js re-issues on every refresh. For credentials it is the time `authorize`
+				// started, before the password check (`signInStamp`).
 				if (user) {
-					token.signedInAt = Date.now();
+					token.signedInAt = signInStamp(extendedUser?.signedInAt, Date.now());
 				}
 				if (extendedUser?.id && typeof extendedUser.id === 'string') {
 					token.userId = extendedUser.id;

@@ -80,6 +80,11 @@ export const credentialsProvider = Credentials({
 		code: { type: 'text' }
 	},
 	authorize: async (credentials) => {
+		// The sign-in time for the session (`token.signedInAt`, see lib/auth/password-change.ts),
+		// taken before any password hash is read. The jwt callback runs only after bcrypt, hundreds
+		// of milliseconds later, so a stamp taken there would let a sign-in that checked the old
+		// password look newer than a reset that committed meanwhile.
+		const signInStartedAt = Date.now();
 		try {
 			const email = credentials.email as string;
 			const password = credentials.password as string;
@@ -104,7 +109,8 @@ export const credentialsProvider = Credentials({
 						image: foundUser.image,
 						tenantId: foundUser.tenantId ?? undefined,
 						isClient: false,
-						isAdmin: true
+						isAdmin: true,
+						signedInAt: signInStartedAt
 					};
 				}
 				// Admin user found but password is invalid
@@ -175,7 +181,8 @@ export const credentialsProvider = Credentials({
 						email: clientProfile.email,
 						image: null,
 						isClient: true,
-						isAdmin: false
+						isAdmin: false,
+						signedInAt: signInStartedAt
 					};
 					void logActivity(ActivityType.SIGN_IN, clientProfile.id, 'client', undefined, clientProfile.tenantId || undefined).catch(() => {});
 					return clientUser;

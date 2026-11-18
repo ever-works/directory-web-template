@@ -117,7 +117,6 @@ export async function updateUserPassword(newPasswordHash: string, userId: string
 export async function setUserPasswordHash(userId: string, newPasswordHash: string) {
 	const tenantId = await getTenantId();
 	if (!tenantId) throw new Error('Tenant ID not found');
-	const changedAt = new Date();
 	return db.transaction(async (tx) => {
 		const updatedAccounts = await tx
 			.update(accounts)
@@ -128,7 +127,7 @@ export async function setUserPasswordHash(userId: string, newPasswordHash: strin
 			.returning({ userId: accounts.userId });
 		const updatedUsers = await tx
 			.update(users)
-			.set({ passwordHash: newPasswordHash, updatedAt: changedAt })
+			.set({ passwordHash: newPasswordHash, updatedAt: new Date() })
 			.where(
 				and(
 					eq(users.id, userId),
@@ -137,6 +136,10 @@ export async function setUserPasswordHash(userId: string, newPasswordHash: strin
 				)
 			)
 			.returning({ id: users.id });
+		// Taken after the updates above hold the row locks, as close to the commit as possible: a
+		// sign-in that read the old hash started before this (lib/auth/password-change.ts), and a
+		// concurrent change that commits later also stamps a later time.
+		const changedAt = new Date();
 		// Not tied to the condition above: a client's users row holds no hash and is skipped
 		// there, but its sessions must end too.
 		await tx

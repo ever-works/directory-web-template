@@ -539,10 +539,16 @@ export default async function proxy(req: NextRequest) {
 	}
 
 	// Redirect authenticated users away from /auth/* pages (signin, register, etc.)
+	// A NextAuth token is never bounced away from /auth/signin. getToken only decodes the cookie,
+	// so a session the jwt callback has ended (a password reset or change, see
+	// lib/auth/password-change.ts) still decodes here, while the pages send it to /auth/signin:
+	// bouncing it back to the dashboard would loop. The sign-in page renders, and its
+	// SessionProvider call to /api/auth/session clears the dead cookie.
+	const keepNextAuthTokenOnPage = pathWithoutLocale === '/auth/signin';
 	if (pathWithoutLocale.startsWith('/auth/')) {
 		if (cfg.provider === 'next-auth') {
 			const token = await getToken({ req, secret: authSecret });
-			if (token) {
+			if (token && !keepNextAuthTokenOnPage) {
 				const target = token.isAdmin ? '/admin' : '/client/dashboard';
 				const url = req.nextUrl.clone();
 				url.pathname = `${localePrefix}${target}`;
@@ -583,7 +589,7 @@ export default async function proxy(req: NextRequest) {
 		} else if (cfg.provider === 'both') {
 			// Check NextAuth first
 			const token = await getToken({ req, secret: authSecret });
-			if (token) {
+			if (token && !keepNextAuthTokenOnPage) {
 				const target = token.isAdmin ? '/admin' : '/client/dashboard';
 				const url = req.nextUrl.clone();
 				url.pathname = `${localePrefix}${target}`;

@@ -62,7 +62,9 @@ export function useChangePassword() {
       queryClient.removeQueries({ queryKey: CURRENT_USER_QUERY_KEY });
       queryClient.removeQueries({ queryKey: ["user"] });
       queryClient.removeQueries({ queryKey: ["profile"] });
-      queryClient.removeQueries({ queryKey: ["security-settings"] });
+      // Every security query (settings, sessions, login activity, ...) is keyed under "security"
+      // (SECURITY_QUERY_KEYS); "security-settings" matched none of them.
+      queryClient.removeQueries({ queryKey: ["security"] });
       queryClient.removeQueries({ queryKey: ["auth"] });
       try {
         await signOut({ redirect: false });

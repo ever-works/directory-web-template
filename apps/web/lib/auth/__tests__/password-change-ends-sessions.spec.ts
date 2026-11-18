@@ -49,12 +49,19 @@ const jwtCallback = () => {
 };
 
 type Predicate = (signedInAt: unknown, passwordChangedAt: Date | null | undefined) => boolean;
+type Stamp = (authorizedAt: unknown, now: number) => number;
 
 /** Loaded per test, so a missing module fails each test on its own. */
 const loadPredicate = async (): Promise<Predicate> => {
 	const mod = (await import('../password-change')) as { sessionPredatesPasswordChange?: Predicate };
 	assert.equal(typeof mod.sessionPredatesPasswordChange, 'function', 'sessionPredatesPasswordChange is not exported');
 	return mod.sessionPredatesPasswordChange!;
+};
+
+const loadStamp = async (): Promise<Stamp> => {
+	const mod = (await import('../password-change')) as { signInStamp?: Stamp };
+	assert.equal(typeof mod.signInStamp, 'function', 'signInStamp is not exported');
+	return mod.signInStamp!;
 };
 
 const SIGNED_IN = Date.UTC(2026, 10, 1, 12, 0, 0);
@@ -90,6 +97,37 @@ describe('sessionPredatesPasswordChange', () => {
 		assert.equal(predates(null, changed), true);
 		assert.equal(predates(String(SIGNED_IN + 1000), changed), true, 'a stamp that is not a number is no stamp');
 		assert.equal(predates(Number.NaN, changed), true);
+	});
+});
+
+describe('signInStamp', () => {
+	it('CONTROL: a sign-in with no authorize time (OAuth, email link) is stamped now', async () => {
+		const stamp = await loadStamp();
+		assert.equal(stamp(undefined, SIGNED_IN), SIGNED_IN);
+		assert.equal(stamp(String(SIGNED_IN - 5), SIGNED_IN), SIGNED_IN);
+		assert.equal(stamp(Number.NaN, SIGNED_IN), SIGNED_IN);
+	});
+
+	it('stamps the time authorize started, and never a time in the future', async () => {
+		const stamp = await loadStamp();
+		assert.equal(stamp(SIGNED_IN - 900, SIGNED_IN), SIGNED_IN - 900);
+		assert.equal(stamp(SIGNED_IN + 60_000, SIGNED_IN), SIGNED_IN);
+	});
+
+	it('ends a sign-in that checked the OLD password while a reset committed', async () => {
+		const [stamp, predates] = await Promise.all([loadStamp(), loadPredicate()]);
+		// authorize starts and reads the old hash; bcrypt runs for ~900 ms; meanwhile the reset
+		// commits at +100 ms; the jwt callback runs at +900 ms.
+		const authorizeStarted = SIGNED_IN;
+		const resetAt = new Date(SIGNED_IN + 100);
+		const jwtCallbackAt = SIGNED_IN + 900;
+		assert.equal(
+			predates(stamp(authorizeStarted, jwtCallbackAt), resetAt),
+			true,
+			'the old-password sign-in survives the reset'
+		);
+		// A sign-in that starts after the reset (with the new password) is kept.
+		assert.equal(predates(stamp(SIGNED_IN + 200, SIGNED_IN + 1100), resetAt), false);
 	});
 });
 
@@ -137,13 +175,34 @@ describe('a password reset or change ends the sessions signed in before it', () 
 			'setUserPasswordHash does not stamp the users row of every user, whatever store holds the hash'
 		);
 		assert.ok(helper.includes('const changedAt = new Date();'), 'the change time is not taken once, as now');
+		// Taken after the hash updates hold the row locks, right before the stamp: the closer to
+		// the commit, the smaller the window for a sign-in that still reads the old hash.
+		const changedAtIndex = helper.indexOf('const changedAt = new Date();');
+		assert.ok(
+			changedAtIndex > helper.indexOf('.update(accounts)') &&
+				changedAtIndex > helper.indexOf('.set({ passwordHash: newPasswordHash, updatedAt:') &&
+				changedAtIndex < stamp,
+			'the change time is not taken after the hash updates, right before the stamp'
+		);
+	});
+
+	it('the credentials authorize takes the sign-in time before it reads a password hash', () => {
+		const src = code('lib/auth/credentials.ts');
+		const start = src.indexOf('authorize: async (credentials) => {');
+		assert.ok(start >= 0, 'authorize not found');
+		const authorize = src.slice(start);
+		const startedAt = authorize.indexOf('const signInStartedAt = Date.now();');
+		assert.ok(startedAt >= 0, 'authorize does not take its start time');
+		assert.ok(startedAt < authorize.indexOf('await '), 'the start time is taken after the first await');
+		const returned = authorize.match(/signedInAt: signInStartedAt/g) ?? [];
+		assert.equal(returned.length, 2, 'the admin and the client user do not both carry the start time');
 	});
 
 	it('the jwt callback stamps the sign-in time only when a user signs in', () => {
 		const jwt = jwtCallback();
 		assert.ok(
-			jwt.includes('if (user) { token.signedInAt = Date.now(); }'),
-			'the sign-in time is not stamped on sign-in'
+			jwt.includes('if (user) { token.signedInAt = signInStamp(extendedUser?.signedInAt, Date.now()); }'),
+			'the sign-in time is not stamped on sign-in from the authorize start time'
 		);
 		const writes = jwt.match(/token\.signedInAt =/g) ?? [];
 		assert.equal(writes.length, 1, 'token.signedInAt is written somewhere other than on sign-in');
@@ -170,8 +229,10 @@ describe('a password reset or change ends the sessions signed in before it', () 
 			'the refresh branch does not end (return null for) a session older than the password change'
 		);
 		assert.ok(
-			code('lib/auth/index.ts').includes("import { sessionPredatesPasswordChange } from './password-change';"),
-			'lib/auth/index.ts does not import sessionPredatesPasswordChange'
+			code('lib/auth/index.ts').includes(
+				"import { sessionPredatesPasswordChange, signInStamp } from './password-change';"
+			),
+			'lib/auth/index.ts does not import sessionPredatesPasswordChange and signInStamp'
 		);
 	});
 
@@ -197,5 +258,34 @@ describe('a password reset or change ends the sessions signed in before it', () 
 		assert.ok(hook.includes('import { signOut } from "next-auth/react";'), 'the hook does not import signOut');
 		assert.ok(success.includes('await signOut({ redirect: false });'), 'a successful change does not sign out');
 		assert.ok(success.includes('router.replace("/auth/signin");'), 'a successful change does not go to sign in');
+		// SECURITY_QUERY_KEYS (hooks/use-security-settings.ts) are all under "security".
+		assert.ok(
+			success.includes('queryClient.removeQueries({ queryKey: ["security"] });'),
+			'a successful change leaves the security queries in the cache'
+		);
+		assert.ok(
+			code('hooks/use-security-settings.ts').includes('settings: ["security", "settings"]'),
+			'the security settings key is no longer under "security"'
+		);
+	});
+
+	it('the proxy does not bounce an ended session from /auth/signin back to the dashboard', () => {
+		const proxy = code('proxy.ts');
+		const start = proxy.indexOf("if (pathWithoutLocale.startsWith('/auth/')) {");
+		assert.ok(start >= 0, 'the /auth/* redirect in proxy.ts not found');
+		assert.ok(
+			proxy.includes("const keepNextAuthTokenOnPage = pathWithoutLocale === '/auth/signin';"),
+			'the proxy has no /auth/signin exception'
+		);
+		const branch = proxy.slice(start);
+		const bounces =
+			branch.match(/const token = await getToken\(\{ req, secret: authSecret \}\); if \(token[^)]*\)/g) ?? [];
+		assert.equal(bounces.length, 2, 'the next-auth and both branches were not both found');
+		for (const bounce of bounces) {
+			assert.ok(
+				bounce.endsWith('if (token && !keepNextAuthTokenOnPage)'),
+				`bounces from /auth/signin: ${bounce}`
+			);
+		}
 	});
 });
