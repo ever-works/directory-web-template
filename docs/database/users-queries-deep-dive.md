@@ -132,7 +132,7 @@ async function updateUserPassword(
 UPDATE users SET password_hash = ? WHERE id = ?;
 ```
 
-This writes `users.passwordHash` only. Admin sign-in reads that column and client sign-in does not; account deletion and deactivation also accept it as a fallback. Password reset and change-password use `setUserPasswordHash` instead.
+This writes `users.passwordHash` only and does not stamp `users.password_changed_at`, so it ends no session. Admin sign-in reads that column and client sign-in does not; account deletion and deactivation also accept it as a fallback. Password reset, the change-password route and the `updatePassword` server action use `setUserPasswordHash` instead; nothing calls this helper.
 
 ---
 

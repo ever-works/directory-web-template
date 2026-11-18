@@ -14,7 +14,12 @@ import { invalidateSessionCache } from './cached-session';
 import { getClientProfileByUserId, createClientProfile } from '../db/queries/client.queries';
 import { coreConfig } from '@/lib/config/config-service';
 import { getRuntimeAuthSecret, getRuntimeAuthSecretSource } from './auth-secret';
-import { sessionPredatesPasswordChange, signInStamp } from './password-change';
+import {
+	PASSWORD_CHANGE_UNREADABLE,
+	sessionPredatesPasswordChange,
+	signInStamp,
+	type PasswordChangeRead
+} from './password-change';
 export * from '../payment/config/payment-provider-manager';
 
 // Define proper interface for user objects with admin/client properties
@@ -277,7 +282,7 @@ export const { handlers, auth, signIn, signOut, unstable_update } = NextAuth({
 				// On subsequent JWT refreshes (no user object), sync deactivation state
 				// from the DB so a reactivation takes effect without requiring a new login.
 				if (!user && token.userId && isDatabaseAvailable) {
-					let passwordChangedAt: Date | null | undefined;
+					let passwordChangedAt: PasswordChangeRead;
 					try {
 						const [dbUser] = await getDrizzleInstance()
 							.select({ deactivatedAt: users.deactivatedAt, passwordChangedAt: users.passwordChangedAt })
@@ -286,8 +291,15 @@ export const { handlers, auth, signIn, signOut, unstable_update } = NextAuth({
 							.limit(1);
 						token.isDeactivated = dbUser?.deactivatedAt != null;
 						passwordChangedAt = dbUser?.passwordChangedAt;
-					} catch {
-						// Non-critical — keep existing token value on DB error
+					} catch (error) {
+						// The deactivation state keeps its existing token value on a DB error, but the
+						// password check fails closed: an unreadable password_changed_at cannot show
+						// that no reset or change ended this session, so the session ends.
+						passwordChangedAt = PASSWORD_CHANGE_UNREADABLE;
+						console.error(
+							'[auth][jwt] Could not read password_changed_at; ending the session',
+							error instanceof Error ? { name: error.name } : undefined
+						);
 					}
 					// A password reset or change after this session signed in ends it, so a reset
 					// after a password theft locks the old sessions out. Returning null ends it:

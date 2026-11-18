@@ -1,4 +1,13 @@
 /**
+ * Stands for a `users.password_changed_at` read that failed (a database error). It is not
+ * `undefined`, which a read that found no users row also gives, so the check can fail closed.
+ */
+export const PASSWORD_CHANGE_UNREADABLE = Symbol('password_changed_at unreadable');
+
+/** What the jwt callback read for `users.password_changed_at`. */
+export type PasswordChangeRead = Date | null | undefined | typeof PASSWORD_CHANGE_UNREADABLE;
+
+/**
  * Whether a session must end because the password was reset or changed after it signed in.
  *
  * `signedInAt` is the sign-in time (ms since the epoch) that the jwt callback in `./index.ts`
@@ -9,12 +18,12 @@
  *
  * A token with no stamp (issued before stamping existed, or altered) cannot be shown to be newer
  * than the change, so once the password has changed it ends. While the password has never
- * changed, every session is kept.
+ * changed, every session is kept. A failed read (`PASSWORD_CHANGE_UNREADABLE`) cannot show that
+ * no reset ended the session, so it ends it (fails closed): a reset after a password theft must
+ * not be undone by a database error while the stolen session is used.
  */
-export function sessionPredatesPasswordChange(
-	signedInAt: unknown,
-	passwordChangedAt: Date | null | undefined
-): boolean {
+export function sessionPredatesPasswordChange(signedInAt: unknown, passwordChangedAt: PasswordChangeRead): boolean {
+	if (passwordChangedAt === PASSWORD_CHANGE_UNREADABLE) return true;
 	if (passwordChangedAt == null) return false;
 	if (typeof signedInAt !== 'number' || !Number.isFinite(signedInAt)) return true;
 	return passwordChangedAt.getTime() > signedInAt;

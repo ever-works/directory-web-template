@@ -37,7 +37,7 @@ This hook takes no parameters.
 | `changePassword` | `(data: ChangePasswordData) => Promise<ChangePasswordResponse>` | Submits the password change request. Returns a response object with `success`, `message`, and optional `error` fields. Never throws -- errors are returned in the response. |
 | `isLoading` | `boolean` | Whether the mutation is currently in progress. |
 | `error` | `string \| null` | The error message from the last failed attempt, or `null`. |
-| `isSuccess` | `boolean` | Whether the last mutation completed successfully. |
+| `isSuccess` | `boolean` | Whether the last mutation completed successfully. A success also signs out and navigates to `/auth/signin`, so the calling form is replaced before it can show a success state. |
 | `isError` | `boolean` | Whether the last mutation resulted in an error. |
 | `reset` | `() => void` | Resets the mutation state (clears error, success, etc.). |
 | `status` | `'idle' \| 'pending' \| 'success' \| 'error'` | Current mutation status from React Query. |
@@ -78,7 +78,7 @@ import { useState } from 'react';
 import { useChangePassword } from '@/template/hooks/use-change-password';
 
 function ChangePasswordForm() {
-  const { changePassword, isLoading, error, isSuccess, reset } = useChangePassword();
+  const { changePassword, isLoading, error } = useChangePassword();
   const [formData, setFormData] = useState({
     currentPassword: '',
     newPassword: '',
@@ -87,11 +87,9 @@ function ChangePasswordForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const result = await changePassword(formData);
-
-    if (result.success) {
-      setFormData({ currentPassword: '', newPassword: '', confirmPassword: '' });
-    }
+    // On success the hook signs out and navigates to /auth/signin, so this form is replaced:
+    // there is no success state to render or reset here. Only a failure stays on the form.
+    await changePassword(formData);
   };
 
   return (
@@ -127,7 +125,6 @@ function ChangePasswordForm() {
       </div>
 
       {error && <p className="text-red-600">{error}</p>}
-      {isSuccess && <p className="text-green-600">Password changed successfully!</p>}
 
       <button type="submit" disabled={isLoading}>
         {isLoading ? 'Changing Password...' : 'Change Password'}
@@ -155,15 +152,13 @@ const schema = z.object({
 });
 
 function ChangePasswordFormZod() {
-  const { changePassword, isLoading, reset } = useChangePassword();
+  const { changePassword, isLoading } = useChangePassword();
   const form = useForm({ resolver: zodResolver(schema) });
 
   const onSubmit = async (data: z.infer<typeof schema>) => {
-    const result = await changePassword(data);
-    if (result.success) {
-      form.reset();
-      reset(); // Reset mutation state
-    }
+    // On success the hook signs out and navigates to /auth/signin; the form is not reset
+    // because it is replaced by the sign-in page. A failure is shown as a toast.
+    await changePassword(data);
   };
 
   return (

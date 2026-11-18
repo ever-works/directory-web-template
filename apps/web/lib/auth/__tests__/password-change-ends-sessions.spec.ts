@@ -58,6 +58,12 @@ const loadPredicate = async (): Promise<Predicate> => {
 	return mod.sessionPredatesPasswordChange!;
 };
 
+const loadUnreadable = async (): Promise<symbol> => {
+	const mod = (await import('../password-change')) as { PASSWORD_CHANGE_UNREADABLE?: symbol };
+	assert.equal(typeof mod.PASSWORD_CHANGE_UNREADABLE, 'symbol', 'PASSWORD_CHANGE_UNREADABLE is not exported');
+	return mod.PASSWORD_CHANGE_UNREADABLE!;
+};
+
 const loadStamp = async (): Promise<Stamp> => {
 	const mod = (await import('../password-change')) as { signInStamp?: Stamp };
 	assert.equal(typeof mod.signInStamp, 'function', 'signInStamp is not exported');
@@ -97,6 +103,16 @@ describe('sessionPredatesPasswordChange', () => {
 		assert.equal(predates(null, changed), true);
 		assert.equal(predates(String(SIGNED_IN + 1000), changed), true, 'a stamp that is not a number is no stamp');
 		assert.equal(predates(Number.NaN, changed), true);
+	});
+
+	it('ends a session when password_changed_at could not be read (fails closed)', async () => {
+		const [predates, unreadable] = await Promise.all([loadPredicate(), loadUnreadable()]);
+		const check = predates as (signedInAt: unknown, passwordChangedAt: unknown) => boolean;
+		// A database error must not read as "never changed": a reset after a password theft would
+		// then be undone for the stolen session for as long as the read fails.
+		assert.equal(check(SIGNED_IN, unreadable), true, 'a failed read keeps the session');
+		assert.equal(check(undefined, unreadable), true, 'a failed read keeps a session with no stamp');
+		assert.equal(check(Number.MAX_SAFE_INTEGER, unreadable), true, 'a failed read keeps a newer session');
 	});
 });
 
@@ -230,9 +246,26 @@ describe('a password reset or change ends the sessions signed in before it', () 
 		);
 		assert.ok(
 			code('lib/auth/index.ts').includes(
-				"import { sessionPredatesPasswordChange, signInStamp } from './password-change';"
+				"import { PASSWORD_CHANGE_UNREADABLE, sessionPredatesPasswordChange, signInStamp, type PasswordChangeRead } from './password-change';"
 			),
-			'lib/auth/index.ts does not import sessionPredatesPasswordChange and signInStamp'
+			'lib/auth/index.ts does not import PASSWORD_CHANGE_UNREADABLE, sessionPredatesPasswordChange and signInStamp'
+		);
+	});
+
+	it('the jwt callback ends the session when the password_changed_at read fails', () => {
+		const jwt = jwtCallback();
+		const refresh = jwt.indexOf('if (!user && token.userId && isDatabaseAvailable) {');
+		assert.ok(refresh >= 0, 'the refresh branch is gone');
+		const branch = jwt.slice(refresh, jwt.indexOf('if (sessionPredatesPasswordChange(', refresh));
+		assert.ok(
+			branch.includes('let passwordChangedAt: PasswordChangeRead;'),
+			'passwordChangedAt cannot hold a failed read'
+		);
+		// The catch of the refresh query must mark the read as failed; leaving it undefined reads as
+		// "never changed" and keeps the session (fails open).
+		assert.ok(
+			/\} catch \(error\) \{ passwordChangedAt = PASSWORD_CHANGE_UNREADABLE;/.test(branch),
+			'a database error while reading password_changed_at keeps the session'
 		);
 	});
 
