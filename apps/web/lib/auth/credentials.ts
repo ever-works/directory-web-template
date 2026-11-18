@@ -3,12 +3,13 @@ import {
 	getUserByEmail,
 	logActivity,
 	getClientAccountByEmail,
-	verifyClientPassword,
+	verifyClientPasswordForSignIn,
 	getClientProfileByUserId,
 	isUserAdmin
 } from '../db/queries';
 import { ActivityType } from '../db/schema';
 import { AuthErrorCode } from './auth-error-codes';
+import { passwordVersionOf } from './password-change';
 import { issueTwoFactorCode, verifyTwoFactorCode } from './two-factor';
 
 // Re-export AuthErrorCode for backwards compatibility
@@ -80,11 +81,11 @@ export const credentialsProvider = Credentials({
 		code: { type: 'text' }
 	},
 	authorize: async (credentials) => {
-		// The sign-in time for the session (`token.signedInAt`, see lib/auth/password-change.ts),
-		// taken before any password hash is read. The jwt callback runs only after bcrypt, hundreds
-		// of milliseconds later, so a stamp taken there would let a sign-in that checked the old
-		// password look newer than a reset that committed meanwhile.
-		const signInStartedAt = Date.now();
+		// Both users below carry `passwordVersion`: users.password_changed_at read in the SAME query
+		// as the hash the password was checked against (`getUserByEmail` reads the whole users row;
+		// `verifyClientPasswordForSignIn` joins it). The jwt callback stores it, and a later reset or
+		// change ends the session (lib/auth/password-change.ts), even one whose query read the old
+		// hash while that change was being committed.
 		try {
 			const email = credentials.email as string;
 			const password = credentials.password as string;
@@ -110,7 +111,7 @@ export const credentialsProvider = Credentials({
 						tenantId: foundUser.tenantId ?? undefined,
 						isClient: false,
 						isAdmin: true,
-						signedInAt: signInStartedAt
+						passwordVersion: passwordVersionOf(foundUser.passwordChangedAt)
 					};
 				}
 				// Admin user found but password is invalid
@@ -121,9 +122,9 @@ export const credentialsProvider = Credentials({
 			const clientAccount = await getClientAccountByEmail(email);
 
 			if (clientAccount) {
-				const isClientPasswordValid = await verifyClientPassword(email, password);
+				const clientPassword = await verifyClientPasswordForSignIn(email, password);
 
-				if (isClientPasswordValid) {
+				if (clientPassword.valid) {
 					const clientProfile = await getClientProfileByUserId(clientAccount.userId);
 					if (!clientProfile) {
 						throw new Error(AuthErrorCode.PROFILE_NOT_FOUND);
@@ -182,7 +183,7 @@ export const credentialsProvider = Credentials({
 						image: null,
 						isClient: true,
 						isAdmin: false,
-						signedInAt: signInStartedAt
+						passwordVersion: passwordVersionOf(clientPassword.passwordChangedAt)
 					};
 					void logActivity(ActivityType.SIGN_IN, clientProfile.id, 'client', undefined, clientProfile.tenantId || undefined).catch(() => {});
 					return clientUser;

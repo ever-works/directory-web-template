@@ -39,5 +39,10 @@ declare module 'next-auth/jwt' {
 		 * A password reset or change after it ends the session (lib/auth/password-change.ts).
 		 */
 		signedInAt?: number;
+		/**
+		 * Credentials sign-ins only: users.password_changed_at (ms since the epoch, or null) read in
+		 * the same query as the password hash the sign-in checked. Any later value ends the session.
+		 */
+		passwordVersion?: number | null;
 	}
 }

@@ -9,10 +9,12 @@ import { describe, it } from 'node:test';
  * Sessions are JWTs that live for 30 days, and the server had no way to end one early. A password
  * reset or change did not end the sessions already signed in, so a reset after a password theft
  * left the attacker signed in. The fix stamps `users.password_changed_at` on every reset and
- * change, stamps the sign-in time on the token, and makes the jwt callback end a session that
- * signed in before the last change.
+ * change, binds a credentials session to the `password_changed_at` value read with the hash it
+ * checked (other sign-ins to their sign-in time), and makes the jwt callback end a session once
+ * the password changed after it signed in.
  *
- * `sessionPredatesPasswordChange` is pure and is tested directly. `lib/auth/index.ts`, the queries
+ * `sessionPredatesPasswordChange`, `signInPasswordVersion` and `passwordVersionOf` are pure and
+ * are tested directly. `lib/auth/index.ts`, the queries
  * and the route handler import NextAuth, the database or Next.js and cannot be loaded under
  * `tsx --test`, so those guards read the source (same approach as
  * `lib/db/queries/__tests__/password-store.spec.ts`).
@@ -48,8 +50,10 @@ const jwtCallback = () => {
 	return src.slice(start, end);
 };
 
-type Predicate = (signedInAt: unknown, passwordChangedAt: Date | null | undefined) => boolean;
-type Stamp = (authorizedAt: unknown, now: number) => number;
+type Claims = { signedInAt?: unknown; passwordVersion?: unknown };
+type Predicate = (session: Claims, passwordChangedAt: Date | null | undefined) => boolean;
+type Version = (fromAuthorize: unknown) => number | null | undefined;
+type VersionOf = (passwordChangedAt: Date | null | undefined) => number | null;
 
 /** Loaded per test, so a missing module fails each test on its own. */
 const loadPredicate = async (): Promise<Predicate> => {
@@ -64,86 +68,137 @@ const loadUnreadable = async (): Promise<symbol> => {
 	return mod.PASSWORD_CHANGE_UNREADABLE!;
 };
 
-const loadStamp = async (): Promise<Stamp> => {
-	const mod = (await import('../password-change')) as { signInStamp?: Stamp };
-	assert.equal(typeof mod.signInStamp, 'function', 'signInStamp is not exported');
-	return mod.signInStamp!;
+const loadVersion = async (): Promise<Version> => {
+	const mod = (await import('../password-change')) as { signInPasswordVersion?: Version };
+	assert.equal(typeof mod.signInPasswordVersion, 'function', 'signInPasswordVersion is not exported');
+	return mod.signInPasswordVersion!;
+};
+
+const loadVersionOf = async (): Promise<VersionOf> => {
+	const mod = (await import('../password-change')) as { passwordVersionOf?: VersionOf };
+	assert.equal(typeof mod.passwordVersionOf, 'function', 'passwordVersionOf is not exported');
+	return mod.passwordVersionOf!;
 };
 
 const SIGNED_IN = Date.UTC(2026, 10, 1, 12, 0, 0);
 
-describe('sessionPredatesPasswordChange', () => {
+describe('sessionPredatesPasswordChange: sign-ins that checked no password (signedInAt only)', () => {
 	it('CONTROL: keeps a session when the password was never changed', async () => {
 		const predates = await loadPredicate();
-		assert.equal(predates(SIGNED_IN, null), false);
-		assert.equal(predates(SIGNED_IN, undefined), false);
-		assert.equal(
-			predates(undefined, null),
-			false,
-			'a token from before stamping must survive while nothing changed'
-		);
+		assert.equal(predates({ signedInAt: SIGNED_IN }, null), false);
+		assert.equal(predates({ signedInAt: SIGNED_IN }, undefined), false);
+		assert.equal(predates({}, null), false, 'a token from before stamping must survive while nothing changed');
 	});
 
 	it('ends a session that signed in before the password was reset or changed', async () => {
 		const predates = await loadPredicate();
-		assert.equal(predates(SIGNED_IN, new Date(SIGNED_IN + 1)), true);
-		assert.equal(predates(SIGNED_IN, new Date(SIGNED_IN + 24 * 60 * 60 * 1000)), true);
+		assert.equal(predates({ signedInAt: SIGNED_IN }, new Date(SIGNED_IN + 1)), true);
+		assert.equal(predates({ signedInAt: SIGNED_IN }, new Date(SIGNED_IN + 24 * 60 * 60 * 1000)), true);
 	});
 
-	it('keeps a session that signed in with the new password, after the change', async () => {
+	it('keeps a session that signed in after the change', async () => {
 		const predates = await loadPredicate();
-		assert.equal(predates(SIGNED_IN, new Date(SIGNED_IN - 1)), false);
-		assert.equal(predates(SIGNED_IN, new Date(SIGNED_IN)), false);
+		assert.equal(predates({ signedInAt: SIGNED_IN }, new Date(SIGNED_IN - 1)), false);
+		assert.equal(predates({ signedInAt: SIGNED_IN }, new Date(SIGNED_IN)), false);
 	});
 
 	it('ends a session with no sign-in stamp once the password has changed', async () => {
 		const predates = await loadPredicate();
 		const changed = new Date(SIGNED_IN);
-		assert.equal(predates(undefined, changed), true);
-		assert.equal(predates(null, changed), true);
-		assert.equal(predates(String(SIGNED_IN + 1000), changed), true, 'a stamp that is not a number is no stamp');
-		assert.equal(predates(Number.NaN, changed), true);
+		assert.equal(predates({}, changed), true);
+		assert.equal(predates({ signedInAt: null }, changed), true);
+		assert.equal(
+			predates({ signedInAt: String(SIGNED_IN + 1000) }, changed),
+			true,
+			'a stamp that is not a number is no stamp'
+		);
+		assert.equal(predates({ signedInAt: Number.NaN }, changed), true);
 	});
 
 	it('ends a session when password_changed_at could not be read (fails closed)', async () => {
 		const [predates, unreadable] = await Promise.all([loadPredicate(), loadUnreadable()]);
-		const check = predates as (signedInAt: unknown, passwordChangedAt: unknown) => boolean;
+		const check = predates as (session: Claims, passwordChangedAt: unknown) => boolean;
 		// A database error must not read as "never changed": a reset after a password theft would
 		// then be undone for the stolen session for as long as the read fails.
-		assert.equal(check(SIGNED_IN, unreadable), true, 'a failed read keeps the session');
-		assert.equal(check(undefined, unreadable), true, 'a failed read keeps a session with no stamp');
-		assert.equal(check(Number.MAX_SAFE_INTEGER, unreadable), true, 'a failed read keeps a newer session');
+		assert.equal(check({ signedInAt: SIGNED_IN }, unreadable), true, 'a failed read keeps the session');
+		assert.equal(check({}, unreadable), true, 'a failed read keeps a session with no stamp');
+		assert.equal(
+			check({ signedInAt: Number.MAX_SAFE_INTEGER }, unreadable),
+			true,
+			'a failed read keeps a newer session'
+		);
+		assert.equal(
+			check({ signedInAt: SIGNED_IN, passwordVersion: null }, unreadable),
+			true,
+			'a failed read keeps a credentials session'
+		);
 	});
 });
 
-describe('signInStamp', () => {
-	it('CONTROL: a sign-in with no authorize time (OAuth, email link) is stamped now', async () => {
-		const stamp = await loadStamp();
-		assert.equal(stamp(undefined, SIGNED_IN), SIGNED_IN);
-		assert.equal(stamp(String(SIGNED_IN - 5), SIGNED_IN), SIGNED_IN);
-		assert.equal(stamp(Number.NaN, SIGNED_IN), SIGNED_IN);
+describe('sessionPredatesPasswordChange: credentials sign-ins (bound to the password version)', () => {
+	it('CONTROL: keeps a session while the password version it signed in with is current', async () => {
+		const predates = await loadPredicate();
+		assert.equal(predates({ signedInAt: SIGNED_IN, passwordVersion: null }, null), false);
+		assert.equal(predates({ signedInAt: SIGNED_IN, passwordVersion: null }, undefined), false, 'no users row');
+		const changed = new Date(SIGNED_IN - 60_000);
+		assert.equal(predates({ signedInAt: SIGNED_IN, passwordVersion: changed.getTime() }, changed), false);
 	});
 
-	it('stamps the time authorize started, and never a time in the future', async () => {
-		const stamp = await loadStamp();
-		assert.equal(stamp(SIGNED_IN - 900, SIGNED_IN), SIGNED_IN - 900);
-		assert.equal(stamp(SIGNED_IN + 60_000, SIGNED_IN), SIGNED_IN);
+	it('ends the session once the password version changes', async () => {
+		const predates = await loadPredicate();
+		assert.equal(predates({ signedInAt: SIGNED_IN, passwordVersion: null }, new Date(SIGNED_IN + 1)), true);
+		const earlier = SIGNED_IN - 60_000;
+		assert.equal(predates({ signedInAt: SIGNED_IN, passwordVersion: earlier }, new Date(SIGNED_IN + 1)), true);
+		// The version decides, not the clocks: a version that differs ends the session even when
+		// the change looks older than the sign-in.
+		assert.equal(predates({ signedInAt: SIGNED_IN, passwordVersion: earlier }, new Date(SIGNED_IN - 1)), true);
+		assert.equal(predates({ signedInAt: SIGNED_IN, passwordVersion: Number.NaN }, null), true);
+		assert.equal(predates({ signedInAt: SIGNED_IN, passwordVersion: String(earlier) }, new Date(earlier)), true);
 	});
 
-	it('ends a sign-in that checked the OLD password while a reset committed', async () => {
-		const [stamp, predates] = await Promise.all([loadStamp(), loadPredicate()]);
-		// authorize starts and reads the old hash; bcrypt runs for ~900 ms; meanwhile the reset
-		// commits at +100 ms; the jwt callback runs at +900 ms.
-		const authorizeStarted = SIGNED_IN;
-		const resetAt = new Date(SIGNED_IN + 100);
-		const jwtCallbackAt = SIGNED_IN + 900;
+	it('REGRESSION: ends a sign-in that read the old hash after the change took its time, before it committed', async () => {
+		const [predates, versionOf] = await Promise.all([loadPredicate(), loadVersionOf()]);
+		// setUserPasswordHash takes changedAt = +100 and commits at +105. A sign-in starts at +101,
+		// and its query, before the commit, reads the OLD hash with the old password_changed_at
+		// (null: never changed). The old password passes bcrypt; the jwt callback runs at +106.
+		const changedAt = new Date(SIGNED_IN + 100);
+		const oldPasswordSignIn = { signedInAt: SIGNED_IN + 106, passwordVersion: versionOf(null) };
 		assert.equal(
-			predates(stamp(authorizeStarted, jwtCallbackAt), resetAt),
+			predates(oldPasswordSignIn, changedAt),
 			true,
-			'the old-password sign-in survives the reset'
+			'the session that proved the old password survives the change'
 		);
-		// A sign-in that starts after the reset (with the new password) is kept.
-		assert.equal(predates(stamp(SIGNED_IN + 200, SIGNED_IN + 1100), resetAt), false);
+		// The same race against a later change: the old version is the first change's time.
+		const secondChange = new Date(SIGNED_IN + 200);
+		assert.equal(
+			predates({ signedInAt: SIGNED_IN + 206, passwordVersion: versionOf(changedAt) }, secondChange),
+			true
+		);
+		// A sign-in whose query ran after the commit read the new hash with the new version: kept.
+		const newPasswordSignIn = { signedInAt: SIGNED_IN + 110, passwordVersion: versionOf(changedAt) };
+		assert.equal(predates(newPasswordSignIn, changedAt), false, 'a sign-in with the new password is ended');
+	});
+});
+
+describe('signInPasswordVersion and passwordVersionOf', () => {
+	it('stores what authorize read: a version or null', async () => {
+		const version = await loadVersion();
+		assert.equal(version(SIGNED_IN), SIGNED_IN);
+		assert.equal(version(null), null, 'a password never changed is version null, not "no version"');
+	});
+
+	it('CONTROL: a sign-in that checked no password (OAuth, email link) gets no version', async () => {
+		const version = await loadVersion();
+		assert.equal(version(undefined), undefined);
+		assert.equal(version(String(SIGNED_IN)), undefined);
+		assert.equal(version(Number.NaN), undefined);
+	});
+
+	it('passwordVersionOf is password_changed_at in ms, or null', async () => {
+		const versionOf = await loadVersionOf();
+		assert.equal(versionOf(new Date(SIGNED_IN)), SIGNED_IN);
+		assert.equal(versionOf(null), null);
+		assert.equal(versionOf(undefined), null);
 	});
 });
 
@@ -191,8 +246,8 @@ describe('a password reset or change ends the sessions signed in before it', () 
 			'setUserPasswordHash does not stamp the users row of every user, whatever store holds the hash'
 		);
 		assert.ok(helper.includes('const changedAt = new Date();'), 'the change time is not taken once, as now');
-		// Taken after the hash updates hold the row locks, right before the stamp: the closer to
-		// the commit, the smaller the window for a sign-in that still reads the old hash.
+		// Taken after the hash updates hold the row locks, right before the stamp, so a concurrent
+		// change that commits later stamps a later time (a different password version).
 		const changedAtIndex = helper.indexOf('const changedAt = new Date();');
 		// indexOf answers -1 for a missing update, which would pass the ordering check below.
 		const accountsUpdate = helper.indexOf('.update(accounts)');
@@ -205,28 +260,74 @@ describe('a password reset or change ends the sessions signed in before it', () 
 		);
 	});
 
-	it('the credentials authorize takes the sign-in time before it reads a password hash', () => {
+	it('the credentials authorize returns the password version read in the same query as the hash it checks', () => {
 		const src = code('lib/auth/credentials.ts');
 		const start = src.indexOf('authorize: async (credentials) => {');
 		assert.ok(start >= 0, 'authorize not found');
 		const authorize = src.slice(start);
-		const startedAt = authorize.indexOf('const signInStartedAt = Date.now();');
-		assert.ok(startedAt >= 0, 'authorize does not take its start time');
-		assert.ok(startedAt < authorize.indexOf('await '), 'the start time is taken after the first await');
-		const returned = authorize.match(/signedInAt: signInStartedAt/g) ?? [];
-		assert.equal(returned.length, 2, 'the admin and the client user do not both carry the start time');
+		// Admin: getUserByEmail reads the whole users row, hash and password_changed_at together.
+		assert.ok(
+			authorize.includes('passwordVersion: passwordVersionOf(foundUser.passwordChangedAt)'),
+			'the admin user does not carry the version read with users.passwordHash'
+		);
+		const getUserByEmail = functionBody(
+			code('lib/db/queries/user.queries.ts'),
+			'export async function getUserByEmail('
+		);
+		assert.ok(
+			getUserByEmail.includes('.select() .from(users)'),
+			'getUserByEmail no longer reads the hash and password_changed_at in one row read'
+		);
+		// Client: the hash lives on accounts, so the check joins users in the same statement.
+		assert.ok(
+			authorize.includes('const clientPassword = await verifyClientPasswordForSignIn(email, password);'),
+			'the client password is not checked with verifyClientPasswordForSignIn'
+		);
+		assert.ok(
+			!authorize.includes('verifyClientPassword('),
+			'authorize checks a client password without reading its version'
+		);
+		assert.ok(
+			authorize.includes('passwordVersion: passwordVersionOf(clientPassword.passwordChangedAt)'),
+			'the client user does not carry the version read with the credentials account hash'
+		);
+		const returned = authorize.match(/passwordVersion: passwordVersionOf\(/g) ?? [];
+		assert.equal(returned.length, 2, 'the admin and the client user do not both carry a password version');
+		const verify = functionBody(
+			code('lib/db/queries/client.queries.ts'),
+			'export async function verifyClientPasswordForSignIn('
+		);
+		assert.ok(
+			verify.includes(
+				'.select({ passwordHash: accounts.passwordHash, passwordChangedAt: users.passwordChangedAt }) .from(accounts) .leftJoin(users, eq(users.id, accounts.userId))'
+			),
+			'verifyClientPasswordForSignIn does not read the hash and password_changed_at in one statement'
+		);
+		assert.ok(
+			verify.includes('const valid = await comparePasswords(password, account.passwordHash);'),
+			'verifyClientPasswordForSignIn does not check the hash it read'
+		);
+		assert.ok(
+			verify.includes('return { valid, passwordChangedAt: account.passwordChangedAt ?? null };'),
+			'verifyClientPasswordForSignIn does not return the version read with the hash'
+		);
 	});
 
-	it('the jwt callback stamps the sign-in time only when a user signs in', () => {
+	it('the jwt callback stamps the sign-in only when a user signs in', () => {
 		const jwt = jwtCallback();
 		assert.ok(
-			jwt.includes('if (user) { token.signedInAt = signInStamp(extendedUser?.signedInAt, Date.now()); }'),
-			'the sign-in time is not stamped on sign-in from the authorize start time'
+			jwt.includes(
+				'if (user) { token.signedInAt = Date.now(); const passwordVersion = signInPasswordVersion(extendedUser?.passwordVersion); if (passwordVersion !== undefined) { token.passwordVersion = passwordVersion; } }'
+			),
+			'the sign-in time and the password version are not stamped on sign-in'
 		);
 		const writes = jwt.match(/token\.signedInAt =/g) ?? [];
 		assert.equal(writes.length, 1, 'token.signedInAt is written somewhere other than on sign-in');
+		const versionWrites = jwt.match(/token\.passwordVersion =/g) ?? [];
+		assert.equal(versionWrites.length, 1, 'token.passwordVersion is written somewhere other than on sign-in');
 		// `trigger: 'update'` carries data the browser sends; it must never move the stamp.
 		assert.ok(!/signedInAt[^;]*session\./.test(jwt), 'the stamp is taken from update data');
+		assert.ok(!/passwordVersion[^;]*session\./.test(jwt), 'the password version is taken from update data');
 		assert.ok(!jwt.includes('token.iat'), 'the callback reads iat, which Auth.js re-issues on refresh');
 	});
 
@@ -242,16 +343,14 @@ describe('a password reset or change ends the sessions signed in before it', () 
 			'the refresh query does not read passwordChangedAt with deactivatedAt'
 		);
 		assert.ok(
-			/if \(sessionPredatesPasswordChange\(token\.signedInAt, passwordChangedAt\)\) \{ return null; \}/.test(
-				branch
-			),
+			/if \(sessionPredatesPasswordChange\(token, passwordChangedAt\)\) \{ return null; \}/.test(branch),
 			'the refresh branch does not end (return null for) a session older than the password change'
 		);
 		assert.ok(
 			code('lib/auth/index.ts').includes(
-				"import { PASSWORD_CHANGE_UNREADABLE, sessionPredatesPasswordChange, signInStamp, type PasswordChangeRead } from './password-change';"
+				"import { PASSWORD_CHANGE_UNREADABLE, sessionPredatesPasswordChange, signInPasswordVersion, type PasswordChangeRead } from './password-change';"
 			),
-			'lib/auth/index.ts does not import PASSWORD_CHANGE_UNREADABLE, sessionPredatesPasswordChange and signInStamp'
+			'lib/auth/index.ts does not import PASSWORD_CHANGE_UNREADABLE, sessionPredatesPasswordChange and signInPasswordVersion'
 		);
 	});
 
@@ -323,5 +422,22 @@ describe('a password reset or change ends the sessions signed in before it', () 
 				`bounces from /auth/signin: ${bounce}`
 			);
 		}
+	});
+
+	it("with provider 'both', a NextAuth token on /auth/signin is not sent to the dashboard for a Supabase user", () => {
+		const proxy = code('proxy.ts');
+		const start = proxy.indexOf("if (pathWithoutLocale.startsWith('/auth/')) {");
+		assert.ok(start >= 0, 'the /auth/* redirect in proxy.ts not found');
+		const both = proxy.indexOf("} else if (cfg.provider === 'both') {", start);
+		assert.ok(both > start, "the 'both' branch of the /auth/* redirect not found");
+		const branch = proxy.slice(both);
+		// An ended NextAuth token still decodes. The /client/* guard lets it through and the page's
+		// auth() sends it back to /auth/signin, so a Supabase redirect to the dashboard would loop.
+		const keep = branch.indexOf('if (token) { return intlResponse; }');
+		assert.ok(keep >= 0, "the 'both' branch does not render /auth/signin for a NextAuth token");
+		const bounce = branch.indexOf('if (token && !keepNextAuthTokenOnPage)');
+		const supabase = branch.indexOf('.auth.getUser()');
+		assert.ok(bounce >= 0 && supabase >= 0, "the 'both' branch checks not found");
+		assert.ok(bounce < keep && keep < supabase, 'a NextAuth token on /auth/signin reaches the Supabase redirect');
 	});
 });

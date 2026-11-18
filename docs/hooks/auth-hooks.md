@@ -241,7 +241,7 @@ useSecuritySettings(): UseQueryResult<SecuritySettings>
 | Field | Type | Description |
 |-------|------|-------------|
 | `twoFactorEnabled` | `boolean` | Whether 2FA is active |
-| `lastPasswordChange` | `string \| null` | ISO timestamp of the last password reset or change (`users.password_changed_at`); `null` until the first one |
+| `lastPasswordChange` | `string \| null` | ISO timestamp of the last password reset or change (`users.password_changed_at`); `null` when none has been recorded since the column was added (migration 0043, no backfill) |
 | `activeSessionsCount` | `number` | Number of active sessions |
 | `loginAttemptsCount` | `number` | Recent login attempts count |
 | `accountLocked` | `boolean` | Whether the account is locked |

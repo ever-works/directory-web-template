@@ -17,7 +17,7 @@ import { getRuntimeAuthSecret, getRuntimeAuthSecretSource } from './auth-secret'
 import {
 	PASSWORD_CHANGE_UNREADABLE,
 	sessionPredatesPasswordChange,
-	signInStamp,
+	signInPasswordVersion,
 	type PasswordChangeRead
 } from './password-change';
 export * from '../payment/config/payment-provider-manager';
@@ -30,8 +30,11 @@ interface ExtendedUser {
 	isClient?: boolean;
 	clientProfileId?: string;
 	tenantId?: string;
-	/** When the credentials `authorize` started, before it read the password hash (ms). */
-	signedInAt?: number;
+	/**
+	 * Credentials only: users.password_changed_at (ms, or null) read in the same query as the
+	 * password hash `authorize` checked (lib/auth/credentials.ts).
+	 */
+	passwordVersion?: number | null;
 }
 
 function createDevelopmentAuthSecret(): string {
@@ -199,13 +202,19 @@ export const { handlers, auth, signIn, signOut, unstable_update } = NextAuth({
 			const extendedUser = user as ExtendedUser;
 
 			try {
-				// Stamp the sign-in time; a later password reset or change ends this session (see
-				// the refresh branch below). Only on sign-in, when `user` is present: never from
+				// Stamp the sign-in; a later password reset or change ends this session (see the
+				// refresh branch below). Only on sign-in, when `user` is present: never from
 				// `trigger === 'update'` data, which the browser sends, and not `iat`, which
-				// Auth.js re-issues on every refresh. For credentials it is the time `authorize`
-				// started, before the password check (`signInStamp`).
+				// Auth.js re-issues on every refresh. A credentials sign-in also carries the
+				// password version its query read with the hash it checked (`passwordVersion`),
+				// which binds the session to that password; other sign-ins check no password and
+				// are judged by `signedInAt` alone (lib/auth/password-change.ts).
 				if (user) {
-					token.signedInAt = signInStamp(extendedUser?.signedInAt, Date.now());
+					token.signedInAt = Date.now();
+					const passwordVersion = signInPasswordVersion(extendedUser?.passwordVersion);
+					if (passwordVersion !== undefined) {
+						token.passwordVersion = passwordVersion;
+					}
 				}
 				if (extendedUser?.id && typeof extendedUser.id === 'string') {
 					token.userId = extendedUser.id;
@@ -303,10 +312,11 @@ export const { handlers, auth, signIn, signOut, unstable_update } = NextAuth({
 							error instanceof Error ? { name: error.name } : undefined
 						);
 					}
-					// A password reset or change after this session signed in ends it, so a reset
-					// after a password theft locks the old sessions out. Returning null ends it:
+					// A password reset or change after this session signed in (for credentials: any
+					// change of the password version it signed in with) ends it, so a reset after a
+					// password theft locks the old sessions out. Returning null ends it:
 					// auth() returns no session, and the Auth.js session endpoint clears the cookie.
-					if (sessionPredatesPasswordChange(token.signedInAt, passwordChangedAt)) {
+					if (sessionPredatesPasswordChange(token, passwordChangedAt)) {
 						return null;
 					}
 				}

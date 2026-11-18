@@ -964,15 +964,34 @@ export async function hasClientAccess(userId: string): Promise<boolean> {
  * @returns True if password is valid, false otherwise
  */
 export async function verifyClientPassword(email: string, password: string): Promise<boolean> {
+	return (await verifyClientPasswordForSignIn(email, password)).valid;
+}
+
+/**
+ * Verify a client password for sign-in, and return the password version it was checked against:
+ * `users.password_changed_at`, read in the SAME statement as the credentials account hash. One
+ * statement sees one committed state, and `setUserPasswordHash` writes both in one transaction,
+ * so the old hash always comes with the old version. The session stores that version and ends
+ * once it differs (lib/auth/password-change.ts), even when the sign-in read the old hash while
+ * a change was being committed.
+ * @param email - Client email
+ * @param password - Plain text password to verify
+ * @returns Whether the password is valid, and `password_changed_at` read with the hash
+ */
+export async function verifyClientPasswordForSignIn(
+	email: string,
+	password: string
+): Promise<{ valid: boolean; passwordChangedAt: Date | null }> {
 	try {
 		const normalizedEmail = email.toLowerCase().trim();
 		const tenantId = await getTenantId();
-		if (!tenantId) return false;
+		if (!tenantId) return { valid: false, passwordChangedAt: null };
 
 		// Get credentials account specifically (not OAuth accounts)
 		const [account] = await db
-			.select()
+			.select({ passwordHash: accounts.passwordHash, passwordChangedAt: users.passwordChangedAt })
 			.from(accounts)
+			.leftJoin(users, eq(users.id, accounts.userId))
 			.where(
 				and(
 					eq(accounts.provider, 'credentials'),
@@ -982,20 +1001,16 @@ export async function verifyClientPassword(email: string, password: string): Pro
 			)
 			.limit(1);
 
-		if (!account) {
-			return false;
+		if (!account?.passwordHash) {
+			return { valid: false, passwordChangedAt: null };
 		}
 
-		if (!account.passwordHash) {
-			return false;
-		}
+		const valid = await comparePasswords(password, account.passwordHash);
 
-		const isValid = await comparePasswords(password, account.passwordHash);
-
-		return isValid;
+		return { valid, passwordChangedAt: account.passwordChangedAt ?? null };
 	} catch (error) {
 		console.error('Error verifying client password:', error);
-		return false;
+		return { valid: false, passwordChangedAt: null };
 	}
 }
 

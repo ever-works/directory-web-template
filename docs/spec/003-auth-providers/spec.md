@@ -75,7 +75,9 @@ modifying core code so my upstream stays clean.
 - [x] AC-9: A password reset or change ends every session that signed
   in before it (T-2636, PR #1147). `setUserPasswordHash` stamps
   `users.password_changed_at`; the jwt callback stamps
-  `token.signedInAt` at sign-in and, on every later `auth()` /
+  `token.signedInAt` at sign-in (and, for credentials, the
+  `password_changed_at` value read with the checked hash as
+  `token.passwordVersion`) and, on every later `auth()` /
   `/api/auth/session` read, returns `null` for a session that signed in
   before the change, or whose change time cannot be read (fails closed).
   See [Session Management](../../authentication/session-management.md#a-password-reset-or-change-ends-older-sessions).
@@ -114,7 +116,7 @@ architecture (`AuthProvider` adapter) tracked in
   so an outage signs out the sessions used during it. `proxy.ts` decodes
   the cookie without the jwt callback, so the authorization stays with
   `auth()`; the admin survey edit, preview and responses pages read the
-  survey without it (documented in `docs/authentication/`).
+  survey without it (documented in `docs/authentication/`; T-2645).
 - **Open:** should we ship Passkey support? See `docs/questions.md`.
 
 ## 12. Acceptance Test Plan

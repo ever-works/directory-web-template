@@ -136,9 +136,10 @@ export async function setUserPasswordHash(userId: string, newPasswordHash: strin
 				)
 			)
 			.returning({ id: users.id });
-		// Taken after the updates above hold the row locks, as close to the commit as possible: a
-		// sign-in that read the old hash started before this (lib/auth/password-change.ts), and a
-		// concurrent change that commits later also stamps a later time.
+		// Taken after the updates above hold the row locks, so a concurrent change that commits
+		// later also stamps a later time. A credentials session is bound to the value its sign-in
+		// query read together with the hash, not to this time, so a sign-in that reads the old hash
+		// before this transaction commits still ends (lib/auth/password-change.ts).
 		const changedAt = new Date();
 		// Not tied to the condition above: a client's users row holds no hash and is skipped
 		// there, but its sessions must end too.

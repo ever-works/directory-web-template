@@ -609,6 +609,14 @@ export default async function proxy(req: NextRequest) {
 				intlResponse.cookies.getAll().forEach((c) => redirectRes.cookies.set(c));
 				return redirectRes;
 			}
+			// A NextAuth token on /auth/signin (possibly one the jwt callback has ended) renders the
+			// sign-in page, as with provider 'next-auth'. Sending it to the dashboard because Supabase
+			// also has a user would loop: the /client/* guard lets the decodable token through, the
+			// page's auth() finds no session and sends it back here. Once the page's session call
+			// has cleared the dead cookie, the Supabase check below applies again.
+			if (token) {
+				return intlResponse;
+			}
 
 			// Then check Supabase
 			await supabaseUpdate(req);
