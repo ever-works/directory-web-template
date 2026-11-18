@@ -178,8 +178,7 @@ async function parseItem(base: string, filename: string) {
   const sanitizedFilename = sanitizeFilename(filename);
   const filepath = path.join(base, sanitizedFilename);
   const content = await safeReadFile(filepath, base);
-  const meta = yaml.parse(content) as ItemData;
-  meta.slug = path.basename(sanitizedFilename, path.extname(sanitizedFilename));
+  const slug = path.basename(sanitizedFilename, path.extname(sanitizedFilename));
   // lib/item-yaml.ts: updatedAt is undefined when updated_at is missing or not a date, never a throw
   return parseItemYaml(content, slug);
 }

@@ -25,14 +25,19 @@ describe('parseItemUpdatedAt', () => {
 	});
 
 	it('answers undefined, without throwing, when the date is missing or not a date', () => {
-		for (const raw of [undefined, null, '', '   ', 42, {}, 'not a date', new Date(Number.NaN)]) {
+		for (const raw of [undefined, null, '', '   ', 42, {}, 'not a date', new Date(Number.NaN), '2025-02-30 10:00', '2025-02-30T05:06:00.000Z', '2025-02-30']) {
 			assert.equal(parseItemUpdatedAt(raw), undefined, String(raw));
 		}
 	});
 
 	it('accepts an ISO timestamp, a bare date and a Date', () => {
 		assert.equal(parseItemUpdatedAt('2025-03-04T05:06:00.000Z')?.toISOString(), '2025-03-04T05:06:00.000Z');
-		assert.equal(parseItemUpdatedAt('2025-03-04')?.getUTCDate(), 4);
+		assert.deepEqual(
+			[parseItemUpdatedAt('2025-03-04')?.getDate(), parseItemUpdatedAt('2025-03-04')?.getHours()],
+			[4, 0],
+			'a bare date is local midnight'
+		);
+		assert.equal(parseItemUpdatedAt(' 2025-03-04 05:06 ')?.getMinutes(), 6);
 		const date = new Date('2025-03-04T05:06:00.000Z');
 		assert.equal(parseItemUpdatedAt(date), date);
 	});
@@ -63,8 +68,11 @@ describe('the item parser', () => {
 		assert.equal('markdown' in item, false);
 	});
 
-	it('parses a dated item, and drops a non-string updated_at', () => {
+	it('parses a dated item, keeps updated_at trimmed, and drops a non-string updated_at', () => {
 		assert.equal(parseItemYaml(yamlOf("updated_at: '2025-03-04 05:06'"), 'x').updatedAt?.getMinutes(), 6);
+		const padded = parseItemYaml(yamlOf('updated_at: "2025-03-04T05:06:00.000Z "'), 'x');
+		assert.equal(padded.updated_at, '2025-03-04T05:06:00.000Z');
+		assert.equal(padded.updatedAt?.toISOString(), '2025-03-04T05:06:00.000Z');
 		const numeric = parseItemYaml(yamlOf('updated_at: 1700000000'), 'x');
 		assert.equal(numeric.updatedAt, undefined);
 		assert.equal('updated_at' in numeric, false);
@@ -85,14 +93,24 @@ describe('buildFeedEntries', () => {
 
 	it('sorts dated items newest first and leaves out undated ones', () => {
 		const entries = buildFeedEntries(
-			[item('old', '2024-01-01 10:00'), item('undated'), item('new', '2025-06-01 10:00'), item('bad', 'soon')],
+			[
+				item('old', '2024-01-01 10:00'),
+				item('undated'),
+				item('new', '2025-06-01 10:00'),
+				item('bad', 'soon'),
+				item('feb30', '2025-02-30'),
+				item('epoch', '1970-01-01T00:00:00.000Z'),
+				item('pre-epoch', '1969-07-20T20:17:00.000Z')
+			],
 			config
 		);
 		assert.deepEqual(
 			entries.map((e) => [e.guid, e.pubDate]),
 			[
 				['https://example.com/items/new', '2025-06-01 10:00'],
-				['https://example.com/items/old', '2024-01-01 10:00']
+				['https://example.com/items/old', '2024-01-01 10:00'],
+				['https://example.com/items/epoch', '1970-01-01T00:00:00.000Z'],
+				['https://example.com/items/pre-epoch', '1969-07-20T20:17:00.000Z']
 			]
 		);
 	});
