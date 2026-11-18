@@ -194,10 +194,13 @@ describe('a password reset or change ends the sessions signed in before it', () 
 		// Taken after the hash updates hold the row locks, right before the stamp: the closer to
 		// the commit, the smaller the window for a sign-in that still reads the old hash.
 		const changedAtIndex = helper.indexOf('const changedAt = new Date();');
+		// indexOf answers -1 for a missing update, which would pass the ordering check below.
+		const accountsUpdate = helper.indexOf('.update(accounts)');
+		const usersHashUpdate = helper.indexOf('.set({ passwordHash: newPasswordHash, updatedAt:');
+		assert.ok(accountsUpdate >= 0, 'setUserPasswordHash no longer updates the credentials account hash');
+		assert.ok(usersHashUpdate >= 0, 'setUserPasswordHash no longer updates users.passwordHash');
 		assert.ok(
-			changedAtIndex > helper.indexOf('.update(accounts)') &&
-				changedAtIndex > helper.indexOf('.set({ passwordHash: newPasswordHash, updatedAt:') &&
-				changedAtIndex < stamp,
+			changedAtIndex > accountsUpdate && changedAtIndex > usersHashUpdate && changedAtIndex < stamp,
 			'the change time is not taken after the hash updates, right before the stamp'
 		);
 	});
