@@ -21,7 +21,11 @@ const commentQueries = source('../../db/queries/comment.queries.ts');
 
 describe('item page aggregateRating wiring (spec 057)', () => {
 	it('the page summarises the prefetched comments only while the ratings feature is on', () => {
-		const prefetch = page.indexOf("queryKey: ['comments', slug], queryFn: () => getCommentsByItemId(slug)");
+		// Spec 061: the item page is cached (ISR), so it prefetches for the tenant
+		// resolved without the request.
+		const prefetch = page.indexOf(
+			"queryKey: ['comments', slug], queryFn: () => getCommentsByItemId(slug, { tenantId: sharedTenantId })"
+		);
 		const summary = page.indexOf(
 			'const rating = ratingWhenEnabled( summarizeRatings((prefetchedComments ?? []).map((comment) => comment.rating)), getFeatureFlags().ratings );'
 		);

@@ -24,6 +24,15 @@ function overridesAllowed(): boolean {
 	return process.env.E2E_ALLOW_TEST_OVERRIDES === 'true' && process.env.NODE_ENV !== 'production';
 }
 
+/**
+ * Whether the test-override cookie can have any effect. Callers in shared page
+ * layouts check this before reading cookies, so production pages never touch a
+ * request-scoped API and stay statically cacheable (Spec 061).
+ */
+export function aiChatTestOverridesAllowed(): boolean {
+	return overridesAllowed();
+}
+
 function tokenMatches(value: string | undefined | null): boolean {
 	if (!value) return false;
 	const expected = process.env.E2E_TEST_OVERRIDE_TOKEN ?? ENABLED_TOKEN;

@@ -61,9 +61,14 @@ export async function getRecentCommentsByClientProfile(
  * @param itemSlug - Item slug
  * @returns Array of comments with user details
  */
-export async function getCommentsByItemId(itemSlug: string): Promise<CommentWithUser[]> {
+export async function getCommentsByItemId(
+	itemSlug: string,
+	options: { tenantId?: string } = {}
+): Promise<CommentWithUser[]> {
 	const itemId = getItemIdFromSlug(itemSlug);
-	const tenantId = await getTenantId();
+	// A caller rendering cached, shared output passes the tenant it resolved without
+	// the request (see getTenantIdForSharedRender); everyone else resolves it here.
+	const tenantId = options.tenantId ?? (await getTenantId());
 	if (!tenantId) return [];
 	return db
 		.select({

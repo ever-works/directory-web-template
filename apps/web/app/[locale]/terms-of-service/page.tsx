@@ -1,7 +1,7 @@
 export const revalidate = 3600;
 
 import { Metadata } from 'next';
-import { getTranslations } from 'next-intl/server';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 import Link from 'next/link';
 import { PageContainer } from '@/components/ui/container';
 import { MDX } from '@/components/mdx';
@@ -41,6 +41,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function TermsOfServicePage({ params }: PageProps) {
   const { locale} = await params;
+  // Sets the request locale for next-intl's server helpers, so they do not read it
+  // from the request headers, which makes a page render per request (Spec 061).
+  setRequestLocale(locale);
   const pageData = await getCachedPageContent('terms-of-service', locale);
 
   // Use default content if no MDX file exists

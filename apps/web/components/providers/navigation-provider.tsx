@@ -1,14 +1,27 @@
 'use client';
 
-import React, { createContext, useContext, useEffect, useRef, useState } from 'react';
+import React, { Suspense, createContext, useContext, useEffect, useRef, useState } from 'react';
 import { usePathname, useSearchParams } from 'next/navigation';
 
 interface NavigationContextType {
 	isInitialLoad: boolean;
 	isNavigating: boolean;
+	/** Current query string without `?`; `null` until known in the browser. */
+	search: string | null;
 }
 
 const NavigationContext = createContext<NavigationContextType | null>(null);
+
+/**
+ * Current query string (without `?`), or `''` until it is known in the browser.
+ *
+ * Use this instead of `useSearchParams()` in components that render page content
+ * on cached (ISR) pages: `useSearchParams()` there bails the component tree out
+ * to client rendering up to the closest Suspense boundary (Spec 061).
+ */
+export function useCurrentSearch(): string {
+	return useContext(NavigationContext)?.search ?? '';
+}
 
 export function useNavigation(): NavigationContextType {
 	const context = useContext(NavigationContext);
@@ -46,16 +59,33 @@ function isInternalNavigationTarget(anchor: HTMLAnchorElement): boolean {
 	}
 }
 
+/**
+ * Reports the query string to NavigationProvider. Kept in its own component
+ * behind a Suspense boundary: `useSearchParams()` in a statically rendered page
+ * bails out to client rendering up to the closest Suspense boundary, and the
+ * provider wraps the whole app, so reading it there would have left every
+ * cached (ISR) page with an empty server-rendered body (Spec 061).
+ */
+function SearchParamsReporter({ onChange }: { onChange: (search: string) => void }) {
+	const searchParams = useSearchParams();
+	const search = searchParams?.toString() || '';
+	useEffect(() => {
+		onChange(search);
+	}, [search, onChange]);
+	return null;
+}
+
 export function NavigationProvider({ children }: NavigationProviderProps) {
 	const pathname = usePathname();
-	const searchParams = useSearchParams();
+	// `null` until SearchParamsReporter has run in the browser.
+	const [search, setSearch] = useState<string | null>(null);
 	const previousRouteRef = useRef<string | null>(null);
 	const navigationTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
 	const [isInitialLoad, setIsInitialLoad] = useState(true);
 	const [isNavigating, setIsNavigating] = useState(false);
 
-	const currentRoute = `${pathname}?${searchParams?.toString() || ''}`;
+	const currentRoute = search === null ? null : `${pathname}?${search}`;
 
 	useEffect(() => {
 		const handleDocumentClick = (event: MouseEvent) => {
@@ -81,7 +111,7 @@ export function NavigationProvider({ children }: NavigationProviderProps) {
 			}
 
 			const nextRoute = `${anchor.pathname}${anchor.search}`;
-			if (nextRoute === currentRoute) {
+			if (nextRoute === (currentRoute ?? `${pathname}?`)) {
 				return;
 			}
 
@@ -90,9 +120,12 @@ export function NavigationProvider({ children }: NavigationProviderProps) {
 
 		document.addEventListener('click', handleDocumentClick, true);
 		return () => document.removeEventListener('click', handleDocumentClick, true);
-	}, [currentRoute]);
+	}, [currentRoute, pathname]);
 
 	useEffect(() => {
+		if (currentRoute === null) {
+			return;
+		}
 		if (previousRouteRef.current === null) {
 			previousRouteRef.current = currentRoute;
 			return;
@@ -125,9 +158,13 @@ export function NavigationProvider({ children }: NavigationProviderProps) {
 		<NavigationContext.Provider
 			value={{
 				isInitialLoad,
-				isNavigating
+				isNavigating,
+				search
 			}}
 		>
+			<Suspense fallback={null}>
+				<SearchParamsReporter onChange={setSearch} />
+			</Suspense>
 			{children}
 		</NavigationContext.Provider>
 	);
