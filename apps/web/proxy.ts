@@ -21,7 +21,6 @@ import { getToken } from 'next-auth/jwt';
 import { createSafeCallbackUrl } from '@/lib/auth/validate-callback-url';
 import { DEFAULT_LOCALE, type Locale } from '@/lib/constants';
 import { isSupportedLocale } from '@/lib/i18n/locale-names';
-import { isStartupProbeRequest } from '@/lib/startup-probe';
 
 const intl = createIntlMiddleware(routing);
 
@@ -398,13 +397,8 @@ function isCachedListingTwinPath(pathWithoutLocale: string): boolean {
 }
 
 export default async function proxy(req: NextRequest) {
-	const originalPathname = req.nextUrl.pathname;
-	// Kubernetes' startup probe asks whether the server is up, not for a cold render of the
-	// whole catalogue (`lib/startup-probe.ts`, Spec 061).
-	if (isStartupProbeRequest(originalPathname, req.headers.get('user-agent'))) {
-		return new NextResponse('ok', { status: 200, headers: { 'Cache-Control': 'no-store' } });
-	}
 	const cfg = getAuthConfig();
+	const originalPathname = req.nextUrl.pathname;
 
 	// Inject x-tenant-domain header for subdomain tenant routing
 	const hostname = req.headers.get('host') || '';
