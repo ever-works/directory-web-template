@@ -8,17 +8,25 @@
  * Note: this route runs in the Node.js runtime because the in-memory
  * pub/sub relies on a shared `EventEmitter` (per-process). On Vercel
  * Serverless functions the connection lives for the function timeout;
- * on long-running deployments it stays open until the client closes.
+ * on long-running deployments it stays open until the client closes or
+ * the session ends: every 25 s ping re-reads the user's password version
+ * and deactivation state and closes the stream once a password reset or
+ * change (spec-003 AC-9) or a deactivation has ended the session it opened
+ * with (lib/notifications/stream.ts).
  */
 
 import { auth } from '@/lib/auth';
+import { passwordVersionOf } from '@/lib/auth/password-change';
+import { getUserSessionState } from '@/lib/db/queries/user.queries';
 import { notificationPubSub } from '@/lib/notifications/pubsub';
-import type { NotificationListItem } from '@/lib/notifications/types';
+import {
+	createNotificationStream,
+	notificationStreamSessionHolds,
+	type NotificationStreamSession
+} from '@/lib/notifications/stream';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
-
-const HEARTBEAT_MS = 25_000;
 
 export async function GET(req: Request) {
 	const session = await auth();
@@ -27,36 +35,31 @@ export async function GET(req: Request) {
 	}
 	const userId = session.user.id;
 
-	const stream = new ReadableStream({
-		start(controller) {
-			const encoder = new TextEncoder();
-			const send = (event: string, data: unknown) => {
-				try {
-					controller.enqueue(encoder.encode(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`));
-				} catch {
-					// Controller may already be closed (client disconnect race).
-				}
-			};
+	// The state the pings compare against. auth() is run again after this read: a reset or change
+	// that committed after auth() read the user and before this read would be in `opened` and never
+	// end the stream, but the second auth() sees it and ends the session. The deactivation claim
+	// comes from the first auth(), so a deactivation in between still ends the stream.
+	let opened: NotificationStreamSession;
+	try {
+		const state = await getUserSessionState(userId);
+		opened = {
+			passwordVersion: passwordVersionOf(state?.passwordChangedAt),
+			deactivated: session.user.isDeactivated === true,
+			deactivatedAt: state?.deactivatedAt ? state.deactivatedAt.getTime() : null
+		};
+	} catch {
+		return new Response('Service Unavailable', { status: 503 });
+	}
+	const confirmed = await auth();
+	if (confirmed?.user?.id !== userId) {
+		return new Response('Unauthorized', { status: 401 });
+	}
 
-			// Initial hello so the client knows the stream is live.
-			send('hello', { userId, ts: Date.now() });
-
-			const heartbeat = setInterval(() => send('ping', { t: Date.now() }), HEARTBEAT_MS);
-
-			const unsubscribe = notificationPubSub.subscribe(userId, (n: NotificationListItem) => {
-				send('notification', n);
-			});
-
-			req.signal.addEventListener('abort', () => {
-				clearInterval(heartbeat);
-				unsubscribe();
-				try {
-					controller.close();
-				} catch {
-					// already closed
-				}
-			});
-		}
+	const stream = createNotificationStream({
+		userId,
+		signal: req.signal,
+		subscribe: (id, listener) => notificationPubSub.subscribe(id, listener),
+		sessionStillHolds: async () => notificationStreamSessionHolds(opened, await getUserSessionState(userId))
 	});
 
 	return new Response(stream, {

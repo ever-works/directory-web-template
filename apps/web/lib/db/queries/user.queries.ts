@@ -289,6 +289,24 @@ export async function deactivateUser(userId: string) {
 }
 
 /**
+ * The columns that decide whether a user's session still holds: `password_changed_at` (a reset or
+ * change ends older sessions, spec-003 AC-9) and `deactivated_at`. Read by user id without the
+ * tenant, like the jwt callback in lib/auth/index.ts, which reads the same two columns. The
+ * notifications stream re-reads them on every ping (lib/notifications/stream.ts).
+ * @returns The two columns, or undefined when there is no users row; throws on a database error
+ */
+export async function getUserSessionState(
+	userId: string
+): Promise<{ passwordChangedAt: Date | null; deactivatedAt: Date | null } | undefined> {
+	const [row] = await db
+		.select({ passwordChangedAt: users.passwordChangedAt, deactivatedAt: users.deactivatedAt })
+		.from(users)
+		.where(eq(users.id, userId))
+		.limit(1);
+	return row;
+}
+
+/**
  * Reactivate a previously deactivated user account.
  * Clears deactivatedAt, restoring the account to active status.
  */

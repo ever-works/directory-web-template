@@ -91,7 +91,7 @@ notification logic in feature code.
 - [ ] **AC-12** `POST /api/client/notifications/mark-all-read` — owner-scoped UPDATE.
 - [ ] **AC-13** `POST /api/client/notifications/bulk` — body `{ ids?, filter?, action: 'read'|'unread'|'archive'|'delete' }`.
 - [ ] **AC-14** `GET|PUT /api/client/notifications/preferences` — returns/writes the JSONB matrix.
-- [ ] **AC-15** `GET /api/client/notifications/stream` — SSE; pushes `notification` events whenever a row is dispatched for the authenticated user. Heartbeat every 25 s; aborts cleanly on client disconnect.
+- [ ] **AC-15** `GET /api/client/notifications/stream` — SSE; pushes `notification` events whenever a row is dispatched for the authenticated user. Heartbeat every 25 s; aborts cleanly on client disconnect. Each heartbeat first re-reads the user's `password_changed_at` and `deactivated_at` and closes the stream when a password reset or change (spec-003 AC-9) or a deactivation has ended the session it opened with, or when the read fails (T-2648); EventSource then reconnects through `auth()`, which answers 401 for an ended session.
 
 ### UI
 
