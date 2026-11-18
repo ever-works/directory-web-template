@@ -447,9 +447,16 @@ export async function GET(request: NextRequest) {
  *                   example: false
  *                 error:
  *                   type: string
- *                   examples:
- *                     duplicate_id: "Item with ID 'item_123abc' already exists"
- *                     duplicate_slug: "Item with slug 'awesome-tool' already exists"
+ *                   example: "Item with ID 'item_123abc' already exists"
+ *             examples:
+ *               duplicate_id:
+ *                 value:
+ *                   success: false
+ *                   error: "Item with ID 'item_123abc' already exists"
+ *               duplicate_slug:
+ *                 value:
+ *                   success: false
+ *                   error: "Item with slug 'awesome-tool' already exists"
  *       500:
  *         description: "Internal server error"
  *         content:

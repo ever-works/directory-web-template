@@ -273,9 +273,16 @@ export async function GET(request: NextRequest) {
  *                   example: false
  *                 error:
  *                   type: string
- *                   examples:
- *                     missing_fields: "Item slug and name are required"
- *                     already_featured: "Item is already featured"
+ *                   example: "Item slug and name are required"
+ *             examples:
+ *               missing_fields:
+ *                 value:
+ *                   success: false
+ *                   error: "Item slug and name are required"
+ *               already_featured:
+ *                 value:
+ *                   success: false
+ *                   error: "Item is already featured"
  *       401:
  *         description: "Unauthorized - Authentication required"
  *         content:

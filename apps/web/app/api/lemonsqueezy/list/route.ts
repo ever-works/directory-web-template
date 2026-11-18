@@ -550,16 +550,37 @@ export async function GET(request: NextRequest) {
  *               properties:
  *                 error:
  *                   type: string
- *                   examples:
- *                     invalid_body: "Invalid request body"
- *                     validation_error: "Invalid request parameters"
+ *                   example: "Invalid request body"
  *                 message:
  *                   type: string
+ *                   description: "INVALID_BODY only"
  *                   example: "Request body must be a valid JSON object"
+ *                 details:
+ *                   type: array
+ *                   description: "VALIDATION_ERROR only: the validation issues"
+ *                   items:
+ *                     type: object
  *                 code:
  *                   type: string
  *                   enum: ["INVALID_BODY", "VALIDATION_ERROR"]
  *                   example: "INVALID_BODY"
+ *             examples:
+ *               invalid_body:
+ *                 value:
+ *                   message: "Request body must be a valid JSON object"
+ *                   code: "INVALID_BODY"
+ *                   error: "Invalid request body"
+ *               validation_error:
+ *                 value:
+ *                   error: "Invalid request parameters"
+ *                   code: "VALIDATION_ERROR"
+ *                   details:
+ *                     - origin: "number"
+ *                       code: "too_big"
+ *                       maximum: 100
+ *                       inclusive: true
+ *                       path: ["limit"]
+ *                       message: "Too big: expected number to be <=100"
  *       401:
  *         description: "Unauthorized - Authentication required"
  *         content:
