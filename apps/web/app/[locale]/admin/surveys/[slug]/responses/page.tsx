@@ -2,6 +2,7 @@ import { cache } from 'react';
 import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { surveyService } from '@/lib/services/survey.service';
+import { requireAdmin } from '@/lib/auth/guards';
 import { SurveyResponsesClient } from '@/components/surveys/responses/survey-responses-client';
 import { getSurveysEnabled } from '@/lib/utils/settings';
 import { cleanUrl } from '@/lib/utils/url-cleaner';
@@ -22,7 +23,13 @@ const getSurvey = cache(async (slug: string) => {
 	return surveyService.getBySlug(slug);
 });
 
+// Admin check on the server, before the survey is read (the admin layout checks in the browser, after the
+// survey is already in the page payload). Signed out goes to sign-in, no live admin role to /unauthorized.
+// Cached so generateMetadata and the page share one check per request.
+const requireAdminOnce = cache(requireAdmin);
+
 export async function generateMetadata({ params }: AdminSurveyResponsesPageProps): Promise<Metadata> {
+	await requireAdminOnce();
 	const { slug } = await params;
 	const survey = await getSurvey(slug);
 
@@ -41,6 +48,7 @@ export async function generateMetadata({ params }: AdminSurveyResponsesPageProps
 }
 
 export default async function AdminSurveyResponsesPage({ params }: AdminSurveyResponsesPageProps) {
+	await requireAdminOnce();
 	const { slug } = await params;
 	const survey = await getSurvey(slug);
 	const surveysEnabled = getSurveysEnabled();
