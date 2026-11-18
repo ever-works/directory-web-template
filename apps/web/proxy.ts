@@ -200,6 +200,15 @@ function maybeServerRedirectForLocale(req: NextRequest): NextResponse | null {
 /* ────────────────────────────────── Client Auth Guards ────────────────────────────── */
 
 /**
+ * Whether the request came over HTTPS, directly or through a proxy that terminates TLS. Auth.js
+ * then keeps the session in the `__Secure-` cookie, which `getToken` reads only when it is given
+ * `secureCookie: true` (its default is the unprefixed cookie).
+ */
+function isSecureRequest(req: NextRequest): boolean {
+	return req.nextUrl.protocol === 'https:' || req.headers.get('x-forwarded-proto') === 'https';
+}
+
+/**
  * Try to decode the Auth.js v5 session JWT with every plausible cookie name
  * (Auth.js v5 uses `authjs.session-token` / `__Secure-authjs.session-token`,
  * NextAuth v4 used `next-auth.*`). Returns the decoded token if any
@@ -212,7 +221,7 @@ function maybeServerRedirectForLocale(req: NextRequest): NextResponse | null {
  * middleware see the same token the API routes do.
  */
 async function decodeAuthJsToken(req: NextRequest): Promise<unknown | null> {
-	const isSecure = req.nextUrl.protocol === 'https:' || req.headers.get('x-forwarded-proto') === 'https';
+	const isSecure = isSecureRequest(req);
 	const candidates = isSecure
 		? ['__Secure-authjs.session-token', '__Secure-next-auth.session-token', 'authjs.session-token', 'next-auth.session-token']
 		: ['authjs.session-token', 'next-auth.session-token', '__Secure-authjs.session-token', '__Secure-next-auth.session-token'];
@@ -551,16 +560,22 @@ export default async function proxy(req: NextRequest) {
 	}
 
 	// Redirect authenticated users away from /auth/* pages (signin, register, etc.)
-	// A NextAuth token is never bounced away from /auth/signin. getToken only decodes the cookie,
-	// so a session the jwt callback has ended (a password reset or change, see
-	// lib/auth/password-change.ts) still decodes here, while the pages send it to /auth/signin:
-	// bouncing it back to the dashboard would loop. The sign-in page renders, and its
-	// SessionProvider call to /api/auth/session clears the dead cookie.
-	const keepNextAuthTokenOnPage = pathWithoutLocale === '/auth/signin';
+	// Two pages render whatever session the browser has, ended or active. Provider 'next-auth'
+	// never bounces a NextAuth token from them, and provider 'both' redirects neither a NextAuth
+	// token nor a Supabase user from them:
+	// - /auth/signin. getToken only decodes the cookie, so a session the jwt callback has ended (a
+	//   password reset or change, see lib/auth/password-change.ts) still decodes here, while the
+	//   pages send it to /auth/signin: bouncing it back to the dashboard would loop. The sign-in
+	//   page renders, and its SessionProvider call to /api/auth/session clears the dead cookie.
+	// - /auth/new-password, the page the password reset email links to (lib/mail). The reset token
+	//   in its URL is what authorizes the reset, not the session, and a redirect drops that URL, so
+	//   the user would have to reopen the link. A signed-in user who opens a reset link therefore
+	//   sees the reset form instead of the dashboard.
+	const keepSessionOnPage = pathWithoutLocale === '/auth/signin' || pathWithoutLocale === '/auth/new-password';
 	if (pathWithoutLocale.startsWith('/auth/')) {
 		if (cfg.provider === 'next-auth') {
 			const token = await getToken({ req, secret: authSecret });
-			if (token && !keepNextAuthTokenOnPage) {
+			if (token && !keepSessionOnPage) {
 				const target = token.isAdmin ? '/admin' : '/client/dashboard';
 				const url = req.nextUrl.clone();
 				url.pathname = `${localePrefix}${target}`;
@@ -599,9 +614,11 @@ export default async function proxy(req: NextRequest) {
 				return redirectRes;
 			}
 		} else if (cfg.provider === 'both') {
-			// Check NextAuth first
-			const token = await getToken({ req, secret: authSecret });
-			if (token && !keepNextAuthTokenOnPage) {
+			// Check NextAuth first. Over HTTPS the session is in the `__Secure-` cookie, which
+			// getToken skips unless told (isSecureRequest, as decodeAuthJsToken uses): a missed
+			// token would fall through to the Supabase redirect below.
+			const token = await getToken({ req, secret: authSecret, secureCookie: isSecureRequest(req) });
+			if (token && !keepSessionOnPage) {
 				const target = token.isAdmin ? '/admin' : '/client/dashboard';
 				const url = req.nextUrl.clone();
 				url.pathname = `${localePrefix}${target}`;
@@ -609,12 +626,12 @@ export default async function proxy(req: NextRequest) {
 				intlResponse.cookies.getAll().forEach((c) => redirectRes.cookies.set(c));
 				return redirectRes;
 			}
-			// A NextAuth token on /auth/signin (possibly one the jwt callback has ended) renders the
-			// sign-in page, as with provider 'next-auth'. Sending it to the dashboard because Supabase
-			// also has a user would loop: the /client/* guard lets the decodable token through, the
-			// page's auth() finds no session and sends it back here. Once the page's session call
-			// has cleared the dead cookie, the Supabase check below applies again.
-			if (token) {
+			// /auth/signin and /auth/new-password render for a NextAuth token (possibly one the jwt
+			// callback has ended), as with provider 'next-auth', and for a Supabase user with no
+			// NextAuth token. Sending either to the dashboard would loop: the dashboard reads only
+			// the NextAuth session (auth()), finds none (signed out after a password change, or
+			// ended by it) and sends the browser back to /auth/signin while Supabase still has a user.
+			if (keepSessionOnPage) {
 				return intlResponse;
 			}
 

@@ -212,15 +212,29 @@ describe('a password reset or change ends the sessions signed in before it', () 
 			/passwordChangedAt: timestamp\('password_changed_at'\)(?!\.notNull)/.test(table),
 			'users has no nullable passwordChangedAt column'
 		);
+		// The definition after the column name must be a bare timestamp: NOT NULL cannot be added to
+		// a populated users table without values, and a default would backfill every row, which ends
+		// every session issued before the release (migration 0043 leaves the rows NULL on purpose).
+		const columnDefinition = (sql: string) =>
+			/ALTER TABLE "users" ADD COLUMN (?:IF NOT EXISTS )?"password_changed_at"([^;]*);/.exec(sql)?.[1].trim();
+		const BARE_TIMESTAMP = /^timestamp(?: with(?:out)? time zone)?$/i;
+		for (const rejected of ['timestamp NOT NULL', 'timestamp DEFAULT now()', 'timestamp DEFAULT now() NOT NULL']) {
+			const definition = columnDefinition(
+				`ALTER TABLE "users" ADD COLUMN IF NOT EXISTS "password_changed_at" ${rejected};`
+			);
+			assert.equal(definition, rejected, `the column definition is not read whole: ${rejected}`);
+			assert.doesNotMatch(definition, BARE_TIMESTAMP, `the check accepts ${rejected}`);
+		}
 		const migrations = join(WEB, 'lib/db/migrations');
 		const adding = readdirSync(migrations)
 			.filter((name) => name.endsWith('.sql'))
-			.filter((name) =>
-				/ALTER TABLE "users" ADD COLUMN (IF NOT EXISTS )?"password_changed_at" timestamp/.test(
-					readFileSync(join(migrations, name), 'utf8')
-				)
-			);
+			.filter((name) => columnDefinition(readFileSync(join(migrations, name), 'utf8')) !== undefined);
 		assert.equal(adding.length, 1, 'no migration (or more than one) adds users.password_changed_at');
+		assert.match(
+			columnDefinition(readFileSync(join(migrations, adding[0]), 'utf8')) ?? '',
+			BARE_TIMESTAMP,
+			'the migration does not add users.password_changed_at as a nullable timestamp without a default'
+		);
 		const journal = readFileSync(join(migrations, 'meta/_journal.json'), 'utf8');
 		assert.ok(
 			journal.includes(`"tag": "${adding[0].replace(/\.sql$/, '')}"`),
@@ -291,6 +305,16 @@ describe('a password reset or change ends the sessions signed in before it', () 
 			authorize.includes('passwordVersion: passwordVersionOf(clientPassword.passwordChangedAt)'),
 			'the client user does not carry the version read with the credentials account hash'
 		);
+		// The sign-in identity is the account whose hash matched, from the same row, not the
+		// account a separate lookup by email found (the email can move between the two statements).
+		assert.ok(
+			authorize.includes('getClientProfileByUserId(clientPassword.userId)'),
+			'the client profile is not loaded for the account whose password was checked'
+		);
+		assert.ok(
+			!authorize.includes('clientAccount.userId'),
+			'authorize takes the client identity from the separate lookup by email'
+		);
 		const returned = authorize.match(/passwordVersion: passwordVersionOf\(/g) ?? [];
 		assert.equal(returned.length, 2, 'the admin and the client user do not both carry a password version');
 		const verify = functionBody(
@@ -299,17 +323,19 @@ describe('a password reset or change ends the sessions signed in before it', () 
 		);
 		assert.ok(
 			verify.includes(
-				'.select({ passwordHash: accounts.passwordHash, passwordChangedAt: users.passwordChangedAt }) .from(accounts) .leftJoin(users, eq(users.id, accounts.userId))'
+				'.select({ userId: accounts.userId, passwordHash: accounts.passwordHash, passwordChangedAt: users.passwordChangedAt }) .from(accounts) .leftJoin(users, eq(users.id, accounts.userId))'
 			),
-			'verifyClientPasswordForSignIn does not read the hash and password_changed_at in one statement'
+			'verifyClientPasswordForSignIn does not read the account, the hash and password_changed_at in one statement'
 		);
 		assert.ok(
-			verify.includes('const valid = await comparePasswords(password, account.passwordHash);'),
+			verify.includes('const valid = await comparePasswords(password, account.passwordHash); if (!valid) {'),
 			'verifyClientPasswordForSignIn does not check the hash it read'
 		);
 		assert.ok(
-			verify.includes('return { valid, passwordChangedAt: account.passwordChangedAt ?? null };'),
-			'verifyClientPasswordForSignIn does not return the version read with the hash'
+			verify.includes(
+				'return { valid, userId: account.userId, passwordChangedAt: account.passwordChangedAt ?? null };'
+			),
+			'verifyClientPasswordForSignIn does not return the account and the version read with the hash'
 		);
 	});
 
@@ -404,40 +430,78 @@ describe('a password reset or change ends the sessions signed in before it', () 
 		);
 	});
 
-	it('the proxy does not bounce an ended session from /auth/signin back to the dashboard', () => {
+	it('the proxy does not bounce a session away from /auth/signin or the reset page', () => {
 		const proxy = code('proxy.ts');
 		const start = proxy.indexOf("if (pathWithoutLocale.startsWith('/auth/')) {");
 		assert.ok(start >= 0, 'the /auth/* redirect in proxy.ts not found');
+		// /auth/new-password is the page the reset email links to.
 		assert.ok(
-			proxy.includes("const keepNextAuthTokenOnPage = pathWithoutLocale === '/auth/signin';"),
-			'the proxy has no /auth/signin exception'
+			code('lib/mail/index.ts').includes('/auth/new-password?token=${token}'),
+			'the reset link no longer opens /auth/new-password'
+		);
+		assert.ok(
+			proxy.includes(
+				"const keepSessionOnPage = pathWithoutLocale === '/auth/signin' || pathWithoutLocale === '/auth/new-password';"
+			),
+			'the proxy has no /auth/signin and /auth/new-password exception'
 		);
 		const branch = proxy.slice(start);
 		const bounces =
-			branch.match(/const token = await getToken\(\{ req, secret: authSecret \}\); if \(token[^)]*\)/g) ?? [];
+			branch.match(/const token = await getToken\(\{ req, secret: authSecret[^}]*\}\); if \(token[^)]*\)/g) ?? [];
 		assert.equal(bounces.length, 2, 'the next-auth and both branches were not both found');
 		for (const bounce of bounces) {
-			assert.ok(
-				bounce.endsWith('if (token && !keepNextAuthTokenOnPage)'),
-				`bounces from /auth/signin: ${bounce}`
-			);
+			assert.ok(bounce.endsWith('if (token && !keepSessionOnPage)'), `bounces from a kept page: ${bounce}`);
 		}
 	});
 
-	it("with provider 'both', a NextAuth token on /auth/signin is not sent to the dashboard for a Supabase user", () => {
+	it("with provider 'both', the sign-in check reads the NextAuth cookie the request protocol selects", () => {
+		const proxy = code('proxy.ts');
+		assert.ok(
+			proxy.includes(
+				"function isSecureRequest(req: NextRequest): boolean { return req.nextUrl.protocol === 'https:' || req.headers.get('x-forwarded-proto') === 'https'; }"
+			),
+			'isSecureRequest does not read the protocol and x-forwarded-proto'
+		);
+		// The /client/* guard (decodeAuthJsToken) and the sign-in check use the same setting.
+		assert.ok(proxy.includes('const isSecure = isSecureRequest(req);'), 'decodeAuthJsToken does not use isSecureRequest');
+		const start = proxy.indexOf("if (pathWithoutLocale.startsWith('/auth/')) {");
+		const both = proxy.indexOf("} else if (cfg.provider === 'both') {", start);
+		assert.ok(start >= 0 && both > start, "the 'both' branch of the /auth/* redirect not found");
+		// Without secureCookie getToken reads only the unprefixed cookie, so over HTTPS it misses
+		// `__Secure-authjs.session-token` and a Supabase user is sent to the dashboard.
+		assert.ok(
+			proxy
+				.slice(both)
+				.includes('const token = await getToken({ req, secret: authSecret, secureCookie: isSecureRequest(req) });'),
+			"the 'both' sign-in check does not read the __Secure- cookie over HTTPS"
+		);
+	});
+
+	it("with provider 'both', /auth/signin renders for a NextAuth token and for a Supabase user without one", () => {
 		const proxy = code('proxy.ts');
 		const start = proxy.indexOf("if (pathWithoutLocale.startsWith('/auth/')) {");
 		assert.ok(start >= 0, 'the /auth/* redirect in proxy.ts not found');
 		const both = proxy.indexOf("} else if (cfg.provider === 'both') {", start);
 		assert.ok(both > start, "the 'both' branch of the /auth/* redirect not found");
 		const branch = proxy.slice(both);
-		// An ended NextAuth token still decodes. The /client/* guard lets it through and the page's
-		// auth() sends it back to /auth/signin, so a Supabase redirect to the dashboard would loop.
-		const keep = branch.indexOf('if (token) { return intlResponse; }');
-		assert.ok(keep >= 0, "the 'both' branch does not render /auth/signin for a NextAuth token");
-		const bounce = branch.indexOf('if (token && !keepNextAuthTokenOnPage)');
+		// An ended NextAuth token still decodes, and after a change the hook signs NextAuth out
+		// while Supabase keeps its user. The dashboard reads only auth() and sends both back to
+		// /auth/signin, so a redirect to the dashboard from there loops either way.
+		const bounce = branch.indexOf('if (token && !keepSessionOnPage)');
+		const keep = branch.indexOf('if (keepSessionOnPage) { return intlResponse; }');
 		const supabase = branch.indexOf('.auth.getUser()');
-		assert.ok(bounce >= 0 && supabase >= 0, "the 'both' branch checks not found");
-		assert.ok(bounce < keep && keep < supabase, 'a NextAuth token on /auth/signin reaches the Supabase redirect');
+		const supabaseRedirect = branch.indexOf("const target = isAdmin ? '/admin' : '/client/dashboard';");
+		assert.ok(bounce >= 0, "the 'both' branch no longer bounces a NextAuth token from other /auth/* pages");
+		assert.ok(keep >= 0, "the 'both' branch does not render the kept pages whatever the session");
+		assert.ok(supabase >= 0 && supabaseRedirect > supabase, "the 'both' branch Supabase redirect not found");
+		assert.ok(
+			bounce < keep && keep < supabase,
+			'a kept page (a NextAuth token, or a Supabase user without one) reaches the Supabase redirect'
+		);
+		// The early return must not depend on a NextAuth token, or a Supabase user without one loops.
+		assert.ok(
+			!branch.slice(bounce, supabase).includes('if (token) { return intlResponse; }'),
+			'only a NextAuth token skips the Supabase redirect on /auth/signin'
+		);
 	});
 });

@@ -184,7 +184,7 @@ function ChangePasswordFormZod() {
 
 - **Password Confirmation**: The hook sends `confirmPassword` to the server, but does not validate that it matches `newPassword` on the client side. Perform client-side validation in your form before calling `changePassword`.
 - **Rate Limiting**: The API may return a rate limit error if too many attempts are made. The hook does not retry on rate limit errors, but the error message is displayed via toast.
-- **Session Ends**: After a successful password change the server ends the current session, so the hook always signs out and navigates to `/auth/signin`. The success toast is what the user sees; a success state in the calling form is replaced by the sign-in page.
+- **Session Ends**: After a successful password change the server ends the current session. The hook then attempts `signOut({ redirect: false })` and always navigates to `/auth/signin`. If the sign-out call fails, the hook logs the error and still navigates. The success toast is what the user sees; a success state in the calling form is replaced by the sign-in page.
 - **Validation Error Details**: The `ChangePasswordError.details` array provides field-level validation errors from the server (Zod validation). Each entry has a `path` (field name), `message`, and `code`. These are logged to the console but not displayed in the toast -- you may want to surface them in the form UI.
 - **Mutation Key**: The mutation uses `["change-password"]` as its key, allowing you to track its status globally if needed.
 

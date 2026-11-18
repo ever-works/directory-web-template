@@ -125,7 +125,9 @@ export const credentialsProvider = Credentials({
 				const clientPassword = await verifyClientPasswordForSignIn(email, password);
 
 				if (clientPassword.valid) {
-					const clientProfile = await getClientProfileByUserId(clientAccount.userId);
+					// The account whose hash matched, read in that same statement; the email may
+					// belong to another account by the time a second lookup runs.
+					const clientProfile = await getClientProfileByUserId(clientPassword.userId);
 					if (!clientProfile) {
 						throw new Error(AuthErrorCode.PROFILE_NOT_FOUND);
 					}

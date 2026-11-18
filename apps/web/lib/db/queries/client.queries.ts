@@ -967,29 +967,43 @@ export async function verifyClientPassword(email: string, password: string): Pro
 	return (await verifyClientPasswordForSignIn(email, password)).valid;
 }
 
+/** The result of `verifyClientPasswordForSignIn`. */
+export type ClientSignInPasswordCheck =
+	| { valid: true; userId: string; passwordChangedAt: Date | null }
+	| { valid: false; userId: null; passwordChangedAt: null };
+
+const CLIENT_PASSWORD_NOT_VALID: ClientSignInPasswordCheck = { valid: false, userId: null, passwordChangedAt: null };
+
 /**
- * Verify a client password for sign-in, and return the password version it was checked against:
- * `users.password_changed_at`, read in the SAME statement as the credentials account hash. One
- * statement sees one committed state, and `setUserPasswordHash` writes both in one transaction,
- * so the old hash always comes with the old version. The session stores that version and ends
- * once it differs (lib/auth/password-change.ts), even when the sign-in read the old hash while
- * a change was being committed.
+ * Verify a client password for sign-in, and return the account and password version it was
+ * checked against: the credentials account's `userId` and `users.password_changed_at`, read in the
+ * SAME statement as the credentials account hash. One statement sees one committed state, and
+ * `setUserPasswordHash` writes both in one transaction, so the old hash always comes with the old
+ * version. The session stores that version and ends once it differs
+ * (lib/auth/password-change.ts), even when the sign-in read the old hash while a change was being
+ * committed. The sign-in identity is that `userId`, not one from a separate lookup by email: the
+ * email can move to another account between two statements (a soft delete releases it).
  * @param email - Client email
  * @param password - Plain text password to verify
- * @returns Whether the password is valid, and `password_changed_at` read with the hash
+ * @returns Whether the password is valid and, when it is, the account's `userId` and
+ * `password_changed_at`, read with the hash
  */
 export async function verifyClientPasswordForSignIn(
 	email: string,
 	password: string
-): Promise<{ valid: boolean; passwordChangedAt: Date | null }> {
+): Promise<ClientSignInPasswordCheck> {
 	try {
 		const normalizedEmail = email.toLowerCase().trim();
 		const tenantId = await getTenantId();
-		if (!tenantId) return { valid: false, passwordChangedAt: null };
+		if (!tenantId) return CLIENT_PASSWORD_NOT_VALID;
 
 		// Get credentials account specifically (not OAuth accounts)
 		const [account] = await db
-			.select({ passwordHash: accounts.passwordHash, passwordChangedAt: users.passwordChangedAt })
+			.select({
+				userId: accounts.userId,
+				passwordHash: accounts.passwordHash,
+				passwordChangedAt: users.passwordChangedAt
+			})
 			.from(accounts)
 			.leftJoin(users, eq(users.id, accounts.userId))
 			.where(
@@ -1002,15 +1016,18 @@ export async function verifyClientPasswordForSignIn(
 			.limit(1);
 
 		if (!account?.passwordHash) {
-			return { valid: false, passwordChangedAt: null };
+			return CLIENT_PASSWORD_NOT_VALID;
 		}
 
 		const valid = await comparePasswords(password, account.passwordHash);
+		if (!valid) {
+			return CLIENT_PASSWORD_NOT_VALID;
+		}
 
-		return { valid, passwordChangedAt: account.passwordChangedAt ?? null };
+		return { valid, userId: account.userId, passwordChangedAt: account.passwordChangedAt ?? null };
 	} catch (error) {
 		console.error('Error verifying client password:', error);
-		return { valid: false, passwordChangedAt: null };
+		return CLIENT_PASSWORD_NOT_VALID;
 	}
 }
 
