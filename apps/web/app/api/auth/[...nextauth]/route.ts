@@ -255,10 +255,17 @@ export async function GET(req: NextRequest) {
  *               properties:
  *                 error:
  *                   type: string
- *                   examples:
- *                     invalid_credentials: "Invalid email or password"
- *                     missing_csrf: "CSRF token missing"
- *                     invalid_email: "Invalid email format"
+ *                   example: "Invalid email or password"
+ *             examples:
+ *               invalid_credentials:
+ *                 value:
+ *                   error: "Invalid email or password"
+ *               missing_csrf:
+ *                 value:
+ *                   error: "CSRF token missing"
+ *               invalid_email:
+ *                 value:
+ *                   error: "Invalid email format"
  *       401:
  *         description: "Unauthorized - Authentication failed"
  *         content:

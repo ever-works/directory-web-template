@@ -550,9 +550,7 @@ export async function GET(request: NextRequest) {
  *               properties:
  *                 error:
  *                   type: string
- *                   examples:
- *                     invalid_body: "Invalid request body"
- *                     validation_error: "Invalid request parameters"
+ *                   example: "Invalid request body"
  *                 message:
  *                   type: string
  *                   example: "Request body must be a valid JSON object"
@@ -560,6 +558,17 @@ export async function GET(request: NextRequest) {
  *                   type: string
  *                   enum: ["INVALID_BODY", "VALIDATION_ERROR"]
  *                   example: "INVALID_BODY"
+ *             examples:
+ *               invalid_body:
+ *                 value:
+ *                   message: "Request body must be a valid JSON object"
+ *                   code: "INVALID_BODY"
+ *                   error: "Invalid request body"
+ *               validation_error:
+ *                 value:
+ *                   message: "Request body must be a valid JSON object"
+ *                   code: "INVALID_BODY"
+ *                   error: "Invalid request parameters"
  *       401:
  *         description: "Unauthorized - Authentication required"
  *         content:

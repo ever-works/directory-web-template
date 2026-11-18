@@ -145,10 +145,7 @@ function createEmailData(baseData: any, emailConfig: Awaited<ReturnType<typeof g
  *               properties:
  *                 error:
  *                   type: string
- *                   examples:
- *                     no_signature: "No signature provided"
- *                     not_processed: "Webhook not processed"
- *                     processing_failed: "Webhook processing failed"
+ *                   example: "No signature provided"
  *             examples:
  *               no_signature:
  *                 summary: "Missing signature"

@@ -97,10 +97,7 @@ import { z } from 'zod';
  *                   example: false
  *                 error:
  *                   type: string
- *                   examples:
- *                     validation: "Invalid request data"
- *                     no_customer: "Payment method not associated with a customer"
- *                     stripe_error: "Stripe error: Invalid payment method ID"
+ *                   example: "Invalid request data"
  *                 details:
  *                   type: array
  *                   description: "Validation error details (if applicable)"
@@ -113,6 +110,19 @@ import { z } from 'zod';
  *                       message:
  *                         type: string
  *                         example: "Payment method ID is required"
+ *             examples:
+ *               validation:
+ *                 value:
+ *                   success: false
+ *                   error: "Invalid request data"
+ *               no_customer:
+ *                 value:
+ *                   success: false
+ *                   error: "Payment method not associated with a customer"
+ *               stripe_error:
+ *                 value:
+ *                   success: false
+ *                   error: "Stripe error: Invalid payment method ID"
  *       401:
  *         description: "Unauthorized - Authentication required"
  *         content:
@@ -151,9 +161,16 @@ import { z } from 'zod';
  *                   example: false
  *                 error:
  *                   type: string
- *                   examples:
- *                     payment_method: "Stripe error: No such payment method"
- *                     customer: "Customer not found"
+ *                   example: "Stripe error: No such payment method"
+ *             examples:
+ *               payment_method:
+ *                 value:
+ *                   success: false
+ *                   error: "Stripe error: No such payment method"
+ *               customer:
+ *                 value:
+ *                   success: false
+ *                   error: "Customer not found"
  *       500:
  *         description: "Internal server error"
  *         content:

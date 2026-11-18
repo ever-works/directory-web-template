@@ -160,12 +160,28 @@ import { mapTypedError, safeErrorResponse } from '@/lib/utils/api-error';
  *                   example: false
  *                 error:
  *                   type: string
- *                   examples:
- *                     invalid_page: "Invalid page parameter. Must be a positive integer."
- *                     invalid_limit: "Invalid limit parameter. Must be between 1 and 100."
- *                     invalid_status: "Invalid status parameter"
- *                     invalid_sort: "Invalid sortBy parameter"
- *                     search_too_long: "Search parameter too long"
+ *                   example: "Invalid page parameter. Must be a positive integer."
+ *             examples:
+ *               invalid_page:
+ *                 value:
+ *                   success: false
+ *                   error: "Invalid page parameter. Must be a positive integer."
+ *               invalid_limit:
+ *                 value:
+ *                   success: false
+ *                   error: "Invalid limit parameter. Must be between 1 and 100."
+ *               invalid_status:
+ *                 value:
+ *                   success: false
+ *                   error: "Invalid status parameter"
+ *               invalid_sort:
+ *                 value:
+ *                   success: false
+ *                   error: "Invalid sortBy parameter"
+ *               search_too_long:
+ *                 value:
+ *                   success: false
+ *                   error: "Search parameter too long"
  *       401:
  *         description: "Unauthorized - Authentication required"
  *         content:
@@ -382,15 +398,40 @@ export async function GET(request: NextRequest) {
  *                   example: false
  *                 error:
  *                   type: string
- *                   examples:
- *                     missing_fields: "Missing required fields: username, email, name, password, and role are required"
- *                     invalid_email: "Invalid email format"
- *                     invalid_username: "Username must be 3-30 characters and contain only letters, numbers, dashes, and underscores"
- *                     invalid_name: "Name must be between 2 and 100 characters"
- *                     weak_password: "Password must be at least 8 characters long"
- *                     invalid_role: "Invalid role"
- *                     duplicate_email: "Email already exists"
- *                     duplicate_username: "Username already exists"
+ *                   example: "Missing required fields: username, email, name, password, and role are required"
+ *             examples:
+ *               missing_fields:
+ *                 value:
+ *                   success: false
+ *                   error: "Missing required fields: username, email, name, password, and role are required"
+ *               invalid_email:
+ *                 value:
+ *                   success: false
+ *                   error: "Invalid email format"
+ *               invalid_username:
+ *                 value:
+ *                   success: false
+ *                   error: "Username must be 3-30 characters and contain only letters, numbers, dashes, and underscores"
+ *               invalid_name:
+ *                 value:
+ *                   success: false
+ *                   error: "Name must be between 2 and 100 characters"
+ *               weak_password:
+ *                 value:
+ *                   success: false
+ *                   error: "Password must be at least 8 characters long"
+ *               invalid_role:
+ *                 value:
+ *                   success: false
+ *                   error: "Invalid role"
+ *               duplicate_email:
+ *                 value:
+ *                   success: false
+ *                   error: "Email already exists"
+ *               duplicate_username:
+ *                 value:
+ *                   success: false
+ *                   error: "Username already exists"
  *       401:
  *         description: "Unauthorized - Authentication required"
  *         content:

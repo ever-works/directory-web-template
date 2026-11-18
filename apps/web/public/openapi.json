@@ -886,13 +886,24 @@
 										},
 										"message": {
 											"type": "string",
-											"examples": {
-												"soft_delete": "Category deactivated successfully",
-												"hard_delete": "Category permanently deleted"
-											}
+											"example": "Category deactivated successfully"
 										}
 									},
 									"required": ["success", "message"]
+								},
+								"examples": {
+									"soft_delete": {
+										"value": {
+											"success": true,
+											"message": "Category deactivated successfully"
+										}
+									},
+									"hard_delete": {
+										"value": {
+											"success": true,
+											"message": "Category permanently deleted"
+										}
+									}
 								}
 							}
 						}
@@ -1062,12 +1073,33 @@
 										},
 										"error": {
 											"type": "string",
-											"examples": {
-												"config_missing": "DATA_REPOSITORY not configured. Please set DATA_REPOSITORY environment variable.",
-												"invalid_format": "Invalid DATA_REPOSITORY format. Expected: https://github.com/owner/repo",
-												"token_missing": "GitHub token not configured. Please set GITHUB_TOKEN environment variable.",
-												"git_error": "Failed to get Git repository status"
-											}
+											"example": "DATA_REPOSITORY not configured. Please set DATA_REPOSITORY environment variable."
+										}
+									}
+								},
+								"examples": {
+									"config_missing": {
+										"value": {
+											"success": false,
+											"error": "DATA_REPOSITORY not configured. Please set DATA_REPOSITORY environment variable."
+										}
+									},
+									"invalid_format": {
+										"value": {
+											"success": false,
+											"error": "Invalid DATA_REPOSITORY format. Expected: https://github.com/owner/repo"
+										}
+									},
+									"token_missing": {
+										"value": {
+											"success": false,
+											"error": "GitHub token not configured. Please set GITHUB_TOKEN environment variable."
+										}
+									},
+									"git_error": {
+										"value": {
+											"success": false,
+											"error": "Failed to get Git repository status"
 										}
 									}
 								}
@@ -1214,12 +1246,33 @@
 										},
 										"error": {
 											"type": "string",
-											"examples": {
-												"config_missing": "DATA_REPOSITORY not configured. Please set DATA_REPOSITORY environment variable.",
-												"invalid_format": "Invalid DATA_REPOSITORY format. Expected: https://github.com/owner/repo",
-												"token_missing": "GitHub token not configured. Please set GH_TOKEN environment variable.",
-												"git_error": "Failed to create category via Git"
-											}
+											"example": "DATA_REPOSITORY not configured. Please set DATA_REPOSITORY environment variable."
+										}
+									}
+								},
+								"examples": {
+									"config_missing": {
+										"value": {
+											"success": false,
+											"error": "DATA_REPOSITORY not configured. Please set DATA_REPOSITORY environment variable."
+										}
+									},
+									"invalid_format": {
+										"value": {
+											"success": false,
+											"error": "Invalid DATA_REPOSITORY format. Expected: https://github.com/owner/repo"
+										}
+									},
+									"token_missing": {
+										"value": {
+											"success": false,
+											"error": "GitHub token not configured. Please set GH_TOKEN environment variable."
+										}
+									},
+									"git_error": {
+										"value": {
+											"success": false,
+											"error": "Failed to create category via Git"
 										}
 									}
 								}
@@ -1300,11 +1353,27 @@
 										},
 										"error": {
 											"type": "string",
-											"examples": {
-												"not_array": "categoryIds must be an array",
-												"empty_array": "categoryIds array cannot be empty",
-												"invalid_ids": "All category IDs must be strings"
-											}
+											"example": "categoryIds must be an array"
+										}
+									}
+								},
+								"examples": {
+									"not_array": {
+										"value": {
+											"success": false,
+											"error": "categoryIds must be an array"
+										}
+									},
+									"empty_array": {
+										"value": {
+											"success": false,
+											"error": "categoryIds array cannot be empty"
+										}
+									},
+									"invalid_ids": {
+										"value": {
+											"success": false,
+											"error": "All category IDs must be strings"
 										}
 									}
 								}
@@ -1659,10 +1728,21 @@
 										},
 										"error": {
 											"type": "string",
-											"examples": {
-												"missing_name": "Category name is required",
-												"invalid_format": "Category name must be at least 2 characters"
-											}
+											"example": "Category name is required"
+										}
+									}
+								},
+								"examples": {
+									"missing_name": {
+										"value": {
+											"success": false,
+											"error": "Category name is required"
+										}
+									},
+									"invalid_format": {
+										"value": {
+											"success": false,
+											"error": "Category name must be at least 2 characters"
 										}
 									}
 								}
@@ -3612,11 +3692,24 @@
 									"properties": {
 										"error": {
 											"type": "string",
-											"examples": {
-												"missing_email": "Email is required",
-												"user_creation_failed": "Failed to create user: [error details]",
-												"invalid_user": "Failed to create or find user for client"
-											}
+											"example": "Email is required"
+										}
+									}
+								},
+								"examples": {
+									"missing_email": {
+										"value": {
+											"error": "Email is required"
+										}
+									},
+									"user_creation_failed": {
+										"value": {
+											"error": "Failed to create user: [error details]"
+										}
+									},
+									"invalid_user": {
+										"value": {
+											"error": "Failed to create or find user for client"
 										}
 									}
 								}
@@ -5872,10 +5965,21 @@
 										},
 										"error": {
 											"type": "string",
-											"examples": {
-												"missing_fields": "Item slug and name are required",
-												"already_featured": "Item is already featured"
-											}
+											"example": "Item slug and name are required"
+										}
+									}
+								},
+								"examples": {
+									"missing_fields": {
+										"value": {
+											"success": false,
+											"error": "Item slug and name are required"
+										}
+									},
+									"already_featured": {
+										"value": {
+											"success": false,
+											"error": "Item is already featured"
 										}
 									}
 								}
@@ -6968,10 +7072,21 @@
 										},
 										"error": {
 											"type": "string",
-											"examples": {
-												"duplicate_id": "Item with ID 'item_123abc' already exists",
-												"duplicate_slug": "Item with slug 'awesome-tool' already exists"
-											}
+											"example": "Item with ID 'item_123abc' already exists"
+										}
+									}
+								},
+								"examples": {
+									"duplicate_id": {
+										"value": {
+											"success": false,
+											"error": "Item with ID 'item_123abc' already exists"
+										}
+									},
+									"duplicate_slug": {
+										"value": {
+											"success": false,
+											"error": "Item with slug 'awesome-tool' already exists"
 										}
 									}
 								}
@@ -8046,11 +8161,27 @@
 										},
 										"error": {
 											"type": "string",
-											"examples": {
-												"empty_name": "Role name cannot be empty",
-												"invalid_name_length": "Role name must be between 3 and 100 characters",
-												"invalid_description_length": "Role description must be at most 500 characters"
-											}
+											"example": "Role name cannot be empty"
+										}
+									}
+								},
+								"examples": {
+									"empty_name": {
+										"value": {
+											"success": false,
+											"error": "Role name cannot be empty"
+										}
+									},
+									"invalid_name_length": {
+										"value": {
+											"success": false,
+											"error": "Role name must be between 3 and 100 characters"
+										}
+									},
+									"invalid_description_length": {
+										"value": {
+											"success": false,
+											"error": "Role description must be at most 500 characters"
 										}
 									}
 								}
@@ -8187,10 +8318,7 @@
 										"message": {
 											"type": "string",
 											"description": "Success message indicating deletion type",
-											"examples": {
-												"soft_delete": "Role deleted (marked as inactive)",
-												"hard_delete": "Role permanently deleted"
-											}
+											"example": "Role deleted (marked as inactive)"
 										}
 									},
 									"required": ["success", "message"]
@@ -8666,12 +8794,33 @@
 										},
 										"error": {
 											"type": "string",
-											"examples": {
-												"missing_fields": "Missing required fields: name, description",
-												"invalid_name_length": "Role name must be between 3 and 100 characters",
-												"invalid_description_length": "Role description must be at most 500 characters",
-												"invalid_id": "Unable to derive a valid role ID from name"
-											}
+											"example": "Missing required fields: name, description"
+										}
+									}
+								},
+								"examples": {
+									"missing_fields": {
+										"value": {
+											"success": false,
+											"error": "Missing required fields: name, description"
+										}
+									},
+									"invalid_name_length": {
+										"value": {
+											"success": false,
+											"error": "Role name must be between 3 and 100 characters"
+										}
+									},
+									"invalid_description_length": {
+										"value": {
+											"success": false,
+											"error": "Role description must be at most 500 characters"
+										}
+									},
+									"invalid_id": {
+										"value": {
+											"success": false,
+											"error": "Unable to derive a valid role ID from name"
 										}
 									}
 								}
@@ -9057,10 +9206,21 @@
 										},
 										"error": {
 											"type": "string",
-											"examples": {
-												"missing_name": "Tag name is required",
-												"validation_error": "Tag name must be between 2 and 50 characters"
-											}
+											"example": "Tag name is required"
+										}
+									}
+								},
+								"examples": {
+									"missing_name": {
+										"value": {
+											"success": false,
+											"error": "Tag name is required"
+										}
+									},
+									"validation_error": {
+										"value": {
+											"success": false,
+											"error": "Tag name must be between 2 and 50 characters"
 										}
 									}
 								}
@@ -9539,10 +9699,21 @@
 										},
 										"error": {
 											"type": "string",
-											"examples": {
-												"missing_fields": "Tag ID and name are required",
-												"validation_error": "Tag name must be between 2 and 50 characters"
-											}
+											"example": "Tag ID and name are required"
+										}
+									}
+								},
+								"examples": {
+									"missing_fields": {
+										"value": {
+											"success": false,
+											"error": "Tag ID and name are required"
+										}
+									},
+									"validation_error": {
+										"value": {
+											"success": false,
+											"error": "Tag name must be between 2 and 50 characters"
 										}
 									}
 								}
@@ -9880,13 +10051,39 @@
 										},
 										"error": {
 											"type": "string",
-											"examples": {
-												"invalid_email": "Invalid email format",
-												"invalid_username": "Username must be between 3 and 50 characters",
-												"invalid_name": "Name must be between 2 and 100 characters",
-												"invalid_role": "Invalid role",
-												"invalid_status": "Invalid status. Must be \"active\" or \"inactive\""
-											}
+											"example": "Invalid email format"
+										}
+									}
+								},
+								"examples": {
+									"invalid_email": {
+										"value": {
+											"success": false,
+											"error": "Invalid email format"
+										}
+									},
+									"invalid_username": {
+										"value": {
+											"success": false,
+											"error": "Username must be between 3 and 50 characters"
+										}
+									},
+									"invalid_name": {
+										"value": {
+											"success": false,
+											"error": "Name must be between 2 and 100 characters"
+										}
+									},
+									"invalid_role": {
+										"value": {
+											"success": false,
+											"error": "Invalid role"
+										}
+									},
+									"invalid_status": {
+										"value": {
+											"success": false,
+											"error": "Invalid status. Must be \"active\" or \"inactive\""
 										}
 									}
 								}
@@ -10604,13 +10801,39 @@
 										},
 										"error": {
 											"type": "string",
-											"examples": {
-												"invalid_page": "Invalid page parameter. Must be a positive integer.",
-												"invalid_limit": "Invalid limit parameter. Must be between 1 and 100.",
-												"invalid_status": "Invalid status parameter",
-												"invalid_sort": "Invalid sortBy parameter",
-												"search_too_long": "Search parameter too long"
-											}
+											"example": "Invalid page parameter. Must be a positive integer."
+										}
+									}
+								},
+								"examples": {
+									"invalid_page": {
+										"value": {
+											"success": false,
+											"error": "Invalid page parameter. Must be a positive integer."
+										}
+									},
+									"invalid_limit": {
+										"value": {
+											"success": false,
+											"error": "Invalid limit parameter. Must be between 1 and 100."
+										}
+									},
+									"invalid_status": {
+										"value": {
+											"success": false,
+											"error": "Invalid status parameter"
+										}
+									},
+									"invalid_sort": {
+										"value": {
+											"success": false,
+											"error": "Invalid sortBy parameter"
+										}
+									},
+									"search_too_long": {
+										"value": {
+											"success": false,
+											"error": "Search parameter too long"
 										}
 									}
 								}
@@ -10794,16 +11017,57 @@
 										},
 										"error": {
 											"type": "string",
-											"examples": {
-												"missing_fields": "Missing required fields: username, email, name, password, and role are required",
-												"invalid_email": "Invalid email format",
-												"invalid_username": "Username must be 3-30 characters and contain only letters, numbers, dashes, and underscores",
-												"invalid_name": "Name must be between 2 and 100 characters",
-												"weak_password": "Password must be at least 8 characters long",
-												"invalid_role": "Invalid role",
-												"duplicate_email": "Email already exists",
-												"duplicate_username": "Username already exists"
-											}
+											"example": "Missing required fields: username, email, name, password, and role are required"
+										}
+									}
+								},
+								"examples": {
+									"missing_fields": {
+										"value": {
+											"success": false,
+											"error": "Missing required fields: username, email, name, password, and role are required"
+										}
+									},
+									"invalid_email": {
+										"value": {
+											"success": false,
+											"error": "Invalid email format"
+										}
+									},
+									"invalid_username": {
+										"value": {
+											"success": false,
+											"error": "Username must be 3-30 characters and contain only letters, numbers, dashes, and underscores"
+										}
+									},
+									"invalid_name": {
+										"value": {
+											"success": false,
+											"error": "Name must be between 2 and 100 characters"
+										}
+									},
+									"weak_password": {
+										"value": {
+											"success": false,
+											"error": "Password must be at least 8 characters long"
+										}
+									},
+									"invalid_role": {
+										"value": {
+											"success": false,
+											"error": "Invalid role"
+										}
+									},
+									"duplicate_email": {
+										"value": {
+											"success": false,
+											"error": "Email already exists"
+										}
+									},
+									"duplicate_username": {
+										"value": {
+											"success": false,
+											"error": "Username already exists"
 										}
 									}
 								}
@@ -11420,11 +11684,24 @@
 									"properties": {
 										"error": {
 											"type": "string",
-											"examples": {
-												"invalid_credentials": "Invalid email or password",
-												"missing_csrf": "CSRF token missing",
-												"invalid_email": "Invalid email format"
-											}
+											"example": "Invalid email or password"
+										}
+									}
+								},
+								"examples": {
+									"invalid_credentials": {
+										"value": {
+											"error": "Invalid email or password"
+										}
+									},
+									"missing_csrf": {
+										"value": {
+											"error": "CSRF token missing"
+										}
+									},
+									"invalid_email": {
+										"value": {
+											"error": "Invalid email format"
 										}
 									}
 								}
@@ -11549,12 +11826,7 @@
 										},
 										"error": {
 											"type": "string",
-											"examples": {
-												"validation_error": "Invalid input data",
-												"wrong_current": "Current password is incorrect",
-												"same_password": "New password must be different from current password",
-												"oauth_account": "Password change not available for OAuth accounts. Please contact support."
-											}
+											"example": "Invalid input data"
 										},
 										"details": {
 											"type": "array",
@@ -13886,10 +14158,7 @@
 										},
 										"message": {
 											"type": "string",
-											"examples": {
-												"period_end": "Subscription will be cancelled at the end of the current period",
-												"immediate": "Subscription cancelled immediately"
-											}
+											"example": "Subscription will be cancelled at the end of the current period"
 										},
 										"timestamp": {
 											"type": "string",
@@ -14200,11 +14469,27 @@
 										},
 										"message": {
 											"type": "string",
-											"examples": {
-												"invalid_json": "Invalid JSON in request body",
-												"validation_failed": "variantId is required",
-												"invalid_price": "Custom price must be a positive number"
-											}
+											"example": "Invalid JSON in request body"
+										}
+									}
+								},
+								"examples": {
+									"invalid_json": {
+										"value": {
+											"error": "VALIDATION_ERROR",
+											"message": "Invalid JSON in request body"
+										}
+									},
+									"validation_failed": {
+										"value": {
+											"error": "VALIDATION_ERROR",
+											"message": "variantId is required"
+										}
+									},
+									"invalid_price": {
+										"value": {
+											"error": "VALIDATION_ERROR",
+											"message": "Custom price must be a positive number"
 										}
 									}
 								}
@@ -14225,11 +14510,27 @@
 										},
 										"message": {
 											"type": "string",
-											"examples": {
-												"unauthorized": "Unauthorized",
-												"config_error": "Checkout service unavailable",
-												"internal_error": "Failed to create checkout session"
-											}
+											"example": "Unauthorized"
+										}
+									}
+								},
+								"examples": {
+									"unauthorized": {
+										"value": {
+											"error": "INTERNAL_ERROR",
+											"message": "Unauthorized"
+										}
+									},
+									"config_error": {
+										"value": {
+											"error": "INTERNAL_ERROR",
+											"message": "Checkout service unavailable"
+										}
+									},
+									"internal_error": {
+										"value": {
+											"error": "INTERNAL_ERROR",
+											"message": "Failed to create checkout session"
 										}
 									}
 								}
@@ -14916,10 +15217,7 @@
 									"properties": {
 										"error": {
 											"type": "string",
-											"examples": {
-												"invalid_body": "Invalid request body",
-												"validation_error": "Invalid request parameters"
-											}
+											"example": "Invalid request body"
 										},
 										"message": {
 											"type": "string",
@@ -14929,6 +15227,22 @@
 											"type": "string",
 											"enum": ["INVALID_BODY", "VALIDATION_ERROR"],
 											"example": "INVALID_BODY"
+										}
+									}
+								},
+								"examples": {
+									"invalid_body": {
+										"value": {
+											"message": "Request body must be a valid JSON object",
+											"code": "INVALID_BODY",
+											"error": "Invalid request body"
+										}
+									},
+									"validation_error": {
+										"value": {
+											"message": "Request body must be a valid JSON object",
+											"code": "INVALID_BODY",
+											"error": "Invalid request parameters"
 										}
 									}
 								}
@@ -16005,10 +16319,7 @@
 									"properties": {
 										"error": {
 											"type": "string",
-											"examples": {
-												"missing_user": "User ID is required",
-												"missing_provider": "Provider is required"
-											}
+											"example": "User ID is required"
 										}
 									}
 								},
@@ -16170,11 +16481,7 @@
 									"properties": {
 										"error": {
 											"type": "string",
-											"examples": {
-												"missing_provider": "Provider is required",
-												"missing_user": "User ID is required",
-												"missing_customer": "Customer ID is required"
-											}
+											"example": "Provider is required"
 										}
 									}
 								},
@@ -16320,12 +16627,7 @@
 									"properties": {
 										"error": {
 											"type": "string",
-											"examples": {
-												"missing_id": "Account ID is required",
-												"missing_provider": "Provider is required",
-												"missing_user": "User ID is required",
-												"missing_customer": "Customer ID is required"
-											}
+											"example": "Account ID is required"
 										}
 									}
 								},
@@ -17175,11 +17477,27 @@
 										},
 										"error": {
 											"type": "string",
-											"examples": {
-												"missing_id": "Payment method ID is required",
-												"no_customer": "Payment method not associated with any customer",
-												"stripe_error": "Invalid payment method ID"
-											}
+											"example": "Payment method ID is required"
+										}
+									}
+								},
+								"examples": {
+									"missing_id": {
+										"value": {
+											"success": false,
+											"error": "Payment method ID is required"
+										}
+									},
+									"no_customer": {
+										"value": {
+											"success": false,
+											"error": "Payment method not associated with any customer"
+										}
+									},
+									"stripe_error": {
+										"value": {
+											"success": false,
+											"error": "Invalid payment method ID"
 										}
 									}
 								}
@@ -17239,10 +17557,21 @@
 										},
 										"error": {
 											"type": "string",
-											"examples": {
-												"payment_method": "Payment method not found",
-												"customer": "Customer not found"
-											}
+											"example": "Payment method not found"
+										}
+									}
+								},
+								"examples": {
+									"payment_method": {
+										"value": {
+											"success": false,
+											"error": "Payment method not found"
+										}
+									},
+									"customer": {
+										"value": {
+											"success": false,
+											"error": "Customer not found"
 										}
 									}
 								}
@@ -17344,11 +17673,27 @@
 										},
 										"error": {
 											"type": "string",
-											"examples": {
-												"missing_id": "Payment method ID is required",
-												"no_customer": "Payment method not associated with a customer",
-												"stripe_error": "Invalid payment method ID"
-											}
+											"example": "Payment method ID is required"
+										}
+									}
+								},
+								"examples": {
+									"missing_id": {
+										"value": {
+											"success": false,
+											"error": "Payment method ID is required"
+										}
+									},
+									"no_customer": {
+										"value": {
+											"success": false,
+											"error": "Payment method not associated with a customer"
+										}
+									},
+									"stripe_error": {
+										"value": {
+											"success": false,
+											"error": "Invalid payment method ID"
 										}
 									}
 								}
@@ -17408,10 +17753,21 @@
 										},
 										"error": {
 											"type": "string",
-											"examples": {
-												"payment_method": "Payment method not found",
-												"customer": "Customer not found"
-											}
+											"example": "Payment method not found"
+										}
+									}
+								},
+								"examples": {
+									"payment_method": {
+										"value": {
+											"success": false,
+											"error": "Payment method not found"
+										}
+									},
+									"customer": {
+										"value": {
+											"success": false,
+											"error": "Customer not found"
 										}
 									}
 								}
@@ -17601,16 +17957,37 @@
 										},
 										"error": {
 											"type": "string",
-											"examples": {
-												"validation": "Invalid request data",
-												"setup_intent_failed": "Setup intent has not succeeded",
-												"no_payment_method": "No payment method found in setup intent",
-												"stripe_error": "Invalid setup intent ID"
-											}
+											"example": "Invalid request data"
 										},
 										"details": {
 											"type": "object",
 											"description": "Validation error details (if applicable)"
+										}
+									}
+								},
+								"examples": {
+									"validation": {
+										"value": {
+											"success": false,
+											"error": "Invalid request data"
+										}
+									},
+									"setup_intent_failed": {
+										"value": {
+											"success": false,
+											"error": "Setup intent has not succeeded"
+										}
+									},
+									"no_payment_method": {
+										"value": {
+											"success": false,
+											"error": "No payment method found in setup intent"
+										}
+									},
+									"stripe_error": {
+										"value": {
+											"success": false,
+											"error": "Invalid setup intent ID"
 										}
 									}
 								}
@@ -17788,11 +18165,7 @@
 										},
 										"error": {
 											"type": "string",
-											"examples": {
-												"validation": "Invalid request data",
-												"no_customer": "Payment method not associated with a customer",
-												"stripe_error": "Stripe error: Invalid payment method ID"
-											}
+											"example": "Invalid request data"
 										},
 										"details": {
 											"type": "array",
@@ -17810,6 +18183,26 @@
 													}
 												}
 											}
+										}
+									}
+								},
+								"examples": {
+									"validation": {
+										"value": {
+											"success": false,
+											"error": "Invalid request data"
+										}
+									},
+									"no_customer": {
+										"value": {
+											"success": false,
+											"error": "Payment method not associated with a customer"
+										}
+									},
+									"stripe_error": {
+										"value": {
+											"success": false,
+											"error": "Stripe error: Invalid payment method ID"
 										}
 									}
 								}
@@ -17869,10 +18262,21 @@
 										},
 										"error": {
 											"type": "string",
-											"examples": {
-												"payment_method": "Stripe error: No such payment method",
-												"customer": "Customer not found"
-											}
+											"example": "Stripe error: No such payment method"
+										}
+									}
+								},
+								"examples": {
+									"payment_method": {
+										"value": {
+											"success": false,
+											"error": "Stripe error: No such payment method"
+										}
+									},
+									"customer": {
+										"value": {
+											"success": false,
+											"error": "Customer not found"
 										}
 									}
 								}
@@ -18436,11 +18840,7 @@
 										},
 										"error": {
 											"type": "string",
-											"examples": {
-												"validation": "Invalid request data",
-												"no_customer": "Payment method not associated with a customer",
-												"stripe_error": "Stripe error: Invalid payment method ID"
-											}
+											"example": "Invalid request data"
 										},
 										"details": {
 											"type": "array",
@@ -18458,6 +18858,26 @@
 													}
 												}
 											}
+										}
+									}
+								},
+								"examples": {
+									"validation": {
+										"value": {
+											"success": false,
+											"error": "Invalid request data"
+										}
+									},
+									"no_customer": {
+										"value": {
+											"success": false,
+											"error": "Payment method not associated with a customer"
+										}
+									},
+									"stripe_error": {
+										"value": {
+											"success": false,
+											"error": "Stripe error: Invalid payment method ID"
 										}
 									}
 								}
@@ -18517,10 +18937,21 @@
 										},
 										"error": {
 											"type": "string",
-											"examples": {
-												"payment_method": "Stripe error: No such payment method",
-												"customer": "Customer not found"
-											}
+											"example": "Stripe error: No such payment method"
+										}
+									}
+								},
+								"examples": {
+									"payment_method": {
+										"value": {
+											"success": false,
+											"error": "Stripe error: No such payment method"
+										}
+									},
+									"customer": {
+										"value": {
+											"success": false,
+											"error": "Customer not found"
 										}
 									}
 								}
@@ -18612,10 +19043,21 @@
 										},
 										"error": {
 											"type": "string",
-											"examples": {
-												"validation": "Invalid request data",
-												"stripe_error": "Stripe error: Invalid payment method ID"
-											}
+											"example": "Invalid request data"
+										}
+									}
+								},
+								"examples": {
+									"validation": {
+										"value": {
+											"success": false,
+											"error": "Invalid request data"
+										}
+									},
+									"stripe_error": {
+										"value": {
+											"success": false,
+											"error": "Stripe error: Invalid payment method ID"
 										}
 									}
 								}
@@ -19104,10 +19546,7 @@
 										},
 										"message": {
 											"type": "string",
-											"examples": {
-												"period_end": "Subscription will be cancelled at the end of the current period",
-												"immediate": "Subscription cancelled immediately"
-											}
+											"example": "Subscription will be cancelled at the end of the current period"
 										}
 									},
 									"required": ["success", "data", "message"]
@@ -19570,10 +20009,7 @@
 									"properties": {
 										"error": {
 											"type": "string",
-											"examples": {
-												"invalid_plan": "Invalid plan ID",
-												"not_active": "Subscription is not active"
-											}
+											"example": "Invalid plan ID"
 										}
 									}
 								},
@@ -20793,11 +21229,7 @@
 									"properties": {
 										"error": {
 											"type": "string",
-											"examples": {
-												"no_signature": "No signature provided",
-												"not_processed": "Webhook not processed",
-												"processing_failed": "Webhook processing failed"
-											}
+											"example": "No signature provided"
 										}
 									}
 								},
@@ -21416,10 +21848,19 @@
 									"properties": {
 										"error": {
 											"type": "string",
-											"examples": {
-												"stripe_error": "Failed to fetch subscription data from Stripe",
-												"general_error": "Failed to fetch subscription data"
-											}
+											"example": "Failed to fetch subscription data from Stripe"
+										}
+									}
+								},
+								"examples": {
+									"stripe_error": {
+										"value": {
+											"error": "Failed to fetch subscription data from Stripe"
+										}
+									},
+									"general_error": {
+										"value": {
+											"error": "Failed to fetch subscription data"
 										}
 									}
 								}
@@ -21707,10 +22148,7 @@
 									"properties": {
 										"error": {
 											"type": "string",
-											"examples": {
-												"repo_not_found": "Data repository not found",
-												"no_commits": "No commits found in repository"
-											}
+											"example": "Data repository not found"
 										},
 										"code": {
 											"type": "string",
@@ -21728,6 +22166,24 @@
 											"example": "Git directory not found at: /path/to/content/.git"
 										}
 									}
+								},
+								"examples": {
+									"repo_not_found": {
+										"value": {
+											"code": "REPOSITORY_NOT_FOUND",
+											"timestamp": "2024-01-15T10:35:00.000Z",
+											"details": "Git directory not found at: /path/to/content/.git",
+											"error": "Data repository not found"
+										}
+									},
+									"no_commits": {
+										"value": {
+											"code": "REPOSITORY_NOT_FOUND",
+											"timestamp": "2024-01-15T10:35:00.000Z",
+											"details": "Git directory not found at: /path/to/content/.git",
+											"error": "No commits found in repository"
+										}
+									}
 								}
 							}
 						}
@@ -21741,11 +22197,7 @@
 									"properties": {
 										"error": {
 											"type": "string",
-											"examples": {
-												"git_error": "Failed to retrieve commit information",
-												"validation_error": "Invalid commit data",
-												"internal_error": "Internal server error"
-											}
+											"example": "Failed to retrieve commit information"
 										},
 										"code": {
 											"type": "string",
@@ -21761,6 +22213,32 @@
 											"type": "string",
 											"description": "Additional error details",
 											"example": "Commit is missing required fields"
+										}
+									}
+								},
+								"examples": {
+									"git_error": {
+										"value": {
+											"code": "GIT_ERROR",
+											"timestamp": "2024-01-15T10:35:00.000Z",
+											"details": "Commit is missing required fields",
+											"error": "Failed to retrieve commit information"
+										}
+									},
+									"validation_error": {
+										"value": {
+											"code": "GIT_ERROR",
+											"timestamp": "2024-01-15T10:35:00.000Z",
+											"details": "Commit is missing required fields",
+											"error": "Invalid commit data"
+										}
+									},
+									"internal_error": {
+										"value": {
+											"code": "GIT_ERROR",
+											"timestamp": "2024-01-15T10:35:00.000Z",
+											"details": "Commit is missing required fields",
+											"error": "Internal server error"
 										}
 									}
 								}
@@ -26486,10 +26964,7 @@
 										},
 										"message": {
 											"type": "string",
-											"examples": {
-												"period_end": "Subscription will be cancelled at the end of the current period",
-												"immediate": "Subscription cancelled immediately"
-											}
+											"example": "Subscription will be cancelled at the end of the current period"
 										}
 									},
 									"required": ["success", "data", "message"]
@@ -31212,11 +31687,24 @@
 									"properties": {
 										"error": {
 											"type": "string",
-											"examples": {
-												"no_signature": "No signature provided",
-												"not_processed": "Webhook not processed",
-												"processing_failed": "Webhook processing failed"
-											}
+											"example": "No signature provided"
+										}
+									}
+								},
+								"examples": {
+									"no_signature": {
+										"value": {
+											"error": "No signature provided"
+										}
+									},
+									"not_processed": {
+										"value": {
+											"error": "Webhook not processed"
+										}
+									},
+									"processing_failed": {
+										"value": {
+											"error": "Webhook processing failed"
 										}
 									}
 								}

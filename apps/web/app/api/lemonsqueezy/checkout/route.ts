@@ -112,10 +112,20 @@ import { buildLemonSqueezyCheckoutParams } from '@/lib/payment/lemonsqueezy-chec
  *                   example: "VALIDATION_ERROR"
  *                 message:
  *                   type: string
- *                   examples:
- *                     invalid_json: "Invalid JSON in request body"
- *                     validation_failed: "variantId is required"
- *                     invalid_price: "Custom price must be a positive number"
+ *                   example: "Invalid JSON in request body"
+ *             examples:
+ *               invalid_json:
+ *                 value:
+ *                   error: "VALIDATION_ERROR"
+ *                   message: "Invalid JSON in request body"
+ *               validation_failed:
+ *                 value:
+ *                   error: "VALIDATION_ERROR"
+ *                   message: "variantId is required"
+ *               invalid_price:
+ *                 value:
+ *                   error: "VALIDATION_ERROR"
+ *                   message: "Custom price must be a positive number"
  *       500:
  *         description: "Internal server error"
  *         content:
@@ -129,10 +139,20 @@ import { buildLemonSqueezyCheckoutParams } from '@/lib/payment/lemonsqueezy-chec
  *                   example: "INTERNAL_ERROR"
  *                 message:
  *                   type: string
- *                   examples:
- *                     unauthorized: "Unauthorized"
- *                     config_error: "Checkout service unavailable"
- *                     internal_error: "Failed to create checkout session"
+ *                   example: "Unauthorized"
+ *             examples:
+ *               unauthorized:
+ *                 value:
+ *                   error: "INTERNAL_ERROR"
+ *                   message: "Unauthorized"
+ *               config_error:
+ *                 value:
+ *                   error: "INTERNAL_ERROR"
+ *                   message: "Checkout service unavailable"
+ *               internal_error:
+ *                 value:
+ *                   error: "INTERNAL_ERROR"
+ *                   message: "Failed to create checkout session"
  *       503:
  *         description: "Service unavailable - LemonSqueezy service error"
  *         content:

@@ -91,11 +91,7 @@ const rateLimitConfig = {
  *                   example: false
  *                 error:
  *                   type: string
- *                   examples:
- *                     validation_error: "Invalid input data"
- *                     wrong_current: "Current password is incorrect"
- *                     same_password: "New password must be different from current password"
- *                     oauth_account: "Password change not available for OAuth accounts. Please contact support."
+ *                   example: "Invalid input data"
  *                 details:
  *                   type: array
  *                   description: "Detailed validation errors (when applicable)"

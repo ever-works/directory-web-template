@@ -339,10 +339,17 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
  *                   example: true
  *                 message:
  *                   type: string
- *                   examples:
- *                     soft_delete: "Category deactivated successfully"
- *                     hard_delete: "Category permanently deleted"
+ *                   example: "Category deactivated successfully"
  *               required: ["success", "message"]
+ *             examples:
+ *               soft_delete:
+ *                 value:
+ *                   success: true
+ *                   message: "Category deactivated successfully"
+ *               hard_delete:
+ *                 value:
+ *                   success: true
+ *                   message: "Category permanently deleted"
  *       401:
  *         description: "Unauthorized - Admin access required"
  *         content:

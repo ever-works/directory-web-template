@@ -81,11 +81,24 @@ import { hasSiteGitCredentials } from '@/lib/git/site-git-token';
  *                   example: false
  *                 error:
  *                   type: string
- *                   examples:
- *                     config_missing: "DATA_REPOSITORY not configured. Please set DATA_REPOSITORY environment variable."
- *                     invalid_format: "Invalid DATA_REPOSITORY format. Expected: https://github.com/owner/repo"
- *                     token_missing: "GitHub token not configured. Please set GITHUB_TOKEN environment variable."
- *                     git_error: "Failed to get Git repository status"
+ *                   example: "DATA_REPOSITORY not configured. Please set DATA_REPOSITORY environment variable."
+ *             examples:
+ *               config_missing:
+ *                 value:
+ *                   success: false
+ *                   error: "DATA_REPOSITORY not configured. Please set DATA_REPOSITORY environment variable."
+ *               invalid_format:
+ *                 value:
+ *                   success: false
+ *                   error: "Invalid DATA_REPOSITORY format. Expected: https://github.com/owner/repo"
+ *               token_missing:
+ *                 value:
+ *                   success: false
+ *                   error: "GitHub token not configured. Please set GITHUB_TOKEN environment variable."
+ *               git_error:
+ *                 value:
+ *                   success: false
+ *                   error: "Failed to get Git repository status"
  */
 export async function GET() {
   try {
@@ -251,11 +264,24 @@ export async function GET() {
  *                   example: false
  *                 error:
  *                   type: string
- *                   examples:
- *                     config_missing: "DATA_REPOSITORY not configured. Please set DATA_REPOSITORY environment variable."
- *                     invalid_format: "Invalid DATA_REPOSITORY format. Expected: https://github.com/owner/repo"
- *                     token_missing: "GitHub token not configured. Please set GH_TOKEN environment variable."
- *                     git_error: "Failed to create category via Git"
+ *                   example: "DATA_REPOSITORY not configured. Please set DATA_REPOSITORY environment variable."
+ *             examples:
+ *               config_missing:
+ *                 value:
+ *                   success: false
+ *                   error: "DATA_REPOSITORY not configured. Please set DATA_REPOSITORY environment variable."
+ *               invalid_format:
+ *                 value:
+ *                   success: false
+ *                   error: "Invalid DATA_REPOSITORY format. Expected: https://github.com/owner/repo"
+ *               token_missing:
+ *                 value:
+ *                   success: false
+ *                   error: "GitHub token not configured. Please set GH_TOKEN environment variable."
+ *               git_error:
+ *                 value:
+ *                   success: false
+ *                   error: "Failed to create category via Git"
  */
 export async function POST(request: NextRequest) {
   try {

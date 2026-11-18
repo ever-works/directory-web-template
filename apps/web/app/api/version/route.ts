@@ -77,9 +77,7 @@ import { safeErrorMessage } from '@/lib/utils/api-error';
  *               properties:
  *                 error:
  *                   type: string
- *                   examples:
- *                     repo_not_found: "Data repository not found"
- *                     no_commits: "No commits found in repository"
+ *                   example: "Data repository not found"
  *                 code:
  *                   type: string
  *                   enum: ["REPOSITORY_NOT_FOUND", "NO_COMMITS"]
@@ -92,6 +90,19 @@ import { safeErrorMessage } from '@/lib/utils/api-error';
  *                   type: string
  *                   description: "Additional error details"
  *                   example: "Git directory not found at: /path/to/content/.git"
+ *             examples:
+ *               repo_not_found:
+ *                 value:
+ *                   code: "REPOSITORY_NOT_FOUND"
+ *                   timestamp: "2024-01-15T10:35:00.000Z"
+ *                   details: "Git directory not found at: /path/to/content/.git"
+ *                   error: "Data repository not found"
+ *               no_commits:
+ *                 value:
+ *                   code: "REPOSITORY_NOT_FOUND"
+ *                   timestamp: "2024-01-15T10:35:00.000Z"
+ *                   details: "Git directory not found at: /path/to/content/.git"
+ *                   error: "No commits found in repository"
  *       500:
  *         description: "Internal server error"
  *         content:
@@ -101,10 +112,7 @@ import { safeErrorMessage } from '@/lib/utils/api-error';
  *               properties:
  *                 error:
  *                   type: string
- *                   examples:
- *                     git_error: "Failed to retrieve commit information"
- *                     validation_error: "Invalid commit data"
- *                     internal_error: "Internal server error"
+ *                   example: "Failed to retrieve commit information"
  *                 code:
  *                   type: string
  *                   enum: ["GIT_ERROR", "VALIDATION_ERROR", "INTERNAL_ERROR"]
@@ -117,6 +125,25 @@ import { safeErrorMessage } from '@/lib/utils/api-error';
  *                   type: string
  *                   description: "Additional error details"
  *                   example: "Commit is missing required fields"
+ *             examples:
+ *               git_error:
+ *                 value:
+ *                   code: "GIT_ERROR"
+ *                   timestamp: "2024-01-15T10:35:00.000Z"
+ *                   details: "Commit is missing required fields"
+ *                   error: "Failed to retrieve commit information"
+ *               validation_error:
+ *                 value:
+ *                   code: "GIT_ERROR"
+ *                   timestamp: "2024-01-15T10:35:00.000Z"
+ *                   details: "Commit is missing required fields"
+ *                   error: "Invalid commit data"
+ *               internal_error:
+ *                 value:
+ *                   code: "GIT_ERROR"
+ *                   timestamp: "2024-01-15T10:35:00.000Z"
+ *                   details: "Commit is missing required fields"
+ *                   error: "Internal server error"
  *     x-caching:
  *       description: "Caching behavior"
  *       client: "1 minute with stale-while-revalidate for 5 minutes"

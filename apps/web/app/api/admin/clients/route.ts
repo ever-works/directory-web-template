@@ -364,10 +364,17 @@ export async function GET(request: NextRequest) {
  *               properties:
  *                 error:
  *                   type: string
- *                   examples:
- *                     missing_email: "Email is required"
- *                     user_creation_failed: "Failed to create user: [error details]"
- *                     invalid_user: "Failed to create or find user for client"
+ *                   example: "Email is required"
+ *             examples:
+ *               missing_email:
+ *                 value:
+ *                   error: "Email is required"
+ *               user_creation_failed:
+ *                 value:
+ *                   error: "Failed to create user: [error details]"
+ *               invalid_user:
+ *                 value:
+ *                   error: "Failed to create or find user for client"
  *       401:
  *         description: "Unauthorized - Admin access required"
  *         content:

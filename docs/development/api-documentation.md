@@ -315,6 +315,37 @@ Document all possible error responses:
  */
 ```
 
+### 5. Several example messages for one response
+
+The spec is OpenAPI 3.0, where a Schema Object has only `example` (one value). Named `examples` go next to
+`schema`, on the media type, and each one is an Example Object with a `value` holding the whole response body:
+
+```typescript
+/**
+ *       400:
+ *         description: "Invalid request data"
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "Name is required"
+ *             examples:
+ *               missing_name:
+ *                 value:
+ *                   error: "Name is required"
+ *               name_too_long:
+ *                 value:
+ *                   error: "Name must be at most 100 characters"
+ */
+```
+
+`examples` written inside a schema property is not valid 3.0: the generated `openapi.json` keeps it, but readers
+such as the `/docs` reference ignore it. `scripts/openapi-examples.spec.ts` (`pnpm run test:unit`) parses every
+`@swagger` block `generate-docs` reads and fails on it.
+
 ## Troubleshooting
 
 ### Documentation Not Generating

@@ -136,14 +136,27 @@ const createPaymentMethodSchema = z.object({
  *                   example: false
  *                 error:
  *                   type: string
- *                   examples:
- *                     validation: "Invalid request data"
- *                     setup_intent_failed: "Setup intent has not succeeded"
- *                     no_payment_method: "No payment method found in setup intent"
- *                     stripe_error: "Invalid setup intent ID"
+ *                   example: "Invalid request data"
  *                 details:
  *                   type: object
  *                   description: "Validation error details (if applicable)"
+ *             examples:
+ *               validation:
+ *                 value:
+ *                   success: false
+ *                   error: "Invalid request data"
+ *               setup_intent_failed:
+ *                 value:
+ *                   success: false
+ *                   error: "Setup intent has not succeeded"
+ *               no_payment_method:
+ *                 value:
+ *                   success: false
+ *                   error: "No payment method found in setup intent"
+ *               stripe_error:
+ *                 value:
+ *                   success: false
+ *                   error: "Invalid setup intent ID"
  *       401:
  *         description: "Unauthorized - Authentication required"
  *         content:

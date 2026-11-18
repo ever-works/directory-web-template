@@ -296,9 +296,16 @@ export async function GET(request: NextRequest) {
  *                   example: false
  *                 error:
  *                   type: string
- *                   examples:
- *                     missing_name: "Category name is required"
- *                     invalid_format: "Category name must be at least 2 characters"
+ *                   example: "Category name is required"
+ *             examples:
+ *               missing_name:
+ *                 value:
+ *                   success: false
+ *                   error: "Category name is required"
+ *               invalid_format:
+ *                 value:
+ *                   success: false
+ *                   error: "Category name must be at least 2 characters"
  *       401:
  *         description: "Unauthorized - Admin access required"
  *         content:
