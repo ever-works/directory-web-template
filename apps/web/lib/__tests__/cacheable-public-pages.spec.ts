@@ -111,6 +111,13 @@ describe('cacheable public pages (spec 061)', () => {
 		assert.ok(fetchItem.includes('if (isIoError(error)) { throw error; } return null;'));
 	});
 
+	it('MDX content that does not compile falls back instead of failing the cached page', () => {
+		// A render error on an ISR page is a 500 with nothing cached; item text is not validated MDX.
+		const mdx = code('components/mdx.tsx');
+		assert.ok(mdx.includes('const content = await compileWithFallback(compileMDX, {'));
+		assert.doesNotMatch(mdx, /<MDXRemote/);
+	});
+
 	it('the proxy answers direct requests for the cached twins with 404', () => {
 		const proxy = code('proxy.ts');
 		assert.ok(proxy.includes('if (isCachedListingTwinPath(resolveLocalePrefix(originalPathname).pathWithoutLocale)) { return new NextResponse(null, { status: 404 }); }'));
