@@ -203,6 +203,13 @@ test('only a verified email, or a password-less OAuth user, is matched', async (
 		),
 		null
 	);
+	// Nor does a link with no recorded address (made before links were bound to the provider's address).
+	assert.equal(
+		await finder(stored({ hasPasswordSignIn: false, oauthAccounts: [{ email: null }] }), user).find(
+			'buyer@example.com'
+		),
+		null
+	);
 });
 
 test('the email lookup is case-insensitive and ignores blank or unknown emails', async () => {
@@ -247,7 +254,7 @@ test('a lower-cased provider email matches an address stored with capitals, only
 	const oauthUser = stored({
 		email: 'Buyer@Example.com',
 		hasPasswordSignIn: false,
-		oauthAccounts: [{ email: null }]
+		oauthAccounts: [{ email: 'buyer@example.com' }]
 	});
 
 	assert.equal(await finderFor([{ id: 'user_1' }], oauthUser)('buyer@example.com'), 'user_1');

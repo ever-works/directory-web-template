@@ -152,6 +152,76 @@ confirm, override, or refine.
 - **Owner.** Template maintainers.
 - **Status.** `open`.
 
+### Q-060c OAuth links made before links were bound to an address
+
+- **Context.** The LemonSqueezy ownership check now counts an `oauth` / `oidc` link only when its
+  `accounts.email` is the user's address, and `events.signIn` records the address the provider proved
+  (`lib/auth/oauth-link-email.ts`). Links written before have no address. They used to count as proof, which
+  let an OAuth-only user change their address to someone else's, link a second provider of their own and
+  then manage that person's LemonSqueezy subscriptions (Greptile on #1153).
+- **Options.**
+  - Backfill empty rows from `users.email` (cannot tell an address changed before the fix from one the
+    provider proved, so it would keep the gap open for those users).
+  - Backfill OIDC rows from the stored `id_token`'s `email` / `email_verified` claims (covers Google, not
+    GitHub, and reads a token whose signature is not checked again).
+  - No backfill: an empty row proves nothing; the next sign-in through that provider records its address, and
+    the user can verify the address by email meanwhile.
+- **Default.** **No backfill, and forget what is there.** Migration `0045_unbind_oauth_link_emails` clears
+  `accounts.email` on every OAuth / OIDC row: the only addresses on those rows were copied from `users.email`
+  by `updateUser` (#1123), not proved by a provider, and could be an address the user set but never proved.
+  Ever Works has no real users yet; a user hit by it gets the 403 `EMAIL_NOT_VERIFIED`, whose message names
+  both ways out.
+- **Owner.** Template maintainers.
+- **Status.** `open`.
+
+### Q-060d Providers that do not say whether the address is verified
+
+- **Context.** A link's address is recorded unless the profile says it is not verified (`email_verified:
+  false`, or Google's older `verified_email: false`). GitHub's profile carries no such claim (Auth.js picks the
+  primary email), and Microsoft Entra ID's `email` claim is not verified by Microsoft.
+- **Options.** Trust every configured provider's address; keep a per-provider allowlist of providers whose
+  address counts; for GitHub, read `/user/emails` and record only a verified primary address.
+- **Default.** **Trust every configured provider**, as before this change. Revisit before enabling a provider
+  whose email claim is user-editable (Entra ID multi-tenant apps).
+- **Owner.** Template maintainers.
+- **Status.** `open`.
+
+### Q-060e What the LemonSqueezy subscription amount means
+
+- **Context.** Subscription events carry no price, so the webhook reads `first_subscription_item.price_id` from
+  the Prices API: `unit_price` (cents) and the renewal period. Prices carry no currency (it is the store's), so
+  a new row is stored as `usd` until the first paid invoice writes the charged currency (#1152); the amount
+  itself is right in any currency because LemonSqueezy uses cents everywhere. `unit_price` is the list price per
+  period: discounts and tax are not in it, and usage-based or tiered prices store no amount.
+- **Options.** List price per period (now); read the store's currency on create (one more API call per new
+  subscription); take the amount from the invoices instead.
+- **Default.** **List price per period, currency from the first invoice.** The invoice amounts (`amountDue`,
+  `amountPaid`) already record what was charged. When the Prices API cannot be read, a monthly / yearly variant
+  of `LEMONSQUEEZY_CONFIG` still sets the period and the amount stays as it was.
+- **Owner.** Template maintainers.
+- **Status.** `open`.
+
+---
+
+## Spec 009 — Admin dashboard
+
+### Q-009a Report retries that leave no history row
+
+- **Context.** `PUT /api/admin/reports/{id}` runs the moderation action before it saves the report. A retry
+  after a failed save finishes the save without acting twice, using the `moderation_history` rows this report
+  wrote as proof (`lib/services/report-moderation.ts`). Two cases leave no row: `banUser` / `suspendUser` change
+  the user and then write the history row in two statements (if the second fails the retry answers 409
+  `ALREADY_BANNED`), and `removeContent` writes no row for content whose owner has no client profile (the retry
+  answers 409 `NOT_FOUND`).
+- **Options.** Write the status change and the history row in one transaction; give `moderation_history` a
+  nullable user so ownerless removals are recorded; treat any `ALREADY_*` or `NOT_FOUND` for the same
+  resolution as done (would also accept a ban made by another report, or an item that is only unreadable, as
+  this report's doing).
+- **Default.** **Keep the 409** for both. The admin sees the message and can save the report with another
+  resolution; the transaction and a nullable history user are the follow-ups.
+- **Owner.** Template maintainers.
+- **Status.** `open`.
+
 ---
 
 ## Spec 002 — Plugin Architecture
