@@ -9,6 +9,7 @@ import { generateListingMetadata } from "@/lib/seo/listing-metadata";
 import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-json-ld";
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { DEFAULT_LOCALE } from "@/lib/constants";
+import { toSearchString } from '@/lib/utils/search-string';
 
 // Enable ISR with 10 minutes revalidation
 export const revalidate = 600;
@@ -157,6 +158,7 @@ export default async function CategoryListing({
         page={page}
         basePath={`/categories/${category}`}
         initialCategory={resolvedCategory}
+        search={toSearchString(sp)}
       />
     </>
   );

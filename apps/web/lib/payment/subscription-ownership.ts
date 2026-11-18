@@ -14,6 +14,8 @@
  *   under another provider name, and `POST /api/stripe/subscriptions` lets a user
  *   insert a row with any provider name and id. A lookup by user id and
  *   subscription id alone would accept that row as proof of ownership.
+ *   `PUT`/`DELETE /api/stripe/subscription` use {@link isOwnStripeSubscription},
+ *   which also accepts a subscription whose row the webhook has not written yet.
  * - LemonSqueezy: {@link findOwnedLemonSqueezySubscription} asks LemonSqueezy
  *   for the subscription and compares its customer email with the signed-in
  *   user's email. That is the same identity `GET /api/lemonsqueezy/list` uses to
@@ -49,6 +51,43 @@ export async function findOwnedProviderSubscription<T extends { userId: string |
 	if (!isNonBlank(userId) || !isNonBlank(paymentProvider) || !isNonBlank(subscriptionId)) return null;
 	const row = await lookup(paymentProvider, subscriptionId);
 	return row && row.userId === userId ? row : null;
+}
+
+/** Stripe subscription ids; anything else is refused without calling Stripe. */
+const STRIPE_SUBSCRIPTION_ID = /^sub_[A-Za-z0-9]{1,250}$/;
+
+/** What {@link isOwnStripeSubscription} reads. */
+export interface StripeSubscriptionOwnershipLookups {
+	/** The local row for a Stripe subscription id (`getSubscriptionByProviderSubscriptionId` under `stripe`). */
+	findRow: (subscriptionId: string) => Promise<{ userId: string | null } | null | undefined>;
+	/** The user's own Stripe customer id: their `stripe` payment account, which only the server and admins write. */
+	findUserCustomerId: (userId: string) => Promise<string | null | undefined>;
+	/** The customer Stripe bills the subscription to; `null` when Stripe does not know the id. */
+	fetchSubscriptionCustomerId: (subscriptionId: string) => Promise<string | null | undefined>;
+}
+
+/**
+ * True when `userId` may change the Stripe subscription `subscriptionId`.
+ *
+ * The local row decides whenever there is one, as in {@link findOwnedProviderSubscription}.
+ * `POST /api/stripe/subscription` returns the subscription before the `customer.subscription.created`
+ * webhook writes that row, so while no row exists for the id the subscription is the user's when
+ * Stripe bills it to the user's own Stripe customer. A row of another user, or a missing customer on
+ * either side, refuses.
+ */
+export async function isOwnStripeSubscription(
+	userId: string | null | undefined,
+	subscriptionId: unknown,
+	lookups: StripeSubscriptionOwnershipLookups
+): Promise<boolean> {
+	if (!isNonBlank(userId) || !isNonBlank(subscriptionId)) return false;
+	const row = await lookups.findRow(subscriptionId);
+	if (row) return row.userId === userId;
+	if (!STRIPE_SUBSCRIPTION_ID.test(subscriptionId)) return false;
+	const customerId = await lookups.findUserCustomerId(userId);
+	if (!isNonBlank(customerId)) return false;
+	const subscriptionCustomerId = await lookups.fetchSubscriptionCustomerId(subscriptionId);
+	return isNonBlank(subscriptionCustomerId) && subscriptionCustomerId === customerId;
 }
 
 /** Body of the 403 a LemonSqueezy route returns when the signed-in email is not verified. */

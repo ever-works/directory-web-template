@@ -1,8 +1,26 @@
-import { eq } from 'drizzle-orm';
+import { and, eq, sql } from 'drizzle-orm';
 import { db } from '@/lib/db/drizzle';
 import { accounts, users } from '@/lib/db/schema';
 import { isOAuthAccountType } from '@/lib/auth/connected-accounts';
+import { getTenantId } from '@/lib/auth/tenant';
 import type { EmailVerificationState } from './subscription-ownership';
+
+/**
+ * Up to two of the current tenant's users whose email equals `email` ignoring case, for the
+ * LemonSqueezy verified-email match (`lemonsqueezy-verified-email-user.ts`): two already show the
+ * address is ambiguous. A database error throws, so the webhook answers 503 and is redelivered.
+ */
+export async function getUsersByEmailIgnoringCase(email: string): Promise<Array<{ id: string }>> {
+	const normalised = email.trim().toLowerCase();
+	if (!normalised) return [];
+	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
+	return db
+		.select({ id: users.id })
+		.from(users)
+		.where(and(sql`lower(${users.email}) = ${normalised}`, eq(users.tenantId, tenantId)))
+		.limit(2);
+}
 
 /**
  * Database lookup for `isEmailVerifiedForOwnership` (see `subscription-ownership.ts`).

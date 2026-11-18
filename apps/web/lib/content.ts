@@ -1923,7 +1923,10 @@ export async function fetchItem(slug: string, options: FetchOptions = {}) {
 	const tags = await getCachedTagsInternal(options);
 
 	try {
-		const meta = await parseItem(metaPath, `${sanitizedSlug}.yml`);
+		// IO errors (EMFILE, EIO, ...) propagate: `null` means "no such item", and the cached
+		// item page answers 404 for it. A transient read failure must instead fail the render,
+		// so ISR keeps the last good page (Spec 061).
+		const meta = await parseItem(metaPath, `${sanitizedSlug}.yml`, undefined, { throwIoErrors: true });
 		if (!meta) {
 			return null;
 		}
@@ -1933,7 +1936,9 @@ export async function fetchItem(slug: string, options: FetchOptions = {}) {
 				throw new Error(`Invalid language code: ${options.lang}`);
 			}
 			console.log('fetching translation', sanitizedSlug, options.lang);
-			const translation = await parseTranslation(metaPath, `${sanitizedSlug}.${options.lang}.yml`);
+			const translation = await parseTranslation(metaPath, `${sanitizedSlug}.${options.lang}.yml`, {
+				throwIoErrors: true
+			});
 			if (translation) Object.assign(meta, translation);
 		}
 
@@ -1996,6 +2001,9 @@ export async function fetchItem(slug: string, options: FetchOptions = {}) {
 		}
 	} catch (error) {
 		console.error(`Failed to load item ${sanitizedSlug}:`, error);
+		if (isIoError(error)) {
+			throw error;
+		}
 		return null;
 	}
 }

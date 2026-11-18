@@ -83,7 +83,7 @@ The `countDiff` calculation handles three cases: toggling off (subtract 1), fres
 
 ### Authentication Gate
 
-Unauthenticated users who attempt to vote are shown a login modal instead of receiving an error:
+Unauthenticated users who attempt to vote are shown a login modal, and `handleVote` throws before it starts the mutation:
 
 ```ts
 if (!user) {
@@ -92,7 +92,7 @@ if (!user) {
 }
 ```
 
-The error is caught by the mutation's `onError` handler, which checks for the authentication message and suppresses the error toast.
+The throw reaches the code that called `handleVote`: no request is sent and the mutation's `onError` does not run. `onError` only handles a failed vote request: it rolls back the optimistic update and shows an error toast (the vote mutation skips the toast when the message is about signing in).
 
 ### Query Configuration
 
@@ -223,14 +223,14 @@ function useAdminComments({ page, limit, search }) {
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| GET | `/api/items/:id/votes` | Fetch vote count and user's vote |
-| POST | `/api/items/:id/votes` | Cast or change a vote |
-| DELETE | `/api/items/:id/votes` | Remove a vote |
-| GET | `/api/items/:id/comments` | Fetch comments with user data |
-| POST | `/api/items/:id/comments` | Create a new comment |
-| PUT | `/api/items/:id/comments/:commentId` | Update a comment |
-| DELETE | `/api/items/:id/comments/:commentId` | Delete a comment |
-| GET | `/api/items/:id/comments/rating` | Get aggregate item rating |
+| GET | `/api/items/:slug/votes` | Fetch vote count and user's vote |
+| POST | `/api/items/:slug/votes` | Cast or change a vote |
+| DELETE | `/api/items/:slug/votes` | Remove a vote |
+| GET | `/api/items/:slug/comments` | Fetch comments with user data |
+| POST | `/api/items/:slug/comments` | Create a new comment |
+| PUT | `/api/items/:slug/comments/:commentId` | Update a comment |
+| DELETE | `/api/items/:slug/comments/:commentId` | Delete a comment |
+| GET | `/api/items/:slug/comments/rating` | Get aggregate item rating |
 
 ## Feature Flag Integration
 

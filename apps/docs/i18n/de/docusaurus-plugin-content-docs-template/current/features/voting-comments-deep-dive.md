@@ -83,7 +83,7 @@ Die `countDiff` -Berechnung behandelt drei Fälle: Ausschalten (1 subtrahieren),
 
 ### Authentifizierungsgate
 
-Nicht authentifizierten Benutzern, die versuchen abzustimmen, wird ein Anmeldemodal angezeigt, anstatt eine Fehlermeldung zu erhalten:
+Nicht authentifizierten Benutzern, die abstimmen wollen, wird ein Anmeldemodal angezeigt, und `handleVote` wirft einen Fehler, bevor die Mutation startet:
 
 ```ts
 if (!user) {
@@ -92,7 +92,7 @@ if (!user) {
 }
 ```
 
-Der Fehler wird vom `onError` -Handler der Mutation abgefangen, der nach der Authentifizierungsnachricht sucht und den Fehlertoast unterdrückt.
+Dieser Fehler landet beim Aufrufer von `handleVote`: Es wird keine Anfrage gesendet, und der `onError`-Handler der Mutation läuft nicht. `onError` behandelt nur eine fehlgeschlagene Abstimmungsanfrage: Er macht das optimistische Update rückgängig und zeigt einen Fehlertoast (die Abstimmungsmutation lässt den Toast bei einer Anmeldemeldung weg).
 
 ### Abfragekonfiguration
 
@@ -223,14 +223,14 @@ function useAdminComments({ page, limit, search }) {
 
 | Methode | Endpunkt | Beschreibung |
 |--------|----------|-------------|
-| GET | `/api/items/:id/votes` | Stimmenanzahl und Benutzerstimme abrufen |
-| POST | `/api/items/:id/votes` | Eine Stimme abgeben oder ändern |
-| LÖSCHEN | `/api/items/:id/votes` | Eine Stimme entfernen |
-| GET | `/api/items/:id/comments` | Kommentare mit Benutzerdaten abrufen |
-| POST | `/api/items/:id/comments` | Einen neuen Kommentar erstellen |
-| PUT | `/api/items/:id/comments/:commentId` | Einen Kommentar aktualisieren |
-| LÖSCHEN | `/api/items/:id/comments/:commentId` | Einen Kommentar löschen |
-| GET | `/api/items/:id/comments/rating` | Gesamte Artikelbewertung abrufen |
+| GET | `/api/items/:slug/votes` | Stimmenanzahl und Benutzerstimme abrufen |
+| POST | `/api/items/:slug/votes` | Eine Stimme abgeben oder ändern |
+| DELETE | `/api/items/:slug/votes` | Eine Stimme entfernen |
+| GET | `/api/items/:slug/comments` | Kommentare mit Benutzerdaten abrufen |
+| POST | `/api/items/:slug/comments` | Einen neuen Kommentar erstellen |
+| PUT | `/api/items/:slug/comments/:commentId` | Einen Kommentar aktualisieren |
+| DELETE | `/api/items/:slug/comments/:commentId` | Einen Kommentar löschen |
+| GET | `/api/items/:slug/comments/rating` | Gesamte Artikelbewertung abrufen |
 
 ## Feature-Flag-Integration
 

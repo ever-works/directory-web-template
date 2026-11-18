@@ -28,10 +28,20 @@ function toEpochMs(v: Date | string | null | undefined): number {
 // value), so the sort comparator was returning 0 for every pair and
 // the page kept its source-array order regardless of asc/desc.
 function nameKey(it: ItemData): string {
-  // Item YAML is not validated, so an unquoted `name: 1984` arrives as a number.
-  const name = String(it.name ?? '').trim();
+  const name = itemNameText(it.name);
   if (name) return name.toLowerCase();
   return (it.slug || '').toLowerCase();
+}
+
+/**
+ * An item name as text. Item YAML is not validated, so an unquoted `name: 1984` arrives as a
+ * number, which reads as its text; any other non-string value (`true`, a list, a map) counts as
+ * blank, the rule `generateCollectionSchema` (lib/seo/schema.ts) applies to the same names.
+ */
+export function itemNameText(name: unknown): string {
+  if (typeof name === 'string') return name.trim();
+  if (typeof name === 'number' && Number.isFinite(name)) return String(name);
+  return '';
 }
 
 export function sortItems(items: ItemData[], sort?: string): ItemData[] {

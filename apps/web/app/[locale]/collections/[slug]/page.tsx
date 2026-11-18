@@ -9,6 +9,7 @@ import { generateListingMetadata } from "@/lib/seo/listing-metadata";
 import { getLocalizedUrl } from "@/lib/seo/hreflang";
 import { generateBreadcrumbSchema, generateCollectionSchema } from "@/lib/seo/schema";
 import { sortItems, SORT_OPTIONS } from "@/components/shared-card/utils/sort-utils";
+import { itemNameText } from "@/lib/listing-server";
 import type { Locale } from "@/lib/constants";
 
 // Force dynamic rendering — the page consults dynamic APIs
@@ -105,13 +106,13 @@ export default async function CollectionPage({
       .filter(Boolean);
 
   const collectionItemIds = collection.items || [];
+  // Item YAML is not validated: an unquoted `name: 1984` arrives as a number, and the name sorts
+  // (the JSON-LD order below, the grid's "name-asc" default) call `name.localeCompare`. Finite
+  // numbers become text; any other non-string name counts as blank.
   const collectionItems = items
     .filter((item) => collectionItemIds.includes(item.slug))
-    .map((item) => ({ ...item, tags: normalizeItemTags(item.tags) }));
-  const schemaItems = sortItems(
-    items.filter((item) => collectionItemIds.includes(item.slug)),
-    SORT_OPTIONS.NAME_ASC
-  );
+    .map((item) => ({ ...item, name: itemNameText(item.name), tags: normalizeItemTags(item.tags) }));
+  const schemaItems = sortItems(collectionItems, SORT_OPTIONS.NAME_ASC);
   const collectionUrl = getLocalizedUrl(`/collections/${slug}`, locale as Locale);
   const collectionSchema = generateCollectionSchema({
     name: collection.name,

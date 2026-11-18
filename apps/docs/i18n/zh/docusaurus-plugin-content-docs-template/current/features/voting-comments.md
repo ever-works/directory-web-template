@@ -18,7 +18,7 @@ Ever Works 模板包括完整的投票和评论系统，允许用户对项目投
 ```mermaid
 flowchart TD
     A["Component (UI)"] -->|"useItemVote(itemId)"| B["Vote Hook (optimistic)"]
-    B --> C["/api/items/:id/votes"]
+    B --> C["/api/items/:slug/votes"]
     C --> D["Database (votes table)"]
 ```
 
@@ -114,7 +114,7 @@ const {
 - `rating` -- 可选星级 (1-5)
 - `userId` -- 作者参考
 - `itemId` -- 相关项目
-- `user` -- 填充的用户数据（姓名、电子邮件、图像）
+- `user` -- 作者的公开资料。GET 和 POST 返回 id、name、image、username、bio、jobTitle、company 和 location；PUT（编辑）响应只返回 id、name 和 image。从不返回电子邮件。
 - `createdAt` / `updatedAt` -- 时间戳
 
 ### 评级整合
@@ -155,11 +155,11 @@ const {
 
 | 方法 | 端点 | 描述 |
 |--------|----------|-------------|
-| GET | `/api/items/:id/comments` | 获取某个项目的评论 |
-| POST | `/api/items/:id/comments` | 创建新评论 |
-| PUT | `/api/items/:id/comments/:commentId` | 更新评论 |
-| DELETE | `/api/items/:id/comments/:commentId` | 删除评论 |
-| GET | `/api/items/:id/comments/rating` | 获取综合评级 |
+| GET | `/api/items/:slug/comments` | 获取某个项目的评论 |
+| POST | `/api/items/:slug/comments` | 创建新评论 |
+| PUT | `/api/items/:slug/comments/:commentId` | 更新评论 |
+| DELETE | `/api/items/:slug/comments/:commentId` | 删除评论 |
+| GET | `/api/items/:slug/comments/rating` | 获取综合评级 |
 
 ## 功能标志集成
 

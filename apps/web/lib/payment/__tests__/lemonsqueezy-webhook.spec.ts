@@ -147,6 +147,51 @@ test('stored amounts are whole numbers and never NaN', () => {
 	assert.ok(Number.isInteger(toStoredAmount(1234)));
 });
 
+test('stored amounts use the currency minor unit, so zero-decimal currencies are not divided by 100', () => {
+	assert.equal(toStoredAmount(1999, 'usd'), 20);
+	assert.equal(toStoredAmount(1999, 'EUR'), 20);
+	// JPY and KRW have no minor unit: the provider's 1500 is already 1500 yen.
+	assert.equal(toStoredAmount(1500, 'jpy'), 1500);
+	assert.equal(toStoredAmount(25000, 'KRW'), 25000);
+	// A missing currency is read as USD, as before.
+	assert.equal(toStoredAmount(1999, null), 20);
+	assert.equal(toStoredAmount(1999, ''), 20);
+	assert.equal(toStoredAmount(Number.NaN, 'jpy'), 0);
+});
+
+test('stored amounts follow the provider units, not the display list (IDR is two-decimal at Stripe)', () => {
+	// Rp10,000 arrives as unit_amount 1000000.
+	assert.equal(toStoredAmount(1000000, 'idr'), 10000);
+	assert.equal(toStoredAmount(1000000, 'HUF'), 10000);
+	// Three-decimal currencies arrive in thousandths.
+	assert.equal(toStoredAmount(12500, 'kwd'), 13);
+	assert.equal(toStoredAmount(5000, 'VND'), 5000);
+	// UGX is zero-decimal at Stripe but still sent in hundredths: 5 UGX arrives as 500.
+	assert.equal(toStoredAmount(500, 'ugx'), 5);
+});
+
+test('LemonSqueezy amounts are cents in every currency', () => {
+	// A JPY 1500 invoice arrives as total 150000.
+	assert.equal(toStoredAmount(150000, 'JPY', 'lemonsqueezy'), 1500);
+	assert.equal(toStoredAmount(1999, 'usd', 'lemonsqueezy'), 20);
+	assert.equal(toStoredAmount(1500, 'jpy', 'stripe'), 1500);
+});
+
+test('the subscription service passes the currency to every stored amount', () => {
+	const source = readFileSync(join(__dirname, '../../services/webhook-subscription.service.ts'), 'utf8');
+	const calls = source.match(/toStoredAmount\([^)]*\)/g) ?? [];
+	assert.ok(calls.length >= 4, 'expected the amount, amount_due and amount_paid writes');
+	for (const call of calls) {
+		assert.match(call, /, (currency|response\.currency), this\.paymentProvider\)$/, `${call} drops the currency or provider`);
+	}
+
+	// An invoice carries the charged currency, which a LemonSqueezy subscription event never does.
+	const start = source.indexOf('async handleSubscriptionPaymentSucceeded(');
+	const body = source.slice(start, source.indexOf('async handleSubscriptionPaymentFailed(', start));
+	assert.ok(body.includes('const currency = response.currency || existingSubscription.currency;'));
+	assert.ok(/updateData = \{[^}]*\bcurrency,/.test(body), 'the payment success does not store the invoice currency');
+});
+
 test('an invoice event is keyed on its subscription and carries cents', () => {
 	const mapped = toSubscriptionServiceData({
 		id: '555',

@@ -3,13 +3,50 @@
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
 import { Home, ArrowLeft, Search } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { getPathname } from '@/i18n/navigation';
 
+type NotFoundText = Record<
+  | 'PAGE_NOT_FOUND'
+  | 'PAGE_NOT_FOUND_DESCRIPTION'
+  | 'GO_BACK'
+  | 'BACK_TO_HOME'
+  | 'TRY_SEARCHING'
+  | 'SEARCH_SUGGESTION'
+  | 'NEED_HELP'
+  | 'CONTACT_SUPPORT',
+  string
+>;
+
+/** The global 404 renders outside `[locale]`, where no message provider exists. */
+const ENGLISH: NotFoundText = {
+  PAGE_NOT_FOUND: 'Page Not Found',
+  PAGE_NOT_FOUND_DESCRIPTION: "Sorry, the page you're looking for doesn't exist or has been moved.",
+  GO_BACK: 'Go Back',
+  BACK_TO_HOME: 'Back to Home',
+  TRY_SEARCHING: 'Try searching instead',
+  SEARCH_SUGGESTION: "Use the search bar above to find what you're looking for.",
+  NEED_HELP: 'Need help?',
+  CONTACT_SUPPORT: 'Contact Support'
+};
+
 /**
- * @param locale The page's locale, inside `[locale]`: the links keep it. Without it
- *               (the global 404, outside any locale) they go to the default locale.
+ * @param locale The page's locale, inside `[locale]`: the text comes from that locale's
+ *               `help` messages and the links keep it. Without it (the global 404, outside
+ *               any locale and its message provider) the text is English and the links go
+ *               to the default locale.
  */
 export default function NotFound({ locale }: { locale?: string } = {}) {
+  return locale ? <LocalizedNotFound locale={locale} /> : <NotFoundView text={ENGLISH} />;
+}
+
+function LocalizedNotFound({ locale }: { locale: string }) {
+  const t = useTranslations('help');
+  const text = Object.fromEntries(Object.keys(ENGLISH).map((key) => [key, t(key)])) as NotFoundText;
+  return <NotFoundView locale={locale} text={text} />;
+}
+
+function NotFoundView({ locale, text }: { locale?: string; text: NotFoundText }) {
   const router = useRouter();
   const homeHref = locale ? getPathname({ href: '/', locale }) : '/';
   const helpHref = locale ? getPathname({ href: '/help', locale }) : '/help';
@@ -27,10 +64,10 @@ export default function NotFound({ locale }: { locale?: string } = {}) {
         {/* Main Message */}
         <div className="mb-8">
           <h2 className="text-2xl md:text-3xl font-semibold text-gray-900 dark:text-white mb-4">
-            Page Not Found
+            {text.PAGE_NOT_FOUND}
           </h2>
           <p className="text-gray-600 dark:text-gray-300 text-lg leading-relaxed">
-            Sorry, the page you&apos;re looking for doesn&apos;t exist or has been moved.
+            {text.PAGE_NOT_FOUND_DESCRIPTION}
           </p>
         </div>
 
@@ -42,7 +79,7 @@ export default function NotFound({ locale }: { locale?: string } = {}) {
             className="flex items-center gap-2 px-6 py-3"
           >
             <ArrowLeft className="w-4 h-4" />
-            Go Back
+            {text.GO_BACK}
           </Button>
           
           <Button
@@ -50,7 +87,7 @@ export default function NotFound({ locale }: { locale?: string } = {}) {
             className="flex items-center gap-2 px-6 py-3 bg-theme-primary text-white"
           >
             <Home className="w-4 h-4" />
-            Back to Home
+            {text.BACK_TO_HOME}
           </Button>
         </div>
 
@@ -61,24 +98,22 @@ export default function NotFound({ locale }: { locale?: string } = {}) {
             <div className="flex items-center gap-3 mb-3">
               <Search className="w-5 h-5 text-gray-500 dark:text-gray-400" />
               <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                Try searching instead
+                {text.TRY_SEARCHING}
               </span>
             </div>
-            <p className="text-sm text-gray-600 dark:text-gray-400">
-              Use the search bar above to find what you&apos;re looking for.
-            </p>
+            <p className="text-sm text-gray-600 dark:text-gray-400">{text.SEARCH_SUGGESTION}</p>
           </div>
         ) : null}
 
         {/* Helpful Links */}
         <div className="mt-8 text-sm text-gray-500 dark:text-gray-400">
           <p>
-            Need help?{' '}
+            {text.NEED_HELP}{' '}
             <button
               onClick={() => router.push(helpHref)}
               className="text-theme-primary hover:text-theme-accent transition-colors underline"
             >
-              Contact Support
+              {text.CONTACT_SUPPORT}
             </button>
           </p>
         </div>

@@ -104,6 +104,20 @@ describe('newsletter resubscribe', () => {
 		assert.ok(!/console\.log\([^)]*\bemail\b/.test(subscribe), 'subscribeToNewsletter still logs the email');
 	});
 
+	it('the resubscribe query restarts subscribedAt so the stats count the resubscription', () => {
+		// getNewsletterStats counts recentSubscriptions by subscribedAt; a re-activated row kept the
+		// original date, so a resubscription after more than 30 days was never counted.
+		const queries = source('../newsletter.queries.ts');
+		const start = queries.indexOf('export async function resubscribeToNewsletter(');
+		assert.ok(start >= 0, 'resubscribeToNewsletter not found');
+		const end = queries.indexOf(' export ', start + 1);
+		const resubscribe = queries.slice(start, end < 0 ? undefined : end);
+		assert.ok(
+			/\.set\(\{ isActive: true, subscribedAt: new Date\(\), unsubscribedAt: null \}\)/.test(resubscribe),
+			'resubscribeToNewsletter does not set subscribedAt to now'
+		);
+	});
+
 	it('unsubscribe uses the query that also records unsubscribedAt', () => {
 		assert.ok(
 			/unsubscribeFromNewsletter as \w+/.test(actions),

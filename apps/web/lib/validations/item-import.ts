@@ -10,6 +10,11 @@ import { httpUrlSchema } from './http-url';
 export const IMPORT_SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 export const IMPORT_SLUG_MESSAGE = 'Slug may only contain lowercase letters, numbers and single hyphens';
 
+/** At least one category name: an import row must have a category. */
+const requiredCategories = z
+	.array(z.string().trim().min(1, 'Category is required'), { error: 'Category is required' })
+	.min(1, 'Category is required');
+
 /**
  * Schema for validating a single import row after column mapping.
  */
@@ -32,7 +37,9 @@ export const importRowSchema = z.object({
 	category: z
 		.string()
 		.min(1, 'Category is required')
-		.transform((val) => val.split(';').map((s) => s.trim()).filter(Boolean)),
+		.transform((val) => val.split(';').map((s) => s.trim()).filter(Boolean))
+		// A cell such as ';' or ' ; ' splits into no category at all
+		.pipe(requiredCategories),
 	tags: z
 		.string()
 		.optional()
@@ -74,14 +81,15 @@ const importedList = z.array(z.string()).optional();
 /**
  * Server-side check of a row the browser sends back to the execute step
  * (`ImportRowValidation.data`, which `validateRows` has already split into arrays).
- * Reuses the name, description and URL rules of {@link importRowSchema}; the slug is required.
+ * Reuses the name, description, URL and category rules of {@link importRowSchema}; the slug is required.
+ * The category is required here too: a forged row without one would otherwise be written with `category: []`.
  */
 export const importRowDataSchema = z.object({
 	name: importRowSchema.shape.name,
 	description: importRowSchema.shape.description,
 	source_url: importRowSchema.shape.source_url,
 	slug: z.string().regex(IMPORT_SLUG_PATTERN, IMPORT_SLUG_MESSAGE),
-	category: importedList,
+	category: requiredCategories,
 	tags: importedList,
 	collections: importedList,
 	featured: z.boolean().optional(),

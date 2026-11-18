@@ -33,11 +33,12 @@ import type {
 const MAX_IMPORT_BATCH = 500;
 
 /**
- * The `'` the CSV export puts before a cell starting with `=`, `+`, `-`, `@`, tab or CR. A value
+ * The `'` the CSV export puts before a cell starting with `=`, `+`, `-`, `@`, tab, CR or LF
+ * (`CSV_FORMULA_PREFIX` in lib/utils/csv-formula.ts). A value
  * that already started with `'` before such a character was exported with one more `'`, so one
  * apostrophe is removed from any run of them that ends in one of those characters.
  */
-const ESCAPED_FORMULA_APOSTROPHE = /^'(?='*[=+\-@\t\r])/;
+const ESCAPED_FORMULA_APOSTROPHE = /^'(?='*[=+\-@\t\r\n])/;
 
 /**
  * Known field aliases for auto-detecting column mapping.
@@ -120,8 +121,8 @@ export class ItemImportService {
 	/**
 	 * Parse a CSV string into headers and rows.
 	 *
-	 * `ItemExportService.exportToCSV` prefixes a cell that starts with `=`, `+`, `-`, `@`, tab or CR
-	 * with `'` so spreadsheet apps do not run it as a formula. The transform removes that one
+	 * `ItemExportService.exportToCSV` prefixes a cell that starts with `=`, `+`, `-`, `@`, tab, CR or
+	 * LF with `'` so spreadsheet apps do not run it as a formula. The transform removes that one
 	 * apostrophe, so an exported file imports back with the original values.
 	 */
 	parseCSV(content: string): ParsedFile {

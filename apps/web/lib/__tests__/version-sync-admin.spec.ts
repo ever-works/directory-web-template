@@ -34,7 +34,7 @@ describe('POST /api/version/sync is admin-only', () => {
 
 	it('POST runs requireAdminSession() and returns its response before triggerManualSync()', () => {
 		const guard = post.indexOf('await requireAdminSession()');
-		const bail = post.indexOf('if (authResult instanceof NextResponse) return authResult;');
+		const bail = post.indexOf('if (authResult instanceof NextResponse) {');
 		const body = post.indexOf('request.json()');
 		const sync = post.indexOf('triggerManualSync()');
 		assert.ok(guard > 0, 'POST does not call requireAdminSession()');
@@ -42,6 +42,25 @@ describe('POST /api/version/sync is admin-only', () => {
 		assert.ok(sync > 0, 'POST no longer calls triggerManualSync()');
 		assert.ok(bail < sync, 'the admin check must run before triggerManualSync()');
 		assert.ok(body < 0 || bail < body, 'the admin check must run before the request body is read');
+	});
+
+	it('POST passes 401/403 through and answers a failed admin check (500) with the sync error shape', () => {
+		// The documented 500 body carries timestamp and duration; the guard's own 500 has neither.
+		const bail = post.indexOf('if (authResult instanceof NextResponse) {');
+		const branch = post.slice(bail, post.indexOf('return authResult; }', bail) + 'return authResult; }'.length);
+		assert.ok(bail > 0 && branch.endsWith('return authResult; }'), 'the guard branch does not return authResult');
+		const serverError = branch.indexOf('if (authResult.status >= 500) {');
+		assert.ok(serverError > 0, 'a 500 from requireAdminSession() is returned as is');
+		assert.ok(
+			/if \(authResult\.status >= 500\) \{ return createSyncResponse\(false, "[^"]+", Date\.now\(\) - startTime\); \}/.test(
+				branch
+			),
+			'a 500 from requireAdminSession() does not go through createSyncResponse()'
+		);
+		assert.ok(
+			serverError < branch.lastIndexOf('return authResult;'),
+			'the 500 check must run before the guard response is returned'
+		);
 	});
 
 	it('POST no longer accepts any signed-in user', () => {

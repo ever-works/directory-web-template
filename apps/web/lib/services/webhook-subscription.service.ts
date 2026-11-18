@@ -196,7 +196,7 @@ export class WebhookSubscriptionService {
 				priceId: response.priceId || null,
 				customerId: response.customerId,
 				currency: response.currency || 'usd',
-				amount: toStoredAmount(response.amount) || null,
+				amount: toStoredAmount(response.amount, response.currency, this.paymentProvider) || null,
 				interval: response.interval || 'month',
 				intervalCount: response.intervalCount || 1,
 				trialStart: convertNumberToDate(response.trialStart) || null,
@@ -282,6 +282,7 @@ export class WebhookSubscriptionService {
 					? response.cancelAtPeriodEnd
 					: (existingSubscription.cancelAtPeriodEnd ?? false);
 
+			const currency = response.currency || existingSubscription.currency;
 			const updateData = {
 				status: newStatus,
 				planId: response.planId || existingSubscription.planId,
@@ -290,10 +291,10 @@ export class WebhookSubscriptionService {
 					response.planId === 'free'
 						? 0
 						: response.amount > 0
-							? toStoredAmount(response.amount)
+							? toStoredAmount(response.amount, currency, this.paymentProvider)
 							: existingSubscription.amount,
 				priceId: response.priceId || existingSubscription.priceId,
-				currency: response.currency || existingSubscription.currency,
+				currency,
 				interval: response.interval || existingSubscription.interval,
 				intervalCount: response.intervalCount || existingSubscription.intervalCount,
 				trialStart: trialStart !== undefined ? trialStart : existingSubscription.trialStart,
@@ -456,13 +457,17 @@ export class WebhookSubscriptionService {
 				return await this.handleSubscriptionCreated(data);
 			}
 			const previousStatus = existingSubscription.status;
+			// The invoice says which currency was charged. Subscription events do not always carry it
+			// (LemonSqueezy's never do), so the row takes it from here and the amounts are stored in it.
+			const currency = response.currency || existingSubscription.currency;
 			// Update subscription with successful payment
 			const updateData = {
 				status: SubscriptionStatus.ACTIVE,
 				// Keep the stored end date when the event carries no period end.
 				endDate: convertNumberToDate(response.periodEnd) ?? existingSubscription.endDate,
-				amountDue: toStoredAmount(response.amountDue),
-				amountPaid: toStoredAmount(response.amountPaid),
+				currency,
+				amountDue: toStoredAmount(response.amountDue, currency, this.paymentProvider),
+				amountPaid: toStoredAmount(response.amountPaid, currency, this.paymentProvider),
 				periodEnd: convertNumberToDate(response.periodEnd),
 				periodStart: convertNumberToDate(response.periodStart),
 				invoicePdf: response.invoicePdf,

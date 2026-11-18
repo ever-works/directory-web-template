@@ -9,7 +9,7 @@ import type { ItemExportData } from '@/lib/types/item-import-export';
  * Run with: `pnpm --filter @ever-works/web test:unit`
  *
  * Item CSV exports carry client-submitted text (name, description, brand, markdown, location).
- * A cell that begins with `=`, `+`, `-`, `@`, tab or CR runs as a formula when an admin opens
+ * A cell that begins with `=`, `+`, `-`, `@`, tab, CR or LF can run as a formula when an admin opens
  * the file in a spreadsheet app, so `ItemExportService.exportToCSV` must prefix such cells with
  * `'`, and `ItemImportService.parseCSV` must take that one apostrophe off again so an
  * export-then-import round trip does not change any value.
@@ -53,6 +53,7 @@ const ITEM: ItemExportData = {
 		city: '-2+3',
 		state: '\t=1+1',
 		country: '\r=1+1',
+		postal_code: '\n=1+1',
 		latitude: -33.8688,
 		longitude: 151.2093
 	}
@@ -67,7 +68,7 @@ const cells = (csv: string) => Papa.parse<string[]>(csv, { header: false }).data
 const firstRow = (csv: string) => Papa.parse<Record<string, string>>(csv, { header: true }).data[0];
 
 /** A cell a spreadsheet app would run as a formula. Plain numbers such as `-33.8688` are data. */
-const isFormulaCell = (cell: string) => /^[=+\-@\t\r]/.test(cell) && !/^[-+]?\d+(\.\d+)?$/.test(cell);
+const isFormulaCell = (cell: string) => /^[=+\-@\t\r\n]/.test(cell) && !/^[-+]?\d+(\.\d+)?$/.test(cell);
 
 for (const [label, options] of [
 	['admin export (all items)', {}],
@@ -84,7 +85,7 @@ for (const [label, options] of [
 			assert.deepEqual(formulaCells, [], `unescaped formula cells:\n${data}`);
 		});
 
-		it('escapes a multi-line description, the +, @, -, tab and CR prefixes, and a value that already starts with an apostrophe', async () => {
+		it('escapes a multi-line description, the +, @, -, tab, CR and LF prefixes, and a value that already starts with an apostrophe', async () => {
 			const { data } = await new ItemExportService(fakeRepository([ITEM])).exportToCSV(options);
 			const row = firstRow(data);
 
@@ -94,6 +95,7 @@ for (const [label, options] of [
 			assert.equal(row['location.city'], "'-2+3");
 			assert.equal(row['location.state'], "'\t=1+1");
 			assert.equal(row['location.country'], "'\r=1+1");
+			assert.equal(row['location.postal_code'], "'\n=1+1");
 			assert.equal(row['location.address'], "''=1+1");
 		});
 
@@ -120,14 +122,15 @@ describe('ItemImportService.parseCSV reads an escaped export back unchanged', ()
 		assert.equal(rows[0]['location.city'], '-2+3');
 		assert.equal(rows[0]['location.state'], '\t=1+1');
 		assert.equal(rows[0]['location.country'], '\r=1+1');
+		assert.equal(rows[0]['location.postal_code'], '\n=1+1');
 		assert.equal(rows[0]['location.address'], "'=1+1");
 		assert.equal(rows[0]['location.latitude'], '-33.8688');
 	});
 
-	it('removes the one apostrophe placed before =, +, -, @, tab or CR', () => {
+	it('removes the one apostrophe placed before =, +, -, @, tab, CR or LF', () => {
 		const csv = [
-			'name,description,brand,markdown,slug,tags,category',
-			`'=1+1,'+1+1,'-2+3,"'@SUM(1,1)","'\tindented","'\rreturn",''=1+1`
+			'name,description,brand,markdown,slug,tags,category,images',
+			`'=1+1,'+1+1,'-2+3,"'@SUM(1,1)","'\tindented","'\rreturn",''=1+1,"'\nnewline"`
 		].join('\n');
 		const { rows } = new ItemImportService(fakeRepository([])).parseCSV(csv);
 
@@ -138,7 +141,8 @@ describe('ItemImportService.parseCSV reads an escaped export back unchanged', ()
 			markdown: '@SUM(1,1)',
 			slug: '\tindented',
 			tags: '\rreturn',
-			category: "'=1+1"
+			category: "'=1+1",
+			images: '\nnewline'
 		});
 	});
 

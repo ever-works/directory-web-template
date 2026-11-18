@@ -9,6 +9,7 @@ import { generateListingMetadata } from "@/lib/seo/listing-metadata";
 import { resolveAliasPage } from "@/lib/seo/paging";
 import { decodeSegment, findTagBySegment } from "@/lib/seo/route-segment";
 import { toTitleCase, filterItems } from "@/lib/utils";
+import { toSearchString } from '@/lib/utils/search-string';
 
 // Enable ISR with 10 minutes revalidation
 // Using dynamicParams allows on-demand generation without build-time content errors
@@ -155,6 +156,7 @@ export default async function TagListing({
       total={total}
       basePath={`/tags/${tag}`}
       initialTag={tag}
+      search={toSearchString(sp)}
     />
   );
 }
