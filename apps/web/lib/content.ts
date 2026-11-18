@@ -1318,7 +1318,11 @@ export async function fetchItems(options: FetchOptions = {}, repairAttempted = f
 	try {
 		return await fetchPromise;
 	} finally {
-		inFlightFetches.delete(cacheKey);
+		// Only the owner removes its entry: a cache invalidation can clear the map and a newer
+		// read for the same key register meanwhile, which must stay joinable.
+		if (inFlightFetches.get(cacheKey) === fetchPromise) {
+			inFlightFetches.delete(cacheKey);
+		}
 	}
 }
 
