@@ -57,3 +57,7 @@ Add `notifications` namespace to `en.json`. Other locales fall back to English a
 ### T-012 [seq] — Docs + log
 
 Spec indexed in `docs/spec/README.md`; this PR linked from `docs/log.md`. AC: AC-30.
+
+### T-013 [done] — Signed-out redirect goes to `/auth/signin`
+
+Both pages redirected a visitor without a valid session to `/auth/sign-in`, which is not a route (404). They now redirect to `/${locale}/auth/signin?callbackUrl=/${locale}/client/notifications[/preferences]`, as `/sponsor` does. Guard: `apps/web/lib/auth/__tests__/notifications-signin-redirect.spec.ts`; Playwright: `apps/web-e2e/tests/client/notifications-signed-out-redirect.spec.ts`. AC: AC-31.

@@ -91,7 +91,7 @@ notification logic in feature code.
 - [ ] **AC-12** `POST /api/client/notifications/mark-all-read` — owner-scoped UPDATE.
 - [ ] **AC-13** `POST /api/client/notifications/bulk` — body `{ ids?, filter?, action: 'read'|'unread'|'archive'|'delete' }`.
 - [ ] **AC-14** `GET|PUT /api/client/notifications/preferences` — returns/writes the JSONB matrix.
-- [ ] **AC-15** `GET /api/client/notifications/stream` — SSE; pushes `notification` events whenever a row is dispatched for the authenticated user. Heartbeat every 25 s; aborts cleanly on client disconnect.
+- [ ] **AC-15** `GET /api/client/notifications/stream` — SSE; pushes `notification` events whenever a row is dispatched for the authenticated user. Heartbeat every 25 s; aborts cleanly on client disconnect. Each heartbeat first re-reads the user's `password_changed_at` and `deactivated_at` and closes the stream when a password reset or change (spec-003 AC-9) or a deactivation has ended the session it opened with, or when the read fails or has not answered by the next heartbeat (T-2648); EventSource then reconnects through `auth()`, which answers 401 for an ended session.
 
 ### UI
 
@@ -114,6 +114,10 @@ notification logic in feature code.
 - [ ] **AC-26** Bell button has `aria-label="Notifications, {n} unread"`; badge is `aria-hidden`. Dropdown is `role="dialog"` with trapped focus and Esc-to-close.
 - [ ] **AC-27** A polite `aria-live` region announces new notifications when the dropdown is closed; throttled to one announcement per 5 s.
 - [ ] **AC-28** All animations respect `prefers-reduced-motion` (collapse to opacity fade).
+
+### Access
+
+- [x] **AC-31** A visitor without a valid session on `/client/notifications` or `/client/notifications/preferences` is redirected to `/{locale}/auth/signin` (the sign-in route, `app/[locale]/auth/signin`) with a locale-prefixed `callbackUrl` back to the page. `proxy.ts` lets a request that carries any session cookie through to the page, so the page's own redirect is what such a visitor sees.
 
 ### Definition of done
 

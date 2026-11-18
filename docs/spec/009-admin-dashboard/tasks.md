@@ -90,6 +90,13 @@ Conventions: `[P]` parallel, `[seq]` sequential, `[done]` already shipped.
   the claim-based code); a signed-in non-admin opening
   `/admin/clients/{id}` ends on `/unauthorized`. T-2637 (#1148).
 
+### T-012 [done] — Server-side admin check on the admin survey pages
+
+- Files: `apps/web/app/[locale]/admin/surveys/[slug]/{edit,preview,responses}/page.tsx`,
+  `apps/web/lib/auth/__tests__/admin-survey-pages.spec.ts`.
+- Verification: the page test passes (33 of its 41 tests fail on the
+  pages without the check). T-2645 (#1154).
+
 ## Acceptance Criteria → Task Map
 
 | AC    | Tasks                          |
@@ -101,6 +108,7 @@ Conventions: `[P]` parallel, `[seq]` sequential, `[done]` already shipped.
 | AC-5  | T-007                          |
 | AC-6  | T-002 — T-007                  |
 | AC-7  | T-011                          |
+| AC-8  | T-012                          |
 
 ## Notes
 
