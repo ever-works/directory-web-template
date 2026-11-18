@@ -2,7 +2,7 @@
 
 import { useContext, useCallback, useMemo } from "react";
 import { useTranslations, useLocale } from "next-intl";
-import { useSearchParams } from "next/navigation";
+import { useCurrentSearch } from "@/components/providers/navigation-provider";
 import { useInView } from "react-intersection-observer";
 import { layoutComponents, LayoutKey } from "@/components/layouts";
 import LayoutMap from "@/components/layouts/LayoutMap";
@@ -169,7 +169,10 @@ export function SharedCard(props: ExtendedCardProps) {
   const { searchTerm, selectedTags, sortBy, selectedTag } = useFilters();
   const t = useTranslations("listing");
   const locale = useLocale();
-  const searchParams = useSearchParams();
+  // Not useSearchParams(): this grid renders on cached (ISR) listing pages, where that
+  // hook would bail the whole page out to client rendering (Spec 061).
+  const currentSearch = useCurrentSearch();
+  const searchParams = useMemo(() => new URLSearchParams(currentSearch), [currentSearch]);
 
   // Spec 020: when the parent already sliced server-side (`total` exceeds
   // the in-page items), pagination must be URL-driven. Client-side hooks
@@ -245,7 +248,11 @@ export function SharedCard(props: ExtendedCardProps) {
   // mode. Filters / sort live in the current URL; we only swap the `page`.
   const buildPageUrl = useCallback(
     (nextPage: number) => {
-      const params = new URLSearchParams(searchParams?.toString() ?? '');
+      // Read the query when the request is made: the context value is '' until the
+      // browser has reported it, and an early fetch would drop the filters.
+      const params = new URLSearchParams(
+        typeof window === 'undefined' ? searchParams?.toString() ?? '' : window.location.search
+      );
       params.set('page', String(nextPage));
       return `/api/items/listing?${params.toString()}`;
     },
