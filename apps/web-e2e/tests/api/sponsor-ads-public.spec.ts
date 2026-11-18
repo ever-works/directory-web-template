@@ -127,4 +127,33 @@ test.describe('API: /api/sponsor-ads public query-param surface', () => {
 		expect(body.success).toBe(true);
 		expect(Array.isArray(body.data)).toBe(true);
 	});
+
+	test('GET /api/sponsor-ads returns no private sponsor fields', async ({ request }) => {
+		// The endpoint needs no session, so each `data[].sponsor` carries only the
+		// public fields of `toPublicSponsorAd` (`lib/sponsor-ads/public-sponsor-ad.ts`),
+		// never the sponsor's user id or the payment provider's customer and
+		// subscription ids. With no active sponsorship (or no database) `data` is
+		// empty and there is nothing to check.
+		const response = await request.get('/api/sponsor-ads?limit=50');
+
+		expect(response.status()).toBe(200);
+
+		const body = (await response.json()) as { data?: Array<{ sponsor?: Record<string, unknown> }> };
+
+		for (const entry of body.data ?? []) {
+			for (const field of [
+				'userId',
+				'customerId',
+				'subscriptionId',
+				'amount',
+				'currency',
+				'paymentProvider',
+				'reviewedBy',
+				'rejectionReason',
+				'cancelReason'
+			]) {
+				expect(entry.sponsor ?? {}).not.toHaveProperty(field);
+			}
+		}
+	});
 });

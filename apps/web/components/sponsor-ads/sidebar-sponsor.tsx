@@ -9,10 +9,10 @@ import { cn, getItemPath } from '@/lib/utils';
 import { SponsorBadge } from './sponsor-badge';
 import { shouldShowFallback, isProblematicUrl } from '@/lib/utils/image-domains';
 import { useTranslations } from 'next-intl';
-import type { SponsorWithItem } from '@/lib/types/sponsor-ad';
+import type { PublicSponsorWithItem } from '@/lib/types/sponsor-ad';
 
 interface SidebarSponsorProps {
-	sponsors: SponsorWithItem[];
+	sponsors: PublicSponsorWithItem[];
 	rotationInterval?: number; // in milliseconds, default 5000 (5 seconds)
 	className?: string;
 	title?: string;

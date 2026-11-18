@@ -28,7 +28,7 @@ import type {
 	SponsorAdStats,
 	SponsorAdWithUser,
 	CreateSponsorAdRequest,
-	SponsorWithItem,
+	PublicSponsorWithItem,
 } from "@/lib/types/sponsor-ad";
 
 // ######################### Service Class #########################
@@ -113,7 +113,7 @@ export class SponsorAdService {
 	 * Get active sponsor ads with their associated item data
 	 * Used for sidebar sponsor display where item info is needed
 	 */
-	async getActiveSponsorAdsWithItems(limit?: number): Promise<SponsorWithItem[]> {
+	async getActiveSponsorAdsWithItems(limit?: number): Promise<PublicSponsorWithItem[]> {
 		return await sponsorAdRepo.getActiveSponsorAdsWithItems(limit);
 	}
 
