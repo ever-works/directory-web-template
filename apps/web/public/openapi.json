@@ -26750,7 +26750,7 @@
 			"put": {
 				"tags": ["Admin - Reports"],
 				"summary": "Update report status and resolution",
-				"description": "Updates a report's status, resolution, and/or review note. Requires admin privileges. A resolution other than no_action runs its moderation action first (remove the content, or warn / suspend / ban its owner's client profile); if that action fails, the report is left unchanged and the response is an error. A resolution the report already has is not run again, so the note and status of a completed report can still be edited.",
+				"description": "Updates a report's status, resolution, and/or review note. Requires admin privileges. A resolution other than no_action runs its moderation action first (remove the content, or warn / suspend / ban its owner's client profile); if that action fails, the report is left unchanged and the response is an error. A resolution the report already has is not run again, so the note and status of a completed report can still be edited. Retrying a resolution whose action ran but whose report save failed saves the report without acting twice: a warning or content removal this report already recorded in the moderation history is skipped, and a ban or suspension this report already applied (ALREADY_BANNED / ALREADY_SUSPENDED with a history row for this report) counts as done.",
 				"security": [
 					{
 						"sessionAuth": []
