@@ -40,7 +40,7 @@ export async function GET() {
 		const userId = session.user.id;
 
 		const [user] = await db
-			.select({ updatedAt: users.updatedAt, passwordHash: users.passwordHash, emailVerified: users.emailVerified })
+			.select({ passwordChangedAt: users.passwordChangedAt, emailVerified: users.emailVerified })
 			.from(users)
 			.where(and(eq(users.id, userId), eq(users.tenantId, tenantId)))
 			.limit(1);
@@ -71,7 +71,9 @@ export async function GET() {
 			data: {
 				emailVerified: !!user.emailVerified,
 				twoFactorEnabled: profile?.twoFactorEnabled ?? false,
-				lastPasswordChange: user.passwordHash ? user.updatedAt?.toISOString() ?? null : null,
+				// Set by every password reset and change (setUserPasswordHash). Client passwords live
+				// on `accounts`, so users.updated_at never told when a client's password changed.
+				lastPasswordChange: user.passwordChangedAt?.toISOString() ?? null,
 				activeSessionsCount,
 				loginAttemptsCount: twoFactor.failedAttempts,
 				accountLocked: twoFactor.locked,

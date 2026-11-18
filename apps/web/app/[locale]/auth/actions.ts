@@ -478,6 +478,9 @@ export const updatePassword = validatedActionWithUser(updatePasswordSchema, asyn
 
 	const newPasswordHash = await hashPassword(newPassword);
 
+	// setUserPasswordHash, like the reset and the change-password route: it also stamps
+	// users.password_changed_at, which ends the sessions signed in before the change and is
+	// what GET /api/auth/security/settings returns as lastPasswordChange.
 	await Promise.all([
 		setUserPasswordHash(dbUser.id, newPasswordHash),
 		logActivity(ActivityType.UPDATE_PASSWORD, dbUser.id, 'user')

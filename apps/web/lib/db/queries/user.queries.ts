@@ -108,6 +108,8 @@ export async function updateUserPassword(newPasswordHash: string, userId: string
  * has a hash (the admin case), so a user without one does not gain a second password store.
  * A user with no credentials account keeps the old behaviour: the users row is written, so
  * an admin who signed up through OAuth can still set a password with a reset.
+ * The same transaction stamps `users.password_changed_at` for admins and clients alike, which
+ * ends every session that signed in before the change (the jwt callback in lib/auth).
  * @param userId - User ID
  * @param newPasswordHash - New password hash
  * @returns How many `accounts` and `users` rows now hold the new hash
@@ -134,6 +136,17 @@ export async function setUserPasswordHash(userId: string, newPasswordHash: strin
 				)
 			)
 			.returning({ id: users.id });
+		// Taken after the updates above hold the row locks, so a concurrent change that commits
+		// later also stamps a later time. A credentials session is bound to the value its sign-in
+		// query read together with the hash, not to this time, so a sign-in that reads the old hash
+		// before this transaction commits still ends (lib/auth/password-change.ts).
+		const changedAt = new Date();
+		// Not tied to the condition above: a client's users row holds no hash and is skipped
+		// there, but its sessions must end too.
+		await tx
+			.update(users)
+			.set({ passwordChangedAt: changedAt })
+			.where(and(eq(users.id, userId), eq(users.tenantId, tenantId)));
 		return { accounts: updatedAccounts.length, users: updatedUsers.length };
 	});
 }
