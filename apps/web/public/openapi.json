@@ -15221,7 +15221,15 @@
 										},
 										"message": {
 											"type": "string",
+											"description": "INVALID_BODY only",
 											"example": "Request body must be a valid JSON object"
+										},
+										"details": {
+											"type": "array",
+											"description": "VALIDATION_ERROR only: the validation issues",
+											"items": {
+												"type": "object"
+											}
 										},
 										"code": {
 											"type": "string",
@@ -15240,9 +15248,15 @@
 									},
 									"validation_error": {
 										"value": {
-											"message": "Request body must be a valid JSON object",
-											"code": "INVALID_BODY",
-											"error": "Invalid request parameters"
+											"error": "Invalid request parameters",
+											"code": "VALIDATION_ERROR",
+											"details": [
+												{
+													"code": "too_big",
+													"path": ["limit"],
+													"message": "Number must be less than or equal to 100"
+												}
+											]
 										}
 									}
 								}
@@ -22178,9 +22192,9 @@
 									},
 									"no_commits": {
 										"value": {
-											"code": "REPOSITORY_NOT_FOUND",
+											"code": "NO_COMMITS",
 											"timestamp": "2024-01-15T10:35:00.000Z",
-											"details": "Git directory not found at: /path/to/content/.git",
+											"details": "Repository exists but contains no commits",
 											"error": "No commits found in repository"
 										}
 									}
@@ -22221,13 +22235,13 @@
 										"value": {
 											"code": "GIT_ERROR",
 											"timestamp": "2024-01-15T10:35:00.000Z",
-											"details": "Commit is missing required fields",
+											"details": "Unknown git error",
 											"error": "Failed to retrieve commit information"
 										}
 									},
 									"validation_error": {
 										"value": {
-											"code": "GIT_ERROR",
+											"code": "VALIDATION_ERROR",
 											"timestamp": "2024-01-15T10:35:00.000Z",
 											"details": "Commit is missing required fields",
 											"error": "Invalid commit data"
@@ -22235,9 +22249,9 @@
 									},
 									"internal_error": {
 										"value": {
-											"code": "GIT_ERROR",
+											"code": "INTERNAL_ERROR",
 											"timestamp": "2024-01-15T10:35:00.000Z",
-											"details": "Commit is missing required fields",
+											"details": "Unknown error occurred",
 											"error": "Internal server error"
 										}
 									}

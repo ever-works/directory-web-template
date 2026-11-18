@@ -99,9 +99,9 @@ import { safeErrorMessage } from '@/lib/utils/api-error';
  *                   error: "Data repository not found"
  *               no_commits:
  *                 value:
- *                   code: "REPOSITORY_NOT_FOUND"
+ *                   code: "NO_COMMITS"
  *                   timestamp: "2024-01-15T10:35:00.000Z"
- *                   details: "Git directory not found at: /path/to/content/.git"
+ *                   details: "Repository exists but contains no commits"
  *                   error: "No commits found in repository"
  *       500:
  *         description: "Internal server error"
@@ -130,19 +130,19 @@ import { safeErrorMessage } from '@/lib/utils/api-error';
  *                 value:
  *                   code: "GIT_ERROR"
  *                   timestamp: "2024-01-15T10:35:00.000Z"
- *                   details: "Commit is missing required fields"
+ *                   details: "Unknown git error"
  *                   error: "Failed to retrieve commit information"
  *               validation_error:
  *                 value:
- *                   code: "GIT_ERROR"
+ *                   code: "VALIDATION_ERROR"
  *                   timestamp: "2024-01-15T10:35:00.000Z"
  *                   details: "Commit is missing required fields"
  *                   error: "Invalid commit data"
  *               internal_error:
  *                 value:
- *                   code: "GIT_ERROR"
+ *                   code: "INTERNAL_ERROR"
  *                   timestamp: "2024-01-15T10:35:00.000Z"
- *                   details: "Commit is missing required fields"
+ *                   details: "Unknown error occurred"
  *                   error: "Internal server error"
  *     x-caching:
  *       description: "Caching behavior"
