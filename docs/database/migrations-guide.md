@@ -198,7 +198,7 @@ When multiple team members modify the schema simultaneously:
 
 1. Each developer generates their own migration locally
 2. On merge, migration files may need renumbering if sequence numbers conflict
-3. Drizzle Kit tracks migrations by hash, not by number, so out-of-order execution is handled
+3. A renumbered migration also needs a `when` in `meta/_journal.json` later than every entry before it. The migrator does not track migrations by hash or by number: it reads the newest `created_at` in `drizzle.__drizzle_migrations` and runs only the entries whose `when` is later. An entry with an older `when` is skipped, without an error, on every database that already ran the entry before it (this skipped `0042_email_two_factor_auth`; `0044_reapply_email_two_factor_auth` re-applies it). `lib/db/__tests__/migration-journal.spec.ts` fails on such a journal.
 4. After merging, run `pnpm db:migrate` to apply all new migrations
 
 ### Environment Considerations

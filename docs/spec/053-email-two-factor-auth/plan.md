@@ -64,7 +64,8 @@ sequenceDiagram
 | Area | File | Change |
 | --- | --- | --- |
 | DB | `apps/web/lib/db/schema.ts` | new `twoFactorCodes` table; `two_factor_failed_attempts` / `two_factor_locked_until` on `clientProfiles`; five `ActivityType` members |
-| DB | `apps/web/lib/db/migrations/0040_email_two_factor_auth.sql` (+ `meta/`) | additive, idempotent migration |
+| DB | `apps/web/lib/db/migrations/0042_email_two_factor_auth.sql` (+ `meta/`) | additive, idempotent migration (written as `0040`, renumbered `0042` on merge) |
+| DB | `apps/web/lib/db/migrations/0044_reapply_email_two_factor_auth.sql` | re-runs 0042 where drizzle skipped it (T-2647, §8) |
 | DB | `apps/web/lib/db/queries/client.queries.ts` | three `ClientProfileWithAuth` projections extended with the two new columns |
 | Lib | `apps/web/lib/auth/two-factor-code.ts` | new — pure primitives |
 | Lib | `apps/web/lib/auth/two-factor.ts` | new — stateful helpers |
@@ -209,6 +210,18 @@ The migration is additive and idempotent (`CREATE TABLE IF NOT EXISTS`,
 safely. No existing row changes meaning: `two_factor_enabled` stays `false`
 everywhere until a user opts in, and every sign-in path for a user who has not
 opted in is byte-identical to before.
+
+**Skipped on databases that had run 0041 (T-2647).** The migration was renumbered
+`0042` on merge but kept its `when` in `meta/_journal.json`, which was older than
+`0041_billing_issue_refund_claim`. Drizzle's migrator runs only the entries whose
+`when` is later than the newest row in `drizzle.__drizzle_migrations`, so every
+database that had run 0041 skipped 0042 without an error: no `twoFactorCodes`
+table and no brute-force columns. 0042's `when` now comes after 0041 (a database
+whose newest row is 0041 runs it), and `0044_reapply_email_two_factor_auth`
+re-runs 0042's statements, word for word and each a no-op where its object
+exists, for databases that had already run 0043. Both are safe on a database that
+did run 0042. `apps/web/lib/db/__tests__/migration-journal.spec.ts` fails on any
+journal entry whose `when` is not later than the entries before it.
 
 Rollback is to revert the application code; the added table and columns are inert
 without it. Operators who need to unlock an account by hand can clear
