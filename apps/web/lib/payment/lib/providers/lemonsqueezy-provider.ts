@@ -234,15 +234,13 @@ export class LemonSqueezyProvider implements PaymentProviderInterface {
 			const customer = await this.createCustomer(customerData);
 			this.logger.debug('LemonSqueezy customer created successfully', {
 				userId: user.id,
-				customerId: customer.id,
-				email: customer.email
+				customerId: customer.id
 			});
 			return customer;
 		} catch (error) {
 			this.logger.error('Failed to create LemonSqueezy customer', {
 				userId: user.id,
-				error: this.formatErrorMessage(error),
-				customerData
+				error: this.formatErrorMessage(error)
 			});
 			throw error;
 		}
@@ -675,7 +673,7 @@ export class LemonSqueezyProvider implements PaymentProviderInterface {
 				...updatePayload,
 				variantId: Number(params.priceId)
 			});
-			console.log('Subscription updated:', data);
+			console.log('Subscription updated:', data?.data?.id);
 			if (error) {
 				console.error('LemonSqueezy API error details:', {
 					error,

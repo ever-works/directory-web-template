@@ -224,7 +224,7 @@ export class PaymentEmailService {
       );
 
       if (result.success) {
-        console.log(`✅ Payment success email sent to ${data.customerEmail},`,data);
+        console.log(`✅ Payment success email sent`);
         return { success: true };
       } else {
         console.error(`❌ Failed to send payment success email: ${result.error}`);
@@ -259,7 +259,7 @@ export class PaymentEmailService {
       );
 
       if (result.success) {
-        console.log(`✅ Payment failed email sent to ${data.customerEmail}`);
+        console.log(`✅ Payment failed email sent`);
         return { success: true };
       } else {
         console.error(`❌ Failed to send payment failed email: ${result.error}`);
@@ -294,7 +294,7 @@ export class PaymentEmailService {
       );
 
       if (result.success) {
-        console.log(`✅ New subscription email sent to ${data.customerEmail}`);
+        console.log(`✅ New subscription email sent`);
         return { success: true };
       } else {
         console.error(`❌ Failed to send new subscription email: ${result.error}`);
@@ -329,7 +329,7 @@ export class PaymentEmailService {
       );
 
       if (result.success) {
-        console.log(`✅ Updated subscription email sent to ${data.customerEmail}`);
+        console.log(`✅ Updated subscription email sent`);
         return { success: true };
       } else {
         console.error(`❌ Failed to send updated subscription email: ${result.error}`);
@@ -364,7 +364,7 @@ export class PaymentEmailService {
       );
 
       if (result.success) {
-        console.log(`✅ Cancelled subscription email sent to ${data.customerEmail}`);
+        console.log(`✅ Cancelled subscription email sent`);
         return { success: true };
       } else {
         console.error(`❌ Failed to send cancelled subscription email: ${result.error}`);
@@ -405,7 +405,7 @@ export class PaymentEmailService {
       );
 
       if (result.success) {
-        console.log(`✅ Subscription payment success email sent to ${data.customerEmail}`);
+        console.log(`✅ Subscription payment success email sent`);
         return { success: true };
       } else {
         console.error(`❌ Failed to send subscription payment success email: ${result.error}`);
@@ -446,7 +446,7 @@ export class PaymentEmailService {
       );
 
       if (result.success) {
-        console.log(`✅ Subscription payment failed email sent to ${data.customerEmail}`);
+        console.log(`✅ Subscription payment failed email sent`);
         return { success: true };
       } else {
         console.error(`❌ Failed to send subscription payment failed email: ${result.error}`);
@@ -481,7 +481,7 @@ export class PaymentEmailService {
       );
 
       if (result.success) {
-        console.log(`✅ Subscription cancelling email sent to ${data.customerEmail}`);
+        console.log(`✅ Subscription cancelling email sent`);
         return { success: true };
       } else {
         console.error(`❌ Failed to send subscription cancelling email: ${result.error}`);
@@ -516,7 +516,7 @@ export class PaymentEmailService {
       );
 
       if (result.success) {
-        console.log(`✅ Subscription reactivated email sent to ${data.customerEmail}`);
+        console.log(`✅ Subscription reactivated email sent`);
         return { success: true };
       } else {
         console.error(`❌ Failed to send subscription reactivated email: ${result.error}`);
@@ -551,7 +551,7 @@ export class PaymentEmailService {
       );
 
       if (result.success) {
-        console.log(`✅ Subscription plan changed email sent to ${data.customerEmail}`);
+        console.log(`✅ Subscription plan changed email sent`);
         return { success: true };
       } else {
         console.error(`❌ Failed to send subscription plan changed email: ${result.error}`);
