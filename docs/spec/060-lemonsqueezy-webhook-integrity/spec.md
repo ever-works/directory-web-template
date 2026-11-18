@@ -119,8 +119,10 @@ subscription grants comes from the variant that was paid for, never from the che
   address proves nothing. Each link is bound to the address its provider proved: Auth.js's adapter
   `linkAccount` gets no profile, so `events.signIn` (same callback, first sign-in, a link made while signed in,
   and every later sign-in through the provider) writes the profile's address, lower-cased, or `null` when the
-  profile says it is not verified or has none (`lib/auth/oauth-link-email.ts`). `updateUser` clears
-  `emailVerified` on an address change and no longer writes the old address into empty OAuth rows. Before,
+  profile says it is not verified; a profile with no address leaves the row as it is
+  (`lib/auth/oauth-link-email.ts`). `updateUser` clears `emailVerified` on an address change and no longer
+  writes the old address into empty OAuth rows; migration `0045_unbind_oauth_link_emails` clears the addresses
+  it wrote before, which no provider proved. Before,
   an OAuth-only user could change their address to someone else's, link a second provider of their own (the
   new row had no address and counted), sign in again and list or cancel that person's subscriptions
   (Greptile on #1153). Links made before have no address until the next sign-in through that provider; the

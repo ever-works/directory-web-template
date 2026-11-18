@@ -164,8 +164,11 @@ confirm, override, or refine.
     GitHub, and reads a token whose signature is not checked again).
   - No backfill: an empty row proves nothing; the next sign-in through that provider records its address, and
     the user can verify the address by email meanwhile.
-- **Default.** **No backfill.** Ever Works has no real users yet; a user hit by it gets the 403
-  `EMAIL_NOT_VERIFIED`, whose message names both ways out.
+- **Default.** **No backfill, and forget what is there.** Migration `0045_unbind_oauth_link_emails` clears
+  `accounts.email` on every OAuth / OIDC row: the only addresses on those rows were copied from `users.email`
+  by `updateUser` (#1123), not proved by a provider, and could be an address the user set but never proved.
+  Ever Works has no real users yet; a user hit by it gets the 403 `EMAIL_NOT_VERIFIED`, whose message names
+  both ways out.
 - **Owner.** Template maintainers.
 - **Status.** `open`.
 
@@ -200,17 +203,20 @@ confirm, override, or refine.
 
 ## Spec 009 — Admin dashboard
 
-### Q-009a Report retry after a ban whose history write failed
+### Q-009a Report retries that leave no history row
 
 - **Context.** `PUT /api/admin/reports/{id}` runs the moderation action before it saves the report. A retry
   after a failed save finishes the save without acting twice, using the `moderation_history` rows this report
-  wrote as proof (`lib/services/report-moderation.ts`). `banUser` / `suspendUser` change the user and then write
-  the history row in two statements; if the second fails, the user is banned with no row for the report, and a
-  retry answers 409 `ALREADY_BANNED`.
-- **Options.** Write the status change and the history row in one transaction; treat any `ALREADY_*` for the
-  same resolution as done (would also accept a ban made by another report or by hand).
-- **Default.** **Keep the 409** for that case. The admin sees `User is already banned` and can save the report
-  with another resolution; moving both writes into one transaction is the follow-up.
+  wrote as proof (`lib/services/report-moderation.ts`). Two cases leave no row: `banUser` / `suspendUser` change
+  the user and then write the history row in two statements (if the second fails the retry answers 409
+  `ALREADY_BANNED`), and `removeContent` writes no row for content whose owner has no client profile (the retry
+  answers 409 `NOT_FOUND`).
+- **Options.** Write the status change and the history row in one transaction; give `moderation_history` a
+  nullable user so ownerless removals are recorded; treat any `ALREADY_*` or `NOT_FOUND` for the same
+  resolution as done (would also accept a ban made by another report, or an item that is only unreadable, as
+  this report's doing).
+- **Default.** **Keep the 409** for both. The admin sees the message and can save the report with another
+  resolution; the transaction and a nullable history user are the follow-ups.
 - **Owner.** Template maintainers.
 - **Status.** `open`.
 

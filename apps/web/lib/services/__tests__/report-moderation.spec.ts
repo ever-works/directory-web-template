@@ -3,7 +3,6 @@ import { describe, it } from 'node:test';
 
 import {
 	ALREADY_APPLIED_MESSAGES,
-	CONTENT_ALREADY_GONE_MESSAGE,
 	moderationFailureStatus,
 	runReportModeration,
 	type ReportModerationDeps,
@@ -162,11 +161,12 @@ describe('runReportModeration', () => {
 			assert.deepEqual(w.actions(), ['removeContent']);
 		});
 
-		it('saves content_removed when the content is gone and no history row could be written', async () => {
-			// Content whose owner has no client profile: removeContent deletes it but records no history.
+		it('keeps the 409 for content it cannot find without a history row for this report', async () => {
+			// NOT_FOUND also means "could not be read" (data repository not synced, unreadable YAML) while the
+			// item is still public, so it is no proof the content was removed.
 			const w = world({ content: false });
 			const outcome = await runReportModeration(input('content_removed', { contentType: 'item' }), w.deps);
-			assert.deepEqual(outcome, { ok: true, result: { success: true, message: CONTENT_ALREADY_GONE_MESSAGE } });
+			assert.deepEqual(outcome, { ok: false, status: 409, error: 'Item not found' });
 		});
 	});
 

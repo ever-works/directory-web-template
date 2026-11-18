@@ -76,18 +76,29 @@ describe('recordOAuthLinkEmail', () => {
 		]);
 	});
 
-	it('clears the address when the provider proves none, so the link vouches for nothing', async () => {
+	it('clears the address when the provider says it is not verified, so the link vouches for nothing', async () => {
 		const { writes, write } = recorder();
 		await recordOAuthLinkEmail(
 			{ type: 'oidc', provider: 'google', providerAccountId: 'g-1' },
 			{ email: 'b@x.io', email_verified: false },
 			write
 		);
-		await recordOAuthLinkEmail({ type: 'oauth', provider: 'twitter', providerAccountId: 't-1' }, {}, write);
-		assert.deepEqual(writes, [
-			['google', 'g-1', null],
-			['twitter', 't-1', null]
-		]);
+		assert.deepEqual(writes, [['google', 'g-1', null]]);
+	});
+
+	it('leaves the row alone when the profile reports no address (declined scope, failed email lookup)', async () => {
+		const { writes, write } = recorder();
+		for (const profile of [{}, { email: null }, { email: '  ' }, undefined]) {
+			assert.equal(
+				await recordOAuthLinkEmail(
+					{ type: 'oauth', provider: 'github', providerAccountId: '42' },
+					profile,
+					write
+				),
+				false
+			);
+		}
+		assert.deepEqual(writes, []);
 	});
 
 	it('writes nothing for other sign-ins or an account without a provider id', async () => {
@@ -143,6 +154,22 @@ describe('Auth.js wiring', () => {
 			assert.ok(handler.includes(condition), `the write is not limited by ${condition}`);
 		}
 		assert.ok(handler.includes('catch (error)'), 'a failed write would fail the sign-in');
+	});
+
+	it('migration 0045 forgets the addresses earlier code copied onto OAuth rows', () => {
+		const migrations = join(__dirname, '../../db/migrations');
+		const sql = squash(readFileSync(join(migrations, '0045_unbind_oauth_link_emails.sql'), 'utf8'));
+		assert.ok(
+			sql.includes(`UPDATE "accounts" SET "email" = NULL WHERE "type" IN ('oauth', 'oidc')`),
+			'0045 does not clear the OAuth / OIDC link emails'
+		);
+		const journal = JSON.parse(readFileSync(join(migrations, 'meta/_journal.json'), 'utf8')) as {
+			entries: Array<{ tag: string }>;
+		};
+		assert.ok(
+			journal.entries.some((entry) => entry.tag === '0045_unbind_oauth_link_emails'),
+			'0045 is not in the journal'
+		);
 	});
 
 	it('updateUser no longer binds OAuth rows to the previous address on an email change', () => {

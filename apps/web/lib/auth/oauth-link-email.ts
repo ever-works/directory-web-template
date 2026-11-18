@@ -11,10 +11,12 @@ import { isOAuthAccountType } from './connected-accounts';
  * made while signed in, and for every later sign-in through that provider; `lib/auth/index.ts` calls
  * {@link recordOAuthLinkEmail} there.
  *
- * The row holds the address the provider reported at the last sign-in through it, so a link made
- * before this existed (no email) is bound the next time the user signs in with that provider. A
- * provider that says the address is not verified (`email_verified: false`, Google's older
- * `verified_email: false`) or reports none clears it: the link then proves no address.
+ * The row holds the address the provider proved at the last sign-in through it, so a link made
+ * before this existed (no email; migration 0045 cleared the rest) is bound the next time the user
+ * signs in with that provider. A provider that reports the address but says it is not verified
+ * (`email_verified: false`, Google's older `verified_email: false`) clears it: the link then proves
+ * no address. A profile with no address at all (a declined email scope, a failed GitHub
+ * `/user/emails` call) says nothing new, so the row keeps what it had.
  *
  * Kept free of database imports so it can be unit-tested.
  */
@@ -51,9 +53,9 @@ export type OAuthLinkEmailWriter = (
 ) => Promise<unknown>;
 
 /**
- * Writes the provider-proven address (or `null`) on the account row of an OAuth / OIDC sign-in.
- * Returns false, writing nothing, for any other sign-in (credentials, email link) or an account
- * without a provider id.
+ * Writes the provider-proven address (or `null` for an address the provider says is unverified) on
+ * the account row of an OAuth / OIDC sign-in. Returns false, writing nothing, for any other sign-in
+ * (credentials, email link), an account without a provider id, or a profile with no address.
  */
 export async function recordOAuthLinkEmail(
 	account: SignInAccount | null | undefined,
@@ -65,6 +67,8 @@ export async function recordOAuthLinkEmail(
 	if (typeof provider !== 'string' || !provider || typeof providerAccountId !== 'string' || !providerAccountId) {
 		return false;
 	}
+	const reported = profile && typeof profile === 'object' ? (profile as Record<string, unknown>).email : undefined;
+	if (typeof reported !== 'string' || !reported.trim()) return false;
 	await write(provider, providerAccountId, providerProvenEmail(profile));
 	return true;
 }

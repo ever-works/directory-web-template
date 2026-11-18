@@ -79,7 +79,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
  *   put:
  *     tags: ["Admin - Reports"]
  *     summary: "Update report status and resolution"
- *     description: "Updates a report's status, resolution, and/or review note. Requires admin privileges. A resolution other than no_action runs its moderation action first (remove the content, or warn / suspend / ban its owner's client profile); if that action fails, the report is left unchanged and the response is an error. A resolution the report already has is not run again, so the note and status of a completed report can still be edited. Retrying a resolution whose action ran but whose report save failed saves the report without acting twice: a warning or content removal this report already recorded in the moderation history is skipped, a ban or suspension this report already applied (ALREADY_BANNED / ALREADY_SUSPENDED with a history row for this report) counts as done, and content_removed on content that no longer exists counts as done."
+ *     description: "Updates a report's status, resolution, and/or review note. Requires admin privileges. A resolution other than no_action runs its moderation action first (remove the content, or warn / suspend / ban its owner's client profile); if that action fails, the report is left unchanged and the response is an error. A resolution the report already has is not run again, so the note and status of a completed report can still be edited. Retrying a resolution whose action ran but whose report save failed saves the report without acting twice: a warning or content removal this report already recorded in the moderation history is skipped, and a ban or suspension this report already applied (ALREADY_BANNED / ALREADY_SUSPENDED with a history row for this report) counts as done."
  *     security:
  *       - sessionAuth: []
  *     parameters:
@@ -114,7 +114,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
  *       404:
  *         description: "Report not found"
  *       409:
- *         description: "The moderation action does not fit the target's current state (for example 'User is already banned' by another report or by hand, or the user to warn, suspend or ban no longer exists); the report is unchanged"
+ *         description: "The moderation action does not fit the target's current state (for example 'User is already banned' by another report or by hand, the user to warn, suspend or ban no longer exists, or content_removed on content that cannot be found); the report is unchanged"
  *       500:
  *         description: "Internal server error, or the moderation action failed (for example 'Failed to warn user'); the report is unchanged"
  */

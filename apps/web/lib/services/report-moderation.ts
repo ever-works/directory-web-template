@@ -18,9 +18,10 @@ import type { ModerationResult } from './moderation.service';
  *   **content removal** of a soft-deleted comment would delete and notify again. Both are skipped
  *   when `moderation_history` records the action for this report, so a retry neither warns twice
  *   nor sends the removal email twice.
- * - **Content removal** answering `NOT_FOUND`: the content is gone, which is what the resolution
- *   says, so the report is saved. This covers content whose owner has no client profile, for which
- *   no `moderation_history` row can be written (see `removeContent`).
+ * - **Content removal** answering `NOT_FOUND` stays a 409. It can also mean the item could not be
+ *   read (data repository not synced yet, unreadable YAML) while it is still public, so it is no
+ *   proof the content was removed. Content whose owner has no client profile gets no
+ *   `moderation_history` row, so its retry stays a 409 too (`docs/questions.md` Q-009a).
  *
  * A resolution equal to the saved one runs nothing (the review dialog sends it back with every
  * edit). The lookups are injected so this can be unit-tested without a database.
@@ -52,8 +53,6 @@ export const ALREADY_APPLIED_MESSAGES: Record<ActionResolution, string> = {
 	user_suspended: 'The user was already suspended for this report; the report was saved',
 	user_banned: 'The user was already banned for this report; the report was saved'
 };
-
-export const CONTENT_ALREADY_GONE_MESSAGE = 'The content no longer exists; the report was saved';
 
 /**
  * HTTP status for a moderation action that did not run. `ALREADY_*` and `NOT_FOUND` describe the
@@ -120,9 +119,6 @@ export async function runReportModeration(
 	let result: ModerationResult;
 	if (resolution === 'content_removed') {
 		result = await deps.removeContent(input.contentType, input.contentId, reportId, adminId);
-		if (!result.success && result.error === 'NOT_FOUND') {
-			return { ok: true, result: { success: true, message: CONTENT_ALREADY_GONE_MESSAGE } };
-		}
 	} else {
 		const owner = await deps.getContentOwner(input.contentType, input.contentId);
 		if (!owner.success || !owner.userId) {

@@ -49,10 +49,12 @@ any LemonSqueezy subscription bought under that address in the same store.
   `events.signIn` in `lib/auth/index.ts` (called in the same callback, for a first
   sign-in, a link made while signed in, and every later sign-in through the provider)
   writes the profile's address, trimmed and lower-cased, on the row
-  `(provider, providerAccountId)`. A profile that says the address is not verified
-  (`email_verified: false`, also as the string `"false"`, or Google's older
-  `verified_email: false`) or has no address writes `null`. A failed write is logged
-  and leaves the row as it was (no address for a new link), so it fails closed.
+  `(provider, providerAccountId)`. A profile that reports the address but says it is
+  not verified (`email_verified: false`, also as the string `"false"`, or Google's older
+  `verified_email: false`) writes `null`. A profile with no address (a declined email
+  scope, a failed GitHub `/user/emails` call) writes nothing, so an address proven
+  earlier is kept. A failed write is logged and leaves the row as it was (no address
+  for a new link), so it fails closed.
 - `updateUser` (`lib/db/queries/user.queries.ts`, used by the account settings action)
   clears `users.emailVerified` when the address changes. It no longer writes the old
   address into OAuth rows that had none: each row keeps the address its provider proved,
@@ -61,8 +63,9 @@ any LemonSqueezy subscription bought under that address in the same store.
 - The database lookup is `loadEmailVerificationState` in
   `subscription-email-verification.ts`. Account rows of type `credentials` (and the
   legacy `email` type) never count.
-- Legacy links (rows written before links were bound, so with no address) no longer
-  count. The next sign-in through that provider records its address; until then the user
+- Legacy links no longer count. Rows written before links were bound have no address,
+  and migration `0045_unbind_oauth_link_emails` clears the addresses the old `updateUser`
+  had copied from `users.email` (no provider proved those). The next sign-in through that provider records its address; until then the user
   verifies the address by email (profile → email verification dialog,
   `resendVerificationEmailAction`). `EMAIL_NOT_VERIFIED_MESSAGE` names both ways. There
   is no backfill from `users.email`: an address changed before the change cannot be told
