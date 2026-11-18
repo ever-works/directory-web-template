@@ -5,9 +5,16 @@ import { SENTRY_DSN, SENTRY_DEBUG } from '@/lib/constants';
 import { initializeDatabase } from '@/lib/db/initialize';
 
 function warmContentInBackground() {
-  // Long-running servers only: a serverless cold start would read the whole catalogue for a
-  // request that may not need it, and its background work can be frozen after the response.
-  if (process.env.NEXT_PHASE === 'phase-production-build' || process.env.VERCEL) return;
+  // Long-running production servers only: a serverless cold start would read the whole
+  // catalogue for a request that may not need it, and its background work can be frozen
+  // after the response; `next dev` neither reuses nor joins listing reads.
+  if (
+    process.env.NEXT_PHASE === 'phase-production-build' ||
+    process.env.VERCEL ||
+    process.env.NODE_ENV !== 'production'
+  ) {
+    return;
+  }
   const started = Date.now();
   void (async () => {
     try {
@@ -46,7 +53,8 @@ export async function register() {
 
   // Read the content while the server starts, before the first request needs it (Spec 061):
   // the home page lists every item, and a cold pod would otherwise read them all for its
-  // first visitor. Not awaited: the server answers requests meanwhile, and they join this read.
+  // first visitor. Not awaited: the server answers requests meanwhile. A request for the
+  // default locale's listing joins this read; others share its walk and parsed item files.
   warmContentInBackground();
 
   // Auto-initialize database (migrate and seed if needed)

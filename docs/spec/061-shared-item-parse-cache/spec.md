@@ -143,7 +143,9 @@ Found on a local production build with that data repo:
   list alone, ~11 timers per request). Short timers (retry back-off, at most 30 s) still
   run.
 - **R15.** The server reads the default locale's content in the background when it starts
-  (`instrumentation.ts`), so the first requests join that read instead of starting it. The
+  (`instrumentation.ts`; production servers only, not Vercel or `next dev`). A request for
+  the default locale's listing joins that read; other reads share its directory walk and
+  parsed item files. The
   home page lists the whole catalogue: on a busy node its first render, together with the
   start-up content sync (pull, cache clear, location index rebuild), took minutes, and
   after the release a mcpserver.ever.works pod used up its `GET /` startup probe (10 s
