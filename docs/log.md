@@ -9,7 +9,7 @@ sidebar_position: 99
 
 ## 2026-11-18
 
-- `docs/spec/061-shared-item-parse-cache/spec.md` R16 `docs/content-management/content-management.md` `docs/features/seo.md` An item without `updated_at` is listed instead of dropped (date-fns threw on the missing value); it sorts as the oldest and is left out of the feeds. (#PR)
+- `docs/spec/061-shared-item-parse-cache/spec.md` R16 `docs/content-management/content-management.md` `docs/features/seo.md` An item without `updated_at` is listed instead of dropped (date-fns threw on the missing value); it sorts as the oldest and is left out of the feeds. (#1169)
 
 - `docs/{api/auth-endpoints,authentication/session-management,database/users-queries-deep-dive,hooks/use-change-password-reference}.md` `docs/spec/003-auth-providers/spec.md` The admin survey pages' ended-session caveat is gone: since #1154 they call `requireAdmin()` (`auth()` and the live role) before reading the survey. (#1167)
 
