@@ -51,19 +51,30 @@ test.describe('Public: Item Detail Page', () => {
 		expect(page.url()).toContain(`/items/${slug}`);
 	});
 
+	// After a client-side navigation Next.js streams the page's metadata in: the URL changes
+	// first and the <head> tags follow (~300 ms on demodev). Wait for them rather than count once.
 	test('item detail page exposes canonical or og:url meta', async ({ page }) => {
+		// The navigation waits plus the full metadata poll can outlast the default test budget.
+		test.slow();
 		const href = await clickFirstItem(page);
 		test.skip(href === null, 'No items available');
-		const canonical = await page.locator('link[rel="canonical"]').count();
-		const ogUrl = await page.locator('meta[property="og:url"]').count();
-		expect(canonical + ogUrl, 'expected canonical or og:url meta').toBeGreaterThan(0);
+		await expect
+			.poll(
+				async () =>
+					(await page.locator('link[rel="canonical"]').count()) +
+					(await page.locator('meta[property="og:url"]').count()),
+				{ message: 'expected canonical or og:url meta', timeout: PAGE_READY_TIMEOUT }
+			)
+			.toBeGreaterThan(0);
 	});
 
 	test('item detail page exposes Open Graph title meta', async ({ page }) => {
+		// The navigation waits plus the full metadata poll can outlast the default test budget.
+		test.slow();
 		const href = await clickFirstItem(page);
 		test.skip(href === null, 'No items available');
 		const ogTitle = page.locator('meta[property="og:title"]');
-		expect(await ogTitle.count()).toBeGreaterThan(0);
+		await expect.poll(() => ogTitle.count(), { timeout: PAGE_READY_TIMEOUT }).toBeGreaterThan(0);
 		const ogTitleValue = await ogTitle.first().getAttribute('content');
 		expect(ogTitleValue?.length ?? 0).toBeGreaterThan(0);
 	});
