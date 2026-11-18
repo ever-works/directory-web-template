@@ -54,7 +54,7 @@ confirm, override, or refine.
 - **Owner.** Maintainers.
 - **Status.** open
 
-### Q-061c Runtime page cache: memory only, 64 MB
+### Q-061c Runtime page cache: memory only, 256 MB
 
 - **Context.** With public pages cached, a 4,000-item, 21-locale directory has ~86,000
   cacheable pages, each counted as ~0.65 MB (measured ~0.9 MB of heap); Next.js writes
@@ -62,8 +62,10 @@ confirm, override, or refine.
 - **Options.**
   - Disk (Next.js default): unbounded growth of the pod filesystem.
   - Memory only, LRU-bounded; a CDN in front holds the long tail.
-- **Default.** **Memory only, `NEXT_CACHE_MAX_MEMORY_MB=64`** (under ~90 MB of heap; sites
-  on 2 GiB pods were OOM-killed); `NEXT_ISR_FLUSH_TO_DISK=true` (read at server start by
+- **Default.** **Memory only, `NEXT_CACHE_MAX_MEMORY_MB=256`** (~390 pages in ~360 MB of
+  heap; the measured peak stays near ~1.45 GB on the 2 GiB pods, where sites were
+  OOM-killed before Spec 061; the first default, 64, held ~70 pages and crawlers evicted
+  even the home page); `NEXT_ISR_FLUSH_TO_DISK=true` (read at server start by
   `apps/web/cache-handler.cjs`) restores disk writes. Optimized images keep Next's disk cache.
 - **Owner.** Maintainers.
 - **Status.** open

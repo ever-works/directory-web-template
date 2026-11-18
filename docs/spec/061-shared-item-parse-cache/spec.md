@@ -88,7 +88,9 @@ Found on a local production build with that data repo:
   boundary (categories, tags, tags/collections paging, collections) are pinned to
   `force-dynamic`: rendered per request, as before.
 - **R6.** The runtime page cache stays in memory, LRU-bounded by `NEXT_CACHE_MAX_MEMORY_MB`
-  (default 64: a cached item page is counted as ~0.65 MB and measured ~0.9 MB of heap),
+  (default 256, ~390 pages in ~360 MB: a cached item page is counted as ~0.65 MB and
+  measured ~0.9 MB of heap; 64 held ~70 pages, and crawlers evicted even the home page on
+  mcpserver.ever.works; 256 keeps the measured peak near ~1.45 GB on 2 GiB pods),
   and is written to disk only with `NEXT_ISR_FLUSH_TO_DISK=true`: `apps/web/cache-handler.cjs`
   is Next's own cache handler without disk writes. `experimental.isrFlushToDisk` keeps its
   default, because turning it off also turns off the optimized-image disk cache.

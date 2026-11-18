@@ -9,11 +9,11 @@ const isDev = process.env.NODE_ENV === 'development';
 
 /**
  * The in-memory page cache bound in MB (Spec 061): a positive, finite `NEXT_CACHE_MAX_MEMORY_MB`,
- * else 64. `Infinity` or garbage must not lift the bound.
+ * else 256. `Infinity` or garbage must not lift the bound.
  */
 function pageCacheMemoryMb(value: string | undefined): number {
 	const mb = Number(value);
-	return Number.isFinite(mb) && mb > 0 ? mb : 64;
+	return Number.isFinite(mb) && mb > 0 ? mb : 256;
 }
 
 const nextConfig: NextConfig = {
@@ -35,7 +35,10 @@ const nextConfig: NextConfig = {
 	// `NEXT_CACHE_MAX_MEMORY_MB` (read at build time), evicting least recently used pages;
 	// a CDN in front (Cloudflare) caches them too, from the `s-maxage` header. Next counts
 	// a cached item page as ~0.65 MB; it measured ~0.9 MB of heap + buffers, so the default
-	// 64 keeps the cache under ~90 MB. Raise it on pods with memory to spare.
+	// 256 holds ~390 pages in ~360 MB. Sized for the 2 GiB single-replica pods: the process
+	// peaked at ~1.16 GB under crawler load with a 64 MB cache, so 256 peaks near ~1.45 GB
+	// (512 would be ~1.8 GB). 64 held ~70 pages, and on mcpserver.ever.works (~86,000 page
+	// URLs) crawlers evicted even the home page. Raise it on pods with memory to spare.
 	// `experimental.isrFlushToDisk` keeps its default: turning it off would also turn off
 	// the optimized-image disk cache.
 	cacheHandler: path.join(__dirname, 'cache-handler.cjs'),
