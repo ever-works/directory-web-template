@@ -1,5 +1,6 @@
 import { getEngagementMetricsPerItem, ItemEngagementMetrics } from '@/lib/db/queries/engagement.queries';
 import { ItemData } from '@/lib/content';
+import { itemDateMs } from '@/lib/item-updated-at';
 
 /**
  * Extended ItemData with engagement metrics for true popularity sorting
@@ -102,9 +103,8 @@ export function calculatePopularityScore(item: ItemWithEngagement): number {
 
   // Recency score - newer items get more visibility
   const now = Date.now();
-  const itemTime = item.updatedAt instanceof Date 
-    ? item.updatedAt.getTime() 
-    : new Date(item.updatedAt).getTime();
+  // 0 for an undated item: it gets no recency points.
+  const itemTime = itemDateMs(item.updatedAt);
   const ageInDays = (now - itemTime) / (1000 * 60 * 60 * 24);
   
   // Items within last 30 days get 0-1000 points (linear decay)

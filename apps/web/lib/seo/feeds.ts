@@ -15,6 +15,7 @@ import { Feed } from 'feed';
 import type { ItemData } from '@/lib/content';
 import type { PostSummary } from '@/types/post';
 import { buildPostHref } from '@/lib/blog/urls';
+import { parseItemUpdatedAt } from '@/lib/item-updated-at';
 
 /** A single feed entry, derived from an `ItemData`. */
 export interface FeedEntry {
@@ -120,9 +121,17 @@ function categoryName(cat: ItemData['category']): string | undefined {
  * each remaining item to a {@link FeedEntry} with absolute URLs.
  */
 export function buildFeedEntries(items: ReadonlyArray<ItemData>, config: FeedConfig): FeedEntry[] {
-	const sorted = [...items].sort(
-		(a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
-	);
+	// An item without a usable `updated_at` is left out, like an undated post: a feed entry
+	// needs a stable pubDate (see buildPostFeedEntries).
+	// The date is read the way the listing reads it (parseItemUpdatedAt), so an epoch or
+	// pre-epoch date still counts.
+	const sorted = items
+		.flatMap((item) => {
+			const date = parseItemUpdatedAt(item.updated_at);
+			return date && item.updated_at ? [{ item: { ...item, updated_at: item.updated_at }, time: date.getTime() }] : [];
+		})
+		.sort((a, b) => b.time - a.time)
+		.map(({ item }) => item);
 	const limited = sorted.slice(0, config.limit);
 	const siteUrl = config.siteUrl.replace(/\/+$/, '');
 
