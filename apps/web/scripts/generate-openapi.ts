@@ -423,16 +423,24 @@ function mergeResponseContent(existing: any, generated: any): any {
 		const existingContent = existing[contentType];
 
 		if (existingContent) {
+			// Code annotations are the source of truth for examples too. When the annotation has an
+			// `example` or `examples`, they replace the file's: keeping the longer old example, or merging
+			// the old named examples in, kept examples the handler no longer returns and could leave
+			// `example` next to `examples`, which OpenAPI 3.0 forbids. Without either, the file's stay.
+			const annotated = generatedContent.example !== undefined || generatedContent.examples !== undefined;
 			merged[contentType] = {
 				...existingContent,
 				...generatedContent,
-				// Preserve existing examples if they are more detailed
-				example: preserveBestExample(existingContent.example, generatedContent.example),
-				examples: preserveBestExamples(existingContent.examples, generatedContent.examples)
+				example: annotated
+					? generatedContent.example
+					: preserveBestExample(existingContent.example, generatedContent.example),
+				examples: annotated
+					? generatedContent.examples
+					: preserveBestExamples(existingContent.examples, generatedContent.examples)
 			};
 
 			// Clean up undefined properties
-			if (!merged[contentType].example) delete merged[contentType].example;
+			if (merged[contentType].example === undefined) delete merged[contentType].example;
 			if (!merged[contentType].examples) delete merged[contentType].examples;
 		} else {
 			merged[contentType] = generatedContent;

@@ -305,7 +305,7 @@ export async function GET(request: NextRequest) {
  *               invalid_format:
  *                 value:
  *                   success: false
- *                   error: "Category name must be at least 2 characters"
+ *                   error: "Category name must be at least 2 characters long"
  *       401:
  *         description: "Unauthorized - Admin access required"
  *         content:

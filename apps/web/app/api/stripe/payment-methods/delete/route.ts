@@ -86,7 +86,7 @@ import { z } from 'zod';
  *                     affected_subscriptions: 0
  *                     new_default_payment_method: null
  *       400:
- *         description: "Bad request - Invalid request data or payment method issues"
+ *         description: "Bad request - Invalid request data or payment method issues (including a payment method Stripe cannot find)"
  *         content:
  *           application/json:
  *             schema:
@@ -115,10 +115,17 @@ import { z } from 'zod';
  *                 value:
  *                   success: false
  *                   error: "Invalid request data"
+ *                   details:
+ *                     - path: "paymentMethodId"
+ *                       message: "Payment method ID is required"
  *               no_customer:
  *                 value:
  *                   success: false
  *                   error: "Payment method not associated with a customer"
+ *               payment_method_not_found:
+ *                 value:
+ *                   success: false
+ *                   error: "Stripe error: No such PaymentMethod: 'pm_1234567890abcdef'"
  *               stripe_error:
  *                 value:
  *                   success: false
@@ -150,7 +157,7 @@ import { z } from 'zod';
  *                   type: string
  *                   example: "Access denied: payment method does not belong to user"
  *       404:
- *         description: "Not found - Payment method or customer not found"
+ *         description: "Not found - The Stripe customer that owns the payment method was deleted"
  *         content:
  *           application/json:
  *             schema:
@@ -161,16 +168,10 @@ import { z } from 'zod';
  *                   example: false
  *                 error:
  *                   type: string
- *                   example: "Stripe error: No such payment method"
- *             examples:
- *               payment_method:
- *                 value:
- *                   success: false
- *                   error: "Stripe error: No such payment method"
- *               customer:
- *                 value:
- *                   success: false
- *                   error: "Customer not found"
+ *                   example: "Customer not found"
+ *             example:
+ *               success: false
+ *               error: "Customer not found"
  *       500:
  *         description: "Internal server error"
  *         content:

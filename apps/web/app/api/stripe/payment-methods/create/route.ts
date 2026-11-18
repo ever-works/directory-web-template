@@ -139,12 +139,21 @@ const createPaymentMethodSchema = z.object({
  *                   example: "Invalid request data"
  *                 details:
  *                   type: object
- *                   description: "Validation error details (if applicable)"
+ *                   description: "Validation error details (only on validation errors): the serialized ZodError, whose message is a JSON string of the validation issues"
+ *                   properties:
+ *                     name:
+ *                       type: string
+ *                       example: "ZodError"
+ *                     message:
+ *                       type: string
  *             examples:
  *               validation:
  *                 value:
  *                   success: false
  *                   error: "Invalid request data"
+ *                   details:
+ *                     name: "ZodError"
+ *                     message: "[\n  {\n    \"origin\": \"string\",\n    \"code\": \"too_small\",\n    \"minimum\": 1,\n    \"inclusive\": true,\n    \"path\": [\n      \"setup_intent_id\"\n    ],\n    \"message\": \"Setup intent ID is required\"\n  }\n]"
  *               setup_intent_failed:
  *                 value:
  *                   success: false

@@ -181,7 +181,7 @@ import { z } from 'zod';
  *                   example: "Payment method updated successfully"
  *               required: ["success", "data", "message"]
  *       400:
- *         description: "Bad request - Invalid request data or Stripe error"
+ *         description: "Bad request - Invalid request data or Stripe error (including a payment method Stripe cannot find)"
  *         content:
  *           application/json:
  *             schema:
@@ -210,10 +210,17 @@ import { z } from 'zod';
  *                 value:
  *                   success: false
  *                   error: "Invalid request data"
+ *                   details:
+ *                     - path: "billing_details.email"
+ *                       message: "Invalid email format"
  *               no_customer:
  *                 value:
  *                   success: false
  *                   error: "Payment method not associated with a customer"
+ *               payment_method_not_found:
+ *                 value:
+ *                   success: false
+ *                   error: "Stripe error: No such PaymentMethod: 'pm_1234567890abcdef'"
  *               stripe_error:
  *                 value:
  *                   success: false
@@ -245,7 +252,7 @@ import { z } from 'zod';
  *                   type: string
  *                   example: "Access denied: payment method does not belong to user"
  *       404:
- *         description: "Not found - Payment method or customer not found"
+ *         description: "Not found - The Stripe customer that owns the payment method was deleted"
  *         content:
  *           application/json:
  *             schema:
@@ -256,16 +263,10 @@ import { z } from 'zod';
  *                   example: false
  *                 error:
  *                   type: string
- *                   example: "Stripe error: No such payment method"
- *             examples:
- *               payment_method:
- *                 value:
- *                   success: false
- *                   error: "Stripe error: No such payment method"
- *               customer:
- *                 value:
- *                   success: false
- *                   error: "Customer not found"
+ *                   example: "Customer not found"
+ *             example:
+ *               success: false
+ *               error: "Customer not found"
  *       500:
  *         description: "Internal server error"
  *         content:
@@ -326,11 +327,26 @@ import { z } from 'zod';
  *                 error:
  *                   type: string
  *                   example: "Invalid request data"
+ *                 details:
+ *                   type: array
+ *                   description: "Validation error details (only on validation errors)"
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       path:
+ *                         type: string
+ *                         example: "payment_method_id"
+ *                       message:
+ *                         type: string
+ *                         example: "Payment method ID is required"
  *             examples:
  *               validation:
  *                 value:
  *                   success: false
  *                   error: "Invalid request data"
+ *                   details:
+ *                     - path: "payment_method_id"
+ *                       message: "Payment method ID is required"
  *               stripe_error:
  *                 value:
  *                   success: false

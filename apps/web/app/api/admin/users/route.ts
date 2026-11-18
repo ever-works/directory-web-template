@@ -419,19 +419,11 @@ export async function GET(request: NextRequest) {
  *               weak_password:
  *                 value:
  *                   success: false
- *                   error: "Password must be at least 8 characters long"
+ *                   error: "Password must be at least 8 characters"
  *               invalid_role:
  *                 value:
  *                   success: false
  *                   error: "Invalid role"
- *               duplicate_email:
- *                 value:
- *                   success: false
- *                   error: "Email already exists"
- *               duplicate_username:
- *                 value:
- *                   success: false
- *                   error: "Username already exists"
  *       401:
  *         description: "Unauthorized - Authentication required"
  *         content:
@@ -458,6 +450,22 @@ export async function GET(request: NextRequest) {
  *                 error:
  *                   type: string
  *                   example: "Forbidden"
+ *       409:
+ *         description: "Conflict - Email already in use"
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 error:
+ *                   type: string
+ *                   example: "Email already in use"
+ *             example:
+ *               success: false
+ *               error: "Email already in use"
  *       500:
  *         description: "Internal server error"
  *         content:

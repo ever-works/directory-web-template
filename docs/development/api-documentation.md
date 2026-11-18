@@ -318,7 +318,10 @@ Document all possible error responses:
 ### 5. Several example messages for one response
 
 The spec is OpenAPI 3.0, where a Schema Object has only `example` (one value). Named `examples` go next to
-`schema`, on the media type, and each one is an Example Object with a `value` holding the whole response body:
+`schema`, on the media type, and each one is an Example Object with a `value` holding the whole response body
+(and only the fields that response really has: build each example from its own handler branch). The fragment below
+goes under an operation's `responses:` key inside a full `@swagger` block like the ones above; on its own it has no
+`@swagger` tag and is not read:
 
 ```typescript
 /**
