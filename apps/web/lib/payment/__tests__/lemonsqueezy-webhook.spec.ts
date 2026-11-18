@@ -159,6 +159,15 @@ test('stored amounts use the currency minor unit, so zero-decimal currencies are
 	assert.equal(toStoredAmount(Number.NaN, 'jpy'), 0);
 });
 
+test('stored amounts follow the provider units, not the display list (IDR is two-decimal at Stripe)', () => {
+	// Rp10,000 arrives as unit_amount 1000000.
+	assert.equal(toStoredAmount(1000000, 'idr'), 10000);
+	assert.equal(toStoredAmount(1000000, 'HUF'), 10000);
+	// Three-decimal currencies arrive in thousandths.
+	assert.equal(toStoredAmount(12500, 'kwd'), 13);
+	assert.equal(toStoredAmount(5000, 'VND'), 5000);
+});
+
 test('the subscription service passes the currency to every stored amount', () => {
 	const source = readFileSync(join(__dirname, '../../services/webhook-subscription.service.ts'), 'utf8');
 	const calls = source.match(/toStoredAmount\([^)]*\)/g) ?? [];
