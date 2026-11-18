@@ -202,11 +202,11 @@ describe('notifications stream: the session is re-checked on every ping (T-2648)
 		assert.equal(pubsub.listeners.size, 0);
 	});
 
-	it('does not start a second check while one is still running', async () => {
+	it('closes the stream when a check has not settled by the next ping, without starting a second one', async () => {
 		const mod = await loadStream();
 		let checks = 0;
 		let release: (holds: boolean) => void = () => {};
-		const { state } = open(
+		const { pubsub, state } = open(
 			mod,
 			() =>
 				new Promise<boolean>((resolve) => {
@@ -215,13 +215,22 @@ describe('notifications stream: the session is re-checked on every ping (T-2648)
 				})
 		);
 		await flush();
-		mock.timers.tick(mod.NOTIFICATION_STREAM_HEARTBEAT_MS * 3);
+		mock.timers.tick(mod.NOTIFICATION_STREAM_HEARTBEAT_MS);
 		await flush();
 		assert.equal(checks, 1);
+		assert.equal(state.closed, false, 'closed while the first check was still within its interval');
 
-		release(false);
+		// The read stalls: the next heartbeat closes the stream instead of waiting on it.
+		mock.timers.tick(mod.NOTIFICATION_STREAM_HEARTBEAT_MS);
 		await flush();
-		assert.equal(state.closed, true);
+		assert.equal(checks, 1, 'a second check started while one was still running');
+		assert.equal(state.closed, true, 'a stalled check kept the stream open');
+		assert.equal(pubsub.listeners.size, 0, 'a stalled check kept delivering notifications');
+
+		// The stalled check settling later sends nothing.
+		release(true);
+		await flush();
+		assert.deepEqual(state.events, ['hello']);
 	});
 
 	it('still closes and unsubscribes when the client disconnects', async () => {

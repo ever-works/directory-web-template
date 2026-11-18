@@ -58,9 +58,10 @@ export interface NotificationStreamOptions {
 	signal: AbortSignal;
 	subscribe: (userId: string, listener: (notification: NotificationListItem) => void) => () => void;
 	/**
-	 * Runs on every heartbeat, before the ping. `false`, or a rejection (fails closed, like the jwt
-	 * callback on an unreadable `password_changed_at`), closes the stream; the browser's EventSource
-	 * then reconnects through `auth()`, which answers 401 for an ended session.
+	 * Runs on every heartbeat, before the ping. `false`, a rejection, or a check still running at the
+	 * next heartbeat (fails closed, like the jwt callback on an unreadable `password_changed_at`)
+	 * closes the stream; the browser's EventSource then reconnects through `auth()`, which answers
+	 * 401 for an ended session.
 	 */
 	sessionStillHolds: () => Promise<boolean>;
 }
@@ -83,12 +84,7 @@ export function createNotificationStream(options: NotificationStreamOptions): Re
 			const send = (event: string, data: unknown) => {
 				if (closed) return;
 				try {
-					controller.enqueue(
-						encoder.encode(`event: ${event}
-data: ${JSON.stringify(data)}
-
-`)
-					);
+					controller.enqueue(encoder.encode(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`));
 				} catch {
 					// Controller may already be closed (client disconnect race).
 				}
@@ -103,8 +99,14 @@ data: ${JSON.stringify(data)}
 
 			// Each ping reads the database, so every way the stream ends stops the heartbeat.
 			const heartbeat = setInterval(() => {
-				// A check still running (slow database) covers this ping too.
-				if (checking || closed) return;
+				if (closed) return;
+				// A check that has not settled by the next ping (a stalled database read) cannot show
+				// that the session still holds, while notifications keep flowing: close the stream
+				// (fails closed, as on a failed read), so a stall cannot stretch the window past it.
+				if (checking) {
+					stop();
+					return;
+				}
 				checking = true;
 				sessionStillHolds().then(
 					(holds) => {
