@@ -83,7 +83,7 @@ Obliczenie „0” uwzględnia trzy przypadki: wyłączenie (odejmij 1), nowe g�
 
 ### Brama uwierzytelniająca
 
-Nieuwierzytelnionym użytkownikom, którzy próbują głosować, zamiast otrzymywać komunikat o błędzie, wyświetla się moduł logowania:
+Nieuwierzytelnionym użytkownikom, którzy próbują głosować, wyświetla się okno logowania, a `handleVote` zgłasza błąd, zanim uruchomi mutację:
 
 ```ts
 if (!user) {
@@ -92,7 +92,7 @@ if (!user) {
 }
 ```
 
-Błąd jest wychwytywany przez procedurę obsługi mutacji `onError` , która sprawdza komunikat uwierzytelniający i pomija komunikat o błędzie.
+Ten błąd trafia do kodu, który wywołał `handleVote`: żadne żądanie nie jest wysyłane, a `onError` mutacji się nie uruchamia. `onError` obsługuje tylko nieudane żądanie głosowania: cofa optymistyczną aktualizację i pokazuje komunikat o błędzie (mutacja głosowania pomija komunikat, gdy dotyczy on logowania).
 
 ### Konfiguracja zapytania
 
@@ -223,14 +223,14 @@ function useAdminComments({ page, limit, search }) {
 
 | Metoda | Punkt końcowy | Opis |
 |--------|----------|------------|
-| OTRZYMAJ | `/api/items/:id/votes` | Pobierz liczbę głosów i głos użytkownika |
-| POST | `/api/items/:id/votes` | Oddaj lub zmień głos |
-| USUŃ | `/api/items/:id/votes` | Usuń głos |
-| OTRZYMAJ | `/api/items/:id/comments` | Pobierz komentarze z danymi użytkownika |
-| POST | `/api/items/:id/comments` | Utwórz nowy komentarz |
-| POSTAW | `/api/items/:id/comments/:commentId` | Zaktualizuj komentarz |
-| USUŃ | `/api/items/:id/comments/:commentId` | Usuń komentarz |
-| OTRZYMAJ | `/api/items/:id/comments/rating` | Uzyskaj zbiorczą ocenę przedmiotu |
+| OTRZYMAJ | `/api/items/:slug/votes` | Pobierz liczbę głosów i głos użytkownika |
+| POST | `/api/items/:slug/votes` | Oddaj lub zmień głos |
+| USUŃ | `/api/items/:slug/votes` | Usuń głos |
+| OTRZYMAJ | `/api/items/:slug/comments` | Pobierz komentarze z danymi użytkownika |
+| POST | `/api/items/:slug/comments` | Utwórz nowy komentarz |
+| POSTAW | `/api/items/:slug/comments/:commentId` | Zaktualizuj komentarz |
+| USUŃ | `/api/items/:slug/comments/:commentId` | Usuń komentarz |
+| OTRZYMAJ | `/api/items/:slug/comments/rating` | Uzyskaj zbiorczą ocenę przedmiotu |
 
 ## Integracja flagi funkcji
 

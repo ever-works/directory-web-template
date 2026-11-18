@@ -14,6 +14,10 @@ import DiscoverListing, { generateMetadata as generateDiscoverMetadata } from '.
  * The public URL never changes. `proxy.ts` answers direct requests for this
  * path with 404, so it is only reachable through the rewrite.
  */
+// 600 s is an upper bound. Where the item listing fits Next's Data Cache (< 2 MB), its
+// 60-second `unstable_cache` entry (CACHE_TTL.LISTING, kept short so a partially repaired
+// listing cannot linger) lowers this page's lifetime, and its `s-maxage`, to 60 s. The page
+// is still served from the cache and regenerated in the background at most once a minute.
 export const revalidate = 600;
 export const dynamicParams = true;
 

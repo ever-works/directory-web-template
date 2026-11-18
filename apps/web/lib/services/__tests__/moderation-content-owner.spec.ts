@@ -78,6 +78,24 @@ describe('getContentOwner returns a client profile id for items', () => {
 	});
 });
 
+describe('removeContent records an item removal even when the item has no owner profile', () => {
+	const service = source('../moderation.service.ts');
+	const removeContent = functionBody(service, 'export async function removeContent(');
+
+	it('passes the admin to itemRepository.delete, which writes the item audit log row', () => {
+		// moderation_history needs a client profile, so an item submitted anonymously or by an
+		// import got deleted with no record at all; the item audit log takes an unknown owner.
+		assert.ok(
+			removeContent.includes('await itemRepository.delete(contentId, { id: adminId });'),
+			'removeContent deletes the item without naming the admin in the item audit log'
+		);
+		assert.ok(
+			!removeContent.includes('await itemRepository.delete(contentId);'),
+			'removeContent still deletes the item with no audit user'
+		);
+	});
+});
+
 describe('PUT /api/admin/reports/{id} runs the moderation action before it saves the report', () => {
 	const route = source('../../../app/api/admin/reports/[id]/route.ts');
 	const put = functionBody(route, 'export async function PUT(');
@@ -117,6 +135,39 @@ describe('PUT /api/admin/reports/{id} runs the moderation action before it saves
 
 		const statusFn = functionBody(route, 'function moderationFailureStatus(');
 		assert.ok(statusFn.includes('? 409 : 500'), 'moderationFailureStatus does not answer 409 or 500');
+	});
+
+	it('rejects an invalid status, resolution or review note (null included) before any action runs', () => {
+		// `status && ...` let `status: null` through; the action then ran and the report save
+		// failed on the NOT NULL status column, leaving the action applied and the report unchanged.
+		const firstAction = Math.min(
+			...['await removeContent(', 'await getContentOwner('].map((call) => put.indexOf(call))
+		);
+		const checks = [
+			'if (status !== undefined && !isReportStatus(status)) {',
+			'if (resolution !== undefined && !isReportResolution(resolution)) {',
+			"if (reviewNote !== undefined && typeof reviewNote !== 'string') {",
+			"if (!body || typeof body !== 'object' || Array.isArray(body)) {"
+		];
+		for (const check of checks) {
+			const at = put.indexOf(check);
+			assert.ok(at > 0, `PUT does not check: ${check}`);
+			assert.ok(at < firstAction, `PUT runs a moderation action before: ${check}`);
+			const branch = put.slice(at, put.indexOf(');', put.indexOf('return NextResponse.json(', at)) + 2);
+			assert.ok(branch.includes('{ status: 400 }'), `an invalid field does not answer 400: ${check}`);
+		}
+		assert.ok(!put.includes('if (status && '), 'PUT still skips the status check for a falsy status');
+		assert.ok(!put.includes('if (resolution && !'), 'PUT still skips the resolution check for a falsy resolution');
+
+		const guards = route.slice(0, route.indexOf('function moderationFailureStatus('));
+		assert.ok(
+			guards.includes("typeof value === 'string' && (VALID_STATUSES as string[]).includes(value)"),
+			'isReportStatus accepts a value that is not one of the statuses'
+		);
+		assert.ok(
+			guards.includes("typeof value === 'string' && (VALID_RESOLUTIONS as string[]).includes(value)"),
+			'isReportResolution accepts a value that is not one of the resolutions'
+		);
 	});
 
 	it('does not run the action again for a resolution the report already has', () => {

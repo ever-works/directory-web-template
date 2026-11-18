@@ -30,7 +30,19 @@ const geistMono = Geist_Mono({
  * with the locale from its route params, the root layout only passes children
  * through, and the few pages outside `[locale]` render it themselves.
  */
-export function DocumentShell({ locale, children }: { locale: string; children: React.ReactNode }) {
+export function DocumentShell({
+	locale,
+	children,
+	localeRedirect = true
+}: {
+	locale: string;
+	children: React.ReactNode;
+	/**
+	 * False for pages that have no locale-prefixed twin (`/unauthorized`): the redirect
+	 * would send a visitor with a `NEXT_LOCALE` cookie to `/fr/unauthorized`, a 404.
+	 */
+	localeRedirect?: boolean;
+}) {
 	const dir = RTL_LOCALES.includes(locale as Locale) ? 'rtl' : 'ltr';
 
 	return (
@@ -43,7 +55,7 @@ export function DocumentShell({ locale, children }: { locale: string; children: 
 					`localeDetection: false` setting in `i18n/routing.ts`.
 					See `docs/performance/locale-detection.md` and Spec 019.
 				*/}
-				<LocaleCookieRedirect />
+				{localeRedirect ? <LocaleCookieRedirect /> : null}
 			</head>
 			<body
 				className={`${geistSans.variable} ${geistMono.variable} antialiased dark:bg-[#0a0a0a]`}

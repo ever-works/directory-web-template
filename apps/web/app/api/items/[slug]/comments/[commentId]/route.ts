@@ -48,9 +48,11 @@ import { validateCommentInput } from '@/lib/validations/comment';
  *           text/plain:
  *             schema:
  *               type: string
- *               examples:
- *                 client_not_found: "Client profile not found"
- *                 comment_not_found: "Comment not found or not authorized"
+ *             examples:
+ *               client_not_found:
+ *                 value: "Client profile not found"
+ *               comment_not_found:
+ *                 value: "Comment not found or not authorized"
  *       500:
  *         description: "Internal server error"
  *         content:
@@ -192,15 +194,31 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ s
  *               properties:
  *                 error:
  *                   type: string
- *                   examples:
- *                     invalid_json: "Invalid JSON body"
- *                     not_an_object: "Request body must be a JSON object"
- *                     no_fields: "At least one of content or rating must be provided"
- *                     content_type: "Content must be a string"
- *                     content_length: "Content must be between 1 and 1000 characters"
- *                     content_nul: "Content must not contain NUL characters"
- *                     rating_type: "Rating must be an integer"
- *                     invalid_rating: "Rating must be between 1 and 5"
+ *             examples:
+ *               invalid_json:
+ *                 value:
+ *                   error: "Invalid JSON body"
+ *               not_an_object:
+ *                 value:
+ *                   error: "Request body must be a JSON object"
+ *               no_fields:
+ *                 value:
+ *                   error: "At least one of content or rating must be provided"
+ *               content_type:
+ *                 value:
+ *                   error: "Content must be a string"
+ *               content_length:
+ *                 value:
+ *                   error: "Content must be between 1 and 1000 characters"
+ *               content_nul:
+ *                 value:
+ *                   error: "Content must not contain NUL characters"
+ *               rating_type:
+ *                 value:
+ *                   error: "Rating must be an integer"
+ *               invalid_rating:
+ *                 value:
+ *                   error: "Rating must be between 1 and 5"
  *       401:
  *         description: "Unauthorized - Authentication required"
  *         content:

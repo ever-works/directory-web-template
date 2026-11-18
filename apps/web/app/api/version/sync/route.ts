@@ -119,7 +119,7 @@ import { safeErrorMessage } from '@/lib/utils/api-error';
  *                   type: string
  *                   example: "Forbidden"
  *       500:
- *         description: "Sync operation failed"
+ *         description: "Sync operation failed, or the admin check could not be completed (error: 'Admin check failed')"
  *         content:
  *           application/json:
  *             schema:
@@ -283,7 +283,14 @@ export async function POST(request: Request) {
     // location index, so a signed-in non-admin must not be able to trigger
     // it (401 anonymous, 403 non-admin).
     const authResult = await requireAdminSession();
-    if (authResult instanceof NextResponse) return authResult;
+    if (authResult instanceof NextResponse) {
+      // 401 and 403 keep the guard's body. A failed admin check (500) answers the documented
+      // sync error shape, with timestamp and duration, like any other failed sync request.
+      if (authResult.status >= 500) {
+        return createSyncResponse(false, "Admin check failed", Date.now() - startTime);
+      }
+      return authResult;
+    }
 
     // Parse request body for options
     let options = {};

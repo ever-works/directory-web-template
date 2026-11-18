@@ -18,7 +18,7 @@ O sistema de votação usa um modelo de votação por item onde cada usuário au
 ```mermaid
 flowchart TD
     A["Component (UI)"] -->|"useItemVote(itemId)"| B["Vote Hook (optimistic)"]
-    B --> C["/api/items/:id/votes"]
+    B --> C["/api/items/:slug/votes"]
     C --> D["Database (votes table)"]
 ```
 
@@ -114,7 +114,7 @@ Cada comentário inclui:
 - `rating` -- Classificação por estrelas opcional (1-5)
 - `userId` -- Referência do autor
 - `itemId` -- Item associado
-- `user` -- Dados do usuário preenchidos (nome, email, imagem)
+- `user` -- O perfil público do autor. GET e POST retornam id, name, image, username, bio, jobTitle, company e location; a resposta do PUT (edição) retorna apenas id, name e image. O email nunca é retornado.
 - `createdAt` / `updatedAt` -- Carimbos de data e hora
 
 ### Integração de classificação
@@ -155,11 +155,11 @@ const {
 
 | Método | Ponto final | Descrição |
 |--------|----------|------------|
-| OBTER | `/api/items/:id/comments` | Buscar comentários para um item |
-| POSTAR | `/api/items/:id/comments` | Crie um novo comentário |
-| COLOCAR | `/api/items/:id/comments/:commentId` | Atualizar um comentário |
-| EXCLUIR | `/api/items/:id/comments/:commentId` | Excluir um comentário |
-| OBTER | `/api/items/:id/comments/rating` | Obtenha classificação agregada |
+| OBTER | `/api/items/:slug/comments` | Buscar comentários para um item |
+| POSTAR | `/api/items/:slug/comments` | Crie um novo comentário |
+| COLOCAR | `/api/items/:slug/comments/:commentId` | Atualizar um comentário |
+| EXCLUIR | `/api/items/:slug/comments/:commentId` | Excluir um comentário |
+| OBTER | `/api/items/:slug/comments/rating` | Obtenha classificação agregada |
 
 ## Integração de sinalizadores de recursos
 

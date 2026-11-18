@@ -83,14 +83,17 @@ export async function getContentOwner(
  *     NO audit trail. Wrap in a DB transaction if this matters
  *     for compliance.
  *
- *   - **Audit row is gated on owner discovery.** If
+ *   - **moderation_history is gated on owner discovery.** Its
+ *     `user_id` is a NOT NULL client profile, so when
  *     `getContentOwner` fails (item has `submitted_by = null` or a
  *     submitter with no client profile such as `'anonymous'` /
- *     `'import'`, comment lookup fails), the content is STILL deleted but
- *     no moderation_history row is created. Audit-gap: an admin
- *     can remove orphaned content with no record. Either log
- *     unconditionally (with `userId = null`) or refuse the
- *     deletion when owner is unknown.
+ *     `'import'`) the content is still deleted but no
+ *     moderation_history row is created. Item removals are still
+ *     recorded: `itemRepository.delete` gets the admin as audit user
+ *     and writes the item audit log row (`deleted`, performed by the
+ *     admin) whatever the owner. That write is best-effort (see
+ *     `item-audit.service.ts`). Refusing the deletion instead would
+ *     leave anonymous spam impossible to remove.
  *
  *   - **Soft-delete vs hard-delete asymmetry.** Comments use
  *     `deleteComment` (soft — sets `deleted_at`); items use
@@ -157,8 +160,10 @@ export async function removeContent(
 				return { success: false, message: 'Item not found', error: 'NOT_FOUND' };
 			}
 
-			// Delete the item from Git repository
-			await itemRepository.delete(contentId);
+			// Delete the item from Git repository. The repository writes the item audit log row
+			// (action `deleted`) with the admin as performer, so the removal is recorded even when
+			// the item has no owner profile and no moderation_history row can be written below.
+			await itemRepository.delete(contentId, { id: adminId });
 
 			// Log moderation action and send email
 			if (ownerResult.userId) {

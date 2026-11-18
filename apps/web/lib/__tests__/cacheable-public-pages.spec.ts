@@ -84,6 +84,33 @@ describe('cacheable public pages (spec 061)', () => {
 		assert.doesNotMatch(code('components/shared-card/index.tsx'), /useSearchParams/);
 	});
 
+	it('filtered listings keep their query in server-rendered links; /unauthorized has no locale redirect', () => {
+		// The grid reads the query from context, which the browser fills after mount: pages that
+		// render per request pass the query they were rendered for as the fallback.
+		assert.ok(code('components/providers/navigation-provider.tsx').includes('return useContext(NavigationContext)?.search ?? fallback;'));
+		assert.ok(code('components/shared-card/index.tsx').includes('const currentSearch = useCurrentSearch(props.search);'));
+		for (const page of [
+			'app/[locale]/(listing)/discover/[page]/page.tsx',
+			'app/[locale]/(listing)/tags/[...tag]/page.tsx',
+			'app/[locale]/categories/[category]/page.tsx'
+		]) {
+			assert.ok(code(page).includes('search={toSearchString(sp)}'), page);
+		}
+		assert.ok(code('components/home-two/home-two-layout.tsx').includes('search={props.search}'));
+		// No /<locale>/unauthorized exists, so the NEXT_LOCALE cookie redirect would 404 there.
+		assert.ok(code('app/unauthorized/page.tsx').includes('<DocumentShell locale={DEFAULT_LOCALE} localeRedirect={false}>'));
+	});
+
+	it('a single-item read fails on IO errors instead of reporting a missing item', () => {
+		// `null` makes the cached item page a 404; a transient EMFILE must fail the render so
+		// ISR keeps the last good page.
+		const content = code('lib/content.ts');
+		const fetchItem = content.slice(content.indexOf('export async function fetchItem('), content.indexOf('function eqID('));
+		assert.ok(fetchItem.includes('await parseItem(metaPath, `${sanitizedSlug}.yml`, undefined, { throwIoErrors: true });'));
+		assert.ok(fetchItem.includes('{ throwIoErrors: true }); if (translation)'));
+		assert.ok(fetchItem.includes('if (isIoError(error)) { throw error; } return null;'));
+	});
+
 	it('the proxy answers direct requests for the cached twins with 404', () => {
 		const proxy = code('proxy.ts');
 		assert.ok(proxy.includes('if (isCachedListingTwinPath(resolveLocalePrefix(originalPathname).pathWithoutLocale)) { return new NextResponse(null, { status: 404 }); }'));
@@ -110,7 +137,9 @@ describe('cacheable public pages (spec 061)', () => {
 	it('the runtime page cache stays in memory and bounded, and the image cache keeps its disk', () => {
 		const config = code('next.config.ts');
 		assert.ok(config.includes("cacheHandler: path.join(__dirname, 'cache-handler.cjs'),"));
-		assert.ok(config.includes('cacheMaxMemorySize:'));
+		assert.ok(config.includes('cacheMaxMemorySize: pageCacheMemoryMb(process.env.NEXT_CACHE_MAX_MEMORY_MB) * 1024 * 1024,'));
+		// Infinity or garbage must not lift the bound.
+		assert.ok(config.includes('return Number.isFinite(mb) && mb > 0 ? mb : 64;'));
 		// isrFlushToDisk: false would also switch off the optimized-image disk cache.
 		assert.doesNotMatch(config, /isrFlushToDisk/);
 	});

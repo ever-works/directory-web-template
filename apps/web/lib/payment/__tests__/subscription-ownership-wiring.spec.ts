@@ -27,6 +27,11 @@ function handlerSource(file: string, method: string): string {
 
 const STRIPE_CHECK =
 	'findOwnedProviderSubscription(session.user.id, PaymentProvider.STRIPE, subscriptionId, getSubscriptionByProviderSubscriptionId)';
+/**
+ * PUT/DELETE /api/stripe/subscription: the local row, or Stripe's customer while the
+ * `customer.subscription.created` webhook has not written the row yet (`isOwnStripeSubscription`).
+ */
+const STRIPE_PENDING_CHECK = 'ownsStripeSubscription(session.user.id, subscriptionId)';
 const LEMONSQUEEZY_CHECK =
 	'findOwnedLemonSqueezySubscription(session.user.email, subscriptionId, (id) => lemonsqueezy.getSubscriptionOwner(id))';
 
@@ -96,14 +101,14 @@ const guarded: Guarded[] = [
 		name: 'PUT stripe/subscription',
 		file: 'api/stripe/subscription/route.ts',
 		method: 'PUT',
-		check: STRIPE_CHECK,
+		check: STRIPE_PENDING_CHECK,
 		mutations: ['stripeProvider.updateSubscription(']
 	},
 	{
 		name: 'DELETE stripe/subscription',
 		file: 'api/stripe/subscription/route.ts',
 		method: 'DELETE',
-		check: STRIPE_CHECK,
+		check: STRIPE_PENDING_CHECK,
 		mutations: ['stripeProvider.cancelSubscription(']
 	}
 ];
@@ -237,6 +242,21 @@ describe('subscription ownership wiring', () => {
 		assert.ok(
 			source.includes('enum: ["EMAIL_NOT_VERIFIED", "ACCESS_DENIED"]'),
 			'the list route lost its Swagger 403'
+		);
+	});
+
+	it("stripe/subscription checks the Stripe-scoped row first and falls back to the user's own Stripe customer", () => {
+		const source = squash(read('api/stripe/subscription/route.ts'));
+		const start = source.indexOf('function ownsStripeSubscription(');
+		assert.ok(start >= 0, 'the route lost its ownership helper');
+		const helper = source.slice(start, source.indexOf('export async function', start));
+		assert.ok(helper.includes('isOwnStripeSubscription(userId, subscriptionId, {'));
+		assert.ok(helper.includes('getSubscriptionByProviderSubscriptionId(PaymentProvider.STRIPE, id)'));
+		assert.ok(helper.includes('getUserPaymentAccountByProvider(id, PaymentProvider.STRIPE)'));
+		assert.ok(helper.includes('.subscriptions.retrieve(id)'));
+		assert.ok(
+			!source.includes('findOwnedProviderSubscription('),
+			'PUT/DELETE must not refuse a row the webhook has not written'
 		);
 	});
 

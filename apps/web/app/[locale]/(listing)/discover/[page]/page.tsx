@@ -7,6 +7,7 @@ import { getSiteDescription } from "@/lib/seo/site-identity";
 import { filterItems } from "@/lib/utils";
 import { sortItems, parseCsv } from "@/lib/listing-server";
 import Listing from "../../listing";
+import { toSearchString } from '@/lib/utils/search-string';
 
 // Force dynamic — the route reads `searchParams` (q / sort / tags /
 // categories) to filter & sort items server-side, and ISR was caching
@@ -162,6 +163,7 @@ export default async function DiscoverListing({
       page={page}
       total={total}
       basePath="/discover"
+      search={toSearchString(sp)}
     />
   );
 }

@@ -83,7 +83,7 @@ O cálculo `countDiff` lida com três casos: desativação (subtrair 1), votaç�
 
 ### Portão de autenticação
 
-Usuários não autenticados que tentam votar recebem um modal de login em vez de receber um erro:
+Usuários não autenticados que tentam votar veem um modal de login, e `handleVote` lança um erro antes de iniciar a mutação:
 
 ```ts
 if (!user) {
@@ -92,7 +92,7 @@ if (!user) {
 }
 ```
 
-O erro é capturado pelo manipulador `onError` da mutação, que verifica a mensagem de autenticação e suprime o brinde do erro.
+Esse erro chega ao código que chamou `handleVote`: nenhuma requisição é enviada e o `onError` da mutação não é executado. O `onError` trata apenas uma requisição de voto que falhou: desfaz a atualização otimista e mostra um aviso de erro (a mutação de voto omite o aviso quando a mensagem é sobre login).
 
 ### Configuração de consulta
 
@@ -223,14 +223,14 @@ function useAdminComments({ page, limit, search }) {
 
 | Método | Ponto final | Descrição |
 |--------|----------|------------|
-| OBTER | `/api/items/:id/votes` | Buscar contagem de votos e voto do usuário |
-| POSTAR | `/api/items/:id/votes` | Lançar ou alterar um voto |
-| EXCLUIR | `/api/items/:id/votes` | Remover um voto |
-| OBTER | `/api/items/:id/comments` | Buscar comentários com dados do usuário |
-| POSTAR | `/api/items/:id/comments` | Crie um novo comentário |
-| COLOCAR | `/api/items/:id/comments/:commentId` | Atualizar um comentário |
-| EXCLUIR | `/api/items/:id/comments/:commentId` | Excluir um comentário |
-| OBTER | `/api/items/:id/comments/rating` | Obtenha classificação agregada do item |
+| OBTER | `/api/items/:slug/votes` | Buscar contagem de votos e voto do usuário |
+| POSTAR | `/api/items/:slug/votes` | Lançar ou alterar um voto |
+| EXCLUIR | `/api/items/:slug/votes` | Remover um voto |
+| OBTER | `/api/items/:slug/comments` | Buscar comentários com dados do usuário |
+| POSTAR | `/api/items/:slug/comments` | Crie um novo comentário |
+| COLOCAR | `/api/items/:slug/comments/:commentId` | Atualizar um comentário |
+| EXCLUIR | `/api/items/:slug/comments/:commentId` | Excluir um comentário |
+| OBTER | `/api/items/:slug/comments/rating` | Obtenha classificação agregada do item |
 
 ## Integração de sinalizadores de recursos
 

@@ -83,7 +83,7 @@ El cálculo `countDiff` maneja tres casos: alternar (restar 1), voto nuevo (suma
 
 ### Puerta de autenticación
 
-A los usuarios no autenticados que intentan votar se les muestra un modo de inicio de sesión en lugar de recibir un error:
+A los usuarios no autenticados que intentan votar se les muestra un modal de inicio de sesión, y `handleVote` lanza un error antes de iniciar la mutación:
 
 ```ts
 if (!user) {
@@ -92,7 +92,7 @@ if (!user) {
 }
 ```
 
-El error es detectado por el controlador `onError` de la mutación, que comprueba el mensaje de autenticación y suprime el mensaje de error.
+Ese error llega al código que llamó a `handleVote`: no se envía ninguna solicitud y el `onError` de la mutación no se ejecuta. `onError` solo gestiona una solicitud de voto fallida: revierte la actualización optimista y muestra un aviso de error (la mutación de voto omite el aviso cuando el mensaje trata del inicio de sesión).
 
 ### Configuración de consulta
 
@@ -223,14 +223,14 @@ function useAdminComments({ page, limit, search }) {
 
 | Método | Punto final | Descripción |
 |--------|----------|-------------|
-| OBTENER | `/api/items/:id/votes` | Obtener el recuento de votos y el voto del usuario |
-| PUBLICAR | `/api/items/:id/votes` | Emitir o cambiar un voto |
-| BORRAR | `/api/items/:id/votes` | Eliminar un voto |
-| OBTENER | `/api/items/:id/comments` | Obtener comentarios con datos de usuario |
-| PUBLICAR | `/api/items/:id/comments` | Crear un nuevo comentario |
-| PONER | `/api/items/:id/comments/:commentId` | Actualizar un comentario |
-| BORRAR | `/api/items/:id/comments/:commentId` | Eliminar un comentario |
-| OBTENER | `/api/items/:id/comments/rating` | Obtener calificación agregada del artículo |
+| OBTENER | `/api/items/:slug/votes` | Obtener el recuento de votos y el voto del usuario |
+| PUBLICAR | `/api/items/:slug/votes` | Emitir o cambiar un voto |
+| BORRAR | `/api/items/:slug/votes` | Eliminar un voto |
+| OBTENER | `/api/items/:slug/comments` | Obtener comentarios con datos de usuario |
+| PUBLICAR | `/api/items/:slug/comments` | Crear un nuevo comentario |
+| PONER | `/api/items/:slug/comments/:commentId` | Actualizar un comentario |
+| BORRAR | `/api/items/:slug/comments/:commentId` | Eliminar un comentario |
+| OBTENER | `/api/items/:slug/comments/rating` | Obtener calificación agregada del artículo |
 
 ## Integración de indicador de funciones
 

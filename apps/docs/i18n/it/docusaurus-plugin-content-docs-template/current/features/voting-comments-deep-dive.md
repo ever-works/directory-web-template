@@ -83,7 +83,7 @@ Il calcolo `countDiff` gestisce tre casi: disattivazione (sottrai 1), nuovo voto
 
 ### Porta di autenticazione
 
-Agli utenti non autenticati che tentano di votare viene mostrata una modalità di accesso invece di ricevere un errore:
+Agli utenti non autenticati che tentano di votare viene mostrata una finestra modale di accesso, e `handleVote` lancia un errore prima di avviare la mutazione:
 
 ```ts
 if (!user) {
@@ -92,7 +92,7 @@ if (!user) {
 }
 ```
 
-L'errore viene catturato dal gestore `onError` della mutazione, che controlla il messaggio di autenticazione e sopprime l'avviso di errore.
+L'errore arriva al codice che ha chiamato `handleVote`: non viene inviata alcuna richiesta e il gestore `onError` della mutazione non viene eseguito. `onError` gestisce solo una richiesta di voto fallita: annulla l'aggiornamento ottimistico e mostra un avviso di errore (la mutazione di voto omette l'avviso quando il messaggio riguarda l'accesso).
 
 ### Configurazione della query
 
@@ -223,14 +223,14 @@ function useAdminComments({ page, limit, search }) {
 
 | Metodo | Punto finale | Descrizione |
 |--------|----------|-------------|
-| OTTIENI | `/api/items/:id/votes` | Recupera il conteggio dei voti e il voto dell'utente |
-| POST | `/api/items/:id/votes` | Esprimi o modifica un voto |
-| ELIMINA | `/api/items/:id/votes` | Rimuovere un voto |
-| OTTIENI | `/api/items/:id/comments` | Recupera commenti con i dati utente |
-| POST | `/api/items/:id/comments` | Crea un nuovo commento |
-| METTERE | `/api/items/:id/comments/:commentId` | Aggiorna un commento |
-| ELIMINA | `/api/items/:id/comments/:commentId` | Elimina un commento |
-| OTTIENI | `/api/items/:id/comments/rating` | Ottieni la valutazione complessiva degli articoli |
+| OTTIENI | `/api/items/:slug/votes` | Recupera il conteggio dei voti e il voto dell'utente |
+| POST | `/api/items/:slug/votes` | Esprimi o modifica un voto |
+| ELIMINA | `/api/items/:slug/votes` | Rimuovere un voto |
+| OTTIENI | `/api/items/:slug/comments` | Recupera commenti con i dati utente |
+| POST | `/api/items/:slug/comments` | Crea un nuovo commento |
+| METTERE | `/api/items/:slug/comments/:commentId` | Aggiorna un commento |
+| ELIMINA | `/api/items/:slug/comments/:commentId` | Elimina un commento |
+| OTTIENI | `/api/items/:slug/comments/rating` | Ottieni la valutazione complessiva degli articoli |
 
 ## Integrazione dei flag di funzionalità
 

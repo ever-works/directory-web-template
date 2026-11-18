@@ -83,7 +83,7 @@ De `countDiff` -berekening behandelt drie gevallen: uitschakeling (1 aftrekken),
 
 ### Authenticatiepoort
 
-Niet-geverifieerde gebruikers die proberen te stemmen, krijgen een login-modaliteit te zien in plaats van een foutmelding te krijgen:
+Niet-geverifieerde gebruikers die proberen te stemmen, krijgen een inlogvenster te zien, en `handleVote` gooit een fout voordat de mutatie start:
 
 ```ts
 if (!user) {
@@ -92,7 +92,7 @@ if (!user) {
 }
 ```
 
-De fout wordt opgemerkt door de `onError` -handler van de mutatie, die controleert op het authenticatiebericht en de fouttoast onderdrukt.
+Die fout komt terecht bij de code die `handleVote` aanriep: er wordt geen verzoek verstuurd en de `onError`-handler van de mutatie draait niet. `onError` behandelt alleen een mislukt stemverzoek: het draait de optimistische update terug en toont een foutmelding (de stemmutatie slaat de melding over als het bericht over inloggen gaat).
 
 ### Queryconfiguratie
 
@@ -223,14 +223,14 @@ function useAdminComments({ page, limit, search }) {
 
 | Werkwijze | Eindpunt | Beschrijving |
 |--------|----------|------------|
-| KRIJG | `/api/items/:id/votes` | Haal het aantal stemmen en de stem van de gebruiker op |
-| POST | `/api/items/:id/votes` | Een stem uitbrengen of wijzigen |
-| VERWIJDEREN | `/api/items/:id/votes` | Een stem verwijderen |
-| KRIJG | `/api/items/:id/comments` | Opmerkingen ophalen met gebruikersgegevens |
-| POST | `/api/items/:id/comments` | Creëer een nieuwe reactie |
-| ZET | `/api/items/:id/comments/:commentId` | Een reactie bijwerken |
-| VERWIJDEREN | `/api/items/:id/comments/:commentId` | Een opmerking verwijderen |
-| KRIJG | `/api/items/:id/comments/rating` | Verzamelde itembeoordeling verkrijgen |
+| KRIJG | `/api/items/:slug/votes` | Haal het aantal stemmen en de stem van de gebruiker op |
+| POST | `/api/items/:slug/votes` | Een stem uitbrengen of wijzigen |
+| VERWIJDEREN | `/api/items/:slug/votes` | Een stem verwijderen |
+| KRIJG | `/api/items/:slug/comments` | Opmerkingen ophalen met gebruikersgegevens |
+| POST | `/api/items/:slug/comments` | Creëer een nieuwe reactie |
+| ZET | `/api/items/:slug/comments/:commentId` | Een reactie bijwerken |
+| VERWIJDEREN | `/api/items/:slug/comments/:commentId` | Een opmerking verwijderen |
+| KRIJG | `/api/items/:slug/comments/rating` | Verzamelde itembeoordeling verkrijgen |
 
 ## Functievlag-integratie
 

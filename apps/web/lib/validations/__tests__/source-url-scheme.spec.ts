@@ -34,7 +34,8 @@ const importData = (source_url: string) => ({
 	name: 'New Tool',
 	description: 'A brand new tool for the directory.',
 	source_url,
-	slug: 'new-tool'
+	slug: 'new-tool',
+	category: ['tools']
 });
 const clientItem = (source_url: string) => ({
 	name: 'New Tool',

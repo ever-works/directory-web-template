@@ -24,6 +24,11 @@ export const runtime = 'nodejs';
 const VALID_STATUSES = Object.values(ReportStatus);
 const VALID_RESOLUTIONS = Object.values(ReportResolution);
 
+const isReportStatus = (value: unknown): value is ReportStatusValues =>
+	typeof value === 'string' && (VALID_STATUSES as string[]).includes(value);
+const isReportResolution = (value: unknown): value is ReportResolutionValues =>
+	typeof value === 'string' && (VALID_RESOLUTIONS as string[]).includes(value);
+
 /**
  * HTTP status for a moderation action that did not run. `ALREADY_*` and `NOT_FOUND` describe
  * the target's current state (already suspended or banned, content or user gone): 409.
@@ -125,7 +130,7 @@ export async function GET(
  *       200:
  *         description: "Report updated successfully"
  *       400:
- *         description: "Bad request - Invalid input, or the content owner could not be identified for warn / suspend / ban (for example 'Item submitter has no client profile', or 'Item not found' when the content is gone); the report is unchanged"
+ *         description: "Bad request - Invalid input (a body that is not a JSON object, a status or resolution that is present but not one of the listed values, null included, or a review note that is not a string; checked before any moderation action runs), or the content owner could not be identified for warn / suspend / ban (for example 'Item submitter has no client profile', or 'Item not found' when the content is gone); the report is unchanged"
  *       403:
  *         description: "Forbidden - Admin access required"
  *       404:
@@ -156,24 +161,35 @@ export async function PUT(
 			return NextResponse.json({ success: false, error: 'Report not found' }, { status: 404 });
 		}
 
-		// Parse request body
-		const body = await request.json();
-		const { status, resolution, reviewNote } = body;
+		// Parse and validate the whole body before any moderation action runs: a field the report
+		// save would reject (for example `status: null` on the NOT NULL column) must fail here,
+		// not after the user was already warned, suspended or banned or the content removed.
+		const body: unknown = await request.json().catch(() => null);
+		if (!body || typeof body !== 'object' || Array.isArray(body)) {
+			return NextResponse.json(
+				{ success: false, error: 'Request body must be a JSON object' },
+				{ status: 400 }
+			);
+		}
+		const { status, resolution, reviewNote } = body as Record<string, unknown>;
 
-		// Validate status if provided
-		if (status && !VALID_STATUSES.includes(status)) {
+		// A field that is present must be valid; null or '' is not a status or a resolution
+		if (status !== undefined && !isReportStatus(status)) {
 			return NextResponse.json(
 				{ success: false, error: `Invalid status. Must be one of: ${VALID_STATUSES.join(', ')}` },
 				{ status: 400 }
 			);
 		}
 
-		// Validate resolution if provided
-		if (resolution && !VALID_RESOLUTIONS.includes(resolution)) {
+		if (resolution !== undefined && !isReportResolution(resolution)) {
 			return NextResponse.json(
 				{ success: false, error: `Invalid resolution. Must be one of: ${VALID_RESOLUTIONS.join(', ')}` },
 				{ status: 400 }
 			);
+		}
+
+		if (reviewNote !== undefined && typeof reviewNote !== 'string') {
+			return NextResponse.json({ success: false, error: 'Review note must be a string' }, { status: 400 });
 		}
 
 		// Execute the moderation action before the report is saved, so a failed action
@@ -209,7 +225,7 @@ export async function PUT(
 					);
 				}
 
-				const reason = typeof reviewNote === 'string' ? reviewNote.trim() : 'Report violation';
+				const reason = (typeof reviewNote === 'string' && reviewNote.trim()) || 'Report violation';
 
 				switch (resolution) {
 					case ReportResolution.USER_WARNED:

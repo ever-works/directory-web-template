@@ -147,6 +147,31 @@ test('stored amounts are whole numbers and never NaN', () => {
 	assert.ok(Number.isInteger(toStoredAmount(1234)));
 });
 
+test('stored amounts use the currency minor unit, so zero-decimal currencies are not divided by 100', () => {
+	assert.equal(toStoredAmount(1999, 'usd'), 20);
+	assert.equal(toStoredAmount(1999, 'EUR'), 20);
+	// JPY and KRW have no minor unit: the provider's 1500 is already 1500 yen.
+	assert.equal(toStoredAmount(1500, 'jpy'), 1500);
+	assert.equal(toStoredAmount(25000, 'KRW'), 25000);
+	// A missing currency is read as USD, as before.
+	assert.equal(toStoredAmount(1999, null), 20);
+	assert.equal(toStoredAmount(1999, ''), 20);
+	assert.equal(toStoredAmount(Number.NaN, 'jpy'), 0);
+});
+
+test('the subscription service passes the currency to every stored amount', () => {
+	const source = readFileSync(join(__dirname, '../../services/webhook-subscription.service.ts'), 'utf8');
+	const calls = source.match(/toStoredAmount\([^)]*\)/g) ?? [];
+	assert.ok(calls.length >= 4, 'expected the amount, amount_due and amount_paid writes');
+	for (const call of calls) assert.match(call, /, currency\)$|, response\.currency\)$/, `${call} drops the currency`);
+
+	// An invoice carries the charged currency, which a LemonSqueezy subscription event never does.
+	const start = source.indexOf('async handleSubscriptionPaymentSucceeded(');
+	const body = source.slice(start, source.indexOf('async handleSubscriptionPaymentFailed(', start));
+	assert.ok(body.includes('const currency = response.currency || existingSubscription.currency;'));
+	assert.ok(/updateData = \{[^}]*\bcurrency,/.test(body), 'the payment success does not store the invoice currency');
+});
+
 test('an invoice event is keyed on its subscription and carries cents', () => {
 	const mapped = toSubscriptionServiceData({
 		id: '555',

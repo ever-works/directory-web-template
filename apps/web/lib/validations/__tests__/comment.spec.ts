@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, it } from 'node:test';
+import { parse as parseYaml } from 'yaml';
 import { COMMENT_CONTENT_MAX_LENGTH, validateCommentInput } from '../comment';
 
 /**
@@ -153,5 +154,44 @@ describe('comment routes validate with validateCommentInput', () => {
 		const badRequest = put.indexOf('{ status: 400 }', caught);
 		assert.ok(caught > parse, 'PUT does not parse the JSON body in its own try/catch');
 		assert.ok(badRequest > caught && badRequest - caught < 200, 'a malformed JSON body does not answer 400');
+	});
+});
+
+describe('the edit / delete route documents its error examples as OpenAPI 3.0 media type examples', () => {
+	/** Every `@swagger` block of the route file, parsed as YAML. */
+	const swaggerBlocks = (relative: string) => {
+		const raw = readFileSync(join(__dirname, relative), 'utf8');
+		return [...raw.matchAll(/\/\*\*\s*\n\s*\* @swagger\s*\n([\s\S]*?)\*\//g)].map((match) =>
+			parseYaml(match[1].replace(/^[ \t]*\* ?/gm, ''))
+		);
+	};
+
+	/** True when `examples` appears anywhere inside `value`. */
+	const hasExamples = (value: unknown): boolean =>
+		!!value &&
+		typeof value === 'object' &&
+		Object.entries(value).some(([key, child]) => key === 'examples' || hasExamples(child));
+
+	it('puts examples next to the schema, each with a value, never inside the schema', () => {
+		const blocks = swaggerBlocks('../../../app/api/items/[slug]/comments/[commentId]/route.ts');
+		assert.equal(blocks.length, 2, 'expected the DELETE and PUT @swagger blocks');
+		let examples = 0;
+		for (const block of blocks) {
+			for (const [path, methods] of Object.entries(block as Record<string, Record<string, any>>)) {
+				for (const [method, operation] of Object.entries(methods)) {
+					for (const [status, response] of Object.entries(operation.responses ?? {}) as [string, any][]) {
+						for (const [type, media] of Object.entries(response.content ?? {}) as [string, any][]) {
+							const where = `${method.toUpperCase()} ${path} ${status} ${type}`;
+							assert.ok(!hasExamples(media.schema), `${where}: examples nested inside the schema`);
+							for (const [name, example] of Object.entries(media.examples ?? {}) as [string, any][]) {
+								examples++;
+								assert.ok(example && 'value' in example, `${where}: example ${name} has no value`);
+							}
+						}
+					}
+				}
+			}
+		}
+		assert.ok(examples >= 10, `expected the 400 and 404 examples, found ${examples}`);
 	});
 });

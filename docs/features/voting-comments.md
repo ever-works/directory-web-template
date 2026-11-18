@@ -18,7 +18,7 @@ The voting system uses a per-item vote model where each authenticated user can c
 ```mermaid
 flowchart TD
     A["Component (UI)"] -->|"useItemVote(itemId)"| B["Vote Hook (optimistic)"]
-    B --> C["/api/items/:id/votes"]
+    B --> C["/api/items/:slug/votes"]
     C --> D["Database (votes table)"]
 ```
 
@@ -114,7 +114,7 @@ Each comment includes:
 - `rating` -- Optional star rating (1-5)
 - `userId` -- Author reference
 - `itemId` -- Associated item
-- `user` -- Populated public profile data (id, name, image, username, bio, jobTitle, company, location; never the email)
+- `user` -- The author's public profile. GET and POST return id, name, image, username, bio, jobTitle, company and location; the PUT (edit) response returns only id, name and image. The email is never returned.
 - `createdAt` / `updatedAt` -- Timestamps
 
 ### Rating Integration
@@ -155,11 +155,11 @@ const {
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| GET | `/api/items/:id/comments` | Fetch comments for an item |
-| POST | `/api/items/:id/comments` | Create a new comment |
-| PUT | `/api/items/:id/comments/:commentId` | Update a comment |
-| DELETE | `/api/items/:id/comments/:commentId` | Delete a comment |
-| GET | `/api/items/:id/comments/rating` | Get aggregate rating |
+| GET | `/api/items/:slug/comments` | Fetch comments for an item |
+| POST | `/api/items/:slug/comments` | Create a new comment |
+| PUT | `/api/items/:slug/comments/:commentId` | Update a comment |
+| DELETE | `/api/items/:slug/comments/:commentId` | Delete a comment |
+| GET | `/api/items/:slug/comments/rating` | Get aggregate rating |
 
 ## Feature Flag Integration
 

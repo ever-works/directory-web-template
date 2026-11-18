@@ -1,8 +1,30 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth, getOrCreateStripeProvider } from '@/lib/auth';
-import { getSubscriptionByProviderSubscriptionId } from '@/lib/db/queries';
+import { getSubscriptionByProviderSubscriptionId, getUserPaymentAccountByProvider } from '@/lib/db/queries';
 import { PaymentProvider } from '@/lib/constants';
-import { findOwnedProviderSubscription, SUBSCRIPTION_NOT_FOUND_MESSAGE } from '@/lib/payment/subscription-ownership';
+import { isOwnStripeSubscription, SUBSCRIPTION_NOT_FOUND_MESSAGE } from '@/lib/payment/subscription-ownership';
+
+/**
+ * Whether the signed-in user may change this subscription: its local row, or, before the
+ * `customer.subscription.created` webhook has written that row, Stripe billing it to the user's own
+ * Stripe customer (`isOwnStripeSubscription`).
+ */
+function ownsStripeSubscription(userId: string | undefined, subscriptionId: unknown): Promise<boolean> {
+  return isOwnStripeSubscription(userId, subscriptionId, {
+    findRow: (id) => getSubscriptionByProviderSubscriptionId(PaymentProvider.STRIPE, id),
+    findUserCustomerId: async (id) => (await getUserPaymentAccountByProvider(id, PaymentProvider.STRIPE))?.customerId,
+    fetchSubscriptionCustomerId: async (id) => {
+      try {
+        const subscription = await getOrCreateStripeProvider().getStripeInstance().subscriptions.retrieve(id);
+        return typeof subscription.customer === 'string' ? subscription.customer : subscription.customer?.id;
+      } catch (error) {
+        // An id Stripe does not know belongs to nobody; anything else is a 500.
+        if ((error as { statusCode?: number } | null)?.statusCode === 404) return null;
+        throw error;
+      }
+    }
+  });
+}
 
 /**
  * @swagger
@@ -262,13 +284,8 @@ export async function PUT(request: NextRequest) {
 
     const { subscriptionId, priceId, cancelAtPeriodEnd } = await request.json();
 
-    const ownedSubscription = await findOwnedProviderSubscription(
-      session.user.id,
-      PaymentProvider.STRIPE,
-      subscriptionId,
-      getSubscriptionByProviderSubscriptionId,
-    );
-    if (!ownedSubscription) {
+    const ownsSubscription = await ownsStripeSubscription(session.user.id, subscriptionId);
+    if (!ownsSubscription) {
       return NextResponse.json({ error: SUBSCRIPTION_NOT_FOUND_MESSAGE }, { status: 404 });
     }
 
@@ -388,13 +405,8 @@ export async function DELETE(request: NextRequest) {
 
     const { subscriptionId, cancelAtPeriodEnd } = await request.json();
 
-    const ownedSubscription = await findOwnedProviderSubscription(
-      session.user.id,
-      PaymentProvider.STRIPE,
-      subscriptionId,
-      getSubscriptionByProviderSubscriptionId,
-    );
-    if (!ownedSubscription) {
+    const ownsSubscription = await ownsStripeSubscription(session.user.id, subscriptionId);
+    if (!ownsSubscription) {
       return NextResponse.json({ error: SUBSCRIPTION_NOT_FOUND_MESSAGE }, { status: 404 });
     }
 

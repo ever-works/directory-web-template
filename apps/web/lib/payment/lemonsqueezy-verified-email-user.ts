@@ -15,21 +15,35 @@ import { isEmailVerifiedForOwnership, type EmailVerificationLookup } from './sub
 export interface VerifiedEmailUserDeps {
 	/** `getUserByEmail`: the user with that exact email, or `null`. */
 	getUserByEmail: (email: string) => Promise<{ id: string } | null | undefined>;
+	/**
+	 * The users whose email equals this one ignoring case (two are enough to see it is ambiguous).
+	 * Used only when no exact spelling matched: LemonSqueezy may hold the address lower-cased while
+	 * an OAuth provider stored it with capitals.
+	 */
+	getUsersByEmailIgnoringCase?: (email: string) => Promise<ReadonlyArray<{ id: string }>>;
 	/** `loadEmailVerificationState`. */
 	loadVerificationState: EmailVerificationLookup;
 }
 
 export function createVerifiedEmailUserFinder(deps: VerifiedEmailUserDeps) {
+	const verifiedUserId = async (userId: string, email: string) =>
+		(await isEmailVerifiedForOwnership(userId, email, deps.loadVerificationState)) ? userId : null;
+
 	return async function findUserIdByVerifiedEmail(email: string | null | undefined): Promise<string | null> {
 		if (typeof email !== 'string' || !email.trim()) return null;
 		const trimmed = email.trim();
-		// Stored addresses are matched exactly; the provider may have lower-cased the one it holds.
+		// Exact spellings first: the provider may have lower-cased the address it holds.
 		const candidates = trimmed === trimmed.toLowerCase() ? [trimmed] : [trimmed, trimmed.toLowerCase()];
 		for (const candidate of candidates) {
 			const user = await deps.getUserByEmail(candidate);
 			if (!user) continue;
-			return (await isEmailVerifiedForOwnership(user.id, candidate, deps.loadVerificationState)) ? user.id : null;
+			return verifiedUserId(user.id, candidate);
 		}
-		return null;
+
+		// No exact spelling is stored, but a mixed-case one may be. Two users that differ only in case
+		// cannot say whose purchase it is, so that matches nobody.
+		if (!deps.getUsersByEmailIgnoringCase) return null;
+		const users = await deps.getUsersByEmailIgnoringCase(trimmed);
+		return users.length === 1 ? verifiedUserId(users[0].id, trimmed) : null;
 	};
 }
