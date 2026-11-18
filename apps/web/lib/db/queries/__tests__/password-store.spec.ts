@@ -94,32 +94,14 @@ describe('password reset and change write the hash client sign-in reads', () => 
 
 	it('the change-password route checks the current password against the hash sign-in accepts, not either store', () => {
 		const post = functionBody(changePasswordRoute, 'export async function POST(');
-		assert.ok(post.includes('.from(accounts)'), 'POST does not read the credentials account');
+		// The store is picked in one place, getSignInPasswordHash (see the guards below), so the
+		// route, account deletion and deactivation cannot drift apart.
 		assert.ok(
-			post.includes("eq(accounts.provider, 'credentials')"),
-			"POST does not filter accounts by provider 'credentials'"
+			post.includes('const currentHash = await getSignInPasswordHash(user);'),
+			'POST does not take the current hash from getSignInPasswordHash'
 		);
-		assert.ok(post.includes('eq(accounts.userId, user.id)'), 'POST does not read the account of this user');
-		assert.ok(post.includes('eq(accounts.tenantId, tenantId)'), 'POST does not read the account of this tenant');
-		// Sign-in (lib/auth/credentials.ts) uses users.passwordHash for an admin that has one and
-		// the credentials account hash for everyone else. A stale hash in the other store (the
-		// seed password on a seeded admin's credentials row) must not authorize a change.
-		// The role lookup fails closed: isUserAdmin reads a database error as "not an admin",
-		// which would check an admin against the (possibly stale) credentials account hash.
-		assert.ok(
-			post.includes('const isAdmin = user.passwordHash ? await isUserAdminOrThrow(user.id) : false;'),
-			'POST does not pick the store by role with a lookup that fails closed'
-		);
-		assert.ok(
-			!post.includes('isUserAdmin('),
-			'POST uses isUserAdmin, which reads a lookup error as "not an admin"'
-		);
-		assert.ok(
-			post.includes(
-				'const currentHash = isAdmin ? user.passwordHash : (credentialsAccount?.passwordHash ?? user.passwordHash);'
-			),
-			'POST does not check an admin against users.passwordHash and everyone else against the credentials account hash'
-		);
+		assert.ok(!post.includes('.from(accounts)'), 'POST picks the password store itself');
+		assert.ok(!post.includes('isUserAdmin'), 'POST runs its own role lookup to pick the password store');
 		assert.ok(
 			post.includes('!(await bcrypt.compare(currentPassword, currentHash))'),
 			'POST does not check the current password against the sign-in hash'
@@ -152,9 +134,115 @@ describe('password reset and change write the hash client sign-in reads', () => 
 		const oauth = post.indexOf(OAUTH_ERROR);
 		assert.ok(oauth >= 0, 'POST lost the OAuth-account answer');
 		const guard = post.lastIndexOf('if (', oauth);
+		// getSignInPasswordHash returns null only when the user has no hash in either store.
 		assert.ok(
-			post.slice(guard, oauth).startsWith('if (!credentialsAccount?.passwordHash && !user.passwordHash)'),
+			post.slice(guard, oauth).startsWith('if (!currentHash)'),
 			'the OAuth answer is not limited to users with no hash in either store'
 		);
+	});
+});
+
+/**
+ * Account deletion and deactivation (the danger-zone forms) asked for the password and accepted
+ * a match in either store: `verifyClientPassword(...) || comparePasswords(password,
+ * dbUser.passwordHash)`. Before #1140, resets and changes wrote `users.passwordHash` only, so
+ * deployed databases still hold stale hashes in the other store: a seeded admin who changed the
+ * seed password keeps the seed hash on their credentials row. Anyone holding that admin's
+ * session could delete or deactivate the account with the old default password. Every check of
+ * a password a signed-in user submits must use the one hash sign-in accepts.
+ */
+describe('confirming a sensitive action checks the one hash sign-in accepts', () => {
+	const DANGER_ZONE_ACTIONS = ['export const deleteAccount =', 'export const deactivateAccount ='];
+
+	it('getSignInPasswordHash returns users.passwordHash for an admin that has one, and the credentials account hash otherwise', () => {
+		const helper = functionBody(userQueries, 'export async function getSignInPasswordHash(');
+		// Sign-in (lib/auth/credentials.ts): an admin with users.passwordHash signs in with that
+		// hash only; everyone else with the hash on their credentials row in accounts.
+		assert.ok(
+			helper.includes(
+				'if (user.passwordHash && (await isUserAdminOrThrow(user.id))) { return user.passwordHash; }'
+			),
+			'getSignInPasswordHash does not return users.passwordHash for an admin that has one'
+		);
+		assert.ok(helper.includes('.from(accounts)'), 'getSignInPasswordHash does not read the credentials account');
+		assert.ok(
+			helper.includes("eq(accounts.provider, 'credentials')"),
+			"getSignInPasswordHash does not filter accounts by provider 'credentials'"
+		);
+		assert.ok(
+			helper.includes('eq(accounts.userId, user.id)'),
+			'getSignInPasswordHash does not read the account of this user'
+		);
+		assert.ok(
+			helper.includes('eq(accounts.tenantId, tenantId)'),
+			'getSignInPasswordHash does not read the account of this tenant'
+		);
+		// users.passwordHash only when there is no credentials account hash: then it is the only
+		// hash the user has, and null means no password at all (OAuth only).
+		assert.ok(
+			helper.includes('return credentialsAccount?.passwordHash ?? user.passwordHash;'),
+			'getSignInPasswordHash does not prefer the credentials account hash for a non-admin'
+		);
+	});
+
+	it('getSignInPasswordHash fails closed when the role lookup errors', () => {
+		const helper = functionBody(userQueries, 'export async function getSignInPasswordHash(');
+		// isUserAdmin reads a database error as "not an admin", which would check an admin
+		// against the (possibly stale) credentials account hash.
+		assert.ok(!helper.includes('isUserAdmin('), 'getSignInPasswordHash reads a lookup error as "not an admin"');
+		assert.ok(!helper.includes('catch'), 'getSignInPasswordHash swallows a lookup error');
+		assert.ok(
+			helper.includes("if (!tenantId) throw new Error('Tenant ID not found');"),
+			'getSignInPasswordHash does not refuse a missing tenant'
+		);
+	});
+
+	for (const signature of DANGER_ZONE_ACTIONS) {
+		const name = signature.replace('export const ', '').replace(' =', '');
+
+		it(`${name} checks the password against getSignInPasswordHash`, () => {
+			const action = functionBody(authActions, signature);
+			assert.ok(
+				action.includes(
+					'const isPasswordValid = await comparePasswords(password, await getSignInPasswordHash(dbUser));'
+				),
+				`${name} does not check the password against the hash sign-in accepts`
+			);
+		});
+
+		it(`${name} no longer accepts a match in either password store`, () => {
+			const action = functionBody(authActions, signature);
+			// develop had `const isClientPasswordValid = await verifyClientPassword(user.email!, password);`
+			// then `isClientPasswordValid || (await comparePasswords(password, dbUser.passwordHash))`.
+			assert.ok(
+				!/\|\|\s*\(?\s*await comparePasswords\(/.test(action),
+				`${name} still accepts verifyClientPassword(...) || comparePasswords(...)`
+			);
+			assert.ok(
+				!action.includes('verifyClientPassword('),
+				`${name} still checks the credentials account by email`
+			);
+			assert.ok(
+				!action.includes('comparePasswords(password, dbUser.passwordHash)'),
+				`${name} still checks users.passwordHash for every user`
+			);
+		});
+	}
+
+	it('updatePassword checks the hash sign-in accepts and writes with setUserPasswordHash', () => {
+		const action = functionBody(authActions, 'export const updatePassword =');
+		assert.ok(
+			action.includes('comparePasswords(currentPassword, await getSignInPasswordHash(dbUser))'),
+			'updatePassword does not check the current password against the hash sign-in accepts'
+		);
+		assert.ok(
+			!action.includes('comparePasswords(currentPassword, dbUser.passwordHash)'),
+			'updatePassword still checks users.passwordHash for every user'
+		);
+		assert.ok(
+			action.includes('setUserPasswordHash(dbUser.id, newPasswordHash)'),
+			'updatePassword does not write through setUserPasswordHash'
+		);
+		assert.ok(!action.includes('updateUserPassword('), 'updatePassword still writes users.passwordHash only');
 	});
 });
