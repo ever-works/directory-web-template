@@ -1,8 +1,17 @@
 import { auth } from "@/lib/auth";
 import { getOrCreateLemonsqueezyProvider } from "@/lib/payment/config/payment-provider-manager";
+import { loadEmailVerificationState } from "@/lib/payment/subscription-email-verification";
+import {
+  EMAIL_NOT_VERIFIED_MESSAGE,
+  findOwnedLemonSqueezySubscription,
+  isEmailVerifiedForOwnership,
+  SUBSCRIPTION_NOT_FOUND_MESSAGE,
+} from "@/lib/payment/subscription-ownership";
 import { safeErrorResponse } from "@/lib/utils/api-error";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
+import { loadLemonSqueezyVariantCatalog } from "@/lib/payment/lemonsqueezy-variant-catalog";
+import { isLemonSqueezyPlanVariant } from "@/lib/payment/lemonsqueezy-variant-plan";
 
 const updatePlanSchema = z.object({
   subscriptionId: z.string().min(1),
@@ -179,6 +188,28 @@ const updatePlanSchema = z.object({
  *                 code:
  *                   type: string
  *                   example: "AUTH_REQUIRED"
+ *       403:
+ *         description: "The signed-in user's email address is not verified"
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                 code:
+ *                   type: string
+ *                   example: "EMAIL_NOT_VERIFIED"
+ *       404:
+ *         description: "Subscription not found, or it does not belong to the signed-in user"
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "Subscription not found or access denied"
  *       500:
  *         description: "Internal server error"
  *         content:
@@ -231,8 +262,34 @@ export async function POST(request: NextRequest) {
 
     const { subscriptionId, variantId, proration, invoiceImmediately, disableProrations, billingAnchor } = validationResult.data;
 
+    // Only a configured plan variant (spec 060 R12): the webhook keeps the stored plan for any
+    // other variant, so a move to a sponsor-ad or unlisted variant would keep the paid plan.
+    if (!isLemonSqueezyPlanVariant(await loadLemonSqueezyVariantCatalog(), variantId)) {
+      return NextResponse.json(
+        {
+          error: 'Invalid request data',
+          message: 'Variant ID is not a plan this subscription can move to',
+          code: 'VALIDATION_ERROR'
+        },
+        { status: 400 }
+      );
+    }
+
+    if (!(await isEmailVerifiedForOwnership(session.user.id, session.user.email, loadEmailVerificationState))) {
+      return NextResponse.json({ error: EMAIL_NOT_VERIFIED_MESSAGE, code: 'EMAIL_NOT_VERIFIED' }, { status: 403 });
+    }
+
     // Initialize LemonSqueezy provider
     const lemonsqueezy = getOrCreateLemonsqueezyProvider();
+
+    const ownedSubscription = await findOwnedLemonSqueezySubscription(
+      session.user.email,
+      subscriptionId,
+      (id) => lemonsqueezy.getSubscriptionOwner(id),
+    );
+    if (!ownedSubscription) {
+      return NextResponse.json({ error: SUBSCRIPTION_NOT_FOUND_MESSAGE }, { status: 404 });
+    }
 
     // Update the subscription plan
     const result = await lemonsqueezy.updateSubscription({

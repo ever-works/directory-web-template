@@ -21,7 +21,7 @@ app/api/items/[id]/
   votes/route.ts             # GET/POST/DELETE vote endpoints
   comments/route.ts          # GET/POST comment endpoints
   comments/[commentId]/route.ts  # PUT/DELETE single comment
-  comments/rating/route.ts   # POST/PUT/GET rating endpoints
+  comments/rating/route.ts   # GET rating endpoint
 
 lib/db/schema.ts             # votes and comments table definitions
 ```
@@ -83,7 +83,7 @@ O cálculo `countDiff` lida com três casos: desativação (subtrair 1), votaç�
 
 ### Portão de autenticação
 
-Usuários não autenticados que tentam votar recebem um modal de login em vez de receber um erro:
+Usuários não autenticados que tentam votar veem um modal de login, e `handleVote` lança um erro antes de iniciar a mutação:
 
 ```ts
 if (!user) {
@@ -92,7 +92,7 @@ if (!user) {
 }
 ```
 
-O erro é capturado pelo manipulador `onError` da mutação, que verifica a mensagem de autenticação e suprime o brinde do erro.
+Esse erro chega ao código que chamou `handleVote`: nenhuma requisição é enviada e o `onError` da mutação não é executado. O `onError` trata apenas uma requisição de voto que falhou: desfaz a atualização otimista e mostra um aviso de erro (a mutação de voto omite o aviso quando a mensagem é sobre login).
 
 ### Configuração de consulta
 
@@ -150,9 +150,7 @@ interface UpdateCommentData {
 | `createComment` | `(data) => Promise` | Crie um novo comentário |
 | `updateComment` | `(data) => Promise` | Editar um comentário existente |
 | `deleteComment` | `(id) => Promise` | Remover um comentário |
-| `rateComment` | `(data) => void` | Avalie um comentário |
-| `updateCommentRating` | `(data) => void` | Atualizar uma classificação existente |
-| `commentRating` | `number` | Avaliação agregada do item |
+| `commentRating` | `{ averageRating: number; totalRatings: number }` | Avaliação agregada do item |
 
 ### Sistema de eventos entre componentes
 
@@ -225,16 +223,14 @@ function useAdminComments({ page, limit, search }) {
 
 | Método | Ponto final | Descrição |
 |--------|----------|------------|
-| OBTER | `/api/items/:id/votes` | Buscar contagem de votos e voto do usuário |
-| POSTAR | `/api/items/:id/votes` | Lançar ou alterar um voto |
-| EXCLUIR | `/api/items/:id/votes` | Remover um voto |
-| OBTER | `/api/items/:id/comments` | Buscar comentários com dados do usuário |
-| POSTAR | `/api/items/:id/comments` | Crie um novo comentário |
-| COLOCAR | `/api/items/:id/comments/:commentId` | Atualizar um comentário |
-| EXCLUIR | `/api/items/:id/comments/:commentId` | Excluir um comentário |
-| POSTAR | `/api/items/:id/comments/rating` | Avalie um comentário |
-| COLOCAR | `/api/items/:id/comments/rating` | Atualizar uma classificação de comentário |
-| OBTER | `/api/items/:id/comments/rating` | Obtenha classificação agregada do item |
+| GET | `/api/items/:slug/votes` | Buscar contagem de votos e voto do usuário |
+| POST | `/api/items/:slug/votes` | Lançar ou alterar um voto |
+| DELETE | `/api/items/:slug/votes` | Remover um voto |
+| GET | `/api/items/:slug/comments` | Buscar comentários com dados do usuário |
+| POST | `/api/items/:slug/comments` | Crie um novo comentário |
+| PUT | `/api/items/:slug/comments/:commentId` | Atualizar um comentário |
+| DELETE | `/api/items/:slug/comments/:commentId` | Excluir um comentário |
+| GET | `/api/items/:slug/comments/rating` | Obtenha classificação agregada do item |
 
 ## Integração de sinalizadores de recursos
 

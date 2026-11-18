@@ -18,7 +18,7 @@ sidebar_position: 0
 ```mermaid
 flowchart TD
     A["Component (UI)"] -->|"useItemVote(itemId)"| B["Vote Hook (optimistic)"]
-    B --> C["/api/items/:id/votes"]
+    B --> C["/api/items/:slug/votes"]
     C --> D["Database (votes table)"]
 ```
 
@@ -101,11 +101,7 @@ const {
   isUpdating,
   deleteComment,         // (commentId) => Promise
   isDeleting,
-  rateComment,           // ({ commentId, rating }) => void
-  isRatingComment,
-  updateCommentRating,   // ({ commentId, rating }) => void
-  isUpdatingRating,
-  commentRating,         // number
+  commentRating,         // { averageRating: number; totalRatings: number }
   isLoadingRating,
 } = useComments(itemId);
 ```
@@ -116,9 +112,9 @@ const {
 - `id` -- المعرف الفريد
 - `content` -- نص التعليق
 - `rating` -- تصنيف النجوم الاختياري (1-5)
-- 3 - مرجع المؤلف
-- 4-- البند المرتبط
-- `user` -- بيانات المستخدم المعبأة (الاسم والبريد الإلكتروني والصورة)
+- `userId` -- مرجع المؤلف
+- `itemId` -- البند المرتبط
+- `user` -- الملف الشخصي العام للمؤلف. يعيد GET و POST الحقول id و name و image و username و bio و jobTitle و company و location؛ ويعيد رد PUT (التعديل) الحقول id و name و image فقط. لا يُعاد البريد الإلكتروني أبدًا.
 - `createdAt` / `updatedAt` -- الطوابع الزمنية
 
 ### تكامل التقييم
@@ -126,7 +122,7 @@ const {
 التعليقات والتقييمات متكاملة بإحكام:
 - يؤدي إنشاء تعليق بتقييم إلى تحديث التصنيف الإجمالي للعنصر
 - يؤدي تحرير تقييم التعليق إلى إعادة الحساب
-- تتم إعادة جلب الاستعلام 8 بعد أي تغيير في التعليق
+- تتم إعادة جلب الاستعلام `["item-rating", itemId]` بعد أي تغيير في التعليق
 
 ### الأحداث المشتركة بين المكونات
 
@@ -159,13 +155,11 @@ const {
 
 | الطريقة | نقطة النهاية | الوصف |
 |--------|----------|-------------|
-| احصل على | `/api/items/:id/comments` | جلب التعليقات لعنصر |
-| مشاركة | `/api/items/:id/comments` | قم بإنشاء تعليق جديد |
-| ضع | `/api/items/:id/comments/:commentId` | تحديث تعليق |
-| حذف | `/api/items/:id/comments/:commentId` | احذف تعليق |
-| مشاركة | 4ـ | قيم التعليق |
-| ضع | 5 ــ | تحديث تقييم التعليق |
-| احصل على | 6ـ | احصل على التقييم الإجمالي |
+| GET | `/api/items/:slug/comments` | جلب التعليقات لعنصر |
+| POST | `/api/items/:slug/comments` | قم بإنشاء تعليق جديد |
+| PUT | `/api/items/:slug/comments/:commentId` | تحديث تعليق |
+| DELETE | `/api/items/:slug/comments/:commentId` | احذف تعليق |
+| GET | `/api/items/:slug/comments/rating` | احصل على التقييم الإجمالي |
 
 ## ميزة تكامل العلم
 

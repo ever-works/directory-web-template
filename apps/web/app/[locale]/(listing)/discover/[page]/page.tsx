@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import { setRequestLocale } from 'next-intl/server';
 import { getCachedItems } from "@/lib/content";
 import { paginateMeta, PER_PAGE } from "@/lib/paginate";
 import { generateListingMetadata } from "@/lib/seo/listing-metadata";
@@ -6,6 +7,7 @@ import { getSiteDescription } from "@/lib/seo/site-identity";
 import { filterItems } from "@/lib/utils";
 import { sortItems, parseCsv } from "@/lib/listing-server";
 import Listing from "../../listing";
+import { toSearchString } from '@/lib/utils/search-string';
 
 // Force dynamic — the route reads `searchParams` (q / sort / tags /
 // categories) to filter & sort items server-side, and ISR was caching
@@ -127,6 +129,9 @@ export default async function DiscoverListing({
   searchParams: Promise<SearchParams>;
 }) {
   const { page: rawPage, locale } = await params;
+  // Sets the request locale for next-intl's server helpers, so they do not read it
+  // from the request headers, which makes a page render per request (Spec 061).
+  setRequestLocale(locale);
   const sp = (await searchParams) ?? {};
 
   const { page, start } = paginateMeta(rawPage);
@@ -158,6 +163,7 @@ export default async function DiscoverListing({
       page={page}
       total={total}
       basePath="/discover"
+      search={toSearchString(sp)}
     />
   );
 }

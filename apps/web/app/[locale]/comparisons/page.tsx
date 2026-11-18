@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
-import { getTranslations } from 'next-intl/server';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { getCachedComparisons } from '@/lib/content';
 import { Container } from '@/components/ui/container';
 import Hero from '@/components/hero';
@@ -41,6 +41,9 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
 
 export default async function ComparisonsPage({ params }: { params: Promise<{ locale: string }> }) {
 	const { locale } = await params;
+	// Sets the request locale for next-intl's server helpers, so they do not read it
+	// from the request headers, which makes a page render per request (Spec 061).
+	setRequestLocale(locale);
 	const [{ comparisons }, t, tCommon] = await Promise.all([
 		getCachedComparisons({ lang: locale }),
 		getTranslations({ locale, namespace: 'comparisons' }),

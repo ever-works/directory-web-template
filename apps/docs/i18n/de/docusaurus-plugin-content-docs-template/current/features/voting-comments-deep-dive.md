@@ -21,7 +21,7 @@ app/api/items/[id]/
   votes/route.ts             # GET/POST/DELETE vote endpoints
   comments/route.ts          # GET/POST comment endpoints
   comments/[commentId]/route.ts  # PUT/DELETE single comment
-  comments/rating/route.ts   # POST/PUT/GET rating endpoints
+  comments/rating/route.ts   # GET rating endpoint
 
 lib/db/schema.ts             # votes and comments table definitions
 ```
@@ -83,7 +83,7 @@ Die `countDiff` -Berechnung behandelt drei Fälle: Ausschalten (1 subtrahieren),
 
 ### Authentifizierungsgate
 
-Nicht authentifizierten Benutzern, die versuchen abzustimmen, wird ein Anmeldemodal angezeigt, anstatt eine Fehlermeldung zu erhalten:
+Nicht authentifizierten Benutzern, die abstimmen wollen, wird ein Anmeldemodal angezeigt, und `handleVote` wirft einen Fehler, bevor die Mutation startet:
 
 ```ts
 if (!user) {
@@ -92,7 +92,7 @@ if (!user) {
 }
 ```
 
-Der Fehler wird vom `onError` -Handler der Mutation abgefangen, der nach der Authentifizierungsnachricht sucht und den Fehlertoast unterdrückt.
+Dieser Fehler landet beim Aufrufer von `handleVote`: Es wird keine Anfrage gesendet, und der `onError`-Handler der Mutation läuft nicht. `onError` behandelt nur eine fehlgeschlagene Abstimmungsanfrage: Er macht das optimistische Update rückgängig und zeigt einen Fehlertoast (die Abstimmungsmutation lässt den Toast bei einer Anmeldemeldung weg).
 
 ### Abfragekonfiguration
 
@@ -150,9 +150,7 @@ interface UpdateCommentData {
 | `createComment` | `(data) => Promise` | Einen neuen Kommentar erstellen |
 | `updateComment` | `(data) => Promise` | Bearbeiten Sie einen vorhandenen Kommentar |
 | `deleteComment` | `(id) => Promise` | Einen Kommentar entfernen |
-| `rateComment` | `(data) => void` | Bewerten Sie einen Kommentar |
-| `updateCommentRating` | `(data) => void` | Eine vorhandene Bewertung aktualisieren |
-| `commentRating` | `number` | Gesamtbewertung für den Artikel |
+| `commentRating` | `{ averageRating: number; totalRatings: number }` | Gesamtbewertung für den Artikel |
 
 ### Komponentenübergreifendes Ereignissystem
 
@@ -225,16 +223,14 @@ function useAdminComments({ page, limit, search }) {
 
 | Methode | Endpunkt | Beschreibung |
 |--------|----------|-------------|
-| GET | `/api/items/:id/votes` | Stimmenanzahl und Benutzerstimme abrufen |
-| POST | `/api/items/:id/votes` | Eine Stimme abgeben oder ändern |
-| LÖSCHEN | `/api/items/:id/votes` | Eine Stimme entfernen |
-| GET | `/api/items/:id/comments` | Kommentare mit Benutzerdaten abrufen |
-| POST | `/api/items/:id/comments` | Einen neuen Kommentar erstellen |
-| PUT | `/api/items/:id/comments/:commentId` | Einen Kommentar aktualisieren |
-| LÖSCHEN | `/api/items/:id/comments/:commentId` | Einen Kommentar löschen |
-| POST | `/api/items/:id/comments/rating` | Bewerten Sie einen Kommentar |
-| PUT | `/api/items/:id/comments/rating` | Aktualisieren Sie eine Kommentarbewertung |
-| GET | `/api/items/:id/comments/rating` | Gesamte Artikelbewertung abrufen |
+| GET | `/api/items/:slug/votes` | Stimmenanzahl und Benutzerstimme abrufen |
+| POST | `/api/items/:slug/votes` | Eine Stimme abgeben oder ändern |
+| DELETE | `/api/items/:slug/votes` | Eine Stimme entfernen |
+| GET | `/api/items/:slug/comments` | Kommentare mit Benutzerdaten abrufen |
+| POST | `/api/items/:slug/comments` | Einen neuen Kommentar erstellen |
+| PUT | `/api/items/:slug/comments/:commentId` | Einen Kommentar aktualisieren |
+| DELETE | `/api/items/:slug/comments/:commentId` | Einen Kommentar löschen |
+| GET | `/api/items/:slug/comments/rating` | Gesamte Artikelbewertung abrufen |
 
 ## Feature-Flag-Integration
 

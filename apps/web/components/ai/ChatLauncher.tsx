@@ -10,6 +10,7 @@ import type { AuthenticatedScenario } from '@ever-works/plugin-ai-chat';
 import { cn } from '@/lib/utils';
 import { useAnalytics } from '@/hooks/use-analytics';
 import { AnalyticsEvent } from '@/lib/analytics/types';
+import { useCurrentUser } from '@/hooks/use-current-user';
 
 const ChatPanel = dynamic(() => import('./ChatPanel').then((mod) => ({ default: mod.ChatPanel })), {
 	ssr: false,
@@ -25,8 +26,13 @@ export interface ChatLauncherProps {
 	scenario: AuthenticatedScenario;
 	/** Current locale; forwarded to the chat API. */
 	locale: string;
-	/** Whether the visitor has an authenticated session. */
-	isAuthenticated: boolean;
+	/**
+	 * Whether the visitor has an authenticated session. Omit it to resolve the
+	 * session in the browser: the launcher is mounted from the shared page layout,
+	 * which must not read the session on the server or every page would become
+	 * uncacheable (Spec 061).
+	 */
+	isAuthenticated?: boolean;
 	/** Optional conversation id to resume. */
 	conversationId?: string;
 	/** Optional class override for the launcher button (e.g. mobile tweaks). */
@@ -48,6 +54,9 @@ export function ChatLauncher({ scenario, locale, isAuthenticated, conversationId
 	const [hasOpenedOnce, setHasOpenedOnce] = useState(false);
 	const [currentPageUrl, setCurrentPageUrl] = useState<string | null>(null);
 	const { track } = useAnalytics();
+	// Same query as the header's user menu, so this adds no request.
+	const { user } = useCurrentUser();
+	const authenticated = isAuthenticated ?? Boolean(user?.id);
 
 	// Capture the current URL only when the chat is actually opened — avoids
 	// running on every navigation, and keeps the launcher SSR-friendly.
@@ -94,7 +103,7 @@ export function ChatLauncher({ scenario, locale, isAuthenticated, conversationId
 					onOpenChange={onOpenChange}
 					scenario={scenario}
 					locale={locale}
-					isAuthenticated={isAuthenticated}
+					isAuthenticated={authenticated}
 					conversationId={conversationId}
 					currentPageUrl={currentPageUrl}
 				/>

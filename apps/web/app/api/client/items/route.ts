@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { requireClientAuth, serverErrorResponse, badRequestResponse } from '@/lib/utils/client-auth';
 import { getClientItemRepository, DuplicateSourceUrlError } from '@/lib/repositories/client-item.repository';
+import { DuplicateItemError } from '@/lib/services/item-git.service';
 import { clientItemsListQuerySchema, clientCreateItemSchema } from '@/lib/validations/client-item';
 import { ClientCreateItemResponse } from '@/lib/types/client-item';
 
@@ -189,7 +190,7 @@ export async function GET(request: NextRequest) {
  *       401:
  *         description: "Unauthorized - Authentication required"
  *       409:
- *         description: "Conflict - A pending or approved item already uses this link (compared ignoring http/https, www, trailing slash, fragment and tracking parameters)"
+ *         description: "Conflict - A pending or approved item already uses this link (compared ignoring http/https, www, trailing slash, fragment and tracking parameters), or another request created an item with the same slug while this one was being saved"
  *       500:
  *         description: "Internal server error"
  */
@@ -237,6 +238,13 @@ export async function POST(request: NextRequest) {
           error: 'An item with this link already exists in the directory.',
           ...(error.existingSlug && { existingSlug: error.existingSlug }),
         },
+        { status: 409 }
+      );
+    }
+    // Another request (an import, an admin create) took the slug after createAsClient picked it
+    if (error instanceof DuplicateItemError) {
+      return NextResponse.json(
+        { success: false, error: 'Another item with this name was just added. Please submit again.' },
         { status: 409 }
       );
     }

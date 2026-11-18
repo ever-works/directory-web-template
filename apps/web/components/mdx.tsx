@@ -1,9 +1,29 @@
-import { MDXRemote, MDXRemoteProps } from 'next-mdx-remote/rsc';
+import { compileMDX, MDXRemoteProps } from 'next-mdx-remote/rsc';
+import { compileWithFallback } from '@/lib/mdx-fallback';
 import remarkGfm from 'remark-gfm';
 import { Tag, TagList } from './mdx-components';
 import { MarkdownTag, MarkdownTags, TagsSection } from './markdown-tags';
 
-export function MDX(props: MDXRemoteProps) {
+export async function MDX(props: MDXRemoteProps) {
+  const content = await compileWithFallback(compileMDX, {
+    ...props,
+    options: {
+      ...props.options,
+      mdxOptions: {
+        ...(props.options?.mdxOptions || {}),
+        remarkPlugins: [...(props.options?.mdxOptions?.remarkPlugins || []), remarkGfm],
+      },
+    },
+    components: {
+      TagList,
+      Tag,
+      MarkdownTag,
+      MarkdownTags,
+      TagsSection,
+      Tags: MarkdownTags,
+      ...(props.components || {}),
+    },
+  });
   return (
     <div className={[
       // Base
@@ -81,25 +101,7 @@ export function MDX(props: MDXRemoteProps) {
       'prose-td:text-gray-600 dark:prose-td:text-gray-400',
       'prose-td:border-t prose-td:border-gray-100 dark:prose-td:border-gray-800',
     ].join(' ')}>
-      <MDXRemote
-        {...props}
-        options={{
-          ...props.options,
-          mdxOptions: {
-            ...(props.options?.mdxOptions || {}),
-            remarkPlugins: [...(props.options?.mdxOptions?.remarkPlugins || []), remarkGfm],
-          },
-        }}
-        components={{
-          TagList,
-          Tag,
-          MarkdownTag,
-          MarkdownTags,
-          TagsSection,
-          Tags: MarkdownTags,
-          ...(props.components || {}),
-        }}
-      />
+      {content}
     </div>
   );
 }

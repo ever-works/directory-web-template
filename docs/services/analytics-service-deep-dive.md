@@ -179,6 +179,7 @@ interface ExportResult {
 
 The CSV export handles:
 - Array data: generates headers from object keys, properly escapes values containing commas, quotes, and newlines
+- Formula cells: a value starting with `=`, `+`, `-`, `@`, tab or CR gets a leading `'` (`escapeCsvFormula` in `apps/web/lib/utils/csv-formula.ts`) in both the array and the nested-object path; plain numbers stay unchanged
 - Nested objects: recursively flattens with dot-notation keys
 - Missing properties: uses union of all keys across all rows
 

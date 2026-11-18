@@ -44,7 +44,8 @@ detailed invariants.
   distinct from all prior 401 messages
   (`'Unauthorized'`, `'Authentication required'`,
   `'Authentication required'` two-key, etc.).
-- **OAuth-account check:** `!user.passwordHash` →
+- **OAuth-account check:** no hash on the
+  credentials account and no `users.passwordHash` →
   400 `'Password change not available for OAuth
   accounts. Please contact support.'`. The FIRST
   per-source-file POST smoke that pins an OAuth-
@@ -87,18 +88,34 @@ exports only `POST`. The handler combines:
    `'Tenant not found'`.
 5. **User lookup by `id` AND `tenantId`** — not
    found → 404 `'User not found'`.
-6. **OAuth-account check** — `!user.passwordHash` →
-   400 `'Password change not available for OAuth
-   accounts. Please contact support.'`.
+6. **OAuth-account check** — `getSignInPasswordHash`
+   returns `null`: no hash on the user's
+   `credentials` account row AND no
+   `users.passwordHash` → 400 `'Password change not
+   available for OAuth accounts. Please contact
+   support.'`.
 7. **`bcrypt.compare(currentPassword, hash)`** —
-   false → 400 `'Current password is incorrect'`.
+   against the hash sign-in accepts, as returned by
+   `getSignInPasswordHash` (the same check the
+   account deletion and deactivation actions use):
+   `users.passwordHash` for an admin that has one,
+   otherwise the credentials account hash. When there
+   is no credentials account hash, the route falls
+   back to `users.passwordHash` (route compatibility
+   only: sign-in never reads it for a non-admin, so an
+   OAuth-only non-admin still needs a credentials
+   account to sign in with a password). No match →
+   400 `'Current password is incorrect'`.
 8. **`bcrypt.compare(newPassword, hash)` for
-   duplicate detection** — true → 400 `'New
+   duplicate detection** — against that same hash;
+   true → 400 `'New
    password must be different from current
    password'`.
 9. **`bcrypt.hash(newPassword, 12)` +
-   `db.update(users)`** — load-bearing password-
-   write call.
+   `setUserPasswordHash(...)`** — load-bearing
+   password-write call (credentials account, plus
+   `users.passwordHash` when already set or when
+   there is no credentials account).
 10. **`sendPasswordChangeConfirmationEmail(...)`
     side-effect** wrapped in try/catch (fault-
     tolerant; failure does NOT fail the password

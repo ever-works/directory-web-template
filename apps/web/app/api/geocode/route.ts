@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { auth } from '@/lib/auth';
+import { requireAdminSession } from '@/lib/auth/admin-guard';
 import { getGeocodingService } from '@/lib/services/geocoding';
 import { getLocationEnabled } from '@/lib/utils/settings';
 import { safeErrorResponse } from '@/lib/utils/api-error';
@@ -231,7 +232,7 @@ const reverseGeocodeRequestSchema = z.object({
  *                   example: false
  *                 error:
  *                   type: string
- *                   example: "Forbidden. Admin access required for geocoding operations."
+ *                   example: "Forbidden"
  *       404:
  *         description: "Not found - No results for the geocoding request"
  *         content:
@@ -261,18 +262,11 @@ const reverseGeocodeRequestSchema = z.object({
  */
 export async function POST(request: NextRequest): Promise<NextResponse> {
 	try {
-		// Check authentication - require admin to prevent API cost abuse
-		const session = await auth();
-		if (!session?.user?.id) {
-			return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
-		}
-
-		if (!session.user.isAdmin) {
-			return NextResponse.json(
-				{ success: false, error: 'Forbidden. Admin access required for geocoding operations.' },
-				{ status: 403 }
-			);
-		}
+		// Check authentication - require admin to prevent API cost abuse.
+		// The role is checked in the database (401 signed out, 403 not an admin).
+		const authResult = await requireAdminSession();
+		if (authResult instanceof NextResponse) return authResult;
+		const { session } = authResult;
 
 		// Check if location features are enabled
 		if (!getLocationEnabled()) {
@@ -314,7 +308,6 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 			console.info('[Geocode] Forward geocoding request', {
 				action: 'forward_geocode',
 				userId: session.user.id,
-				userEmail: session.user.email,
 				address: address.substring(0, 100), // Truncate for logs
 				hasResult: !!result,
 				timestamp: new Date().toISOString(),
@@ -361,7 +354,6 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 			console.info('[Geocode] Reverse geocoding request', {
 				action: 'reverse_geocode',
 				userId: session.user.id,
-				userEmail: session.user.email,
 				coordinates: `${latitude},${longitude}`,
 				hasResult: !!result,
 				timestamp: new Date().toISOString(),

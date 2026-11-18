@@ -24,6 +24,7 @@ import {
 	getOrder,
 	cancelSubscription,
 	updateSubscription,
+	getSubscription as getLemonSqueezySubscription,
 	lemonSqueezySetup,
 	listSubscriptions,
 	Variant,
@@ -32,7 +33,8 @@ import {
 } from '@lemonsqueezy/lemonsqueezy.js';
 
 import { env } from '@/lib/config/env';
-import { paymentAccountClient } from '../client/payment-account-client';
+import { getUserPaymentAccountByProvider, setupUserPaymentAccount } from '@/lib/db/queries';
+import { parseLemonSqueezyEvent, verifyLemonSqueezySignature } from '../../lemonsqueezy-webhook';
 
 export interface LemonSqueezyConfig extends PaymentProviderConfig {
 	apiKey: string;
@@ -149,7 +151,7 @@ export class LemonSqueezyProvider implements PaymentProviderInterface {
 
 	private async retrieveCustomerIdFromDatabase(userId: string): Promise<string | null> {
 		try {
-			const existingPaymentAccount = await paymentAccountClient.getPaymentAccount(userId, 'lemonsqueezy');
+			const existingPaymentAccount = await getUserPaymentAccountByProvider(userId, 'lemonsqueezy');
 
 			if (existingPaymentAccount?.customerId) {
 				this.logger.debug('Existing PaymentAccount found in database', {
@@ -232,15 +234,13 @@ export class LemonSqueezyProvider implements PaymentProviderInterface {
 			const customer = await this.createCustomer(customerData);
 			this.logger.debug('LemonSqueezy customer created successfully', {
 				userId: user.id,
-				customerId: customer.id,
-				email: customer.email
+				customerId: customer.id
 			});
 			return customer;
 		} catch (error) {
 			this.logger.error('Failed to create LemonSqueezy customer', {
 				userId: user.id,
-				error: this.formatErrorMessage(error),
-				customerData
+				error: this.formatErrorMessage(error)
 			});
 			throw error;
 		}
@@ -261,11 +261,7 @@ export class LemonSqueezyProvider implements PaymentProviderInterface {
 
 	private async synchronizePaymentAccount(userId: string, customerId: string): Promise<void> {
 		try {
-			const paymentAccount = await paymentAccountClient.setupPaymentAccount({
-				provider: 'lemonsqueezy',
-				userId,
-				customerId
-			});
+			const paymentAccount = await setupUserPaymentAccount('lemonsqueezy', userId, customerId);
 			this.logger.info('PaymentAccount synchronized successfully in database', {
 				userId,
 				customerId,
@@ -283,7 +279,7 @@ export class LemonSqueezyProvider implements PaymentProviderInterface {
 
 				// Try to get the existing account and update it
 				try {
-					const existingAccount = await paymentAccountClient.getPaymentAccount(userId, 'lemonsqueezy');
+					const existingAccount = await getUserPaymentAccountByProvider(userId, 'lemonsqueezy');
 					if (existingAccount) {
 						this.logger.info('Found existing payment account - synchronization completed', {
 							userId,
@@ -523,6 +519,29 @@ export class LemonSqueezyProvider implements PaymentProviderInterface {
 		return data.data as unknown as Variant[];
 	}
 
+	/**
+	 * Reads one subscription of this store for the ownership check in the subscription routes.
+	 * Returns `null` when LemonSqueezy has no such subscription or it belongs to another store,
+	 * and throws when LemonSqueezy cannot be asked, so a route never treats an outage as "owned".
+	 */
+	async getSubscriptionOwner(
+		subscriptionId: string
+	): Promise<{ id: string; userEmail: string | null; storeId: number } | null> {
+		const { statusCode, data, error } = await getLemonSqueezySubscription(subscriptionId);
+		if (error) {
+			if (statusCode === 404) return null;
+			throw new Error(`Lemonsqueezy get subscription error: ${error.message || 'Unknown error'}`, { cause: error });
+		}
+		const subscription = data?.data;
+		if (!subscription?.attributes) return null;
+		if (subscription.attributes.store_id !== Number(this.storeId)) return null;
+		return {
+			id: String(subscription.id),
+			userEmail: subscription.attributes.user_email ?? null,
+			storeId: subscription.attributes.store_id
+		};
+	}
+
 	async getSubscription(subscriptionId: string): Promise<any> {
 		try {
 			const { data, error } = await listSubscriptions({
@@ -654,7 +673,7 @@ export class LemonSqueezyProvider implements PaymentProviderInterface {
 				...updatePayload,
 				variantId: Number(params.priceId)
 			});
-			console.log('Subscription updated:', data);
+			console.log('Subscription updated:', data?.data?.id);
 			if (error) {
 				console.error('LemonSqueezy API error details:', {
 					error,
@@ -687,35 +706,23 @@ export class LemonSqueezyProvider implements PaymentProviderInterface {
 	/**
 	 * Verify and normalise an inbound LemonSqueezy webhook.
 	 *
-	 * Hand-rolled HMAC-SHA256 verification via the Web Crypto API
-	 * (rather than Node's `crypto.createHmac`) so the same code path
-	 * runs on edge runtimes; the webhook secret signs the body.
+	 * HMAC-SHA256 over the raw body with a constant-time compare (see
+	 * `lemonsqueezy-webhook.ts`). The event is parsed from the same verified text.
 	 *
-	 * **Two known limitations worth surfacing:**
-	 *
-	 * 1. **Non-constant-time signature comparison.** Line below uses
-	 *    a plain `!==` on the hex-encoded signatures, which is
-	 *    technically vulnerable to a timing oracle. The HMAC output
-	 *    space is large enough (256 bits) that timing-side-channel
-	 *    leaks on a hex-string compare are not a practical attack
-	 *    here — but if you're hardening this surface further,
-	 *    upgrade to a constant-time comparator. Stripe's SDK and
-	 *    Node's `crypto.timingSafeEqual` both do this for you.
-	 *
-	 * 2. **Returns `{ received: false }` instead of throwing on
-	 *    signature mismatch.** This is the OPPOSITE of how
-	 *    `StripeProvider.handleWebhook` behaves (which throws). The
-	 *    route handler MUST check `result.received` and respond 4xx
-	 *    when false — a controller that just returns 200 OK on the
-	 *    presence of any WebhookResult would silently ack invalid
-	 *    signatures here.
+	 * **Returns `{ received: false }` instead of throwing on
+	 * signature mismatch.** This is the OPPOSITE of how
+	 * `StripeProvider.handleWebhook` behaves (which throws). The
+	 * route handler MUST check `result.received` and respond 4xx
+	 * when false — a controller that just returns 200 OK on the
+	 * presence of any WebhookResult would silently ack invalid
+	 * signatures here.
 	 *
 	 * The `rawBody ?? JSON.stringify(payload)` fallback exists so a
 	 * caller that doesn't pre-capture the wire bytes still gets a
 	 * verification attempt — but JSON.stringify of a re-parsed body
 	 * can shuffle whitespace and key order vs the original signed
 	 * bytes, so this fallback usually fails verification. Always
-	 * pass `rawBody` from a body-parser verify hook in production.
+	 * pass `rawBody` (`await request.text()`).
 	 */
 	async handleWebhook(
 		payload: unknown,
@@ -725,24 +732,11 @@ export class LemonSqueezyProvider implements PaymentProviderInterface {
 		_webhookId?: string
 	): Promise<WebhookResult> {
 		try {
-			// Convert webhook secret to key for Web Crypto API
-			const encoder = new TextEncoder();
-			const keyData = encoder.encode(this.webhookSecret);
-			// Use rawBody when available to avoid signature verification failures
-			// caused by JSON re-serialization differences (whitespace, key order, etc.)
-			const messageData = encoder.encode(rawBody ?? JSON.stringify(payload));
-
-			// Import key for HMAC
-			const cryptoKey = await crypto.subtle.importKey('raw', keyData, { name: 'HMAC', hash: 'SHA-256' }, false, [
-				'sign'
-			]);
-
-			// Sign the message
-			const signatureBuffer = await crypto.subtle.sign('HMAC', cryptoKey, messageData);
-			const hashArray = Array.from(new Uint8Array(signatureBuffer));
-			const calculatedSignature = hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
-
-			if (calculatedSignature !== signature) {
+			// Verify over the exact bytes LemonSqueezy signed (constant-time compare).
+			// The JSON.stringify fallback only exists for callers that have no raw
+			// body and usually fails verification; routes must pass `rawBody`.
+			const signedBody = rawBody ?? JSON.stringify(payload);
+			if (!verifyLemonSqueezySignature(signedBody, signature, this.webhookSecret)) {
 				return {
 					received: false,
 					type: 'verification_failed',
@@ -751,12 +745,23 @@ export class LemonSqueezyProvider implements PaymentProviderInterface {
 				};
 			}
 
-			const event = payload as { meta: { event_name: string }; data: { id: string } };
+			// Parse the same verified text, never a re-serialised copy.
+			const event = parseLemonSqueezyEvent(signedBody);
+			if (!event) {
+				return {
+					received: false,
+					type: 'processing_error',
+					id: '',
+					data: { error: 'Invalid webhook payload' }
+				};
+			}
+
 			return {
 				received: true,
 				type: event.meta.event_name,
 				id: event.data.id,
-				data: event.data
+				// `meta` carries the checkout custom data (user id, sponsor ad id).
+				data: { ...event.data, meta: event.meta }
 			};
 		} catch (error) {
 			console.error('Error handling LemonSqueezy webhook:', error);

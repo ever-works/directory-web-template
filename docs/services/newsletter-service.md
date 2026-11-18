@@ -277,7 +277,7 @@ export const canUnsubscribe = async (
 
 ### Activity Logging
 
-Newsletter actions are logged for monitoring purposes:
+Newsletter actions are logged for monitoring purposes. The subscriber's address is not written to the log: `hasEmail` only records that one was given (callers must keep addresses out of `details`, which is spread into the entry), and `sendEmailSafely` logs the email context (`newsletter`, `payment success`, ...) without the recipient.
 
 ```ts
 export const logNewsletterActivity = (
@@ -286,14 +286,13 @@ export const logNewsletterActivity = (
   source: NewsletterSource = "footer",
   details?: Record<string, any>
 ): void => {
-  const logData = {
+  console.log("Newsletter Activity:", {
     timestamp: new Date().toISOString(),
     action,
-    email,
+    hasEmail: !!email,
     source,
     ...details,
-  };
-  console.log("Newsletter Activity:", logData);
+  });
 };
 ```
 

@@ -61,9 +61,14 @@ export async function getRecentCommentsByClientProfile(
  * @param itemSlug - Item slug
  * @returns Array of comments with user details
  */
-export async function getCommentsByItemId(itemSlug: string): Promise<CommentWithUser[]> {
+export async function getCommentsByItemId(
+	itemSlug: string,
+	options: { tenantId?: string } = {}
+): Promise<CommentWithUser[]> {
 	const itemId = getItemIdFromSlug(itemSlug);
-	const tenantId = await getTenantId();
+	// A caller rendering cached, shared output passes the tenant it resolved without
+	// the request (see getTenantIdForSharedRender); everyone else resolves it here.
+	const tenantId = options.tenantId ?? (await getTenantId());
 	if (!tenantId) return [];
 	return db
 		.select({
@@ -80,7 +85,6 @@ export async function getCommentsByItemId(itemSlug: string): Promise<CommentWith
 			user: {
 				id: clientProfiles.userId,
 				name: clientProfiles.name,
-				email: clientProfiles.email,
 				image: clientProfiles.avatar,
 				username: clientProfiles.username,
 				bio: clientProfiles.bio,
@@ -136,7 +140,6 @@ export async function getCommentWithUserById(id: string): Promise<CommentWithUse
 			user: {
 				id: clientProfiles.userId,
 				name: clientProfiles.name,
-				email: clientProfiles.email,
 				image: clientProfiles.avatar,
 				username: clientProfiles.username,
 				bio: clientProfiles.bio,
@@ -177,19 +180,29 @@ export async function updateComment(id: string, data: { content?: string; rating
 }
 
 /**
- * Update comment rating
+ * Update the rating of a comment, only when it belongs to the given author.
+ * Comment ids are public, so the owner condition is part of the WHERE clause.
+ * Soft-deleted comments are skipped, like the comment PUT/DELETE routes do.
  * @param id - Comment ID
+ * @param clientProfileId - Client profile ID of the comment author
  * @param rating - New rating
- * @returns Updated comment
+ * @returns Updated comment, or undefined when no live comment matches the id and author
  */
-export async function updateCommentRating(id: string, rating: number) {
+export async function updateCommentRatingForOwner(id: string, clientProfileId: string, rating: number) {
 	const tenantId = await getTenantId();
 	if (!tenantId) return;
 	return (
 		await db
 			.update(comments)
 			.set({ rating })
-			.where(and(eq(comments.id, id), eq(comments.tenantId, tenantId)))
+			.where(
+				and(
+					eq(comments.id, id),
+					eq(comments.userId, clientProfileId),
+					isNull(comments.deletedAt),
+					eq(comments.tenantId, tenantId)
+				)
+			)
 			.returning()
 	)[0];
 }

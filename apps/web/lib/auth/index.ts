@@ -5,6 +5,7 @@
 
 import NextAuth from 'next-auth';
 import { DrizzleAdapter } from '@auth/drizzle-adapter';
+import type { Adapter } from 'next-auth/adapters';
 import { db, getDrizzleInstance } from '../db/drizzle';
 import { eq } from 'drizzle-orm';
 import { users, accounts, sessions, verificationTokens } from '../db/schema';
@@ -80,6 +81,14 @@ const baseAdapter = isDatabaseAvailable
 const drizzle = baseAdapter
 	? {
 			...baseAdapter,
+			// Record the tenant on OAuth/OIDC account links too (the base adapter writes
+			// none, leaving `accounts.tenant_id` NULL). Rows that already exist stay NULL;
+			// the connected-accounts routes match those as well.
+			linkAccount: (async (data: any) => {
+				const { getTenantId } = await import('./tenant');
+				const tenantId = await getTenantId();
+				return baseAdapter.linkAccount!(tenantId ? { ...data, tenantId } : data);
+			}) as NonNullable<Adapter['linkAccount']>,
 			createUser: async (data: any) => {
 				// Dynamically import to prevent circular dependency with lib/auth/tenant.ts
 				const { getTenantId } = await import('./tenant');
@@ -137,9 +146,18 @@ export const { handlers, auth, signIn, signOut, unstable_update } = NextAuth({
 			}
 			return baseUrl;
 		},
-		signIn: async ({ user, account, profile }) => {
+		signIn: async ({ user, account }) => {
 			const isCredentials = account?.provider === 'credentials';
-			console.log('Sign-in attempt', { user, account, profile });
+
+			// Debug (dev only): never log `user`, `account` or `profile` themselves. They carry the
+			// OAuth access, refresh and id tokens, the user's email and the provider profile.
+			if (coreConfig.NODE_ENV === 'development') {
+				console.debug('[auth][signIn] sign-in attempt', {
+					provider: account?.provider,
+					hasUserId: !!user?.id,
+					hasEmail: !!user?.email
+				});
+			}
 
 			try {
 				if (!user?.email) {
@@ -155,7 +173,7 @@ export const { handlers, auth, signIn, signOut, unstable_update } = NextAuth({
 
 				// For OAuth providers, allow account linking to prevent OAuthAccountNotLinked errors
 				if (!isCredentials && account?.provider) {
-					console.log(`OAuth sign-in with ${account.provider} for email: ${user.email}`);
+					console.log(`OAuth sign-in with ${account.provider}`);
 					return true;
 				}
 
@@ -205,7 +223,9 @@ export const { handlers, auth, signIn, signOut, unstable_update } = NextAuth({
 									name: userName,
 									displayName: userName
 								});
-								console.log(`[auth][jwt] Created client profile for OAuth user: ${userEmail}`);
+								console.log(
+									`[auth][jwt] Created client profile ${clientProfile.id} for OAuth user ${token.userId}`
+								);
 							}
 						}
 

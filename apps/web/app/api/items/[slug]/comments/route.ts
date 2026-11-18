@@ -3,6 +3,7 @@ import { auth } from '@/lib/auth';
 import { getCommentsByItemId, createComment, getCommentWithUserById, getClientProfileByUserId } from '@/lib/db/queries';
 import { isUserBlocked, getBlockReasonMessage } from '@/lib/db/queries/moderation.queries';
 import { checkDatabaseAvailability } from '@/lib/utils/database-check';
+import { validateCommentInput } from '@/lib/validations/comment';
 
 /**
  * @swagger
@@ -84,9 +85,6 @@ import { checkDatabaseAvailability } from '@/lib/utils/database-check';
  *                           name:
  *                             type: string
  *                             example: "John Doe"
- *                           email:
- *                             type: string
- *                             example: "john.doe@example.com"
  *                           avatar:
  *                             type: string
  *                             nullable: true
@@ -106,7 +104,6 @@ import { checkDatabaseAvailability } from '@/lib/utils/database-check';
  *                   user:
  *                     id: "client_456def"
  *                     name: "John Doe"
- *                     email: "john.doe@example.com"
  *                     avatar: "https://example.com/avatars/john.jpg"
  *                 - id: "comment_789ghi"
  *                   content: "Good tool, but could use some improvements in the UI."
@@ -119,7 +116,6 @@ import { checkDatabaseAvailability } from '@/lib/utils/database-check';
  *                   user:
  *                     id: "client_789ghi"
  *                     name: "Jane Smith"
- *                     email: "jane.smith@example.com"
  *                     avatar: null
  *       500:
  *         description: "Internal server error"
@@ -163,7 +159,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ slug
  *   post:
  *     tags: ["Item Comments"]
  *     summary: "Create item comment"
- *     description: "Creates a new comment for a specific item with a rating. Requires user authentication and a valid client profile. The comment content is required and the rating must be between 1 and 5. Returns the created comment with user information."
+ *     description: "Creates a new comment for a specific item with a rating. Requires user authentication and a valid client profile. The content must be a string of 1 to 1000 characters after trimming and the rating an integer from 1 to 5 (the same rules as editing a comment); a malformed JSON body is a 400. Returns the created comment with user information."
  *     security:
  *       - sessionAuth: []
  *     parameters:
@@ -184,7 +180,8 @@ export async function GET(request: Request, { params }: { params: Promise<{ slug
  *               content:
  *                 type: string
  *                 minLength: 1
- *                 description: "Comment content (required, non-empty)"
+ *                 maxLength: 1000
+ *                 description: "Comment content (required, 1-1000 characters after trimming; stored trimmed)"
  *                 example: "This is an amazing tool! Really helped boost my productivity."
  *               rating:
  *                 type: integer
@@ -256,9 +253,6 @@ export async function GET(request: Request, { params }: { params: Promise<{ slug
  *                         name:
  *                           type: string
  *                           example: "John Doe"
- *                         email:
- *                           type: string
- *                           example: "john.doe@example.com"
  *                         avatar:
  *                           type: string
  *                           nullable: true
@@ -278,7 +272,6 @@ export async function GET(request: Request, { params }: { params: Promise<{ slug
  *                 user:
  *                   id: "client_456def"
  *                   name: "John Doe"
- *                   email: "john.doe@example.com"
  *                   avatar: "https://example.com/avatars/john.jpg"
  *       400:
  *         description: "Bad request - Invalid input data"
@@ -292,9 +285,43 @@ export async function GET(request: Request, { params }: { params: Promise<{ slug
  *                   example: false
  *                 error:
  *                   type: string
- *                   examples:
- *                     empty_content: "Content is required"
- *                     invalid_rating: "Rating must be between 1 and 5"
+ *             examples:
+ *               invalid_json:
+ *                 value:
+ *                   success: false
+ *                   error: "Invalid JSON body"
+ *               not_an_object:
+ *                 value:
+ *                   success: false
+ *                   error: "Request body must be a JSON object"
+ *               missing_content:
+ *                 value:
+ *                   success: false
+ *                   error: "Content is required"
+ *               content_type:
+ *                 value:
+ *                   success: false
+ *                   error: "Content must be a string"
+ *               content_length:
+ *                 value:
+ *                   success: false
+ *                   error: "Content must be between 1 and 1000 characters"
+ *               content_nul:
+ *                 value:
+ *                   success: false
+ *                   error: "Content must not contain NUL characters"
+ *               missing_rating:
+ *                 value:
+ *                   success: false
+ *                   error: "Rating is required"
+ *               rating_type:
+ *                 value:
+ *                   success: false
+ *                   error: "Rating must be an integer"
+ *               invalid_rating:
+ *                 value:
+ *                   success: false
+ *                   error: "Rating must be between 1 and 5"
  *       401:
  *         description: "Unauthorized - Authentication required"
  *         content:
@@ -346,13 +373,16 @@ export async function POST(request: Request, { params }: { params: Promise<{ slu
 			return NextResponse.json({ success: false, error: 'Authentication required' }, { status: 401 });
 		}
 
-		const { content, rating } = await request.json();
-		if (!content?.trim()) {
-			return NextResponse.json({ success: false, error: 'Content is required' }, { status: 400 });
+		let body: unknown;
+		try {
+			body = await request.json();
+		} catch {
+			return NextResponse.json({ success: false, error: 'Invalid JSON body' }, { status: 400 });
 		}
 
-		if (typeof rating !== 'number' || rating < 1 || rating > 5) {
-			return NextResponse.json({ success: false, error: 'Rating must be between 1 and 5' }, { status: 400 });
+		const input = validateCommentInput(body);
+		if (!input.ok) {
+			return NextResponse.json({ success: false, error: input.error }, { status: 400 });
 		}
 
 		const clientProfile = await getClientProfileByUserId(session.user.id!);
@@ -369,8 +399,8 @@ export async function POST(request: Request, { params }: { params: Promise<{ slu
 		}
 
 		const comment = await createComment({
-			content,
-			rating,
+			content: input.value.content,
+			rating: input.value.rating,
 			userId: clientProfile.id,
 			itemId: (await params).slug
 		});

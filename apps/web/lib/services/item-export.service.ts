@@ -3,6 +3,7 @@ import ExcelJS from 'exceljs';
 import { ItemRepository } from '@/lib/repositories/item.repository';
 import type { ItemExportData } from '@/lib/types/item-import-export';
 import { EXPORT_COLUMNS } from '@/lib/types/item-import-export';
+import { CSV_FORMULA_PREFIX } from '@/lib/utils/csv-formula';
 
 interface CSVExportResult {
 	data: string;
@@ -86,7 +87,12 @@ export class ItemExportService {
 	 */
 	async exportToCSV(options: ExportOptions = {}): Promise<CSVExportResult> {
 		const rows = await this.getExportRows(options);
-		const csv = Papa.unparse(rows, { columns: EXPORT_COLUMNS as unknown as string[] });
+		const csv = Papa.unparse(rows, {
+			columns: EXPORT_COLUMNS as unknown as string[],
+			// The rows carry client-submitted text (name, description, brand, markdown, location):
+			// Papa prefixes `'` to every cell this pattern matches (lib/utils/csv-formula.ts).
+			escapeFormulae: CSV_FORMULA_PREFIX,
+		});
 		const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
 
 		return {

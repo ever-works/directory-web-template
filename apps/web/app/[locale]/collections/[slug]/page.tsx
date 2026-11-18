@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import { setRequestLocale } from 'next-intl/server';
 import { getCachedItems } from "@/lib/content";
 import { notFound } from "next/navigation";
 import { CollectionDetail } from "@/components/collections";
@@ -7,6 +8,8 @@ import { logger } from "@/lib/logger";
 import { generateListingMetadata } from "@/lib/seo/listing-metadata";
 import { getLocalizedUrl } from "@/lib/seo/hreflang";
 import { generateBreadcrumbSchema, generateCollectionSchema } from "@/lib/seo/schema";
+import { sortItems, SORT_OPTIONS } from "@/components/shared-card/utils/sort-utils";
+import { itemNameText } from "@/lib/listing-server";
 import type { Locale } from "@/lib/constants";
 
 // Force dynamic rendering — the page consults dynamic APIs
@@ -72,6 +75,9 @@ export default async function CollectionPage({
   params: Promise<{ locale: string; slug: string }>;
 }) {
   const { locale, slug } = await params;
+  // Sets the request locale for next-intl's server helpers, so they do not read it
+  // from the request headers, which makes a page render per request (Spec 061).
+  setRequestLocale(locale);
 
   const { categories: _categories, tags, items, collections } = await getCachedItems({ lang: locale });
   const normalizedCollection = collections.find((c) => c.slug === slug || c.id === slug);
@@ -100,16 +106,26 @@ export default async function CollectionPage({
       .filter(Boolean);
 
   const collectionItemIds = collection.items || [];
+  // Item YAML is not validated: an unquoted `name: 1984` arrives as a number, and the name sorts
+  // (the JSON-LD order below, the grid's "name-asc" default) call `name.localeCompare`. Finite
+  // numbers become text; any other non-string name counts as blank.
   const collectionItems = items
     .filter((item) => collectionItemIds.includes(item.slug))
-    .map((item) => ({ ...item, tags: normalizeItemTags(item.tags) }));
+    .map((item) => ({ ...item, name: itemNameText(item.name), tags: normalizeItemTags(item.tags) }));
+  const schemaItems = sortItems(collectionItems, SORT_OPTIONS.NAME_ASC);
   const collectionUrl = getLocalizedUrl(`/collections/${slug}`, locale as Locale);
   const collectionSchema = generateCollectionSchema({
     name: collection.name,
     description: collection.description,
     url: collectionUrl,
     image: collection.icon_url,
-    itemCount: collectionItems.length
+    itemCount: collectionItems.length,
+    // Same default order the grid opens with (CollectionDetail's FilterProvider starts at "name-asc"),
+    // so positions and the 50-item cap match what a visitor sees first.
+    items: schemaItems.map((item) => ({
+      name: item.name,
+      url: getLocalizedUrl(`/items/${item.slug}`, locale as Locale)
+    }))
   });
   const breadcrumbSchema = generateBreadcrumbSchema([
     { name: "Home", url: getLocalizedUrl("/", locale as Locale) },

@@ -62,7 +62,7 @@ interface ContentOwnerResult {
 
 #### `getContentOwner(contentType: ReportContentTypeValues, contentId: string): Promise<ContentOwnerResult>`
 
-Resolves the owner (author) of reported content. For comments, it looks up the comment's `userId`. For items, it looks up the item's `submitted_by` field via the `ItemRepository`.
+Resolves the owner (author) of reported content as a `client_profiles.id`. For comments, it looks up the comment's `userId`. For items, it reads the item's `submitted_by` (a `users.id`) via the `ItemRepository` and maps it to the submitter's client profile with `resolveItemOwnerProfileId(submittedBy, getClientProfileByUserId)`; a submitter with no client profile (`'anonymous'`, `'import'`, `'admin'`) fails with `Item submitter has no client profile`.
 
 **Parameters:**
 | Parameter | Type | Description |

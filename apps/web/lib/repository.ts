@@ -224,7 +224,13 @@ export async function pullChanges(url: string, dest: string, auth: GitAuthFactor
   }
 }
 
-export async function trySyncRepository() {
+/**
+ * Pulls (or clones) the content repository.
+ *
+ * @returns `true` when this call pulled or cloned it; `false` when there is no
+ *          repository, the pull was skipped (too soon after the last one) or failed.
+ */
+export async function trySyncRepository(): Promise<boolean> {
   const token = coreConfig.content.ghToken;
   const url = coreConfig.content.dataRepository;
   const DEFAULT_CONFIG = `site_name: Website
@@ -253,7 +259,7 @@ copyright_year: ${new Date().getFullYear()}
       await fs.promises.writeFile(configPath, DEFAULT_CONFIG);
     }
 
-    return;
+    return false;
   }
 
   // Note: Each container clones directly from Git (no copy from build)
@@ -265,13 +271,13 @@ copyright_year: ${new Date().getFullYear()}
   const exists = await fsExists(path.join(dest, ".git"));
   try {
     if (exists && !shouldSync()) {
-      return;
+      return false;
     }
     if (exists) {
       console.log("Pulling repository data...");
       lastSynced = Date.now();
       await pullChanges(url, dest, auth);
-      return;
+      return true;
     }
   } catch (error) {
     console.error("Error during repository sync check:", error);
@@ -281,6 +287,7 @@ copyright_year: ${new Date().getFullYear()}
   try {
     console.log("Clonning repository...");
     await cloneRepositoryAtomically(url, dest, auth);
+    return true;
   } catch (error) {
     console.error("Failed to clone repository:", error);
     console.warn("Continuing with local content only...");
@@ -298,5 +305,5 @@ copyright_year: ${new Date().getFullYear()}
     }
   }
 
-  return;
+  return false;
 }

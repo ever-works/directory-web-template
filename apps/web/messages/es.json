@@ -40,7 +40,9 @@
 		}
 	},
 	"header": {
-		"OPEN_USER_MENU": "Abrir menú de usuario"
+		"OPEN_USER_MENU": "Abrir menú de usuario",
+		"SCROLL_TO_TOP": "Volver al principio de la página",
+		"BACK_TO_TOP": "Volver arriba"
 	},
 	"common": {
 		"DEMO_BANNER_TEXT": "Está usando una cuenta de demostración. ¿Le resulta útil nuestro software?",
@@ -246,7 +248,9 @@
 		"BASIC_INFO": "Información Básica",
 		"CLOSE": "Cerrar",
 		"VS": "vs",
-		"COMPARISONS": "Comparaciones"
+		"COMPARISONS": "Comparaciones",
+		"RATE_STARS": "{count, plural, one {Valorar con # estrella} other {Valorar con # estrellas}}",
+		"RATED_OUT_OF": "Valoración: {value, number} de {max, number}"
 	},
 	"survey": {
 		"SURVEYS": "Encuestas",
@@ -454,7 +458,7 @@
 		"LAST_UPDATED": "Última actualización",
 		"TABLE_OF_CONTENTS": "En esta página",
 		"NO_TAGS_AVAILABLE": "No hay etiquetas disponibles",
-		"RATING": "Rating",
+		"RATING": "Valoración",
 		"PROMO_CODE": "Promo Code",
 		"SIMILAR_PRODUCTS": "Productos similares",
 		"SIMILAR_PRODUCTS_DESCRIPTION": "Explora más elementos relacionados con este",
@@ -473,23 +477,25 @@
 		"REGIONAL_SERVICE": "Servicio regional",
 		"NATIONAL_SERVICE": "Servicio nacional",
 		"GLOBAL_SERVICE": "Servicio global",
-		"COMMENTS_DELETE_WARNING": "Are you sure you want to delete this comment? This action cannot be undone.",
-		"COMMENTS_HAVE_THOUGHTS": "Have thoughts?",
-		"COMMENTS_SHORTCUT": "Cmd/Ctrl + Enter to post",
-		"COMMENTS_POSTING": "Posting",
-		"COMMENTS_DELETE_TITLE": "Delete Comment",
-		"COMMENTS_DELETE_FAILED": "Failed to delete comment",
-		"COMMENTS_POSTED_SUCCESS": "Comment posted successfully!",
-		"COMMENTS_POST_FAILED": "Failed to post comment",
-		"COMMENTS_SAVING": "Saving",
-		"COMMENTS_DELETING": "Deleting",
-		"COMMENTS_POST": "Post",
-		"COMMENTS_UPDATED_SUCCESS": "Comment updated successfully!",
-		"COMMENTS_DELETED_SUCCESS": "Comment deleted successfully",
-		"COMMENTS_SIGN_IN_PROMPT": "Sign in to join the conversation",
-		"COMMENTS_EMPTY": "No comments yet. Be the first to share your thoughts!",
-		"COMMENTS_UPDATE_FAILED": "Failed to update comment",
-		"COMMENTS_PLACEHOLDER": "Add a comment..."
+		"COMMENTS_DELETE_WARNING": "¿Seguro que quieres eliminar este comentario? Esta acción no se puede deshacer.",
+		"COMMENTS_HAVE_THOUGHTS": "¿Tienes algo que decir?",
+		"COMMENTS_VIEW_PROFILE": "Ver perfil",
+		"COMMENTS_PROFILE": "Perfil",
+		"COMMENTS_SHORTCUT": "Cmd/Ctrl + Enter para publicar",
+		"COMMENTS_POSTING": "Publicando",
+		"COMMENTS_DELETE_TITLE": "Eliminar comentario",
+		"COMMENTS_DELETE_FAILED": "No se pudo eliminar el comentario",
+		"COMMENTS_POSTED_SUCCESS": "¡Comentario publicado correctamente!",
+		"COMMENTS_POST_FAILED": "No se pudo publicar el comentario",
+		"COMMENTS_SAVING": "Guardando",
+		"COMMENTS_DELETING": "Eliminando",
+		"COMMENTS_POST": "Publicar",
+		"COMMENTS_UPDATED_SUCCESS": "¡Comentario actualizado correctamente!",
+		"COMMENTS_DELETED_SUCCESS": "Comentario eliminado correctamente",
+		"COMMENTS_SIGN_IN_PROMPT": "Inicia sesión para unirte a la conversación",
+		"COMMENTS_EMPTY": "Aún no hay comentarios. ¡Sé el primero en compartir tu opinión!",
+		"COMMENTS_UPDATE_FAILED": "No se pudo actualizar el comentario",
+		"COMMENTS_PLACEHOLDER": "Agrega un comentario..."
 	},
 	"footer": {
 		"FAQ": "Preguntas frecuentes",

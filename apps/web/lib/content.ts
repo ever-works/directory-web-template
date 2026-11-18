@@ -7,6 +7,9 @@ import * as fsp from 'node:fs/promises';
 import * as path from 'node:path';
 import { parse } from 'date-fns';
 import { dirExists, fsExists, getContentPath } from './lib';
+import { ItemFileCache } from './item-file-cache';
+import { isItemSlug } from './item-slug';
+import { readGitHeadRevision } from './content-revision';
 import { getContentConfigPaths, mergeConfigObjects, PRIMARY_CONTENT_CONFIG_FILENAME } from './content-config-file';
 import { parseWorksPricingConfig } from './config/schemas/works-pricing.schema';
 import { unstable_cache } from 'next/cache';
@@ -67,26 +70,8 @@ function ensureTrailingSeparator(p: string): string {
 	return p.endsWith(path.sep) ? p : p + path.sep;
 }
 
-async function resolveItemDataFilename(base: string, preferredFilename: string): Promise<string | null> {
-	if (await fsExists(path.join(base, preferredFilename))) {
-		return preferredFilename;
-	}
-
-	try {
-		const entries = await fsp.readdir(base, { withFileTypes: true });
-		const yamlFiles = entries
-			.filter((entry) => entry.isFile() && /\.(ya?ml)$/i.test(entry.name))
-			.map((entry) => entry.name);
-
-		const primaryYaml = yamlFiles.find((name) => !path.basename(name, path.extname(name)).includes('.'));
-		return primaryYaml ?? yamlFiles[0] ?? null;
-	} catch (error) {
-		if (isNodeErrorWithCode(error, 'ENOENT')) {
-			return null;
-		}
-		throw error;
-	}
-}
+// Picking an item directory's YAML file (`<slug>.yml`, else the first YAML
+// without a locale suffix) moved to `pickItemYaml` in `./item-file-cache`.
 
 async function safeReadFile(filepath: string, basePath: string): Promise<string> {
 	validatePath(filepath, basePath);
@@ -666,15 +651,42 @@ function applyPricingValidation(config: Record<string, unknown>): Record<string,
 	return { ...config, pricing };
 }
 
-export const getCachedConfig = unstable_cache(
-	async () => {
+const getCachedConfigForRevision = unstable_cache(
+	async (_revision: string) => {
 		return await getConfig();
 	},
 	['config'],
-	{ revalidate: 60 }
+	{ revalidate: CONTENT_CACHE_TTL.CONFIG, tags: [CACHE_TAGS.CONTENT] }
 );
 
-async function parseItem(base: string, filename: string, slugOverride?: string): Promise<ItemData | null> {
+/**
+ * Cached site config, keyed by the content revision (Spec 061). It used to be a
+ * 60-second cache: as every page's layout reads it, that capped every cached
+ * page's lifetime (and its CDN `s-maxage`) at 60 s. Keyed by the checkout's HEAD,
+ * a sync that brings a new commit reads the new works.yml at once, and config
+ * writes from the admin revalidate the content tag (config-manager).
+ */
+export const getCachedConfig = async () => getCachedConfigForRevision(await getContentRevision());
+
+/**
+ * A filesystem failure (EMFILE, EACCES, EIO, ...) rather than bad file content.
+ * Node's system errors carry `syscall`; YAML parse errors and TypeErrors do not.
+ */
+function isIoError(error: unknown): boolean {
+	return error instanceof Error && 'syscall' in error && !isNodeErrorWithCode(error, 'ENOENT');
+}
+
+/**
+ * `throwIoErrors`: let IO errors (not ENOENT) propagate instead of returning `null`,
+ * so the cached listing walk counts them against the fail-loud threshold and retries
+ * the item, rather than remembering a transient EMFILE as "unparseable" (Spec 061).
+ */
+async function parseItem(
+	base: string,
+	filename: string,
+	slugOverride?: string,
+	{ throwIoErrors = false }: { throwIoErrors?: boolean } = {}
+): Promise<ItemData | null> {
 	try {
 		// Sanitize filename to prevent path traversal attacks
 		const sanitizedFilename = sanitizeFilename(filename);
@@ -697,12 +709,19 @@ async function parseItem(base: string, filename: string, slugOverride?: string):
 			}
 			return null;
 		}
+		if (throwIoErrors && isIoError(error)) {
+			throw error;
+		}
 		console.error(`Failed to parse item ${filename}:`, error);
 		return null;
 	}
 }
 
-async function parseTranslation(base: string, filename: string) {
+async function parseTranslation(
+	base: string,
+	filename: string,
+	{ throwIoErrors = false }: { throwIoErrors?: boolean } = {}
+) {
 	try {
 		// Sanitize filename to prevent path traversal attacks
 		const sanitizedFilename = sanitizeFilename(filename);
@@ -712,9 +731,96 @@ async function parseTranslation(base: string, filename: string) {
 		// Use secure file reading function
 		const content = await safeReadFile(filepath, base);
 		return yaml.parse(content);
-	} catch {
+	} catch (error) {
+		if (throwIoErrors && isIoError(error)) {
+			throw error;
+		}
 		return null;
 	}
+}
+
+/**
+ * Process-wide content caches (Spec 061).
+ *
+ * Next.js loads this module more than once per process: pages render in one
+ * Turbopack runtime, route handlers and instrumentation (the background sync)
+ * in another. Module-level Maps were therefore duplicated, and the sync's
+ * `clearFetchItemsCache()` never reached the caches the pages read. Keeping the
+ * caches on `globalThis` gives every copy of the module the same instances.
+ */
+interface ContentCacheState {
+	parsedYamlFiles: Map<string, { mtimeMs: number; size: number; data: unknown }>;
+	fetchItems: Map<string, { data: FetchItemsResult; timestamp: number }>;
+	directories: Map<string, DirectoryCache>;
+	itemFiles: ItemFileCache<ItemData>;
+	categories: Map<string, { data: Map<string, Category>; timestamp: number }>;
+	tags: Map<string, { data: Map<string, Tag>; timestamp: number }>;
+	inFlight: Map<string, Promise<FetchItemsResult>>;
+	repair: { promise: Promise<boolean> | null; lastSignature: string | null };
+	/** Bumped by clearFetchItemsCache(): a walk that started before a clear must not store its result. */
+	generation: number;
+}
+
+const CONTENT_CACHE_STATE_KEY = Symbol.for('ever-works.content-cache-state.v1');
+
+function contentCacheState(): ContentCacheState {
+	const holder = globalThis as typeof globalThis & { [CONTENT_CACHE_STATE_KEY]?: ContentCacheState };
+	if (!holder[CONTENT_CACHE_STATE_KEY]) {
+		holder[CONTENT_CACHE_STATE_KEY] = {
+			parsedYamlFiles: new Map(),
+			fetchItems: new Map(),
+			directories: new Map(),
+			// Parsed base item YAML shared by every locale and option set. `clearFetchItemsCache()`
+			// drops its snapshot; parsed files are re-validated by mtime/size, so a cleared cache
+			// costs a readdir + stat per item, not a re-parse. IO errors propagate: the cache does
+			// not remember them, and the walk counts them.
+			itemFiles: new ItemFileCache<ItemData>({
+				parseItem: (dir, filename, slug) => parseItem(dir, filename, slug, { throwIoErrors: true }),
+				parseTranslation: (dir, filename) => parseTranslation(dir, filename, { throwIoErrors: true }),
+				sanitizeSlug: sanitizeFilename,
+				assertInside: validatePath,
+				concurrency: FS_CONCURRENCY
+			}),
+			categories: new Map(),
+			tags: new Map(),
+			inFlight: new Map(),
+			repair: { promise: null, lastSignature: null },
+			generation: 0
+		};
+	}
+	return holder[CONTENT_CACHE_STATE_KEY]!;
+}
+
+/**
+ * Per-locale listing results kept at once (`fetchItems` cache entries, one per
+ * locale and option set). Rebuilding an evicted one from the shared parsed items
+ * takes a few ms, so the cap keeps memory flat on sites with many locales.
+ * Override with `CONTENT_LISTING_CACHE_MAX_ENTRIES`.
+ */
+const LISTING_CACHE_MAX_ENTRIES = (() => {
+	const raw = Number.parseInt(process.env.CONTENT_LISTING_CACHE_MAX_ENTRIES ?? '', 10);
+	return Number.isFinite(raw) && raw > 0 ? raw : 16;
+})();
+
+/**
+ * Parsed `categories.yml` / `tags.yml` / `collections.yml` (and their locale
+ * overlays), keyed by path and re-parsed only when the file's mtime or size
+ * changes. Every locale and every cache refresh used to parse them again; on a
+ * directory with a large tag list that was a few hundred ms per locale (Spec 061).
+ * The parsed value is shared: callers copy before mutating.
+ */
+const parsedYamlFileCache = contentCacheState().parsedYamlFiles;
+
+async function readParsedYamlFile(filepath: string, basePath: string): Promise<unknown> {
+	validatePath(filepath, basePath);
+	const stat = await fsp.stat(filepath);
+	const cached = parsedYamlFileCache.get(filepath);
+	if (cached && cached.mtimeMs === stat.mtimeMs && cached.size === stat.size) {
+		return cached.data;
+	}
+	const data = yaml.parse(await safeReadFile(filepath, basePath));
+	parsedYamlFileCache.set(filepath, { mtimeMs: stat.mtimeMs, size: stat.size, data });
+	return data;
 }
 
 async function readCollection<T extends Identifiable>(
@@ -732,23 +838,27 @@ async function readCollection<T extends Identifiable>(
 		const useDir = await dirExists(collectionDir);
 		const collectionPath = useDir ? path.join(collectionDir, `${type}.yml`) : path.join(contentPath, `${type}.yml`);
 
-		const raw = await safeReadFile(collectionPath, contentPath);
-		const parsed = yaml.parse(raw);
+		const parsed = await readParsedYamlFile(collectionPath, contentPath);
 		// Handle empty YAML files or null content
 		const list: T[] = Array.isArray(parsed) ? parsed : [];
-		const collection = new Map(list.map((item) => [item.id, item]));
+		// Copy each entry (arrays included): the parsed list is cached, and populate()
+		// mutates `count` and `items` on these.
+		const collection = new Map(list.map((item) => [item.id, cloneCollectionEntry(item)]));
 
 		if (useDir && options.lang && options.lang !== 'en') {
 			// Validate language code to prevent path traversal
 			if (!validateLanguageCode(options.lang)) {
 				console.warn(`[CONTENT] Invalid language code "${options.lang}" (ignoring translations).`);
 			} else {
-				const translations = await parseTranslation(collectionDir, `${type}.${options.lang}.yml`);
-				if (translations) {
+				const translationPath = path.join(collectionDir, sanitizeFilename(`${type}.${options.lang}.yml`));
+				const translations = (await readParsedYamlFile(translationPath, collectionDir).catch(() => null)) as
+					| T[]
+					| null;
+				if (Array.isArray(translations)) {
 					for (const translation of translations) {
 						const item = collection.get(translation.id);
 						if (item) {
-							collection.set(translation.id, { ...item, ...translation });
+							collection.set(translation.id, cloneCollectionEntry({ ...item, ...translation }));
 						}
 					}
 				}
@@ -1021,15 +1131,15 @@ export async function fetchComparison(slug: string): Promise<ComparisonDetail | 
 
 // In-memory cache for fetchItems to avoid repeated filesystem reads
 // Cache is invalidated intelligently based on directory modification time
-const fetchItemsCache = new Map<string, { data: FetchItemsResult; timestamp: number }>();
+const fetchItemsCache = contentCacheState().fetchItems;
 
 const FETCH_ITEMS_CACHE_TTL = 600000; // 10 minutes in milliseconds
 const CONTENT_CACHE_ENABLED = process.env.NODE_ENV !== 'development';
 
-// Directory metadata cache to avoid repeated readdir() calls
-// Stores: { files: string[], mtime: number, categories, tags, collections }
+// Directory metadata cache: the per-locale categories, tags and collections,
+// re-read when the data directory's mtime changes or the TTL runs out.
+// Stores: { mtime: number, categories, tags, collections }
 type DirectoryCache = {
-	files: string[];
 	mtime: number;
 	categories: Map<string, Category>;
 	tags: Map<string, Tag>;
@@ -1037,33 +1147,48 @@ type DirectoryCache = {
 	timestamp: number;
 };
 
-const directoryCache = new Map<string, DirectoryCache>();
+const directoryCache = contentCacheState().directories;
 const DIRECTORY_CACHE_TTL = 600000; // 10 minutes in milliseconds
 
+/**
+ * Copy of a category/tag/collection entry, including its array fields:
+ * populate() pushes item slugs into `collection.items`, which must never
+ * reach the cached parsed YAML or the cached directory maps.
+ */
+function cloneCollectionEntry<T extends object>(entry: T): T {
+	const copy = { ...entry } as Record<string, unknown>;
+	for (const [key, value] of Object.entries(copy)) {
+		if (Array.isArray(value)) copy[key] = [...value];
+	}
+	return copy as T;
+}
+
+function cloneCollectionMap<T extends object>(source: Map<string, T>): Map<string, T> {
+	return new Map(Array.from(source.entries()).map(([k, v]) => [k, cloneCollectionEntry(v)]));
+}
+
+// Parsed base item YAML shared by every locale and option set (Spec 061).
+// `clearFetchItemsCache()` drops its snapshot; parsed files are re-validated
+// by mtime/size, so a cleared cache costs a readdir + stat per item, not a re-parse.
+const itemFileCache = contentCacheState().itemFiles;
+
 // Separate caches for categories and tags (used by fetchItem)
-const categoriesCache = new Map<string, { data: Map<string, Category>; timestamp: number }>();
-const tagsCache = new Map<string, { data: Map<string, Tag>; timestamp: number }>();
+const categoriesCache = contentCacheState().categories;
+const tagsCache = contentCacheState().tags;
 const METADATA_CACHE_TTL = 600000; // 10 minutes in milliseconds
-let fetchItemsRepairPromise: Promise<void> | null = null;
+// Repository repair state (in-flight repair, last repaired set of YAML-less directories): see fetchItemsImpl.
+const repairState = contentCacheState().repair;
 
 async function getContentRevision(): Promise<string> {
 	const { ensureContentAvailable } = await import('./lib');
 	await ensureContentAvailable();
 
 	const contentPath = getContentPath();
-	const gitHeadPath = path.join(contentPath, '.git', 'HEAD');
 
-	try {
-		const head = (await fsp.readFile(gitHeadPath, 'utf8')).trim();
-		if (head.startsWith('ref:')) {
-			const ref = head.slice(5).trim();
-			return (await fsp.readFile(path.join(contentPath, '.git', ref), 'utf8')).trim();
-		}
-		if (head) {
-			return head;
-		}
-	} catch {
-		// Fall through to filesystem metadata for non-git fallback content.
+	// Loose, packed or detached HEAD. Falls through to filesystem metadata for non-git content.
+	const gitRevision = await readGitHeadRevision(contentPath);
+	if (gitRevision) {
+		return gitRevision;
 	}
 
 	try {
@@ -1091,6 +1216,14 @@ export async function clearFetchItemsCache() {
 	// This allows detecting if Git sync actually changed files
 	directoryCache.clear();
 
+	// Drop the shared item snapshot. Parsed item files are kept and re-validated
+	// by mtime/size on the next walk, so unchanged items are not parsed again.
+	itemFileCache.invalidate();
+
+	// Walks still running from before this clear must not store their (old) results
+	// over the ones built after it, e.g. by the post-sync warm-up.
+	contentCacheState().generation++;
+
 	// Clear categories and tags caches
 	categoriesCache.clear();
 	tagsCache.clear();
@@ -1108,23 +1241,27 @@ export async function clearFetchItemsCache() {
 	console.log('[CACHE] In-memory fetchItems, directory, categories, in-flight, and tags caches cleared');
 }
 
-async function repairContentRepositoryAfterMissingItems(): Promise<void> {
+/** @returns `true` when the repository was pulled or cloned (and the caches cleared). */
+async function repairContentRepositoryAfterMissingItems(): Promise<boolean> {
 	if (!process.env.DATA_REPOSITORY) {
-		return;
+		return false;
 	}
 
-	if (!fetchItemsRepairPromise) {
-		fetchItemsRepairPromise = (async () => {
+	if (!repairState.promise) {
+		repairState.promise = (async () => {
 			console.warn('[CONTENT] Missing item YAML files detected; attempting repository repair before returning listings.');
 			const { trySyncRepository } = await import('./repository');
-			await trySyncRepository();
-			await clearFetchItemsCache();
+			const synced = await trySyncRepository();
+			if (synced) {
+				await clearFetchItemsCache();
+			}
+			return synced;
 		})().finally(() => {
-			fetchItemsRepairPromise = null;
+			repairState.promise = null;
 		});
 	}
 
-	await fetchItemsRepairPromise;
+	return repairState.promise;
 }
 
 /**
@@ -1144,7 +1281,7 @@ async function repairContentRepositoryAfterMissingItems(): Promise<void> {
  * happen to be in flight at once — typically 1 per locale, freed in
  * `finally` blocks below — so it doesn't grow unboundedly.
  */
-const inFlightFetches = new Map<string, Promise<FetchItemsResult>>();
+const inFlightFetches = contentCacheState().inFlight;
 
 export async function fetchItems(options: FetchOptions = {}, repairAttempted = false): Promise<FetchItemsResult> {
 	// Create cache key from options
@@ -1156,6 +1293,9 @@ export async function fetchItems(options: FetchOptions = {}, repairAttempted = f
 
 		if (cached && Date.now() - cached.timestamp < FETCH_ITEMS_CACHE_TTL) {
 			console.log('[CACHE] Returning cached fetchItems result for:', cacheKey);
+			// Mark as most recently used (Map keeps insertion order; see LISTING_CACHE_MAX_ENTRIES).
+			fetchItemsCache.delete(cacheKey);
+			fetchItemsCache.set(cacheKey, cached);
 			return cached.data;
 		}
 
@@ -1185,6 +1325,7 @@ export async function fetchItems(options: FetchOptions = {}, repairAttempted = f
 async function fetchItemsImpl(options: FetchOptions = {}, repairAttempted = false): Promise<FetchItemsResult> {
 	// Cache key is recomputed here for the post-fetch cache write below.
 	const cacheKey = JSON.stringify(options);
+	const generation = contentCacheState().generation;
 
 	// Ensure content is available (copies from build to runtime on Vercel)
 	const { ensureContentAvailable, dirExists } = await import('./lib');
@@ -1211,7 +1352,6 @@ async function fetchItemsImpl(options: FetchOptions = {}, repairAttempted = fals
 	// Only re-read if directory modification time changed
 
 	const dirCacheKey = `${dest}:${options.lang || 'en'}`;
-	let files: string[];
 	let categories: Map<string, Category>;
 	let tags: Map<string, Tag>;
 	let collections: Map<string, Collection>;
@@ -1234,72 +1374,76 @@ async function fetchItemsImpl(options: FetchOptions = {}, repairAttempted = fals
 		Date.now() - cachedDir.timestamp < DIRECTORY_CACHE_TTL
 	) {
 		console.log('[CACHE] Using cached directory metadata for:', dirCacheKey);
-		files = cachedDir.files;
 		// Deep clone Maps to prevent mutation of cached data by populate() functions
-		categories = new Map(Array.from(cachedDir.categories.entries()).map(([k, v]) => [k, { ...v }]));
-		tags = new Map(Array.from(cachedDir.tags.entries()).map(([k, v]) => [k, { ...v }]));
-		collections = new Map(Array.from(cachedDir.collections.entries()).map(([k, v]) => [k, { ...v }]));
+		categories = cloneCollectionMap(cachedDir.categories);
+		tags = cloneCollectionMap(cachedDir.tags);
+		collections = cloneCollectionMap(cachedDir.collections);
 	} else {
 		// Directory changed, or cache expired - read from filesystem
 		console.log('[CACHE] Reading directory metadata from filesystem:', dirCacheKey);
-		const entries = await fsp.readdir(dest, { withFileTypes: true });
-		files = entries.filter((entry) => entry.isDirectory()).map((entry) => entry.name);
 		categories = await readCategories(options);
 		tags = await readTags(options);
 		collections = await readCollections(options);
 
-		// Store in directory cache
+		// Store in directory cache. Store copies: populate() below increments `count` on the
+		// maps this call uses, and a cached map that was counted once made the next option set
+		// for the same locale (e.g. `{ lang, sortTags }` on the tags pages) count every item twice.
 		if (CONTENT_CACHE_ENABLED) {
 			directoryCache.set(dirCacheKey, {
-				files,
 				mtime: currentMtime,
-				categories,
-				tags,
-				collections,
+				categories: cloneCollectionMap(categories),
+				tags: cloneCollectionMap(tags),
+				collections: cloneCollectionMap(collections),
 				timestamp: Date.now()
 			});
 			console.log('[CACHE] Stored directory metadata in cache for:', dirCacheKey);
 		}
 	}
 
-	let missingItemDataCount = 0;
+	// The base item YAML is the same for every locale: read and parse it once,
+	// shared by all locales and option sets, and re-validated by mtime/size
+	// (Spec 061). Each call below only copies the parsed items and overlays the
+	// locale's translation files.
+	const snapshot = await itemFileCache.getSnapshot(dest, {
+		dirMtimeMs: currentMtime,
+		maxAgeMs: DIRECTORY_CACHE_TTL,
+		reuse: CONTENT_CACHE_ENABLED
+	});
+	const files = snapshot.slugs;
+
+	for (const slug of snapshot.missing) {
+		if (!missingItemWarnings.has(slug)) {
+			missingItemWarnings.add(slug);
+			console.warn(`[CONTENT] Skipping item directory with no YAML file: ${slug}`);
+		}
+	}
+	const missingItemDataCount = snapshot.missing.length;
+
+	const lang = options.lang && options.lang !== 'en' ? options.lang : null;
+	if (lang && !validateLanguageCode(lang)) {
+		console.warn(`[CONTENT] Invalid language code "${lang}" (ignoring translations).`);
+	}
+	const translationLang = lang && validateLanguageCode(lang) ? lang : null;
+
 	// IO errors (EMFILE, ENOMEM, EACCES, etc.) used to silently drop items, which
 	// produced "few items rendered" symptoms during fd-pressure incidents. Track
 	// them separately so we can fail loud and refuse to serve a partial listing.
 	// See Spec 019, `docs/performance/content-loading.md`.
-	const ioErrors: Array<{ slug: string; error: unknown }> = [];
+	const ioErrors: Array<{ slug: string; error: unknown }> = [...snapshot.ioErrors];
 	const itemsResults = await mapWithConcurrency(files, FS_CONCURRENCY, async (slug) => {
+		const entry = snapshot.entries.get(slug);
+		if (!entry || !entry.item) {
+			// Missing YAML, IO error (both counted above) or a file that failed to parse.
+			return null;
+		}
 		try {
-			// Sanitize slug even though it comes from the filesystem
-			const sanitizedSlug = sanitizeFilename(slug);
+			// Shallow copy: the parsed base item is shared by every locale. Fields replaced
+			// below (tags, category, collections, translated fields) get new values on the copy.
+			const item: ItemData = { ...entry.item };
 
-			const base = path.join(dest, sanitizedSlug);
-			// Validate that the constructed path is safe
-			validatePath(base, dest);
-
-			const itemFilename = await resolveItemDataFilename(base, `${sanitizedSlug}.yml`);
-			if (!itemFilename) {
-				missingItemDataCount += 1;
-				if (!missingItemWarnings.has(sanitizedSlug)) {
-					missingItemWarnings.add(sanitizedSlug);
-					console.warn(`[CONTENT] Skipping item directory with no YAML file: ${sanitizedSlug}`);
-				}
-				return null;
-			}
-
-			const item = await parseItem(base, itemFilename, sanitizedSlug);
-			if (!item) {
-				return null;
-			}
-
-			if (options.lang && options.lang !== 'en') {
-				// Validate language code to prevent path traversal
-				if (!validateLanguageCode(options.lang)) {
-					console.warn(`[CONTENT] Invalid language code "${options.lang}" for item ${slug}.`);
-				} else {
-					const translation = await parseTranslation(base, `${sanitizedSlug}.${options.lang}.yml`);
-					if (translation) Object.assign(item, translation);
-				}
+			if (translationLang) {
+				const translation = await itemFileCache.readTranslation(entry, translationLang);
+				if (translation && typeof translation === 'object') Object.assign(item, translation);
 			}
 
 			if (Array.isArray(item.tags)) {
@@ -1321,6 +1465,9 @@ async function fetchItemsImpl(options: FetchOptions = {}, repairAttempted = fals
 			return null;
 		}
 	});
+	for (const { slug, error } of snapshot.ioErrors) {
+		console.error(`Failed to load item ${slug}:`, error);
+	}
 	const items = itemsResults.filter((item): item is NonNullable<typeof item> => item !== null);
 
 	// Threshold-based partial-listing handling. The Spec 019 first cut threw
@@ -1359,8 +1506,25 @@ async function fetchItemsImpl(options: FetchOptions = {}, repairAttempted = fals
 		);
 	}
 
-	if (missingItemDataCount > 0 && !repairAttempted) {
-		await repairContentRepositoryAfterMissingItems();
+	// Repair once per distinct set of YAML-less directories. Without this, a directory
+	// the repository itself leaves without a YAML file (for example an emptied item folder
+	// a pull did not remove) made EVERY listing walk sync the repo and wipe every
+	// locale's caches, so no cache ever stayed warm (Spec 061).
+	// Recorded only after a repair whose pull or clone ran, so walks that start meanwhile
+	// join the running repair (and return repaired data), and a repair whose sync failed
+	// or was skipped (too soon after the last pull) is tried again by a later walk.
+	const missingSignature = `${dest}|${[...snapshot.missing].sort().join('|')}`;
+	if (missingItemDataCount === 0) {
+		// Repaired (or never broken): the same set appearing again later gets a new repair.
+		repairState.lastSignature = null;
+	}
+	if (
+		missingItemDataCount > 0 &&
+		!repairAttempted &&
+		missingSignature !== repairState.lastSignature &&
+		(await repairContentRepositoryAfterMissingItems())
+	) {
+		repairState.lastSignature = missingSignature;
 		// Recurse into the impl directly. Calling the public `fetchItems`
 		// here would deadlock — the single-flight map still has our own
 		// promise registered for this key, so we'd `await` ourselves.
@@ -1387,9 +1551,20 @@ async function fetchItemsImpl(options: FetchOptions = {}, repairAttempted = fals
 		collections: Array.from(collections.values())
 	};
 
-	// Store in cache
-	if (CONTENT_CACHE_ENABLED) {
-		fetchItemsCache.set(cacheKey, { data: result, timestamp: Date.now() });
+	// Store in cache: not a partial listing (IO errors below the fail-loud threshold),
+	// so the missing items are retried on the next call, and not a result from before
+	// a clearFetchItemsCache() that ran meanwhile.
+	if (CONTENT_CACHE_ENABLED && ioErrors.length === 0 && generation === contentCacheState().generation) {
+		// Age from the snapshot the result was built from, so a listing is never older
+		// than the TTL (an older snapshot reused by a new option set would otherwise
+		// stretch it to twice the TTL).
+		fetchItemsCache.delete(cacheKey);
+		fetchItemsCache.set(cacheKey, { data: result, timestamp: snapshot.createdAt });
+		// Least recently used first: drop the oldest entries beyond the cap.
+		for (const key of fetchItemsCache.keys()) {
+			if (fetchItemsCache.size <= LISTING_CACHE_MAX_ENTRIES) break;
+			fetchItemsCache.delete(key);
+		}
 		console.log('[CACHE] Stored fetchItems result in cache for:', cacheKey);
 	}
 
@@ -1726,7 +1901,7 @@ export async function fetchItem(slug: string, options: FetchOptions = {}) {
 	const sanitizedSlug = sanitizeFilename(slug);
 
 	// Additional validation for slug format (alphanumeric, hyphens, underscores only)
-	if (!/^[a-zA-Z0-9_-]+$/.test(sanitizedSlug)) {
+	if (!isItemSlug(sanitizedSlug)) {
 		throw new Error(`Invalid slug format: ${slug}`);
 	}
 
@@ -1748,7 +1923,10 @@ export async function fetchItem(slug: string, options: FetchOptions = {}) {
 	const tags = await getCachedTagsInternal(options);
 
 	try {
-		const meta = await parseItem(metaPath, `${sanitizedSlug}.yml`);
+		// IO errors (EMFILE, EIO, ...) propagate: `null` means "no such item", and the cached
+		// item page answers 404 for it. A transient read failure must instead fail the render,
+		// so ISR keeps the last good page (Spec 061).
+		const meta = await parseItem(metaPath, `${sanitizedSlug}.yml`, undefined, { throwIoErrors: true });
 		if (!meta) {
 			return null;
 		}
@@ -1758,7 +1936,9 @@ export async function fetchItem(slug: string, options: FetchOptions = {}) {
 				throw new Error(`Invalid language code: ${options.lang}`);
 			}
 			console.log('fetching translation', sanitizedSlug, options.lang);
-			const translation = await parseTranslation(metaPath, `${sanitizedSlug}.${options.lang}.yml`);
+			const translation = await parseTranslation(metaPath, `${sanitizedSlug}.${options.lang}.yml`, {
+				throwIoErrors: true
+			});
 			if (translation) Object.assign(meta, translation);
 		}
 
@@ -1821,6 +2001,9 @@ export async function fetchItem(slug: string, options: FetchOptions = {}) {
 		}
 	} catch (error) {
 		console.error(`Failed to load item ${sanitizedSlug}:`, error);
+		if (isIoError(error)) {
+			throw error;
+		}
 		return null;
 	}
 }

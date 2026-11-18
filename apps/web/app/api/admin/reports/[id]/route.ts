@@ -14,7 +14,8 @@ import {
 	warnUser,
 	suspendUser,
 	banUser,
-	getContentOwner
+	getContentOwner,
+	type ModerationResult
 } from '@/lib/services/moderation.service';
 
 export const runtime = 'nodejs';
@@ -22,6 +23,20 @@ export const runtime = 'nodejs';
 // Valid values for validation
 const VALID_STATUSES = Object.values(ReportStatus);
 const VALID_RESOLUTIONS = Object.values(ReportResolution);
+
+const isReportStatus = (value: unknown): value is ReportStatusValues =>
+	typeof value === 'string' && (VALID_STATUSES as string[]).includes(value);
+const isReportResolution = (value: unknown): value is ReportResolutionValues =>
+	typeof value === 'string' && (VALID_RESOLUTIONS as string[]).includes(value);
+
+/**
+ * HTTP status for a moderation action that did not run. `ALREADY_*` and `NOT_FOUND` describe
+ * the target's current state (already suspended or banned, content or user gone): 409.
+ * Anything else failed inside the action: 500.
+ */
+function moderationFailureStatus(code: string | undefined): number {
+	return code === 'ALREADY_SUSPENDED' || code === 'ALREADY_BANNED' || code === 'NOT_FOUND' ? 409 : 500;
+}
 
 /**
  * @swagger
@@ -86,7 +101,7 @@ export async function GET(
  *   put:
  *     tags: ["Admin - Reports"]
  *     summary: "Update report status and resolution"
- *     description: "Updates a report's status, resolution, and/or review note. Requires admin privileges."
+ *     description: "Updates a report's status, resolution, and/or review note. Requires admin privileges. A resolution other than no_action runs its moderation action first (remove the content, or warn / suspend / ban its owner's client profile); if that action fails, the report is left unchanged and the response is an error. A resolution the report already has is not run again, so the note and status of a completed report can still be edited."
  *     security:
  *       - sessionAuth: []
  *     parameters:
@@ -115,13 +130,15 @@ export async function GET(
  *       200:
  *         description: "Report updated successfully"
  *       400:
- *         description: "Bad request - Invalid input"
+ *         description: "Bad request - Invalid input (a body that is not a JSON object, a status or resolution that is present but not one of the listed values, null included, or a review note that is not a string; checked before any moderation action runs), or the content owner could not be identified for warn / suspend / ban (for example 'Item submitter has no client profile', or 'Item not found' when the content is gone); the report is unchanged"
  *       403:
  *         description: "Forbidden - Admin access required"
  *       404:
  *         description: "Report not found"
+ *       409:
+ *         description: "The moderation action does not fit the target's current state (for example 'User is already banned', or content_removed on content that is already gone); the report is unchanged"
  *       500:
- *         description: "Internal server error"
+ *         description: "Internal server error, or the moderation action failed (for example 'Failed to warn user'); the report is unchanged"
  */
 export async function PUT(
 	request: Request,
@@ -144,24 +161,92 @@ export async function PUT(
 			return NextResponse.json({ success: false, error: 'Report not found' }, { status: 404 });
 		}
 
-		// Parse request body
-		const body = await request.json();
-		const { status, resolution, reviewNote } = body;
+		// Parse and validate the whole body before any moderation action runs: a field the report
+		// save would reject (for example `status: null` on the NOT NULL column) must fail here,
+		// not after the user was already warned, suspended or banned or the content removed.
+		const body: unknown = await request.json().catch(() => null);
+		if (!body || typeof body !== 'object' || Array.isArray(body)) {
+			return NextResponse.json(
+				{ success: false, error: 'Request body must be a JSON object' },
+				{ status: 400 }
+			);
+		}
+		const { status, resolution, reviewNote } = body as Record<string, unknown>;
 
-		// Validate status if provided
-		if (status && !VALID_STATUSES.includes(status)) {
+		// A field that is present must be valid; null or '' is not a status or a resolution
+		if (status !== undefined && !isReportStatus(status)) {
 			return NextResponse.json(
 				{ success: false, error: `Invalid status. Must be one of: ${VALID_STATUSES.join(', ')}` },
 				{ status: 400 }
 			);
 		}
 
-		// Validate resolution if provided
-		if (resolution && !VALID_RESOLUTIONS.includes(resolution)) {
+		if (resolution !== undefined && !isReportResolution(resolution)) {
 			return NextResponse.json(
 				{ success: false, error: `Invalid resolution. Must be one of: ${VALID_RESOLUTIONS.join(', ')}` },
 				{ status: 400 }
 			);
+		}
+
+		if (reviewNote !== undefined && typeof reviewNote !== 'string') {
+			return NextResponse.json({ success: false, error: 'Review note must be a string' }, { status: 400 });
+		}
+
+		// Execute the moderation action before the report is saved, so a failed action
+		// leaves the report as it was and the admin sees the failure.
+		// The review dialog sends the saved resolution back with every edit. Running it again
+		// would fail (user already banned or suspended, item already removed) and block a note
+		// or status edit on a completed report, or warn the user a second time, so only a new
+		// resolution runs its action.
+		const resolutionChanged = resolution !== existingReport.resolution;
+		let moderationResult: ModerationResult | null = null;
+		if (resolution && resolution !== ReportResolution.NO_ACTION && resolutionChanged) {
+			const adminId = session.user.id!; // Non-null assertion - validated by isAdmin check above
+
+			if (resolution === ReportResolution.CONTENT_REMOVED) {
+				// Remove the reported content
+				moderationResult = await removeContent(
+					existingReport.contentType,
+					existingReport.contentId,
+					id,
+					adminId
+				);
+			} else {
+				// For user actions (warn, suspend, ban), first get the content owner
+				const ownerResult = await getContentOwner(existingReport.contentType, existingReport.contentId);
+
+				if (!ownerResult.success || !ownerResult.userId) {
+					return NextResponse.json(
+						{
+							success: false,
+							error: ownerResult.error || 'Could not identify content owner for moderation action'
+						},
+						{ status: 400 }
+					);
+				}
+
+				const reason = (typeof reviewNote === 'string' && reviewNote.trim()) || 'Report violation';
+
+				switch (resolution) {
+					case ReportResolution.USER_WARNED:
+						moderationResult = await warnUser(ownerResult.userId, reason, id, adminId);
+						break;
+					case ReportResolution.USER_SUSPENDED:
+						moderationResult = await suspendUser(ownerResult.userId, reason, id, adminId);
+						break;
+					case ReportResolution.USER_BANNED:
+						moderationResult = await banUser(ownerResult.userId, reason, id, adminId);
+						break;
+				}
+			}
+
+			// A failed action answers an error and leaves the report unchanged
+			if (moderationResult && !moderationResult.success) {
+				return NextResponse.json(
+					{ success: false, error: moderationResult.message },
+					{ status: moderationFailureStatus(moderationResult.error) }
+				);
+			}
 		}
 
 		// Update the report
@@ -193,55 +278,6 @@ export async function PUT(
 					reviewedBy: session.user.id
 				}
 			});
-		}
-
-		// Execute moderation action based on resolution
-		let moderationResult = null;
-		if (resolution && resolution !== ReportResolution.NO_ACTION) {
-			const adminId = session.user.id!; // Non-null assertion - validated by isAdmin check above
-
-			if (resolution === ReportResolution.CONTENT_REMOVED) {
-				// Remove the reported content
-				moderationResult = await removeContent(
-					existingReport.contentType,
-					existingReport.contentId,
-					id,
-					adminId
-				);
-			} else {
-				// For user actions (warn, suspend, ban), first get the content owner
-				const ownerResult = await getContentOwner(existingReport.contentType, existingReport.contentId);
-
-				if (!ownerResult.success || !ownerResult.userId) {
-					return NextResponse.json(
-						{
-							success: false,
-							error: ownerResult.error || 'Could not identify content owner for moderation action'
-						},
-						{ status: 400 }
-					);
-				}
-
-				const reason = typeof reviewNote === 'string' ? reviewNote.trim() : 'Report violation';
-
-				switch (resolution) {
-					case ReportResolution.USER_WARNED:
-						moderationResult = await warnUser(ownerResult.userId, reason, id, adminId);
-						break;
-					case ReportResolution.USER_SUSPENDED:
-						moderationResult = await suspendUser(ownerResult.userId, reason, id, adminId);
-						break;
-					case ReportResolution.USER_BANNED:
-						moderationResult = await banUser(ownerResult.userId, reason, id, adminId);
-						break;
-				}
-			}
-
-			// Check if moderation action failed
-			if (moderationResult && !moderationResult.success) {
-				// Log the error but don't fail the request since report was updated
-				console.error('Moderation action failed:', moderationResult.error);
-			}
 		}
 
 		// Fetch updated report with full details

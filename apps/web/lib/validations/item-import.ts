@@ -1,5 +1,19 @@
 import { z } from 'zod';
 import { ITEM_VALIDATION } from '@/lib/types/item';
+import { httpUrlSchema } from './http-url';
+
+/**
+ * Slugs an import may write: lowercase letters and digits in groups joined by single hyphens.
+ * The slug becomes the item's folder and file name in the data repository
+ * (`data/<slug>/<slug>.yml`), so anything else (`../x`, `a/b`) is refused.
+ */
+export const IMPORT_SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+export const IMPORT_SLUG_MESSAGE = 'Slug may only contain lowercase letters, numbers and single hyphens';
+
+/** At least one category name: an import row must have a category. */
+const requiredCategories = z
+	.array(z.string().trim().min(1, 'Category is required'), { error: 'Category is required' })
+	.min(1, 'Category is required');
 
 /**
  * Schema for validating a single import row after column mapping.
@@ -19,17 +33,19 @@ export const importRowSchema = z.object({
 			ITEM_VALIDATION.DESCRIPTION_MAX_LENGTH,
 			`Description must be at most ${ITEM_VALIDATION.DESCRIPTION_MAX_LENGTH} characters`
 		),
-	source_url: z.string().url('Invalid URL format'),
+	source_url: httpUrlSchema,
 	category: z
 		.string()
 		.min(1, 'Category is required')
-		.transform((val) => val.split(';').map((s) => s.trim()).filter(Boolean)),
+		.transform((val) => val.split(';').map((s) => s.trim()).filter(Boolean))
+		// A cell such as ';' or ' ; ' splits into no category at all
+		.pipe(requiredCategories),
 	tags: z
 		.string()
 		.optional()
 		.default('')
 		.transform((val) => (val ? val.split(';').map((s) => s.trim()).filter(Boolean) : [])),
-	slug: z.string().optional(),
+	slug: z.string().regex(IMPORT_SLUG_PATTERN, IMPORT_SLUG_MESSAGE).optional().or(z.literal('')),
 	featured: z
 		.string()
 		.optional()
@@ -59,6 +75,31 @@ export const importRowSchema = z.object({
 });
 
 export type ImportRowInput = z.infer<typeof importRowSchema>;
+
+const importedList = z.array(z.string()).optional();
+
+/**
+ * Server-side check of a row the browser sends back to the execute step
+ * (`ImportRowValidation.data`, which `validateRows` has already split into arrays).
+ * Reuses the name, description, URL and category rules of {@link importRowSchema}; the slug is required.
+ * The category is required here too: a forged row without one would otherwise be written with `category: []`.
+ */
+export const importRowDataSchema = z.object({
+	name: importRowSchema.shape.name,
+	description: importRowSchema.shape.description,
+	source_url: importRowSchema.shape.source_url,
+	slug: z.string().regex(IMPORT_SLUG_PATTERN, IMPORT_SLUG_MESSAGE),
+	category: requiredCategories,
+	tags: importedList,
+	collections: importedList,
+	featured: z.boolean().optional(),
+	icon_url: importRowSchema.shape.icon_url,
+	brand: z.string().optional(),
+	brand_logo_url: importRowSchema.shape.brand_logo_url,
+	images: importedList
+});
+
+export type ImportRowData = z.infer<typeof importRowDataSchema>;
 
 /**
  * Schema for the export query parameter.

@@ -71,7 +71,6 @@ Returns all comments for a specific item, including user profile information.
       "user": {
         "id": "client_456def",
         "name": "John Doe",
-        "email": "john.doe@example.com",
         "avatar": "https://example.com/avatars/john.jpg"
       }
     }
@@ -140,7 +139,6 @@ Creates a new comment with a rating for an item.
     "user": {
       "id": "client_456def",
       "name": "John Doe",
-      "email": "john.doe@example.com",
       "avatar": "https://example.com/avatars/john.jpg"
     }
   }
@@ -207,7 +205,6 @@ At least one field must be provided:
   "user": {
     "id": "client_456def",
     "name": "John Doe",
-    "email": "john.doe@example.com",
     "image": "https://example.com/avatars/john.jpg"
   }
 }
@@ -313,7 +310,7 @@ Returns the updated comment object.
 
 ## Company Association
 
-Admin-only endpoints to manage the relationship between items and companies.
+Admin-only endpoints to manage the relationship between items and companies. All three check the caller's admin role in the database with `checkAdminAuth()` (`lib/auth/admin-guard.ts`), not the session's `isAdmin` claim: a signed-out caller gets `401 Unauthorized` and a signed-in non-admin `403 Forbidden`, both as `{ "success": false, "error": ... }`.
 
 ### Get Item Company
 

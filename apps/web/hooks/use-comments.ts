@@ -1,6 +1,7 @@
 "use client";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { CommentWithUser } from "@/lib/types/comment";
+import { EMPTY_COMMENT_RATING, type CommentRatingSummary } from "@/lib/types/comment-rating";
 import { useLoginModal } from "./use-login-modal";
 import { serverClient, apiUtils } from "@/lib/api/server-api-client";
 
@@ -41,7 +42,10 @@ export function useComments(itemId: string) {
     },
     staleTime: 2 * 60 * 1000, // 2 minutes - balance between freshness and stability
     gcTime: 10 * 60 * 1000, // 10 minutes - match global default
-    refetchOnMount: false, // Don't refetch if data is fresh
+    // Always refetch on mount. The item page is cached (ISR, Spec 061), so the comments it
+    // hydrates can be minutes old, and a visitor who just posted one must see it on reload.
+    // (Before Spec 061 the page was rendered per request with fresh comments.)
+    refetchOnMount: 'always',
     refetchOnWindowFocus: false, // Prevent flash on window focus
   });
 
@@ -72,8 +76,12 @@ export function useComments(itemId: string) {
     },
     onSuccess: async (newComment) => {
       if (newComment) {
+        // The list refetches on mount: a GET still in flight would overwrite this write.
+        await queryClient.cancelQueries({ queryKey: ["comments", itemId] });
         // Optimistically update cache with server-returned comment data
-        queryClient.setQueryData<CommentWithUser[]>(["comments", itemId], (old = []) => {
+        queryClient.setQueryData<CommentWithUser[]>(["comments", itemId], (old) => {
+          // Not loaded yet: no one-item list; the refetch below brings the full one.
+          if (!old) return old;
           // Check if comment already exists to prevent duplicates
           const commentExists = old.some(c => c.id === newComment.id);
           if (commentExists) {
@@ -82,9 +90,14 @@ export function useComments(itemId: string) {
           // Add new comment at the beginning
           return [newComment, ...old];
         });
+        // Then reload the list from the server: the cancelled refetch must not leave this
+        // list marked fresh (Spec 061).
+        void queryClient.invalidateQueries({ queryKey: ["comments", itemId], exact: true });
         dispatchCommentEvent(newComment);
         // Force refetch rating query to show updated data immediately
         await queryClient.refetchQueries({ queryKey: ["item-rating", itemId] });
+        // The aggregate comment rating includes the new comment's rating
+        queryClient.invalidateQueries({ queryKey: ["commentRating", itemId] });
         // Sync Statistics card (comments count + avgRating) with server
         queryClient.invalidateQueries({ queryKey: ['item-activity', itemId] });
       }
@@ -121,6 +134,9 @@ export function useComments(itemId: string) {
         queryKey: ["comments", itemId],
         exact: true
       });
+      // A deleted comment's rating leaves the aggregates
+      queryClient.invalidateQueries({ queryKey: ["item-rating", itemId] });
+      queryClient.invalidateQueries({ queryKey: ["commentRating", itemId] });
       // Sync Statistics card (comments count + avgRating) with server
       queryClient.invalidateQueries({ queryKey: ['item-activity', itemId] });
     },
@@ -149,73 +165,34 @@ export function useComments(itemId: string) {
     },
     onSuccess: async (updatedComment) => {
       if (updatedComment) {
+        // The list refetches on mount: a GET still in flight would overwrite this write.
+        await queryClient.cancelQueries({ queryKey: ["comments", itemId] });
         // Optimistically update cache with server-returned comment data
-        queryClient.setQueryData<CommentWithUser[]>(["comments", itemId], (old = []) => {
+        queryClient.setQueryData<CommentWithUser[]>(["comments", itemId], (old) => {
+          if (!old) return old;
           return old.map(comment =>
             comment.id === updatedComment.id ? updatedComment : comment
           );
         });
+        // Then reload the list from the server: the cancelled refetch must not leave this
+        // list marked fresh (Spec 061).
+        void queryClient.invalidateQueries({ queryKey: ["comments", itemId], exact: true });
         dispatchCommentEvent(updatedComment);
         // Force refetch rating to reflect updated rating immediately
         await queryClient.refetchQueries({ queryKey: ["item-rating", itemId] });
+        // A rating change through updateComment also moves the aggregate comment rating
+        queryClient.invalidateQueries({ queryKey: ["commentRating", itemId] });
         // Sync avgRating in Statistics card
         queryClient.invalidateQueries({ queryKey: ['item-activity', itemId] });
       }
     },
   });
 
-  const { mutate: rateCommentMutation, isPending: isRatingComment } = useMutation({
-    mutationFn: async ({ commentId, rating }: { commentId: string; rating: number }) => {
-      const encodedItemId = encodeURIComponent(itemId);
-      const response = await serverClient.post(`/api/items/${encodedItemId}/comments/rating`, { commentId, rating });
-
-      if (!apiUtils.isSuccess(response)) {
-        if (response.error?.includes('401') || response.error?.includes('Unauthorized')) {
-          loginModal.onOpen('Please sign in to rate comment');
-          return;
-        }
-        throw new Error(apiUtils.getErrorMessage(response));
-      }
-
-      return response.data;
-    },
-    onSuccess: async () => {
-      queryClient.invalidateQueries({ queryKey: ["comments", itemId] });
-      await queryClient.refetchQueries({ queryKey: ["item-rating", itemId] });
-      // Sync avgRating in Statistics card
-      queryClient.invalidateQueries({ queryKey: ['item-activity', itemId] });
-    },
-  });
-
-  const { mutate: updateCommentRatingMutation, isPending: isUpdatingRating } = useMutation({
-    mutationFn: async ({ commentId, rating }: { commentId: string; rating: number }) => {
-      const encodedItemId = encodeURIComponent(itemId);
-      const response = await serverClient.put(`/api/items/${encodedItemId}/comments/rating`, { commentId, rating });
-
-      if (!apiUtils.isSuccess(response)) {
-        if (response.error?.includes('401') || response.error?.includes('Unauthorized')) {
-          loginModal.onOpen('Please sign in to rate comment');
-          return;
-        }
-        throw new Error(apiUtils.getErrorMessage(response));
-      }
-
-      return response.data;
-    },
-    onSuccess: async () => {
-      queryClient.invalidateQueries({ queryKey: ["comments", itemId] });
-      await queryClient.refetchQueries({ queryKey: ["item-rating", itemId] });
-      // Sync avgRating in Statistics card
-      queryClient.invalidateQueries({ queryKey: ['item-activity', itemId] });
-    },
-  });
-
-
-  const { data: commentRating = 0, isLoading: isLoadingRating } = useQuery({
+  const { data: commentRating = EMPTY_COMMENT_RATING, isLoading: isLoadingRating } = useQuery<CommentRatingSummary>({
     queryKey: ["commentRating", itemId],
     queryFn: async () => {
       const encodedItemId = encodeURIComponent(itemId);
-      const response = await serverClient.get(`/api/items/${encodedItemId}/comments/rating`);
+      const response = await serverClient.get<CommentRatingSummary>(`/api/items/${encodedItemId}/comments/rating`);
       if (!apiUtils.isSuccess(response)) {
         throw new Error(apiUtils.getErrorMessage(response));
       }
@@ -233,11 +210,7 @@ export function useComments(itemId: string) {
     isUpdating,
     deleteComment,
     isDeleting,
-    updateCommentRating: updateCommentRatingMutation,
-    isUpdatingRating,
     commentRating,
     isLoadingRating,
-    rateComment: rateCommentMutation,
-    isRatingComment,
   };
 } 

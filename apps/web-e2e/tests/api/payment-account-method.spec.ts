@@ -6,75 +6,22 @@ import { test, expect } from '@playwright/test';
  * endpoint served by the `POST` AND `PUT` exports of
  * `apps/web/app/api/payment/account/route.ts`.
  *
- * `POST + PUT /api/payment/account` is the **first
- * per-source-file dual-method smoke** the docs tree
- * publishes that documents a **Q-010-style NO-AUTH-
- * GATE finding for a non-admin mutating route** —
- * the handler has NO `auth()` call, NO ownership
- * check. ANY caller can create a payment account
- * for ANY `userId` + `customerId` (POST) OR update
- * any payment account by `id` (PUT). See
- * [`docs/questions.md`](../../../docs/questions.md)
- * for the Q-### entry. The smoke spec pins this
- * finding as the CURRENT contract — a future PR that
- * adds auth would explicitly break this spec,
- * prompting an update.
+ * Both methods are admin-only (the `/api/admin` guard:
+ * 401 with `{ success: false, error: "Unauthorized" }` for
+ * an anonymous caller, 403 for a signed-in non-admin, both
+ * checked BEFORE the body is read). The earlier
+ * no-auth-gate finding was closed by PR #1115, which
+ * left signed-in owners able to repoint their own row;
+ * that is closed by the admin-only guard.
+ * These specs run anonymously, so every POST / PUT is
+ * expected to stop at the 401; the field-validation
+ * cascade ('Provider is required', 'Unsupported
+ * provider', 'User ID is required', ...) is only
+ * reachable with a session.
  *
- * Distinct from EVERY prior dual-method smoke:
- *
- *   - **NO `auth()` gate on EITHER method** — the
- *     FIRST per-source-file dual-method smoke
- *     pinning a Q-010-style no-auth-gate finding on
- *     BOTH POST AND PUT exports.
- *   - **NO ownership check** — POST trusts the
- *     caller-supplied `userId` + `customerId`
- *     directly; PUT trusts the caller-supplied `id`.
- *   - **`setupUserPaymentAccount(provider, userId,
- *     customerId)` runs UNCONDITIONALLY** — both
- *     POST and PUT call the same load-bearing DB-
- *     write function (UNIQUE: PUT does NOT check
- *     that the `id` matches an existing record;
- *     it just calls `setupUserPaymentAccount` with
- *     the body fields).
- *   - **THREE-required-field cascade** on POST
- *     (provider, userId, customerId) and **FOUR-
- *     required-field cascade** on PUT (id, provider,
- *     userId, customerId) — each emits a distinct
- *     400 message via individual `if (!field)`
- *     checks. UNIQUE: the FIRST per-source-file
- *     dual-method smoke pinning a per-field
- *     individual-required-check chain.
- *   - **Bare ONE-key 400 envelope** `{ error:
- *     'Field X is required' }` (NO `success` key).
- *   - **Bare ONE-key 500 envelope** `{ error:
- *     'Internal server error' }` (NO `success`
- *     key).
- *   - **Returns raw paymentAccount fields** in
- *     success payload — `{ id, userId, providerId,
- *     customerId, createdAt, updatedAt }` — NO
- *     wrapper envelope (UNIQUE: most success
- *     responses use `{ success: true, data: {...} }`).
- *
- *   1. **POST handler** — NO auth gate; JSON body
- *      parse; required-field cascade (provider,
- *      userId, customerId — each individually
- *      checked, distinct 400 message); load-bearing
- *      `setupUserPaymentAccount(...)` UNCONDITIONAL
- *      DB write; success payload as raw
- *      paymentAccount fields; outer catch 500
- *      `'Internal server error'`.
- *   2. **PUT handler** — NO auth gate; JSON body
- *      parse; required-field cascade (id, provider,
- *      userId, customerId — each individually
- *      checked, distinct 400 message); load-bearing
- *      `setupUserPaymentAccount(...)` UNCONDITIONAL
- *      DB write (NOT an actual update by `id`);
- *      success payload as raw paymentAccount fields;
- *      outer catch 500 `'Internal server error'`.
- *   3. **Method-resolution surface** — the route
- *      exports `POST` AND `PUT`. `GET` / `PATCH` /
- *      `DELETE` must round-trip to a `< 500`
- *      status.
+ * Method-resolution surface: the route exports `POST`
+ * AND `PUT`. `GET` / `PATCH` / `DELETE` must
+ * round-trip to a `< 500` status.
  */
 const PAYMENT_ACCOUNT_PATH = '/api/payment/account';
 
@@ -84,8 +31,8 @@ const HEADERS = [
 	{ headers: { 'Content-Type': 'application/json' }, label: 'application/json content-type' },
 	{ headers: { Accept: 'application/json' }, label: 'application/json accept' },
 
-	// Side-channel probes (handler ignores ALL auth
-	// signals — Q-010 finding).
+	// Side-channel probes: fabricated credentials must not
+	// get past the auth gate.
 	{ headers: { Cookie: 'next-auth.session-token=fabricated' }, label: 'fabricated session-token cookie' },
 	{ headers: { Authorization: 'Bearer fabricated' }, label: 'fabricated Bearer authorization' },
 	{ headers: { 'X-User-Id': 'fabricated' }, label: 'fabricated X-User-Id header' }
@@ -153,99 +100,56 @@ test.describe('API: /api/payment/account POST + PUT method surface', () => {
 		});
 	}
 
-	test(`POST ${PAYMENT_ACCOUNT_PATH} does NOT return 401 (no auth gate Q-010-style finding)`, async ({
-		request
-	}) => {
-		// CURRENT contract: the handler has NO auth
-		// gate. Pin that the response is NOT 401
-		// regardless of body — a future PR that adds
-		// auth would explicitly break this assertion,
-		// prompting an update.
+	test(`POST ${PAYMENT_ACCOUNT_PATH} returns 401 for an anonymous caller`, async ({ request }) => {
+		// Anonymous callers used to be able to write any user's
+		// payment account; the session check now runs first.
 		const response = await request.post(PAYMENT_ACCOUNT_PATH, {
 			data: { provider: 'stripe', userId: 'u', customerId: 'c' }
 		});
-		expect(response.status()).not.toBe(403);
+		expect(response.status()).toBe(401);
+		expect((await response.json()).error).toBe('Unauthorized');
 	});
 
-	test(`PUT ${PAYMENT_ACCOUNT_PATH} does NOT return 401 (no auth gate Q-010-style finding)`, async ({
-		request
-	}) => {
-		// Same Q-010 finding on PUT.
+	test(`PUT ${PAYMENT_ACCOUNT_PATH} returns 401 for an anonymous caller`, async ({ request }) => {
 		const response = await request.put(PAYMENT_ACCOUNT_PATH, {
 			data: { id: 'a', provider: 'stripe', userId: 'u', customerId: 'c' }
 		});
-		expect(response.status()).not.toBe(403);
+		expect(response.status()).toBe(401);
+		expect((await response.json()).error).toBe('Unauthorized');
 	});
 
-	test(`POST ${PAYMENT_ACCOUNT_PATH} treats unauth and authed requests identically (no auth gate)`, async ({
-		request
-	}) => {
-		// Pin the no-auth-gate contract: requests with
-		// fabricated session cookies / Authorization
-		// headers / X-User-Id headers must produce the
-		// SAME status as bare requests.
-		const baseline = await request.post(PAYMENT_ACCOUNT_PATH, {
-			data: { provider: 'stripe', userId: 'u', customerId: 'c' }
-		});
+	test(`POST ${PAYMENT_ACCOUNT_PATH} does not accept fabricated credentials`, async ({ request }) => {
+		// Fabricated session cookies, bearer tokens and user-id
+		// headers must all stop at the same 401 as a bare request.
+		const data = { provider: 'stripe', userId: 'u', customerId: 'c' };
 		const responses = await Promise.all([
-			request.post(PAYMENT_ACCOUNT_PATH, {
-				data: { provider: 'stripe', userId: 'u', customerId: 'c' },
-				headers: { Cookie: 'next-auth.session-token=fabricated' }
-			}),
-			request.post(PAYMENT_ACCOUNT_PATH, {
-				data: { provider: 'stripe', userId: 'u', customerId: 'c' },
-				headers: { Authorization: 'Bearer fabricated' }
-			}),
-			request.post(PAYMENT_ACCOUNT_PATH, {
-				data: { provider: 'stripe', userId: 'u', customerId: 'c' },
-				headers: { 'X-User-Id': 'fabricated' }
-			})
+			request.post(PAYMENT_ACCOUNT_PATH, { data, headers: { Cookie: 'next-auth.session-token=fabricated' } }),
+			request.post(PAYMENT_ACCOUNT_PATH, { data, headers: { Authorization: 'Bearer fabricated' } }),
+			request.post(PAYMENT_ACCOUNT_PATH, { data, headers: { 'X-User-Id': 'fabricated' } })
 		]);
 
 		for (const response of responses) {
-			expect(response.status()).toBe(baseline.status());
+			expect(response.status()).toBe(401);
 		}
 	});
 
-	test(`POST ${PAYMENT_ACCOUNT_PATH} required-field cascade emits canonical 400 messages`, async ({
-		request
-	}) => {
-		// The handler validates fields in order:
-		// provider → userId → customerId. Each missing
-		// field emits a distinct 400 message.
-		const noProvider = await request.post(PAYMENT_ACCOUNT_PATH, { data: {} });
-		const noUserId = await request.post(PAYMENT_ACCOUNT_PATH, {
-			data: { provider: 'stripe' }
-		});
-		const noCustomerId = await request.post(PAYMENT_ACCOUNT_PATH, {
-			data: { provider: 'stripe', userId: 'u' }
-		});
+	test(`POST + PUT ${PAYMENT_ACCOUNT_PATH} check the session before validating the body`, async ({ request }) => {
+		// The session check runs before the body is read, so an
+		// anonymous caller learns nothing from the field cascade.
+		const responses = await Promise.all([
+			request.post(PAYMENT_ACCOUNT_PATH, { data: {} }),
+			request.post(PAYMENT_ACCOUNT_PATH, { data: { provider: 'stripe' } }),
+			request.post(PAYMENT_ACCOUNT_PATH, { data: { provider: 'not-a-provider', userId: 'u', customerId: 'c' } }),
+			request.put(PAYMENT_ACCOUNT_PATH, { data: {} })
+		]);
 
-		expect(noProvider.status()).toBe(400);
-		expect(noUserId.status()).toBe(400);
-		expect(noCustomerId.status()).toBe(400);
-
-		const noProviderBody = await noProvider.json();
-		const noUserIdBody = await noUserId.json();
-		const noCustomerIdBody = await noCustomerId.json();
-
-		expect(noProviderBody.error).toBe('Provider is required');
-		expect(noUserIdBody.error).toBe('User ID is required');
-		expect(noCustomerIdBody.error).toBe('Customer ID is required');
+		for (const response of responses) {
+			expect(response.status()).toBe(401);
+			expect((await response.json()).error).toBe('Unauthorized');
+		}
 	});
 
-	test(`PUT ${PAYMENT_ACCOUNT_PATH} required-field cascade includes 'Account ID is required'`, async ({
-		request
-	}) => {
-		// PUT has FOUR required fields. The id check
-		// fires FIRST.
-		const noId = await request.put(PAYMENT_ACCOUNT_PATH, { data: {} });
-		expect(noId.status()).toBe(400);
-		const body = await noId.json();
-		expect(body.error).toBe('Account ID is required');
-	});
-
-	test(`POST ${PAYMENT_ACCOUNT_PATH} 400 envelope shape has exactly the error key`, async ({
+	test(`POST ${PAYMENT_ACCOUNT_PATH} error envelope carries an error key`, async ({
 		request
 	}) => {
 		const response = await request.post(PAYMENT_ACCOUNT_PATH, { data: {} });

@@ -80,6 +80,16 @@ Conventions: `[P]` parallel, `[seq]` sequential, `[done]` already shipped.
 - Files: future `docs/spec/NNN-admin-rbac/spec.md`.
 - Verification: spec lands; not part of this plan.
 
+### T-011 [done] — Live admin role on server-side admin pages and guards
+
+- Files: `apps/web/app/[locale]/admin/clients/[id]/page.tsx`,
+  `apps/web/lib/auth/guards.ts`,
+  `apps/web/lib/auth/__tests__/admin-claim-pages.spec.ts`,
+  `apps/web-e2e/tests/admin/admin-client-detail-live-role.spec.ts`.
+- Verification: the source guard passes (11 of its 12 tests fail on
+  the claim-based code); a signed-in non-admin opening
+  `/admin/clients/{id}` ends on `/unauthorized`. T-2637 (#1148).
+
 ## Acceptance Criteria → Task Map
 
 | AC    | Tasks                          |
@@ -90,6 +100,7 @@ Conventions: `[P]` parallel, `[seq]` sequential, `[done]` already shipped.
 | AC-4  | T-006                          |
 | AC-5  | T-007                          |
 | AC-6  | T-002 — T-007                  |
+| AC-7  | T-011                          |
 
 ## Notes
 

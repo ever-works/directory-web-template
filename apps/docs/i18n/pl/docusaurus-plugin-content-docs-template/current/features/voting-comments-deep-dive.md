@@ -21,7 +21,7 @@ app/api/items/[id]/
   votes/route.ts             # GET/POST/DELETE vote endpoints
   comments/route.ts          # GET/POST comment endpoints
   comments/[commentId]/route.ts  # PUT/DELETE single comment
-  comments/rating/route.ts   # POST/PUT/GET rating endpoints
+  comments/rating/route.ts   # GET rating endpoint
 
 lib/db/schema.ts             # votes and comments table definitions
 ```
@@ -83,7 +83,7 @@ Obliczenie „0” uwzględnia trzy przypadki: wyłączenie (odejmij 1), nowe g�
 
 ### Brama uwierzytelniająca
 
-Nieuwierzytelnionym użytkownikom, którzy próbują głosować, zamiast otrzymywać komunikat o błędzie, wyświetla się moduł logowania:
+Nieuwierzytelnionym użytkownikom, którzy próbują głosować, wyświetla się okno logowania, a `handleVote` zgłasza błąd, zanim uruchomi mutację:
 
 ```ts
 if (!user) {
@@ -92,7 +92,7 @@ if (!user) {
 }
 ```
 
-Błąd jest wychwytywany przez procedurę obsługi mutacji `onError` , która sprawdza komunikat uwierzytelniający i pomija komunikat o błędzie.
+Ten błąd trafia do kodu, który wywołał `handleVote`: żadne żądanie nie jest wysyłane, a `onError` mutacji się nie uruchamia. `onError` obsługuje tylko nieudane żądanie głosowania: cofa optymistyczną aktualizację i pokazuje komunikat o błędzie (mutacja głosowania pomija komunikat, gdy dotyczy on logowania).
 
 ### Konfiguracja zapytania
 
@@ -150,9 +150,7 @@ interface UpdateCommentData {
 | `createComment` | `(data) => Promise` | Utwórz nowy komentarz |
 | `updateComment` | `(data) => Promise` | Edytuj istniejący komentarz |
 | `deleteComment` | `(id) => Promise` | Usuń komentarz |
-| `rateComment` | `(data) => void` | Oceń komentarz |
-| `updateCommentRating` | `(data) => void` | Zaktualizuj istniejącą ocenę |
-| `commentRating` | `number` | Łączna ocena przedmiotu |
+| `commentRating` | `{ averageRating: number; totalRatings: number }` | Łączna ocena przedmiotu |
 
 ### Międzyskładnikowy system zdarzeń
 
@@ -225,16 +223,14 @@ function useAdminComments({ page, limit, search }) {
 
 | Metoda | Punkt końcowy | Opis |
 |--------|----------|------------|
-| OTRZYMAJ | `/api/items/:id/votes` | Pobierz liczbę głosów i głos użytkownika |
-| POST | `/api/items/:id/votes` | Oddaj lub zmień głos |
-| USUŃ | `/api/items/:id/votes` | Usuń głos |
-| OTRZYMAJ | `/api/items/:id/comments` | Pobierz komentarze z danymi użytkownika |
-| POST | `/api/items/:id/comments` | Utwórz nowy komentarz |
-| POSTAW | `/api/items/:id/comments/:commentId` | Zaktualizuj komentarz |
-| USUŃ | `/api/items/:id/comments/:commentId` | Usuń komentarz |
-| POST | `/api/items/:id/comments/rating` | Oceń komentarz |
-| POSTAW | `/api/items/:id/comments/rating` | Zaktualizuj ocenę komentarza |
-| OTRZYMAJ | `/api/items/:id/comments/rating` | Uzyskaj zbiorczą ocenę przedmiotu |
+| GET | `/api/items/:slug/votes` | Pobierz liczbę głosów i głos użytkownika |
+| POST | `/api/items/:slug/votes` | Oddaj lub zmień głos |
+| DELETE | `/api/items/:slug/votes` | Usuń głos |
+| GET | `/api/items/:slug/comments` | Pobierz komentarze z danymi użytkownika |
+| POST | `/api/items/:slug/comments` | Utwórz nowy komentarz |
+| PUT | `/api/items/:slug/comments/:commentId` | Zaktualizuj komentarz |
+| DELETE | `/api/items/:slug/comments/:commentId` | Usuń komentarz |
+| GET | `/api/items/:slug/comments/rating` | Uzyskaj zbiorczą ocenę przedmiotu |
 
 ## Integracja flagi funkcji
 

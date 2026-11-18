@@ -1,7 +1,8 @@
 import { getCachedItem, getCachedSimilarItems } from '@/lib/content';
-import { notFound } from 'next/navigation';
+import { isItemSlug } from '@/lib/item-slug';
+import { notFound, unstable_rethrow } from 'next/navigation';
 import { getCategoriesName } from '@/lib/utils';
-import { getTranslations } from 'next-intl/server';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { ItemDetailWrapper } from '@/components/item-detail';
 import { ServerItemContent } from '@/components/item-detail/server-item-content';
 import { Container } from '@/components/ui/container';
@@ -15,6 +16,7 @@ import { type Locale } from '@/lib/constants';
 import { HydrationBoundary, dehydrate } from '@tanstack/react-query';
 import { getQueryClient } from '@/lib/query-client';
 import { getCommentsByItemId } from '@/lib/db/queries';
+import { getTenantIdForSharedRender } from '@/lib/auth/tenant';
 import { extractHeadings } from '@/lib/utils/extract-headings';
 import { ratingWhenEnabled, summarizeRatings } from '@/lib/seo/aggregate-rating';
 import { getFeatureFlags } from '@/lib/config/feature-flags';
@@ -23,6 +25,15 @@ import { getFeatureFlags } from '@/lib/config/feature-flags';
 // Using dynamicParams allows on-demand generation without build-time MDX errors
 export const revalidate = 600;
 export const dynamicParams = true;
+
+// An empty list makes every item page ISR: rendered on its first visit, then
+// served from the cache (and cacheable by a CDN) until `revalidate` or a content
+// sync. Without generateStaticParams Next.js renders a dynamic segment on every
+// request, which is what made localized item pages slow under crawler load
+// (Spec 061). Nothing in this route may read cookies() / headers().
+export async function generateStaticParams() {
+	return [];
+}
 
 const appUrl = getBaseUrl();
 
@@ -158,8 +169,12 @@ const MAX_SLUG_LENGTH = 255;
 
 export default async function ItemDetails({ params }: { params: Promise<{ slug: string; locale: string }> }) {
 	const { slug, locale } = await params;
+	// Sets the request locale for next-intl's server helpers, so they do not read it
+	// from the request headers, which makes a page render per request (Spec 061).
+	setRequestLocale(locale);
 
-	if (slug.length > MAX_SLUG_LENGTH) {
+	// A slug that cannot name an item is a 404, not a read failure (the catch below rethrows those).
+	if (slug.length > MAX_SLUG_LENGTH || !isItemSlug(slug)) {
 		return notFound();
 	}
 
@@ -170,12 +185,24 @@ export default async function ItemDetails({ params }: { params: Promise<{ slug: 
 		// Comment prefetch populates the server-side queryClient so HydrationBoundary
 		// below embeds the data in the HTML — CommentsSection renders without a
 		// client-side waterfall.
+		// The page is cached and shared by every visitor, so the comments are read for the
+		// tenant resolved without the request. When that is ambiguous (several tenants in one
+		// deployment) nothing is prefetched and the browser loads them through the API.
+		// Without a prefetch (several tenants) the Product JSON-LD also has no aggregateRating:
+		// the rating is summarised from these comments, and tenant safety comes first.
+		const commentsPrefetch = getTenantIdForSharedRender()
+			.catch(() => null)
+			.then((sharedTenantId) =>
+				sharedTenantId
+					? queryClient.prefetchQuery({
+							queryKey: ['comments', slug],
+							queryFn: () => getCommentsByItemId(slug, { tenantId: sharedTenantId }).catch(() => []),
+						})
+					: undefined
+			);
 		const [[item, t]] = await Promise.all([
 			Promise.all([getCachedItem(slug, { lang: locale }), getTranslations('common')]),
-			queryClient.prefetchQuery({
-				queryKey: ['comments', slug],
-				queryFn: () => getCommentsByItemId(slug).catch(() => []),
-			}),
+			commentsPrefetch,
 		]);
 
 		if (!item) {
@@ -232,7 +259,11 @@ export default async function ItemDetails({ params }: { params: Promise<{ slug: 
 			</HydrationBoundary>
 		);
 	} catch (error) {
+		// notFound() and Next's other control-flow errors pass through untouched.
+		unstable_rethrow(error);
 		console.error(`Failed to load item ${slug} for locale ${locale}:`, error);
-		return notFound();
+		// Not notFound(): the page is cached (ISR). A regeneration that throws keeps the
+		// last good page; a 404 would replace it until the next regeneration (Spec 061).
+		throw error;
 	}
 }

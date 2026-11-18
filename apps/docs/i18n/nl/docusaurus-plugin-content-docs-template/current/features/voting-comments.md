@@ -18,7 +18,7 @@ Het stemsysteem maakt gebruik van een stemmodel per item, waarbij elke geauthent
 ```mermaid
 flowchart TD
     A["Component (UI)"] -->|"useItemVote(itemId)"| B["Vote Hook (optimistic)"]
-    B --> C["/api/items/:id/votes"]
+    B --> C["/api/items/:slug/votes"]
     C --> D["Database (votes table)"]
 ```
 
@@ -101,11 +101,7 @@ const {
   isUpdating,
   deleteComment,         // (commentId) => Promise
   isDeleting,
-  rateComment,           // ({ commentId, rating }) => void
-  isRatingComment,
-  updateCommentRating,   // ({ commentId, rating }) => void
-  isUpdatingRating,
-  commentRating,         // number
+  commentRating,         // { averageRating: number; totalRatings: number }
   isLoadingRating,
 } = useComments(itemId);
 ```
@@ -118,7 +114,7 @@ Elke opmerking omvat:
 - `rating` -- Optionele sterbeoordeling (1-5)
 - `userId` -- Referentie van de auteur
 - `itemId` -- Bijbehorend artikel
-- `user` -- Ingevulde gebruikersgegevens (naam, e-mailadres, afbeelding)
+- `user` -- Het openbare profiel van de auteur. GET en POST geven id, name, image, username, bio, jobTitle, company en location terug; het antwoord op PUT (bewerken) geeft alleen id, name en image terug. Het e-mailadres wordt nooit teruggegeven.
 - `createdAt` / `updatedAt` -- Tijdstempels
 
 ### Beoordelingsintegratie
@@ -159,13 +155,11 @@ const {
 
 | Werkwijze | Eindpunt | Beschrijving |
 |--------|----------|------------|
-| KRIJG | `/api/items/:id/comments` | Opmerkingen voor een item ophalen |
-| POST | `/api/items/:id/comments` | Creëer een nieuwe reactie |
-| ZET | `/api/items/:id/comments/:commentId` | Een reactie bijwerken |
-| VERWIJDEREN | `/api/items/:id/comments/:commentId` | Een opmerking verwijderen |
-| POST | `/api/items/:id/comments/rating` | Beoordeel een reactie |
-| ZET | `/api/items/:id/comments/rating` | Reactiebeoordeling bijwerken |
-| KRIJG | `/api/items/:id/comments/rating` | Totale beoordeling verkrijgen |
+| GET | `/api/items/:slug/comments` | Opmerkingen voor een item ophalen |
+| POST | `/api/items/:slug/comments` | Creëer een nieuwe reactie |
+| PUT | `/api/items/:slug/comments/:commentId` | Een reactie bijwerken |
+| DELETE | `/api/items/:slug/comments/:commentId` | Een opmerking verwijderen |
+| GET | `/api/items/:slug/comments/rating` | Totale beoordeling verkrijgen |
 
 ## Functievlag-integratie
 

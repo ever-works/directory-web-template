@@ -1,4 +1,5 @@
 import { AdminAnalyticsOptimizedRepository } from '@/lib/repositories/admin-analytics-optimized.repository';
+import { escapeCsvFormula } from '@/lib/utils/csv-formula';
 
 /**
  * Supported export-format constants.
@@ -185,7 +186,7 @@ export class AnalyticsExportService {
         // Improved CSV escaping function
         const esc = (v: any) => {
           if (v === null || v === undefined) return '';
-          const s = typeof v === 'string' ? v : String(v);
+          const s = escapeCsvFormula(typeof v === 'string' ? v : String(v));
           return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
         };
         
@@ -225,7 +226,7 @@ export class AnalyticsExportService {
     // CSV escaping function
     const esc = (v: any) => {
       if (v === null || v === undefined) return '';
-      const s = typeof v === 'string' ? v : String(v);
+      const s = escapeCsvFormula(typeof v === 'string' ? v : String(v));
       return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
     };
     

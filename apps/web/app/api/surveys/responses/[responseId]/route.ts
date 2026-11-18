@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
+import { checkAdminAuth } from '@/lib/auth/admin-guard';
 import { surveyService } from '@/lib/services/survey.service';
 import { Logger } from '@/lib/logger';
 import { safeErrorResponse } from '@/lib/utils/api-error';
@@ -65,6 +65,8 @@ const _logger = Logger.create('SurveyResponseDetailAPI');
  *                       format: date-time
  *       401:
  *         description: "Unauthorized"
+ *       403:
+ *         description: "Forbidden - the caller is not an admin"
  *       404:
  *         description: "Response not found"
  *       500:
@@ -75,14 +77,8 @@ export async function GET(
     { params }: { params: Promise<{ responseId: string }> }
 ) {
     try {
-        const session = await auth();
-        
-        if (!session?.user?.isAdmin) {
-            return NextResponse.json(
-                { success: false, error: 'Unauthorized' },
-                { status: 401 }
-            );
-        }
+        const authError = await checkAdminAuth();
+        if (authError) return authError;
 
         const { responseId } = await params;
         const response = await surveyService.getResponseById(responseId);

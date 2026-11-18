@@ -22,7 +22,7 @@ import {
 	PaymentFormProps,
 	SubscriptionStatus
 } from '../../types/payment-types';
-import { paymentAccountClient } from '../client/payment-account-client';
+import { getUserPaymentAccountByProvider, setupUserPaymentAccount } from '@/lib/db/queries';
 import {
 	getPolarSubscription,
 	cancelSubscriptionImmediately,
@@ -233,7 +233,7 @@ export class PolarProvider implements PaymentProviderInterface {
 
 	private async retrieveCustomerIdFromDatabase(userId: string): Promise<string | null> {
 		try {
-			const existingPaymentAccount = await paymentAccountClient.getPaymentAccount(userId, 'polar');
+			const existingPaymentAccount = await getUserPaymentAccountByProvider(userId, 'polar');
 
 			if (existingPaymentAccount?.customerId) {
 				this.logger.debug('Existing PaymentAccount found in database', {
@@ -267,15 +267,13 @@ export class PolarProvider implements PaymentProviderInterface {
 			const customer = await this.createCustomer(customerData);
 			this.logger.debug('Polar customer created successfully', {
 				userId: user.id,
-				customerId: customer.id,
-				email: customer.email
+				customerId: customer.id
 			});
 			return customer;
 		} catch (error) {
 			this.logger.error('Failed to create Polar customer', {
 				userId: user.id,
-				error: this.formatErrorMessage(error),
-				customerData
+				error: this.formatErrorMessage(error)
 			});
 			throw error;
 		}
@@ -320,11 +318,7 @@ export class PolarProvider implements PaymentProviderInterface {
 
 	private async synchronizePaymentAccount(userId: string, customerId: string): Promise<void> {
 		try {
-			const paymentAccount = await paymentAccountClient.setupPaymentAccount({
-				provider: 'polar',
-				userId,
-				customerId
-			});
+			const paymentAccount = await setupUserPaymentAccount('polar', userId, customerId);
 			this.logger.info('PaymentAccount synchronized successfully in database', {
 				userId,
 				customerId,
@@ -342,7 +336,7 @@ export class PolarProvider implements PaymentProviderInterface {
 
 				// Try to get the existing account and update it
 				try {
-					const existingAccount = await paymentAccountClient.getPaymentAccount(userId, 'polar');
+					const existingAccount = await getUserPaymentAccountByProvider(userId, 'polar');
 					if (existingAccount) {
 						this.logger.info('Found existing payment account - synchronization completed', {
 							userId,
@@ -401,11 +395,12 @@ export class PolarProvider implements PaymentProviderInterface {
 							);
 
 							if (emailError) {
-								// Check if it's an invalid email domain error
+								// Callers log this text, so it never carries the address: `emailError.input` is
+								// the address Polar rejected, and the raw message holds it in the JSON body.
 								if (emailError.msg && emailError.msg.includes('does not accept email')) {
-									return `Invalid email address: ${emailError.input}. Polar requires a valid email address with a real domain. Test domains like 'example.com' are not accepted. Please use a real email address.`;
+									return `Invalid email address. Polar requires a valid email address with a real domain. Test domains like 'example.com' are not accepted. Please use a real email address.`;
 								}
-								return emailError.msg || errorMessage;
+								return emailError.msg || 'Invalid email address. Please provide a valid email address.';
 							}
 
 							// Return first error message
@@ -575,7 +570,7 @@ export class PolarProvider implements PaymentProviderInterface {
 		try {
 			// Validate email format before sending to Polar
 			if (!params.email || !this.isValidEmail(params.email)) {
-				throw new Error(`Invalid email address: ${params.email}. Please provide a valid email address.`);
+				throw new Error('Invalid email address. Please provide a valid email address.');
 			}
 
 			// Check for test domains that Polar rejects
@@ -606,7 +601,7 @@ export class PolarProvider implements PaymentProviderInterface {
 			const errorMessage = this.formatErrorMessage(error);
 			this.logger.error('Failed to create Polar customer', {
 				error: errorMessage,
-				email: params.email,
+				hasEmail: !!params.email,
 				hasName: !!params.name
 			});
 			throw new Error(`Failed to create customer: ${errorMessage}`);

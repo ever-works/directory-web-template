@@ -40,7 +40,9 @@
 		}
 	},
 	"header": {
-		"OPEN_USER_MENU": "Open user menu"
+		"OPEN_USER_MENU": "Open user menu",
+		"SCROLL_TO_TOP": "Scroll to top",
+		"BACK_TO_TOP": "Back to top"
 	},
 	"common": {
 		"DEMO_BANNER_TEXT": "You are using a demo account. Finding our software useful?",
@@ -278,7 +280,9 @@
 		"AVG": "Avg",
 		"BASIC_INFO": "Basic Info",
 		"CLOSE": "Close",
-		"VS": "vs"
+		"VS": "vs",
+		"RATE_STARS": "{count, plural, one {Rate # star} other {Rate # stars}}",
+		"RATED_OUT_OF": "Rated {value, number} out of {max, number}"
 	},
 	"survey": {
 		"SURVEYS": "Surveys",
@@ -534,6 +538,8 @@
 		"GLOBAL_SERVICE": "Global Service",
 		"COMMENTS_DELETE_WARNING": "Are you sure you want to delete this comment? This action cannot be undone.",
 		"COMMENTS_HAVE_THOUGHTS": "Have thoughts?",
+		"COMMENTS_VIEW_PROFILE": "View profile",
+		"COMMENTS_PROFILE": "Profile",
 		"COMMENTS_SHORTCUT": "Cmd/Ctrl + Enter to post",
 		"COMMENTS_POSTING": "Posting",
 		"COMMENTS_DELETE_TITLE": "Delete Comment",

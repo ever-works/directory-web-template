@@ -18,7 +18,7 @@ Il sistema di voto utilizza un modello di voto per elemento in cui ogni utente a
 ```mermaid
 flowchart TD
     A["Component (UI)"] -->|"useItemVote(itemId)"| B["Vote Hook (optimistic)"]
-    B --> C["/api/items/:id/votes"]
+    B --> C["/api/items/:slug/votes"]
     C --> D["Database (votes table)"]
 ```
 
@@ -101,11 +101,7 @@ const {
   isUpdating,
   deleteComment,         // (commentId) => Promise
   isDeleting,
-  rateComment,           // ({ commentId, rating }) => void
-  isRatingComment,
-  updateCommentRating,   // ({ commentId, rating }) => void
-  isUpdatingRating,
-  commentRating,         // number
+  commentRating,         // { averageRating: number; totalRatings: number }
   isLoadingRating,
 } = useComments(itemId);
 ```
@@ -118,7 +114,7 @@ Ogni commento include:
 - `rating` -- Valutazione in stelle opzionale (1-5)
 - `userId` -- Riferimento all'autore
 - `itemId` -- Elemento associato
-- `user` -- Dati utente popolati (nome, email, immagine)
+- `user` -- Il profilo pubblico dell'autore. GET e POST restituiscono id, name, image, username, bio, jobTitle, company e location; la risposta di PUT (modifica) restituisce solo id, name e image. L'email non viene mai restituita.
 - `createdAt` / `updatedAt` -- Timestamp
 
 ### Integrazione della valutazione
@@ -159,13 +155,11 @@ const {
 
 | Metodo | Punto finale | Descrizione |
 |--------|----------|-------------|
-| OTTIENI | `/api/items/:id/comments` | Recupera commenti per un elemento |
-| POST | `/api/items/:id/comments` | Crea un nuovo commento |
-| METTERE | `/api/items/:id/comments/:commentId` | Aggiorna un commento |
-| ELIMINA | `/api/items/:id/comments/:commentId` | Elimina un commento |
-| POST | `/api/items/:id/comments/rating` | Vota un commento |
-| METTERE | `/api/items/:id/comments/rating` | Aggiorna la valutazione dei commenti |
-| OTTIENI | `/api/items/:id/comments/rating` | Ottieni una valutazione complessiva |
+| GET | `/api/items/:slug/comments` | Recupera commenti per un elemento |
+| POST | `/api/items/:slug/comments` | Crea un nuovo commento |
+| PUT | `/api/items/:slug/comments/:commentId` | Aggiorna un commento |
+| DELETE | `/api/items/:slug/comments/:commentId` | Elimina un commento |
+| GET | `/api/items/:slug/comments/rating` | Ottieni una valutazione complessiva |
 
 ## Integrazione dei flag di funzionalità
 
