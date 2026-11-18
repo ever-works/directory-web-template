@@ -29,11 +29,11 @@ export const sendEmailSafely = async (
       text: template.text,
     });
     
-    console.log(`✅ ${context} email sent successfully to ${to}`);
+    console.log(`✅ ${context} email sent successfully`);
     return { success: true };
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : "Unknown error";
-    console.error(`❌ Failed to send ${context} email to ${to}:`, errorMessage);
+    console.error(`❌ Failed to send ${context} email:`, errorMessage);
     
     return { 
       success: false, 
@@ -132,15 +132,15 @@ export const logNewsletterActivity = (
   details?: Record<string, any>
 ): void => {
   const timestamp = new Date().toISOString();
-  const logData = {
+
+  // The address stays out of the log; `hasEmail` only records that one was given.
+  console.log(`📧 Newsletter Activity:`, {
     timestamp,
     action,
-    email,
+    hasEmail: !!email,
     source,
     ...details,
-  };
-  
-  console.log(`📧 Newsletter Activity:`, logData);
+  });
   
   // In production, you might want to send this to a logging service
   // like Sentry, LogRocket, or your own analytics

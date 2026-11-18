@@ -52,14 +52,16 @@ export function getCategoriesName(
 export function maskEmail(email: string) {
   if (!email) return "";
 
-  const parts = email.split("@");
-  if (parts.length !== 2) return email; // Not a valid email format
+  const at = email.lastIndexOf("@");
+  if (at === -1) return email; // Not an email address
 
-  const [username, domain] = parts;
+  const username = email.slice(0, at);
+  const domain = email.slice(at + 1);
 
+  // Mail logs use this, so at least one character of the name is always hidden.
   const maskedUsername =
     username.length <= 2
-      ? username
+      ? `${username.slice(0, username.length - 1)}*`
       : `${username.slice(0, 2)}${"*".repeat(
           Math.min(username.length - 2, 3)
         )}`;

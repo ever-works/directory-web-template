@@ -26,7 +26,7 @@ export async function getUserByEmail(email: string): Promise<User | null> {
 			.limit(1);
 
 		if (usersList.length === 0) {
-			console.warn(`User validation failed: No user found with email ${email}`);
+			console.warn('User validation failed: No user found for the given email');
 			return null;
 		}
 
