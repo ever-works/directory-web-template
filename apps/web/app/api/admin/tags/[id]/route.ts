@@ -186,9 +186,16 @@ export async function GET(
  *                   example: false
  *                 error:
  *                   type: string
- *                   examples:
- *                     missing_name: "Tag name is required"
- *                     validation_error: "Tag name must be between 2 and 50 characters"
+ *                   example: "Tag name is required"
+ *             examples:
+ *               missing_name:
+ *                 value:
+ *                   success: false
+ *                   error: "Tag name is required"
+ *               validation_error:
+ *                 value:
+ *                   success: false
+ *                   error: "Tag name must be between 2 and 50 characters"
  *       401:
  *         description: "Unauthorized - Admin access required"
  *         content:

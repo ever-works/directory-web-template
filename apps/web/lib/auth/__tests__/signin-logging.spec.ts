@@ -230,7 +230,9 @@ describe('credentials authorize (lib/auth/credentials.ts)', () => {
 		);
 
 		const fields = entries(credentialsCode, open);
-		const allowed = ['id', 'email', 'name', 'image', 'tenantId', 'isClient', 'isAdmin'];
+		// `passwordVersion` is users.password_changed_at as the session's password version (see
+		// lib/auth/password-change.ts), not the hash.
+		const allowed = ['id', 'email', 'name', 'image', 'tenantId', 'isClient', 'isAdmin', 'passwordVersion'];
 		for (const field of fields) {
 			assert.ok(!field.startsWith('...'), `the admin user spreads \`${field}\``);
 			const key = field.split(':')[0].trim();

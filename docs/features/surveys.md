@@ -132,6 +132,8 @@ The admin survey pages provide a full lifecycle management interface:
 | `/admin/surveys/[slug]/preview` | Preview survey before publishing |
 | `/admin/surveys/[slug]/responses` | View and analyze responses |
 
+The edit, preview and responses pages call `requireAdmin()` (`lib/auth/guards.ts`) on the server before they read the survey: a signed-out visitor goes to admin sign-in and a user without the admin role to `/unauthorized`.
+
 ### Admin Capabilities
 
 - **Create surveys** with title, description, type, and question JSON

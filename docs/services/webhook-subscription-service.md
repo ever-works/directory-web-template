@@ -94,7 +94,7 @@ interface WebhookProcessingResult {
 
 #### `formatData(data: any, paymentProvider?: PaymentProvider): WebhookSubscriptionData`
 
-Standalone utility function that transforms raw Stripe webhook payloads into the normalized `WebhookSubscriptionData` format. Extracts nested fields from Stripe's data structure (e.g., `items.data[0].price.unit_amount`).
+Standalone utility function that transforms raw Stripe webhook payloads into the normalized `WebhookSubscriptionData` format. Extracts nested fields from Stripe's data structure (e.g., `items.data[0].price.unit_amount`). LemonSqueezy events are adapted to the same layout by `toSubscriptionServiceData` (`lib/payment/lemonsqueezy-webhook.ts`); their price and period come from the LemonSqueezy Prices API (spec 060 R17).
 
 **Parameters:**
 | Parameter | Type | Description |
@@ -129,6 +129,8 @@ Processes subscription creation webhooks. Checks for existing subscriptions (ide
 Processes subscription update webhooks. If the subscription does not exist, it falls back to creating one. Tracks field-level changes between the old and new state.
 
 **Updated fields:** status, planId, endDate, amount, priceId, currency, interval, intervalCount, trialStart, trialEnd, cancelAtPeriodEnd, metadata.
+
+`amount` follows `updatedSubscriptionAmount` (`lib/payment/stored-amount.ts`): the price's `unit_amount` when the event carries one (a zero price stores 0), `null` when the price has no flat amount (`unit_amount: null`: tiered or usage-based), and the stored amount only when the event carries no price amount. The free plan is always 0.
 
 ---
 

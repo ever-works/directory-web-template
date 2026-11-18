@@ -117,9 +117,7 @@ import { getTenantId } from '@/lib/auth/tenant';
  *               properties:
  *                 error:
  *                   type: string
- *                   examples:
- *                     invalid_plan: "Invalid plan ID"
- *                     not_active: "Subscription is not active"
+ *                   example: "Invalid plan ID"
  *             examples:
  *               invalid_plan:
  *                 summary: "Invalid plan ID"

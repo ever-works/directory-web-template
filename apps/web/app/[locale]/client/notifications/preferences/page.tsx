@@ -20,10 +20,11 @@ export async function generateMetadata({
 	};
 }
 
-export default async function PreferencesPage() {
+export default async function PreferencesPage({ params }: { params: Promise<{ locale: string }> }) {
+	const { locale } = await params;
 	const session = await auth();
 	if (!session?.user?.id) {
-		redirect('/auth/sign-in?callbackUrl=/client/notifications/preferences');
+		redirect(`/${locale}/auth/signin?callbackUrl=/${locale}/client/notifications/preferences`);
 	}
 	// Admins use the dedicated /admin/notifications surface.
 	if (await isAdmin(session.user.id)) {

@@ -247,18 +247,41 @@ export async function GET(req: NextRequest) {
  *       302:
  *         description: "Redirect response for successful authentication or OAuth flows"
  *       400:
- *         description: "Bad request - Invalid credentials or missing CSRF token"
+ *         description: "Bad request - Invalid credentials, missing CSRF token, or the requested OAuth provider (providerId) is not configured"
  *         content:
  *           application/json:
  *             schema:
  *               type: object
  *               properties:
  *                 error:
- *                   type: string
- *                   examples:
- *                     invalid_credentials: "Invalid email or password"
- *                     missing_csrf: "CSRF token missing"
- *                     invalid_email: "Invalid email format"
+ *                   oneOf:
+ *                     - type: string
+ *                       example: "Invalid email or password"
+ *                     - type: object
+ *                       description: "Returned when the providerId query parameter names an OAuth provider that is not configured"
+ *                       properties:
+ *                         message:
+ *                           type: string
+ *                           example: 'Authentication provider "github" is not available.'
+ *                         code:
+ *                           type: string
+ *                           example: "PROVIDER_NOT_CONFIGURED"
+ *                       required: ["message", "code"]
+ *             examples:
+ *               invalid_credentials:
+ *                 value:
+ *                   error: "Invalid email or password"
+ *               missing_csrf:
+ *                 value:
+ *                   error: "CSRF token missing"
+ *               invalid_email:
+ *                 value:
+ *                   error: "Invalid email format"
+ *               provider_not_configured:
+ *                 value:
+ *                   error:
+ *                     message: 'Authentication provider "github" is not available.'
+ *                     code: "PROVIDER_NOT_CONFIGURED"
  *       401:
  *         description: "Unauthorized - Authentication failed"
  *         content:

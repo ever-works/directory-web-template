@@ -3,12 +3,13 @@ import {
 	getUserByEmail,
 	logActivity,
 	getClientAccountByEmail,
-	verifyClientPassword,
+	verifyClientPasswordForSignIn,
 	getClientProfileByUserId,
 	isUserAdmin
 } from '../db/queries';
 import { ActivityType } from '../db/schema';
 import { AuthErrorCode } from './auth-error-codes';
+import { passwordVersionOf } from './password-change';
 import { issueTwoFactorCode, verifyTwoFactorCode } from './two-factor';
 
 // Re-export AuthErrorCode for backwards compatibility
@@ -80,6 +81,11 @@ export const credentialsProvider = Credentials({
 		code: { type: 'text' }
 	},
 	authorize: async (credentials) => {
+		// Both users below carry `passwordVersion`: users.password_changed_at read in the SAME query
+		// as the hash the password was checked against (`getUserByEmail` reads the whole users row;
+		// `verifyClientPasswordForSignIn` joins it). The jwt callback stores it, and a later reset or
+		// change ends the session (lib/auth/password-change.ts), even one whose query read the old
+		// hash while that change was being committed.
 		try {
 			const email = credentials.email as string;
 			const password = credentials.password as string;
@@ -104,7 +110,8 @@ export const credentialsProvider = Credentials({
 						image: foundUser.image,
 						tenantId: foundUser.tenantId ?? undefined,
 						isClient: false,
-						isAdmin: true
+						isAdmin: true,
+						passwordVersion: passwordVersionOf(foundUser.passwordChangedAt)
 					};
 				}
 				// Admin user found but password is invalid
@@ -115,10 +122,12 @@ export const credentialsProvider = Credentials({
 			const clientAccount = await getClientAccountByEmail(email);
 
 			if (clientAccount) {
-				const isClientPasswordValid = await verifyClientPassword(email, password);
+				const clientPassword = await verifyClientPasswordForSignIn(email, password);
 
-				if (isClientPasswordValid) {
-					const clientProfile = await getClientProfileByUserId(clientAccount.userId);
+				if (clientPassword.valid) {
+					// The account whose hash matched, read in that same statement; the email may
+					// belong to another account by the time a second lookup runs.
+					const clientProfile = await getClientProfileByUserId(clientPassword.userId);
 					if (!clientProfile) {
 						throw new Error(AuthErrorCode.PROFILE_NOT_FOUND);
 					}
@@ -175,7 +184,8 @@ export const credentialsProvider = Credentials({
 						email: clientProfile.email,
 						image: null,
 						isClient: true,
-						isAdmin: false
+						isAdmin: false,
+						passwordVersion: passwordVersionOf(clientPassword.passwordChangedAt)
 					};
 					void logActivity(ActivityType.SIGN_IN, clientProfile.id, 'client', undefined, clientProfile.tenantId || undefined).catch(() => {});
 					return clientUser;

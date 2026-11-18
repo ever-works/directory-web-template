@@ -133,10 +133,20 @@ import Stripe from 'stripe';
  *                   example: false
  *                 error:
  *                   type: string
- *                   examples:
- *                     missing_id: "Payment method ID is required"
- *                     no_customer: "Payment method not associated with any customer"
- *                     stripe_error: "Invalid payment method ID"
+ *                   example: "Payment method ID is required"
+ *             examples:
+ *               missing_id:
+ *                 value:
+ *                   success: false
+ *                   error: "Payment method ID is required"
+ *               no_customer:
+ *                 value:
+ *                   success: false
+ *                   error: "Payment method not associated with any customer"
+ *               stripe_error:
+ *                 value:
+ *                   success: false
+ *                   error: "Invalid payment method ID"
  *       401:
  *         description: "Unauthorized - Authentication required"
  *         content:
@@ -175,9 +185,16 @@ import Stripe from 'stripe';
  *                   example: false
  *                 error:
  *                   type: string
- *                   examples:
- *                     payment_method: "Payment method not found"
- *                     customer: "Customer not found"
+ *                   example: "Payment method not found"
+ *             examples:
+ *               payment_method:
+ *                 value:
+ *                   success: false
+ *                   error: "Payment method not found"
+ *               customer:
+ *                 value:
+ *                   success: false
+ *                   error: "Customer not found"
  *       500:
  *         description: "Internal server error"
  *         content:
@@ -351,10 +368,20 @@ export async function GET(
  *                   example: false
  *                 error:
  *                   type: string
- *                   examples:
- *                     missing_id: "Payment method ID is required"
- *                     no_customer: "Payment method not associated with a customer"
- *                     stripe_error: "Invalid payment method ID"
+ *                   example: "Payment method ID is required"
+ *             examples:
+ *               missing_id:
+ *                 value:
+ *                   success: false
+ *                   error: "Payment method ID is required"
+ *               no_customer:
+ *                 value:
+ *                   success: false
+ *                   error: "Payment method not associated with a customer"
+ *               stripe_error:
+ *                 value:
+ *                   success: false
+ *                   error: "Invalid payment method ID"
  *       401:
  *         description: "Unauthorized - Authentication required"
  *         content:
@@ -393,9 +420,16 @@ export async function GET(
  *                   example: false
  *                 error:
  *                   type: string
- *                   examples:
- *                     payment_method: "Payment method not found"
- *                     customer: "Customer not found"
+ *                   example: "Payment method not found"
+ *             examples:
+ *               payment_method:
+ *                 value:
+ *                   success: false
+ *                   error: "Payment method not found"
+ *               customer:
+ *                 value:
+ *                   success: false
+ *                   error: "Customer not found"
  *       500:
  *         description: "Internal server error"
  *         content:

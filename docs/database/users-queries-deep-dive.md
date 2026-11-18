@@ -132,7 +132,7 @@ async function updateUserPassword(
 UPDATE users SET password_hash = ? WHERE id = ?;
 ```
 
-This writes `users.passwordHash` only. Admin sign-in reads that column and client sign-in does not. Nothing in the app calls it any more: password reset, change-password and the `updatePassword` server action use `setUserPasswordHash` instead.
+This writes `users.passwordHash` only and does not stamp `users.password_changed_at`, so it ends no session. Admin sign-in reads that column and client sign-in does not. Nothing in the app calls it any more: password reset, change-password and the `updatePassword` server action use `setUserPasswordHash` instead.
 
 ---
 
@@ -164,9 +164,13 @@ UPDATE accounts SET password_hash = ?
 UPDATE users SET password_hash = ?, updated_at = now()
   WHERE id = ? AND tenant_id = ?
     AND password_hash IS NOT NULL;  -- this condition only when an accounts row was updated
+UPDATE users SET password_changed_at = now()
+  WHERE id = ? AND tenant_id = ?;
 ```
 
 When a credentials account was updated, the users row is written only if it already has a hash (the admin case), so a client does not gain a second password store. A user with no credentials account has the users row written, as before, so an admin who signed up through OAuth can still set a password with a reset.
+
+The last statement stamps `users.password_changed_at` for admins and clients alike (a client's row is skipped by the hash update). The jwt callback ends every session that signed in before it when the session passes through `auth()`. The server-rendered admin survey pages (`/admin/surveys/[slug]/edit`, `/preview` and `/responses`) do not call `auth()`, so their first response can still carry the survey definition for an ended admin session until the client guard redirects (T-2645). `GET /api/auth/security/settings` returns the change time as `lastPasswordChange` (see [Session Management](../authentication/session-management.md#a-password-reset-or-change-ends-older-sessions)).
 
 ---
 

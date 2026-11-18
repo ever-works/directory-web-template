@@ -15,50 +15,82 @@ import { hasSiteGitCredentials } from '@/lib/git/site-git-token';
  *       - sessionAuth: []
  *     responses:
  *       200:
- *         description: "Git repository status retrieved successfully"
+ *         description: "Git repository status retrieved successfully, or Git sync is not configured (success false, configured false: DATA_REPOSITORY missing or invalid, or no GitHub token)"
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                   example: true
- *                 status:
- *                   type: object
- *                   description: "Git repository status information"
- *                 categories:
- *                   type: array
- *                   items:
- *                     $ref: "#/components/schemas/Category"
- *                   description: "List of categories from Git repository"
- *                 message:
- *                   type: string
- *                   example: "Git repository status retrieved successfully"
- *               required: ["success", "status", "categories", "message"]
- *             example:
- *               success: true
- *               status:
- *                 repository: "ever-co/awesome-time-tracking-data"
- *                 branch: "main"
- *                 lastCommit: "abc123def456"
- *                 lastCommitDate: "2024-01-20T10:30:00.000Z"
- *                 lastCommitMessage: "Update categories data"
- *                 isUpToDate: true
- *               categories:
- *                 - id: "productivity"
- *                   name: "Productivity"
- *                   isActive: true
- *                   itemCount: 15
- *                   createdAt: "2024-01-15T10:30:00.000Z"
- *                   updatedAt: "2024-01-15T10:30:00.000Z"
- *                 - id: "design"
- *                   name: "Design"
- *                   isActive: true
- *                   itemCount: 8
- *                   createdAt: "2024-01-16T11:20:00.000Z"
- *                   updatedAt: "2024-01-16T11:20:00.000Z"
- *               message: "Git repository status retrieved successfully"
+ *               oneOf:
+ *                 - type: object
+ *                   description: "Git repository status and categories"
+ *                   properties:
+ *                     success:
+ *                       type: boolean
+ *                       example: true
+ *                     status:
+ *                       type: object
+ *                       description: "Git repository status information"
+ *                     categories:
+ *                       type: array
+ *                       items:
+ *                         $ref: "#/components/schemas/Category"
+ *                       description: "List of categories from Git repository"
+ *                     message:
+ *                       type: string
+ *                       example: "Git repository status retrieved successfully"
+ *                   required: ["success", "status", "categories", "message"]
+ *                 - type: object
+ *                   description: "Git sync is not configured"
+ *                   properties:
+ *                     success:
+ *                       type: boolean
+ *                       example: false
+ *                     configured:
+ *                       type: boolean
+ *                       example: false
+ *                     error:
+ *                       type: string
+ *                       example: "DATA_REPOSITORY not configured. Please set DATA_REPOSITORY environment variable."
+ *                   required: ["success", "configured", "error"]
+ *             examples:
+ *               success:
+ *                 value:
+ *                   success: true
+ *                   status:
+ *                     repository: "ever-co/awesome-time-tracking-data"
+ *                     branch: "main"
+ *                     lastCommit: "abc123def456"
+ *                     lastCommitDate: "2024-01-20T10:30:00.000Z"
+ *                     lastCommitMessage: "Update categories data"
+ *                     isUpToDate: true
+ *                   categories:
+ *                     - id: "productivity"
+ *                       name: "Productivity"
+ *                       isActive: true
+ *                       itemCount: 15
+ *                       createdAt: "2024-01-15T10:30:00.000Z"
+ *                       updatedAt: "2024-01-15T10:30:00.000Z"
+ *                     - id: "design"
+ *                       name: "Design"
+ *                       isActive: true
+ *                       itemCount: 8
+ *                       createdAt: "2024-01-16T11:20:00.000Z"
+ *                       updatedAt: "2024-01-16T11:20:00.000Z"
+ *                   message: "Git repository status retrieved successfully"
+ *               config_missing:
+ *                 value:
+ *                   success: false
+ *                   configured: false
+ *                   error: "DATA_REPOSITORY not configured. Please set DATA_REPOSITORY environment variable."
+ *               invalid_format:
+ *                 value:
+ *                   success: false
+ *                   configured: false
+ *                   error: "Invalid DATA_REPOSITORY format. Expected: https://github.com/owner/repo"
+ *               token_missing:
+ *                 value:
+ *                   success: false
+ *                   configured: false
+ *                   error: "GitHub token not configured. Please set GITHUB_TOKEN environment variable."
  *       401:
  *         description: "Unauthorized - Admin access required"
  *         content:
@@ -70,7 +102,7 @@ import { hasSiteGitCredentials } from '@/lib/git/site-git-token';
  *                   type: string
  *                   example: "Unauthorized. Admin access required."
  *       500:
- *         description: "Server error - Configuration or Git issues"
+ *         description: "Server error - Git issues"
  *         content:
  *           application/json:
  *             schema:
@@ -81,11 +113,10 @@ import { hasSiteGitCredentials } from '@/lib/git/site-git-token';
  *                   example: false
  *                 error:
  *                   type: string
- *                   examples:
- *                     config_missing: "DATA_REPOSITORY not configured. Please set DATA_REPOSITORY environment variable."
- *                     invalid_format: "Invalid DATA_REPOSITORY format. Expected: https://github.com/owner/repo"
- *                     token_missing: "GitHub token not configured. Please set GITHUB_TOKEN environment variable."
- *                     git_error: "Failed to get Git repository status"
+ *                   example: "Failed to get Git repository status"
+ *             example:
+ *               success: false
+ *               error: "Failed to get Git repository status"
  */
 export async function GET() {
   try {
@@ -251,11 +282,24 @@ export async function GET() {
  *                   example: false
  *                 error:
  *                   type: string
- *                   examples:
- *                     config_missing: "DATA_REPOSITORY not configured. Please set DATA_REPOSITORY environment variable."
- *                     invalid_format: "Invalid DATA_REPOSITORY format. Expected: https://github.com/owner/repo"
- *                     token_missing: "GitHub token not configured. Please set GH_TOKEN environment variable."
- *                     git_error: "Failed to create category via Git"
+ *                   example: "DATA_REPOSITORY not configured. Please set DATA_REPOSITORY environment variable."
+ *             examples:
+ *               config_missing:
+ *                 value:
+ *                   success: false
+ *                   error: "DATA_REPOSITORY not configured. Please set DATA_REPOSITORY environment variable."
+ *               invalid_format:
+ *                 value:
+ *                   success: false
+ *                   error: "Invalid DATA_REPOSITORY format. Expected: https://github.com/owner/repo"
+ *               token_missing:
+ *                 value:
+ *                   success: false
+ *                   error: "GitHub token not configured. Please set GH_TOKEN environment variable."
+ *               git_error:
+ *                 value:
+ *                   success: false
+ *                   error: "Failed to create category via Git"
  */
 export async function POST(request: NextRequest) {
   try {

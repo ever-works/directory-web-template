@@ -299,8 +299,29 @@
     {
       "idx": 42,
       "version": "7",
-      "when": 1788417526152,
+      "when": 1788600000000,
       "tag": "0042_email_two_factor_auth",
+      "breakpoints": true
+    },
+    {
+      "idx": 43,
+      "version": "7",
+      "when": 1794954083551,
+      "tag": "0043_add_password_changed_at",
+      "breakpoints": true
+    },
+    {
+      "idx": 44,
+      "version": "7",
+      "when": 1794993114703,
+      "tag": "0044_reapply_email_two_factor_auth",
+      "breakpoints": true
+    },
+    {
+      "idx": 45,
+      "version": "7",
+      "when": 1795013914657,
+      "tag": "0045_unbind_oauth_link_emails",
       "breakpoints": true
     }
   ]

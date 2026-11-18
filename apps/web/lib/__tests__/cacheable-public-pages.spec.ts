@@ -146,7 +146,7 @@ describe('cacheable public pages (spec 061)', () => {
 		assert.ok(config.includes("cacheHandler: path.join(__dirname, 'cache-handler.cjs'),"));
 		assert.ok(config.includes('cacheMaxMemorySize: pageCacheMemoryMb(process.env.NEXT_CACHE_MAX_MEMORY_MB) * 1024 * 1024,'));
 		// Infinity or garbage must not lift the bound.
-		assert.ok(config.includes('return Number.isFinite(mb) && mb > 0 ? mb : 64;'));
+		assert.ok(config.includes('return Number.isFinite(mb) && mb > 0 ? mb : 256;'));
 		// isrFlushToDisk: false would also switch off the optimized-image disk cache.
 		assert.doesNotMatch(config, /isrFlushToDisk/);
 	});

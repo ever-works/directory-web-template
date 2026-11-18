@@ -80,9 +80,7 @@ import { findOwnedProviderSubscription, SUBSCRIPTION_NOT_FOUND_MESSAGE } from '@
  *                   required: ["id", "status", "cancel_at_period_end", "current_period_end"]
  *                 message:
  *                   type: string
- *                   examples:
- *                     period_end: "Subscription will be cancelled at the end of the current period"
- *                     immediate: "Subscription cancelled immediately"
+ *                   example: "Subscription will be cancelled at the end of the current period"
  *               required: ["success", "data", "message"]
  *             examples:
  *               cancel_at_period_end:
