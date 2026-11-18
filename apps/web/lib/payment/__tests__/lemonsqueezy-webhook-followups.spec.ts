@@ -232,6 +232,55 @@ test('an unverified account holding the exact spelling blocks the match instead 
 	assert.deepEqual(asked, ['Buyer@Example.com']);
 });
 
+test('a lower-cased provider email matches an address stored with capitals, only when it is one verified user', async () => {
+	// An OAuth provider stored `Buyer@Example.com`; LemonSqueezy sends `buyer@example.com`.
+	const ignoringCase: string[] = [];
+	const finderFor = (matches: Array<{ id: string }>, state: EmailVerificationState) =>
+		createVerifiedEmailUserFinder({
+			getUserByEmail: async () => null,
+			getUsersByEmailIgnoringCase: async (email) => {
+				ignoringCase.push(email);
+				return matches;
+			},
+			loadVerificationState: async () => state
+		});
+	const oauthUser = stored({
+		email: 'Buyer@Example.com',
+		hasPasswordSignIn: false,
+		oauthAccounts: [{ email: null }]
+	});
+
+	assert.equal(await finderFor([{ id: 'user_1' }], oauthUser)('buyer@example.com'), 'user_1');
+	assert.deepEqual(ignoringCase, ['buyer@example.com']);
+	// The proof rule still applies to the case-insensitive match.
+	assert.equal(
+		await finderFor([{ id: 'user_1' }], stored({ email: 'Buyer@Example.com' }))('buyer@example.com'),
+		null
+	);
+	// Two accounts that differ only in case cannot say whose purchase it is.
+	assert.equal(await finderFor([{ id: 'user_1' }, { id: 'user_2' }], oauthUser)('buyer@example.com'), null);
+	assert.equal(await finderFor([], oauthUser)('buyer@example.com'), null);
+});
+
+test('an exact spelling decides before the case-insensitive lookup is asked', async () => {
+	let ignoringCase = 0;
+	const find = createVerifiedEmailUserFinder({
+		getUserByEmail: async (email) => (email === 'Buyer@Example.com' ? { id: 'squatter' } : null),
+		getUsersByEmailIgnoringCase: async () => {
+			ignoringCase += 1;
+			return [{ id: 'owner' }];
+		},
+		loadVerificationState: async () => stored({ email: 'Buyer@Example.com' })
+	});
+	assert.equal(await find('Buyer@Example.com'), null);
+	assert.equal(ignoringCase, 0);
+});
+
+test('the webhook route wires the case-insensitive email lookup', () => {
+	const source = readFileSync(join(__dirname, '../../../app/api/lemonsqueezy/webhook/route.ts'), 'utf8');
+	assert.ok(/createVerifiedEmailUserFinder\(\{[^}]*getUsersByEmailIgnoringCase,/.test(source));
+});
+
 test('a payment failure with no subscription row is acknowledged, not retried', async () => {
 	const { events, calls } = harness({
 		paymentFailed: async () => ({ success: true })

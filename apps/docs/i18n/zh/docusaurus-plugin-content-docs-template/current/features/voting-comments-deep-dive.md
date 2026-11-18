@@ -83,7 +83,7 @@ onMutate: async (type) => {
 
 ### 身份验证门
 
-尝试投票的未经身份验证的用户会显示登录模式，而不是收到错误：
+未经身份验证的用户尝试投票时会看到登录弹窗，并且 `handleVote` 会在启动变更之前抛出错误：
 
 ```ts
 if (!user) {
@@ -92,7 +92,7 @@ if (!user) {
 }
 ```
 
-该错误由突变的 `onError` 处理程序捕获，该处理程序检查身份验证消息并抑制错误 toast。
+该错误会传给调用 `handleVote` 的代码：不会发送请求，变更的 `onError` 处理程序也不会运行。`onError` 只处理失败的投票请求：它回滚乐观更新并显示错误提示（当消息与登录有关时，投票变更不显示该提示）。
 
 ### 查询配置
 
@@ -223,14 +223,14 @@ function useAdminComments({ page, limit, search }) {
 
 | 方法 | 端点 | 描述 |
 |--------|----------|-------------|
-| GET | `/api/items/:id/votes` | 获取投票数和用户的投票 |
-| POST | `/api/items/:id/votes` | 投票或更改投票 |
-| DELETE | `/api/items/:id/votes` | 删除投票 |
-| GET | `/api/items/:id/comments` | 获取带有用户数据的评论 |
-| POST | `/api/items/:id/comments` | 创建新评论 |
-| PUT | `/api/items/:id/comments/:commentId` | 更新评论 |
-| DELETE | `/api/items/:id/comments/:commentId` | 删除评论 |
-| GET | `/api/items/:id/comments/rating` | 获取总项目评级 |
+| GET | `/api/items/:slug/votes` | 获取投票数和用户的投票 |
+| POST | `/api/items/:slug/votes` | 投票或更改投票 |
+| DELETE | `/api/items/:slug/votes` | 删除投票 |
+| GET | `/api/items/:slug/comments` | 获取带有用户数据的评论 |
+| POST | `/api/items/:slug/comments` | 创建新评论 |
+| PUT | `/api/items/:slug/comments/:commentId` | 更新评论 |
+| DELETE | `/api/items/:slug/comments/:commentId` | 删除评论 |
+| GET | `/api/items/:slug/comments/rating` | 获取总项目评级 |
 
 ## 功能标志集成
 

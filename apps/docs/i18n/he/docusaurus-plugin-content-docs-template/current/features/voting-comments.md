@@ -18,7 +18,7 @@ sidebar_position: 0
 ```mermaid
 flowchart TD
     A["Component (UI)"] -->|"useItemVote(itemId)"| B["Vote Hook (optimistic)"]
-    B --> C["/api/items/:id/votes"]
+    B --> C["/api/items/:slug/votes"]
     C --> D["Database (votes table)"]
 ```
 
@@ -114,7 +114,7 @@ const {
 - `rating` -- דירוג כוכבים אופציונלי (1-5)
 - `userId` -- התייחסות מחבר
 - `itemId` -- פריט משויך
-- `user` -- נתוני משתמש מאוכלסים (שם, אימייל, תמונה)
+- `user` -- הפרופיל הציבורי של המחבר. GET ו-POST מחזירים את id, name, image, username, bio, jobTitle, company ו-location; תגובת PUT (עריכה) מחזירה רק את id, name ו-image. כתובת האימייל לעולם אינה מוחזרת.
 - `createdAt` / `updatedAt` -- חותמות זמן
 
 ### שילוב דירוג
@@ -155,11 +155,11 @@ const {
 
 | שיטה | נקודת קצה | תיאור |
 |--------|--------|----------------|
-| קבל | `/api/items/:id/comments` | אחזר הערות לפריט |
-| פוסט | `/api/items/:id/comments` | צור תגובה חדשה |
-| PUT | `/api/items/:id/comments/:commentId` | עדכן תגובה |
-| מחק | `/api/items/:id/comments/:commentId` | מחק תגובה |
-| קבל | `/api/items/:id/comments/rating` | קבל דירוג מצטבר |
+| GET | `/api/items/:slug/comments` | אחזר הערות לפריט |
+| POST | `/api/items/:slug/comments` | צור תגובה חדשה |
+| PUT | `/api/items/:slug/comments/:commentId` | עדכן תגובה |
+| DELETE | `/api/items/:slug/comments/:commentId` | מחק תגובה |
+| GET | `/api/items/:slug/comments/rating` | קבל דירוג מצטבר |
 
 ## שילוב דגל תכונה
 

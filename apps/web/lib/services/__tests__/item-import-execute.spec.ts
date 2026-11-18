@@ -196,6 +196,20 @@ describe('executeImport re-checks the rows the browser sends back (T-2527)', () 
 		);
 	});
 
+	it('reports a row marked valid with no category, an empty list or a blank name instead of writing category: []', async () => {
+		const result = await service.executeImport(
+			[row(0, { category: undefined }), row(1, { category: [] }), row(2, { category: ['  '] })],
+			clientOptions
+		);
+
+		assert.deepEqual(repo.created, []);
+		assert.deepEqual(
+			result.errors.map((error) => error.rowIndex),
+			[0, 1, 2]
+		);
+		for (const error of result.errors) assert.match(error.message, /^category(\.0)?: Category is required$/);
+	});
+
 	it('reports a second row with the same slug in one import instead of writing it twice', async () => {
 		const result = await service.executeImport(
 			[row(0, { slug: 'same' }), row(1, { slug: 'same', source_url: 'https://other.example.com' })],
@@ -286,6 +300,17 @@ describe('importRowSchema slug rule (T-2527)', () => {
 		]) {
 			assert.equal(importRowSchema.safeParse({ ...base, slug }).success, false, `slug ${JSON.stringify(slug)}`);
 		}
+	});
+
+	it('rejects a category cell that splits into no category, as the execute step does', () => {
+		for (const category of [';', ' ; ', ';;']) {
+			assert.equal(
+				importRowSchema.safeParse({ ...base, category }).success,
+				false,
+				`category ${JSON.stringify(category)}`
+			);
+		}
+		assert.deepEqual(importRowSchema.parse({ ...base, category: ' tools ; ai ' }).category, ['tools', 'ai']);
 	});
 
 	it('accepts a well-formed slug, an empty slug cell or no slug column', () => {

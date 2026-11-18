@@ -83,7 +83,7 @@ onMutate: async (type) => {
 
 ### بوابة التوثيق
 
-يتم عرض نموذج تسجيل دخول مشروط للمستخدمين غير المصادقين الذين يحاولون التصويت بدلاً من تلقي خطأ:
+يُعرض نموذج تسجيل الدخول للمستخدمين غير المصادقين الذين يحاولون التصويت، ويرمي `handleVote` خطأً قبل أن يبدأ الطفرة:
 
 ```ts
 if (!user) {
@@ -92,7 +92,7 @@ if (!user) {
 }
 ```
 
-يتم اكتشاف الخطأ بواسطة معالج `onError` الخاص بالطفرة، الذي يتحقق من رسالة المصادقة ويمنع نخب الخطأ.
+يصل هذا الخطأ إلى الشيفرة التي استدعت `handleVote`: لا يُرسل أي طلب ولا يعمل معالج `onError` الخاص بالطفرة. يعالج `onError` طلب تصويت فاشلًا فقط: يتراجع عن التحديث المتفائل ويعرض إشعار خطأ (تتخطى طفرة التصويت الإشعار عندما تتعلق الرسالة بتسجيل الدخول).
 
 ### تكوين الاستعلام
 
@@ -223,14 +223,14 @@ function useAdminComments({ page, limit, search }) {
 
 | الطريقة | نقطة النهاية | الوصف |
 |--------|----------|-------------|
-| GET | `/api/items/:id/votes` | جلب عدد الأصوات وتصويت المستخدم |
-| POST | `/api/items/:id/votes` | الإدلاء بالتصويت أو تغييره |
-| DELETE | `/api/items/:id/votes` | إزالة التصويت |
-| GET | `/api/items/:id/comments` | جلب التعليقات مع بيانات المستخدم |
-| POST | `/api/items/:id/comments` | قم بإنشاء تعليق جديد |
-| PUT | `/api/items/:id/comments/:commentId` | تحديث تعليق |
-| DELETE | `/api/items/:id/comments/:commentId` | احذف تعليق |
-| GET | `/api/items/:id/comments/rating` | الحصول على تصنيف البند الإجمالي |
+| GET | `/api/items/:slug/votes` | جلب عدد الأصوات وتصويت المستخدم |
+| POST | `/api/items/:slug/votes` | الإدلاء بالتصويت أو تغييره |
+| DELETE | `/api/items/:slug/votes` | إزالة التصويت |
+| GET | `/api/items/:slug/comments` | جلب التعليقات مع بيانات المستخدم |
+| POST | `/api/items/:slug/comments` | قم بإنشاء تعليق جديد |
+| PUT | `/api/items/:slug/comments/:commentId` | تحديث تعليق |
+| DELETE | `/api/items/:slug/comments/:commentId` | احذف تعليق |
+| GET | `/api/items/:slug/comments/rating` | الحصول على تصنيف البند الإجمالي |
 
 ## ميزة تكامل العلم
 

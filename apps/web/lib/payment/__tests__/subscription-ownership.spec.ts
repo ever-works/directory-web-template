@@ -5,6 +5,7 @@ import {
 	findOwnedLemonSqueezySubscription,
 	findOwnedProviderSubscription,
 	isEmailVerifiedForOwnership,
+	isOwnStripeSubscription,
 	SUBSCRIPTION_NOT_FOUND_MESSAGE,
 	type EmailVerificationState
 } from '../subscription-ownership';
@@ -195,6 +196,46 @@ describe('findOwnedProviderSubscription', () => {
 		providerCalls.length = 0;
 		await findOwnedProviderSubscription('victim', 'stripe', 'sub_VICTIM', byProvider);
 		assert.deepEqual(providerCalls, [['stripe', 'sub_VICTIM']]);
+	});
+});
+
+describe('isOwnStripeSubscription', () => {
+	// `sub_NEW` was just created for the victim by POST /api/stripe/subscription; the webhook has not
+	// written its row yet. Stripe bills it to the victim's own customer.
+	const customers: Record<string, string> = { victim: 'cus_VICTIM', attacker: 'cus_ATTACKER' };
+	const stripe: Record<string, string> = { sub_NEW: 'cus_VICTIM', sub_VICTIM: 'cus_VICTIM' };
+	const stripeCalls: string[] = [];
+	const lookups = {
+		findRow: (id: string) => byProvider('stripe', id),
+		findUserCustomerId: async (userId: string) => customers[userId] ?? null,
+		fetchSubscriptionCustomerId: async (id: string) => {
+			stripeCalls.push(id);
+			return stripe[id] ?? null;
+		}
+	};
+
+	it('lets the owner of the local row act, and nobody else, without asking Stripe', async () => {
+		stripeCalls.length = 0;
+		assert.equal(await isOwnStripeSubscription('victim', 'sub_VICTIM', lookups), true);
+		assert.equal(await isOwnStripeSubscription('attacker', 'sub_VICTIM', lookups), false);
+		assert.equal(await isOwnStripeSubscription('victim', 'sub_ATTACKER', lookups), false);
+		assert.deepEqual(stripeCalls, []);
+	});
+
+	it("before the webhook writes the row, accepts the subscription Stripe bills to the user's own customer", async () => {
+		assert.equal(await isOwnStripeSubscription('victim', 'sub_NEW', lookups), true);
+		assert.equal(await isOwnStripeSubscription('attacker', 'sub_NEW', lookups), false);
+	});
+
+	it('refuses an id Stripe does not know, a user without a Stripe customer, or a malformed id', async () => {
+		assert.equal(await isOwnStripeSubscription('victim', 'sub_UNKNOWN', lookups), false);
+		assert.equal(await isOwnStripeSubscription('no_customer', 'sub_NEW', lookups), false);
+		stripeCalls.length = 0;
+		for (const id of ['', '   ', undefined, null, 42, 'sub_../../customers', 'cus_VICTIM']) {
+			assert.equal(await isOwnStripeSubscription('victim', id, lookups), false);
+		}
+		assert.equal(await isOwnStripeSubscription(undefined, 'sub_NEW', lookups), false);
+		assert.deepEqual(stripeCalls, []);
 	});
 });
 

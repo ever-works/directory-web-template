@@ -491,8 +491,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/tsconfig
       '@next/env':
-        specifier: ^16.3.8
-        version: 16.3.8
+        specifier: ^16.4.5
+        version: 16.4.5
       '@swc/helpers':
         specifier: ^0.5.17
         version: 0.5.19
@@ -3618,9 +3618,6 @@ packages:
 
   '@napi-rs/wasm-runtime@0.2.12':
     resolution: {integrity: sha512-ZVWUcfwY4E/yPitQJl481FjFo3K22D6qF0DuFH6Y/nbnE11GY5uguDxZMGXPQ8WQ0128MXQD7TnfHyK4oWoIJQ==}
-
-  '@next/env@16.3.8':
-    resolution: {integrity: sha512-Al9zqHVV7TJv0eFuOU4U7Lvv74PTih4Ch63sk2xCIpSTkE3udFnaOcnzP2lQVymiL7yS9Cj2iClUXlR3EQ5sEw==}
 
   '@next/env@16.4.5':
     resolution: {integrity: sha512-JwSPwpdkZL5VMl2jA/q+JI8MZdweAL3xmw5/tb9y/TLtmS0YXZnmYDzSihwk8xTj1OL+WM53gTqaj96yuLp6Xw==}
@@ -17870,8 +17867,6 @@ snapshots:
       '@emnapi/runtime': 1.10.0
       '@tybys/wasm-util': 0.10.1
     optional: true
-
-  '@next/env@16.3.8': {}
 
   '@next/env@16.4.5': {}
 

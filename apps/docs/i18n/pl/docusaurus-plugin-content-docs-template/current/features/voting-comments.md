@@ -18,7 +18,7 @@ System głosowania wykorzystuje model głosowania na element, w którym każdy u
 ```mermaid
 flowchart TD
     A["Component (UI)"] -->|"useItemVote(itemId)"| B["Vote Hook (optimistic)"]
-    B --> C["/api/items/:id/votes"]
+    B --> C["/api/items/:slug/votes"]
     C --> D["Database (votes table)"]
 ```
 
@@ -114,7 +114,7 @@ Każdy komentarz zawiera:
 - `rating` -- Opcjonalna ocena w postaci gwiazdek (1-5)
 - `userId` -- Referencje autora
 - `itemId` -- Powiązany element
-- `user` -- Wypełnione dane użytkownika (imię i nazwisko, adres e-mail, zdjęcie)
+- `user` -- Publiczny profil autora. GET i POST zwracają id, name, image, username, bio, jobTitle, company i location; odpowiedź PUT (edycja) zwraca tylko id, name i image. Adres e-mail nigdy nie jest zwracany.
 - `createdAt` / `updatedAt` -- Znaczniki czasu
 
 ### Integracja ocen
@@ -155,11 +155,11 @@ const {
 
 | Metoda | Punkt końcowy | Opis |
 |--------|----------|------------|
-| OTRZYMAJ | `/api/items/:id/comments` | Pobierz komentarze do elementu |
-| POST | `/api/items/:id/comments` | Utwórz nowy komentarz |
-| POSTAW | `/api/items/:id/comments/:commentId` | Zaktualizuj komentarz |
-| USUŃ | `/api/items/:id/comments/:commentId` | Usuń komentarz |
-| OTRZYMAJ | `/api/items/:id/comments/rating` | Uzyskaj ocenę zbiorczą |
+| GET | `/api/items/:slug/comments` | Pobierz komentarze do elementu |
+| POST | `/api/items/:slug/comments` | Utwórz nowy komentarz |
+| PUT | `/api/items/:slug/comments/:commentId` | Zaktualizuj komentarz |
+| DELETE | `/api/items/:slug/comments/:commentId` | Usuń komentarz |
+| GET | `/api/items/:slug/comments/rating` | Uzyskaj ocenę zbiorczą |
 
 ## Integracja flagi funkcji
 

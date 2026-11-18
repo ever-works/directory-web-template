@@ -7,6 +7,15 @@ import { generateImageRemotePatterns } from './lib/utils/image-domains';
 import { DEFAULT_LOCALE, LOCALES } from './lib/i18n/locales';
 const isDev = process.env.NODE_ENV === 'development';
 
+/**
+ * The in-memory page cache bound in MB (Spec 061): a positive, finite `NEXT_CACHE_MAX_MEMORY_MB`,
+ * else 64. `Infinity` or garbage must not lift the bound.
+ */
+function pageCacheMemoryMb(value: string | undefined): number {
+	const mb = Number(value);
+	return Number.isFinite(mb) && mb > 0 ? mb : 64;
+}
+
 const nextConfig: NextConfig = {
 	turbopack: {
 		root: path.join(__dirname, '../..')
@@ -30,10 +39,7 @@ const nextConfig: NextConfig = {
 	// `experimental.isrFlushToDisk` keeps its default: turning it off would also turn off
 	// the optimized-image disk cache.
 	cacheHandler: path.join(__dirname, 'cache-handler.cjs'),
-	cacheMaxMemorySize:
-		(Number(process.env.NEXT_CACHE_MAX_MEMORY_MB) > 0 ? Number(process.env.NEXT_CACHE_MAX_MEMORY_MB) : 64) *
-		1024 *
-		1024,
+	cacheMaxMemorySize: pageCacheMemoryMb(process.env.NEXT_CACHE_MAX_MEMORY_MB) * 1024 * 1024,
 	experimental: {
 		optimizePackageImports: ['@heroui/react', 'lucide-react']
 	},

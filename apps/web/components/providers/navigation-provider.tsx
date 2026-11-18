@@ -13,14 +13,16 @@ interface NavigationContextType {
 const NavigationContext = createContext<NavigationContextType | null>(null);
 
 /**
- * Current query string (without `?`), or `''` until it is known in the browser.
+ * Current query string (without `?`). Until the browser has reported it, `fallback`:
+ * a page that renders per request (a filtered listing) passes the query it was rendered
+ * for, so its server HTML keeps the filters in its links; cached pages have none (`''`).
  *
  * Use this instead of `useSearchParams()` in components that render page content
  * on cached (ISR) pages: `useSearchParams()` there bails the component tree out
  * to client rendering up to the closest Suspense boundary (Spec 061).
  */
-export function useCurrentSearch(): string {
-	return useContext(NavigationContext)?.search ?? '';
+export function useCurrentSearch(fallback = ''): string {
+	return useContext(NavigationContext)?.search ?? fallback;
 }
 
 export function useNavigation(): NavigationContextType {

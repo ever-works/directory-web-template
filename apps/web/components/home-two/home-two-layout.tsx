@@ -42,6 +42,8 @@ type Home2LayoutProps = {
   items: ItemData[];
   filteredAndSortedItems: ItemData[];
   searchEnabled?: boolean;
+  /** Query string (without `?`) of a filtered listing rendered per request. */
+  search?: string;
 };
 
 export function HomeTwoLayout(props: Home2LayoutProps) {
@@ -82,6 +84,7 @@ export function HomeTwoLayout(props: Home2LayoutProps) {
           tags={props.tags}
           items={props.filteredAndSortedItems}
           config={{ ...CardPresets.homeTwoListing, perPage: itemsPerPage }}
+          search={props.search}
         />
       </Container>
     </div>

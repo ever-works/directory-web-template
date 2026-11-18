@@ -33,6 +33,8 @@ export interface BaseCardProps {
   tags: Tag[];
   items: ItemData[];
   totalCount?: number;
+  /** Query string (without `?`) the page was rendered for, on listings rendered per request. */
+  search?: string;
 }
 
 export interface CardConfigOptions {
@@ -171,7 +173,7 @@ export function SharedCard(props: ExtendedCardProps) {
   const locale = useLocale();
   // Not useSearchParams(): this grid renders on cached (ISR) listing pages, where that
   // hook would bail the whole page out to client rendering (Spec 061).
-  const currentSearch = useCurrentSearch();
+  const currentSearch = useCurrentSearch(props.search);
   const searchParams = useMemo(() => new URLSearchParams(currentSearch), [currentSearch]);
 
   // Spec 020: when the parent already sliced server-side (`total` exceeds

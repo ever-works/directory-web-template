@@ -4,11 +4,12 @@ import { DEFAULT_LOCALE } from '@/lib/constants';
 
 /**
  * Lives outside `[locale]`, and the root layout only passes children through
- * (Spec 061), so this page renders the document shell itself.
+ * (Spec 061), so this page renders the document shell itself. Without the locale
+ * cookie redirect: there is no `/<locale>/unauthorized`.
  */
 export default function UnauthorizedPage() {
 	return (
-		<DocumentShell locale={DEFAULT_LOCALE}>
+		<DocumentShell locale={DEFAULT_LOCALE} localeRedirect={false}>
 			<UnauthorizedContent />
 		</DocumentShell>
 	);

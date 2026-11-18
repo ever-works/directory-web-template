@@ -18,7 +18,7 @@ sidebar_position: 0
 ```mermaid
 flowchart TD
     A["Component (UI)"] -->|"useItemVote(itemId)"| B["Vote Hook (optimistic)"]
-    B --> C["/api/items/:id/votes"]
+    B --> C["/api/items/:slug/votes"]
     C --> D["Database (votes table)"]
 ```
 
@@ -114,7 +114,7 @@ const {
 - `rating` -- Оценка със звезди по избор (1-5)
 - `userId` -- Справка за автора
 - `itemId` -- Свързан артикул
-- `user` -- Попълнени потребителски данни (име, имейл, изображение)
+- `user` -- Публичният профил на автора. GET и POST връщат id, name, image, username, bio, jobTitle, company и location; отговорът на PUT (редакция) връща само id, name и image. Имейлът никога не се връща.
 - `createdAt` / `updatedAt` -- Времеви клейма
 
 ### Интегриране на рейтинг
@@ -155,11 +155,11 @@ const {
 
 | Метод | Крайна точка | Описание |
 |--------|----------|-------------|
-| ВЗЕМЕТЕ | `/api/items/:id/comments` | Извличане на коментари за елемент |
-| ПУБЛИКАЦИЯ | `/api/items/:id/comments` | Създайте нов коментар |
-| ПОСТАВЕТЕ | `/api/items/:id/comments/:commentId` | Актуализиране на коментар |
-| ИЗТРИВАНЕ | `/api/items/:id/comments/:commentId` | Изтриване на коментар |
-| ВЗЕМЕТЕ | `/api/items/:id/comments/rating` | Вземете обобщена оценка |
+| GET | `/api/items/:slug/comments` | Извличане на коментари за елемент |
+| POST | `/api/items/:slug/comments` | Създайте нов коментар |
+| PUT | `/api/items/:slug/comments/:commentId` | Актуализиране на коментар |
+| DELETE | `/api/items/:slug/comments/:commentId` | Изтриване на коментар |
+| GET | `/api/items/:slug/comments/rating` | Вземете обобщена оценка |
 
 ## Интегриране на флаг за функции
 

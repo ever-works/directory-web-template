@@ -168,6 +168,10 @@ export function useItemVote(itemId: string) {
 		onError: (error, _, context) => {
 			if (context?.previousVotes) {
 				queryClient.setQueryData(['item-votes', itemId], context.previousVotes);
+			} else if (context) {
+				// Nothing was cached before the optimistic update: fetch the real count again
+				// rather than keep the optimistic one.
+				queryClient.invalidateQueries({ queryKey: ['item-votes', itemId], exact: true });
 			}
 			if (context?.previousActivity) {
 				for (const [key, value] of context.previousActivity) {
@@ -254,6 +258,10 @@ export function useItemVote(itemId: string) {
 		onError: (error, _, context) => {
 			if (context?.previousVotes) {
 				queryClient.setQueryData(['item-votes', itemId], context.previousVotes);
+			} else if (context) {
+				// Nothing was cached before the optimistic update: fetch the real count again
+				// rather than keep the optimistic one.
+				queryClient.invalidateQueries({ queryKey: ['item-votes', itemId], exact: true });
 			}
 			if (context?.previousActivity) {
 				for (const [key, value] of context.previousActivity) {
