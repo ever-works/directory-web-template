@@ -71,6 +71,14 @@ when many submissions queue up.
   use the same lookup and treat a missing user id or a failed lookup
   as not admin (`requireAdmin()` then redirects to `/unauthorized`,
   `checkIsAdmin()` returns `false`). T-2637 (#1148).
+- [x] AC-8: The admin survey edit, preview and responses pages
+  (`apps/web/app/[locale]/admin/surveys/[slug]/{edit,preview,responses}/page.tsx`)
+  await `requireAdmin()` on the server before they read the survey,
+  in the page and, for preview and responses, in `generateMetadata`:
+  signed out (including a session ended after a password change) goes
+  to admin sign-in, a user without the live admin role or with a
+  failed lookup goes to `/unauthorized`, and the survey is never
+  queried for either. T-2645 (#1154).
 
 ## 7. Out-of-Scope Considerations
 
@@ -108,6 +116,12 @@ catch a failed lookup; the guards never read the claim and answer
 "not admin" for a missing id or a failed lookup) and the Playwright
 spec `apps/web-e2e/tests/admin/admin-client-detail-live-role.spec.ts`
 (a signed-in client ends on `/unauthorized`).
+
+AC-8: `apps/web/lib/auth/__tests__/admin-survey-pages.spec.ts` loads
+the three survey pages with the session, the role lookup and the
+survey service stubbed, so the real `requireAdmin()` runs: every
+refused session is redirected and the survey is not read; an admin
+gets the page.
 
 ## 13. References
 
