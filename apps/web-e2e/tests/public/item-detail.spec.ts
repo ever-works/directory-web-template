@@ -54,6 +54,8 @@ test.describe('Public: Item Detail Page', () => {
 	// After a client-side navigation Next.js streams the page's metadata in: the URL changes
 	// first and the <head> tags follow (~300 ms on demodev). Wait for them rather than count once.
 	test('item detail page exposes canonical or og:url meta', async ({ page }) => {
+		// The navigation waits plus the full metadata poll can outlast the default test budget.
+		test.slow();
 		const href = await clickFirstItem(page);
 		test.skip(href === null, 'No items available');
 		await expect
@@ -67,6 +69,8 @@ test.describe('Public: Item Detail Page', () => {
 	});
 
 	test('item detail page exposes Open Graph title meta', async ({ page }) => {
+		// The navigation waits plus the full metadata poll can outlast the default test budget.
+		test.slow();
 		const href = await clickFirstItem(page);
 		test.skip(href === null, 'No items available');
 		const ogTitle = page.locator('meta[property="og:title"]');
