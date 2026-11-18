@@ -382,6 +382,11 @@ async function supabaseGuard(req: NextRequest, baseRes: NextResponse): Promise<N
 
 /* ──────────────────────────────────── Main middleware ─────────────────────────────────── */
 
+/** `/discover/<n>/cached` and `/cached-category/...`: rewrite targets of next.config.ts (Spec 061). */
+function isCachedListingTwinPath(pathWithoutLocale: string): boolean {
+	return /^\/discover\/[^/]+\/cached\/?$/.test(pathWithoutLocale) || /^\/cached-category(\/|$)/.test(pathWithoutLocale);
+}
+
 export default async function proxy(req: NextRequest) {
 	const cfg = getAuthConfig();
 	const originalPathname = req.nextUrl.pathname;
@@ -397,6 +402,13 @@ export default async function proxy(req: NextRequest) {
 		const blocked = await adminApiEdgeGuard(req);
 		if (blocked) return blocked;
 		return NextResponse.next();
+	}
+
+	// Spec 061: the cached listing twins are rewrite targets only (next.config.ts
+	// rewrites run after this proxy, so a rewritten request never shows these paths
+	// here). Requested directly they would serve unfiltered, separately cached copies.
+	if (isCachedListingTwinPath(resolveLocalePrefix(originalPathname).pathWithoutLocale)) {
+		return new NextResponse(null, { status: 404 });
 	}
 
 	// Pattern C — server-side Accept-Language redirect.

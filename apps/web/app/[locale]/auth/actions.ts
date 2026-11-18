@@ -24,6 +24,7 @@ import {
 	logActivity,
 	updateUser,
 	setUserPasswordHash,
+	getSignInPasswordHash,
 	updateUserVerification,
 	getClientAccountByEmail,
 	getClientProfileByUserId,
@@ -462,7 +463,8 @@ export const updatePassword = validatedActionWithUser(updatePasswordSchema, asyn
 		return { error: 'User not found' };
 	}
 
-	const isPasswordValid = await comparePasswords(currentPassword, dbUser.passwordHash);
+	// The one hash sign-in accepts (see getSignInPasswordHash), and the store sign-in reads.
+	const isPasswordValid = await comparePasswords(currentPassword, await getSignInPasswordHash(dbUser));
 
 	if (!isPasswordValid) {
 		return { error: 'Current password is incorrect.' };
@@ -499,15 +501,13 @@ export const deleteAccount = validatedActionWithUser(deleteAccountSchema, async 
 		return { error: 'User not found' };
 	}
 
-	// Two password stores coexist (mirrors signInAction):
-	// - Client users (the common case): hash lives on accounts.passwordHash
-	//   (provider='credentials'), verified via verifyClientPassword.
-	// - Admin users: hash lives on users.passwordHash, verified directly.
-	// Try the client path first, then fall back to the admin path so this
-	// works for either user type without forcing the caller to know which.
-	const isClientPasswordValid = await verifyClientPassword(user.email!, password);
-	const isPasswordValid =
-		isClientPasswordValid || (await comparePasswords(password, dbUser.passwordHash));
+	// Two password stores coexist: client users' hash lives on their credentials
+	// account (accounts.passwordHash), admin users' hash on users.passwordHash.
+	// Check only the one hash sign-in accepts for this user (getSignInPasswordHash),
+	// never a match in either store: a stale hash in the other one (e.g. the seed
+	// password on a seeded admin's credentials row) must not authorize deleting the
+	// account. A failed role lookup throws, so nothing is deleted.
+	const isPasswordValid = await comparePasswords(password, await getSignInPasswordHash(dbUser));
 	if (!isPasswordValid) {
 		return { error: 'Incorrect password. Account deletion failed.' };
 	}
@@ -714,10 +714,8 @@ export const deactivateAccount = validatedActionWithUser(deactivateAccountSchema
 		return { error: 'Account is already deactivated.' };
 	}
 
-	// Mirror the same dual-path password check used by deleteAccount.
-	const isClientPasswordValid = await verifyClientPassword(user.email!, password);
-	const isPasswordValid =
-		isClientPasswordValid || (await comparePasswords(password, dbUser.passwordHash));
+	// Same check as deleteAccount: only the one hash sign-in accepts for this user.
+	const isPasswordValid = await comparePasswords(password, await getSignInPasswordHash(dbUser));
 	if (!isPasswordValid) {
 		return { error: 'Incorrect password. Account deactivation failed.' };
 	}

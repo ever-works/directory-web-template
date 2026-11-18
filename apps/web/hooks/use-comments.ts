@@ -42,7 +42,10 @@ export function useComments(itemId: string) {
     },
     staleTime: 2 * 60 * 1000, // 2 minutes - balance between freshness and stability
     gcTime: 10 * 60 * 1000, // 10 minutes - match global default
-    refetchOnMount: false, // Don't refetch if data is fresh
+    // Always refetch on mount. The item page is cached (ISR, Spec 061), so the comments it
+    // hydrates can be minutes old, and a visitor who just posted one must see it on reload.
+    // (Before Spec 061 the page was rendered per request with fresh comments.)
+    refetchOnMount: 'always',
     refetchOnWindowFocus: false, // Prevent flash on window focus
   });
 
@@ -73,8 +76,12 @@ export function useComments(itemId: string) {
     },
     onSuccess: async (newComment) => {
       if (newComment) {
+        // The list refetches on mount: a GET still in flight would overwrite this write.
+        await queryClient.cancelQueries({ queryKey: ["comments", itemId] });
         // Optimistically update cache with server-returned comment data
-        queryClient.setQueryData<CommentWithUser[]>(["comments", itemId], (old = []) => {
+        queryClient.setQueryData<CommentWithUser[]>(["comments", itemId], (old) => {
+          // Not loaded yet: no one-item list; the refetch below brings the full one.
+          if (!old) return old;
           // Check if comment already exists to prevent duplicates
           const commentExists = old.some(c => c.id === newComment.id);
           if (commentExists) {
@@ -83,6 +90,9 @@ export function useComments(itemId: string) {
           // Add new comment at the beginning
           return [newComment, ...old];
         });
+        // Then reload the list from the server: the cancelled refetch must not leave this
+        // list marked fresh (Spec 061).
+        void queryClient.invalidateQueries({ queryKey: ["comments", itemId], exact: true });
         dispatchCommentEvent(newComment);
         // Force refetch rating query to show updated data immediately
         await queryClient.refetchQueries({ queryKey: ["item-rating", itemId] });
@@ -155,12 +165,18 @@ export function useComments(itemId: string) {
     },
     onSuccess: async (updatedComment) => {
       if (updatedComment) {
+        // The list refetches on mount: a GET still in flight would overwrite this write.
+        await queryClient.cancelQueries({ queryKey: ["comments", itemId] });
         // Optimistically update cache with server-returned comment data
-        queryClient.setQueryData<CommentWithUser[]>(["comments", itemId], (old = []) => {
+        queryClient.setQueryData<CommentWithUser[]>(["comments", itemId], (old) => {
+          if (!old) return old;
           return old.map(comment =>
             comment.id === updatedComment.id ? updatedComment : comment
           );
         });
+        // Then reload the list from the server: the cancelled refetch must not leave this
+        // list marked fresh (Spec 061).
+        void queryClient.invalidateQueries({ queryKey: ["comments", itemId], exact: true });
         dispatchCommentEvent(updatedComment);
         // Force refetch rating to reflect updated rating immediately
         await queryClient.refetchQueries({ queryKey: ["item-rating", itemId] });

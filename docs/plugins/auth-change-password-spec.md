@@ -122,14 +122,17 @@ exports only `POST`. The POST handler combines:
    session.user.id), eq(users.tenantId, tenantId)))
    .limit(1)`** — null → 404 `{ success: false,
    error: 'User not found' }`.
-8. **Credentials-account lookup + OAuth-account guard** —
-   the route reads the hash on the user's
+8. **`getSignInPasswordHash(user)` + OAuth-account
+   guard** — the helper (`lib/db/queries/user.queries.ts`,
+   shared with the `deleteAccount`, `deactivateAccount`
+   and `updatePassword` server actions) returns
+   `currentHash`, reading the hash on the user's
    `provider = 'credentials'` row in `accounts` (same
    user, same tenant), where client passwords live.
-   Only when neither that hash nor `users.passwordHash`
-   exists → 400 `{ success: false, error: 'Password
-   change not available for OAuth accounts. Please
-   contact support.' }`.
+   It returns `null` only when neither that hash nor
+   `users.passwordHash` exists → 400 `{ success: false,
+   error: 'Password change not available for OAuth
+   accounts. Please contact support.' }`.
 9. **`bcrypt.compare(currentPassword, currentHash)`**
    — `currentHash` is the hash sign-in accepts
    for this user (`lib/auth/credentials.ts`):

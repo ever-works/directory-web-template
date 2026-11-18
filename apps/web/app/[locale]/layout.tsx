@@ -13,6 +13,7 @@ import { Locale } from '@/lib/constants';
 import { Suspense } from 'react';
 import Script from 'next/script';
 import { ConditionalLayout } from '@/components/layout/conditional-layout';
+import { DocumentShell } from '@/components/layout/document-shell';
 import { siteConfig } from '@/lib/config';
 import { getSiteName, getSiteTagline, getSiteDescription } from '@/lib/seo/site-identity';
 import { generateOrganizationSchema, generateWebSiteSchema } from '@/lib/seo/schema';
@@ -161,9 +162,10 @@ export default async function RootLayout({
 	const organizationSchema = generateOrganizationSchema();
 	const websiteSchema = generateWebSiteSchema(locale, { name: await getSiteName(), description: await getSiteDescription() });
 
-	// Determine if the current locale is RTL
+	// The document shell (html lang/dir, fonts, theme providers) is rendered here, with the
+	// locale from the route, rather than in the root layout (Spec 061; see DocumentShell).
 	return (
-		<>
+		<DocumentShell locale={locale}>
 			{/*
 				Feed autodiscovery. React + Next.js hoists these <link>
 				tags into <head> automatically. Emitted in JSX (not via
@@ -262,6 +264,6 @@ export default async function RootLayout({
 
 				return <ThirdPartyAnalytics config={mergedConfig} />;
 			})()}
-		</>
+		</DocumentShell>
 	);
 }

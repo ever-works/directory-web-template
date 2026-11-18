@@ -88,13 +88,16 @@ exports only `POST`. The handler combines:
    `'Tenant not found'`.
 5. **User lookup by `id` AND `tenantId`** — not
    found → 404 `'User not found'`.
-6. **OAuth-account check** — no hash on the user's
+6. **OAuth-account check** — `getSignInPasswordHash`
+   returns `null`: no hash on the user's
    `credentials` account row AND no
    `users.passwordHash` → 400 `'Password change not
    available for OAuth accounts. Please contact
    support.'`.
 7. **`bcrypt.compare(currentPassword, hash)`** —
-   against the hash sign-in accepts:
+   against the hash sign-in accepts, as returned by
+   `getSignInPasswordHash` (the same check the
+   account deletion and deactivation actions use):
    `users.passwordHash` for an admin that has one,
    otherwise the credentials account hash. When there
    is no credentials account hash, the route falls

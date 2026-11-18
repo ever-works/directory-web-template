@@ -151,6 +151,34 @@ export async function setUserPasswordHash(userId: string, newPasswordHash: strin
 }
 
 /**
+ * The one password hash sign-in accepts for this user (`lib/auth/credentials.ts`): an admin with
+ * a `users.passwordHash` signs in with that hash only, everyone else with the hash on their
+ * `credentials` row in `accounts`. Check a password that a signed-in user submits to confirm a
+ * sensitive action (change password, delete or deactivate the account) against this hash alone.
+ * Accepting a match in either store would let a stale hash authorize the action, e.g. the seed
+ * password still on a seeded admin's credentials row after a change that wrote `users` only.
+ * A user with no credentials account hash gets `users.passwordHash`, the only hash they have
+ * (compatibility only: sign-in never reads it for a non-admin).
+ * Fails closed: a missing tenant or a failed role lookup throws instead of reading as "not an
+ * admin", which would check an admin against the credentials account hash.
+ * @param user - The user's `users` row (`id` and `passwordHash`)
+ * @returns The hash, or null when the user has no hash in either store (OAuth only)
+ */
+export async function getSignInPasswordHash(user: Pick<User, 'id' | 'passwordHash'>): Promise<string | null> {
+	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
+	if (user.passwordHash && (await isUserAdminOrThrow(user.id))) {
+		return user.passwordHash;
+	}
+	const [credentialsAccount] = await db
+		.select({ passwordHash: accounts.passwordHash })
+		.from(accounts)
+		.where(and(eq(accounts.userId, user.id), eq(accounts.provider, 'credentials'), eq(accounts.tenantId, tenantId)))
+		.limit(1);
+	return credentialsAccount?.passwordHash ?? user.passwordHash;
+}
+
+/**
  * Update user details
  * @param values - User values to update
  * @param userId - User ID
@@ -289,7 +317,7 @@ export async function updateClientProfileName(userId: string, name: string) {
 /**
  * Check if a user has an admin role, failing closed: a missing tenant or a database error
  * throws instead of reading as "not an admin". Use it where a wrong `false` would pick a
- * weaker check, such as the password store the change-password route verifies against.
+ * weaker check, such as the password store `getSignInPasswordHash` picks.
  * @param userId - User ID
  * @returns true if user has an admin role, false otherwise
  */

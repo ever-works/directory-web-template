@@ -18,6 +18,22 @@ const nextConfig: NextConfig = {
 	output: process.env.STANDALONE_BUILD === 'true' ? 'standalone' : undefined,
 	outputFileTracingRoot: path.join(__dirname, '../..'),
 	serverExternalPackages: ['postgres', 'bcryptjs', 'drizzle-orm'],
+	// Spec 061: public pages are cached (ISR). A cached item page is about 0.65 MB (HTML +
+	// RSC payload), and a directory with 4,000 items in 21 locales has ~86,000 of them, so
+	// writing every rendered page to disk (Next's default) can grow a pod's filesystem by
+	// tens of GB under crawler traffic. `cache-handler.cjs` keeps the runtime page cache in
+	// memory (unless `NEXT_ISR_FLUSH_TO_DISK=true` at server start), bounded by
+	// `NEXT_CACHE_MAX_MEMORY_MB` (read at build time), evicting least recently used pages;
+	// a CDN in front (Cloudflare) caches them too, from the `s-maxage` header. Next counts
+	// a cached item page as ~0.65 MB; it measured ~0.9 MB of heap + buffers, so the default
+	// 64 keeps the cache under ~90 MB. Raise it on pods with memory to spare.
+	// `experimental.isrFlushToDisk` keeps its default: turning it off would also turn off
+	// the optimized-image disk cache.
+	cacheHandler: path.join(__dirname, 'cache-handler.cjs'),
+	cacheMaxMemorySize:
+		(Number(process.env.NEXT_CACHE_MAX_MEMORY_MB) > 0 ? Number(process.env.NEXT_CACHE_MAX_MEMORY_MB) : 64) *
+		1024 *
+		1024,
 	experimental: {
 		optimizePackageImports: ['@heroui/react', 'lucide-react']
 	},
@@ -116,8 +132,42 @@ const nextConfig: NextConfig = {
 			{ source: '/:staticSlug(about|help|pricing|privacy-policy|terms-of-service|cookies|faq).md', destination: `/${DEFAULT_LOCALE}/static-md/:staticSlug` }
 		];
 
+		// Spec 061 — cached listings. `discover/[page]` (which also renders the site root)
+		// and `categories/[category]` read `searchParams` for search / sort / filters, so
+		// they render on every request. The plain URLs that make up nearly all traffic,
+		// and all crawler traffic, carry none of those parameters: send them to cached
+		// (ISR) twins that render once and are then served from the cache. A URL with
+		// any filter parameter skips these rules and reaches the dynamic route as before.
+		// Page numbers outside 1-999999 or with a leading zero (`/discover/0`, `?page=abc`)
+		// keep going to the dynamic routes, which coerce them as before.
+		// Must come before the generic `/:path` rule below.
+		const query = (key: string) => ({ type: 'query' as const, key });
+		const discoverFilters = ['q', 'sort', 'tags', 'categories'].map(query);
+		const categoryFilters = ['q', 'sort', 'tags'].map(query);
+		const cachedListings = [
+			{ source: `/:locale(${localeGroup})`, missing: discoverFilters, destination: '/:locale/discover/1/cached' },
+			{ source: `/:locale(${localeGroup})/discover`, missing: discoverFilters, destination: '/:locale/discover/1/cached' },
+			{
+				source: `/:locale(${localeGroup})/discover/:page([1-9]\\d{0,5})`,
+				missing: discoverFilters,
+				destination: '/:locale/discover/:page/cached'
+			},
+			{
+				source: `/:locale(${localeGroup})/categories/:category`,
+				missing: [...categoryFilters, query('page')],
+				destination: '/:locale/cached-category/:category/1'
+			},
+			{
+				source: `/:locale(${localeGroup})/categories/:category`,
+				has: [{ type: 'query' as const, key: 'page', value: '(?<page>[1-9]\\d{0,5})' }],
+				missing: categoryFilters,
+				destination: '/:locale/cached-category/:category/:page'
+			}
+		];
+
 		return [
 			...mdMirrors,
+			...cachedListings,
 			{
 				source: '/:path',
 				destination: '/:path/discover/1'

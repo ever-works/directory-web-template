@@ -7,11 +7,18 @@ import { generateListingMetadata } from "@/lib/seo/listing-metadata";
 import { toTitleCase } from "@/lib/utils";
 import { findTagBySegment } from "@/lib/seo/route-segment";
 import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-json-ld";
-import { getTranslations } from "next-intl/server";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 import { DEFAULT_LOCALE } from "@/lib/constants";
 
 // Enable ISR with 10 minutes revalidation
 export const revalidate = 600;
+export const dynamicParams = true;
+
+// Empty list: every tag page is ISR, rendered on its first visit and cached
+// afterwards. Without it the dynamic segment renders on every request (Spec 061).
+export async function generateStaticParams() {
+  return [];
+}
 
 export async function generateMetadata({
   params,
@@ -60,6 +67,8 @@ export default async function TagListing({
 
   const resolvedParams = await params;
   const { locale, tag } = resolvedParams;
+  // Sets the request locale for next-intl's server helpers (Spec 061).
+  setRequestLocale(locale);
 
   // Fetch all items (filtering will be done client-side via FilterURLParser)
   const { categories, tags, items } = await getCachedItems({ lang: locale });
