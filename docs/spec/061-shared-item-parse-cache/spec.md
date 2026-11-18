@@ -140,6 +140,16 @@ Found on a local production build with that data repo:
   heap by gigabytes (a heap snapshot after 75 s of load: 452 MB under the 5-minute timer
   list alone, ~11 timers per request). Short timers (retry back-off, at most 30 s) still
   run.
+- **R15.** A cold pod is not restarted while it warms up. The Ever Works k8s plugin's
+  startup probe requests `GET /` (10 s timeout, every 10 s, 30 tries). The home page lists
+  the whole catalogue, and on a busy node its first render, together with the start-up
+  content sync (pull, cache clear, location index rebuild), outlasted the timeout for
+  minutes. On mcpserver.ever.works after the release, one pod used up all 300 s and was
+  restarted. The proxy therefore answers `GET /` from `kube-probe/*` with `200 ok` at once
+  (`lib/startup-probe.ts`): readiness and liveness already use `/api/health`, and visitors,
+  crawlers and monitors still get the page. `instrumentation.ts` reads the default
+  locale's content in the background when the server starts, so the first requests join
+  that read instead of starting it.
 
 ## 4. Out of scope
 
