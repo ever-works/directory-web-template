@@ -61,6 +61,8 @@ const stubs: Record<string, unknown> = {
 	'drizzle-orm': { eq: () => ({}), and: () => ({}) },
 	'@/lib/db/queries': {
 		isUserAdminOrThrow: async () => false,
+		// develop's change-password route reads the current hash through this helper (#1150)
+		getSignInPasswordHash: async () => 'old-hash',
 		setUserPasswordHash: async () => undefined,
 		getUserPaymentAccountByProvider: async () => null,
 		setupUserPaymentAccount: async () => null
