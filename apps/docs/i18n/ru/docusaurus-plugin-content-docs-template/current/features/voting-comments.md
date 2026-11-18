@@ -18,7 +18,7 @@ sidebar_position: 0
 ```mermaid
 flowchart TD
     A["Component (UI)"] -->|"useItemVote(itemId)"| B["Vote Hook (optimistic)"]
-    B --> C["/api/items/:id/votes"]
+    B --> C["/api/items/:slug/votes"]
     C --> D["Database (votes table)"]
 ```
 
@@ -101,11 +101,7 @@ const {
   isUpdating,
   deleteComment,         // (commentId) => Promise
   isDeleting,
-  rateComment,           // ({ commentId, rating }) => void
-  isRatingComment,
-  updateCommentRating,   // ({ commentId, rating }) => void
-  isUpdatingRating,
-  commentRating,         // number
+  commentRating,         // { averageRating: number; totalRatings: number }
   isLoadingRating,
 } = useComments(itemId);
 ```
@@ -118,7 +114,7 @@ const {
 - `rating` -- Дополнительный звездный рейтинг (1–5)
 - `userId` -- Ссылка на автора
 - `itemId` -- Связанный элемент
-- `user` -- Заполненные данные пользователя (имя, адрес электронной почты, изображение)
+- `user` -- Публичный профиль автора. GET и POST возвращают id, name, image, username, bio, jobTitle, company и location; ответ PUT (редактирование) возвращает только id, name и image. Адрес электронной почты никогда не возвращается.
 - `createdAt` / `updatedAt` -- Метки времени
 
 ### Интеграция рейтингов
@@ -159,13 +155,11 @@ const {
 
 | Метод | Конечная точка | Описание |
 |--------|----------|-------------|
-| ПОЛУЧИТЬ | `/api/items/:id/comments` | Получить комментарии к элементу |
-| ПОСТ | `/api/items/:id/comments` | Создать новый комментарий |
-| ПУТЬ | `/api/items/:id/comments/:commentId` | Обновить комментарий |
-| УДАЛИТЬ | `/api/items/:id/comments/:commentId` | Удалить комментарий |
-| ПОСТ | `/api/items/:id/comments/rating` | Оценить комментарий |
-| ПУТЬ | `/api/items/:id/comments/rating` | Обновить рейтинг комментариев |
-| ПОЛУЧИТЬ | `/api/items/:id/comments/rating` | Получить совокупный рейтинг |
+| GET | `/api/items/:slug/comments` | Получить комментарии к элементу |
+| POST | `/api/items/:slug/comments` | Создать новый комментарий |
+| PUT | `/api/items/:slug/comments/:commentId` | Обновить комментарий |
+| DELETE | `/api/items/:slug/comments/:commentId` | Удалить комментарий |
+| GET | `/api/items/:slug/comments/rating` | Получить совокупный рейтинг |
 
 ## Интеграция флагов функций
 

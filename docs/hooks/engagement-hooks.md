@@ -140,11 +140,7 @@ function useComments(itemId: string): {
   isUpdating: boolean;
   deleteComment: (commentId: string) => Promise<void>;
   isDeleting: boolean;
-  rateComment: (data: { commentId: string; rating: number }) => void;
-  isRatingComment: boolean;
-  updateCommentRating: (data: { commentId: string; rating: number }) => void;
-  isUpdatingRating: boolean;
-  commentRating: number;
+  commentRating: { averageRating: number; totalRatings: number };
   isLoadingRating: boolean;
 }
 ```

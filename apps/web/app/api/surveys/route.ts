@@ -1,7 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
+import { checkAdminAuth } from '@/lib/auth/admin-guard';
+import { isAdmin } from '@/lib/db/roles';
 import { surveyService } from '@/lib/services/survey.service';
-import type { CreateSurveyData, SurveyFilters, SurveyStatusEnum, SurveyTypeEnum } from '@/lib/types/survey';
+import { buildSurveyListFilters } from '@/lib/services/survey-list-filters';
+import type { CreateSurveyData } from '@/lib/types/survey';
 import { Logger } from '@/lib/logger';
 import { checkDatabaseAvailability } from '@/lib/utils/database-check';
 import { safeErrorResponse } from '@/lib/utils/api-error';
@@ -14,7 +17,7 @@ const _logger = Logger.create('SurveyAPI');
  *   get:
  *     tags: ["Surveys"]
  *     summary: "Get surveys"
- *     description: "Retrieve surveys with optional filters"
+ *     description: "Retrieve surveys with optional filters. Non-admins (including anonymous callers) only get published surveys: their status filter is always published. Unknown type or status values are ignored."
  *     parameters:
  *       - name: "type"
  *         in: "query"
@@ -35,7 +38,7 @@ const _logger = Logger.create('SurveyAPI');
  *         schema:
  *           type: string
  *           enum: ["draft", "published", "closed"]
- *         description: "Filter by status"
+ *         description: "Filter by status (admins only; non-admins always get published)"
  *       - name: "page"
  *         in: "query"
  *         required: false
@@ -93,23 +96,11 @@ export async function GET(request: NextRequest) {
         const session = await auth();
         const { searchParams } = new URL(request.url);
 
-        const typeParam = searchParams.get('type');
-        const pageParam = searchParams.get('page');
-        const limitParam = searchParams.get('limit');
-        const statusParam = searchParams.get('status');
-
-        const pageParsed = pageParam ? parseInt(pageParam, 10) : undefined;
-        const limitParsed = limitParam ? parseInt(limitParam, 10) : undefined;
-        const page = pageParsed !== undefined && Number.isInteger(pageParsed) && pageParsed >= 1 ? pageParsed : undefined;
-        const limit = limitParsed !== undefined && Number.isInteger(limitParsed) ? Math.min(100, Math.max(1, limitParsed)) : undefined;
-
-        const filters: SurveyFilters = {
-            type: typeParam as SurveyTypeEnum,
-            itemId: searchParams.get('itemId') || undefined,
-            status: statusParam ? (statusParam as SurveyStatusEnum) : undefined,
-            page,
-            limit,
-        };
+        // Non-admins only ever see published surveys, whatever `status` asks for.
+        // The role comes from the database: the session's isAdmin claim is set at
+        // sign-in and stays true for the JWT's lifetime after the role is removed.
+        const userIsAdmin = session?.user?.id ? await isAdmin(session.user.id) : false;
+        const filters = buildSurveyListFilters(searchParams, userIsAdmin);
 
         const result = await surveyService.getMany(filters, session?.user?.id);
 
@@ -180,6 +171,8 @@ export async function GET(request: NextRequest) {
  *         description: "Survey created successfully"
  *       401:
  *         description: "Unauthorized"
+ *       403:
+ *         description: "Forbidden - the caller is not an admin"
  *       500:
  *         description: "Internal server error"
  */
@@ -189,14 +182,8 @@ export async function POST(request: NextRequest) {
         const dbCheck = checkDatabaseAvailability();
         if (dbCheck) return dbCheck;
 
-        const session = await auth();
-
-        if (!session?.user?.isAdmin) {
-            return NextResponse.json(
-                { success: false, error: 'Unauthorized' },
-                { status: 401 }
-            );
-        }
+        const authError = await checkAdminAuth();
+        if (authError) return authError;
 
         const body: CreateSurveyData = await request.json();
         const survey = await surveyService.create(body);

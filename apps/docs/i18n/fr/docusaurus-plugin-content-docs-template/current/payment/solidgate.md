@@ -237,7 +237,7 @@ private generatePaymentIntentSignature(
 The provider follows a three-tier lookup strategy for customer IDs:
 
 1. **User metadata** -- check `user.user_metadata.solidgate_customer_id`
-2. **Database** -- query the `PaymentAccount` table via `paymentAccountClient`
+2. **Database** -- query the `PaymentAccount` table via `getUserPaymentAccountByProvider` (`@/lib/db/queries`)
 3. **Create new** -- call the Solidgate `/customers` API and synchronize back to the database
 
 ```ts

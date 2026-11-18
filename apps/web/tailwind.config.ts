@@ -71,6 +71,20 @@ export default {
 					}
 				}
 			},
+			fontFamily: {
+				// Geist Mono is loaded in app/layout.tsx and exposed as --font-geist-mono.
+				mono: [
+					'var(--font-geist-mono)',
+					'ui-monospace',
+					'SFMono-Regular',
+					'Menlo',
+					'Monaco',
+					'Consolas',
+					'"Liberation Mono"',
+					'"Courier New"',
+					'monospace'
+				]
+			},
 			backdropBlur: {
 				xs: '2px'
 			},

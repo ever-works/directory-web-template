@@ -5,6 +5,7 @@ import bcrypt from 'bcryptjs';
 import { db } from '@/lib/db/drizzle';
 import { users } from '@/lib/db/schema';
 import { eq, and } from 'drizzle-orm';
+import { getSignInPasswordHash, setUserPasswordHash } from '@/lib/db/queries';
 import { ratelimit } from '@/lib/utils/rate-limit';
 import { sendPasswordChangeConfirmationEmail } from '@/lib/mail';
 import { passwordSchema } from '@/lib/validations/auth';
@@ -280,8 +281,18 @@ export async function POST(request: NextRequest) {
 			return NextResponse.json({ success: false, error: 'User not found' }, { status: 404 });
 		}
 
-		// Check if user has a password (OAuth users might not have one)
-		if (!user.passwordHash) {
+		// Verify the current password against the one hash sign-in accepts for this user
+		// (getSignInPasswordHash): an admin with users.passwordHash signs in with that hash
+		// only, everyone else with the credentials account hash. Accepting the other store as
+		// well would let a stale hash authorize the change, e.g. the seed password still on a
+		// seeded admin's credentials row after an earlier change wrote users.passwordHash only.
+		// The role lookup fails closed: an error goes to the 500 below instead of reading as
+		// "not an admin", which would check an admin against the credentials account hash.
+		const currentHash = await getSignInPasswordHash(user);
+
+		// Check if user has a password (OAuth users might not have one): null means no hash in
+		// either store
+		if (!currentHash) {
 			return NextResponse.json(
 				{
 					success: false,
@@ -291,14 +302,12 @@ export async function POST(request: NextRequest) {
 			);
 		}
 
-		// Verify current password
-		const isCurrentPasswordValid = await bcrypt.compare(currentPassword, user.passwordHash);
-		if (!isCurrentPasswordValid) {
+		if (!(await bcrypt.compare(currentPassword, currentHash))) {
 			return NextResponse.json({ success: false, error: 'Current password is incorrect' }, { status: 400 });
 		}
 
 		// Check if new password is different from current
-		const isSamePassword = await bcrypt.compare(newPassword, user.passwordHash);
+		const isSamePassword = await bcrypt.compare(newPassword, currentHash);
 		if (isSamePassword) {
 			return NextResponse.json(
 				{ success: false, error: 'New password must be different from current password' },
@@ -310,14 +319,8 @@ export async function POST(request: NextRequest) {
 		const saltRounds = 12;
 		const hashedNewPassword = await bcrypt.hash(newPassword, saltRounds);
 
-		// Update password in database
-		await db
-			.update(users)
-			.set({
-				passwordHash: hashedNewPassword,
-				updatedAt: new Date()
-			})
-			.where(and(eq(users.id, session.user.id), eq(users.tenantId, tenantId)));
+		// Update password in database: the credentials account, and users.passwordHash when set
+		await setUserPasswordHash(user.id, hashedNewPassword);
 
 		// Send confirmation email
 		try {
@@ -330,6 +333,7 @@ export async function POST(request: NextRequest) {
 				userAgent
 			};
 
+			// The provider result is not logged: Nodemailer's holds the recipient in `accepted` and `envelope.to`.
 			const emailResult = await sendPasswordChangeConfirmationEmail(
 				emailData.email,
 				emailData.userName,
@@ -337,7 +341,12 @@ export async function POST(request: NextRequest) {
 				emailData.userAgent
 			);
 
-			console.log('📧 Email result:', emailResult);
+			// Without a configured email service the helper returns `{ skipped: true }` instead of sending.
+			if (emailResult && 'skipped' in emailResult && emailResult.skipped) {
+				console.warn(`📧 Password change confirmation email skipped for user ${session.user.id}`);
+			} else {
+				console.log(`📧 Password change confirmation email sent for user ${session.user.id}`);
+			}
 		} catch (emailError) {
 			// Log email error but don't fail the password change
 			console.error('Email error details:', {

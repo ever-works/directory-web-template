@@ -6,7 +6,7 @@ sidebar_label: 055 Demo banner
 
 # Feature spec — `055-demo-banner`
 
-> **Status:** in-progress (shipped in code; the live check T-006 is open) · **Plan:** [`plan.md`](./plan.md) · **Tasks:** [`tasks.md`](./tasks.md)
+> **Status:** shipped (live on demo.ever.works since 2026-11-13, #1106) · **Plan:** [`plan.md`](./plan.md) · **Tasks:** [`tasks.md`](./tasks.md)
 
 ## 1. Summary
 

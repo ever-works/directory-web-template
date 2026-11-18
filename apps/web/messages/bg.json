@@ -40,7 +40,9 @@
 		}
 	},
 	"header": {
-		"OPEN_USER_MENU": "Отваряне на потребителското меню"
+		"OPEN_USER_MENU": "Отваряне на потребителското меню",
+		"SCROLL_TO_TOP": "Превъртане към началото на страницата",
+		"BACK_TO_TOP": "Нагоре"
 	},
 	"common": {
 		"DEMO_BANNER_TEXT": "Използвате демо акаунт. Намирате ли нашия софтуер за полезен?",
@@ -272,7 +274,9 @@
 		"BASIC_INFO": "Основна информация",
 		"CLOSE": "Затвори",
 		"VS": "срещу",
-		"COMPARISONS": "Сравнения"
+		"COMPARISONS": "Сравнения",
+		"RATE_STARS": "{count, plural, one {Оценете с # звезда} other {Оценете с # звезди}}",
+		"RATED_OUT_OF": "Оценка {value, number} от {max, number}"
 	},
 	"survey": {
 		"SURVEYS": "Анкети",
@@ -498,23 +502,25 @@
 		"REGIONAL_SERVICE": "Регионална услуга",
 		"NATIONAL_SERVICE": "Национална услуга",
 		"GLOBAL_SERVICE": "Глобална услуга",
-		"COMMENTS_DELETE_WARNING": "Are you sure you want to delete this comment? This action cannot be undone.",
-		"COMMENTS_HAVE_THOUGHTS": "Have thoughts?",
-		"COMMENTS_SHORTCUT": "Cmd/Ctrl + Enter to post",
-		"COMMENTS_POSTING": "Posting",
-		"COMMENTS_DELETE_TITLE": "Delete Comment",
-		"COMMENTS_DELETE_FAILED": "Failed to delete comment",
-		"COMMENTS_POSTED_SUCCESS": "Comment posted successfully!",
-		"COMMENTS_POST_FAILED": "Failed to post comment",
-		"COMMENTS_SAVING": "Saving",
-		"COMMENTS_DELETING": "Deleting",
-		"COMMENTS_POST": "Post",
-		"COMMENTS_UPDATED_SUCCESS": "Comment updated successfully!",
-		"COMMENTS_DELETED_SUCCESS": "Comment deleted successfully",
-		"COMMENTS_SIGN_IN_PROMPT": "Sign in to join the conversation",
-		"COMMENTS_EMPTY": "No comments yet. Be the first to share your thoughts!",
-		"COMMENTS_UPDATE_FAILED": "Failed to update comment",
-		"COMMENTS_PLACEHOLDER": "Add a comment..."
+		"COMMENTS_DELETE_WARNING": "Сигурни ли сте, че искате да изтриете този коментар? Това действие не може да бъде отменено.",
+		"COMMENTS_HAVE_THOUGHTS": "Имате мнение?",
+		"COMMENTS_VIEW_PROFILE": "Виж профила",
+		"COMMENTS_PROFILE": "Профил",
+		"COMMENTS_SHORTCUT": "Cmd/Ctrl + Enter за публикуване",
+		"COMMENTS_POSTING": "Публикуване",
+		"COMMENTS_DELETE_TITLE": "Изтриване на коментар",
+		"COMMENTS_DELETE_FAILED": "Неуспешно изтриване на коментара",
+		"COMMENTS_POSTED_SUCCESS": "Коментарът е публикуван успешно!",
+		"COMMENTS_POST_FAILED": "Неуспешно публикуване на коментара",
+		"COMMENTS_SAVING": "Запазване",
+		"COMMENTS_DELETING": "Изтриване",
+		"COMMENTS_POST": "Публикувай",
+		"COMMENTS_UPDATED_SUCCESS": "Коментарът е обновен успешно!",
+		"COMMENTS_DELETED_SUCCESS": "Коментарът е изтрит успешно",
+		"COMMENTS_SIGN_IN_PROMPT": "Влезте, за да се включите в разговора",
+		"COMMENTS_EMPTY": "Все още няма коментари. Бъдете първият, който сподели мнението си!",
+		"COMMENTS_UPDATE_FAILED": "Неуспешно обновяване на коментара",
+		"COMMENTS_PLACEHOLDER": "Добавете коментар..."
 	},
 	"footer": {
 		"FAQ": "Често задавани въпроси",

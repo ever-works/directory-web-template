@@ -1,5 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { requireAdminSession } from '@/lib/auth/admin-guard';
+import { PaymentProvider } from '@/lib/constants/payment';
 import { setupUserPaymentAccount } from '@/lib/db/queries';
+
+// setupUserPaymentAccount creates a payment_provider row for any name it has not seen,
+// so only the providers this app ships may reach it.
+const SUPPORTED_PROVIDERS: ReadonlySet<string> = new Set(Object.values(PaymentProvider));
 
 /**
  * @swagger
@@ -7,7 +13,9 @@ import { setupUserPaymentAccount } from '@/lib/db/queries';
  *   post:
  *     tags: ["Payment Accounts"]
  *     summary: "Create payment account"
- *     description: "Creates a new payment account for a user with a specific payment provider. Links the user to their customer ID in the payment provider's system. This is typically called after a successful customer creation in the payment provider."
+ *     description: "Admin only (401 without a session, 403 for a signed-in non-admin). Creates a new payment account for a user with a specific payment provider. Links the user to their customer ID in the payment provider's system. The payment providers do not call this route; they write through the database queries."
+ *     security:
+ *       - session: []
  *     requestBody:
  *       required: true
  *       content:
@@ -110,6 +118,14 @@ import { setupUserPaymentAccount } from '@/lib/db/queries';
  */
 export async function POST(request: NextRequest) {
   try {
+    // Admin only: the stored customer id is trusted by the billing portal, the invoice list and
+    // the Polar ownership check, so a signed-in user must not be able to point their own row at
+    // another customer. The providers write rows through the database queries, not this route.
+    const adminResult = await requireAdminSession();
+    if (adminResult instanceof NextResponse) {
+      return adminResult;
+    }
+
     // Parse body explicitly so malformed JSON / wrong content-type
     // returns a clean 400 rather than the generic 500 catch.
     let body: { provider?: unknown; userId?: unknown; customerId?: unknown } = {};
@@ -124,6 +140,10 @@ export async function POST(request: NextRequest) {
         { error: 'Provider is required' },
         { status: 400 }
       );
+    }
+
+    if (!SUPPORTED_PROVIDERS.has(provider)) {
+      return NextResponse.json({ error: 'Unsupported provider' }, { status: 400 });
     }
 
     if (!userId || typeof userId !== 'string') {
@@ -169,7 +189,9 @@ export async function POST(request: NextRequest) {
  *   put:
  *     tags: ["Payment Accounts"]
  *     summary: "Update payment account"
- *     description: "Updates an existing payment account with new provider or customer information. Requires the account ID to identify which account to update. This is typically used when a customer ID changes in the payment provider's system."
+ *     description: "Admin only (401 without a session, 403 for a signed-in non-admin). Sets the customer ID of a user's payment account for one provider (same write as POST). The row is matched by userId and provider; `id` is required but does not pick the row. This is typically used when a customer ID changes in the payment provider's system."
+ *     security:
+ *       - session: []
  *     requestBody:
  *       required: true
  *       content:
@@ -179,7 +201,7 @@ export async function POST(request: NextRequest) {
  *             properties:
  *               id:
  *                 type: string
- *                 description: "Payment account ID to update"
+ *                 description: "Payment account ID (required, but the row is matched by userId and provider)"
  *                 example: "pay_acc_123abc"
  *               provider:
  *                 type: string
@@ -281,6 +303,12 @@ export async function POST(request: NextRequest) {
  */
 export async function PUT(request: NextRequest) {
   try {
+    // Admin only, same as POST.
+    const adminResult = await requireAdminSession();
+    if (adminResult instanceof NextResponse) {
+      return adminResult;
+    }
+
     let body: { id?: unknown; provider?: unknown; userId?: unknown; customerId?: unknown } = {};
     try {
       body = await request.json();
@@ -300,6 +328,10 @@ export async function PUT(request: NextRequest) {
         { error: 'Provider is required' },
         { status: 400 }
       );
+    }
+
+    if (!SUPPORTED_PROVIDERS.has(provider)) {
+      return NextResponse.json({ error: 'Unsupported provider' }, { status: 400 });
     }
 
     if (!userId || typeof userId !== 'string') {

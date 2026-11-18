@@ -40,7 +40,9 @@
 		}
 	},
 	"header": {
-		"OPEN_USER_MENU": "Open user menu"
+		"OPEN_USER_MENU": "Open user menu",
+		"SCROLL_TO_TOP": "التمرير إلى أعلى الصفحة",
+		"BACK_TO_TOP": "العودة إلى الأعلى"
 	},
 	"common": {
 		"DEMO_BANNER_TEXT": "أنت تستخدم حسابًا تجريبيًا. هل تجد برنامجنا مفيدًا؟",
@@ -245,7 +247,9 @@
 		"BASIC_INFO": "المعلومات الأساسية",
 		"CLOSE": "إغلاق",
 		"VS": "مقابل",
-		"COMPARISONS": "المقارنات"
+		"COMPARISONS": "المقارنات",
+		"RATE_STARS": "{count, plural, one {تقييم بنجمة واحدة} two {تقييم بنجمتين} few {تقييم بـ # نجوم} many {تقييم بـ # نجمة} other {تقييم بـ # نجمة}}",
+		"RATED_OUT_OF": "التقييم {value, number} من {max, number}"
 	},
 	"survey": {
 		"SURVEYS": "الاستطلاعات",
@@ -452,7 +456,7 @@
 		"LAST_UPDATED": "آخر تحديث",
 		"TABLE_OF_CONTENTS": "في هذه الصفحة",
 		"NO_TAGS_AVAILABLE": "لا توجد وسوم متاحة",
-		"RATING": "Rating",
+		"RATING": "التقييم",
 		"PROMO_CODE": "Promo Code",
 		"SIMILAR_PRODUCTS": "منتجات مماثلة",
 		"SIMILAR_PRODUCTS_DESCRIPTION": "استكشف المزيد من العناصر المتعلقة بهذا",
@@ -471,23 +475,25 @@
 		"REGIONAL_SERVICE": "خدمة إقليمية",
 		"NATIONAL_SERVICE": "خدمة وطنية",
 		"GLOBAL_SERVICE": "خدمة عالمية",
-		"COMMENTS_DELETE_WARNING": "Are you sure you want to delete this comment? This action cannot be undone.",
-		"COMMENTS_HAVE_THOUGHTS": "Have thoughts?",
-		"COMMENTS_SHORTCUT": "Cmd/Ctrl + Enter to post",
-		"COMMENTS_POSTING": "Posting",
-		"COMMENTS_DELETE_TITLE": "Delete Comment",
-		"COMMENTS_DELETE_FAILED": "Failed to delete comment",
-		"COMMENTS_POSTED_SUCCESS": "Comment posted successfully!",
-		"COMMENTS_POST_FAILED": "Failed to post comment",
-		"COMMENTS_SAVING": "Saving",
-		"COMMENTS_DELETING": "Deleting",
-		"COMMENTS_POST": "Post",
-		"COMMENTS_UPDATED_SUCCESS": "Comment updated successfully!",
-		"COMMENTS_DELETED_SUCCESS": "Comment deleted successfully",
-		"COMMENTS_SIGN_IN_PROMPT": "Sign in to join the conversation",
-		"COMMENTS_EMPTY": "No comments yet. Be the first to share your thoughts!",
-		"COMMENTS_UPDATE_FAILED": "Failed to update comment",
-		"COMMENTS_PLACEHOLDER": "Add a comment..."
+		"COMMENTS_DELETE_WARNING": "هل أنت متأكد من أنك تريد حذف هذا التعليق؟ لا يمكن التراجع عن هذا الإجراء.",
+		"COMMENTS_HAVE_THOUGHTS": "هل لديك رأي؟",
+		"COMMENTS_VIEW_PROFILE": "عرض الملف الشخصي",
+		"COMMENTS_PROFILE": "الملف الشخصي",
+		"COMMENTS_SHORTCUT": "Cmd/Ctrl + Enter للنشر",
+		"COMMENTS_POSTING": "جارٍ النشر",
+		"COMMENTS_DELETE_TITLE": "حذف التعليق",
+		"COMMENTS_DELETE_FAILED": "تعذّر حذف التعليق",
+		"COMMENTS_POSTED_SUCCESS": "تم نشر التعليق بنجاح!",
+		"COMMENTS_POST_FAILED": "تعذّر نشر التعليق",
+		"COMMENTS_SAVING": "جارٍ الحفظ",
+		"COMMENTS_DELETING": "جارٍ الحذف",
+		"COMMENTS_POST": "نشر",
+		"COMMENTS_UPDATED_SUCCESS": "تم تحديث التعليق بنجاح!",
+		"COMMENTS_DELETED_SUCCESS": "تم حذف التعليق بنجاح",
+		"COMMENTS_SIGN_IN_PROMPT": "سجّل الدخول للانضمام إلى النقاش",
+		"COMMENTS_EMPTY": "لا توجد تعليقات بعد. كن أول من يشارك رأيه!",
+		"COMMENTS_UPDATE_FAILED": "تعذّر تحديث التعليق",
+		"COMMENTS_PLACEHOLDER": "أضف تعليقًا..."
 	},
 	"footer": {
 		"FAQ": "الأسئلة الشائعة",

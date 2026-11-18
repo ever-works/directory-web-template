@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import { setRequestLocale } from 'next-intl/server';
 import { getCachedItemsByTag, type ItemData } from "@/lib/content";
 import { paginateMeta, PER_PAGE } from "@/lib/paginate";
 import Listing from "../../listing";
@@ -8,6 +9,7 @@ import { generateListingMetadata } from "@/lib/seo/listing-metadata";
 import { resolveAliasPage } from "@/lib/seo/paging";
 import { decodeSegment, findTagBySegment } from "@/lib/seo/route-segment";
 import { toTitleCase, filterItems } from "@/lib/utils";
+import { toSearchString } from '@/lib/utils/search-string';
 
 // Enable ISR with 10 minutes revalidation
 // Using dynamicParams allows on-demand generation without build-time content errors
@@ -118,6 +120,9 @@ export default async function TagListing({
   searchParams: Promise<SearchParams>;
 }) {
   const { tag: tagMeta, locale } = await params;
+  // Sets the request locale for next-intl's server helpers, so they do not read it
+  // from the request headers, which makes a page render per request (Spec 061).
+  setRequestLocale(locale);
   const sp = (await searchParams) ?? {};
 
   // Tags switched off, an unknown tag, or a URL that is not one of the tag's
@@ -151,6 +156,7 @@ export default async function TagListing({
       total={total}
       basePath={`/tags/${tag}`}
       initialTag={tag}
+      search={toSearchString(sp)}
     />
   );
 }

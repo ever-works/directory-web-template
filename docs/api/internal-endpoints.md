@@ -25,7 +25,7 @@ These endpoints provide system-level operations: database initialization, featur
 | GET | `/api/health/database` | None | Database health check |
 | GET | `/api/version` | None | Get application version info |
 | GET | `/api/version/sync` | None | Get sync status |
-| POST | `/api/version/sync` | None | Trigger manual repository sync |
+| POST | `/api/version/sync` | Admin | Trigger manual repository sync |
 
 ---
 
@@ -245,7 +245,7 @@ Returns the current synchronization status including whether a sync is in progre
 
 ## POST `/api/version/sync`
 
-Manually triggers a background synchronization of the Git content repository. Prevents concurrent sync operations (if a sync is already running, it returns success with an informational message).
+Manually triggers a background synchronization of the Git content repository. Admin only: anonymous callers get `401`, signed-in non-admins get `403`. Prevents concurrent sync operations (if a sync is already running, it returns success with an informational message).
 
 ### Request Body
 

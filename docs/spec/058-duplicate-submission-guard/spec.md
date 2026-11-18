@@ -47,9 +47,14 @@ existing entry.
 ## 4. Out of scope
 
 - The same check on `PATCH /api/client/items/:id` (changing the link of an existing
-  item) and on admin create / import: later slices (plan, "Follow-ups").
-- `POST /api/client/items/import` (client bulk import): it keeps its own exact-match
-  `source_url` duplicate detection and does not use this guard.
+  item) and on admin create: later slices (plan, "Follow-ups").
+- `POST /api/client/items/import` (client bulk import) and the admin import do not answer 409 and
+  keep their own duplicate handling: the preview flags a duplicate row and the import skips it.
+  Since T-2610 they compare links with the same `normalizeSourceUrl` keys (R1, R2), also against
+  earlier rows of the same file that are written, but against every existing item, deleted ones
+  included (not only R3's pending and approved items), because their YAML files stay in the data
+  repository. A row of the admin import's `update` strategy still updates the item with its slug
+  without checking the link.
 - A per-user submission rate limit and a cap on pending submissions.
 - Fuzzy matching (same name, redirected domains, path case).
 - Showing the match inside the form before submit; the form already shows the

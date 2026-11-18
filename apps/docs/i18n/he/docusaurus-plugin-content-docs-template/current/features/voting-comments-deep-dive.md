@@ -21,7 +21,7 @@ app/api/items/[id]/
   votes/route.ts             # GET/POST/DELETE vote endpoints
   comments/route.ts          # GET/POST comment endpoints
   comments/[commentId]/route.ts  # PUT/DELETE single comment
-  comments/rating/route.ts   # POST/PUT/GET rating endpoints
+  comments/rating/route.ts   # GET rating endpoint
 
 lib/db/schema.ts             # votes and comments table definitions
 ```
@@ -83,7 +83,7 @@ onMutate: async (type) => {
 
 ### שער אימות
 
-משתמשים לא מאומתים שמנסים להצביע מוצגים שיטת התחברות במקום לקבל שגיאה:
+למשתמשים לא מאומתים שמנסים להצביע מוצג חלון התחברות, ו-`handleVote` זורק שגיאה לפני שהמוטציה מתחילה:
 
 ```ts
 if (!user) {
@@ -92,7 +92,7 @@ if (!user) {
 }
 ```
 
-השגיאה נתפסת על ידי המטפל `onError` של המוטציה, אשר בודק את הודעת האימות ומדכא את טוסט השגיאה.
+השגיאה מגיעה לקוד שקרא ל-`handleVote`: לא נשלחת בקשה והמטפל `onError` של המוטציה אינו רץ. `onError` מטפל רק בבקשת הצבעה שנכשלה: הוא מבטל את העדכון האופטימי ומציג הודעת שגיאה (מוטציית ההצבעה מדלגת על ההודעה כשהיא עוסקת בהתחברות).
 
 ### תצורת שאילתה
 
@@ -150,9 +150,7 @@ interface UpdateCommentData {
 | `createComment` | `(data) => Promise` | צור תגובה חדשה |
 | `updateComment` | `(data) => Promise` | ערוך הערה קיימת |
 | `deleteComment` | `(id) => Promise` | הסר תגובה |
-| `rateComment` | `(data) => void` | דרג תגובה |
-| `updateCommentRating` | `(data) => void` | עדכן דירוג קיים |
-| `commentRating` | `number` | דירוג מצטבר עבור הפריט |
+| `commentRating` | `{ averageRating: number; totalRatings: number }` | דירוג מצטבר עבור הפריט |
 
 ### מערכת אירועים חוצת רכיבים
 
@@ -225,16 +223,14 @@ function useAdminComments({ page, limit, search }) {
 
 | שיטה | נקודת קצה | תיאור |
 |--------|--------|----------------|
-| קבל | `/api/items/:id/votes` | אחזר את ספירת ההצבעות והצבעות של המשתמש |
-| פוסט | `/api/items/:id/votes` | להצביע או לשנות הצבעה |
-| מחק | `/api/items/:id/votes` | הסר הצבעה |
-| קבל | `/api/items/:id/comments` | אחזר הערות עם נתוני משתמש |
-| פוסט | `/api/items/:id/comments` | צור תגובה חדשה |
-| PUT | `/api/items/:id/comments/:commentId` | עדכן תגובה |
-| מחק | `/api/items/:id/comments/:commentId` | מחק תגובה |
-| פוסט | `/api/items/:id/comments/rating` | דרג תגובה |
-| PUT | `/api/items/:id/comments/rating` | עדכן דירוג תגובה |
-| קבל | `/api/items/:id/comments/rating` | קבל דירוג פריט מצטבר |
+| GET | `/api/items/:slug/votes` | אחזר את ספירת ההצבעות והצבעות של המשתמש |
+| POST | `/api/items/:slug/votes` | להצביע או לשנות הצבעה |
+| DELETE | `/api/items/:slug/votes` | הסר הצבעה |
+| GET | `/api/items/:slug/comments` | אחזר הערות עם נתוני משתמש |
+| POST | `/api/items/:slug/comments` | צור תגובה חדשה |
+| PUT | `/api/items/:slug/comments/:commentId` | עדכן תגובה |
+| DELETE | `/api/items/:slug/comments/:commentId` | מחק תגובה |
+| GET | `/api/items/:slug/comments/rating` | קבל דירוג פריט מצטבר |
 
 ## שילוב דגל תכונה
 

@@ -45,7 +45,7 @@ The comments system provides endpoints for creating, reading, updating, and dele
 GET /api/items/[slug]/comments
 ```
 
-Returns all comments for a specific item including user profile information. No authentication is required.
+Returns all comments for a specific item including user profile information. No authentication is required, and the item page can embed the same list in its HTML (when the deployment has a single tenant, or `TENANT_ID` names its only tenant; otherwise the page loads it through this endpoint, Spec 061), so `user` carries public profile fields only and never the commenter's email. The create (`POST`) response returns the same public fields. The update (`PUT`) response returns only `id`, `name` and `image` in `user`. Neither carries the email.
 
 **Path Parameters:**
 
@@ -71,8 +71,7 @@ Returns all comments for a specific item including user profile information. No 
       "user": {
         "id": "client_456def",
         "name": "John Doe",
-        "email": "john.doe@example.com",
-        "avatar": "https://example.com/avatars/john.jpg"
+        "image": "https://example.com/avatars/john.jpg"
       }
     }
   ]
@@ -125,8 +124,10 @@ Creates a new comment with a rating on an item. Requires authentication and a va
 
 | Field | Type | Required | Constraints |
 |---|---|---|---|
-| `content` | string | Yes | Must be non-empty after trimming |
-| `rating` | integer | Yes | Must be between 1 and 5 inclusive |
+| `content` | string | Yes | 1-1000 characters after trimming; stored trimmed |
+| `rating` | integer | Yes | Whole number from 1 to 5 inclusive (`3.5` is refused) |
+
+Both routes check the body with `validateCommentInput` (`apps/web/lib/validations/comment.ts`), so a new comment and an edit follow the same rules, and both answer 400 `Invalid JSON body` for a malformed JSON body.
 
 **Success Response (200):**
 
@@ -143,8 +144,7 @@ Creates a new comment with a rating on an item. Requires authentication and a va
     "user": {
       "id": "client_456def",
       "name": "John Doe",
-      "email": "john.doe@example.com",
-      "avatar": "https://example.com/avatars/john.jpg"
+      "image": "https://example.com/avatars/john.jpg"
     }
   }
 }
@@ -152,7 +152,7 @@ Creates a new comment with a rating on an item. Requires authentication and a va
 
 | Status | Condition |
 |---|---|
-| 400 | Empty content or invalid rating |
+| 400 | Malformed JSON, a body that is not a JSON object, missing or non-string content, content empty or longer than 1000 characters or containing a NUL character, missing or non-integer rating, or rating outside 1-5 |
 | 401 | Not authenticated |
 | 403 | User is suspended or banned |
 | 404 | Client profile not found |
@@ -180,14 +180,14 @@ Updates the content and/or rating of an existing comment. Only the comment autho
 
 | Field | Type | Required | Constraints |
 |---|---|---|---|
-| `content` | string | No | 1-1000 characters |
-| `rating` | integer | No | Must be between 1 and 5 |
+| `content` | string | No | 1-1000 characters after trimming; stored trimmed |
+| `rating` | integer | No | Whole number from 1 to 5 inclusive |
 
 The response includes the updated comment with an `editedAt` timestamp.
 
 | Status | Condition |
 |---|---|
-| 400 | No fields provided, content too long, or invalid rating |
+| 400 | Malformed JSON, a body that is not a JSON object, no fields provided, non-string content, content empty or longer than 1000 characters or containing a NUL character, or a rating that is not an integer from 1 to 5 |
 | 401 | Not authenticated |
 | 404 | Comment not found or user is not the author |
 

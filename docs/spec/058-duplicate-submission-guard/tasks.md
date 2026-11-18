@@ -20,3 +20,5 @@ sidebar_label: 058 Tasks
   that `createAsClient` checks the link inside the lock before saving and that the route answers 409.
 - [ ] **T-005** Playwright API spec under `apps/web-e2e/tests/api/` for the 409 (needs a seeded data repository).
 - [ ] **T-006** The plan's follow-ups, one small change each.
+  - [x] Bulk import (`apps/web/lib/services/item-import.service.ts`): `validateRows` and `executeImport` compare links
+    with `normalizeSourceUrl`, also within one file, and `source_url` must be http(s) (T-2610).

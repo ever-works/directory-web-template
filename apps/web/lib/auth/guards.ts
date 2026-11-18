@@ -1,5 +1,24 @@
 import { redirect } from 'next/navigation';
 import { auth } from '@/lib/auth';
+import { isAdmin } from '@/lib/db/roles';
+
+/**
+ * The live admin role of a user, read from the database with `isAdmin(userId)`.
+ *
+ * Not the session's `isAdmin` claim: `lib/auth/index.ts` sets it at sign-in and
+ * it stays for the JWT's 30-day lifetime, so a user whose admin role was
+ * removed still has it until the token expires. No user id, or a failed
+ * lookup, counts as not admin.
+ */
+async function hasLiveAdminRole(userId: string | undefined): Promise<boolean> {
+  if (!userId) return false;
+  try {
+    return await isAdmin(userId);
+  } catch (error) {
+    console.error('Error checking admin role:', error);
+    return false;
+  }
+}
 
 /**
  * Server-side authentication guard for pages
@@ -29,20 +48,16 @@ export async function requireAuth() {
 /**
  * Server-side admin authorization guard for pages.
  *
- * **Heads-up on staleness vs `requireAdminSession`.** This helper
- * checks the `session.user.isAdmin` JWT claim that was set at sign-in
- * and is sticky for the JWT's lifetime (~30 days). A user whose admin
- * role was revoked TODAY still passes here until their JWT expires or
- * they sign out and back in. That's fine for casual UX gates (showing
- * an "Admin" nav link), but for **API authorisation decisions** prefer
- * `requireAdminSession()` from `@/lib/auth/admin-guard` — it does a
- * live `isAdmin(userId)` DB lookup per request (request-scoped
- * memoised) and reflects the current role state, not a 30-day-stale
- * claim.
+ * Checks the live role with `isAdmin(userId)` from `@/lib/db/roles`, not
+ * the `session.user.isAdmin` JWT claim (set at sign-in and sticky for the
+ * JWT's 30-day lifetime), so a user whose admin role was revoked is
+ * refused at once. A failed lookup is refused too. API routes use
+ * `requireAdminSession()` from `@/lib/auth/admin-guard`, which answers
+ * with a 401/403/500 response instead of a redirect.
  *
  * @returns Session object if user is admin
  * @throws Redirect to /admin/auth/signin if unauthenticated
- * @throws Redirect to /unauthorized if not admin (per the stale JWT claim)
+ * @throws Redirect to /unauthorized if the user does not have the admin role
  *
  * @example
  * ```tsx
@@ -59,7 +74,7 @@ export async function requireAdmin() {
     redirect('/admin/auth/signin');
   }
 
-  if (!session.user.isAdmin) {
+  if (!(await hasLiveAdminRole(session.user.id))) {
     redirect('/unauthorized');
   }
 
@@ -90,13 +105,12 @@ export async function getSession() {
 /**
  * Check if current user is admin without redirecting.
  *
- * Same JWT-claim staleness caveat as {@link requireAdmin} — the
- * value comes from `session.user.isAdmin` (set at sign-in, sticky
- * for the JWT's lifetime). For authorisation decisions where the
- * live role state matters, use `useIsAdminLive` (client) or
- * `requireAdminSession()` from `@/lib/auth/admin-guard` (server).
+ * Same live `isAdmin(userId)` lookup as {@link requireAdmin}, not the
+ * `session.user.isAdmin` JWT claim (set at sign-in, sticky for the
+ * JWT's 30-day lifetime).
  *
- * @returns true if user is admin (per the JWT claim), false otherwise
+ * @returns true if the user has the admin role now; false when signed
+ * out, without a user id, or when the lookup fails
  *
  * @example
  * ```tsx
@@ -108,5 +122,5 @@ export async function getSession() {
  */
 export async function checkIsAdmin() {
   const session = await auth();
-  return session?.user?.isAdmin === true;
+  return hasLiveAdminRole(session?.user?.id);
 }

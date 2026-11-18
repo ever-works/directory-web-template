@@ -20,6 +20,8 @@ type ListingProps = {
 	items: ItemData[];
 	initialTag?: string | null;
 	initialCategory?: string | null;
+	/** Query string (without `?`) of a filtered listing rendered per request. */
+	search?: string;
 };
 
 export default async function Listing(props: ListingProps) {

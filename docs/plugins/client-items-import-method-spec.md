@@ -71,12 +71,45 @@ service-derived result aggregate
   [`client-items-stats-query-spec.md`](client-items-stats-query-spec.md)).
 - **Hard-coded import options** — the handler
   hard-codes `duplicateStrategy: 'skip'`,
-  `defaultStatus: 'pending'`, and
-  `submittedBy: userId` when calling
-  `executeImport`. Client requests CANNOT override
-  any of these via the request body (a
+  `defaultStatus: 'pending'`,
+  `submittedBy: userId` and `clientMode: true` when
+  calling `executeImport`. Client requests CANNOT
+  override any of these via the request body (a
   bypass-attempt probe in the body bulk-loop walk
   pins this).
+- **Rows are re-checked on the server (T-2527)** —
+  `body.rows` is the `validationResults` array the
+  validate step returned, so its `valid` and
+  `duplicate` flags and its `data` come from the
+  browser. `executeImport` does not trust them: a
+  row marked `valid: false` is still reported as an
+  error, a row marked `valid: true` is checked again
+  (name, description and URL rules of
+  `importRowSchema`; slug must match
+  `/^[a-z0-9]+(?:-[a-z0-9]+)*$/`), and the `duplicate`
+  flag is ignored: duplicates are looked up again
+  among all items, deleted ones included, by slug and
+  by `source_url`. A row whose slug or link
+  already exists is skipped, never written. Links are
+  compared as `POST /api/client/items` compares them
+  (`normalizeSourceUrl`: `www.`, a trailing slash,
+  http vs https, a fragment and tracking parameters
+  do not make a link new), and a row whose link an
+  earlier row of the same import creates is skipped
+  too (a skipped row does not claim its link);
+  `source_url` must be an `http` or `https` URL
+  (T-2610). The file
+  write itself refuses to replace an existing item
+  file (`wx`), so a slug that an overlapping import or
+  submission takes after the lookup is also skipped.
+  In client mode `featured` is forced to `false`,
+  `collections`, `brand_logo_url` and `images` are
+  dropped (the client submit form cannot set them
+  either), and no existing item is ever updated.
+  Behaviour is covered by the unit specs
+  `apps/web/lib/services/__tests__/item-import-execute.spec.ts`
+  and
+  `apps/web/lib/services/__tests__/item-import-exclusive-create.spec.ts`.
 
 ## Why this spec is the first POST batch-import smoke
 
@@ -92,7 +125,7 @@ exports ONLY `POST`. The handler combines:
    array.'`;
    `new ItemImportService().executeImport(rows, {
    duplicateStrategy: 'skip', defaultStatus:
-   'pending', submittedBy: userId })`; success returns
+   'pending', submittedBy: userId, clientMode: true })`; success returns
    `{ success: true, result }`; outer catch →
    `safeErrorResponse(error, 'Failed to execute
    import')`.

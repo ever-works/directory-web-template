@@ -136,6 +136,10 @@ export async function unsubscribeFromNewsletter(email: string) {
 
 /**
  * Resubscribe to newsletter
+ *
+ * `subscribedAt` moves to now: the re-activated row is a new subscription for the stats that
+ * count subscriptions by `subscribedAt` (`getNewsletterStats` recentSubscriptions, the admin
+ * dashboard's weekly count), which would otherwise miss every resubscription.
  * @param email - Subscriber email
  * @returns Updated subscription or null on error
  */
@@ -148,6 +152,7 @@ export async function resubscribeToNewsletter(email: string) {
 			.update(newsletterSubscriptions)
 			.set({
 				isActive: true,
+				subscribedAt: new Date(),
 				unsubscribedAt: null
 			})
 			.where(

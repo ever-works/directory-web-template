@@ -21,7 +21,7 @@ app/api/items/[id]/
   votes/route.ts             # GET/POST/DELETE vote endpoints
   comments/route.ts          # GET/POST comment endpoints
   comments/[commentId]/route.ts  # PUT/DELETE single comment
-  comments/rating/route.ts   # POST/PUT/GET rating endpoints
+  comments/rating/route.ts   # GET rating endpoint
 
 lib/db/schema.ts             # votes and comments table definitions
 ```
@@ -83,7 +83,7 @@ onMutate: async (type) => {
 
 ### Вход за удостоверяване
 
-На неупълномощени потребители, които се опитват да гласуват, се показва модал за влизане, вместо да получат грешка:
+На неудостоверените потребители, които се опитват да гласуват, се показва модал за влизане, а `handleVote` хвърля грешка, преди да стартира мутацията:
 
 ```ts
 if (!user) {
@@ -92,7 +92,7 @@ if (!user) {
 }
 ```
 
-Грешката се улавя от манипулатора `onError` на мутацията, който проверява за съобщението за удостоверяване и потиска съобщението за грешка.
+Тази грешка стига до кода, който е извикал `handleVote`: не се изпраща заявка и `onError` на мутацията не се изпълнява. `onError` обработва само неуспешна заявка за гласуване: връща оптимистичната промяна и показва съобщение за грешка (мутацията за гласуване пропуска съобщението, когато то е за влизане).
 
 ### Конфигурация на заявката
 
@@ -150,9 +150,7 @@ interface UpdateCommentData {
 | `createComment` | `(data) => Promise` | Създайте нов коментар |
 | `updateComment` | `(data) => Promise` | Редактиране на съществуващ коментар |
 | `deleteComment` | `(id) => Promise` | Премахване на коментар |
-| `rateComment` | `(data) => void` | Оценете коментар |
-| `updateCommentRating` | `(data) => void` | Актуализиране на съществуваща оценка |
-| `commentRating` | `number` | Обща оценка за артикула |
+| `commentRating` | `{ averageRating: number; totalRatings: number }` | Обща оценка за артикула |
 
 ### Кръстокомпонентна система за събития
 
@@ -225,16 +223,14 @@ function useAdminComments({ page, limit, search }) {
 
 | Метод | Крайна точка | Описание |
 |--------|----------|-------------|
-| ВЗЕМЕТЕ | `/api/items/:id/votes` | Извличане на броя на гласовете и вота на потребителя |
-| ПУБЛИКАЦИЯ | `/api/items/:id/votes` | Дайте или променете глас |
-| ИЗТРИВАНЕ | `/api/items/:id/votes` | Премахване на глас |
-| ВЗЕМЕТЕ | `/api/items/:id/comments` | Извличане на коментари с потребителски данни |
-| ПУБЛИКАЦИЯ | `/api/items/:id/comments` | Създайте нов коментар |
-| ПОСТАВЕТЕ | `/api/items/:id/comments/:commentId` | Актуализиране на коментар |
-| ИЗТРИВАНЕ | `/api/items/:id/comments/:commentId` | Изтриване на коментар |
-| ПУБЛИКАЦИЯ | `/api/items/:id/comments/rating` | Оценете коментар |
-| ПОСТАВЕТЕ | `/api/items/:id/comments/rating` | Актуализиране на оценка на коментар |
-| ВЗЕМЕТЕ | `/api/items/:id/comments/rating` | Вземете обобщена оценка на артикул |
+| GET | `/api/items/:slug/votes` | Извличане на броя на гласовете и вота на потребителя |
+| POST | `/api/items/:slug/votes` | Дайте или променете глас |
+| DELETE | `/api/items/:slug/votes` | Премахване на глас |
+| GET | `/api/items/:slug/comments` | Извличане на коментари с потребителски данни |
+| POST | `/api/items/:slug/comments` | Създайте нов коментар |
+| PUT | `/api/items/:slug/comments/:commentId` | Актуализиране на коментар |
+| DELETE | `/api/items/:slug/comments/:commentId` | Изтриване на коментар |
+| GET | `/api/items/:slug/comments/rating` | Вземете обобщена оценка на артикул |
 
 ## Интегриране на флаг за функции
 

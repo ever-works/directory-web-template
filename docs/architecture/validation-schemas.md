@@ -16,6 +16,7 @@ lib/validations/
   auth.ts               # Password validation schema
   item.ts               # Item location schema
   client-item.ts        # Client-facing item CRUD schemas
+  http-url.ts           # Shared http(s)-only rule for an item's source_url
   client-dashboard.ts   # Dashboard query parameters
   company.ts            # Company create/update, item-company association
   user-location.ts      # User profile location settings
@@ -78,6 +79,8 @@ export type LocationSchemaInput = z.infer<typeof locationSchema>;
 
 ## Client Item Schemas (`client-item.ts`)
 
+`source_url` uses `httpUrlSchema` from `http-url.ts`: an absolute `http` or `https` URL. A `javascript:`, `data:`, `file:` or other link fails with `Invalid URL format`, so the duplicate-link check (`lib/utils/source-url.ts`) of `POST /api/client/items` and of the import always gets a link it can compare. Changing the link with `PUT /api/client/items/{id}` is not checked for duplicates (spec 058, out of scope). The CSV import row schemas (`item-import.ts`) use the same rule (T-2610).
+
 ### Create Item
 
 Schema for client-submitted items with required core fields:
@@ -90,7 +93,7 @@ export const clientCreateItemSchema = z.object({
   description: z.string()
     .min(ITEM_VALIDATION.DESCRIPTION_MIN_LENGTH)
     .max(ITEM_VALIDATION.DESCRIPTION_MAX_LENGTH),
-  source_url: z.string().url('Invalid URL format'),
+  source_url: httpUrlSchema, // http(s) links only: lib/validations/http-url.ts
   category: z.union([
     z.string().min(1, 'Category is required'),
     z.array(z.string().min(1)).min(1, 'At least one category is required'),
@@ -111,7 +114,7 @@ Only allows fields that clients are permitted to modify (all optional):
 export const clientUpdateItemSchema = z.object({
   name: z.string().min(...).max(...).optional(),
   description: z.string().min(...).max(...).optional(),
-  source_url: z.string().url('Invalid URL format').optional(),
+  source_url: httpUrlSchema.optional(),
   category: z.union([z.string(), z.array(z.string())]).optional(),
   tags: z.array(z.string().min(1)).optional(),
   icon_url: z.string().url().optional().or(z.literal('')),

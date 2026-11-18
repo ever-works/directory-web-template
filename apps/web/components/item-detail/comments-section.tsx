@@ -191,6 +191,7 @@ const UserProfilePopover = memo(
 	}) => {
 		const locale = useLocale();
 		const t = useTranslations('profile');
+		const tItemDetail = useTranslations('itemDetail');
 		const router = useRouter();
 		const { user: currentUser, isLoading: authLoading } = useCurrentUser();
 
@@ -362,10 +363,12 @@ const UserProfilePopover = memo(
 											? 'flex-1 bg-gray-900 dark:bg-white text-white dark:text-gray-900 hover:bg-gray-700 dark:hover:bg-gray-100'
 											: 'w-8 border border-gray-200 dark:border-white/8 text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5'
 									}`}
-									title="View profile"
+									title={tItemDetail('COMMENTS_VIEW_PROFILE')}
 								>
 									{isSelf ? (
-										<>Profile <ExternalLink className="w-3 h-3 opacity-60" /></>
+										<>
+											{tItemDetail('COMMENTS_PROFILE')} <ExternalLink className="w-3 h-3 opacity-60" />
+										</>
 									) : (
 										<ExternalLink className="w-3.5 h-3.5" />
 									)}

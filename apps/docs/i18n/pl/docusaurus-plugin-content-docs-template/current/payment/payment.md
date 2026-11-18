@@ -33,8 +33,6 @@ lib/payment/
       lemonsqueezy-provider.ts
       polar-provider.ts
       solidgate-provider.ts
-    client/
-      payment-account-client.ts     # Client-side account API
     utils/
       prices.ts                     # Price formatting utilities
       polar-subscription-helpers.ts

@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth, getOrCreateStripeProvider } from '@/lib/auth';
 import { paymentEmailService } from '@/lib/payment/services/payment-email.service';
-import { updateSubscriptionBySubscriptionId } from '@/lib/db/queries';
+import { getSubscriptionByProviderSubscriptionId, updateSubscriptionBySubscriptionId } from '@/lib/db/queries';
+import { PaymentProvider } from '@/lib/constants';
+import { findOwnedProviderSubscription, SUBSCRIPTION_NOT_FOUND_MESSAGE } from '@/lib/payment/subscription-ownership';
 
 /**
  * @swagger
@@ -119,6 +121,16 @@ import { updateSubscriptionBySubscriptionId } from '@/lib/db/queries';
  *                 error:
  *                   type: string
  *                   example: "Unauthorized"
+ *       404:
+ *         description: "Subscription not found, or it does not belong to the signed-in user"
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   example: "Subscription not found or access denied"
  *       500:
  *         description: "Internal server error"
  *         content:
@@ -155,8 +167,18 @@ export async function POST(
     const { cancelAtPeriodEnd = true } = await request.json();
     const { subscriptionId } = await params;
 
+    const ownedSubscription = await findOwnedProviderSubscription(
+      session.user.id,
+      PaymentProvider.STRIPE,
+      subscriptionId,
+      getSubscriptionByProviderSubscriptionId,
+    );
+    if (!ownedSubscription) {
+      return NextResponse.json({ error: SUBSCRIPTION_NOT_FOUND_MESSAGE }, { status: 404 });
+    }
+
     const stripeProvider = getOrCreateStripeProvider();
-     
+
     const cancelledSubscription = await stripeProvider.cancelSubscription(
         subscriptionId,
       cancelAtPeriodEnd
@@ -164,6 +186,7 @@ export async function POST(
 
     await updateSubscriptionBySubscriptionId({
       subscriptionId: subscriptionId,
+      paymentProvider: 'stripe',
       cancelAtPeriodEnd: cancelAtPeriodEnd,
       cancelledAt: cancelAtPeriodEnd ? new Date() : null,
       updatedAt: new Date(),

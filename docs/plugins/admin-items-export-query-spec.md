@@ -188,6 +188,31 @@ written scenarios** under a single top-level
     for every key the route reads, but the unauth
     gate fires before any `searchParams` parsing).
 
+## CSV cells that start like a formula
+
+The items dump carries text that signed-in clients
+submit (name, description, brand, markdown, location),
+and a CSV cell beginning `=`, `+`, `-`, `@`, tab or CR
+runs as a formula when the file is opened in a
+spreadsheet app. `ItemExportService.exportToCSV()`
+(used by this route and by the public
+`GET /api/items/export`) therefore writes such a cell
+with a leading `'`, so `=1+1` is exported as `'=1+1`.
+The check looks at the first character (after any
+leading `'`), so a multi-line value is covered too.
+The one exception is a value that is a plain number,
+such as a negative latitude (`-33.8688`): it is not a
+formula and is written unchanged. A value that already
+starts with `'` before one of those characters gets one
+more, so `'=1+1` is exported as `''=1+1`. The XLSX
+export writes string cells and is not affected.
+
+`ItemImportService.parseCSV()` removes that one `'`
+again, so an exported CSV imports back with its
+original values. Both directions are pinned by
+`apps/web/lib/services/__tests__/item-export-csv.spec.ts`
+(run with `pnpm --filter @ever-works/web test:unit`).
+
 ## Cross-route comparison with the sibling sample-export route
 
 | Aspect                                | `/api/admin/items/export` (this spec)              | `/api/admin/items/export/sample` (sibling spec)            |

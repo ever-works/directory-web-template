@@ -31,6 +31,8 @@ type ListingProps = {
 	items: ItemData[];
 	searchEnabled?: boolean;
 	defaultView?: string;
+	/** Query string (without `?`) of a filtered listing rendered per request. */
+	search?: string;
 };
 
 const LAYOUT_STYLES = {

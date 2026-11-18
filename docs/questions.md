@@ -27,6 +27,131 @@ confirm, override, or refine.
 
 ---
 
+## Spec 061 — Fast, cached directory pages
+
+### Q-061a Send only the message namespaces client components use
+
+- **Context.** Every page embeds the whole `messages/<locale>.json` for
+  `NextIntlClientProvider` (~200 KB of a ~350 KB item page, in the HTML and again in
+  the RSC payload). That is most of each cached page's memory and transfer.
+- **Options.**
+  - Keep sending everything.
+  - Pass only the namespaces client components use (needs an inventory of
+    `useTranslations` calls in client components, and a guard so it stays complete).
+- **Default.** **Keep sending everything** in Spec 061; trimming is a follow-up.
+- **Owner.** Maintainers.
+- **Status.** open
+
+### Q-061b Category / tag / collection index grids stay per request
+
+- **Context.** `/categories`, `/tags`, `/tags/paging`, `/collections` and
+  `/collections/paging` render grids that read `useSearchParams()` without a Suspense
+  boundary, which a cached (static) render cannot do.
+- **Options.**
+  - Pin them to `force-dynamic` (as before Spec 061).
+  - Move their query reading to `useCurrentSearch()` and cache them.
+- **Default.** **Pin them to `force-dynamic`**; caching them is a follow-up.
+- **Owner.** Maintainers.
+- **Status.** open
+
+### Q-061c Runtime page cache: memory only, 64 MB
+
+- **Context.** With public pages cached, a 4,000-item, 21-locale directory has ~86,000
+  cacheable pages, each counted as ~0.65 MB (measured ~0.9 MB of heap); Next.js writes
+  them all to disk by default.
+- **Options.**
+  - Disk (Next.js default): unbounded growth of the pod filesystem.
+  - Memory only, LRU-bounded; a CDN in front holds the long tail.
+- **Default.** **Memory only, `NEXT_CACHE_MAX_MEMORY_MB=64`** (under ~90 MB of heap; sites
+  on 2 GiB pods were OOM-killed); `NEXT_ISR_FLUSH_TO_DISK=true` (read at server start by
+  `apps/web/cache-handler.cjs`) restores disk writes. Optimized images keep Next's disk cache.
+- **Owner.** Maintainers.
+- **Status.** open
+
+### Q-061d The tag page sends the whole catalogue
+
+- **Context.** `/tags/<tag>` passes every item to the page (6.3 MB of HTML on a 4,000-item
+  directory) because its tag filter is a client-side multi-select over those items:
+  deselecting the tag or adding another must show items outside the first tag.
+- **Options.**
+  - Keep it (cached since Spec 061: a hit is fast, a miss renders ~1 s).
+  - Make the tag page URL-driven like categories (Spec 020): server-side filter and
+    slice, filter changes navigate to filtered URLs.
+- **Default.** **Keep it** in Spec 061.
+- **Owner.** Maintainers.
+- **Status.** open
+
+### Q-061e Active-link state on the cached listing twins
+
+- **Context.** Plain home / discover / category URLs are served by cached twin routes
+  through rewrites. The server renders them with the internal path, so components that
+  derive state from `usePathname()` (header active link) render for that path and differ
+  from the browser until the first client navigation.
+- **Options.**
+  - Accept it.
+  - Derive active states after mount, or from the route params instead of the pathname.
+- **Default.** **Accept it** in Spec 061.
+- **Owner.** Maintainers.
+- **Status.** open
+
+### Q-061f Tenant comments in shared cached item pages
+
+- **Context.** Cached item pages embed comments (and the Product JSON-LD
+  `aggregateRating`) only while the `tenant` table has exactly one row, active (and equal
+  to `TENANT_ID` when that is set). After a second tenant row is inserted, pages cached
+  before can serve the first tenant's public comments for up to 600 s at the origin,
+  plus the CDN's `s-maxage`. The insert marks item pages stale when Next can revalidate,
+  which it cannot inside a render. `TENANT_ID` is for genuinely single-tenant
+  deployments: it overrides host routing for anonymous requests, so host-routed
+  multi-tenant deployments must not set it, and it never makes shared HTML carry one
+  tenant's comments while other tenants exist.
+- **Options.**
+  - Accept the bounded window (spec R4).
+  - Keep tenant-scoped comments out of shared HTML always: no window, but no
+    server-rendered comments or `aggregateRating` for single-tenant deployments either.
+  - Queue the invalidation and run it from a request context that can revalidate.
+  - Make the page cache tenant-aware (one cached copy per tenant host), so multi-tenant
+    deployments get server-rendered comments too.
+- **Default.** **Accept the bounded window**; multi-tenant deployments get comments from
+  the API until the page cache is tenant-aware.
+- **Owner.** Maintainers.
+- **Status.** open
+
+---
+
+## Spec 060 — LemonSqueezy webhook integrity
+
+### Q-060a Cross-pod webhook de-duplication
+
+- **Context.** Redelivered LemonSqueezy events are de-duplicated per pod only
+  (an in-memory set); subscription rows are idempotent on (provider, subscription id),
+  but the order-created email can repeat if a redelivery reaches another pod.
+- **Options.**
+  - Keep the per-pod set.
+  - Add a table of processed event keys (needs a migration).
+- **Default.** **Keep the per-pod set** until a migration is acceptable.
+- **Owner.** Template maintainers.
+- **Status.** `open`.
+
+### Q-060b A plan subscription moved to a variant that is not a plan variant
+
+- **Context.** The plan comes from the paid variant (spec 060 R9). If an existing plan subscription is
+  switched to a variant that is not configured for any plan (a sponsor-ad variant, or one missing from the
+  configuration after an env change), its update event cannot say which plan it now grants.
+  `POST /api/lemonsqueezy/update-plan` accepts any variant id and does not check that the subscription
+  belongs to the caller.
+- **Options.**
+  - Keep the stored plan and update only the status and dates.
+  - Downgrade the row to `free` (a configuration mistake would then downgrade paying customers).
+  - Restrict `update-plan` to configured plan variants and to the caller's own subscription.
+- **Default.** **Keep the stored plan and update only status and dates**, and restrict `update-plan` and
+  `update` to configured plan variants (spec 060 R12; the owner check is #1114). Only a dashboard change
+  can still move a plan subscription to another variant.
+- **Owner.** Template maintainers.
+- **Status.** `open`.
+
+---
+
 ## Spec 002 — Plugin Architecture
 
 ### Q-002a SDK package name

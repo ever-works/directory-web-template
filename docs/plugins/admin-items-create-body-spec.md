@@ -66,6 +66,13 @@ surface. The POST handler combines:
    create checks pass. Defaults `category = []`,
    `tags = []`, `featured = false`, `status = 'draft'`.
    Threads `submitted_by = session.user.id`.
+   `ItemGitService.createItem` writes the YAML with
+   `wx`, so an id or slug that another request (an
+   import, a submission) created after the checks
+   throws `DuplicateItemError` instead of replacing
+   that item; the catch answers it with the same 409
+   `'Item with slug '<slug>' already exists'` (or
+   `ID`) envelope (T-2609).
 8. **Optional CRM sync side effect** gated by
    `process.env.TWENTY_CRM_ENABLED === 'true'` (NOTE:
    strict-equals comparison, distinct from
@@ -86,7 +93,7 @@ surface. The POST handler combines:
 
 | Route                                          | Required fields | Duplicate checks                                                | Catch posture                                                                                                                                                          |
 | ---------------------------------------------- | --------------- | --------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `POST /api/admin/items` (this spec)            | 5 (id, name, slug, description, source_url) in single guard | TWO 409 pre-create checks with dynamically-interpolated messages | `safeErrorResponse(...)` (no narrow-match branches)                                                                                                                     |
+| `POST /api/admin/items` (this spec)            | 5 (id, name, slug, description, source_url) in single guard | TWO 409 pre-create checks with dynamically-interpolated messages | `DuplicateItemError` (id or slug created after the checks) → 409, then `safeErrorResponse(...)`                                                                         |
 | `POST /api/admin/collections`                  | 2 (id, name) in single guard | None pre-create (delegates to repository's `'already exists'` throw → 409 in catch) | Outer-catch chain with `'already exists'` → 409 + `'must'` → 400 + `safeErrorResponse(...)` fallback                                                                    |
 | `POST /api/admin/items/{id}/review`            | 1 (status enum)             | None                                                            | `safeErrorResponse(error, 'Failed to review item')`                                                                                                                     |
 | `POST /api/admin/items/import`                 | 2 (rows, options)           | None                                                            | `safeErrorResponse(error, 'Failed to execute import')`                                                                                                                  |

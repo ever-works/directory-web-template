@@ -3,7 +3,8 @@ import {
 	incrementWarningCount,
 	suspendUser as suspendUserQuery,
 	banUser as banUserQuery,
-	getClientProfileById
+	getClientProfileById,
+	getClientProfileByUserId
 } from '@/lib/db/queries/moderation.queries';
 import { deleteComment, getCommentById } from '@/lib/db/queries/comment.queries';
 import { ItemRepository } from '@/lib/repositories/item.repository';
@@ -13,6 +14,7 @@ import {
 	type ReportContentTypeValues
 } from '@/lib/db/schema';
 import { EmailNotificationService } from '@/lib/services/email-notification.service';
+import { resolveItemOwnerProfileId, type ContentOwnerResult } from '@/lib/services/moderation-content-owner';
 
 // ===================== Types =====================
 
@@ -22,11 +24,7 @@ export interface ModerationResult {
 	error?: string;
 }
 
-export interface ContentOwnerResult {
-	success: boolean;
-	userId?: string;
-	error?: string;
-}
+export type { ContentOwnerResult };
 
 // ===================== Helper Functions =====================
 
@@ -55,10 +53,8 @@ export async function getContentOwner(
 			if (!item) {
 				return { success: false, error: 'Item not found' };
 			}
-			if (!item.submitted_by) {
-				return { success: false, error: 'Item has no submitter' };
-			}
-			return { success: true, userId: item.submitted_by };
+			// submitted_by is a users.id; the moderation actions need the client_profiles.id
+			return await resolveItemOwnerProfileId(item.submitted_by, getClientProfileByUserId);
 		}
 
 		return { success: false, error: 'Invalid content type' };
@@ -87,13 +83,17 @@ export async function getContentOwner(
  *     NO audit trail. Wrap in a DB transaction if this matters
  *     for compliance.
  *
- *   - **Audit row is gated on owner discovery.** If
- *     `getContentOwner` fails (item has `submitted_by = null`,
- *     comment lookup fails), the content is STILL deleted but
- *     no moderation_history row is created. Audit-gap: an admin
- *     can remove orphaned content with no record. Either log
- *     unconditionally (with `userId = null`) or refuse the
- *     deletion when owner is unknown.
+ *   - **moderation_history is gated on owner discovery.** Its
+ *     `user_id` is a NOT NULL client profile, so when
+ *     `getContentOwner` fails (item has `submitted_by = null` or a
+ *     submitter with no client profile such as `'anonymous'` /
+ *     `'import'`) the content is still deleted but no
+ *     moderation_history row is created. Item removals are still
+ *     recorded: `itemRepository.delete` gets the admin as audit user
+ *     and writes the item audit log row (`deleted`, performed by the
+ *     admin) whatever the owner. That write is best-effort (see
+ *     `item-audit.service.ts`). Refusing the deletion instead would
+ *     leave anonymous spam impossible to remove.
  *
  *   - **Soft-delete vs hard-delete asymmetry.** Comments use
  *     `deleteComment` (soft — sets `deleted_at`); items use
@@ -160,8 +160,10 @@ export async function removeContent(
 				return { success: false, message: 'Item not found', error: 'NOT_FOUND' };
 			}
 
-			// Delete the item from Git repository
-			await itemRepository.delete(contentId);
+			// Delete the item from Git repository. The repository writes the item audit log row
+			// (action `deleted`) with the admin as performer, so the removal is recorded even when
+			// the item has no owner profile and no moderation_history row can be written below.
+			await itemRepository.delete(contentId, { id: adminId });
 
 			// Log moderation action and send email
 			if (ownerResult.userId) {

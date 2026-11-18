@@ -18,6 +18,18 @@ function formatDateForYaml(date: Date = new Date()): string {
   return `${year}-${month}-${day} ${hours}:${minutes}`;
 }
 
+/**
+ * Thrown by `createItem` when the item's id or slug is taken, whether its read found the item or
+ * another request (an import, an admin create) wrote `data/<slug>/<slug>.yml` after that read.
+ * POST /api/admin/items and POST /api/client/items answer it with 409.
+ */
+export class DuplicateItemError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'DuplicateItemError';
+  }
+}
+
 export interface ItemGitServiceConfig {
   owner: string;
   repo: string;
@@ -365,6 +377,9 @@ export class ItemGitService {
   /**
    * Create an item file without committing to git.
    * Used for batch import (write many files, then commit once).
+   * Never replaces an existing item file: when `data/<slug>/<slug>.yml` already exists (for example an
+   * overlapping import or submission took the slug after the caller's duplicate check), it throws an
+   * error whose `code` is 'EEXIST' and leaves that file alone.
    */
   async createItemWithoutCommit(data: CreateItemRequest & { brand?: string; brand_logo_url?: string; images?: string[]; markdown?: string }): Promise<ItemData> {
     const newItem: ItemData = {
@@ -392,11 +407,11 @@ export class ItemGitService {
     if (data.images?.length) extendedItem.images = data.images;
     if (data.markdown) extendedItem.markdown = data.markdown;
 
-    await this.writeItemFile(extendedItem);
+    await this.writeItemFile(extendedItem, { createOnly: true });
     return newItem;
   }
 
-  private async writeItemFile(item: ItemData): Promise<void> {
+  private async writeItemFile(item: ItemData, options: { createOnly?: boolean } = {}): Promise<void> {
     try {
       const dataDir = path.join(this.config.dataDir, 'data');
       const itemDir = path.join(dataDir, item.slug);
@@ -441,17 +456,20 @@ export class ItemGitService {
       if (extItem.images?.length) itemData.images = extItem.images;
       if (extItem.markdown) itemData.markdown = extItem.markdown;
 
-      // Write item data
+      // Write item data ('wx' for a create: fail with EEXIST instead of replacing another item's file)
       const content = yaml.stringify(itemData);
-      await fs.writeFile(itemFile, content, 'utf-8');
+      await fs.writeFile(itemFile, content, { encoding: 'utf-8', flag: options.createOnly ? 'wx' : 'w' });
     } catch (error) {
-      console.error('❌ Error writing item file:', error);
+      // EEXIST from the exclusive create is an expected skip (another import or submission took the slug)
+      if ((error as NodeJS.ErrnoException)?.code !== 'EEXIST') {
+        console.error('❌ Error writing item file:', error);
+      }
       throw error;
     }
   }
 
-  async writeItem(item: ItemData): Promise<void> {
-    await this.writeItemFile(item);
+  async writeItem(item: ItemData, options: { createOnly?: boolean } = {}): Promise<void> {
+    await this.writeItemFile(item, options);
     await this.commitAndPush(`Update item: ${item.name}`);
   }
 
@@ -524,12 +542,12 @@ export class ItemGitService {
 
     // Check for duplicate ID
     if (items.some(item => item.id === data.id)) {
-      throw new Error(`Item with ID '${data.id}' already exists`);
+      throw new DuplicateItemError(`Item with ID '${data.id}' already exists`);
     }
     
     // Check for duplicate slug
     if (items.some(item => item.slug === data.slug)) {
-      throw new Error(`Item with slug '${data.slug}' already exists`);
+      throw new DuplicateItemError(`Item with slug '${data.slug}' already exists`);
     }
 
     const newItem: ItemData = {
@@ -550,7 +568,15 @@ export class ItemGitService {
       location: data.location,
     };
 
-    await this.writeItem(newItem);
+    try {
+      // 'wx': an item another request wrote after the read above fails with EEXIST instead of being replaced
+      await this.writeItem(newItem, { createOnly: true });
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException)?.code === 'EEXIST') {
+        throw new DuplicateItemError(`Item with slug '${data.slug}' already exists`);
+      }
+      throw error;
+    }
     this.indexLocationAsync(newItem);
     return newItem;
   }

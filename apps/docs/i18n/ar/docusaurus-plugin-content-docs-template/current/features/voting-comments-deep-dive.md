@@ -21,7 +21,7 @@ app/api/items/[id]/
   votes/route.ts             # GET/POST/DELETE vote endpoints
   comments/route.ts          # GET/POST comment endpoints
   comments/[commentId]/route.ts  # PUT/DELETE single comment
-  comments/rating/route.ts   # POST/PUT/GET rating endpoints
+  comments/rating/route.ts   # GET rating endpoint
 
 lib/db/schema.ts             # votes and comments table definitions
 ```
@@ -56,7 +56,7 @@ function useItemVote(itemId: string) {
 | تم التصويت ضده | انقر للأسفل | إزالة التصويت (تبديل) | +1 |
 | تم التصويت ضده | انقر فوق | قم بالتبديل إلى التصويت الإيجابي | +2 |
 
-عندما يتطابق التصويت الحالي للمستخدم مع النوع المطلوب، يستدعي الخطاف `unvote()` (DELETE). وإلا فإنه يستدعي 2  (POST).
+عندما يتطابق التصويت الحالي للمستخدم مع النوع المطلوب، يستدعي الخطاف `unvote()` (DELETE). وإلا فإنه يستدعي `vote(type)` (POST).
 
 ### حساب العد المتفائل
 
@@ -79,11 +79,11 @@ onMutate: async (type) => {
 },
 ```
 
-يتعامل الحساب 0 مع ثلاث حالات: التبديل إلى وضع الإيقاف (طرح 1)، والتصويت الجديد (إضافة 1)، وتبديل الاتجاه (إضافة 2 للتأرجح الكامل).
+يتعامل الحساب `countDiff` مع ثلاث حالات: التبديل إلى وضع الإيقاف (طرح 1)، والتصويت الجديد (إضافة 1)، وتبديل الاتجاه (إضافة 2 للتأرجح الكامل).
 
 ### بوابة التوثيق
 
-يتم عرض نموذج تسجيل دخول مشروط للمستخدمين غير المصادقين الذين يحاولون التصويت بدلاً من تلقي خطأ:
+يُعرض نموذج تسجيل الدخول للمستخدمين غير المصادقين الذين يحاولون التصويت، ويرمي `handleVote` خطأً قبل أن يبدأ الطفرة:
 
 ```ts
 if (!user) {
@@ -92,7 +92,7 @@ if (!user) {
 }
 ```
 
-يتم اكتشاف الخطأ بواسطة معالج الطفرة، الذي يتحقق من رسالة المصادقة ويمنع نخب الخطأ.
+يصل هذا الخطأ إلى الشيفرة التي استدعت `handleVote`: لا يُرسل أي طلب ولا يعمل معالج `onError` الخاص بالطفرة. يعالج `onError` طلب تصويت فاشلًا فقط: يتراجع عن التحديث المتفائل ويعرض إشعار خطأ (تتخطى طفرة التصويت الإشعار عندما تتعلق الرسالة بتسجيل الدخول).
 
 ### تكوين الاستعلام
 
@@ -147,12 +147,10 @@ interface UpdateCommentData {
 |----------|------|-------------|
 | `comments` | `CommentWithUser[]` | التعليقات مع بيانات المستخدم المملوءة |
 | `isPending` | `boolean` | صحيح أثناء الجلب الأولي |
-| 4ـ | 5 ــ | قم بإنشاء تعليق جديد |
-| 6ـ | `(data) => Promise` | تحرير تعليق موجود |
-| 8ـ | `(id) => Promise` | إزالة تعليق |
-| `rateComment` | `(data) => void` | قيم التعليق |
-| ‹‹١٢› | 13 ــ | تحديث تقييم موجود |
-| 14 ــ | `number` | التقييم الإجمالي للعنصر |
+| `createComment` | `(data) => Promise` | قم بإنشاء تعليق جديد |
+| `updateComment` | `(data) => Promise` | تحرير تعليق موجود |
+| `deleteComment` | `(id) => Promise` | إزالة تعليق |
+| `commentRating` | `{ averageRating: number; totalRatings: number }` | التقييم الإجمالي للعنصر |
 
 ### نظام الأحداث عبر المكونات
 
@@ -225,16 +223,14 @@ function useAdminComments({ page, limit, search }) {
 
 | الطريقة | نقطة النهاية | الوصف |
 |--------|----------|-------------|
-| احصل على | `/api/items/:id/votes` | جلب عدد الأصوات وتصويت المستخدم |
-| مشاركة | `/api/items/:id/votes` | الإدلاء بالتصويت أو تغييره |
-| حذف | 4ـ | إزالة التصويت |
-| احصل على | 5 ــ | جلب التعليقات مع بيانات المستخدم |
-| مشاركة | 6ـ | قم بإنشاء تعليق جديد |
-| ضع | `/api/items/:id/comments/:commentId` | تحديث تعليق |
-| حذف | 8ـ | احذف تعليق |
-| مشاركة | `/api/items/:id/comments/rating` | قيم التعليق |
-| ضع | `/api/items/:id/comments/rating` | تحديث تقييم التعليق |
-| احصل على | `/api/items/:id/comments/rating` | الحصول على تصنيف البند الإجمالي |
+| GET | `/api/items/:slug/votes` | جلب عدد الأصوات وتصويت المستخدم |
+| POST | `/api/items/:slug/votes` | الإدلاء بالتصويت أو تغييره |
+| DELETE | `/api/items/:slug/votes` | إزالة التصويت |
+| GET | `/api/items/:slug/comments` | جلب التعليقات مع بيانات المستخدم |
+| POST | `/api/items/:slug/comments` | قم بإنشاء تعليق جديد |
+| PUT | `/api/items/:slug/comments/:commentId` | تحديث تعليق |
+| DELETE | `/api/items/:slug/comments/:commentId` | احذف تعليق |
+| GET | `/api/items/:slug/comments/rating` | الحصول على تصنيف البند الإجمالي |
 
 ## ميزة تكامل العلم
 

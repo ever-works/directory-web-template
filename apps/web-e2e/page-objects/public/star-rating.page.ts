@@ -6,9 +6,10 @@ import type { Page, Locator } from '@playwright/test';
  * The item-detail page mounts multiple `<Rating>` widgets — the
  * read-only "average rating" display, the read-only display of each
  * existing comment, AND the interactive picker inside the new-comment
- * and edit-comment forms. We target the INTERACTIVE one (the first
- * radiogroup whose buttons aren't `disabled`) so click() doesn't no-op
- * against the readonly average.
+ * and edit-comment forms. Only the interactive picker is a radiogroup
+ * of star buttons (a read-only rating is one `role="img"` named
+ * "Rated N out of 5"), so we target the first radiogroup with an
+ * enabled button. The names below are the English (`en`) labels.
  */
 export class StarRating {
 	readonly page: Page;

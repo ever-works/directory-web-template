@@ -18,7 +18,7 @@ Das Abstimmungssystem verwendet ein Abstimmungsmodell pro Element, bei dem jeder
 ```mermaid
 flowchart TD
     A["Component (UI)"] -->|"useItemVote(itemId)"| B["Vote Hook (optimistic)"]
-    B --> C["/api/items/:id/votes"]
+    B --> C["/api/items/:slug/votes"]
     C --> D["Database (votes table)"]
 ```
 
@@ -101,11 +101,7 @@ const {
   isUpdating,
   deleteComment,         // (commentId) => Promise
   isDeleting,
-  rateComment,           // ({ commentId, rating }) => void
-  isRatingComment,
-  updateCommentRating,   // ({ commentId, rating }) => void
-  isUpdatingRating,
-  commentRating,         // number
+  commentRating,         // { averageRating: number; totalRatings: number }
   isLoadingRating,
 } = useComments(itemId);
 ```
@@ -118,7 +114,7 @@ Jeder Kommentar beinhaltet:
 - `rating` -- Optionale Sternebewertung (1-5)
 - `userId` – Autorenangabe
 - `itemId` – Zugehöriger Artikel
-- `user` – Ausgefüllte Benutzerdaten (Name, E-Mail, Bild)
+- `user` – Das öffentliche Profil des Autors. GET und POST liefern id, name, image, username, bio, jobTitle, company und location; die Antwort von PUT (Bearbeiten) liefert nur id, name und image. Die E-Mail-Adresse wird nie zurückgegeben.
 - `createdAt` / `updatedAt` – Zeitstempel
 
 ### Bewertungsintegration
@@ -159,13 +155,11 @@ const {
 
 | Methode | Endpunkt | Beschreibung |
 |--------|----------|-------------|
-| GET | `/api/items/:id/comments` | Kommentare für einen Artikel abrufen |
-| POST | `/api/items/:id/comments` | Einen neuen Kommentar erstellen |
-| PUT | `/api/items/:id/comments/:commentId` | Einen Kommentar aktualisieren |
-| LÖSCHEN | `/api/items/:id/comments/:commentId` | Einen Kommentar löschen |
-| POST | `/api/items/:id/comments/rating` | Bewerten Sie einen Kommentar |
-| PUT | `/api/items/:id/comments/rating` | Kommentarbewertung aktualisieren |
-| GET | `/api/items/:id/comments/rating` | Gesamtbewertung abrufen |
+| GET | `/api/items/:slug/comments` | Kommentare für einen Artikel abrufen |
+| POST | `/api/items/:slug/comments` | Einen neuen Kommentar erstellen |
+| PUT | `/api/items/:slug/comments/:commentId` | Einen Kommentar aktualisieren |
+| DELETE | `/api/items/:slug/comments/:commentId` | Einen Kommentar löschen |
+| GET | `/api/items/:slug/comments/rating` | Gesamtbewertung abrufen |
 
 ## Feature-Flag-Integration
 

@@ -1,3 +1,4 @@
+import { maskEmail } from "@/lib/utils";
 import { EmailMessage, EmailProvider } from ".";
 
 interface SmtpConfig {
@@ -44,7 +45,8 @@ export class SmtpProvider implements EmailProvider {
 			console.log(`\n┌${border}┐`);
 			console.log(`│  📬 EMAIL SENT (Ethereal test — not delivered to inbox) │`);
 			console.log(`├${border}┤`);
-			console.log(`│  To:      ${String(message.to).padEnd(49)}│`);
+			const maskedTo = [message.to].flat().map((address) => maskEmail(address)).join(", ");
+			console.log(`│  To:      ${maskedTo.padEnd(49)}│`);
 			console.log(`│  Subject: ${message.subject.slice(0, 49).padEnd(49)}│`);
 			console.log(`├${border}┤`);
 			console.log(`│  👁  Preview URL (open in browser):                     │`);

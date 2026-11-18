@@ -1,6 +1,7 @@
 import { notFound, redirect } from 'next/navigation';
 import { auth } from '@/lib/auth';
 import { getClientProfileById, getLastLoginActivity, listPortfolioProjectsForProfile, getProfileStats } from '@/lib/db/queries';
+import { isAdmin } from '@/lib/db/roles';
 import type { PortfolioItem } from '@/lib/types/profile';
 
 import { ClientDetailContent } from './client-detail-content';
@@ -11,9 +12,16 @@ export default async function ClientDetailPage({ params }: { params: Promise<Par
 	const { id, locale: paramLocale } = await params;
 
 	const session = await auth();
-	if (!session?.user?.isAdmin) {
+	if (!session?.user?.id) {
 		const locale = paramLocale || 'en';
 		redirect(`/${locale}/auth/signin`);
+	}
+
+	// Check the live role, not the session's isAdmin claim: the claim is set at sign-in and stays for the
+	// JWT's 30-day lifetime, so a user whose admin role was removed still has it. A failed lookup throws and
+	// renders the error page, never the client data below.
+	if (!(await isAdmin(session.user.id))) {
+		redirect('/unauthorized');
 	}
 
 	const profile = await getClientProfileById(id);

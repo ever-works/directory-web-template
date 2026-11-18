@@ -4785,6 +4785,9 @@
 							}
 						}
 					},
+					"400": {
+						"description": "Invalid page or limit (not a whole number, page below 1, limit outside 1-100)"
+					},
 					"403": {
 						"description": "Forbidden - Admin access required",
 						"content": {
@@ -12802,10 +12805,6 @@
 																"type": "string",
 																"example": "John Doe"
 															},
-															"email": {
-																"type": "string",
-																"example": "john.doe@example.com"
-															},
 															"avatar": {
 																"type": "string",
 																"nullable": true,
@@ -12884,7 +12883,7 @@
 			"post": {
 				"tags": ["Item Comments"],
 				"summary": "Create item comment",
-				"description": "Creates a new comment for a specific item with a rating. Requires user authentication and a valid client profile. The comment content is required and the rating must be between 1 and 5. Returns the created comment with user information.",
+				"description": "Creates a new comment for a specific item with a rating. Requires user authentication and a valid client profile. The content must be a string of 1 to 1000 characters after trimming and the rating an integer from 1 to 5 (the same rules as editing a comment); a malformed JSON body is a 400. Returns the created comment with user information.",
 				"security": [
 					{
 						"sessionAuth": []
@@ -12912,7 +12911,8 @@
 									"content": {
 										"type": "string",
 										"minLength": 1,
-										"description": "Comment content (required, non-empty)",
+										"maxLength": 1000,
+										"description": "Comment content (required, 1-1000 characters after trimming; stored trimmed)",
 										"example": "This is an amazing tool! Really helped boost my productivity."
 									},
 									"rating": {
@@ -13002,10 +13002,6 @@
 															"type": "string",
 															"example": "John Doe"
 														},
-														"email": {
-															"type": "string",
-															"example": "john.doe@example.com"
-														},
 														"avatar": {
 															"type": "string",
 															"nullable": true,
@@ -13052,11 +13048,63 @@
 											"example": false
 										},
 										"error": {
-											"type": "string",
-											"examples": {
-												"empty_content": "Content is required",
-												"invalid_rating": "Rating must be between 1 and 5"
-											}
+											"type": "string"
+										}
+									}
+								},
+								"examples": {
+									"invalid_json": {
+										"value": {
+											"success": false,
+											"error": "Invalid JSON body"
+										}
+									},
+									"not_an_object": {
+										"value": {
+											"success": false,
+											"error": "Request body must be a JSON object"
+										}
+									},
+									"missing_content": {
+										"value": {
+											"success": false,
+											"error": "Content is required"
+										}
+									},
+									"content_type": {
+										"value": {
+											"success": false,
+											"error": "Content must be a string"
+										}
+									},
+									"content_length": {
+										"value": {
+											"success": false,
+											"error": "Content must be between 1 and 1000 characters"
+										}
+									},
+									"content_nul": {
+										"value": {
+											"success": false,
+											"error": "Content must not contain NUL characters"
+										}
+									},
+									"missing_rating": {
+										"value": {
+											"success": false,
+											"error": "Rating is required"
+										}
+									},
+									"rating_type": {
+										"value": {
+											"success": false,
+											"error": "Rating must be an integer"
+										}
+									},
+									"invalid_rating": {
+										"value": {
+											"success": false,
+											"error": "Rating must be between 1 and 5"
 										}
 									}
 								}
@@ -13941,6 +13989,41 @@
 							}
 						}
 					},
+					"403": {
+						"description": "The signed-in user's email address is not verified",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"error": {
+											"type": "string"
+										},
+										"code": {
+											"type": "string",
+											"example": "EMAIL_NOT_VERIFIED"
+										}
+									}
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "Subscription not found, or it does not belong to the signed-in user",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"error": {
+											"type": "string",
+											"example": "Subscription not found or access denied"
+										}
+									}
+								}
+							}
+						}
+					},
 					"500": {
 						"description": "Internal server error",
 						"content": {
@@ -13977,7 +14060,7 @@
 			"post": {
 				"tags": ["LemonSqueezy - Core"],
 				"summary": "Create checkout session",
-				"description": "Creates a new LemonSqueezy checkout session for the authenticated user. Validates the request data, creates a custom checkout with user metadata, and returns the checkout URL. Requires user authentication and handles various error scenarios including configuration and validation errors.",
+				"description": "Creates a new LemonSqueezy checkout session for the authenticated user. Validates the request data, creates a custom checkout with user metadata, and returns the checkout URL. Requires user authentication and handles various error scenarios including configuration and validation errors. Only variantId and dark are taken from the body: the variant's own price is charged and the checkout custom data is set from the session (spec 060 R10).",
 				"security": [
 					{
 						"sessionAuth": []
@@ -14003,17 +14086,18 @@
 									"customPrice": {
 										"type": "number",
 										"minimum": 0,
-										"description": "Custom price in cents (optional)",
+										"deprecated": true,
+										"description": "Ignored: the checkout charges the variant's own price (still validated)",
 										"example": 2999
 									},
 									"metadata": {
 										"type": "object",
-										"description": "Additional metadata for the checkout",
+										"deprecated": true,
+										"description": "Ignored: the checkout custom data is set from the session",
 										"additionalProperties": {
 											"type": "string"
 										},
 										"example": {
-											"plan": "pro",
 											"source": "website"
 										}
 									}
@@ -14050,11 +14134,6 @@
 													"description": "User email",
 													"example": "user@example.com"
 												},
-												"customPrice": {
-													"type": "number",
-													"description": "Custom price in cents",
-													"example": 2999
-												},
 												"variantId": {
 													"type": "string",
 													"description": "Product variant ID",
@@ -14062,7 +14141,7 @@
 												},
 												"metadata": {
 													"type": "object",
-													"description": "Checkout metadata including user info",
+													"description": "Checkout custom data, set from the session",
 													"properties": {
 														"userId": {
 															"type": "string",
@@ -14076,9 +14155,6 @@
 															"type": "string",
 															"example": "John Doe"
 														}
-													},
-													"additionalProperties": {
-														"type": "string"
 													}
 												}
 											}
@@ -14186,7 +14262,7 @@
 			"get": {
 				"tags": ["LemonSqueezy - Core"],
 				"summary": "Create checkout session via query parameters",
-				"description": "Creates a new LemonSqueezy checkout session using query parameters instead of request body. Useful for direct links and simple integrations. Validates query parameters and creates a custom checkout session.",
+				"description": "Creates a new LemonSqueezy checkout session using query parameters instead of request body. Useful for direct links and simple integrations. Validates query parameters and creates a custom checkout session. customPrice and metadata are validated but not forwarded: the variant's own price is charged and no client custom data is set (spec 060 R10).",
 				"parameters": [
 					{
 						"name": "variantId",
@@ -14213,21 +14289,23 @@
 						"name": "customPrice",
 						"in": "query",
 						"required": false,
+						"deprecated": true,
 						"schema": {
 							"type": "number",
 							"minimum": 0
 						},
-						"description": "Custom price in cents",
+						"description": "Ignored: the checkout charges the variant's own price",
 						"example": 2999
 					},
 					{
 						"name": "metadata",
 						"in": "query",
 						"required": false,
+						"deprecated": true,
 						"schema": {
 							"type": "string"
 						},
-						"description": "JSON string of additional metadata",
+						"description": "Ignored: no client custom data is forwarded",
 						"example": "{\"plan\":\"pro\",\"source\":\"website\"}"
 					}
 				],
@@ -14258,22 +14336,10 @@
 													"description": "Customer email",
 													"example": "user@example.com"
 												},
-												"customPrice": {
-													"type": "number",
-													"description": "Custom price in cents",
-													"example": 2999
-												},
 												"variantId": {
 													"type": "string",
 													"description": "Product variant ID",
 													"example": "123456"
-												},
-												"metadata": {
-													"type": "object",
-													"description": "Checkout metadata",
-													"additionalProperties": {
-														"type": "string"
-													}
 												}
 											}
 										},
@@ -14675,6 +14741,30 @@
 							}
 						}
 					},
+					"403": {
+						"description": "Forbidden - the signed-in user's email address is not verified (EMAIL_NOT_VERIFIED), or customerEmail names another user and the caller is not an admin (ACCESS_DENIED)",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"error": {
+											"type": "string"
+										},
+										"message": {
+											"type": "string",
+											"example": "You can only view your own checkouts"
+										},
+										"code": {
+											"type": "string",
+											"enum": ["EMAIL_NOT_VERIFIED", "ACCESS_DENIED"],
+											"example": "EMAIL_NOT_VERIFIED"
+										}
+									}
+								}
+							}
+						}
+					},
 					"500": {
 						"description": "Internal server error",
 						"content": {
@@ -14870,7 +14960,7 @@
 						}
 					},
 					"403": {
-						"description": "Forbidden - Cannot access other users' checkouts",
+						"description": "Forbidden - the signed-in user's email address is not verified (EMAIL_NOT_VERIFIED), or customerEmail names another user and the caller is not an admin (ACCESS_DENIED)",
 						"content": {
 							"application/json": {
 								"schema": {
@@ -14886,7 +14976,8 @@
 										},
 										"code": {
 											"type": "string",
-											"example": "ACCESS_DENIED"
+											"enum": ["EMAIL_NOT_VERIFIED", "ACCESS_DENIED"],
+											"example": "EMAIL_NOT_VERIFIED"
 										}
 									}
 								}
@@ -15101,6 +15192,41 @@
 										"code": {
 											"type": "string",
 											"example": "AUTH_REQUIRED"
+										}
+									}
+								}
+							}
+						}
+					},
+					"403": {
+						"description": "The signed-in user's email address is not verified",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"error": {
+											"type": "string"
+										},
+										"code": {
+											"type": "string",
+											"example": "EMAIL_NOT_VERIFIED"
+										}
+									}
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "Subscription not found, or it does not belong to the signed-in user",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"error": {
+											"type": "string",
+											"example": "Subscription not found or access denied"
 										}
 									}
 								}
@@ -15361,6 +15487,41 @@
 										"code": {
 											"type": "string",
 											"example": "AUTH_REQUIRED"
+										}
+									}
+								}
+							}
+						}
+					},
+					"403": {
+						"description": "The signed-in user's email address is not verified",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"error": {
+											"type": "string"
+										},
+										"code": {
+											"type": "string",
+											"example": "EMAIL_NOT_VERIFIED"
+										}
+									}
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "Subscription not found, or it does not belong to the signed-in user",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"error": {
+											"type": "string",
+											"example": "Subscription not found or access denied"
 										}
 									}
 								}
@@ -15916,7 +16077,7 @@
 			"post": {
 				"tags": ["Payment Accounts"],
 				"summary": "Create payment account",
-				"description": "Creates a new payment account for a user with a specific payment provider. Links the user to their customer ID in the payment provider's system. This is typically called after a successful customer creation in the payment provider.",
+				"description": "Admin only (401 without a session, 403 for a signed-in non-admin). Creates a new payment account for a user with a specific payment provider. Links the user to their customer ID in the payment provider's system. The payment providers do not call this route; they write through the database queries.",
 				"requestBody": {
 					"required": true,
 					"content": {
@@ -16061,7 +16222,7 @@
 			"put": {
 				"tags": ["Payment Accounts"],
 				"summary": "Update payment account",
-				"description": "Updates an existing payment account with new provider or customer information. Requires the account ID to identify which account to update. This is typically used when a customer ID changes in the payment provider's system.",
+				"description": "Admin only (401 without a session, 403 for a signed-in non-admin). Sets the customer ID of a user's payment account for one provider (same write as POST). The row is matched by userId and provider; `id` is required but does not pick the row. This is typically used when a customer ID changes in the payment provider's system.",
 				"requestBody": {
 					"required": true,
 					"content": {
@@ -16071,7 +16232,7 @@
 								"properties": {
 									"id": {
 										"type": "string",
-										"description": "Payment account ID to update",
+										"description": "Payment account ID (required, but the row is matched by userId and provider)",
 										"example": "pay_acc_123abc"
 									},
 									"provider": {
@@ -19004,6 +19165,22 @@
 							}
 						}
 					},
+					"404": {
+						"description": "Subscription not found, or it does not belong to the signed-in user",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"error": {
+											"type": "string",
+											"example": "Subscription not found or access denied"
+										}
+									}
+								}
+							}
+						}
+					},
 					"500": {
 						"description": "Internal server error",
 						"content": {
@@ -20476,6 +20653,9 @@
 							}
 						}
 					},
+					"403": {
+						"description": "Forbidden - Admin access required"
+					},
 					"409": {
 						"description": "Conflict - User already has active subscription",
 						"content": {
@@ -21611,7 +21791,7 @@
 			"post": {
 				"tags": ["System"],
 				"summary": "Trigger manual repository synchronization",
-				"description": "Manually triggers a background synchronization of the Git repository. Prevents concurrent sync operations and provides detailed status information including duration and success metrics.",
+				"description": "Manually triggers a background synchronization of the Git repository. Admin only: every sync pulls the data repository and flushes all content caches. Prevents concurrent sync operations and provides detailed status information including duration and success metrics.",
 				"requestBody": {
 					"required": false,
 					"content": {
@@ -21724,8 +21904,48 @@
 							}
 						}
 					},
+					"401": {
+						"description": "Not signed in",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"success": {
+											"type": "boolean",
+											"example": false
+										},
+										"error": {
+											"type": "string",
+											"example": "Unauthorized"
+										}
+									}
+								}
+							}
+						}
+					},
+					"403": {
+						"description": "Signed in, but not an admin",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"success": {
+											"type": "boolean",
+											"example": false
+										},
+										"error": {
+											"type": "string",
+											"example": "Forbidden"
+										}
+									}
+								}
+							}
+						}
+					},
 					"500": {
-						"description": "Sync operation failed",
+						"description": "Sync operation failed, or the admin check could not be completed (error: 'Admin check failed')",
 						"content": {
 							"application/json": {
 								"schema": {
@@ -22052,6 +22272,9 @@
 					"401": {
 						"description": "Unauthorized"
 					},
+					"403": {
+						"description": "Forbidden - the caller is not an admin"
+					},
 					"500": {
 						"description": "Internal server error"
 					}
@@ -22181,6 +22404,9 @@
 					"401": {
 						"description": "Unauthorized"
 					},
+					"403": {
+						"description": "Forbidden - the caller is not an admin"
+					},
 					"404": {
 						"description": "Response not found"
 					},
@@ -22194,7 +22420,7 @@
 			"get": {
 				"tags": ["Surveys"],
 				"summary": "Get surveys",
-				"description": "Retrieve surveys with optional filters",
+				"description": "Retrieve surveys with optional filters. Non-admins (including anonymous callers) only get published surveys: their status filter is always published. Unknown type or status values are ignored.",
 				"parameters": [
 					{
 						"name": "type",
@@ -22223,7 +22449,7 @@
 							"type": "string",
 							"enum": ["draft", "published", "closed"]
 						},
-						"description": "Filter by status"
+						"description": "Filter by status (admins only; non-admins always get published)"
 					},
 					{
 						"name": "page",
@@ -22347,6 +22573,9 @@
 					"401": {
 						"description": "Unauthorized"
 					},
+					"403": {
+						"description": "Forbidden - the caller is not an admin"
+					},
 					"500": {
 						"description": "Internal server error"
 					}
@@ -22442,6 +22671,9 @@
 					"401": {
 						"description": "Unauthorized"
 					},
+					"403": {
+						"description": "Forbidden - the caller is not an admin"
+					},
 					"404": {
 						"description": "Survey not found"
 					},
@@ -22476,6 +22708,9 @@
 					},
 					"401": {
 						"description": "Unauthorized"
+					},
+					"403": {
+						"description": "Forbidden - the caller is not an admin"
 					},
 					"404": {
 						"description": "Survey not found"
@@ -23621,10 +23856,14 @@
 						"content": {
 							"text/plain": {
 								"schema": {
-									"type": "string",
-									"examples": {
-										"client_not_found": "Client profile not found",
-										"comment_not_found": "Comment not found or not authorized"
+									"type": "string"
+								},
+								"examples": {
+									"client_not_found": {
+										"value": "Client profile not found"
+									},
+									"comment_not_found": {
+										"value": "Comment not found or not authorized"
 									}
 								}
 							}
@@ -23683,7 +23922,9 @@
 								"properties": {
 									"content": {
 										"type": "string",
-										"description": "Updated comment content",
+										"minLength": 1,
+										"maxLength": 1000,
+										"description": "Updated comment content (1-1000 characters after trimming; stored trimmed)",
 										"example": "This is my updated review of this amazing tool!"
 									},
 									"rating": {
@@ -23742,9 +23983,6 @@
 												"name": {
 													"type": "string"
 												},
-												"email": {
-													"type": "string"
-												},
 												"image": {
 													"type": "string"
 												}
@@ -23756,7 +23994,7 @@
 						}
 					},
 					"400": {
-						"description": "Bad request - validation failed",
+						"description": "Bad request - validation failed (same rules as creating a comment)",
 						"content": {
 							"application/json": {
 								"schema": {
@@ -23764,6 +24002,48 @@
 									"properties": {
 										"error": {
 											"type": "string"
+										}
+									}
+								},
+								"examples": {
+									"invalid_json": {
+										"value": {
+											"error": "Invalid JSON body"
+										}
+									},
+									"not_an_object": {
+										"value": {
+											"error": "Request body must be a JSON object"
+										}
+									},
+									"no_fields": {
+										"value": {
+											"error": "At least one of content or rating must be provided"
+										}
+									},
+									"content_type": {
+										"value": {
+											"error": "Content must be a string"
+										}
+									},
+									"content_length": {
+										"value": {
+											"error": "Content must be between 1 and 1000 characters"
+										}
+									},
+									"content_nul": {
+										"value": {
+											"error": "Content must not contain NUL characters"
+										}
+									},
+									"rating_type": {
+										"value": {
+											"error": "Rating must be an integer"
+										}
+									},
+									"invalid_rating": {
+										"value": {
+											"error": "Rating must be between 1 and 5"
 										}
 									}
 								}
@@ -23808,7 +24088,7 @@
 			"get": {
 				"tags": ["Item Comments"],
 				"summary": "Get item rating statistics",
-				"description": "Returns aggregated rating statistics for a specific item including average rating and total number of ratings. Only counts non-deleted comments. This is a public endpoint that doesn't require authentication and includes database availability checking.",
+				"description": "Returns aggregated rating statistics for a specific item including average rating and total number of ratings. Only counts non-deleted comments from active accounts with a rating from 1 to 5. This is a public endpoint that doesn't require authentication and includes database availability checking.",
 				"parameters": [
 					{
 						"name": "slug",
@@ -25852,7 +26132,7 @@
 			"put": {
 				"tags": ["Admin - Reports"],
 				"summary": "Update report status and resolution",
-				"description": "Updates a report's status, resolution, and/or review note. Requires admin privileges.",
+				"description": "Updates a report's status, resolution, and/or review note. Requires admin privileges. A resolution other than no_action runs its moderation action first (remove the content, or warn / suspend / ban its owner's client profile); if that action fails, the report is left unchanged and the response is an error. A resolution the report already has is not run again, so the note and status of a completed report can still be edited.",
 				"security": [
 					{
 						"sessionAuth": []
@@ -30529,7 +30809,7 @@
 										},
 										"error": {
 											"type": "string",
-											"example": "Forbidden. Admin access required for geocoding operations."
+											"example": "Forbidden"
 										}
 									}
 								}

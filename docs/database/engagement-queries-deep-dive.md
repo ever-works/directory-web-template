@@ -313,12 +313,12 @@ async function getCommentsByItemId(
 
 **Returns:** Array of `CommentWithUser` including:
 - Comment fields: `id`, `content`, `rating`, `createdAt`, `updatedAt`, `editedAt`, `deletedAt`
-- User fields: `user.id`, `user.name`, `user.email`, `user.image`
+- User fields: `user.id`, `user.name`, `user.image` (public profile fields only; the commenter email is never selected)
 
 **SQL Pattern:**
 
 ```sql
-SELECT comments.*, client_profiles.id, name, email, avatar
+SELECT comments.*, client_profiles.id, name, avatar
 FROM comments
 INNER JOIN client_profiles ON comments.user_id = client_profiles.id
 WHERE comments.item_id = ? AND comments.deleted_at IS NULL
@@ -373,12 +373,12 @@ RETURNING *;
 
 ---
 
-### `updateCommentRating`
+### `updateCommentRatingForOwner`
 
-Updates only the rating on a comment.
+Updates only the rating on a comment, and only when the comment was written by the given client profile. Comment ids are public, so the author check is part of the `WHERE` clause. Soft-deleted comments are skipped.
 
 ```typescript
-async function updateCommentRating(id: string, rating: number)
+async function updateCommentRatingForOwner(id: string, clientProfileId: string, rating: number)
 ```
 
 ---
@@ -417,7 +417,6 @@ type CommentWithUser = {
   user: {
     id: string;
     name: string | null;
-    email: string | null;
     image: string | null;
   };
 };

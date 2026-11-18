@@ -78,9 +78,14 @@ existing backend behaviour untouched.
      checked `users.passwordHash` via `comparePasswords`, and always
      failed for client users whose hash lives on
      `accounts.passwordHash` (provider='credentials'). The action
-     now mirrors `signInAction` — it tries
-     `verifyClientPassword(email, password)` first and falls back
-     to the admin path.
+     then tried `verifyClientPassword(email, password)` first and
+     fell back to the admin path, so a match in either store passed.
+     Since T-2639 it checks only the one hash sign-in accepts for
+     the user, `getSignInPasswordHash` (`users.passwordHash` for an
+     admin that has one, otherwise the credentials account hash),
+     so a stale hash left in the other store (the seed password on
+     a seeded admin's credentials row) cannot authorize the
+     deletion. The deactivate action uses the same check.
   2. **Hard delete instead of soft delete.** The user-facing
      contract of "delete my account" is irreversible removal, not a
      `deletedAt` sentinel + email mangling. Added a new

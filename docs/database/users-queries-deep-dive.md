@@ -132,6 +132,76 @@ async function updateUserPassword(
 UPDATE users SET password_hash = ? WHERE id = ?;
 ```
 
+This writes `users.passwordHash` only. Admin sign-in reads that column and client sign-in does not. Nothing in the app calls it any more: password reset, change-password and the `updatePassword` server action use `setUserPasswordHash` instead.
+
+---
+
+### `setUserPasswordHash`
+
+Stores a new password hash where sign-in reads it. Client sign-in (`verifyClientPassword`) reads only the hash on the user's `credentials` row in `accounts`; admin sign-in reads `users.passwordHash`. Used by the password reset (`newPasswordAction`) and `POST /api/auth/change-password`.
+
+```typescript
+async function setUserPasswordHash(
+  userId: string,
+  newPasswordHash: string
+): Promise<{ accounts: number; users: number }>
+```
+
+**Parameters:**
+
+| Parameter         | Type     | Required | Description          |
+|-------------------|----------|----------|----------------------|
+| `userId`          | `string` | Yes      | Target user ID       |
+| `newPasswordHash` | `string` | Yes      | New bcrypt hash      |
+
+**Returns:** how many `accounts` and `users` rows now hold the new hash.
+
+**SQL Pattern (one transaction, current tenant):**
+
+```sql
+UPDATE accounts SET password_hash = ?
+  WHERE "userId" = ? AND provider = 'credentials' AND tenant_id = ?;
+UPDATE users SET password_hash = ?, updated_at = now()
+  WHERE id = ? AND tenant_id = ?
+    AND password_hash IS NOT NULL;  -- this condition only when an accounts row was updated
+```
+
+When a credentials account was updated, the users row is written only if it already has a hash (the admin case), so a client does not gain a second password store. A user with no credentials account has the users row written, as before, so an admin who signed up through OAuth can still set a password with a reset.
+
+---
+
+### `getSignInPasswordHash`
+
+Returns the one password hash sign-in accepts for a user (`lib/auth/credentials.ts`): `users.passwordHash` for an admin that has one, otherwise the hash on the user's `credentials` row in `accounts`. Every check of a password that a signed-in user submits to confirm a sensitive action uses it: `POST /api/auth/change-password`, the `deleteAccount` and `deactivateAccount` server actions (the danger-zone forms) and `updatePassword`.
+
+```typescript
+async function getSignInPasswordHash(
+  user: Pick<User, 'id' | 'passwordHash'>
+): Promise<string | null>
+```
+
+**Parameters:**
+
+| Parameter | Type                                  | Required | Description                     |
+|-----------|---------------------------------------|----------|---------------------------------|
+| `user`    | `Pick<User, 'id' \| 'passwordHash'>` | Yes      | The user's `users` row          |
+
+**Returns:** the hash, or `null` when the user has no hash in either store (OAuth only).
+
+**Logic (current tenant):**
+
+```sql
+-- only when users.passwordHash is set; a database error throws (isUserAdminOrThrow)
+SELECT roles.is_admin FROM user_roles INNER JOIN roles ... LIMIT 1;
+-- not an admin, or an admin without users.passwordHash:
+SELECT password_hash FROM accounts
+  WHERE "userId" = ? AND provider = 'credentials' AND tenant_id = ?
+  LIMIT 1;
+-- result: that hash, or users.passwordHash when there is none
+```
+
+A match in the other store is never accepted. Before `setUserPasswordHash` (#1140), resets and changes wrote `users.passwordHash` only, so deployed databases can still hold a stale hash there or on the credentials row (for example the seed password on a seeded admin's credentials row); accepting either store let that stale password authorize a change, an account deletion or a deactivation. A user with no credentials account hash gets `users.passwordHash`, the only hash they have (compatibility only: sign-in never reads it for a non-admin). It fails closed: a missing tenant or a failed role lookup throws instead of reading as "not an admin", which would check an admin against the credentials account hash.
+
 ---
 
 ### `updateUser`
@@ -259,6 +329,21 @@ LIMIT 1;
 - Uses `INNER JOIN` for efficient filtering
 - Checks both `isAdmin` flag and `active` status
 - Returns `false` silently when `DATABASE_URL` is not set
+- Returns `false` on a database error (logged); the query itself lives in `isUserAdminOrThrow`
+
+---
+
+### `isUserAdminOrThrow`
+
+The same role check, failing closed: a missing tenant or a database error throws instead of
+reading as "not an admin". `getSignInPasswordHash` uses it to pick the password store a
+submitted password is checked against, so a failed lookup refuses (500 on
+`POST /api/auth/change-password`) rather than checking an admin against the credentials account
+hash.
+
+```typescript
+async function isUserAdminOrThrow(userId: string): Promise<boolean>
+```
 
 ---
 

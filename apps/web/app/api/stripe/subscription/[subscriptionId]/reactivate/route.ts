@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth, getOrCreateStripeProvider } from '@/lib/auth';
 import { getSubscriptionByProviderSubscriptionId, updateSubscriptionBySubscriptionId } from '@/lib/db/queries';
+import { PaymentProvider } from '@/lib/constants';
+import { findOwnedProviderSubscription, SUBSCRIPTION_NOT_FOUND_MESSAGE } from '@/lib/payment/subscription-ownership';
 import { paymentEmailService } from '@/lib/payment/services/payment-email.service';
 
 /**
@@ -141,12 +143,16 @@ export async function POST(
     const stripeProvider = getOrCreateStripeProvider();
 
     // Verify the subscription belongs to the user
-    const userSubscription = await getSubscriptionByProviderSubscriptionId('stripe',subscriptionId);
-    
+    const userSubscription = await findOwnedProviderSubscription(
+      session.user.id,
+      PaymentProvider.STRIPE,
+      subscriptionId,
+      getSubscriptionByProviderSubscriptionId,
+    );
 
     if (!userSubscription) {
       return NextResponse.json(
-        { error: 'Subscription not found or access denied' },
+        { error: SUBSCRIPTION_NOT_FOUND_MESSAGE },
         { status: 404 }
       );
     }
@@ -169,6 +175,7 @@ export async function POST(
 
     await updateSubscriptionBySubscriptionId({
       subscriptionId: subscriptionId,
+      paymentProvider: 'stripe',
       cancelAtPeriodEnd: false,
       cancelledAt: null,
       updatedAt: new Date(),

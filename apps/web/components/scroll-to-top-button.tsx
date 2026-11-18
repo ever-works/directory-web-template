@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { ChevronUp, ArrowUp } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useScrollToTop } from "@/hooks/use-scroll-to-top";
 import { cn } from "@/lib/utils";
 
@@ -20,6 +21,7 @@ export function ScrollToTopButton({
   variant = "elegant",
   easing = "easeInOut"
 }: ScrollToTopButtonProps) {
+  const t = useTranslations("header");
   const [isVisible, setIsVisible] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
   const { scrollToTop } = useScrollToTop({ 
@@ -61,6 +63,14 @@ export function ScrollToTopButton({
     lg: "w-7 h-7"
   };
 
+  // Keeps the hint's arrow under the button's centre now that the bubble is right-aligned:
+  // right offset = button width / 2 - arrow half width (4px).
+  const hintArrowOffsets = {
+    sm: "right-4",
+    md: "right-5",
+    lg: "right-7"
+  };
+
   const variants = {
     default: "bg-primary-600 hover:bg-primary-700 text-white border-2 border-primary-500 hover:border-primary-600",
     elegant: "bg-white/90 dark:bg-white/5 backdrop-blur-lg text-gray-800 dark:text-white border border-gray-200/50 dark:border-white/4 hover:bg-white dark:hover:bg-white/6 shadow-lg hover:shadow-xl",
@@ -80,7 +90,7 @@ export function ScrollToTopButton({
   if (!isVisible) return null;
 
   return (
-    <div className="fixed bottom-8 right-8 z-50">
+    <div className="group fixed bottom-8 right-8 z-50">
       {/* Progress ring for elegant variant */}
       {variant === "elegant" && (
         <div className="absolute inset-0 rounded-full">
@@ -117,12 +127,11 @@ export function ScrollToTopButton({
          "flex items-center justify-center",
          "hover:scale-110 active:scale-95",
          "animate-fadeInUp",
-         "group",
          sizeClasses[size],
          variants[variant],
          className
        )}
-       aria-label="Scroll to top"
+       aria-label={t("SCROLL_TO_TOP")}
       >
         {/* Background glow effect */}
         <div className="absolute inset-0 rounded-full bg-linear-to-r from-primary-400/20 to-primary-600/20 blur-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10" />
@@ -155,10 +164,12 @@ export function ScrollToTopButton({
       </button>
       
       {/* Floating text hint */}
-      <div className="absolute -top-12 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-all duration-300 pointer-events-none">
+      {/* Anchored to the button's physical right edge (the button is `fixed right-8` in LTR and RTL alike), so the
+          bubble grows leftwards, into the page, and never past the viewport edge in long locales. */}
+      <div aria-hidden="true" className="absolute -top-12 right-0 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-all duration-300 pointer-events-none">
         <div className="bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 px-3 py-1 rounded-lg text-sm font-medium whitespace-nowrap shadow-lg">
-          Back to top
-          <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-gray-900 dark:border-t-gray-100" />
+          {t("BACK_TO_TOP")}
+          <div className={cn("absolute top-full border-4 border-transparent border-t-gray-900 dark:border-t-gray-100", hintArrowOffsets[size])} />
         </div>
       </div>
     </div>

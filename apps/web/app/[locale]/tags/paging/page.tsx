@@ -1,4 +1,5 @@
 import { getCachedItems } from "@/lib/content";
+import { setRequestLocale } from "next-intl/server";
 import { paginateMeta, PER_PAGE } from "@/lib/paginate";
 import ListingTags from "../listing-tags";
 import { getTagsEnabled } from "@/lib/utils/settings";
@@ -32,6 +33,9 @@ export async function generateMetadata({
 }
 
 // Enable ISR with 10 minutes revalidation
+// Rendered per request, as before Spec 061: not made cacheable yet (docs/questions.md,
+// Q-061b). `revalidate` below has no effect while this is set.
+export const dynamic = 'force-dynamic';
 export const revalidate = 600;
 
 // Allow non-English locales to be generated on-demand (ISR)
@@ -53,6 +57,8 @@ export default async function TagPagingPage({
   }
 
   const { locale } = await params
+  // Sets the request locale for next-intl's server helpers (Spec 061).
+  setRequestLocale(locale);
   const { start, page } = paginateMeta();
   const { tags } = await getCachedItems({ lang: locale });
 

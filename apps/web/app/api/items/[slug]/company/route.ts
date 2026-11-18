@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@/lib/auth';
+import { checkAdminAuth } from '@/lib/auth/admin-guard';
 import {
 	linkItemToCompany,
 	unlinkItemFromCompany,
@@ -18,11 +18,8 @@ import { safeErrorMessage } from '@/lib/utils/api-error';
  */
 export async function GET(request: NextRequest, { params }: { params: Promise<{ slug: string }> }) {
 	try {
-		const session = await auth();
-
-		if (!session?.user?.isAdmin) {
-			return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-		}
+		const authError = await checkAdminAuth();
+		if (authError) return authError;
 
 		const { slug } = await params;
 		const normalizedSlug = slug.toLowerCase().trim();
@@ -49,11 +46,8 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
  */
 export async function POST(request: NextRequest, { params }: { params: Promise<{ slug: string }> }) {
 	try {
-		const session = await auth();
-
-		if (!session?.user?.isAdmin) {
-			return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-		}
+		const authError = await checkAdminAuth();
+		if (authError) return authError;
 
 		const { slug } = await params;
 		const body = await request.json();
@@ -114,11 +108,8 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
  */
 export async function DELETE(request: NextRequest, { params }: { params: Promise<{ slug: string }> }) {
 	try {
-		const session = await auth();
-
-		if (!session?.user?.isAdmin) {
-			return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-		}
+		const authError = await checkAdminAuth();
+		if (authError) return authError;
 
 		const { slug } = await params;
 
