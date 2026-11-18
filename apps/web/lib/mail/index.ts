@@ -200,7 +200,7 @@ export class EmailService {
 
     try {
       const result = await this.provider!.sendEmail(emailMessage);
-      console.log("✅ Provider send result:", result);
+      console.log("✅ Password change confirmation email sent");
       return result;
     } catch (providerError) {
       console.error("❌ Provider send error:", providerError);

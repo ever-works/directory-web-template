@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, it } from 'node:test';
+import { maskEmail } from '../utils';
 
 /**
  * Run with: `pnpm --filter @ever-works/web test:unit`
@@ -29,11 +30,29 @@ const FILES = [
 	'lib/mail/smtp.ts',
 	'lib/mail/templates/example-usage.ts',
 	'lib/services/subscription-jobs.ts',
-	'app/api/geocode/route.ts'
+	'app/api/geocode/route.ts',
+	'app/api/auth/change-password/route.ts',
+	'lib/payment/lib/providers/stripe-provider.ts',
+	'lib/payment/lib/providers/polar-provider.ts',
+	'lib/payment/lib/providers/lemonsqueezy-provider.ts',
+	'lib/payment/lib/providers/solidgate-provider.ts'
 ];
 
-/** Objects that carry an address (and, for payments, the amount and receipt) when logged whole. */
-const WHOLE_OBJECTS = ['data', 'templateData', 'emailData', 'logData', 'emailMessage'];
+/**
+ * Objects that carry an address (and, for payments, the amount and receipt) when logged whole. A
+ * mail provider's send `result` does too: Nodemailer's holds the recipient in `accepted` and
+ * `envelope.to`.
+ */
+const WHOLE_OBJECTS = [
+	'data',
+	'templateData',
+	'emailData',
+	'logData',
+	'emailMessage',
+	'customerData',
+	'result',
+	'emailResult'
+];
 
 const webRoot = join(__dirname, '..', '..');
 const read = (relative: string) => readFileSync(join(webRoot, relative), 'utf8');
@@ -120,12 +139,16 @@ function closing(code: string, open: number): number {
 
 type ConsoleCall = { line: number; args: string; text: string };
 
-/** Every `console.*(...)` call in a file, with its code-only arguments and its original text. */
+/**
+ * Every `console.*(...)` and `logger.*(...)` call in a file, with its code-only arguments and its
+ * original text. The payment providers' `this.logger.debug()` is a plain `console.log`, so it
+ * prints in production too.
+ */
 function consoleCalls(file: string): ConsoleCall[] {
 	const source = read(file);
 	const code = codeOnly(source);
 	const calls: ConsoleCall[] = [];
-	for (const match of code.matchAll(/\bconsole\s*\.\s*\w+\s*\(/g)) {
+	for (const match of code.matchAll(/\b(?:console|logger)\s*\.\s*\w+\s*\(/g)) {
 		const paren = match.index + match[0].length - 1;
 		const end = closing(code, paren);
 		calls.push({
@@ -136,6 +159,9 @@ function consoleCalls(file: string): ConsoleCall[] {
 	}
 	return calls;
 }
+
+/** `email`, `userEmail`, `data.customerEmail`; not `hasEmail`, `isEmail` or the `maskEmail` function itself. */
+const EMAIL_NAME = /^(?!has|is|mask)[\w$]*[eE]mail$/;
 
 const before = (text: string, at: number) => text.slice(0, at).trimEnd();
 const after = (text: string, at: number) => text.slice(at).trimStart();
@@ -162,6 +188,54 @@ function reads(args: string, name: RegExp): string[] {
 	return found;
 }
 
+/**
+ * Where `args` passes the object `name` whole: as a bare argument or a spread (`...data`). A member
+ * read (`data.id`, `result.data`), a `!` check (`!!result`) or an object key (`{ result: 1 }`) does not.
+ */
+function wholeReads(args: string, name: string): string[] {
+	const found: string[] = [];
+	for (const match of args.matchAll(new RegExp(`(?<![\\w$])${name}(?![\\w$])`, 'g'))) {
+		const head = before(args, match.index);
+		const tail = after(args, match.index + name.length);
+		const isSpread = head.endsWith('...');
+		const isMember = !isSpread && head.endsWith('.');
+		const readsField = /^(\?\.|\.|\[|!\.)/.test(tail);
+		const isNegated = head.endsWith('!');
+		const isKey = /[{,]$/.test(head) && /^:(?!:)/.test(tail);
+		if (!isMember && !readsField && !isNegated && !isKey) found.push(isSpread ? `...${name}` : name);
+	}
+	return found;
+}
+
+describe('the log checks themselves', () => {
+	it('count a spread or a bare object as logging it whole, and a field read or a check as not', () => {
+		const args = (call: string) => codeOnly(call).slice(call.indexOf('(') + 1, call.lastIndexOf(')'));
+		assert.deepEqual(wholeReads(args("console.log('x', { ...data })"), 'data'), ['...data']);
+		assert.deepEqual(wholeReads(args("console.log('x', data)"), 'data'), ['data']);
+		assert.deepEqual(wholeReads(args("console.log('x', { data })"), 'data'), ['data']);
+		assert.deepEqual(wholeReads(args("console.log('x', data.id, result.data, data?.id)"), 'data'), []);
+		assert.deepEqual(wholeReads(args("console.log('x', { result: 1, hasResult: !!result })"), 'result'), []);
+	});
+
+	it('count an address as logged unless it is masked, checked with !! or only a key', () => {
+		const args = (call: string) => codeOnly(call).slice(call.indexOf('(') + 1, call.lastIndexOf(')'));
+		assert.deepEqual(reads(args('console.log(`to ${user.email}`)'), EMAIL_NAME), ['user.email']);
+		assert.deepEqual(reads(args("console.log('x', { email })"), EMAIL_NAME), ['email']);
+		assert.deepEqual(reads(args("console.log('x', { email: maskEmail(email), ok: !!email })"), EMAIL_NAME), []);
+	});
+});
+
+describe('maskEmail (used by the mock and Ethereal `To:` lines)', () => {
+	it('hides part of every address, short names included', () => {
+		assert.equal(maskEmail('jonathan@example.com'), 'jo***@example.com');
+		assert.equal(maskEmail('abc@example.com'), 'ab*@example.com');
+		assert.equal(maskEmail('ab@example.com'), 'a*@example.com');
+		assert.equal(maskEmail('a@example.com'), '*@example.com');
+		assert.equal(maskEmail('"a@b"@example.com'), '"a***@example.com');
+		assert.equal(maskEmail(''), '');
+	});
+});
+
 const calls = new Map(FILES.map((file) => [file, consoleCalls(file)]));
 
 describe('server logs carry no email address or payment details', () => {
@@ -182,7 +256,7 @@ describe('server logs carry no email address or payment details', () => {
 			it('does not log an email address', () => {
 				// `email`, `userEmail`, `data.customerEmail`, `session.user.email`; not `hasEmail` or `emailResult`.
 				assert.deepEqual(
-					offenders(file, (call) => reads(call.args, /^(?!has|is)[\w$]*[eE]mail$/)),
+					offenders(file, (call) => reads(call.args, EMAIL_NAME)),
 					[]
 				);
 			});
@@ -196,9 +270,8 @@ describe('server logs carry no email address or payment details', () => {
 
 			it('does not log an email or payment data object whole', () => {
 				// A bare name or a spread passes the whole object; `data.id` reads one field.
-				const whole = (name: string) => new RegExp(`(?<![\\w$.])${name}\\b(?!\\s*(\\?\\.|\\.|\\[))`);
 				assert.deepEqual(
-					offenders(file, (call) => WHOLE_OBJECTS.filter((name) => whole(name).test(call.args))),
+					offenders(file, (call) => WHOLE_OBJECTS.flatMap((name) => wholeReads(call.args, name))),
 					[]
 				);
 			});

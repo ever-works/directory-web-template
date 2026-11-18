@@ -267,15 +267,13 @@ export class PolarProvider implements PaymentProviderInterface {
 			const customer = await this.createCustomer(customerData);
 			this.logger.debug('Polar customer created successfully', {
 				userId: user.id,
-				customerId: customer.id,
-				email: customer.email
+				customerId: customer.id
 			});
 			return customer;
 		} catch (error) {
 			this.logger.error('Failed to create Polar customer', {
 				userId: user.id,
-				error: this.formatErrorMessage(error),
-				customerData
+				error: this.formatErrorMessage(error)
 			});
 			throw error;
 		}
@@ -571,7 +569,7 @@ export class PolarProvider implements PaymentProviderInterface {
 		try {
 			// Validate email format before sending to Polar
 			if (!params.email || !this.isValidEmail(params.email)) {
-				throw new Error(`Invalid email address: ${params.email}. Please provide a valid email address.`);
+				throw new Error('Invalid email address. Please provide a valid email address.');
 			}
 
 			// Check for test domains that Polar rejects
@@ -602,7 +600,7 @@ export class PolarProvider implements PaymentProviderInterface {
 			const errorMessage = this.formatErrorMessage(error);
 			this.logger.error('Failed to create Polar customer', {
 				error: errorMessage,
-				email: params.email,
+				hasEmail: !!params.email,
 				hasName: !!params.name
 			});
 			throw new Error(`Failed to create customer: ${errorMessage}`);
