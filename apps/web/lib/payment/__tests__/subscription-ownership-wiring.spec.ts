@@ -195,7 +195,9 @@ describe('subscription ownership wiring', () => {
 				`${route.name} looks up the owner before checking the email is verified`
 			);
 			assert.ok(
-				/^[^;]*\)\)\) \{ return [^;]*?code: ['"]EMAIL_NOT_VERIFIED['"][^;]*?status: 403 \}/.test(handler.slice(verifyAt)),
+				/^[^;]*\)\)\) \{ return [^;]*?code: ['"]EMAIL_NOT_VERIFIED['"][^;]*?status: 403 \}/.test(
+					handler.slice(verifyAt)
+				),
 				`${route.name} does not return 403 right after a failed email check`
 			);
 			assert.ok(
@@ -231,7 +233,9 @@ describe('subscription ownership wiring', () => {
 	it('the lemonsqueezy/list route wires the verified-email check and the EMAIL_NOT_VERIFIED 403', () => {
 		const source = squash(read('api/lemonsqueezy/list/route.ts'));
 		assert.ok(
-			source.includes('isEmailVerified: (userId, email) => isEmailVerifiedForOwnership(userId, email, loadEmailVerificationState)'),
+			source.includes(
+				'isEmailVerified: (userId, email) => isEmailVerifiedForOwnership(userId, email, loadEmailVerificationState)'
+			),
 			'the list route does not pass the verified-email check'
 		);
 		assert.ok(
@@ -266,7 +270,8 @@ describe('subscription ownership wiring', () => {
 		assert.ok(start >= 0, 'updateUser is missing');
 		const body = source.slice(start, source.indexOf('export async function', start + 1));
 		assert.ok(body.includes('emailVerified: null'), 'updateUser keeps emailVerified when the email changes');
-		assert.ok(body.includes("inArray(accounts.type, ['oauth', 'oidc'])"), 'updateUser does not bind OAuth rows');
+		// OAuth rows keep the address their provider proved (lib/auth/oauth-link-email.ts).
+		assert.ok(!body.includes('.update(accounts)'), 'updateUser rebinds OAuth rows to an address nobody proved');
 	});
 
 	// An OAuth-only user's address counts as verified, so a password user must not be able

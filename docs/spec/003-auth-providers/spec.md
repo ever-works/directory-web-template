@@ -72,6 +72,19 @@ modifying core code so my upstream stays clean.
   `COOKIE_SECURE`).
 - [x] AC-8: E2E specs exist for register, signin, signout
   (`apps/web-e2e/tests/auth/`).
+- [x] AC-9: A password reset or change ends every session that signed
+  in before it (T-2636, PR #1147). `setUserPasswordHash` stamps
+  `users.password_changed_at`; the jwt callback stamps
+  `token.signedInAt` at sign-in (and, for credentials, the
+  `password_changed_at` value read with the checked hash as
+  `token.passwordVersion`) and, on every later `auth()` /
+  `/api/auth/session` read, returns `null` for a session that signed in
+  before the change, or whose change time cannot be read (fails closed).
+  The client notifications stream (`GET /api/client/notifications/stream`),
+  which checked `auth()` only when it connected, re-reads the user's
+  `password_changed_at` and `deactivated_at` on every 25 s ping and
+  closes once the session it opened with has ended (T-2648).
+  See [Session Management](../../authentication/session-management.md#a-password-reset-or-change-ends-older-sessions).
 
 ## 7. Out-of-Scope Considerations
 
@@ -101,6 +114,13 @@ architecture (`AuthProvider` adapter) tracked in
 
 - **Risk:** rotating `AUTH_SECRET` invalidates active sessions. Documented
   in `docs/authentication/`.
+- **Risk (AC-9):** `users.password_changed_at` starts NULL (no backfill),
+  so a session signed in before the release lasts until the user's next
+  reset or change. A database error while reading it ends the session,
+  so an outage signs out the sessions used during it. `proxy.ts` decodes
+  the cookie without the jwt callback, so the authorization stays with
+  `auth()`; the admin survey edit, preview and responses pages read the
+  survey without it (documented in `docs/authentication/`; T-2645).
 - **Open:** should we ship Passkey support? See `docs/questions.md`.
 
 ## 12. Acceptance Test Plan

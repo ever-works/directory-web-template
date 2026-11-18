@@ -108,16 +108,26 @@ import { buildLemonSqueezyCheckoutParams } from '@/lib/payment/lemonsqueezy-chec
  *               properties:
  *                 error:
  *                   type: string
- *                   enum: ["VALIDATION_ERROR"]
- *                   example: "VALIDATION_ERROR"
+ *                   enum: ["Validation Error"]
+ *                   example: "Validation Error"
  *                 message:
  *                   type: string
- *                   examples:
- *                     invalid_json: "Invalid JSON in request body"
- *                     validation_failed: "variantId is required"
- *                     invalid_price: "Custom price must be a positive number"
- *       500:
- *         description: "Internal server error"
+ *                   example: "Invalid JSON in request body"
+ *             examples:
+ *               invalid_json:
+ *                 value:
+ *                   error: "Validation Error"
+ *                   message: "Invalid JSON in request body"
+ *               validation_failed:
+ *                 value:
+ *                   error: "Validation Error"
+ *                   message: "Variant ID must be a positive integer"
+ *               invalid_price:
+ *                 value:
+ *                   error: "Validation Error"
+ *                   message: "Custom price must be a non-negative integer in cents"
+ *       401:
+ *         description: "Unauthorized - Authentication required"
  *         content:
  *           application/json:
  *             schema:
@@ -125,14 +135,36 @@ import { buildLemonSqueezyCheckoutParams } from '@/lib/payment/lemonsqueezy-chec
  *               properties:
  *                 error:
  *                   type: string
- *                   enum: ["INTERNAL_ERROR", "CONFIGURATION_ERROR"]
- *                   example: "INTERNAL_ERROR"
+ *                   example: "Unauthorized"
  *                 message:
  *                   type: string
- *                   examples:
- *                     unauthorized: "Unauthorized"
- *                     config_error: "Checkout service unavailable"
- *                     internal_error: "Failed to create checkout session"
+ *                   example: "Authentication required"
+ *             example:
+ *               error: "Unauthorized"
+ *               message: "Authentication required"
+ *       500:
+ *         description: "Internal server error or missing LemonSqueezy configuration"
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: string
+ *                   enum: ["Internal Server Error", "Configuration Error"]
+ *                   example: "Internal Server Error"
+ *                 message:
+ *                   type: string
+ *                   example: "Failed to create checkout session"
+ *             examples:
+ *               config_error:
+ *                 value:
+ *                   error: "Configuration Error"
+ *                   message: "Checkout service unavailable"
+ *               internal_error:
+ *                 value:
+ *                   error: "Internal Server Error"
+ *                   message: "Failed to create checkout session"
  *       503:
  *         description: "Service unavailable - LemonSqueezy service error"
  *         content:
@@ -142,8 +174,8 @@ import { buildLemonSqueezyCheckoutParams } from '@/lib/payment/lemonsqueezy-chec
  *               properties:
  *                 error:
  *                   type: string
- *                   enum: ["PAYMENT_SERVICE_ERROR"]
- *                   example: "PAYMENT_SERVICE_ERROR"
+ *                   enum: ["Payment Service Error"]
+ *                   example: "Payment Service Error"
  *                 message:
  *                   type: string
  *                   example: "Unable to create checkout session"
@@ -349,13 +381,13 @@ export async function POST(request: NextRequest) {
  *               properties:
  *                 error:
  *                   type: string
- *                   enum: ["VALIDATION_ERROR"]
- *                   example: "VALIDATION_ERROR"
+ *                   enum: ["Validation Error"]
+ *                   example: "Validation Error"
  *                 message:
  *                   type: string
- *                   example: "variantId is required, email must be valid"
+ *                   example: "Invalid email format, Variant ID must be a positive integer"
  *       500:
- *         description: "Internal server error"
+ *         description: "Internal server error or missing LemonSqueezy configuration"
  *         content:
  *           application/json:
  *             schema:
@@ -363,8 +395,8 @@ export async function POST(request: NextRequest) {
  *               properties:
  *                 error:
  *                   type: string
- *                   enum: ["INTERNAL_ERROR", "CONFIGURATION_ERROR"]
- *                   example: "INTERNAL_ERROR"
+ *                   enum: ["Internal Server Error", "Configuration Error"]
+ *                   example: "Internal Server Error"
  *                 message:
  *                   type: string
  *                   example: "Failed to create checkout session"
@@ -377,8 +409,8 @@ export async function POST(request: NextRequest) {
  *               properties:
  *                 error:
  *                   type: string
- *                   enum: ["PAYMENT_SERVICE_ERROR"]
- *                   example: "PAYMENT_SERVICE_ERROR"
+ *                   enum: ["Payment Service Error"]
+ *                   example: "Payment Service Error"
  *                 message:
  *                   type: string
  *                   example: "Unable to create checkout session"

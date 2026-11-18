@@ -228,9 +228,14 @@ import { auth, initializeStripeProvider } from '@/lib/auth';
  *               properties:
  *                 error:
  *                   type: string
- *                   examples:
- *                     stripe_error: "Failed to fetch subscription data from Stripe"
- *                     general_error: "Failed to fetch subscription data"
+ *                   example: "Failed to fetch subscription data from Stripe"
+ *             examples:
+ *               stripe_error:
+ *                 value:
+ *                   error: "Failed to fetch subscription data from Stripe"
+ *               general_error:
+ *                 value:
+ *                   error: "Failed to fetch subscription data"
  *     x-data-sources:
  *       description: "Data sources and processing"
  *       sources:

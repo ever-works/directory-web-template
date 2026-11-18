@@ -1,4 +1,4 @@
-import { eq, sql, and, inArray, isNull, isNotNull } from 'drizzle-orm';
+import { eq, sql, and, isNotNull } from 'drizzle-orm';
 import { db } from '../drizzle';
 import { users, clientProfiles, accounts, roles, userRoles, type NewUser, type User } from '../schema';
 import { getTenantId } from '@/lib/auth/tenant';
@@ -108,6 +108,8 @@ export async function updateUserPassword(newPasswordHash: string, userId: string
  * has a hash (the admin case), so a user without one does not gain a second password store.
  * A user with no credentials account keeps the old behaviour: the users row is written, so
  * an admin who signed up through OAuth can still set a password with a reset.
+ * The same transaction stamps `users.password_changed_at` for admins and clients alike, which
+ * ends every session that signed in before the change (the jwt callback in lib/auth).
  * @param userId - User ID
  * @param newPasswordHash - New password hash
  * @returns How many `accounts` and `users` rows now hold the new hash
@@ -134,6 +136,17 @@ export async function setUserPasswordHash(userId: string, newPasswordHash: strin
 				)
 			)
 			.returning({ id: users.id });
+		// Taken after the updates above hold the row locks, so a concurrent change that commits
+		// later also stamps a later time. A credentials session is bound to the value its sign-in
+		// query read together with the hash, not to this time, so a sign-in that reads the old hash
+		// before this transaction commits still ends (lib/auth/password-change.ts).
+		const changedAt = new Date();
+		// Not tied to the condition above: a client's users row holds no hash and is skipped
+		// there, but its sessions must end too.
+		await tx
+			.update(users)
+			.set({ passwordChangedAt: changedAt })
+			.where(and(eq(users.id, userId), eq(users.tenantId, tenantId)));
 		return { accounts: updatedAccounts.length, users: updatedUsers.length };
 	});
 }
@@ -179,16 +192,16 @@ export async function updateUser(values: Pick<NewUser, 'email'>, userId: string)
 		const [current] = await tx.select({ email: users.email }).from(users).where(where).limit(1);
 		const normalise = (email: string | null | undefined) => (email ?? '').trim().toLowerCase();
 		const previousEmail = current?.email ?? null;
-		const emailChanged = current !== undefined && values.email !== undefined && normalise(previousEmail) !== normalise(values.email);
+		const emailChanged =
+			current !== undefined && values.email !== undefined && normalise(previousEmail) !== normalise(values.email);
 		if (!emailChanged) return tx.update(users).set(values).where(where);
 
-		// A verification belongs to the address that was verified. Clear it, and bind the
-		// user's OAuth rows to the address they verified, so neither proves the new one
-		// (see `isEmailVerifiedForOwnership`).
-		await tx
-			.update(accounts)
-			.set({ email: previousEmail })
-			.where(and(eq(accounts.userId, userId), inArray(accounts.type, ['oauth', 'oidc']), isNull(accounts.email)));
+		// A verification belongs to the address that was verified: clear it so it does not prove
+		// the new one (see `isEmailVerifiedForOwnership`). OAuth rows are left alone. Each holds
+		// the address its provider proved (`lib/auth/oauth-link-email.ts`), which this change does
+		// not alter, and a row with no address proves nothing. Binding such a row to the previous
+		// address would let an address the user never proved (set earlier, unverified) count as
+		// proven once they changed it again.
 		return tx
 			.update(users)
 			.set({ ...values, emailVerified: null })
@@ -273,6 +286,24 @@ export async function deactivateUser(userId: string) {
 		.update(users)
 		.set({ deactivatedAt: sql`CURRENT_TIMESTAMP`, updatedAt: new Date() })
 		.where(and(eq(users.id, userId), eq(users.tenantId, tenantId)));
+}
+
+/**
+ * The columns that decide whether a user's session still holds: `password_changed_at` (a reset or
+ * change ends older sessions, spec-003 AC-9) and `deactivated_at`. Read by user id without the
+ * tenant, like the jwt callback in lib/auth/index.ts, which reads the same two columns. The
+ * notifications stream re-reads them on every ping (lib/notifications/stream.ts).
+ * @returns The two columns, or undefined when there is no users row; throws on a database error
+ */
+export async function getUserSessionState(
+	userId: string
+): Promise<{ passwordChangedAt: Date | null; deactivatedAt: Date | null } | undefined> {
+	const [row] = await db
+		.select({ passwordChangedAt: users.passwordChangedAt, deactivatedAt: users.deactivatedAt })
+		.from(users)
+		.where(eq(users.id, userId))
+		.limit(1);
+	return row;
 }
 
 /**

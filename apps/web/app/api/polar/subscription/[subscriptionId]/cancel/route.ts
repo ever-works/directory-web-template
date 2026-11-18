@@ -74,9 +74,7 @@ import { getPolarSubscription } from '@/lib/payment/lib/utils/polar-subscription
  *                   required: ["id", "status", "cancelAtPeriodEnd"]
  *                 message:
  *                   type: string
- *                   examples:
- *                     period_end: "Subscription will be cancelled at the end of the current period"
- *                     immediate: "Subscription cancelled immediately"
+ *                   example: "Subscription will be cancelled at the end of the current period"
  *               required: ["success", "data", "message"]
  *             examples:
  *               cancel_at_period_end:

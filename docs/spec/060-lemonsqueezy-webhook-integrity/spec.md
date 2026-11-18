@@ -6,7 +6,7 @@ sidebar_label: 060 LemonSqueezy webhook integrity
 
 # Feature spec — `060-lemonsqueezy-webhook-integrity`
 
-> **Status:** in-progress · **Code:** `apps/web/lib/payment/lemonsqueezy-webhook.ts`, `apps/web/lib/payment/lemonsqueezy-subscription-events.ts`, `apps/web/lib/payment/lemonsqueezy-variant-{plan,catalog}.ts`, `apps/web/lib/payment/lemonsqueezy-checkout-params.ts`, `apps/web/lib/payment/lemonsqueezy-list-access.ts`, `apps/web/app/api/lemonsqueezy/{webhook,list,checkout}/route.ts`
+> **Status:** in-progress · **Code:** `apps/web/lib/payment/lemonsqueezy-webhook.ts`, `apps/web/lib/payment/lemonsqueezy-subscription-events.ts`, `apps/web/lib/payment/lemonsqueezy-variant-{plan,catalog}.ts`, `apps/web/lib/payment/lemonsqueezy-checkout-params.ts`, `apps/web/lib/payment/lemonsqueezy-list-access.ts`, `apps/web/lib/payment/lemonsqueezy-price.ts`, `apps/web/lib/auth/oauth-link-email.ts`, `apps/web/app/api/lemonsqueezy/{webhook,list,checkout}/route.ts`
 
 ## 1. Summary
 
@@ -114,6 +114,34 @@ subscription grants comes from the variant that was paid for, never from the che
   missing row. A subscription of a variant that is neither a catalog plan nor a sponsor-ad variant never gets a row
   (R9), and an invoice carries no variant, so the missing row is how it shows up. A failed write on an existing
   row still answers 503. Without the option the service still fails on a missing row (Stripe, Polar, Solidgate).
+- **R16.** A linked OAuth / OIDC account proves an address to `isEmailVerifiedForOwnership` (the management
+  routes, `list`, and the R14 match) only when its `accounts.email` is that address; a row with no recorded
+  address proves nothing. Each link is bound to the address its provider proved: Auth.js's adapter
+  `linkAccount` gets no profile, so `events.signIn` (same callback, first sign-in, a link made while signed in,
+  and every later sign-in through the provider) writes the profile's address, lower-cased, or `null` when the
+  profile says it is not verified; a profile with no address leaves the row as it is
+  (`lib/auth/oauth-link-email.ts`). `updateUser` clears `emailVerified` on an address change and no longer
+  writes the old address into empty OAuth rows; migration `0045_unbind_oauth_link_emails` clears the addresses
+  it wrote before, which no provider proved. Before,
+  an OAuth-only user could change their address to someone else's, link a second provider of their own (the
+  new row had no address and counted), sign in again and list or cancel that person's subscriptions
+  (Greptile on #1153). Links made before have no address until the next sign-in through that provider; the
+  user can verify the address by email meanwhile (Q-060c). Providers without a verification claim are
+  trusted (Q-060d).
+- **R17.** A plan subscription row stores the amount and billing period of the subscription's price, which
+  subscription payloads do not carry. On `subscription_created` and on a plan-variant `subscription_updated`
+  (a plan change moves the subscription to another price) the handler reads
+  `first_subscription_item.price_id` from the Prices API (`getPriceAttributes`): `unit_price` in cents
+  (stored through `toStoredAmount(..., 'lemonsqueezy')`) for a flat price, and
+  `renewal_interval_unit` / `renewal_interval_quantity`. A price read without a flat amount (usage-based, tiered)
+  clears the stored amount, and a zero price stores 0: `updatedSubscriptionAmount` (`stored-amount.ts`) keeps the
+  stored amount only when the event carries no price amount, so a plan change never keeps the previous price's
+  amount (this also applies to Stripe updates, whose prices carry `unit_amount`). Answers are cached per process
+  (64 prices, 1 hour).
+  When the API cannot be read, a monthly or yearly variant of `LEMONSQUEEZY_CONFIG` still sets the period and
+  the event is handled as before (no retry for a missing price). Before, every row got `amount: null`,
+  `interval: 'month'`, a yearly plan included (Greptile on #1151 / #1153). Currency and what the amount
+  means: Q-060e.
 
 ## 4. Out of scope / open
 
@@ -143,3 +171,10 @@ the route uses them for POST and forwards no query price or metadata on GET.
 user (create and update-that-creates), an id in the custom data is kept, an unverified or password-user email, a
 blank email, invoices, cancellations and unknown variants never match, a failing lookup retries; a payment failure
 with no row is acknowledged while a failed write on a row still retries.
+R16: `subscription-ownership.spec.ts` (a link with no address, and the change-address-then-link flow, are refused;
+a link bound to the address is accepted), `lib/auth/__tests__/oauth-link-email.spec.ts` (provider-proven address,
+only `oauth` / `oidc` sign-ins written, the `events.signIn` wiring, `updateUser` writes no `accounts` rows).
+R17: `lemonsqueezy-price.spec.ts` (Prices API attributes to amount and period, usage-based and tiered prices keep no
+amount, the cached loader, the mapper layout `formatData` reads, created and plan-change events store the price,
+an unreadable price falls back to the catalog's monthly / yearly period, events that cannot set a plan read no
+price).

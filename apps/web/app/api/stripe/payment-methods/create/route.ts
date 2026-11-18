@@ -136,14 +136,36 @@ const createPaymentMethodSchema = z.object({
  *                   example: false
  *                 error:
  *                   type: string
- *                   examples:
- *                     validation: "Invalid request data"
- *                     setup_intent_failed: "Setup intent has not succeeded"
- *                     no_payment_method: "No payment method found in setup intent"
- *                     stripe_error: "Invalid setup intent ID"
+ *                   example: "Invalid request data"
  *                 details:
  *                   type: object
- *                   description: "Validation error details (if applicable)"
+ *                   description: "Validation error details (only on validation errors): the serialized ZodError, whose message is a JSON string of the validation issues"
+ *                   properties:
+ *                     name:
+ *                       type: string
+ *                       example: "ZodError"
+ *                     message:
+ *                       type: string
+ *             examples:
+ *               validation:
+ *                 value:
+ *                   success: false
+ *                   error: "Invalid request data"
+ *                   details:
+ *                     name: "ZodError"
+ *                     message: "[\n  {\n    \"origin\": \"string\",\n    \"code\": \"too_small\",\n    \"minimum\": 1,\n    \"inclusive\": true,\n    \"path\": [\n      \"setup_intent_id\"\n    ],\n    \"message\": \"Setup intent ID is required\"\n  }\n]"
+ *               setup_intent_failed:
+ *                 value:
+ *                   success: false
+ *                   error: "Setup intent has not succeeded"
+ *               no_payment_method:
+ *                 value:
+ *                   success: false
+ *                   error: "No payment method found in setup intent"
+ *               stripe_error:
+ *                 value:
+ *                   success: false
+ *                   error: "Invalid setup intent ID"
  *       401:
  *         description: "Unauthorized - Authentication required"
  *         content:

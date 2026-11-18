@@ -216,10 +216,20 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
  *                   example: false
  *                 error:
  *                   type: string
- *                   examples:
- *                     empty_name: "Role name cannot be empty"
- *                     invalid_name_length: "Role name must be between 3 and 100 characters"
- *                     invalid_description_length: "Role description must be at most 500 characters"
+ *                   example: "Role name cannot be empty"
+ *             examples:
+ *               empty_name:
+ *                 value:
+ *                   success: false
+ *                   error: "Role name cannot be empty"
+ *               invalid_name_length:
+ *                 value:
+ *                   success: false
+ *                   error: "Role name must be between 3 and 100 characters"
+ *               invalid_description_length:
+ *                 value:
+ *                   success: false
+ *                   error: "Role description must be at most 500 characters"
  *       401:
  *         description: "Unauthorized - Authentication required"
  *         content:
@@ -381,9 +391,7 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
  *                 message:
  *                   type: string
  *                   description: "Success message indicating deletion type"
- *                   examples:
- *                     soft_delete: "Role deleted (marked as inactive)"
- *                     hard_delete: "Role permanently deleted"
+ *                   example: "Role deleted (marked as inactive)"
  *               required: ["success", "message"]
  *             examples:
  *               soft_delete:

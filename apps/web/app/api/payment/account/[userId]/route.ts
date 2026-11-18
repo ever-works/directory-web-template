@@ -94,9 +94,7 @@ import { getUserPaymentAccountByProvider } from '@/lib/db/queries';
  *               properties:
  *                 error:
  *                   type: string
- *                   examples:
- *                     missing_user: "User ID is required"
- *                     missing_provider: "Provider is required"
+ *                   example: "User ID is required"
  *             examples:
  *               missing_user:
  *                 summary: "Missing user ID"

@@ -82,10 +82,17 @@ const WEBHOOK_EXPIRY_MS = 24 * 60 * 60 * 1000; // 24 hours
  *               properties:
  *                 error:
  *                   type: string
- *                   examples:
- *                     no_signature: "No signature provided"
- *                     not_processed: "Webhook not processed"
- *                     processing_failed: "Webhook processing failed"
+ *                   example: "No signature provided"
+ *             examples:
+ *               no_signature:
+ *                 value:
+ *                   error: "No signature provided"
+ *               not_processed:
+ *                 value:
+ *                   error: "Webhook not processed"
+ *               processing_failed:
+ *                 value:
+ *                   error: "Webhook processing failed"
  */
 export async function POST(request: NextRequest) {
 	try {
