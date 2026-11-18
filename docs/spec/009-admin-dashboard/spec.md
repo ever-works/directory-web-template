@@ -57,6 +57,20 @@ when many submissions queue up.
   toggle (per
   [`008`](../008-analytics-providers/spec.md)).
 - [x] AC-6: E2E coverage for every section above.
+- [x] AC-7: The admin client detail page and the server-side page
+  guards authorize on the live admin role, `isAdmin(userId)` from
+  `apps/web/lib/db/roles.ts`, not the session's `isAdmin` claim (set
+  at sign-in and kept for the JWT's 30-day lifetime), and fail
+  closed. The client detail page
+  (`apps/web/app/[locale]/admin/clients/[id]/page.tsx`) awaits the
+  lookup before any client query: signed out goes to sign-in, a
+  signed-in user without the admin role (for example one whose role
+  was removed while signed in) goes to `/unauthorized`, and a failed
+  lookup throws to the error page, so no client data is rendered.
+  `requireAdmin()` and `checkIsAdmin()` (`apps/web/lib/auth/guards.ts`)
+  use the same lookup and treat a missing user id or a failed lookup
+  as not admin (`requireAdmin()` then redirects to `/unauthorized`,
+  `checkIsAdmin()` returns `false`). T-2637 (#1148).
 
 ## 7. Out-of-Scope Considerations
 
@@ -87,6 +101,13 @@ Each admin section is a candidate plugin slot
 ## 12. Acceptance Test Plan
 
 `apps/web-e2e/tests/admin/*.spec.ts` (19 spec files at last count).
+
+AC-7: the source guard `apps/web/lib/auth/__tests__/admin-claim-pages.spec.ts`
+(the page awaits the live role before any client query and does not
+catch a failed lookup; the guards never read the claim and answer
+"not admin" for a missing id or a failed lookup) and the Playwright
+spec `apps/web-e2e/tests/admin/admin-client-detail-live-role.spec.ts`
+(a signed-in client ends on `/unauthorized`).
 
 ## 13. References
 

@@ -9,6 +9,8 @@ sidebar_position: 99
 
 ## 2026-11-18
 
+- `apps/web/app/[locale]/admin/clients/[id]/page.tsx` `apps/web/lib/auth/guards.ts` `docs/architecture/auth-utilities-module.md` [`009-admin-dashboard`](spec/009-admin-dashboard/spec.md): the admin client detail page authorized on the session's `isAdmin` claim, which `lib/auth/index.ts` sets only at sign-in and which stays for the JWT's 30-day lifetime, and then loaded the client's profile (email, phone, location), last login, portfolio and stats on the server. A user whose admin role was removed while signed in could still open `/admin/clients/{id}` for any client until the token expired; the client-side admin layout reads the same claim and runs after the data is already in the page payload. The page now awaits `isAdmin(session.user.id)` (`lib/db/roles.ts`) before any client query: signed out still goes to sign-in, a session whose admin role was removed is redirected to `/unauthorized` (before, it got the data), and a failed lookup throws to the error page. A session without the claim never reaches the page: `proxy.ts` sends it to admin sign-in first. `requireAdmin()` and `checkIsAdmin()` in `lib/auth/guards.ts` read the claim too (`checkIsAdmin()` gates the three dashboard survey pages); both now use the live role through a helper that treats a missing user id or a failed lookup as not admin. Spec 009 records this as AC-7 (live admin role, fail closed) and task T-011, and its index row says so; no new route, API or contract. Source guard `apps/web/lib/auth/__tests__/admin-claim-pages.spec.ts` (12 tests; 11 fail on the old code) and Playwright spec `apps/web-e2e/tests/admin/admin-client-detail-live-role.spec.ts` (a signed-in client ends on `/unauthorized`; it stops at the proxy before the new check and passes on the old code too). T-2637 (#1148)
+
 - `apps/web/lib/db/queries/user.queries.ts` `apps/web/lib/auth/index.ts` `apps/web/lib/newsletter/utils.ts` `apps/web/app/[locale]/{newsletter,auth}/actions.ts` `apps/web/lib/payment/services/payment-email.service.ts` `apps/web/lib/mail/{index,mock,smtp}.ts` `apps/web/lib/mail/templates/example-usage.ts` `apps/web/lib/services/subscription-jobs.ts` `apps/web/app/api/geocode/route.ts` `apps/web/app/api/auth/change-password/route.ts` `apps/web/lib/payment/lib/providers/{stripe,polar,lemonsqueezy,solidgate}-provider.ts` `apps/web/lib/utils.ts` `docs/services/newsletter-service.md` `docs/architecture/newsletter-library.md`: server logs held email addresses. `getUserByEmail` logged the typed address on every failed sign-in, the OAuth jwt callback logged it when it created a client profile, sign-up logged it when the verification email went out, `sendEmailSafely` (newsletter and every payment email) and the newsletter action logged the recipient, the renewal reminder job and both geocode audit logs logged the user's email, and the password-change email logged `templateData` (address, name, IP address and user agent), the recipient and the provider result (Nodemailer's holds the recipient in `accepted` and `envelope.to`), which the change-password route logged again. The four payment providers logged the address when they created a customer on the first checkout (their `logger.debug` is a plain `console.log`) and the whole customer data when that failed, and the LemonSqueezy plan change logged the whole subscription response (address, name, card brand and last four digits). The payment success log also passed the whole `PaymentEmailData`: name, email, amount, transaction id and receipt URL. Each message now names an id (client profile, user) or the email context (template subject, `payment success`, ...) instead; `logNewsletterActivity` logs `hasEmail`, and the mock and Ethereal `To:` boxes show `maskEmail()`, which now hides at least one character of short names too. Whole webhook objects logged by `webhook-dispatch`, the Solidgate webhook and `webhook-subscription.service` are left for a follow-up. Source guard `lib/__tests__/email-logging.spec.ts` reads `console.*` and `logger.*` calls, counts a spread (`...data`) as logging the object whole, and tests `maskEmail` (55 tests over 17 files; 25 fail on the old code). Polar's invalid-email message no longer names the rejected address (nor falls back to the raw 422 body), and the change-password route logs a confirmation email the mail helper skipped (no email service) as skipped instead of sent; `lib/__tests__/email-logging-outcomes.spec.ts` loads both with stubbed imports and checks the console (6 tests; 5 fail on the old code). T-2638 (#1149)
 
 - `apps/web/lib/db/queries/user.queries.ts` `apps/web/app/[locale]/auth/actions.ts` `apps/web/app/api/auth/change-password/route.ts` `docs/database/{users-queries-deep-dive,admin-queries}.md` `docs/plugins/auth-change-password{,-body}-spec.md` `spec-031`: the danger-zone forms checked the password with `verifyClientPassword(...) || comparePasswords(password, dbUser.passwordHash)` (`deleteAccount` and `deactivateAccount`), so a match in either password store passed, while sign-in (`lib/auth/credentials.ts`) checks an admin only against `users.passwordHash` and everyone else only against the credentials account hash. Before #1140, resets and changes wrote `users.passwordHash` only, so deployed databases still hold stale hashes in the other store: a seeded admin who changed the seed password keeps the seed hash on their credentials row, and anyone holding that admin's session could hard-delete or deactivate the account with the old default password (the same for a client whose old reset left a hash on `users`). The change-password route already picked one hash (T-2564); that choice moved into the new `getSignInPasswordHash(user)`, which returns `users.passwordHash` for an admin that has one and the credentials account hash otherwise (`users.passwordHash` when there is no credentials account hash, as the route did; `null` when the user has neither), and fails closed: a missing tenant or a failed role lookup (`isUserAdminOrThrow`) throws instead of reading as "not an admin". `deleteAccount`, `deactivateAccount` and `POST /api/auth/change-password` check against it (the route's responses are unchanged; it answers the OAuth 400 when the helper returns `null`). The uncalled `updatePassword` action checked `users.passwordHash` and wrote it with `updateUserPassword`; it now checks the helper's hash and writes through `setUserPasswordHash`. Spec 031's password-verifier note records the new check. No new route, surface, API or schema change. Unit spec `lib/db/queries/__tests__/password-store.spec.ts` (14 source guards: 7 new, 2 of the route guards rewritten for the helper; 9 fail on the old code). T-2639 (#1150).
@@ -302,7 +304,7 @@ why** at a higher level than per-commit diffs.
 - Backwards-compatible: when `K8S_EXTRA_HOSTS` is empty / unset the
   rendered Ingress is byte-identical to pre-EW-741 output.
 
-## 2026-06-17 — Feat: instant sparkline bump + flicker-free rollback on upvote
+### Feat: instant sparkline bump + flicker-free rollback on upvote
 
 - spec-037: the item-detail Statistics card already tracked total votes
   optimistically via `useItemVote`'s `setQueryData(['item-votes', …])`, but
@@ -343,7 +345,7 @@ why** at a higher level than per-commit diffs.
 
 ---
 
-## 2026-06-16 — Feat: k8s deploy provisions Work runtime env
+### Feat: k8s deploy provisions Work runtime env
 
 - spec-040: k8s-deployed directory sites 500 at first render (`[auth] AUTH_SECRET must be set in production`) because the Deployment only carried NODE_ENV/PORT/HOSTNAME. Added a `deploy_k8s.yaml` step that materializes a `${WORK_SLUG}-runtime-env` Secret from the AUTH_SECRET/COOKIE_SECRET/COOKIE_SECURE/DATABASE_URL secrets the platform pushes (+ NEXT_PUBLIC_APP_URL/COOKIE_DOMAIN from the ingress host), and `deployment.yaml` mounts it via `envFrom` (optional). Platform half: ever-works DeployService.ensureRuntimeEnv + WorkRuntimeEnvService. See `docs/spec/040-k8s-deploy-runtime-env/spec.md`. (PR: pending)
 
@@ -394,7 +396,7 @@ why** at a higher level than per-commit diffs.
 
 ---
 
-## 2026-05-27 — Fix: Edge Runtime build break in activity-feed push client
+### Fix: Edge Runtime build break in activity-feed push client
 
 - spec-024: replaced the `import { randomUUID } from 'node:crypto'` at the top of
   `apps/web/lib/services/platform-activity-feed/push-client.ts` with
@@ -462,7 +464,7 @@ submit form` Playwright test (button never appeared, hence
     - orphan modal state); Modify Plan → `/pricing`; View Details → details
       disclosure; Contact Support → `mailto:`. No new API routes.
 
-## 2026-05-26 — Spec 034: Client Billing page UI consistency
+### Spec 034: Client Billing page UI consistency
 
 - spec-034: drafted `docs/spec/034-client-billing-ui-consistency/spec.md` and
   shipped the implementation in the same PR (EW-649). UI-only realignment of
@@ -514,7 +516,7 @@ submit form` Playwright test (button never appeared, hence
       the bar can still reach 100%. The step is now marked complete only when all
       applicable tracked fields are filled.
 
-## 2026-05-24 — /submit: hide pricing-only promo sections in payment step
+### /submit: hide pricing-only promo sections in payment step
 
 - `apps/web/components/pricing/pricing-section.tsx`: gated the "Sponsor Ads"
   promo block, the "Enhanced Continue Section" (its own continue-to-/submit
@@ -525,7 +527,7 @@ submit form` Playwright test (button never appeared, hence
   header; the submit flow has its own form navigation, so the continue CTA was
   redundant there.
 
-## 2026-05-24 — i18n: translate remaining hard-coded strings on /submit
+### i18n: translate remaining hard-coded strings on /submit
 
 - `apps/web/components/submit/submit-form-client.tsx`,
   `apps/web/components/directory/details-form/steps/basic-info-step.tsx`,
@@ -542,7 +544,7 @@ submit form` Playwright test (button never appeared, hence
   `TOAST_INVALID_URL/SUBMIT_SUCCESS/SUBMIT_FAILED/SUBMIT_ERROR`) across all 21
   locale files. No behaviour change.
 
-## 2026-05-24 — Fix: /submit drops location and extra categories
+### Fix: /submit drops location and extra categories
 
 - `apps/web/components/submit/submit-form-client.tsx`: the submit handler built
   its API payload from the singular `category` field (first selected id only)
@@ -675,7 +677,7 @@ cascade to `stage` / `main` per operator instructions.
 
 ---
 
-## 2026-05-19 — Spec 028 round 16: stacked locale + BOM/control + manifest shape (develop-only)
+### Spec 028 round 16: stacked locale + BOM/control + manifest shape (develop-only)
 
 Round 16 of the rolling e2e coverage buildout. 10 new spec files added on
 `develop` only (no cascade per operator instructions). Focus areas:
@@ -713,7 +715,7 @@ cascade to `stage` / `main` per operator instructions.
 
 ---
 
-## 2026-05-19 — Spec 028 round 15: URL malforms + theme/submissions trash + webhook edges (develop-only)
+### Spec 028 round 15: URL malforms + theme/submissions trash + webhook edges (develop-only)
 
 Round 15 of the rolling e2e coverage buildout. 10 new spec files added on
 `develop` only (no cascade per operator instructions). Focus areas:
@@ -745,7 +747,7 @@ cascade to `stage` / `main` per operator instructions.
 
 ---
 
-## 2026-05-19 — Spec 028 round 14: locale × RSC + perf/CLS + admin CRUD deeper (develop-only)
+### Spec 028 round 14: locale × RSC + perf/CLS + admin CRUD deeper (develop-only)
 
 Round 14 of the rolling e2e coverage buildout. 14 new spec files added on
 `develop` only (no cascade per operator instructions). Focus areas:
@@ -778,7 +780,7 @@ cascade to `stage` / `main` per operator instructions.
 
 ---
 
-## 2026-05-19 — Spec 028 round 13: sitemap variants + HTML hygiene + admin CORS (develop-only)
+### Spec 028 round 13: sitemap variants + HTML hygiene + admin CORS (develop-only)
 
 Round 13 of the rolling e2e coverage buildout. 13 new spec files added on
 `develop` only (no cascade per operator instructions). Focus areas:
@@ -813,7 +815,7 @@ cascade to `stage` / `main` per operator instructions.
 
 ---
 
-## 2026-05-19 — Spec 028 round 12: a11y deeper + HTML sanity (develop-only)
+### Spec 028 round 12: a11y deeper + HTML sanity (develop-only)
 
 Round 12 of the rolling e2e coverage buildout. 16 new spec files added on
 `develop` only (no cascade per operator instructions). Focus areas:
@@ -848,7 +850,7 @@ cascade to `stage` / `main` per operator instructions.
 
 ---
 
-## 2026-05-19 — Spec 028 round 11: locale prefix sweep + cookie/header hygiene (develop-only)
+### Spec 028 round 11: locale prefix sweep + cookie/header hygiene (develop-only)
 
 Round 11 of the rolling e2e coverage buildout. 17 new spec files added on
 `develop` only (no cascade per operator instructions). Focus areas:
@@ -887,7 +889,7 @@ cascade to `stage` / `main` per operator instructions.
 
 ---
 
-## 2026-05-19 — Spec 028 round 10: tracking params, scanner probes, conditional reqs, viewport (develop-only)
+### Spec 028 round 10: tracking params, scanner probes, conditional reqs, viewport (develop-only)
 
 Round 10 of the rolling e2e coverage buildout. 23 new spec files added on
 `develop` only (no cascade per operator instructions). Focus areas:
@@ -938,7 +940,7 @@ cascade to `stage` / `main` per operator instructions.
 
 ---
 
-## 2026-05-19 — Spec 028 round 9: perf budgets, console hygiene, navigation flood (develop-only)
+### Spec 028 round 9: perf budgets, console hygiene, navigation flood (develop-only)
 
 Round 9 of the rolling e2e coverage buildout. 26 new spec files added on
 `develop` only (no cascade per operator instructions). Focus areas:
@@ -992,7 +994,7 @@ cascade to `stage` / `main` per operator instructions.
 
 ---
 
-## 2026-05-19 — Spec 028 round 8: csrf wire, sitemap shape, RSC sweep, admin verb flood (develop-only)
+### Spec 028 round 8: csrf wire, sitemap shape, RSC sweep, admin verb flood (develop-only)
 
 Round 8 of the rolling e2e coverage buildout. 29 new spec files added on
 `develop` only (no cascade per operator instructions). Focus areas:
@@ -1052,7 +1054,7 @@ cascade to `stage` / `main` per operator instructions.
 
 ---
 
-## 2026-05-19 — Spec 028 round 7: deeper API + SEO link shape + locale prefixes (develop-only)
+### Spec 028 round 7: deeper API + SEO link shape + locale prefixes (develop-only)
 
 Round 7 of the rolling e2e coverage buildout. 30 new spec files added on
 `develop` only (no cascade per operator instructions). Focus areas:
@@ -1120,7 +1122,7 @@ cascade to `stage` / `main` per operator instructions.
 
 ---
 
-## 2026-05-19 — Spec 028 round 6: PWA / RSC / CORS / a11y deeper (develop-only)
+### Spec 028 round 6: PWA / RSC / CORS / a11y deeper (develop-only)
 
 Round 6 of the rolling e2e coverage buildout. 35 new spec files added on
 `develop` only (no cascade per operator instructions). Focus areas:
@@ -1201,7 +1203,7 @@ cascade to `stage` / `main` per operator instructions.
 
 ---
 
-## 2026-05-19 — Spec 028 round 5: comparisons / CMS / dashboard surveys / extra hardening (develop-only)
+### Spec 028 round 5: comparisons / CMS / dashboard surveys / extra hardening (develop-only)
 
 Round 5 of the rolling e2e coverage buildout. 56 new spec files added on
 `develop` only (no cascade per operator instructions). Focus areas:
@@ -1296,7 +1298,7 @@ cascade to `stage` / `main` per operator instructions.
 
 ---
 
-## 2026-05-19 — Spec 028 round 4: payment providers + admin sub-systems (develop-only)
+### Spec 028 round 4: payment providers + admin sub-systems (develop-only)
 
 Round 4 of the rolling e2e coverage buildout. 22 new spec files added
 on `develop` only (no cascade per operator instructions). Focus areas:
@@ -1375,7 +1377,7 @@ Auth:
   tolerates 16 different codes (including XSS / traversal payloads);
   /auth/signout + /auth/verify-request render.
 
-## 2026-05-19 — Spec 028 round 3: hourly continuation batch (develop-only)
+### Spec 028 round 3: hourly continuation batch (develop-only)
 
 Round 3 of the rolling e2e coverage buildout. 28 new spec files added
 on `develop` only (no cascade per operator instructions). Focus areas:
@@ -1464,7 +1466,7 @@ Public coverage:
 - `public/ai-chat-disabled-tolerance.spec.ts` — chat plugin disabled
   state.
 
-## 2026-05-19 — Spec 028 round 2: large coverage batch (develop-only, no cascade)
+### Spec 028 round 2: large coverage batch (develop-only, no cascade)
 
 Operator asked for a 30-min batch focused on coverage breadth; do NOT
 cascade to stage/main until coverage is comprehensive. Updated the
@@ -1561,7 +1563,7 @@ All changes land on `develop` only via PR; per operator instruction,
 no cascade to stage/main this round. The hourly task #68 picks up
 the next gap iteration.
 
-## 2026-05-19 — Spec 028 round 1: CI workflow + initial gap-filling specs
+### Spec 028 round 1: CI workflow + initial gap-filling specs
 
 - `.github/workflows/e2e.yml` — Postgres-backed, sharded 4-way Playwright
   workflow. Runs on push to main/develop/stage and on PR. The repo had
@@ -1623,7 +1625,7 @@ The round-1 `autoLoginFiredRef` / `successHandledRef` useRef guards
 in `credentials-form.tsx` STAY — they were the actual bug-A fix and
 prevent the double-fire that originally motivated all of this.
 
-## 2026-05-19 — Spec 027 round 4: getSessionViaApi() to bypass Auth.js v5 page-context bug
+### Spec 027 round 4: getSessionViaApi() to bypass Auth.js v5 page-context bug
 
 - Round 3's `runtime = 'nodejs'` still failed: same fetch context,
   `/api/auth/session` returned `{user: …}` but `/client/dashboard`
@@ -1665,7 +1667,7 @@ prevent the double-fire that originally motivated all of this.
 - Spec 027 diagnosis updated; this is the round that lands the actual
   user-visible fix.
 
-## 2026-05-18 — Spec 027 follow-up: force-dynamic on auth-gated client pages
+### Spec 027 follow-up: force-dynamic on auth-gated client pages
 
 - After PR #853 landed the server-side signIn fix, re-running the
   Playwright repro against demo.ever.works showed the session cookie
@@ -1681,7 +1683,7 @@ prevent the double-fire that originally motivated all of this.
 - Spec 027 diagnosis updated to document both halves of the fix and
   why each is necessary on its own.
 
-## 2026-05-18 — Spec 027: fix post-register auto-login race (template prod)
+### Spec 027: fix post-register auto-login race (template prod)
 
 - `spec-027` filed under `docs/spec/027-fix-post-register-autologin/` and
   indexed in `docs/spec/README.md` as **shipped** (alongside this PR).
@@ -1706,15 +1708,15 @@ prevent the double-fire that originally motivated all of this.
 
 - `spec-029` Added Playwright coverage under `apps/web-e2e/tests/client/settings.spec.ts` asserting the new **Preferences** section is reachable from `/client/settings` and that the three always-on block headings (Layout / Container Width / Pagination Style) render — addresses Augment-review feedback that user-visible changes need at least one e2e assertion per `AGENTS.md` §9. PR #850.
 
-## 2026-05-18 — Spec 029: align preference block components with `/client/settings`
+### Spec 029: align preference block components with `/client/settings`
 
 - `spec-029` Visual refresh on the six block components rendered in both `SettingsModal` and the new `/client/settings` Preferences section: `SelectLayout`, `SelectContainerWidth`, `SelectPaginationType`, `SelectDatabaseMode`, `SelectCheckoutProvider`, `DatabaseStatusWarning`. Each card drops the glassmorphic surface (`bg-white/80 dark:bg-white/[0.04]`, faint `border-...[0.07]`, `group`, `transition-all`, `p-5`) for the page-card flat treatment (`bg-white dark:bg-[#111111]`, `border-gray-200 dark:border-white/6`, `shadow-sm`, `p-4`). Icon containers swap `bg-gray-100 dark:bg-white/5 p-2` with `h-5 w-5 text-gray-400` icons for the flat tinted `w-8 h-8 bg-theme-primary-50 dark:bg-theme-primary-900/30 rounded-lg` square with `w-4 h-4 text-theme-primary-600` icons — matching `SettingsCard`. Title typography goes from `text-base font-semibold leading-tight` to `text-sm font-semibold tracking-tight`; description from `text-sm text-gray-600 leading-relaxed mt-1` to `text-xs text-gray-500 mt-0.5`. `DatabaseStatusWarning` additionally has its mismatched gray-icon + blue-title normalized to the same neutral typography as the other blocks. Layout-option buttons, `SegmentedToggle`, `Select` dropdown, amber sub-warning, toast feedback, and all `useLayoutTheme` wiring untouched. Spec §6 updated. PR #850.
 
-## 2026-05-18 — Spec 029: align `SettingsModal` with `/client/settings` visual language
+### Spec 029: align `SettingsModal` with `/client/settings` visual language
 
 - `spec-029` `SettingsModal` surface drops glassmorphism (`bg-white/95 backdrop-blur-xl`, `rounded-2xl`, border `/[0.07]`) for the page-card flat treatment (`bg-white dark:bg-[#111111]`, `border-gray-200 dark:border-white/6`, `rounded-xl`). Backdrop simplifies from a heavy gradient + `backdrop-blur-2xl backdrop-saturate-150` to `bg-black/40 dark:bg-black/60 backdrop-blur-sm`. Header drops the gradient bg + shadow, replaces the gradient/bordered icon container with the page's flat tinted square (`w-8 h-8 bg-theme-primary-50 dark:bg-theme-primary-900/30 rounded-lg` + `w-4 h-4 text-theme-primary-600`), and dials the title from `text-xl font-bold` to `text-base font-semibold tracking-tight` matching the user-card name treatment. Close button loses `hover:scale-110` and uses the page's hover bg. Focus trap, Esc-to-close, body-scroll lock, and `animate-fade-in-up` entry all preserved. Spec updated under §6 Implementation Notes. PR #850.
 
-## 2026-05-18 — Spec 029: align header `SettingsButton` with `/client/settings` icon style
+### Spec 029: align header `SettingsButton` with `/client/settings` icon style
 
 - `spec-029` Header gear button (`apps/web/components/settings-button.tsx`) now uses the same tinted theme-primary square the `SettingsCard` icons use on `/client/settings` (`w-8 h-8 bg-theme-primary-50 dark:bg-theme-primary-900/30 rounded-lg` wrapper, `w-4 h-4 text-theme-primary-600 dark:text-theme-primary-400` icon, hover bumps the wrapper tint). Replaces the previous gray-on-transparent icon + `hover:scale-105` treatment so the header entry point reads as the same control system as the page. `FloatingSettingsButton` intentionally untouched — its solid theme-primary fill is the deliberate shortcut affordance. Spec updated under §6 Implementation Notes. PR #850.
 
@@ -1722,7 +1724,7 @@ prevent the double-fire that originally motivated all of this.
 
 - `spec-029` Drafted spec at `docs/spec/029-client-settings-preferences-section/spec.md` and indexed in `docs/spec/README.md`. Embeds the `SettingsModal` block components (`SelectLayout`, `SelectContainerWidth`, `SelectPaginationType`, plus demo-only `SelectDatabaseMode`, `SelectCheckoutProvider`, `DatabaseStatusWarning`) inline as a new **Preferences** section on `/client/settings` so the visual-preference controls are reachable from the settings hub. The modal stays exactly as-is for shortcut access from the header gear and floating button. Page-local primitives only — no shared settings shell extracted in this PR. Adds one new i18n key (`settings.PREFERENCES`) to all 21 locale files. PR #850.
 
-## 2026-05-18 — Spec 027 client notifications system (PR #852)
+### Spec 027 client notifications system (PR #852)
 
 - `spec-027` New spec `docs/spec/027-client-notifications/` (spec + plan +
   tasks) delivering the client-facing surface of
@@ -1797,7 +1799,7 @@ prevent the double-fire that originally motivated all of this.
 
 ---
 
-## 2026-05-15 — Spec 026 (EW-627): /client/dashboard UI ↔ API wiring fixes
+### Spec 026 (EW-627): /client/dashboard UI ↔ API wiring fixes
 
 - `spec-026` New spec `docs/spec/026-ew627-client-dashboard-wiring/` covering
   the seven wiring gaps audited in EW-627: hardcoded `Shares` pie slice,
@@ -1846,7 +1848,7 @@ COMMENTS_RECEIVED}`, `TOP_ITEMS.{TITLE, ID, NO_DATA, NO_DATA_DESC}`)
 
 ---
 
-## 2026-05-14 — Spec 025 (v4): inline sparkline inside the compact sidebar Statistics card
+### Spec 025 (v4): inline sparkline inside the compact sidebar Statistics card
 
 - `spec-025` Per user feedback v3 lost the chart by mistake — the
   intent was "keep the chart from v2, but keep the sidebar
@@ -1872,7 +1874,7 @@ COMMENTS_RECEIVED}`, `TOP_ITEMS.{TITLE, ID, NO_DATA, NO_DATA_DESC}`)
 
 ---
 
-## 2026-05-14 — Spec 025 (v3): revert Activity Overview, keep compact Statistics card in sidebar
+### Spec 025 (v3): revert Activity Overview, keep compact Statistics card in sidebar
 
 - `spec-025` Reverted v2's full-width Activity Overview panel and
   removed the new `/api/items/[slug]/activity` route + the
@@ -1891,7 +1893,7 @@ COMMENTS_RECEIVED}`, `TOP_ITEMS.{TITLE, ID, NO_DATA, NO_DATA_DESC}`)
 
 ---
 
-## 2026-05-14 — Spec 025 (v2): Activity Overview panel replaces sidebar Statistics card
+### Spec 025 (v2): Activity Overview panel replaces sidebar Statistics card
 
 - `spec-025` Revision in the same PR: the compact sidebar
   Statistics card shipped in the first iteration is replaced by a
@@ -1920,7 +1922,7 @@ COMMENTS_RECEIVED}`, `TOP_ITEMS.{TITLE, ID, NO_DATA, NO_DATA_DESC}`)
 
 ---
 
-## 2026-05-14 — Spec 025: Item detail Similar Products → carousel + new Statistics sidebar block
+### Spec 025: Item detail Similar Products → carousel + new Statistics sidebar block
 
 - `spec-025` On `/items/[slug]`, the old vertical "Similar Products"
   list in the right sidebar (`SimilarItemsSection`) is replaced by a
@@ -1958,7 +1960,7 @@ COMMENTS_RECEIVED}`, `TOP_ITEMS.{TITLE, ID, NO_DATA, NO_DATA_DESC}`)
   where the chat was made on by default. The "no key → launcher
   silently hidden" guard in `AiChatMount` is unchanged.
 
-## 2026-05-15 — Spec 023: AI Chat on by default (operator only sets `AI_CHAT_API_KEY`)
+### Spec 023: AI Chat on by default (operator only sets `AI_CHAT_API_KEY`)
 
 - `spec-023` Flipped the plugin schema default from
   `aiChat.enabled: false` to `aiChat.enabled: true` in
@@ -1979,7 +1981,7 @@ COMMENTS_RECEIVED}`, `TOP_ITEMS.{TITLE, ID, NO_DATA, NO_DATA_DESC}`)
   `aiChat` block is now fully optional and the only required step
   to activate the chat is setting `AI_CHAT_API_KEY`.
 
-## 2026-05-15 — Spec 023: AI Chat enabled-state e2e + markdown rendering
+### Spec 023: AI Chat enabled-state e2e + markdown rendering
 
 - `spec-023` T-005a shipped: assistant chat bubbles render
   through `apps/web/components/ai/ChatMarkdown.tsx`
@@ -2069,7 +2071,7 @@ COMMENTS_RECEIVED}`, `TOP_ITEMS.{TITLE, ID, NO_DATA, NO_DATA_DESC}`)
   viewer alongside the Edit-profile / Follow action). Discovery
   starts from a profile, not from the header nav. PR #816.
 
-## 2026-05-12 — Spec 022: 2-column dashboard layout for /client/profile (EW-613)
+### Spec 022: 2-column dashboard layout for /client/profile (EW-613)
 
 - `spec-022` AC-22 added: rebuilt the public profile page as a
   Toptal-style 2-column dashboard. New `ProfilePanel` component
@@ -2087,7 +2089,7 @@ COMMENTS_RECEIVED}`, `TOP_ITEMS.{TITLE, ID, NO_DATA, NO_DATA_DESC}`)
   `Card`, `theme-primary-*`, `rounded-xl`, dark-mode parity.
   Tracked under [EW-613](https://evertech.atlassian.net/browse/EW-613).
 
-## 2026-05-12 — Spec 022: stale-session fix extended to displayName
+### Spec 022: stale-session fix extended to displayName
 
 - `spec-022` Extended AC-21 to also cover `displayName`. The
   same staleness pattern that hit the avatar also hit the
@@ -2099,7 +2101,7 @@ COMMENTS_RECEIVED}`, `TOP_ITEMS.{TITLE, ID, NO_DATA, NO_DATA_DESC}`)
   displayName editor invalidates the cache via the new `onSaved`
   callback path. PR #816.
 
-## 2026-05-12 — Spec 022: avatar propagation fix
+### Spec 022: avatar propagation fix
 
 - `spec-022` AC-21 added: top-nav profile button (and anything
   else reading `useCurrentUser()`) was showing the stale NextAuth
@@ -2111,7 +2113,7 @@ COMMENTS_RECEIVED}`, `TOP_ITEMS.{TITLE, ID, NO_DATA, NO_DATA_DESC}`)
   basic-info form when the avatar value changes, so active
   subscribers refetch immediately. PR #816.
 
-## 2026-05-12 — Spec 022: new-follower notifications
+### Spec 022: new-follower notifications
 
 - `spec-022` AC-20: widened the `notifications.type` text enum
   with `'user_followed'` (no DB migration — column is plain TEXT,
@@ -2121,7 +2123,7 @@ COMMENTS_RECEIVED}`, `TOP_ITEMS.{TITLE, ID, NO_DATA, NO_DATA_DESC}`)
   their userId/username in the `data` JSON blob. Notification
   failures are logged but never break the follow. PR #816.
 
-## 2026-05-12 — Spec 022: profile-menu nav link for /client/users
+### Spec 022: profile-menu nav link for /client/users
 
 - `spec-022` AC-19: added a "Discover Users" entry to the
   profile-button dropdown (non-admin view) linking to
@@ -2131,7 +2133,7 @@ COMMENTS_RECEIVED}`, `TOP_ITEMS.{TITLE, ID, NO_DATA, NO_DATA_DESC}`)
   `common.DISCOVER_USERS_DESC` i18n keys (English; other locales
   fall back). PR #816.
 
-## 2026-05-12 — Spec 022: users directory at /client/users
+### Spec 022: users directory at /client/users
 
 - `spec-022` AC-18 added: new public users directory at
   `/client/users`. URL-driven server-side search (filters
@@ -2142,7 +2144,7 @@ COMMENTS_RECEIVED}`, `TOP_ITEMS.{TITLE, ID, NO_DATA, NO_DATA_DESC}`)
   the viewer's follow state. New `searchPublicProfiles` query in
   `client.queries.ts`. PR #816.
 
-## 2026-05-12 — Spec 022: followers / following drill-down pages
+### Spec 022: followers / following drill-down pages
 
 - `spec-022` AC-17 added: new pages
   `/client/profile/<username>/followers` and `.../following` render
@@ -2152,7 +2154,7 @@ COMMENTS_RECEIVED}`, `TOP_ITEMS.{TITLE, ID, NO_DATA, NO_DATA_DESC}`)
   stats-strip tiles ("Followers", "Following") link to these
   pages. PR #816.
 
-## 2026-05-12 — Spec 022: polish — recent activity feed + skills empty state
+### Spec 022: polish — recent activity feed + skills empty state
 
 - `spec-022` Added AC-15 (Recent Activity card on the About tab
   listing the last five comments authored by the profile owner via
@@ -2161,7 +2163,7 @@ COMMENTS_RECEIVED}`, `TOP_ITEMS.{TITLE, ID, NO_DATA, NO_DATA_DESC}`)
   empty-state card instead of showing a 0%-proficiency summary
   when the profile has no skills). PR #816.
 
-## 2026-05-12 — Spec 022: follow-up — public profiles, follows, inline edit
+### Spec 022: follow-up — public profiles, follows, inline edit
 
 - `spec-022` Extended Spec 022 with: public profile viewing (drop
   username-mismatch redirect; 404 on missing); new `user_follows`
@@ -2173,7 +2175,7 @@ COMMENTS_RECEIVED}`, `TOP_ITEMS.{TITLE, ID, NO_DATA, NO_DATA_DESC}`)
   About section, hitting the existing `PATCH /api/user/profile`
   route with optimistic UI. PR #816.
 
-## 2026-05-12 — Spec 022: profile UX polish (in-progress)
+### Spec 022: profile UX polish (in-progress)
 
 - `spec-022` New spec under `docs/spec/022-profile-ux-polish/`
   describing end-to-end persistence for the client profile:
@@ -2236,7 +2238,7 @@ COMMENTS_RECEIVED}`, `TOP_ITEMS.{TITLE, ID, NO_DATA, NO_DATA_DESC}`)
   capturing the testing investment that catches regressions like
   the paging + sort + redirect-loop bugs at PR time.
 
-## 2026-05-11 — Spec 020 follow-up: slugify-aware category state
+### Spec 020 follow-up: slugify-aware category state
 
 - `spec-020` Category-selection state mismatch (PRs #792 →
   #793 → #794). Clicking "Practices" applied the URL filter
@@ -2308,7 +2310,7 @@ COMMENTS_RECEIVED}`, `TOP_ITEMS.{TITLE, ID, NO_DATA, NO_DATA_DESC}`)
       as docs-only. Now all three patterns described in
       `docs/performance/locale-detection.md` are runnable.
 
-## 2026-05-10 — Spec 019: CDN-cacheable public surface + pluggable locale detection
+### Spec 019: CDN-cacheable public surface + pluggable locale detection
 
 - `spec-019` Drafted spec/plan/tasks for `019-cdn-cacheable-i18n` —
   fixes `demo.ever.works` shipping `Cache-Control: no-store` on
@@ -2360,7 +2362,7 @@ COMMENTS_RECEIVED}`, `TOP_ITEMS.{TITLE, ID, NO_DATA, NO_DATA_DESC}`)
   1.1-only `language` field. Same swap applied symmetrically to the
   Astro minimal template's `@ever-works/plugin-rss` package.
 
-## 2026-05-09 (cont)
+### (cont)
 
 - `app/rss.xml` `app/atom.xml` `app/feed.json` `lib/seo/feeds.ts`
   `app/[locale]/layout.tsx` `lib/seo/ai-crawlers.ts`
@@ -2390,7 +2392,7 @@ COMMENTS_RECEIVED}`, `TOP_ITEMS.{TITLE, ID, NO_DATA, NO_DATA_DESC}`)
     - `app/llms.txt/route.ts` advertises `/feed.json` and `/rss.xml`
       alongside the previously listed `/atom.xml` and `/sitemap.xml`.
 
-## 2026-05-09
+### 2026-05-09
 
 - `docs/log`
   Noted category sidebar and overflow tag dropdown virtualization for
