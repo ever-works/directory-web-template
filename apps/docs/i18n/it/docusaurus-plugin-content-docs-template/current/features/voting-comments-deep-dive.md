@@ -223,14 +223,14 @@ function useAdminComments({ page, limit, search }) {
 
 | Metodo | Punto finale | Descrizione |
 |--------|----------|-------------|
-| OTTIENI | `/api/items/:slug/votes` | Recupera il conteggio dei voti e il voto dell'utente |
+| GET | `/api/items/:slug/votes` | Recupera il conteggio dei voti e il voto dell'utente |
 | POST | `/api/items/:slug/votes` | Esprimi o modifica un voto |
-| ELIMINA | `/api/items/:slug/votes` | Rimuovere un voto |
-| OTTIENI | `/api/items/:slug/comments` | Recupera commenti con i dati utente |
+| DELETE | `/api/items/:slug/votes` | Rimuovere un voto |
+| GET | `/api/items/:slug/comments` | Recupera commenti con i dati utente |
 | POST | `/api/items/:slug/comments` | Crea un nuovo commento |
-| METTERE | `/api/items/:slug/comments/:commentId` | Aggiorna un commento |
-| ELIMINA | `/api/items/:slug/comments/:commentId` | Elimina un commento |
-| OTTIENI | `/api/items/:slug/comments/rating` | Ottieni la valutazione complessiva degli articoli |
+| PUT | `/api/items/:slug/comments/:commentId` | Aggiorna un commento |
+| DELETE | `/api/items/:slug/comments/:commentId` | Elimina un commento |
+| GET | `/api/items/:slug/comments/rating` | Ottieni la valutazione complessiva degli articoli |
 
 ## Integrazione dei flag di funzionalità
 

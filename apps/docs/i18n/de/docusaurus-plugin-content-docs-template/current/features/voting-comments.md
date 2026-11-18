@@ -158,7 +158,7 @@ const {
 | GET | `/api/items/:slug/comments` | Kommentare für einen Artikel abrufen |
 | POST | `/api/items/:slug/comments` | Einen neuen Kommentar erstellen |
 | PUT | `/api/items/:slug/comments/:commentId` | Einen Kommentar aktualisieren |
-| LÖSCHEN | `/api/items/:slug/comments/:commentId` | Einen Kommentar löschen |
+| DELETE | `/api/items/:slug/comments/:commentId` | Einen Kommentar löschen |
 | GET | `/api/items/:slug/comments/rating` | Gesamtbewertung abrufen |
 
 ## Feature-Flag-Integration

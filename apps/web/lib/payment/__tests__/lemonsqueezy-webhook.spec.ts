@@ -166,13 +166,24 @@ test('stored amounts follow the provider units, not the display list (IDR is two
 	// Three-decimal currencies arrive in thousandths.
 	assert.equal(toStoredAmount(12500, 'kwd'), 13);
 	assert.equal(toStoredAmount(5000, 'VND'), 5000);
+	// UGX is zero-decimal at Stripe but still sent in hundredths: 5 UGX arrives as 500.
+	assert.equal(toStoredAmount(500, 'ugx'), 5);
+});
+
+test('LemonSqueezy amounts are cents in every currency', () => {
+	// A JPY 1500 invoice arrives as total 150000.
+	assert.equal(toStoredAmount(150000, 'JPY', 'lemonsqueezy'), 1500);
+	assert.equal(toStoredAmount(1999, 'usd', 'lemonsqueezy'), 20);
+	assert.equal(toStoredAmount(1500, 'jpy', 'stripe'), 1500);
 });
 
 test('the subscription service passes the currency to every stored amount', () => {
 	const source = readFileSync(join(__dirname, '../../services/webhook-subscription.service.ts'), 'utf8');
 	const calls = source.match(/toStoredAmount\([^)]*\)/g) ?? [];
 	assert.ok(calls.length >= 4, 'expected the amount, amount_due and amount_paid writes');
-	for (const call of calls) assert.match(call, /, currency\)$|, response\.currency\)$/, `${call} drops the currency`);
+	for (const call of calls) {
+		assert.match(call, /, (currency|response\.currency), this\.paymentProvider\)$/, `${call} drops the currency or provider`);
+	}
 
 	// An invoice carries the charged currency, which a LemonSqueezy subscription event never does.
 	const start = source.indexOf('async handleSubscriptionPaymentSucceeded(');

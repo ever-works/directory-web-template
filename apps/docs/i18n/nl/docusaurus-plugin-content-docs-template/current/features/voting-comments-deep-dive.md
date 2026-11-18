@@ -223,14 +223,14 @@ function useAdminComments({ page, limit, search }) {
 
 | Werkwijze | Eindpunt | Beschrijving |
 |--------|----------|------------|
-| KRIJG | `/api/items/:slug/votes` | Haal het aantal stemmen en de stem van de gebruiker op |
+| GET | `/api/items/:slug/votes` | Haal het aantal stemmen en de stem van de gebruiker op |
 | POST | `/api/items/:slug/votes` | Een stem uitbrengen of wijzigen |
-| VERWIJDEREN | `/api/items/:slug/votes` | Een stem verwijderen |
-| KRIJG | `/api/items/:slug/comments` | Opmerkingen ophalen met gebruikersgegevens |
+| DELETE | `/api/items/:slug/votes` | Een stem verwijderen |
+| GET | `/api/items/:slug/comments` | Opmerkingen ophalen met gebruikersgegevens |
 | POST | `/api/items/:slug/comments` | Creëer een nieuwe reactie |
-| ZET | `/api/items/:slug/comments/:commentId` | Een reactie bijwerken |
-| VERWIJDEREN | `/api/items/:slug/comments/:commentId` | Een opmerking verwijderen |
-| KRIJG | `/api/items/:slug/comments/rating` | Verzamelde itembeoordeling verkrijgen |
+| PUT | `/api/items/:slug/comments/:commentId` | Een reactie bijwerken |
+| DELETE | `/api/items/:slug/comments/:commentId` | Een opmerking verwijderen |
+| GET | `/api/items/:slug/comments/rating` | Verzamelde itembeoordeling verkrijgen |
 
 ## Functievlag-integratie
 

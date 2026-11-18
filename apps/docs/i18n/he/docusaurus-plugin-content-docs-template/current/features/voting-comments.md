@@ -155,11 +155,11 @@ const {
 
 | שיטה | נקודת קצה | תיאור |
 |--------|--------|----------------|
-| קבל | `/api/items/:slug/comments` | אחזר הערות לפריט |
-| פוסט | `/api/items/:slug/comments` | צור תגובה חדשה |
+| GET | `/api/items/:slug/comments` | אחזר הערות לפריט |
+| POST | `/api/items/:slug/comments` | צור תגובה חדשה |
 | PUT | `/api/items/:slug/comments/:commentId` | עדכן תגובה |
-| מחק | `/api/items/:slug/comments/:commentId` | מחק תגובה |
-| קבל | `/api/items/:slug/comments/rating` | קבל דירוג מצטבר |
+| DELETE | `/api/items/:slug/comments/:commentId` | מחק תגובה |
+| GET | `/api/items/:slug/comments/rating` | קבל דירוג מצטבר |
 
 ## שילוב דגל תכונה
 

@@ -155,11 +155,11 @@ const {
 
 | Metoda | Punkt końcowy | Opis |
 |--------|----------|------------|
-| OTRZYMAJ | `/api/items/:slug/comments` | Pobierz komentarze do elementu |
+| GET | `/api/items/:slug/comments` | Pobierz komentarze do elementu |
 | POST | `/api/items/:slug/comments` | Utwórz nowy komentarz |
-| POSTAW | `/api/items/:slug/comments/:commentId` | Zaktualizuj komentarz |
-| USUŃ | `/api/items/:slug/comments/:commentId` | Usuń komentarz |
-| OTRZYMAJ | `/api/items/:slug/comments/rating` | Uzyskaj ocenę zbiorczą |
+| PUT | `/api/items/:slug/comments/:commentId` | Zaktualizuj komentarz |
+| DELETE | `/api/items/:slug/comments/:commentId` | Usuń komentarz |
+| GET | `/api/items/:slug/comments/rating` | Uzyskaj ocenę zbiorczą |
 
 ## Integracja flagi funkcji
 

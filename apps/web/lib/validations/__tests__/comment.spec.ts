@@ -194,4 +194,35 @@ describe('the edit / delete route documents its error examples as OpenAPI 3.0 me
 		}
 		assert.ok(examples >= 10, `expected the 400 and 404 examples, found ${examples}`);
 	});
+
+	it('the list / create route does the same for its POST 400 examples', () => {
+		const blocks = swaggerBlocks('../../../app/api/items/[slug]/comments/route.ts');
+		let examples = 0;
+		for (const block of blocks) {
+			for (const methods of Object.values(block as Record<string, Record<string, any>>)) {
+				for (const operation of Object.values(methods)) {
+					for (const response of Object.values(operation.responses ?? {}) as any[]) {
+						for (const media of Object.values(response.content ?? {}) as any[]) {
+							assert.ok(!hasExamples(media.schema), 'examples nested inside the schema');
+							for (const example of Object.values(media.examples ?? {}) as any[]) {
+								examples++;
+								assert.ok(example && 'value' in example);
+							}
+						}
+					}
+				}
+			}
+		}
+		assert.ok(examples >= 9, `expected the POST 400 examples, found ${examples}`);
+	});
+});
+
+describe('comment responses identify the author the same way', () => {
+	it('PUT returns the user id as user.id, like GET and POST (the UI checks ownership with it)', () => {
+		const route = readFileSync(join(__dirname, '../../../app/api/items/[slug]/comments/[commentId]/route.ts'), 'utf8');
+		const select = route.slice(route.indexOf('user: {', route.indexOf('export async function PUT')));
+		assert.match(select.slice(0, 400), /id: clientProfiles\.userId,/);
+		const queries = readFileSync(join(__dirname, '../../db/queries/comment.queries.ts'), 'utf8');
+		assert.doesNotMatch(queries, /user: \{\s*id: clientProfiles\.id,/);
+	});
 });

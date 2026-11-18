@@ -223,14 +223,14 @@ function useAdminComments({ page, limit, search }) {
 
 | Metoda | Punkt końcowy | Opis |
 |--------|----------|------------|
-| OTRZYMAJ | `/api/items/:slug/votes` | Pobierz liczbę głosów i głos użytkownika |
+| GET | `/api/items/:slug/votes` | Pobierz liczbę głosów i głos użytkownika |
 | POST | `/api/items/:slug/votes` | Oddaj lub zmień głos |
-| USUŃ | `/api/items/:slug/votes` | Usuń głos |
-| OTRZYMAJ | `/api/items/:slug/comments` | Pobierz komentarze z danymi użytkownika |
+| DELETE | `/api/items/:slug/votes` | Usuń głos |
+| GET | `/api/items/:slug/comments` | Pobierz komentarze z danymi użytkownika |
 | POST | `/api/items/:slug/comments` | Utwórz nowy komentarz |
-| POSTAW | `/api/items/:slug/comments/:commentId` | Zaktualizuj komentarz |
-| USUŃ | `/api/items/:slug/comments/:commentId` | Usuń komentarz |
-| OTRZYMAJ | `/api/items/:slug/comments/rating` | Uzyskaj zbiorczą ocenę przedmiotu |
+| PUT | `/api/items/:slug/comments/:commentId` | Zaktualizuj komentarz |
+| DELETE | `/api/items/:slug/comments/:commentId` | Usuń komentarz |
+| GET | `/api/items/:slug/comments/rating` | Uzyskaj zbiorczą ocenę przedmiotu |
 
 ## Integracja flagi funkcji
 

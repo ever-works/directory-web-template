@@ -223,14 +223,14 @@ function useAdminComments({ page, limit, search }) {
 
 | Método | Punto final | Descripción |
 |--------|----------|-------------|
-| OBTENER | `/api/items/:slug/votes` | Obtener el recuento de votos y el voto del usuario |
-| PUBLICAR | `/api/items/:slug/votes` | Emitir o cambiar un voto |
-| BORRAR | `/api/items/:slug/votes` | Eliminar un voto |
-| OBTENER | `/api/items/:slug/comments` | Obtener comentarios con datos de usuario |
-| PUBLICAR | `/api/items/:slug/comments` | Crear un nuevo comentario |
-| PONER | `/api/items/:slug/comments/:commentId` | Actualizar un comentario |
-| BORRAR | `/api/items/:slug/comments/:commentId` | Eliminar un comentario |
-| OBTENER | `/api/items/:slug/comments/rating` | Obtener calificación agregada del artículo |
+| GET | `/api/items/:slug/votes` | Obtener el recuento de votos y el voto del usuario |
+| POST | `/api/items/:slug/votes` | Emitir o cambiar un voto |
+| DELETE | `/api/items/:slug/votes` | Eliminar un voto |
+| GET | `/api/items/:slug/comments` | Obtener comentarios con datos de usuario |
+| POST | `/api/items/:slug/comments` | Crear un nuevo comentario |
+| PUT | `/api/items/:slug/comments/:commentId` | Actualizar un comentario |
+| DELETE | `/api/items/:slug/comments/:commentId` | Eliminar un comentario |
+| GET | `/api/items/:slug/comments/rating` | Obtener calificación agregada del artículo |
 
 ## Integración de indicador de funciones
 

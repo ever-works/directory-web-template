@@ -155,11 +155,11 @@ const {
 
 | Metodo | Punto finale | Descrizione |
 |--------|----------|-------------|
-| OTTIENI | `/api/items/:slug/comments` | Recupera commenti per un elemento |
+| GET | `/api/items/:slug/comments` | Recupera commenti per un elemento |
 | POST | `/api/items/:slug/comments` | Crea un nuovo commento |
-| METTERE | `/api/items/:slug/comments/:commentId` | Aggiorna un commento |
-| ELIMINA | `/api/items/:slug/comments/:commentId` | Elimina un commento |
-| OTTIENI | `/api/items/:slug/comments/rating` | Ottieni una valutazione complessiva |
+| PUT | `/api/items/:slug/comments/:commentId` | Aggiorna un commento |
+| DELETE | `/api/items/:slug/comments/:commentId` | Elimina un commento |
+| GET | `/api/items/:slug/comments/rating` | Ottieni una valutazione complessiva |
 
 ## Integrazione dei flag di funzionalità
 

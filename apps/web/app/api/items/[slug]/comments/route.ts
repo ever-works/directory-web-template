@@ -285,16 +285,43 @@ export async function GET(request: Request, { params }: { params: Promise<{ slug
  *                   example: false
  *                 error:
  *                   type: string
- *                   examples:
- *                     invalid_json: "Invalid JSON body"
- *                     not_an_object: "Request body must be a JSON object"
- *                     missing_content: "Content is required"
- *                     content_type: "Content must be a string"
- *                     content_length: "Content must be between 1 and 1000 characters"
- *                     content_nul: "Content must not contain NUL characters"
- *                     missing_rating: "Rating is required"
- *                     rating_type: "Rating must be an integer"
- *                     invalid_rating: "Rating must be between 1 and 5"
+ *             examples:
+ *               invalid_json:
+ *                 value:
+ *                   success: false
+ *                   error: "Invalid JSON body"
+ *               not_an_object:
+ *                 value:
+ *                   success: false
+ *                   error: "Request body must be a JSON object"
+ *               missing_content:
+ *                 value:
+ *                   success: false
+ *                   error: "Content is required"
+ *               content_type:
+ *                 value:
+ *                   success: false
+ *                   error: "Content must be a string"
+ *               content_length:
+ *                 value:
+ *                   success: false
+ *                   error: "Content must be between 1 and 1000 characters"
+ *               content_nul:
+ *                 value:
+ *                   success: false
+ *                   error: "Content must not contain NUL characters"
+ *               missing_rating:
+ *                 value:
+ *                   success: false
+ *                   error: "Rating is required"
+ *               rating_type:
+ *                 value:
+ *                   success: false
+ *                   error: "Rating must be an integer"
+ *               invalid_rating:
+ *                 value:
+ *                   success: false
+ *                   error: "Rating must be between 1 and 5"
  *       401:
  *         description: "Unauthorized - Authentication required"
  *         content:

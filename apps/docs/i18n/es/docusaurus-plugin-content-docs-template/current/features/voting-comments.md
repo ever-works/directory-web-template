@@ -155,11 +155,11 @@ const {
 
 | Método | Punto final | Descripción |
 |--------|----------|-------------|
-| OBTENER | `/api/items/:slug/comments` | Obtener comentarios de un artículo |
-| PUBLICAR | `/api/items/:slug/comments` | Crear un nuevo comentario |
-| PONER | `/api/items/:slug/comments/:commentId` | Actualizar un comentario |
-| BORRAR | `/api/items/:slug/comments/:commentId` | Eliminar un comentario |
-| OBTENER | `/api/items/:slug/comments/rating` | Obtener calificación agregada |
+| GET | `/api/items/:slug/comments` | Obtener comentarios de un artículo |
+| POST | `/api/items/:slug/comments` | Crear un nuevo comentario |
+| PUT | `/api/items/:slug/comments/:commentId` | Actualizar un comentario |
+| DELETE | `/api/items/:slug/comments/:commentId` | Eliminar un comentario |
+| GET | `/api/items/:slug/comments/rating` | Obtener calificación agregada |
 
 ## Integración de indicador de funciones
 

@@ -155,11 +155,11 @@ const {
 
 | Метод | Крайна точка | Описание |
 |--------|----------|-------------|
-| ВЗЕМЕТЕ | `/api/items/:slug/comments` | Извличане на коментари за елемент |
-| ПУБЛИКАЦИЯ | `/api/items/:slug/comments` | Създайте нов коментар |
-| ПОСТАВЕТЕ | `/api/items/:slug/comments/:commentId` | Актуализиране на коментар |
-| ИЗТРИВАНЕ | `/api/items/:slug/comments/:commentId` | Изтриване на коментар |
-| ВЗЕМЕТЕ | `/api/items/:slug/comments/rating` | Вземете обобщена оценка |
+| GET | `/api/items/:slug/comments` | Извличане на коментари за елемент |
+| POST | `/api/items/:slug/comments` | Създайте нов коментар |
+| PUT | `/api/items/:slug/comments/:commentId` | Актуализиране на коментар |
+| DELETE | `/api/items/:slug/comments/:commentId` | Изтриване на коментар |
+| GET | `/api/items/:slug/comments/rating` | Вземете обобщена оценка |
 
 ## Интегриране на флаг за функции
 

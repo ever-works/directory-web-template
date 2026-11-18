@@ -225,11 +225,11 @@ function useAdminComments({ page, limit, search }) {
 |--------|----------|-------------|
 | GET | `/api/items/:slug/votes` | Stimmenanzahl und Benutzerstimme abrufen |
 | POST | `/api/items/:slug/votes` | Eine Stimme abgeben oder ändern |
-| LÖSCHEN | `/api/items/:slug/votes` | Eine Stimme entfernen |
+| DELETE | `/api/items/:slug/votes` | Eine Stimme entfernen |
 | GET | `/api/items/:slug/comments` | Kommentare mit Benutzerdaten abrufen |
 | POST | `/api/items/:slug/comments` | Einen neuen Kommentar erstellen |
 | PUT | `/api/items/:slug/comments/:commentId` | Einen Kommentar aktualisieren |
-| LÖSCHEN | `/api/items/:slug/comments/:commentId` | Einen Kommentar löschen |
+| DELETE | `/api/items/:slug/comments/:commentId` | Einen Kommentar löschen |
 | GET | `/api/items/:slug/comments/rating` | Gesamte Artikelbewertung abrufen |
 
 ## Feature-Flag-Integration

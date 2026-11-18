@@ -223,14 +223,14 @@ function useAdminComments({ page, limit, search }) {
 
 | Método | Ponto final | Descrição |
 |--------|----------|------------|
-| OBTER | `/api/items/:slug/votes` | Buscar contagem de votos e voto do usuário |
-| POSTAR | `/api/items/:slug/votes` | Lançar ou alterar um voto |
-| EXCLUIR | `/api/items/:slug/votes` | Remover um voto |
-| OBTER | `/api/items/:slug/comments` | Buscar comentários com dados do usuário |
-| POSTAR | `/api/items/:slug/comments` | Crie um novo comentário |
-| COLOCAR | `/api/items/:slug/comments/:commentId` | Atualizar um comentário |
-| EXCLUIR | `/api/items/:slug/comments/:commentId` | Excluir um comentário |
-| OBTER | `/api/items/:slug/comments/rating` | Obtenha classificação agregada do item |
+| GET | `/api/items/:slug/votes` | Buscar contagem de votos e voto do usuário |
+| POST | `/api/items/:slug/votes` | Lançar ou alterar um voto |
+| DELETE | `/api/items/:slug/votes` | Remover um voto |
+| GET | `/api/items/:slug/comments` | Buscar comentários com dados do usuário |
+| POST | `/api/items/:slug/comments` | Crie um novo comentário |
+| PUT | `/api/items/:slug/comments/:commentId` | Atualizar um comentário |
+| DELETE | `/api/items/:slug/comments/:commentId` | Excluir um comentário |
+| GET | `/api/items/:slug/comments/rating` | Obtenha classificação agregada do item |
 
 ## Integração de sinalizadores de recursos
 

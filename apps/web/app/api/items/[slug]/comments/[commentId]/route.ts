@@ -311,7 +311,9 @@ export async function PUT(request: Request, { params }: { params: Promise<{ slug
 				editedAt: comments.editedAt,
 				deletedAt: comments.deletedAt,
 				user: {
-					id: clientProfiles.id,
+					// The user id, as GET and POST return it: the comments UI compares it with the
+					// signed-in user's id to show the author's edit and delete controls.
+					id: clientProfiles.userId,
 					name: clientProfiles.name,
 					image: clientProfiles.avatar
 				}

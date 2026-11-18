@@ -196,7 +196,7 @@ export class WebhookSubscriptionService {
 				priceId: response.priceId || null,
 				customerId: response.customerId,
 				currency: response.currency || 'usd',
-				amount: toStoredAmount(response.amount, response.currency) || null,
+				amount: toStoredAmount(response.amount, response.currency, this.paymentProvider) || null,
 				interval: response.interval || 'month',
 				intervalCount: response.intervalCount || 1,
 				trialStart: convertNumberToDate(response.trialStart) || null,
@@ -291,7 +291,7 @@ export class WebhookSubscriptionService {
 					response.planId === 'free'
 						? 0
 						: response.amount > 0
-							? toStoredAmount(response.amount, currency)
+							? toStoredAmount(response.amount, currency, this.paymentProvider)
 							: existingSubscription.amount,
 				priceId: response.priceId || existingSubscription.priceId,
 				currency,
@@ -466,8 +466,8 @@ export class WebhookSubscriptionService {
 				// Keep the stored end date when the event carries no period end.
 				endDate: convertNumberToDate(response.periodEnd) ?? existingSubscription.endDate,
 				currency,
-				amountDue: toStoredAmount(response.amountDue, currency),
-				amountPaid: toStoredAmount(response.amountPaid, currency),
+				amountDue: toStoredAmount(response.amountDue, currency, this.paymentProvider),
+				amountPaid: toStoredAmount(response.amountPaid, currency, this.paymentProvider),
 				periodEnd: convertNumberToDate(response.periodEnd),
 				periodStart: convertNumberToDate(response.periodStart),
 				invoicePdf: response.invoicePdf,

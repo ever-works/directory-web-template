@@ -223,14 +223,14 @@ function useAdminComments({ page, limit, search }) {
 
 | Метод | Крайна точка | Описание |
 |--------|----------|-------------|
-| ВЗЕМЕТЕ | `/api/items/:slug/votes` | Извличане на броя на гласовете и вота на потребителя |
-| ПУБЛИКАЦИЯ | `/api/items/:slug/votes` | Дайте или променете глас |
-| ИЗТРИВАНЕ | `/api/items/:slug/votes` | Премахване на глас |
-| ВЗЕМЕТЕ | `/api/items/:slug/comments` | Извличане на коментари с потребителски данни |
-| ПУБЛИКАЦИЯ | `/api/items/:slug/comments` | Създайте нов коментар |
-| ПОСТАВЕТЕ | `/api/items/:slug/comments/:commentId` | Актуализиране на коментар |
-| ИЗТРИВАНЕ | `/api/items/:slug/comments/:commentId` | Изтриване на коментар |
-| ВЗЕМЕТЕ | `/api/items/:slug/comments/rating` | Вземете обобщена оценка на артикул |
+| GET | `/api/items/:slug/votes` | Извличане на броя на гласовете и вота на потребителя |
+| POST | `/api/items/:slug/votes` | Дайте или променете глас |
+| DELETE | `/api/items/:slug/votes` | Премахване на глас |
+| GET | `/api/items/:slug/comments` | Извличане на коментари с потребителски данни |
+| POST | `/api/items/:slug/comments` | Създайте нов коментар |
+| PUT | `/api/items/:slug/comments/:commentId` | Актуализиране на коментар |
+| DELETE | `/api/items/:slug/comments/:commentId` | Изтриване на коментар |
+| GET | `/api/items/:slug/comments/rating` | Вземете обобщена оценка на артикул |
 
 ## Интегриране на флаг за функции
 

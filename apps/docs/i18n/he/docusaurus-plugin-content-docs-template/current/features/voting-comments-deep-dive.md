@@ -223,14 +223,14 @@ function useAdminComments({ page, limit, search }) {
 
 | שיטה | נקודת קצה | תיאור |
 |--------|--------|----------------|
-| קבל | `/api/items/:slug/votes` | אחזר את ספירת ההצבעות והצבעות של המשתמש |
-| פוסט | `/api/items/:slug/votes` | להצביע או לשנות הצבעה |
-| מחק | `/api/items/:slug/votes` | הסר הצבעה |
-| קבל | `/api/items/:slug/comments` | אחזר הערות עם נתוני משתמש |
-| פוסט | `/api/items/:slug/comments` | צור תגובה חדשה |
+| GET | `/api/items/:slug/votes` | אחזר את ספירת ההצבעות והצבעות של המשתמש |
+| POST | `/api/items/:slug/votes` | להצביע או לשנות הצבעה |
+| DELETE | `/api/items/:slug/votes` | הסר הצבעה |
+| GET | `/api/items/:slug/comments` | אחזר הערות עם נתוני משתמש |
+| POST | `/api/items/:slug/comments` | צור תגובה חדשה |
 | PUT | `/api/items/:slug/comments/:commentId` | עדכן תגובה |
-| מחק | `/api/items/:slug/comments/:commentId` | מחק תגובה |
-| קבל | `/api/items/:slug/comments/rating` | קבל דירוג פריט מצטבר |
+| DELETE | `/api/items/:slug/comments/:commentId` | מחק תגובה |
+| GET | `/api/items/:slug/comments/rating` | קבל דירוג פריט מצטבר |
 
 ## שילוב דגל תכונה
 

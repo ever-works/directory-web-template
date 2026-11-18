@@ -155,11 +155,11 @@ const {
 
 | Метод | Конечная точка | Описание |
 |--------|----------|-------------|
-| ПОЛУЧИТЬ | `/api/items/:slug/comments` | Получить комментарии к элементу |
-| ПОСТ | `/api/items/:slug/comments` | Создать новый комментарий |
-| ПУТЬ | `/api/items/:slug/comments/:commentId` | Обновить комментарий |
-| УДАЛИТЬ | `/api/items/:slug/comments/:commentId` | Удалить комментарий |
-| ПОЛУЧИТЬ | `/api/items/:slug/comments/rating` | Получить совокупный рейтинг |
+| GET | `/api/items/:slug/comments` | Получить комментарии к элементу |
+| POST | `/api/items/:slug/comments` | Создать новый комментарий |
+| PUT | `/api/items/:slug/comments/:commentId` | Обновить комментарий |
+| DELETE | `/api/items/:slug/comments/:commentId` | Удалить комментарий |
+| GET | `/api/items/:slug/comments/rating` | Получить совокупный рейтинг |
 
 ## Интеграция флагов функций
 

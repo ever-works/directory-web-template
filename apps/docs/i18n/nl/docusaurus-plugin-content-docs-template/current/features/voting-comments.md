@@ -155,11 +155,11 @@ const {
 
 | Werkwijze | Eindpunt | Beschrijving |
 |--------|----------|------------|
-| KRIJG | `/api/items/:slug/comments` | Opmerkingen voor een item ophalen |
+| GET | `/api/items/:slug/comments` | Opmerkingen voor een item ophalen |
 | POST | `/api/items/:slug/comments` | Creëer een nieuwe reactie |
-| ZET | `/api/items/:slug/comments/:commentId` | Een reactie bijwerken |
-| VERWIJDEREN | `/api/items/:slug/comments/:commentId` | Een opmerking verwijderen |
-| KRIJG | `/api/items/:slug/comments/rating` | Totale beoordeling verkrijgen |
+| PUT | `/api/items/:slug/comments/:commentId` | Een reactie bijwerken |
+| DELETE | `/api/items/:slug/comments/:commentId` | Een opmerking verwijderen |
+| GET | `/api/items/:slug/comments/rating` | Totale beoordeling verkrijgen |
 
 ## Functievlag-integratie
 

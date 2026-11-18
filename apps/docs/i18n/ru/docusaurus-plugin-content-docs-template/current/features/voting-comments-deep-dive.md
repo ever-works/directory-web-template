@@ -223,14 +223,14 @@ function useAdminComments({ page, limit, search }) {
 
 | Метод | Конечная точка | Описание |
 |--------|----------|-------------|
-| ПОЛУЧИТЬ | `/api/items/:slug/votes` | Получение подсчета голосов и голосов пользователей |
-| ПОСТ | `/api/items/:slug/votes` | Отдать или изменить голос |
-| УДАЛИТЬ | `/api/items/:slug/votes` | Удалить голос |
-| ПОЛУЧИТЬ | `/api/items/:slug/comments` | Получение комментариев с пользовательскими данными |
-| ПОСТ | `/api/items/:slug/comments` | Создать новый комментарий |
-| ПУТЬ | `/api/items/:slug/comments/:commentId` | Обновить комментарий |
-| УДАЛИТЬ | `/api/items/:slug/comments/:commentId` | Удалить комментарий |
-| ПОЛУЧИТЬ | `/api/items/:slug/comments/rating` | Получить совокупный рейтинг товара |
+| GET | `/api/items/:slug/votes` | Получение подсчета голосов и голосов пользователей |
+| POST | `/api/items/:slug/votes` | Отдать или изменить голос |
+| DELETE | `/api/items/:slug/votes` | Удалить голос |
+| GET | `/api/items/:slug/comments` | Получение комментариев с пользовательскими данными |
+| POST | `/api/items/:slug/comments` | Создать новый комментарий |
+| PUT | `/api/items/:slug/comments/:commentId` | Обновить комментарий |
+| DELETE | `/api/items/:slug/comments/:commentId` | Удалить комментарий |
+| GET | `/api/items/:slug/comments/rating` | Получить совокупный рейтинг товара |
 
 ## Интеграция флагов функций
 
