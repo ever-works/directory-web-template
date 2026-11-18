@@ -1,6 +1,6 @@
 import { coreConfig } from '@/lib/config/config-service';
 import { tenantHostFromHeaders } from './tenant-host';
-import { pickSharedRenderTenant } from './shared-render-tenant';
+import { pickSharedRenderTenant, tenantInsertChangesSharedRender } from './shared-render-tenant';
 
 // --- Configuration & Caching --- //
 
@@ -77,7 +77,7 @@ async function ensureTenantExists(tenantId: string, name: string) {
 			// ignores other rows, and from two tenants on it prefetches nothing. Skipped where
 			// Next cannot revalidate (a render); ISR then regenerates them within 10 minutes.
 			const rows = await db.select({ id: tenant.id }).from(tenant).limit(3);
-			if (rows.length === 2) {
+			if (tenantInsertChangesSharedRender(rows.length, process.env.TENANT_ID)) {
 				const { revalidateItemPages } = await import('@/lib/cache-invalidation');
 				revalidateItemPages();
 			}

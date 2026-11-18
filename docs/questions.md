@@ -94,6 +94,24 @@ confirm, override, or refine.
 - **Owner.** Maintainers.
 - **Status.** open
 
+### Q-061f Tenant comments in shared cached item pages
+
+- **Context.** Cached item pages embed comments (and the Product JSON-LD
+  `aggregateRating`) for the shared-render tenant: `TENANT_ID`, else the only tenant
+  row. After a second tenant row is inserted, pages cached before can serve the first
+  tenant's public comments for up to 600 s at the origin, plus the CDN's `s-maxage`.
+  The insert marks item pages stale when Next can revalidate, which it cannot inside a
+  render.
+- **Options.**
+  - Accept the bounded window (spec R4).
+  - Keep tenant-scoped comments out of shared HTML unless `TENANT_ID` is set: no window,
+    but no server-rendered comments or `aggregateRating` for deployments without it.
+  - Queue the invalidation and run it from a request context that can revalidate.
+- **Default.** **Accept the bounded window**; multi-tenant deployments set `TENANT_ID`
+  before adding tenants.
+- **Owner.** Maintainers.
+- **Status.** open
+
 ---
 
 ## Spec 060 — LemonSqueezy webhook integrity

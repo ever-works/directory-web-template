@@ -14,3 +14,15 @@ export function pickSharedRenderTenant(rows: ReadonlyArray<{ id: string; status:
 	const [only] = rows;
 	return only.status === 'active' ? only.id : null;
 }
+
+/**
+ * Whether a tenant row just inserted changes what cached item pages may embed, so they
+ * must regenerate (Spec 061 R4). Only the step from one tenant row to two does: before
+ * it the shared render embedded the single tenant's comments, after it none. With
+ * `TENANT_ID` set the shared render uses that tenant whatever the table holds.
+ *
+ * @param tenantRowsAfter Rows in the `tenant` table after the insert (counting to 3 is enough).
+ */
+export function tenantInsertChangesSharedRender(tenantRowsAfter: number, envTenantId: string | null | undefined): boolean {
+	return !envTenantId && tenantRowsAfter === 2;
+}

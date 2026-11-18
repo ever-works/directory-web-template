@@ -40,4 +40,4 @@ sidebar_label: 061 Tasks
   `shared-render-tenant`.
 - [x] **T-013** Before/after measurements and the sync-under-load test (spec §5).
 - [ ] **T-014** Measure on the live site; run the e2e suite.
-- [ ] **T-015** Open questions Q-061a–e.
+- [ ] **T-015** Open questions Q-061a–f.

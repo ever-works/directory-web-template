@@ -104,7 +104,7 @@ the before/after benchmark in [spec.md](./spec.md); unit and source-guard specs.
   is recorded in [`docs/architecture/cache-system.md`](../../architecture/cache-system.md).
 - [x] **III — Spec Before Code** — spec, plan and tasks in this folder.
 - [x] **IV — Documentation First-Class** — spec folder, index row, `docs/log.md`,
-  `docs/performance/{content-loading,cdn-cacheability}.md`, Q-061a–e.
+  `docs/performance/{content-loading,cdn-cacheability}.md`, Q-061a–f.
 - [x] **V — Performance Budget** — the purpose of the change; measured in spec §5.
 - [x] **VI — Latest Stable Frameworks** — no framework changes (Next.js 16.3.8).
 - [x] **VII — Reuse Before Build** — Next's ISR, incremental cache and handler; no new
