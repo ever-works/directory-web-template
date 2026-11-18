@@ -6,4 +6,4 @@ export { SidebarSponsor } from "./sidebar-sponsor";
 
 // Sponsor Ads Context
 export { SponsorAdsProvider, useSponsorAdsContext } from "./sponsor-ads-context";
-export type { SponsorWithItem } from "./sponsor-ads-context";
+export type { SponsorWithItem, PublicSponsorWithItem } from "./sponsor-ads-context";
