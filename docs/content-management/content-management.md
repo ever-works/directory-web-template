@@ -27,8 +27,8 @@ export interface ItemData {
   collections?: string[] | Collection[];
   featured?: boolean;
   icon_url?: string;
-  updated_at: string;       // Raw string timestamp (e.g. "2024-06-15 10:30")
-  updatedAt: Date;           // Parsed Date object
+  updated_at?: string;      // Optional raw timestamp (e.g. "2024-06-15 10:30"); an item without one is still listed
+  updatedAt?: Date;          // Parsed updated_at; undefined when it is missing or not a date
   promo_code?: PromoCode;
   markdown?: string;
   is_source_url_active?: boolean;
@@ -178,12 +178,13 @@ async function parseItem(base: string, filename: string) {
   const sanitizedFilename = sanitizeFilename(filename);
   const filepath = path.join(base, sanitizedFilename);
   const content = await safeReadFile(filepath, base);
-  const meta = yaml.parse(content) as ItemData;
-  meta.slug = path.basename(sanitizedFilename, path.extname(sanitizedFilename));
-  meta.updatedAt = parse(meta.updated_at, 'yyyy-MM-dd HH:mm', new Date());
-  return meta;
+  const slug = path.basename(sanitizedFilename, path.extname(sanitizedFilename));
+  // lib/item-yaml.ts: updatedAt is undefined when updated_at is missing or not a date, never a throw
+  return parseItemYaml(content, slug);
 }
 ```
+
+An item without `updated_at` is still listed. It sorts as the oldest, gets no recency score, and is left out of the RSS/Atom/JSON feeds until it has a date (spec 061 R16).
 
 ### Security Utilities
 
@@ -244,7 +245,7 @@ export async function fetchItems(options: FetchOptions = {}): Promise<FetchItems
     items: items.sort((a, b) => {
       if (a.featured && !b.featured) return -1;
       if (!a.featured && b.featured) return 1;
-      return b.updatedAt.getTime() - a.updatedAt.getTime();
+      return itemDateMs(b.updatedAt) - itemDateMs(a.updatedAt); // undated items sort as the oldest
     }),
     categories: Array.from(categories.values()),
     tags: Array.from(tags.values()),

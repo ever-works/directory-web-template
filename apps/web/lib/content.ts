@@ -5,7 +5,8 @@ import yaml from 'yaml';
 import * as fs from 'node:fs';
 import * as fsp from 'node:fs/promises';
 import * as path from 'node:path';
-import { parse } from 'date-fns';
+import { itemDateMs } from './item-updated-at';
+import { parseItemYaml } from './item-yaml';
 import { dirExists, fsExists, getContentPath } from './lib';
 import { ItemFileCache } from './item-file-cache';
 import { isItemSlug } from './item-slug';
@@ -375,8 +376,8 @@ export interface ItemData {
 	collection?: string;
 	featured?: boolean;
 	icon_url?: string;
-	updated_at: string; // raw string timestamp
-	updatedAt: Date; // timestamp
+	updated_at?: string; // raw string timestamp; optional (an item without one is still listed)
+	updatedAt?: Date; // parsed `updated_at`; undefined when it is missing or not a date
 	promo_code?: PromoCode; // New field for promotional codes
 	markdown?: string; // Optional markdown content from YAML
 	// Used to drop the card link's manual `/${locale}` prefix. Card links are now always
@@ -695,12 +696,8 @@ async function parseItem(
 
 		// Use secure file reading function
 		const content = await safeReadFile(filepath, base);
-		const meta = yaml.parse(content) as ItemData;
-		meta.slug = slugOverride ?? path.basename(sanitizedFilename, path.extname(sanitizedFilename));
-		meta.updatedAt = parse(meta.updated_at, 'yyyy-MM-dd HH:mm', new Date());
-		delete meta.markdown;
-
-		return meta;
+		// A missing or unreadable updated_at keeps the item (spec 061 R16).
+		return parseItemYaml(content, slugOverride ?? path.basename(sanitizedFilename, path.extname(sanitizedFilename)));
 	} catch (error) {
 		if (isNodeErrorWithCode(error, 'ENOENT')) {
 			if (!missingItemWarnings.has(filename)) {
@@ -1543,12 +1540,9 @@ async function fetchItemsImpl(options: FetchOptions = {}, repairAttempted = fals
 		items: items.sort((a, b) => {
 			if (a.featured && !b.featured) return -1;
 			if (!a.featured && b.featured) return 1;
-			// updatedAt is supposed to be a Date but cache rehydration
-			// (and items not loaded through safeReadFile) can leave it
-			// as a string or undefined. Coerce defensively.
-			const aTime = a.updatedAt instanceof Date ? a.updatedAt.getTime() : new Date(a.updatedAt ?? 0).getTime();
-			const bTime = b.updatedAt instanceof Date ? b.updatedAt.getTime() : new Date(b.updatedAt ?? 0).getTime();
-			return bTime - aTime;
+			// Cache rehydration leaves updatedAt a string, and an undated item has none:
+			// itemDateMs reads both, and an undated item sorts as the oldest.
+			return itemDateMs(b.updatedAt) - itemDateMs(a.updatedAt);
 		}),
 		categories: Array.from(categories.values()),
 		tags: sortedTags,
