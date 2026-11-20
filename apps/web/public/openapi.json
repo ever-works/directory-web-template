@@ -11551,10 +11551,74 @@
 						"description": "Redirect response for authentication flows"
 					},
 					"400": {
-						"description": "Bad request - Invalid parameters or configuration"
+						"description": "Bad request - Invalid parameters, or the requested OAuth provider (providerId) is not configured",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"error": {
+											"type": "object",
+											"properties": {
+												"message": {
+													"type": "string"
+												},
+												"code": {
+													"type": "string",
+													"enum": ["PROVIDER_NOT_CONFIGURED", "AUTH_ERROR"]
+												}
+											},
+											"required": ["message", "code"]
+										}
+									}
+								},
+								"examples": {
+									"provider_not_configured": {
+										"value": {
+											"error": {
+												"message": "Authentication provider \"github\" is not available.",
+												"code": "PROVIDER_NOT_CONFIGURED"
+											}
+										}
+									}
+								}
+							}
+						}
 					},
 					"500": {
-						"description": "Internal server error"
+						"description": "Internal server error - the Auth.js handler threw",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"error": {
+											"type": "object",
+											"properties": {
+												"message": {
+													"type": "string"
+												},
+												"code": {
+													"type": "string",
+													"enum": ["PROVIDER_NOT_CONFIGURED", "AUTH_ERROR"]
+												}
+											},
+											"required": ["message", "code"]
+										}
+									}
+								},
+								"examples": {
+									"auth_error": {
+										"value": {
+											"error": {
+												"message": "Authentication service error",
+												"code": "AUTH_ERROR"
+											}
+										}
+									}
+								}
+							}
+						}
 					}
 				}
 			},
@@ -11801,15 +11865,34 @@
 						"description": "Too many requests - Rate limit exceeded"
 					},
 					"500": {
-						"description": "Internal server error",
+						"description": "Internal server error - the Auth.js handler threw",
 						"content": {
 							"application/json": {
 								"schema": {
 									"type": "object",
 									"properties": {
 										"error": {
-											"type": "string",
-											"example": "Internal server error"
+											"type": "object",
+											"properties": {
+												"message": {
+													"type": "string"
+												},
+												"code": {
+													"type": "string",
+													"enum": ["PROVIDER_NOT_CONFIGURED", "AUTH_ERROR"]
+												}
+											},
+											"required": ["message", "code"]
+										}
+									}
+								},
+								"examples": {
+									"auth_error": {
+										"value": {
+											"error": {
+												"message": "Authentication service error",
+												"code": "AUTH_ERROR"
+											}
 										}
 									}
 								}
@@ -19174,7 +19257,7 @@
 						}
 					},
 					"400": {
-						"description": "Bad request - Invalid request data or Stripe error",
+						"description": "Bad request - Invalid request data or Stripe error (including a payment method Stripe cannot find)",
 						"content": {
 							"application/json": {
 								"schema": {
@@ -19218,6 +19301,18 @@
 													"message": "Payment method ID is required"
 												}
 											]
+										}
+									},
+									"no_customer": {
+										"value": {
+											"success": false,
+											"error": "Payment method not associated with a customer"
+										}
+									},
+									"payment_method_not_found": {
+										"value": {
+											"success": false,
+											"error": "Stripe error: No such PaymentMethod: 'pm_1234567890abcdef'"
 										}
 									},
 									"stripe_error": {
@@ -19266,6 +19361,30 @@
 											"example": "Access denied: payment method does not belong to user"
 										}
 									}
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "Not found - The Stripe customer that owns the payment method was deleted",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"success": {
+											"type": "boolean",
+											"example": false
+										},
+										"error": {
+											"type": "string",
+											"example": "Customer not found"
+										}
+									}
+								},
+								"example": {
+									"success": false,
+									"error": "Customer not found"
 								}
 							}
 						}

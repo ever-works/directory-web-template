@@ -2,6 +2,7 @@ import { eq, sql, and, isNotNull } from 'drizzle-orm';
 import { db } from '../drizzle';
 import { users, clientProfiles, accounts, roles, userRoles, type NewUser, type User } from '../schema';
 import { getTenantId } from '@/lib/auth/tenant';
+import { replacesEmailAddress } from '@/lib/auth/email-change';
 
 /**
  * Get user by email address
@@ -190,10 +191,7 @@ export async function updateUser(values: Pick<NewUser, 'email'>, userId: string)
 	const where = and(eq(users.id, userId), eq(users.tenantId, tenantId));
 	return db.transaction(async (tx) => {
 		const [current] = await tx.select({ email: users.email }).from(users).where(where).limit(1);
-		const normalise = (email: string | null | undefined) => (email ?? '').trim().toLowerCase();
-		const previousEmail = current?.email ?? null;
-		const emailChanged =
-			current !== undefined && values.email !== undefined && normalise(previousEmail) !== normalise(values.email);
+		const emailChanged = current !== undefined && replacesEmailAddress(current.email, values.email);
 		if (!emailChanged) return tx.update(users).set(values).where(where);
 
 		// A verification belongs to the address that was verified: clear it so it does not prove
