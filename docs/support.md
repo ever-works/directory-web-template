@@ -33,7 +33,7 @@ For Ever Works Platform documentation, visit [docs.ever.works](https://docs.ever
 
 ## Demo & Examples
 
-- **[Demo Site](https://demo.ever.works)** -- See the template in action
+- **[Demo Site](https://dir.ever.works)** -- See the template in action
 - **[GitHub Repository](https://github.com/ever-works/directory-web-template)** -- Source code and examples
 
 ## Troubleshooting

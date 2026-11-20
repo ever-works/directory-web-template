@@ -33,7 +33,7 @@ Para la documentación de la Plataforma Ever Works, visita [docs.ever.works](htt
 
 ## Demo y ejemplos
 
-- **[Sitio de demostración](https://demo.ever.works)** — Ver la plantilla en acción
+- **[Sitio de demostración](https://dir.ever.works)** — Ver la plantilla en acción
 - **[Repositorio GitHub](https://github.com/ever-works/directory-web-template)** — Código fuente y ejemplos
 
 ## Resolución de problemas

@@ -61,5 +61,5 @@ Ce modèle est parfait pour :
 
 - Consultez notre [documentation](/docs) pour des informations générales
 - Rejoignez notre [communauté Discord](https://discord.gg/ever) pour du support
-- Visitez le [site de démonstration](https://demo.ever.works) pour le voir en action
+- Visitez le [site de démonstration](https://dir.ever.works) pour le voir en action
 - Contactez le [support](/docs/support) pour une assistance technique

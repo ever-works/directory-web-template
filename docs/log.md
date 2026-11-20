@@ -7,6 +7,10 @@ sidebar_position: 99
 
 # Documentation & Specs Change Log
 
+## 2026-11-21
+
+- `README.md` `WARP.md` `docs/{index,support,advanced-guide/support,getting-started/quick-start,team-training/api-documentation}.md` `apps/docs/i18n/*/…/{index,support,advanced-guide/support,team-training/api-documentation}.md` `apps/docs/scripts/generate-missing-translations.js`: the template's live example is now https://dir.ever.works (a directory the Ever Works platform built from this template), because https://demo.ever.works becomes the Ever Works platform demo (ever-co/ever-works#3263). Links only; the code fallbacks that still name demo.ever.works (`APP_URL` defaults, seed emails) and the docs that describe them are unchanged. Trivial-fix exception (links). PR #PRNUM.
+
 ## 2026-11-20
 
 - `spec-060` `apps/web/lib/auth/email-change.ts` `apps/web/lib/services/user-db.service.ts` `apps/web/lib/db/queries/user.queries.ts` `apps/web/app/api/auth/[...nextauth]/route.ts` `apps/web/app/api/stripe/payment-methods/update/route.ts` `apps/web/public/openapi.json` `docs/plugins/subscription-owner-email-verification-spec.md`: leftovers from the #1163 / #1164 review follow-ups. An admin who changes a user's address (`UserDbService.updateUser`) now clears `users.emailVerified`, as the profile edit already did, so the old verification no longer proves the new address for the LemonSqueezy subscription routes; both writers share `replacesEmailAddress` (`lib/auth/__tests__/email-change.spec.ts`). The `/api/auth/{...nextauth}` GET and POST 500 responses document the real body (`{ error: { message: "Authentication service error", code: "AUTH_ERROR" } }`, from `error-wrapper.ts`) and GET documents its `PROVIDER_NOT_CONFIGURED` 400; `PATCH /api/stripe/payment-methods/update` documents the 404 for a deleted Stripe customer and the 400 cases it shares with PUT. (#1175)

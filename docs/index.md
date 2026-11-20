@@ -82,5 +82,5 @@ The Template can be used standalone or paired with the **Ever Works Platform** f
 
 - Check our [documentation](./index.md) for general information
 - Join our [Discord community](https://discord.gg/ever) for support
-- Visit the [demo site](https://demo.ever.works) to see it in action
+- Visit the [demo site](https://dir.ever.works) to see it in action
 - Contact [support](/support) for technical assistance
