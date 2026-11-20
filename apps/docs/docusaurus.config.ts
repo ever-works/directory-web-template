@@ -313,7 +313,11 @@ const config: Config = {
 			image: HAS_DOCS_URL ? '/overview.png' : undefined,
 
 			colorMode: {
-				defaultMode: 'dark'
+				// Follow the visitor's OS theme until they pick one in the footer (System / Light / Dark);
+				// light when the OS preference can't be read or JavaScript is off.
+				defaultMode: 'light',
+				disableSwitch: false,
+				respectPrefersColorScheme: true
 			},
 			navbar: {
 				style: 'dark',
