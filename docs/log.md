@@ -9,7 +9,7 @@ sidebar_position: 99
 
 ## 2026-11-21
 
-- `README.md` `WARP.md` `docs/{index,support,advanced-guide/support,getting-started/quick-start,team-training/api-documentation}.md` `apps/docs/i18n/*/…/{index,support,advanced-guide/support,team-training/api-documentation}.md` `apps/docs/scripts/generate-missing-translations.js`: the template's live example is now https://dir.ever.works (a directory the Ever Works platform built from this template), because https://demo.ever.works becomes the Ever Works platform demo (ever-co/ever-works#3263). Links only; the code fallbacks that still name demo.ever.works (`APP_URL` defaults, seed emails) and the docs that describe them are unchanged. Trivial-fix exception (links). PR #PRNUM.
+- `README.md` `WARP.md` `docs/{index,support,advanced-guide/support,getting-started/quick-start,team-training/api-documentation}.md` `apps/docs/i18n/*/…/{index,support,advanced-guide/support,team-training/api-documentation}.md` `apps/docs/scripts/generate-missing-translations.js`: the template's live example is now https://dir.ever.works (a directory the Ever Works platform built from this template), because https://demo.ever.works becomes the Ever Works platform demo (ever-co/ever-works#3263). Links only; the code fallbacks that still name demo.ever.works (`APP_URL` defaults, seed emails) and the docs that describe them are unchanged. Trivial-fix exception (links). PR #1176.
 
 ## 2026-11-20
 
