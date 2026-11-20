@@ -130,9 +130,16 @@ export class UserDbService {
 				const userWhere = and(eq(users.id, id), eq(users.tenantId, tenantId));
 				const userSet = { ...userUpdateData };
 				// A verification belongs to the address that was verified: when an admin changes the
-				// address, clear it so it does not prove the new one (`replacesEmailAddress`).
+				// address, clear it so it does not prove the new one (`replacesEmailAddress`). The read
+				// locks the row, so a concurrent address change or verification cannot land between the
+				// comparison and this write.
 				if (data.email !== undefined) {
-					const [current] = await tx.select({ email: users.email }).from(users).where(userWhere).limit(1);
+					const [current] = await tx
+						.select({ email: users.email })
+						.from(users)
+						.where(userWhere)
+						.limit(1)
+						.for('update');
 					if (current && replacesEmailAddress(current.email, data.email)) userSet.emailVerified = null;
 				}
 

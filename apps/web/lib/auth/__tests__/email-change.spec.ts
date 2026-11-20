@@ -46,15 +46,25 @@ describe('writers of users.email clear emailVerified on a change', () => {
 		const update = body('db/queries/user.queries.ts', 'export async function updateUser(');
 		assert.ok(update.includes('replacesEmailAddress(current.email, values.email)'));
 		assert.ok(update.includes('emailVerified: null'));
+		assert.ok(
+			update.includes(".from(users).where(where).limit(1).for('update');"),
+			'the read must lock the row, or a concurrent change lands between the comparison and the write'
+		);
 	});
 
 	it('the admin user edit (UserDbService.updateUser)', () => {
 		const update = body('services/user-db.service.ts', 'async updateUser(');
 		assert.ok(
-			update.includes('if (current && replacesEmailAddress(current.email, data.email)) userSet.emailVerified = null;'),
+			update.includes(
+				'if (current && replacesEmailAddress(current.email, data.email)) userSet.emailVerified = null;'
+			),
 			'UserDbService.updateUser keeps emailVerified when an admin changes the address'
 		);
 		assert.ok(update.includes('.update(users).set(userSet)'), 'UserDbService.updateUser does not write userSet');
+		assert.ok(
+			update.includes(".from(users) .where(userWhere) .limit(1) .for('update');"),
+			'the read must lock the row, or a concurrent change lands between the comparison and the write'
+		);
 		assert.ok(
 			update.indexOf('replacesEmailAddress(') < update.indexOf('.update(users).set(userSet)'),
 			'the check must run before the users row is written'

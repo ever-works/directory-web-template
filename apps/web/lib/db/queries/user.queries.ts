@@ -190,7 +190,9 @@ export async function updateUser(values: Pick<NewUser, 'email'>, userId: string)
 	if (!tenantId) throw new Error('Tenant ID not found');
 	const where = and(eq(users.id, userId), eq(users.tenantId, tenantId));
 	return db.transaction(async (tx) => {
-		const [current] = await tx.select({ email: users.email }).from(users).where(where).limit(1);
+		// Locks the row, so a concurrent address change or verification cannot land between the
+		// comparison and the write.
+		const [current] = await tx.select({ email: users.email }).from(users).where(where).limit(1).for('update');
 		const emailChanged = current !== undefined && replacesEmailAddress(current.email, values.email);
 		if (!emailChanged) return tx.update(users).set(values).where(where);
 
