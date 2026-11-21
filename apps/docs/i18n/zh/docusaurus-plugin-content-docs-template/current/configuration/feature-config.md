@@ -134,7 +134,7 @@ export async function POST(request: Request) {
 export const siteConfig = {
   name: process.env.NEXT_PUBLIC_SITE_NAME || 'Ever Works',
   tagline: process.env.NEXT_PUBLIC_SITE_TAGLINE || 'The Open-Source, AI-Powered Directory Builder',
-  url: process.env.NEXT_PUBLIC_APP_URL ?? 'https://demo.ever.works',
+  url: process.env.NEXT_PUBLIC_APP_URL ?? 'https://dir.ever.works',
   logo: process.env.NEXT_PUBLIC_SITE_LOGO || '/logo-ever-works.svg',
   brandName: process.env.NEXT_PUBLIC_BRAND_NAME || 'Ever Works',
   // ...
@@ -147,7 +147,7 @@ export const siteConfig = {
 |----------|---------|---------|
 | `NEXT_PUBLIC_SITE_NAME` | `'Ever Works'` | 元数据和 OG 图片中的站点名称 |
 | `NEXT_PUBLIC_SITE_TAGLINE` | 模板默认值 | 首页标语 |
-| `NEXT_PUBLIC_APP_URL` | `'https://demo.ever.works'` | 完整站点 URL（无尾部斜杠） |
+| `NEXT_PUBLIC_APP_URL` | `'https://dir.ever.works'` | 完整站点 URL（无尾部斜杠） |
 | `NEXT_PUBLIC_SITE_LOGO` | `'/logo-ever-works.svg'` | 相对于 `/public` 的 Logo 路径 |
 | `NEXT_PUBLIC_BRAND_NAME` | `'Ever Works'` | Schema.org 组织名称 |
 | `NEXT_PUBLIC_SITE_DESCRIPTION` | 模板默认值 | SEO 元描述 |

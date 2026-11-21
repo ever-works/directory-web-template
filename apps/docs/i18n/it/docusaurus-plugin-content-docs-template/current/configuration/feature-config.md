@@ -134,7 +134,7 @@ Oltre ai flag di funzionalità, il template fornisce un oggetto `siteConfig` in 
 export const siteConfig = {
   name: process.env.NEXT_PUBLIC_SITE_NAME || 'Ever Works',
   tagline: process.env.NEXT_PUBLIC_SITE_TAGLINE || 'The Open-Source, AI-Powered Directory Builder',
-  url: process.env.NEXT_PUBLIC_APP_URL ?? 'https://demo.ever.works',
+  url: process.env.NEXT_PUBLIC_APP_URL ?? 'https://dir.ever.works',
   logo: process.env.NEXT_PUBLIC_SITE_LOGO || '/logo-ever-works.svg',
   brandName: process.env.NEXT_PUBLIC_BRAND_NAME || 'Ever Works',
   description: process.env.NEXT_PUBLIC_SITE_DESCRIPTION || '...',
@@ -162,7 +162,7 @@ export const siteConfig = {
 |-----------|-------------|-------|
 | `NEXT_PUBLIC_SITE_NAME` | `'Ever Works'` | Nome del sito nei metadati e nelle immagini OG |
 | `NEXT_PUBLIC_SITE_TAGLINE` | Predefinito del template | Tagline della homepage |
-| `NEXT_PUBLIC_APP_URL` | `'https://demo.ever.works'` | URL completo del sito (senza barra finale) |
+| `NEXT_PUBLIC_APP_URL` | `'https://dir.ever.works'` | URL completo del sito (senza barra finale) |
 | `NEXT_PUBLIC_SITE_LOGO` | `'/logo-ever-works.svg'` | Percorso logo relativo a `/public` |
 | `NEXT_PUBLIC_BRAND_NAME` | `'Ever Works'` | Nome organizzazione Schema.org |
 | `NEXT_PUBLIC_SITE_DESCRIPTION` | Predefinito del template | Meta descrizione SEO |

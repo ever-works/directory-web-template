@@ -6,7 +6,7 @@ import { buildAiCrawlerRules, resolveAiCrawlerPolicy } from '@/lib/seo/ai-crawle
 // NEXT_PUBLIC_APP_URL (the deploy platform injects it at runtime), so a
 // robots.txt prerendered by `next build` baked in the fallback origin and told
 // crawlers of EVERY directory built from this template that its sitemap was
-// https://demo.ever.works/sitemap.xml. Read at request time, it names the
+// https://dir.ever.works/sitemap.xml. Read at request time, it names the
 // deployment's own origin.
 export const dynamic = 'force-dynamic';
 

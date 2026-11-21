@@ -50,5 +50,5 @@ pnpm run dev
 
 - [التوثيق](./index.md)
 - [Discord](https://discord.gg/ever)
-- [الموقع التجريبي](https://demo.ever.works)
+- [الموقع التجريبي](https://dir.ever.works)
 - [الدعم](./support.md)

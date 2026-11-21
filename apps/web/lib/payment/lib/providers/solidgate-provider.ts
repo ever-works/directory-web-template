@@ -133,7 +133,7 @@ interface SolidgateCustomer {
 
 const appUrl =
 	process.env.NEXT_PUBLIC_APP_URL ??
-	(process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://demo.ever.works');
+	(process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://dir.ever.works');
 
 const SOLIDGATE_API_BASE_URL = process.env.SOLIDGATE_API_BASE_URL || 'https://api.solidgate.com/v1';
 
