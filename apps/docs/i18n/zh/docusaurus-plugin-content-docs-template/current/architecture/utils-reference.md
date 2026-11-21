@@ -305,7 +305,7 @@ isValidAbsoluteUrl('')                     // false
 返回带有后备链的规范化应用程序基 URL：
 
 ```
-Priority: NEXT_PUBLIC_APP_URL -> VERCEL_URL -> https://dir.ever.works
+Priority: NEXT_PUBLIC_CANONICAL_URL (valid origin) -> NEXT_PUBLIC_APP_URL -> VERCEL_URL -> https://dir.ever.works
 ```
 
 ### 构建网址
