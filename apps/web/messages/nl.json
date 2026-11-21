@@ -461,6 +461,7 @@
 		"PROMO_CODE": "Promo Code",
 		"SIMILAR_PRODUCTS": "Vergelijkbare producten",
 		"SIMILAR_PRODUCTS_DESCRIPTION": "Ontdek meer items die hierop lijken",
+		"ALTERNATIVES_TO": "Alternatieven voor {name}",
 		"STATISTICS": "Statistieken",
 		"STATS_VIEWS": "Weergaven",
 		"STATS_VOTES": "Positieve stemmen",

@@ -19,7 +19,8 @@
  * ```
  */
 
-import { generateBreadcrumbSchema, type BreadcrumbItem } from '@/lib/seo/schema';
+import { generateBreadcrumbSchema, jsonLdScript } from '@/lib/seo/schema';
+import { breadcrumbTrail } from '@/lib/seo/breadcrumb-trail';
 import { getBaseUrl } from '@/lib/utils/url-cleaner';
 
 interface BreadcrumbJsonLdProps {
@@ -35,40 +36,19 @@ interface BreadcrumbJsonLdProps {
 	items: ReadonlyArray<{ name: string; url?: string }>;
 }
 
-function toAbsoluteUrl(url: string, baseUrl: string): string {
-	if (/^https?:\/\//i.test(url)) return url;
-	const cleanBase = baseUrl.replace(/\/$/, '');
-	const cleanPath = url.startsWith('/') ? url : `/${url}`;
-	return `${cleanBase}${cleanPath}`;
-}
-
 export function BreadcrumbJsonLd({ items }: BreadcrumbJsonLdProps) {
-	if (items.length === 0) return null;
-
-	const baseUrl = getBaseUrl();
-
-	const schemaItems: BreadcrumbItem[] = items
-		.filter((item) => item.url) // BreadcrumbList items must have a URL to be useful
-		.map((item) => ({
-			name: item.name,
-			url: toAbsoluteUrl(item.url!, baseUrl)
-		}));
-
-	if (schemaItems.length === 0) return null;
-
-	const schema = generateBreadcrumbSchema(schemaItems);
+	// The last crumb is kept without a URL (the current page); a trail of fewer
+	// than two crumbs is not emitted (lib/seo/breadcrumb-trail.ts).
+	const trail = breadcrumbTrail(items, getBaseUrl());
+	if (!trail) return null;
 
 	return (
 		<script
 			type="application/ld+json"
 			dangerouslySetInnerHTML={{
-				// Why: escape every '<' as the < JSON unicode escape so a
-				// stray '</script>' inside any breadcrumb name (or any future
-				// untrusted string we serialise here) can't terminate this
-				// inline <script> block and inject HTML. The browser still
-				// parses the value as the literal character at JSON-decode
-				// time, so it round-trips losslessly into the parsed schema.
-				__html: JSON.stringify(schema).replace(/</g, '\\u003c')
+				// jsonLdScript escapes every '<' so a stray '</script>' inside a
+				// breadcrumb name cannot terminate this inline <script> block.
+				__html: jsonLdScript(generateBreadcrumbSchema(trail))
 			}}
 		/>
 	);
