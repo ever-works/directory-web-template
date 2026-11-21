@@ -86,3 +86,52 @@ export function sitemapDate(value: string | number | Date | null | undefined, fa
 	const date = value instanceof Date ? value : new Date(value);
 	return Number.isNaN(date.getTime()) ? fallback : date;
 }
+
+/** A valid Date for a date-ish value, or null (no fallback: callers omit `lastModified`). */
+export function optionalDate(value: string | number | Date | null | undefined): Date | null {
+	if (value === null || value === undefined || value === '') return null;
+	const date = value instanceof Date ? value : new Date(value);
+	return Number.isNaN(date.getTime()) ? null : date;
+}
+
+/** Ids of the terms (categories / tags) a record references, from a string, `{ id }`, or an array of either. */
+export function termIds(value: unknown): string[] {
+	const list = Array.isArray(value) ? value : value == null ? [] : [value];
+	const ids: string[] = [];
+	for (const entry of list) {
+		const id = typeof entry === 'string' ? entry : (entry as { id?: unknown } | null)?.id;
+		if (typeof id === 'string' && id.trim()) ids.push(id.trim());
+	}
+	return ids;
+}
+
+/**
+ * Newest `updatedAt` per term id across `items`, so a category or tag page's
+ * `lastModified` is when one of its items last changed, not "now" on every
+ * fetch (which makes crawlers ignore the sitemap's dates altogether).
+ */
+export function newestByTerm<T>(
+	items: ReadonlyArray<T>,
+	termsOf: (item: T) => unknown,
+	dateOf: (item: T) => string | number | Date | null | undefined
+): Map<string, Date> {
+	const newest = new Map<string, Date>();
+	for (const item of items) {
+		const date = optionalDate(dateOf(item));
+		if (!date) continue;
+		for (const id of termIds(termsOf(item))) {
+			const current = newest.get(id);
+			if (!current || date > current) newest.set(id, date);
+		}
+	}
+	return newest;
+}
+
+/** The latest of the given dates, or null. */
+export function latestDate(dates: Iterable<Date | null | undefined>): Date | null {
+	let latest: Date | null = null;
+	for (const date of dates) {
+		if (date && !Number.isNaN(date.getTime()) && (!latest || date > latest)) latest = date;
+	}
+	return latest;
+}

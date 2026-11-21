@@ -22,6 +22,12 @@ type ListingProps = {
 	initialCategory?: string | null;
 	/** Query string (without `?`) of a filtered listing rendered per request. */
 	search?: string;
+	/**
+	 * Emit the BreadcrumbList JSON-LD for this listing (default). Pages that
+	 * emit their own trail (category, tag) pass `false`, so a page carries
+	 * one BreadcrumbList, not two.
+	 */
+	emitBreadcrumbJsonLd?: boolean;
 };
 
 export default async function Listing(props: ListingProps) {
@@ -80,7 +86,7 @@ export default async function Listing(props: ListingProps) {
 			initialCategory={props.initialCategory}
 			initialSortBy={defaultSort}
 		>
-			<BreadcrumbJsonLd items={breadcrumbItems} />
+			{props.emitBreadcrumbJsonLd !== false && <BreadcrumbJsonLd items={breadcrumbItems} />}
 			<FilterURLParser />
 			{shouldShowCustomHero && customHeroContent ? (
 				<CustomHero

@@ -9,6 +9,30 @@ sidebar_position: 8
 
 The Ever Works template provides comprehensive SEO support including JSON-LD structured data, hreflang tags for multilingual content, OpenGraph metadata, automated sitemaps, and robots.txt configuration.
 
+For AI agents, every directory also serves a JSON Read API and an MCP server: see
+[AI Agent Access](agent-access.md).
+
+## Page metadata rules (Spec 062)
+
+Titles and descriptions come from the directory's own data, never from invented claims
+(`lib/seo/meta-text.ts`):
+
+| Page | `<title>` | Description |
+| --- | --- | --- |
+| Home | `<Site> \| <tagline>` | site description + "Browse N items." |
+| Item | `<Item> – <Category> \| <Site>` | the item's description, cut on a word boundary near 155 characters |
+| Category | `<Category> <Items> (N) \| <Site>` | the category's description, else "Browse N items in Category on Site: A, B and more." |
+| Tag | `<Tag> <Items> (N) \| <Site>` | same rule as categories |
+
+- Item Product JSON-LD carries no `Offer` (there is no price) and a `brand` only when the item names
+  one; the item's website is its `sameAs`. Organization / WebSite use the directory's own name and
+  origin. Listings (home, category, tag) add a `CollectionPage` with an `ItemList`; each page has one
+  `BreadcrumbList` ending with the current page.
+- `/auth`, `/admin`, `/client` (except public profiles) and `/dashboard` answer `noindex, nofollow`.
+- A category page from page 2 on is its own canonical (`?page=N`).
+- Sitemap `lastModified` comes from item `updated_at` (categories / tags: their newest item) and is
+  left out when the data has no date; every entry lists the hreflang alternates of all locales.
+
 ## JSON-LD Structured Data
 
 Located at `lib/seo/schema.ts`, the schema utilities generate Schema.org structured data for various content types.

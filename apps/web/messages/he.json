@@ -460,6 +460,7 @@
 		"PROMO_CODE": "Promo Code",
 		"SIMILAR_PRODUCTS": "מוצרים דומים",
 		"SIMILAR_PRODUCTS_DESCRIPTION": "גלו פריטים נוספים הקשורים לזה",
+		"ALTERNATIVES_TO": "חלופות ל-{name}",
 		"STATISTICS": "סטטיסטיקה",
 		"STATS_VIEWS": "צפיות",
 		"STATS_VOTES": "הצבעות חיוביות",

@@ -487,6 +487,7 @@
 		"PROMO_CODE": "Промо код",
 		"SIMILAR_PRODUCTS": "Подобни продукти",
 		"SIMILAR_PRODUCTS_DESCRIPTION": "Разгледайте още елементи, свързани с този",
+		"ALTERNATIVES_TO": "Алтернативи на {name}",
 		"STATISTICS": "Статистика",
 		"STATS_VIEWS": "Прегледи",
 		"STATS_VOTES": "Положителни гласове",
