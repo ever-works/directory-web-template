@@ -53,5 +53,5 @@ pnpm run dev
 
 - Raadpleeg onze documentatie voor algemene informatie
 - Word lid van onze Discord-community voor ondersteuning
-- Bezoek de demosite op https://demo.ever.works
+- Bezoek de demosite op https://dir.ever.works
 - Neem contact op met ondersteuning voor technische hulp

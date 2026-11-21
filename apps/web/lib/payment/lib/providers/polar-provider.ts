@@ -108,7 +108,7 @@ const polarTranslations = {
 	}
 };
 
-const defaultAppUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://demo.ever.works';
+const defaultAppUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://dir.ever.works';
 
 /**
  * Cache entry for webhook ID deduplication

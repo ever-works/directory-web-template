@@ -46,7 +46,7 @@ sidebar_position: 1
 
 ### 演示和示例
 
-- **🌐 [演示站点](https://demo.ever.works)** - 查看正在运行的模板
+- **🌐 [演示站点](https://dir.ever.works)** - 查看正在运行的模板
 - **📚 [文档](https://docs.ever.works)** - 完整文档
 - **💻 [GitHub 存储库](https://github.com/ever-works/directory-web-template)** - 源代码和示例
 

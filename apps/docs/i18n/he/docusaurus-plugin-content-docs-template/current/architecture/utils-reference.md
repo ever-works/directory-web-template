@@ -305,7 +305,7 @@ isValidAbsoluteUrl('')                     // false
 מחזירה את כתובת האתר הבסיסית של האפליקציה המנורמלת עם שרשרת החלפה:
 
 ```
-Priority: NEXT_PUBLIC_APP_URL -> VERCEL_URL -> https://demo.ever.works
+Priority: NEXT_PUBLIC_CANONICAL_URL (valid origin) -> NEXT_PUBLIC_APP_URL -> VERCEL_URL -> https://dir.ever.works
 ```
 
 ### buildUrl

@@ -50,5 +50,5 @@ pnpm run dev
 
 - [תיעוד](./index.md)
 - [Discord](https://discord.gg/ever)
-- [אתר הדגמה](https://demo.ever.works)
+- [אתר הדגמה](https://dir.ever.works)
 - [תמיכה](./support.md)

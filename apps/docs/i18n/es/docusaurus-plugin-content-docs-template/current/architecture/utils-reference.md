@@ -305,7 +305,7 @@ isValidAbsoluteUrl('')                     // false
 Devuelve la URL base de la aplicación normalizada con cadena alternativa:
 
 ```
-Priority: NEXT_PUBLIC_APP_URL -> VERCEL_URL -> https://demo.ever.works
+Priority: NEXT_PUBLIC_CANONICAL_URL (valid origin) -> NEXT_PUBLIC_APP_URL -> VERCEL_URL -> https://dir.ever.works
 ```
 
 ### URL de compilación

@@ -126,9 +126,49 @@ export const runtime = 'nodejs';
  *       302:
  *         description: "Redirect response for authentication flows"
  *       400:
- *         description: "Bad request - Invalid parameters or configuration"
+ *         description: "Bad request - Invalid parameters, or the requested OAuth provider (providerId) is not configured"
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: object
+ *                   properties:
+ *                     message:
+ *                       type: string
+ *                     code:
+ *                       type: string
+ *                       enum: ["PROVIDER_NOT_CONFIGURED", "AUTH_ERROR"]
+ *                   required: ["message", "code"]
+ *             examples:
+ *               provider_not_configured:
+ *                 value:
+ *                   error:
+ *                     message: 'Authentication provider "github" is not available.'
+ *                     code: "PROVIDER_NOT_CONFIGURED"
  *       500:
- *         description: "Internal server error"
+ *         description: "Internal server error - the Auth.js handler threw"
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: object
+ *                   properties:
+ *                     message:
+ *                       type: string
+ *                     code:
+ *                       type: string
+ *                       enum: ["PROVIDER_NOT_CONFIGURED", "AUTH_ERROR"]
+ *                   required: ["message", "code"]
+ *             examples:
+ *               auth_error:
+ *                 value:
+ *                   error:
+ *                     message: "Authentication service error"
+ *                     code: "AUTH_ERROR"
  */
 export async function GET(req: NextRequest) {
   return handleWithErrorHandling(req, 'GET');
@@ -295,15 +335,27 @@ export async function GET(req: NextRequest) {
  *       429:
  *         description: "Too many requests - Rate limit exceeded"
  *       500:
- *         description: "Internal server error"
+ *         description: "Internal server error - the Auth.js handler threw"
  *         content:
  *           application/json:
  *             schema:
  *               type: object
  *               properties:
  *                 error:
- *                   type: string
- *                   example: "Internal server error"
+ *                   type: object
+ *                   properties:
+ *                     message:
+ *                       type: string
+ *                     code:
+ *                       type: string
+ *                       enum: ["PROVIDER_NOT_CONFIGURED", "AUTH_ERROR"]
+ *                   required: ["message", "code"]
+ *             examples:
+ *               auth_error:
+ *                 value:
+ *                   error:
+ *                     message: "Authentication service error"
+ *                     code: "AUTH_ERROR"
  */
 export async function POST(req: NextRequest) {
   return handleWithErrorHandling(req, 'POST');

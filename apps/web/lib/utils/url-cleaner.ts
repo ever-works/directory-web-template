@@ -2,7 +2,7 @@
  * Utility functions for cleaning and validating URLs
  */
 
-const FALLBACK_URL = 'https://demo.ever.works';
+const FALLBACK_URL = 'https://dir.ever.works';
 
 /**
  * Clean and validate a URL string
