@@ -65,7 +65,7 @@ export function isValidPathLength(path: string): boolean {
  * @returns Application base URL (absolute URI)
  */
 export function getAppUrl(): string {
-	return coreConfig.APP_URL || 'https://demo.ever.works';
+	return coreConfig.APP_URL || 'https://dir.ever.works';
 }
 
 /**

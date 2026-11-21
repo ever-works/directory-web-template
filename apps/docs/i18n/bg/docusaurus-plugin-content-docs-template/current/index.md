@@ -50,5 +50,5 @@ pnpm run dev
 
 - [Документация](./index.md)
 - [Discord](https://discord.gg/ever)
-- [Демо сайт](https://demo.ever.works)
+- [Демо сайт](https://dir.ever.works)
 - [Поддръжка](./support.md)

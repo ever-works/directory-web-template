@@ -25,7 +25,7 @@ export const siteConfig = {
 	url:
 		resolveCanonicalOrigin(process.env.NEXT_PUBLIC_CANONICAL_URL) ||
 		process.env.NEXT_PUBLIC_APP_URL ||
-		'https://demo.ever.works',
+		'https://dir.ever.works',
 	logo: process.env.NEXT_PUBLIC_SITE_LOGO || '/logo-ever-works.svg',
 	brandName: process.env.NEXT_PUBLIC_BRAND_NAME || 'Ever Works',
 	description: process.env.NEXT_PUBLIC_SITE_DESCRIPTION || 'Discover and explore professional services and solutions on Ever Works',

@@ -50,7 +50,7 @@ export const siteConfig = {
 	 */
 	url:
 		process.env.NEXT_PUBLIC_APP_URL ??
-		(process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://demo.ever.works'),
+		(process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://dir.ever.works'),
 
 	/**
 	 * Site logo path (used as fallback for OG images)

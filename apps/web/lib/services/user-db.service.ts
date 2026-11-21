@@ -5,6 +5,7 @@ import type { PgTransaction } from 'drizzle-orm/pg-core';
 import { AuthUserData, CreateUserRequest, UpdateUserRequest, UserListOptions, UserStatus } from '@/lib/types/user';
 import { hash } from 'bcryptjs';
 import { getTenantId } from '@/lib/auth/tenant';
+import { replacesEmailAddress } from '@/lib/auth/email-change';
 
 // Interface for joined query result structure
 interface JoinedUserData {
@@ -126,12 +127,24 @@ export class UserDbService {
 			if (data.email !== undefined) profileUpdateData.email = data.email; // Keep email in sync
 
 			const result = await db.transaction(async (tx: PgTransaction<any, any, any>) => {
+				const userWhere = and(eq(users.id, id), eq(users.tenantId, tenantId));
+				const userSet = { ...userUpdateData };
+				// A verification belongs to the address that was verified: when an admin changes the
+				// address, clear it so it does not prove the new one (`replacesEmailAddress`). The read
+				// locks the row, so a concurrent address change or verification cannot land between the
+				// comparison and this write.
+				if (data.email !== undefined) {
+					const [current] = await tx
+						.select({ email: users.email })
+						.from(users)
+						.where(userWhere)
+						.limit(1)
+						.for('update');
+					if (current && replacesEmailAddress(current.email, data.email)) userSet.emailVerified = null;
+				}
+
 				// Update users table
-				const updated = await tx
-					.update(users)
-					.set(userUpdateData)
-					.where(and(eq(users.id, id), eq(users.tenantId, tenantId)))
-					.returning();
+				const updated = await tx.update(users).set(userSet).where(userWhere).returning();
 
 				if (updated.length === 0) {
 					throw new Error(`User with ID '${id}' not found`);

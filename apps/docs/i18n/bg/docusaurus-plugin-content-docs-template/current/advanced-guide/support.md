@@ -44,7 +44,7 @@ sidebar_position: 1
 
 ### Демо и примери
 
-- **🌐 [Демо сайт](https://demo.ever.works)** - Вижте шаблона в действие
+- **🌐 [Демо сайт](https://dir.ever.works)** - Вижте шаблона в действие
 - **📚 [Документация](https://docs.ever.works)** - Пълна документация
 - **💻 [GitHub Repository](https://github.com/ever-works/directory-web-template)** - Изходен код и примери
 

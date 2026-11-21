@@ -33,7 +33,7 @@ interface ServerConfig {
 export function getServerConfig(): ServerConfig {
 	const supportEmail = configService.email.EMAIL_SUPPORT || 'support@ever.works';
 	const companyName = configService.email.COMPANY_NAME || 'Ever Works';
-	const appUrl = configService.core.APP_URL || 'https://demo.ever.works';
+	const appUrl = configService.core.APP_URL || 'https://dir.ever.works';
 	const stripeSecretKey = configService.payment.stripe.secretKey;
 	const stripeWebhookSecret = configService.payment.stripe.webhookSecret;
 	const databaseUrl = configService.core.DATABASE_URL;
@@ -104,7 +104,7 @@ export async function getEmailConfig() {
 	const appUrl =
 		config.app_url ||
 		configService.core.APP_URL ||
-		'https://demo.ever.works';
+		'https://dir.ever.works';
 
 	// Use default if supportEmail is not configured
 	if (!supportEmail) {

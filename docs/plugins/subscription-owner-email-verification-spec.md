@@ -56,8 +56,10 @@ any LemonSqueezy subscription bought under that address in the same store.
   earlier is kept. A failed write is logged and leaves the row as it was (no address
   for a new link), so it fails closed.
 - `updateUser` (`lib/db/queries/user.queries.ts`, used by the account settings action)
-  clears `users.emailVerified` when the address changes. It no longer writes the old
-  address into OAuth rows that had none: each row keeps the address its provider proved,
+  and the admin user edit `UserDbService.updateUser` (`lib/services/user-db.service.ts`)
+  clear `users.emailVerified` when the address changes (`replacesEmailAddress` in
+  `lib/auth/email-change.ts`: case and surrounding spaces are ignored). Neither
+  writes the old address into OAuth rows that had none: each row keeps the address its provider proved,
   and binding an empty row to the previous address could make an address the user had
   set but never proved count as proven after a second change.
 - The database lookup is `loadEmailVerificationState` in
@@ -72,9 +74,6 @@ any LemonSqueezy subscription bought under that address in the same store.
   apart from one the provider proved (`docs/questions.md` Q-060c).
 - Providers that do not say whether the address is verified (GitHub, Microsoft Entra ID,
   …) are trusted as before (`docs/questions.md` Q-060d).
-- Known gap: admin edits through `UserDbService.updateUser` still change `users.email`
-  without clearing `emailVerified`; the stored-address comparison does not cover that
-  path. Follow-up.
 - Each of the four LemonSqueezy routes calls the check after body validation and before
   `findOwnedLemonSqueezySubscription`, and returns **403** with code
   `EMAIL_NOT_VERIFIED` and the message `EMAIL_NOT_VERIFIED_MESSAGE` when it is false.

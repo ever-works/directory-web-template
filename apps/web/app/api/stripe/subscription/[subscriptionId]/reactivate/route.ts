@@ -182,7 +182,7 @@ export async function POST(
       status: 'active'
     });
 
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "https://demo.ever.works");
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "https://dir.ever.works");
 
     // Send reactivation email
     try {

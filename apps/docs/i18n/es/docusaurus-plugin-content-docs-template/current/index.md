@@ -69,5 +69,5 @@ La plantilla puede usarse de forma independiente o combinada con la **Plataforma
 
 - Consulta nuestra [documentación](/docs) para información general
 - Únete a nuestra [comunidad de Discord](https://discord.gg/ever) para obtener apoyo
-- Visita el [sitio de demostración](https://demo.ever.works) para verlo en acción
+- Visita el [sitio de demostración](https://dir.ever.works) para verlo en acción
 - Contacta con [soporte](/support) para asistencia técnica
