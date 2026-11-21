@@ -42,9 +42,17 @@ describe('identity overrides', () => {
 		const organization = generateOrganizationSchema({ name: 'Awesome Time', url: 'https://time.example', description: 'D' });
 		assert.equal(organization.name, 'Awesome Time');
 		assert.equal(organization.url, 'https://time.example');
-		// The configured logo (NEXT_PUBLIC_SITE_LOGO) resolved against the override origin:
-		// a relative path lands on it, an absolute URL is kept as configured.
+		// The configured logo (NEXT_PUBLIC_SITE_LOGO) by default, resolved against the override origin.
 		assert.equal(organization.logo, new URL(siteConfig.logo, 'https://time.example/').toString());
+		// Deterministic: a relative logo lands on the origin, an absolute one is kept as configured.
+		assert.equal(
+			generateOrganizationSchema({ url: 'https://time.example', logo: '/brand/logo.svg' }).logo,
+			'https://time.example/brand/logo.svg'
+		);
+		assert.equal(
+			generateOrganizationSchema({ url: 'https://time.example', logo: 'https://cdn.example/logo.svg' }).logo,
+			'https://cdn.example/logo.svg'
+		);
 
 		const website = generateWebSiteSchema('fr', { name: 'Awesome Time', url: 'https://time.example/' });
 		assert.equal(website.url, 'https://time.example/fr');

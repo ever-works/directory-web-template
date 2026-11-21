@@ -66,7 +66,12 @@ export function mcpClientKey(info: DirectoryInfo): string {
 	return relationKey(info.name).replace(/[^a-z0-9-]/g, '') || MCP_SERVER_NAME;
 }
 
-/** Ready-to-paste `mcpServers` configuration (Claude Desktop / Cursor / VS Code style). */
+/**
+ * Ready-to-paste `mcpServers` entry for clients that take a remote (HTTP)
+ * server in their configuration file (Cursor, VS Code, Windsurf). Claude
+ * (desktop and web) adds the URL as a custom connector instead: its desktop
+ * configuration file only launches local servers.
+ */
 export function mcpClientConfig(info: DirectoryInfo): string | null {
 	if (!info.endpoints.mcp) return null;
 	return JSON.stringify({ mcpServers: { [mcpClientKey(info)]: { type: 'http', url: info.endpoints.mcp } } }, null, 2);

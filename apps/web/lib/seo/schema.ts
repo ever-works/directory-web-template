@@ -195,6 +195,8 @@ export interface OrganizationSchemaOverrides {
 	/** Public origin (getBaseUrl()). */
 	url?: string;
 	description?: string;
+	/** Logo path or URL; defaults to `siteConfig.logo` (NEXT_PUBLIC_SITE_LOGO). A relative path resolves on the origin. */
+	logo?: string;
 }
 
 /**
@@ -219,7 +221,7 @@ export function generateOrganizationSchema(overrides: OrganizationSchemaOverride
 		'@type': 'Organization',
 		name: overrides.name ?? siteConfig.brandName,
 		url: overrides.url ?? siteConfig.url,
-		logo: new URL(siteConfig.logo, `${(overrides.url ?? siteConfig.url).replace(/\/+$/, '')}/`).toString(),
+		logo: new URL(overrides.logo ?? siteConfig.logo, `${(overrides.url ?? siteConfig.url).replace(/\/+$/, '')}/`).toString(),
 		description: overrides.description ?? siteConfig.description
 	};
 
