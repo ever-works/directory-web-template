@@ -67,9 +67,10 @@ export function mcpClientKey(info: DirectoryInfo): string {
 }
 
 /**
- * Ready-to-paste `mcpServers` entry for clients that take a remote (HTTP)
- * server in their configuration file (Cursor, VS Code, Windsurf). Claude
- * (desktop and web) adds the URL as a custom connector instead: its desktop
+ * Ready-to-paste `mcpServers` entry (a project `.mcp.json`, Cursor, Windsurf and
+ * other clients that take a remote HTTP server in their configuration file).
+ * VS Code's `.vscode/mcp.json` uses `servers` instead (llms.txt prints both);
+ * Claude (desktop and web) adds the URL as a custom connector: its desktop
  * configuration file only launches local servers.
  */
 export function mcpClientConfig(info: DirectoryInfo): string | null {
@@ -120,12 +121,13 @@ export function buildLlmsTxt({ info, categories, categoriesEnabled = true, maxCa
 			'',
 			'### Connect an MCP client',
 			'',
-			'Clients that take a remote (HTTP) server in their configuration file (Cursor, VS Code, Windsurf, …):',
+			'The `mcpServers` format (a project `.mcp.json`, Cursor `.cursor/mcp.json`, Windsurf and other clients that take a remote HTTP server in their configuration file):',
 			'',
 			'```json',
 			mcpClientConfig(info) ?? '',
 			'```',
 			'',
+			`- VS Code (\`.vscode/mcp.json\` uses \`servers\`, not \`mcpServers\`): \`${JSON.stringify({ servers: { [mcpClientKey(info)]: { type: 'http', url: info.endpoints.mcp } } })}\``,
 			`- Claude Code: \`claude mcp add --transport http ${mcpClientKey(info)} ${info.endpoints.mcp}\``,
 			`- Claude (desktop and web): Settings > Connectors > Add custom connector, URL \`${info.endpoints.mcp}\` (the desktop configuration file only launches local servers).`
 		);

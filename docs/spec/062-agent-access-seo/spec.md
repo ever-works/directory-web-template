@@ -60,8 +60,9 @@ MCP) and an audit of the public pages found invented or wrong data in the markup
 
 ## 5. Requirements
 
-Agent Access Contract v1 (identical in the minimal template, whose spec is
-`.specify/features/agent-access.md` there; reference code `packages/agent-api/src/` there):
+Agent Access Contract v1 (shared with the minimal template, whose spec is
+`.specify/features/agent-access.md` there; reference code `packages/agent-api/src/` there). Same URLs,
+shapes, tools and wire behaviour, except the date ordering and empty-slug matching noted in R4:
 
 - **R1 Read API.** `GET /data/directory.json` (`DirectoryInfo`), `/data/items.json`
   (`{ version: 1, total, items: ItemSummary[] }`), `/data/items/{slug}.json` (`ItemDetail`, 404 JSON when
@@ -84,7 +85,10 @@ Agent Access Contract v1 (identical in the minimal template, whose spec is
   description contains; every token must match; +10 when the whole query is the name; +0.5 featured;
   ties by name. `list_items` default sort: featured first, then name; date sorts compare instants,
   undated items last. Category / tag filters compare normalised text, and slugs only when not empty
-  (`東京` and `大阪` both slugify to `''` and must not match each other).
+  (`東京` and `大阪` both slugify to `''` and must not match each other). **Not yet identical in the
+  minimal template:** it still compares `updated_at` strings (and matches taxonomy slugs even when
+  empty), so `date-desc` / `date-asc` and `DirectoryInfo.updated_at` can differ between the two templates
+  when the raw values mix formats or offsets, until both align (tracked in Q-062b).
 - **R5 Discovery.** `/.well-known/mcp.json` (server card), `/.well-known/api-catalog` (RFC 9727
   linkset: `service-desc`, `service-doc`, `service-meta`), `<head>` links (`alternate` JSON ->
   `/data/items.json`, `service-desc` -> `/data/openapi.json`, `alternate` text/plain -> `/llms.txt`).

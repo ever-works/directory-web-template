@@ -115,6 +115,9 @@ describe('llms.txt', () => {
 		}
 		assert.ok(body.includes('"url": "https://tools.example.com/mcp"'));
 		assert.ok(body.includes('claude mcp add --transport http example-tools https://tools.example.com/mcp'));
+		// VS Code's .vscode/mcp.json takes `servers`, not `mcpServers`.
+		assert.ok(body.includes('{"servers":{"example-tools":{"type":"http","url":"https://tools.example.com/mcp"}}}'));
+		assert.ok(body.includes('Add custom connector'));
 	});
 
 	it('keeps the legacy anchors (items.json, sitemap, feeds, Markdown mirrors)', () => {

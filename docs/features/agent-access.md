@@ -25,8 +25,11 @@ The MCP endpoint is `https://<your-directory>/mcp` (Streamable HTTP, stateless, 
 }
 ```
 
-That snippet is for clients that take a remote (HTTP) server in their configuration file (Cursor, VS Code, Windsurf).
+That is the `mcpServers` format: a project `.mcp.json`, Cursor's `.cursor/mcp.json`, Windsurf and other
+clients that take a remote (HTTP) server in their configuration file.
 
+- VS Code: `.vscode/mcp.json` uses a `servers` key, not `mcpServers`:
+  `{ "servers": { "my-directory": { "type": "http", "url": "https://<your-directory>/mcp" } } }`.
 - Claude Code: `claude mcp add --transport http my-directory https://<your-directory>/mcp`.
 - Claude (desktop and web): Settings > Connectors > Add custom connector, with the URL above. The Claude Desktop
   configuration file only launches local servers.
