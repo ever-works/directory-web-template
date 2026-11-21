@@ -305,7 +305,7 @@ isValidAbsoluteUrl('')                     // false
 Retourneert de genormaliseerde applicatiebasis-URL met reserveketen:
 
 ```
-Priority: NEXT_PUBLIC_APP_URL -> VERCEL_URL -> https://demo.ever.works
+Priority: NEXT_PUBLIC_APP_URL -> VERCEL_URL -> https://dir.ever.works
 ```
 
 ### buildUrl

@@ -52,7 +52,7 @@ import { openBillingIssueFromFailedPaymentWebhook } from '@/lib/services/billing
 import { PaymentProvider } from '@/lib/constants/payment';
 const webhookSubscriptionService = new WebhookSubscriptionService();
 
-const appUrl = coreConfig.APP_URL || 'https://demo.ever.works';
+const appUrl = coreConfig.APP_URL || 'https://dir.ever.works';
 
 // Utility function to create email data with secure configuration
 function createEmailData(baseData: any, emailConfig: Awaited<ReturnType<typeof getEmailConfig>>) {

@@ -133,7 +133,7 @@ export async function POST(request: Request) {
 export const siteConfig = {
   name: process.env.NEXT_PUBLIC_SITE_NAME || 'Ever Works',
   tagline: process.env.NEXT_PUBLIC_SITE_TAGLINE || 'The Open-Source, AI-Powered Directory Builder',
-  url: process.env.NEXT_PUBLIC_APP_URL ?? 'https://demo.ever.works',
+  url: process.env.NEXT_PUBLIC_APP_URL ?? 'https://dir.ever.works',
   logo: process.env.NEXT_PUBLIC_SITE_LOGO || '/logo-ever-works.svg',
   brandName: process.env.NEXT_PUBLIC_BRAND_NAME || 'Ever Works',
   // ...
@@ -146,7 +146,7 @@ export const siteConfig = {
 |----------|---------|---------|
 | `NEXT_PUBLIC_SITE_NAME` | `'Ever Works'` | שם האתר במטא-נתונים ובתמונות OG |
 | `NEXT_PUBLIC_SITE_TAGLINE` | ברירת מחדל של התבנית | סלוגן דף הבית |
-| `NEXT_PUBLIC_APP_URL` | `'https://demo.ever.works'` | כתובת URL מלאה של האתר (ללא לוכסן בסוף) |
+| `NEXT_PUBLIC_APP_URL` | `'https://dir.ever.works'` | כתובת URL מלאה של האתר (ללא לוכסן בסוף) |
 | `NEXT_PUBLIC_SITE_LOGO` | `'/logo-ever-works.svg'` | נתיב לוגו יחסי ל-`/public` |
 | `NEXT_PUBLIC_BRAND_NAME` | `'Ever Works'` | שם ארגון Schema.org |
 | `NEXT_PUBLIC_SITE_DESCRIPTION` | ברירת מחדל של התבנית | תיאור מטא SEO |

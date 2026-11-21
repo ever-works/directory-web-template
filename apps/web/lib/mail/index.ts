@@ -268,7 +268,7 @@ export class EmailService {
   }
 }
 
-const appUrl = coreConfig.APP_URL || 'https://demo.ever.works';
+const appUrl = coreConfig.APP_URL || 'https://dir.ever.works';
 
 const emailConfig: EmailServiceConfig = {
 	provider: globalEmailConfig.EMAIL_PROVIDER,

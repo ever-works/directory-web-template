@@ -134,7 +134,7 @@ Más allá de los feature flags, la plantilla proporciona un objeto `siteConfig`
 export const siteConfig = {
   name: process.env.NEXT_PUBLIC_SITE_NAME || 'Ever Works',
   tagline: process.env.NEXT_PUBLIC_SITE_TAGLINE || 'The Open-Source, AI-Powered Directory Builder',
-  url: process.env.NEXT_PUBLIC_APP_URL ?? 'https://demo.ever.works',
+  url: process.env.NEXT_PUBLIC_APP_URL ?? 'https://dir.ever.works',
   logo: process.env.NEXT_PUBLIC_SITE_LOGO || '/logo-ever-works.svg',
   brandName: process.env.NEXT_PUBLIC_BRAND_NAME || 'Ever Works',
   description: process.env.NEXT_PUBLIC_SITE_DESCRIPTION || '...',
@@ -162,7 +162,7 @@ export const siteConfig = {
 |----------|---------------|-----------|
 | `NEXT_PUBLIC_SITE_NAME` | `'Ever Works'` | Nombre del sitio en metadatos e imágenes OG |
 | `NEXT_PUBLIC_SITE_TAGLINE` | Predeterminado de la plantilla | Eslogan de la página principal |
-| `NEXT_PUBLIC_APP_URL` | `'https://demo.ever.works'` | URL completa del sitio (sin barra final) |
+| `NEXT_PUBLIC_APP_URL` | `'https://dir.ever.works'` | URL completa del sitio (sin barra final) |
 | `NEXT_PUBLIC_SITE_LOGO` | `'/logo-ever-works.svg'` | Ruta del logo relativa a `/public` |
 | `NEXT_PUBLIC_BRAND_NAME` | `'Ever Works'` | Nombre de la organización Schema.org |
 | `NEXT_PUBLIC_SITE_DESCRIPTION` | Predeterminado de la plantilla | Meta descripción SEO |

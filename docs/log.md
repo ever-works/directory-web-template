@@ -9,7 +9,8 @@ sidebar_position: 99
 
 ## 2026-11-21
 
-- `README.md` `WARP.md` `docs/{index,support,advanced-guide/support,getting-started/quick-start,team-training/api-documentation}.md` `apps/docs/i18n/*/…/{index,support,advanced-guide/support,team-training/api-documentation}.md` `apps/docs/scripts/generate-missing-translations.js`: the template's live example is now https://dir.ever.works (a directory the Ever Works platform built from this template), because https://demo.ever.works becomes the Ever Works platform demo (ever-co/ever-works#3263). Links only; the code fallbacks that still name demo.ever.works (`APP_URL` defaults, seed emails) and the docs that describe them are unchanged. Trivial-fix exception (links). PR #1176.
+- `apps/web` URL fallbacks (`APP_URL` / `NEXT_PUBLIC_APP_URL` unset and no `VERCEL_URL`: `lib/config*`, `lib/utils/url-cleaner.ts`, mail, payment, surveys and Stripe/Polar routes, the help page example and mock URL bar, the seed's sample icon URLs) and the docs that describe them (`configuration/feature-config.md`, `architecture/utils-reference.md` and their translations): `https://demo.ever.works` -> `https://dir.ever.works`, the template's live example (owner ruling R45). Seed e-mail identities (`admin@demo.ever.works`) and history notes are unchanged. PR #1176.
+- `README.md` `WARP.md` `docs/{index,support,advanced-guide/support,getting-started/quick-start,team-training/api-documentation}.md` `apps/docs/i18n/*/…/{index,support,advanced-guide/support,team-training/api-documentation}.md` `apps/docs/scripts/generate-missing-translations.js`: the template's live example is now https://dir.ever.works (a directory the Ever Works platform built from this template), because https://demo.ever.works becomes the Ever Works platform demo (ever-co/ever-works#3263). Trivial-fix exception (links). PR #1176.
 
 ## 2026-11-20
 

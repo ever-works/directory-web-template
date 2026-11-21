@@ -58,7 +58,7 @@ export function EnvConfiguration() {
       description: "Base URL of your directory website",
       type: "url",
       required: true,
-      example: "http://demo.ever.works",
+      example: "https://dir.ever.works",
       category: "auth",
       importance: "critical"
     },

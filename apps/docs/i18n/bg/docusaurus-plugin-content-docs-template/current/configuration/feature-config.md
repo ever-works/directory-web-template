@@ -133,7 +133,7 @@ export async function POST(request: Request) {
 export const siteConfig = {
   name: process.env.NEXT_PUBLIC_SITE_NAME || 'Ever Works',
   tagline: process.env.NEXT_PUBLIC_SITE_TAGLINE || 'The Open-Source, AI-Powered Directory Builder',
-  url: process.env.NEXT_PUBLIC_APP_URL ?? 'https://demo.ever.works',
+  url: process.env.NEXT_PUBLIC_APP_URL ?? 'https://dir.ever.works',
   logo: process.env.NEXT_PUBLIC_SITE_LOGO || '/logo-ever-works.svg',
   brandName: process.env.NEXT_PUBLIC_BRAND_NAME || 'Ever Works',
   // ...
@@ -146,7 +146,7 @@ export const siteConfig = {
 |----------|---------|---------|
 | `NEXT_PUBLIC_SITE_NAME` | `'Ever Works'` | Името на сайта в метаданни и OG изображения |
 | `NEXT_PUBLIC_SITE_TAGLINE` | Шаблонен по подразбиране | Слоган на началната страница |
-| `NEXT_PUBLIC_APP_URL` | `'https://demo.ever.works'` | Пълен URL на сайта (без завършващо наклонена черта) |
+| `NEXT_PUBLIC_APP_URL` | `'https://dir.ever.works'` | Пълен URL на сайта (без завършващо наклонена черта) |
 | `NEXT_PUBLIC_SITE_LOGO` | `'/logo-ever-works.svg'` | Път до логото спрямо `/public` |
 | `NEXT_PUBLIC_BRAND_NAME` | `'Ever Works'` | Име на организацията Schema.org |
 | `NEXT_PUBLIC_SITE_DESCRIPTION` | Шаблонен по подразбиране | SEO мета описание |

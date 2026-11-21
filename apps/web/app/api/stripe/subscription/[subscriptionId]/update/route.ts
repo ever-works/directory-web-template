@@ -223,7 +223,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 
 		const appUrl =
 			process.env.NEXT_PUBLIC_APP_URL ??
-			(process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://demo.ever.works');
+			(process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://dir.ever.works');
 
 		// Send plan change email
 		try {

@@ -305,7 +305,7 @@ isValidAbsoluteUrl('')                     // false
 Returns the normalized application base URL with fallback chain:
 
 ```
-Priority: NEXT_PUBLIC_APP_URL -> VERCEL_URL -> https://demo.ever.works
+Priority: NEXT_PUBLIC_APP_URL -> VERCEL_URL -> https://dir.ever.works
 ```
 
 ### buildUrl
