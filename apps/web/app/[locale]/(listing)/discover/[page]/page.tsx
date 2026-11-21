@@ -1,9 +1,10 @@
 import { Metadata } from "next";
 import { setRequestLocale } from 'next-intl/server';
-import { getCachedItems } from "@/lib/content";
+import { getCachedConfig, getCachedItems } from "@/lib/content";
 import { paginateMeta, PER_PAGE } from "@/lib/paginate";
 import { generateListingMetadata } from "@/lib/seo/listing-metadata";
-import { getSiteDescription } from "@/lib/seo/site-identity";
+import { getSiteDescription, getSiteName, getSiteTagline } from "@/lib/seo/site-identity";
+import { CollectionJsonLd } from "@/components/seo/collection-json-ld";
 import { filterItems } from "@/lib/utils";
 import { sortItems, parseCsv } from "@/lib/listing-server";
 import Listing from "../../listing";
@@ -45,9 +46,18 @@ export async function generateMetadata({
   params: Promise<{ page: string; locale: string }>;
 }): Promise<Metadata> {
   const { page, locale } = await params;
-  const { total } = await getCachedItems({ lang: locale });
+  const [{ total }, config, siteName, tagline, siteDescription] = await Promise.all([
+    getCachedItems({ lang: locale }),
+    getCachedConfig(),
+    getSiteName(),
+    getSiteTagline(),
+    getSiteDescription(),
+  ]);
   const pageNum = parseInt(page) || 1;
-  const title = pageNum > 1 ? `Discover - Page ${pageNum}` : "Discover";
+  const itemsName = (config.items_name || "listings").toLowerCase();
+  // The home page is titled like the site ("<Site> | <tagline>", as the
+  // [locale] layout does), not "Discover | <Site>" (Spec 062).
+  const title = pageNum === 1 ? `${siteName} | ${tagline}` : `${config.items_name || "Discover"} – Page ${pageNum}`;
 
   // This route also renders the SITE ROOT. `/` has no page file of its own:
   // next.config.ts rewrites `/:path` -> `/:path/discover/1`, and next-intl's
@@ -85,6 +95,7 @@ export async function generateMetadata({
 
   return generateListingMetadata({
     title,
+    absoluteTitle: pageNum === 1,
     path: canonicalPath,
     locale,
     itemCount: total,
@@ -97,9 +108,9 @@ export async function generateMetadata({
     // thing here rather than leaving a bare fragment.
     description:
       pageNum === 1
-        ? `Browse all ${total} listings. ${await getSiteDescription()}`
-        : `Browse page ${pageNum} of ${total} listings. ${await getSiteDescription()}`,
-    keywords: ["discover", "browse", "directory", "listings"],
+        ? `${siteDescription} Browse ${total} ${itemsName}.`
+        : `Browse page ${pageNum} of ${total} ${itemsName}. ${siteDescription}`,
+    keywords: [itemsName, "directory", siteName],
   });
 }
 
@@ -154,7 +165,13 @@ export default async function DiscoverListing({
   const total = sorted.length;
   const pageItems = sorted.slice(start, start + PER_PAGE);
 
+  const siteName = await getSiteName();
+  const canonicalPath = page === 1 ? "" : `/discover/${page}`;
+
   return (
+    <>
+    {/* CollectionPage + ItemList of the items on this page (Spec 062). */}
+    <CollectionJsonLd name={siteName} path={canonicalPath} locale={locale} total={total} items={pageItems} />
     <Listing
       tags={tags}
       categories={categories}
@@ -165,5 +182,6 @@ export default async function DiscoverListing({
       basePath="/discover"
       search={toSearchString(sp)}
     />
+    </>
   );
 }

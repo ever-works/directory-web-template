@@ -159,8 +159,12 @@ export default async function RootLayout({
 	const localeDetection = getLocaleDetection();
 
 	// Generate structured data schemas for SEO
-	const organizationSchema = generateOrganizationSchema();
-	const websiteSchema = generateWebSiteSchema(locale, { name: await getSiteName(), description: await getSiteDescription() });
+	// The directory's own identity, resolved on the server (Spec 042 / 062): the
+	// build-time siteConfig defaults named every directory "Ever Works".
+	const siteName = await getSiteName();
+	const siteDescription = await getSiteDescription();
+	const organizationSchema = generateOrganizationSchema({ name: siteName, url: appUrl, description: siteDescription });
+	const websiteSchema = generateWebSiteSchema(locale, { name: siteName, description: siteDescription, url: appUrl });
 
 	// The document shell (html lang/dir, fonts, theme providers) is rendered here, with the
 	// locale from the route, rather than in the root layout (Spec 061; see DocumentShell).
@@ -175,6 +179,14 @@ export default async function RootLayout({
 			<link rel="alternate" type="application/rss+xml" href={`${appUrl}/rss.xml`} />
 			<link rel="alternate" type="application/atom+xml" href={`${appUrl}/atom.xml`} />
 			<link rel="alternate" type="application/feed+json" href={`${appUrl}/feed.json`} />
+			{/*
+				Agent discovery (Agent Access Contract v1, Spec 062): the JSON Read
+				API, its OpenAPI description and llms.txt, so an agent that lands on
+				any page finds the machine-readable surface without scraping.
+			*/}
+			<link rel="alternate" type="application/json" title="Items (JSON)" href={`${appUrl}/data/items.json`} />
+			<link rel="service-desc" type="application/openapi+json" href={`${appUrl}/data/openapi.json`} />
+			<link rel="alternate" type="text/plain" title="llms.txt" href={`${appUrl}/llms.txt`} />
 			{/* Organization and WebSite JSON-LD schemas for Knowledge Panel and search features */}
 			<script
 				type="application/ld+json"

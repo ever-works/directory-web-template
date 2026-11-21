@@ -53,13 +53,19 @@ export function getLocalizedUrl(path: string, locale: Locale): string {
 	// above as passing "/" or "" for root now both produce the slash-free form.
 	const cleanPath = !path || path === '/' ? '' : path.startsWith('/') ? path : `/${path}`;
 
-	if (locale === DEFAULT_LOCALE) {
-		// Default locale (en) has no prefix
-		return `${baseUrl}${cleanPath}`;
-	}
+	return `${baseUrl}${localePathPrefix(locale)}${cleanPath}`;
+}
 
-	// Other locales have /{locale}/ prefix
-	return `${baseUrl}/${locale}${cleanPath}`;
+/**
+ * URL prefix of a locale, as i18n/routing.ts routes it: none for the default
+ * locale in the `as-needed` style (the default), `/<locale>` for every other
+ * locale, and for every locale when `LOCALE_URL_STYLE=always` (Spec 062: the
+ * default locale's canonical, hreflang and sitemap URLs named `/items/x`,
+ * which redirects in that style, instead of `/en/items/x`). Server-only: the
+ * variable is not exposed to the browser.
+ */
+export function localePathPrefix(locale: string): string {
+	return locale === DEFAULT_LOCALE && process.env.LOCALE_URL_STYLE !== 'always' ? '' : `/${locale}`;
 }
 
 /**

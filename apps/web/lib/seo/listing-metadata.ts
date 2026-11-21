@@ -1,8 +1,9 @@
 import { Metadata } from 'next';
 import { getSiteName, getSiteDescription } from '@/lib/seo/site-identity';
-import { DEFAULT_LOCALE } from '@/lib/constants';
-import { generateHreflangAlternates } from './hreflang';
+import type { Locale } from '@/lib/constants';
+import { generateHreflangAlternates, getLocalizedUrl } from './hreflang';
 import { getBaseUrl } from '@/lib/utils/url-cleaner';
+import { toMetaDescription } from './meta-text';
 
 interface ListingMetadataOptions {
 	title: string;
@@ -18,6 +19,14 @@ interface ListingMetadataOptions {
 	 * for any listing/detail page that has a corresponding `.md` route.
 	 */
 	hasMarkdownMirror?: boolean;
+	/** Use `title` as the whole `<title>` (no " | <site>" suffix), e.g. the home page. */
+	absoluteTitle?: boolean;
+	/**
+	 * Query string (without `?`) that is part of the canonical URL, e.g.
+	 * `page=2` for a paginated listing: each page is its own canonical, as
+	 * Google recommends, instead of all of them claiming to be page 1.
+	 */
+	canonicalQuery?: string;
 }
 
 export async function generateListingMetadata({
@@ -29,13 +38,23 @@ export async function generateListingMetadata({
 	keywords,
 	imageUrl,
 	hasMarkdownMirror,
+	absoluteTitle,
+	canonicalQuery,
 }: ListingMetadataOptions): Promise<Metadata> {
 	const appUrl = getBaseUrl();
 	const siteName = await getSiteName();
-	const fullTitle = `${title} | ${siteName}`;
-	const metaDescription =
-		description || `Browse ${itemCount ? `${itemCount} ` : ''}${title.toLowerCase()}. ${await getSiteDescription()}`;
-	const canonicalUrl = `${appUrl}${locale === DEFAULT_LOCALE ? '' : `/${locale}`}${path}`;
+	const fullTitle = absoluteTitle ? title : `${title} | ${siteName}`;
+	const metaDescription = toMetaDescription(
+		description || `Browse ${itemCount ? `${itemCount} ` : ''}${title.toLowerCase()}. ${await getSiteDescription()}`,
+		160
+	);
+	const query = canonicalQuery ? `?${canonicalQuery}` : '';
+	const pagePath = `${path}${query}`;
+	// The shared builder: honours LOCALE_URL_STYLE=always like the hreflang alternates.
+	const canonicalUrl = getLocalizedUrl(pagePath, locale as Locale);
+	// A page that sets `openGraph` without images loses the root file-based image,
+	// so listings name the site-wide card (app/opengraph-image.tsx) themselves.
+	const ogImage = imageUrl ?? `${appUrl.replace(/\/+$/, '')}/opengraph-image`;
 
 	return {
 		title: fullTitle,
@@ -47,17 +66,19 @@ export async function generateListingMetadata({
 			type: 'website',
 			siteName,
 			url: canonicalUrl,
-			...(imageUrl && { images: [{ url: imageUrl }] }),
+			images: [{ url: ogImage, ...(imageUrl ? {} : { width: 1200, height: 630 }) }],
 		},
 		twitter: {
 			card: 'summary_large_image',
 			title: fullTitle,
 			description: metaDescription,
+			images: [ogImage],
 		},
 		alternates: {
 			canonical: canonicalUrl,
-			languages: generateHreflangAlternates(path),
-			...(hasMarkdownMirror && {
+			languages: generateHreflangAlternates(pagePath),
+			// The Markdown twin mirrors the unpaginated listing only.
+			...(hasMarkdownMirror && !query && {
 				types: { 'text/markdown': `${canonicalUrl}.md` },
 			}),
 		},
