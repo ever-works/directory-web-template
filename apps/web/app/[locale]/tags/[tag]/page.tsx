@@ -59,7 +59,7 @@ export async function generateMetadata({
       count: taggedItems.length,
       siteName,
       description: (matchedTag as { description?: unknown } | undefined)?.description,
-      sampleNames: taggedItems.slice(0, 3).map((item) => item.name),
+      sampleNames: taggedItems.slice(0, 4).map((item) => item.name),
     }),
     path,
     locale,

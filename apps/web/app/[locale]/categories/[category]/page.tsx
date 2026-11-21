@@ -103,7 +103,7 @@ export async function generateMetadata({
       count: categoryItems.length,
       siteName,
       description: (matched as { description?: unknown } | undefined)?.description,
-      sampleNames: categoryItems.slice(0, 3).map((item) => item.name),
+      sampleNames: categoryItems.slice(0, 4).map((item) => item.name),
     }),
     path,
     locale,

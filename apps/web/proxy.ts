@@ -673,11 +673,12 @@ export default async function proxy(req: NextRequest) {
 export const config = {
 	matcher: [
 		// Page routes (excludes /api, /trpc, Next internals, and asset files).
-		// `/mcp` (the MCP endpoint, Spec 062) is excluded too: the i18n
-		// middleware would rewrite it to `/<locale>/mcp`, which is no route.
-		// The other agent-access URLs (`/data/*.json`, `/.well-known/*`)
-		// contain a dot and are already skipped.
-		'/((?!api|trpc|_next|_vercel|mcp$|.*\\..*).*)',
+		// `/mcp` (the MCP endpoint) and `/opengraph-image` (the site-wide OG
+		// image, app/opengraph-image.tsx) are excluded too (Spec 062): the i18n
+		// middleware rewrote them to `/<locale>/...`, which is no route, so the
+		// OG image answered 404. The other agent-access URLs (`/data/*.json`,
+		// `/.well-known/*`) contain a dot and are already skipped.
+		'/((?!api|trpc|_next|_vercel|mcp$|opengraph-image$|.*\\..*).*)',
 		// Edge guard for admin API surface — see `adminApiEdgeGuard`
 		'/api/admin/:path*'
 	]

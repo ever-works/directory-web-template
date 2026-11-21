@@ -35,6 +35,9 @@ MCP) and an audit of the public pages found invented or wrong data in the markup
 - Category and tag pages emitted two identical BreadcrumbLists, none listing the current page; no
   `CollectionPage` / `ItemList` on any listing.
 - Sign-in, admin, client dashboard and dashboard pages declared `index, follow`.
+- The site-wide OG image (`/opengraph-image`) answered 404 (the i18n middleware rewrote it to a
+  locale path), and listing pages set `openGraph` without an image, so home, category and tag pages
+  had no `og:image`.
 - The sitemap stamped `lastModified: now` on every category, tag, collection and static page (so
   crawlers ignore all its dates), and advertised 5 of the 21 locales the pages declare as hreflang.
 - The similar-items rail on item pages was client-only (`ssr: false`): no internal links in the HTML.
@@ -97,7 +100,8 @@ SEO:
 - **R8 Category / tag pages.** Title `<Name> <Items> (N) | <Site>`, the record's description or `Browse N
   <items> in <Name> on <Site>: A, B and more.`; `CollectionPage` + `ItemList` JSON-LD; one BreadcrumbList
   including the current page. A paginated category page (`?page=N`, N > 1) is its own canonical.
-- **R9 Home.** Title `<Site> | <tagline>`; `CollectionPage` + `ItemList` of the listed items;
+- **R9 Home.** Listings (home, category, tag) use the site-wide `/opengraph-image` card (now
+  reachable: `proxy.ts` skips it) as `og:image` / `twitter:image`. Title `<Site> | <tagline>`; `CollectionPage` + `ItemList` of the listed items;
   Organization / WebSite JSON-LD with the server-resolved name, description and origin. The
   `SearchAction` keeps `?q=` (the home listing's real search parameter).
 - **R10 Indexing.** `noindex, nofollow` on `/auth`, `/admin`, `/client` (public profiles at

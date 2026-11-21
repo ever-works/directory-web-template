@@ -51,6 +51,9 @@ export async function generateListingMetadata({
 	const query = canonicalQuery ? `?${canonicalQuery}` : '';
 	const pagePath = `${path}${query}`;
 	const canonicalUrl = `${appUrl}${locale === DEFAULT_LOCALE ? '' : `/${locale}`}${pagePath}`;
+	// A page that sets `openGraph` without images loses the root file-based image,
+	// so listings name the site-wide card (app/opengraph-image.tsx) themselves.
+	const ogImage = imageUrl ?? `${appUrl.replace(/\/+$/, '')}/opengraph-image`;
 
 	return {
 		title: fullTitle,
@@ -62,13 +65,13 @@ export async function generateListingMetadata({
 			type: 'website',
 			siteName,
 			url: canonicalUrl,
-			...(imageUrl && { images: [{ url: imageUrl }] }),
+			images: [{ url: ogImage, ...(imageUrl ? {} : { width: 1200, height: 630 }) }],
 		},
 		twitter: {
 			card: 'summary_large_image',
 			title: fullTitle,
 			description: metaDescription,
-			...(imageUrl && { images: [imageUrl] }),
+			images: [ogImage],
 		},
 		alternates: {
 			canonical: canonicalUrl,
