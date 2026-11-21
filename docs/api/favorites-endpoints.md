@@ -136,9 +136,15 @@ const addFavoriteSchema = z.object({
 {
   "success": false,
   "error": "Invalid request data",
-  "details": "itemSlug is required and must be a non-empty string"
+  "details": "itemSlug is required"
 }
 ```
+
+`itemSlug` and `itemName` are required, non-blank strings; `itemIconUrl` and `itemCategory`
+are optional (absent, `null` or blank means "not set"). Every string is trimmed and bounded
+(`itemSlug` 200, `itemName` 300, `itemIconUrl` 2048, `itemCategory` 200 characters) and may not
+contain a NUL character. A body that is not valid JSON answers `400` with
+`{ "success": false, "error": "Invalid JSON body" }`.
 
 #### 401 -- Unauthorized
 
@@ -181,6 +187,10 @@ if (existingFavorite.length > 0) {
   );
 }
 ```
+
+Two adds of the same item can both pass this check (a double click). The insert uses
+`onConflictDoNothing()` against the `(userId, itemSlug)` unique index, and an insert that returns
+no row also answers `409`, instead of a `500` from the unique violation.
 
 ---
 
