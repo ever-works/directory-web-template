@@ -3,6 +3,7 @@ import { getSiteName, getSiteDescription } from '@/lib/seo/site-identity';
 import { DEFAULT_LOCALE } from '@/lib/constants';
 import { generateHreflangAlternates } from './hreflang';
 import { getBaseUrl } from '@/lib/utils/url-cleaner';
+import { toMetaDescription } from './meta-text';
 
 interface ListingMetadataOptions {
 	title: string;
@@ -18,6 +19,14 @@ interface ListingMetadataOptions {
 	 * for any listing/detail page that has a corresponding `.md` route.
 	 */
 	hasMarkdownMirror?: boolean;
+	/** Use `title` as the whole `<title>` (no " | <site>" suffix), e.g. the home page. */
+	absoluteTitle?: boolean;
+	/**
+	 * Query string (without `?`) that is part of the canonical URL, e.g.
+	 * `page=2` for a paginated listing: each page is its own canonical, as
+	 * Google recommends, instead of all of them claiming to be page 1.
+	 */
+	canonicalQuery?: string;
 }
 
 export async function generateListingMetadata({
@@ -29,13 +38,19 @@ export async function generateListingMetadata({
 	keywords,
 	imageUrl,
 	hasMarkdownMirror,
+	absoluteTitle,
+	canonicalQuery,
 }: ListingMetadataOptions): Promise<Metadata> {
 	const appUrl = getBaseUrl();
 	const siteName = await getSiteName();
-	const fullTitle = `${title} | ${siteName}`;
-	const metaDescription =
-		description || `Browse ${itemCount ? `${itemCount} ` : ''}${title.toLowerCase()}. ${await getSiteDescription()}`;
-	const canonicalUrl = `${appUrl}${locale === DEFAULT_LOCALE ? '' : `/${locale}`}${path}`;
+	const fullTitle = absoluteTitle ? title : `${title} | ${siteName}`;
+	const metaDescription = toMetaDescription(
+		description || `Browse ${itemCount ? `${itemCount} ` : ''}${title.toLowerCase()}. ${await getSiteDescription()}`,
+		160
+	);
+	const query = canonicalQuery ? `?${canonicalQuery}` : '';
+	const pagePath = `${path}${query}`;
+	const canonicalUrl = `${appUrl}${locale === DEFAULT_LOCALE ? '' : `/${locale}`}${pagePath}`;
 
 	return {
 		title: fullTitle,
@@ -53,11 +68,13 @@ export async function generateListingMetadata({
 			card: 'summary_large_image',
 			title: fullTitle,
 			description: metaDescription,
+			...(imageUrl && { images: [imageUrl] }),
 		},
 		alternates: {
 			canonical: canonicalUrl,
-			languages: generateHreflangAlternates(path),
-			...(hasMarkdownMirror && {
+			languages: generateHreflangAlternates(pagePath),
+			// The Markdown twin mirrors the unpaginated listing only.
+			...(hasMarkdownMirror && !query && {
 				types: { 'text/markdown': `${canonicalUrl}.md` },
 			}),
 		},

@@ -487,6 +487,7 @@
 		"PROMO_CODE": "Mã khuyến mại",
 		"SIMILAR_PRODUCTS": "Sản phẩm tương tự",
 		"SIMILAR_PRODUCTS_DESCRIPTION": "Khám phá thêm các mục liên quan",
+		"ALTERNATIVES_TO": "Các lựa chọn thay thế cho {name}",
 		"STATISTICS": "Thống kê",
 		"STATS_VIEWS": "Lượt xem",
 		"STATS_VOTES": "Bình chọn",

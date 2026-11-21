@@ -13,7 +13,9 @@ export interface ProductSchemaInput {
 	image?: string;
 	url: string;
 	category?: string;
+	/** The item's own website; published as `sameAs` (never as an Offer: there is no price to offer). */
 	sourceUrl?: string;
+	/** The ITEM's brand (its `brand` field), never the directory's own name. */
 	brandName?: string;
 	/** Review rating summary; omitted from the schema when absent or not publishable. */
 	rating?: RatingSummary | null;
@@ -75,13 +77,11 @@ export function generateProductSchema(input: ProductSchemaInput) {
 		};
 	}
 
-	// Add offer if source URL is available
-	if (input.sourceUrl) {
-		schema.offers = {
-			'@type': 'Offer',
-			url: input.sourceUrl,
-			availability: 'https://schema.org/InStock'
-		};
+	// The item's own website identifies it. It used to be published as an
+	// `Offer` (`availability: InStock`, no price): an invented offer that
+	// Google's Product validator rejects for the missing price (Spec 062).
+	if (input.sourceUrl && /^https?:\/\//i.test(input.sourceUrl)) {
+		schema.sameAs = input.sourceUrl;
 	}
 
 	const aggregateRating = buildAggregateRatingSchema(input.rating);
@@ -189,11 +189,22 @@ export function generateComparisonSchema(input: ComparisonSchemaInput) {
 	return schema;
 }
 
+export interface OrganizationSchemaOverrides {
+	/** The directory's own name (server-resolved, lib/seo/site-identity.ts). */
+	name?: string;
+	/** Public origin (getBaseUrl()). */
+	url?: string;
+	description?: string;
+}
+
 /**
  * Generate Organization schema for brand identity
  * Includes social profiles (sameAs) and contact point for Knowledge Panel visibility
+ *
+ * @param overrides - identity resolved server-side; without them the build-time
+ *   `siteConfig` values are used (the template defaults on most deployments).
  */
-export function generateOrganizationSchema() {
+export function generateOrganizationSchema(overrides: OrganizationSchemaOverrides = {}) {
 	// Build sameAs array from social profiles, filtering out empty values
 	const sameAs = [
 		siteConfig.social.github,
@@ -206,10 +217,10 @@ export function generateOrganizationSchema() {
 	const schema: Record<string, unknown> = {
 		'@context': 'https://schema.org',
 		'@type': 'Organization',
-		name: siteConfig.brandName,
-		url: siteConfig.url,
-		logo: `${siteConfig.url}${siteConfig.logo}`,
-		description: siteConfig.description
+		name: overrides.name ?? siteConfig.brandName,
+		url: overrides.url ?? siteConfig.url,
+		logo: new URL(siteConfig.logo, `${(overrides.url ?? siteConfig.url).replace(/\/+$/, '')}/`).toString(),
+		description: overrides.description ?? siteConfig.description
 	};
 
 	// Only add sameAs if there are valid social profiles
@@ -236,19 +247,26 @@ export function generateOrganizationSchema() {
  * @param overrides - optional site identity resolved server-side (see lib/seo/site-identity.ts);
  *                    defaults to the build-time `siteConfig` values so client callers keep working.
  */
-export function generateWebSiteSchema(locale: string, overrides?: { name?: string; description?: string }) {
+export function generateWebSiteSchema(
+	locale: string,
+	overrides?: { name?: string; description?: string; url?: string }
+) {
 	const localePrefix = locale === DEFAULT_LOCALE ? '' : `/${locale}`;
+	const origin = (overrides?.url ?? siteConfig.url).replace(/\/+$/, '');
 	return {
 		'@context': 'https://schema.org',
 		'@type': 'WebSite',
 		name: overrides?.name ?? siteConfig.name,
 		description: overrides?.description ?? siteConfig.description,
-		url: `${siteConfig.url}${localePrefix}`,
+		url: `${origin}${localePrefix}`,
+		inLanguage: locale,
+		// `?q=` is the real search parameter of the home listing (next.config.ts
+		// sends `/?q=…` to the dynamic discover route, which filters on it).
 		potentialAction: {
 			'@type': 'SearchAction',
 			target: {
 				'@type': 'EntryPoint',
-				urlTemplate: `${siteConfig.url}${localePrefix}?q={search_term_string}`
+				urlTemplate: `${origin}${localePrefix}?q={search_term_string}`
 			},
 			'query-input': 'required name=search_term_string'
 		}
@@ -314,7 +332,8 @@ export function generateFaqPageSchema(input: FaqPageSchemaInput) {
 
 export interface BreadcrumbItem {
 	name: string;
-	url: string;
+	/** Absolute URL. May be omitted on the LAST crumb (the current page), as Google allows. */
+	url?: string;
 }
 
 /**
@@ -328,7 +347,16 @@ export function generateBreadcrumbSchema(items: BreadcrumbItem[]) {
 			'@type': 'ListItem',
 			position: index + 1,
 			name: item.name,
-			item: item.url
+			...(item.url ? { item: item.url } : {})
 		}))
 	};
+}
+
+/**
+ * Serialise a JSON-LD object for an inline `<script type="application/ld+json">`:
+ * every `<` is escaped, so a `</script>` inside a name or description (item
+ * YAML is not validated) cannot end the script block and inject HTML.
+ */
+export function jsonLdScript(schema: unknown): string {
+	return JSON.stringify(schema).replace(/</g, '\\u003c');
 }

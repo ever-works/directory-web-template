@@ -23,6 +23,7 @@ The Directory Web Template is a modern, full-stack directory website solution bu
 - **AI Chat**: Opt-in Vercel-AI-SDK [chat assistant](features/ai-chat.md) for visitors — works.yml-driven, six-locale, anonymous vs. authenticated personas, lazy-loaded panel preserves the public bundle when disabled
 - **Analytics & Monitoring**: PostHog, Sentry, performance monitoring
 - **Admin Dashboard**: Content management, user management, and analytics
+- **AI Agent Access**: JSON [Read API and MCP server](features/agent-access.md) on every directory, discoverable through `llms.txt` and `/.well-known/`
 - **SEO Optimized**: Sitemap generation, structured data (JSON-LD), meta tags
 
 ## Quick Start

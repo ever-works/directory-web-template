@@ -521,6 +521,7 @@
 		"PROMO_CODE": "Promo Code",
 		"SIMILAR_PRODUCTS": "Similar Products",
 		"SIMILAR_PRODUCTS_DESCRIPTION": "Explore more items related to this one",
+		"ALTERNATIVES_TO": "Alternatives to {name}",
 		"STATISTICS": "Statistics",
 		"STATS_VIEWS": "Views",
 		"STATS_VOTES": "Upvotes",

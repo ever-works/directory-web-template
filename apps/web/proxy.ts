@@ -672,8 +672,12 @@ export default async function proxy(req: NextRequest) {
 
 export const config = {
 	matcher: [
-		// Page routes (excludes /api, /trpc, Next internals, and asset files)
-		'/((?!api|trpc|_next|_vercel|.*\\..*).*)',
+		// Page routes (excludes /api, /trpc, Next internals, and asset files).
+		// `/mcp` (the MCP endpoint, Spec 062) is excluded too: the i18n
+		// middleware would rewrite it to `/<locale>/mcp`, which is no route.
+		// The other agent-access URLs (`/data/*.json`, `/.well-known/*`)
+		// contain a dot and are already skipped.
+		'/((?!api|trpc|_next|_vercel|mcp$|.*\\..*).*)',
 		// Edge guard for admin API surface — see `adminApiEdgeGuard`
 		'/api/admin/:path*'
 	]

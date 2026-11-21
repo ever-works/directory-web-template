@@ -922,6 +922,70 @@ confirm, override, or refine.
 
 ---
 
+## Spec 062 — Agent access and SEO
+
+### Q-062a When to publish `data_repository`
+
+- **Context.** `DirectoryInfo.data_repository` tells agents they may clone the data. The site only knows
+  `DATA_REPOSITORY`, not whether that repository is public.
+- **Options.**
+  - Publish it only when no GitHub token is configured (`GH_TOKEN`, `GITHUB_TOKEN`, the Spec 054
+    broker): without a token the clone only works for a public repository.
+  - Always publish it (credentials stripped).
+  - An explicit `works.yml` / env switch.
+- **Default.** **Only without a token** (conservative: most platform sites have a token and report
+  `null`). Credentials in the URL are never published.
+- **Owner.** Maintainers.
+- **Status.** open
+
+### Q-062b `updated_at` format in the Read API
+
+- **Context.** Item YAML holds `updated_at` as written (`2026-11-05`, `2026-11-05 10:00`, ISO).
+- **Options.** Publish the raw value (the minimal template does) or normalise to ISO-8601.
+- **Default.** **Raw value**, ISO only when the YAML has none but a parsed date exists. Same output
+  as the minimal template; `date-desc` sorts compare the strings.
+- **Owner.** Maintainers (both templates).
+- **Status.** open
+
+### Q-062c `related` slugs of `ItemDetail`
+
+- **Context.** The minimal template takes `related` from its related-items plugin (1 per shared tag, 2
+  for a shared category, +0.5 featured, top 5; a featured item with nothing in common also qualifies).
+- **Options.** Same rule; or require at least one shared tag or category.
+- **Default.** **Same weights and top 5, but a shared tag or category is required** (featured alone
+  is not "similar"). Align both templates when the contract gets a v1.1.
+- **Owner.** Maintainers (both templates).
+- **Status.** open
+
+### Q-062d Sitemap size with hreflang alternates
+
+- **Context.** Each sitemap entry now carries 22 `xhtml:link` alternates (21 locales + x-default),
+  the same set the pages declare. 4,000 items make a ~9 MB sitemap (limit 50 MB / 50,000 URLs).
+- **Options.** Keep one sitemap; split into a sitemap index (`generateSitemaps`) per section.
+- **Default.** **One sitemap** until a directory approaches the limits; a split is a follow-up.
+- **Owner.** Maintainers.
+- **Status.** open
+
+### Q-062e Share the agent-access code with the minimal template as a package
+
+- **Context.** `apps/web/lib/agent-access/` mirrors the minimal template's `packages/agent-api`.
+- **Options.** Keep two copies (tests pin the same behaviour); publish one package both use.
+- **Default.** **Two copies for now**; the full template's content types differ (populated
+  `{ id, name }` categories, Markdown in files). A shared package is a follow-up once the contract
+  settles.
+- **Owner.** Maintainers.
+- **Status.** open
+
+### Q-062f Relative `logo` / `images` URLs
+
+- **Context.** Item YAML may hold site-relative paths (`/logos/x.png`). The minimal template drops
+  anything that is not an absolute http(s) URL.
+- **Options.** Drop them (minimal) or resolve them against the site origin.
+- **Default.** **Resolve them** to absolute URLs on the site origin (still `string | null`, still
+  absolute): a relative logo is a real logo.
+- **Owner.** Maintainers (both templates).
+- **Status.** open
+
 ## How to add a question
 
 ### Q-047a Should the internal mirror segment stay reachable as a public URL?

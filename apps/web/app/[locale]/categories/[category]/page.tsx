@@ -1,11 +1,14 @@
 import { Metadata } from "next";
-import { getCachedItems, type ItemData, type Category } from "@/lib/content";
+import { getCachedConfig, getCachedItems, type ItemData, type Category } from "@/lib/content";
 import Listing from "../../(listing)/listing";
 import { notFound } from "next/navigation";
 import { getCategoriesEnabled } from "@/lib/utils/settings";
 import { slugify, toTitleCase, filterItems } from "@/lib/utils";
 import { paginateMeta, PER_PAGE } from "@/lib/paginate";
 import { generateListingMetadata } from "@/lib/seo/listing-metadata";
+import { taxonomyDescription, taxonomyTitle } from "@/lib/seo/meta-text";
+import { getSiteName } from "@/lib/seo/site-identity";
+import { CollectionJsonLd } from "@/components/seo/collection-json-ld";
 import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-json-ld";
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { DEFAULT_LOCALE } from "@/lib/constants";
@@ -64,28 +67,50 @@ function resolveCategoryId(categories: Category[], rawCategory: string): { id: s
 
 export async function generateMetadata({
   params,
+  searchParams,
 }: {
   params: Promise<{ category: string; locale: string }>;
+  searchParams?: Promise<SearchParams>;
 }): Promise<Metadata> {
   const { category, locale } = await params;
+  const sp = (await searchParams) ?? {};
   const decodedCategory = decodeURIComponent(category);
-  const { categories, items } = await getCachedItems({ lang: locale });
+  const [{ categories, items }, config, siteName] = await Promise.all([
+    getCachedItems({ lang: locale }),
+    getCachedConfig(),
+    getSiteName(),
+  ]);
   const { id: resolvedCategory, matched } = resolveCategoryId(categories, category);
   const categoryItems = filterItems(items, { selectedCategories: [resolvedCategory] });
   // Title and canonical from the category's id, whatever spelling the URL used
   // (/categories/TIME-TRACKING-SOFTWARE, /categories/<name>): each of those
   // answered as its own self-canonical duplicate of /categories/<id>. An
   // unknown category keeps the raw segment; the page below 404s it.
-  const formattedCategory = toTitleCase(matched ? matched.id : decodedCategory);
+  const categoryName = matched?.name || toTitleCase(matched ? matched.id : decodedCategory);
   const path = matched ? `/categories/${encodeURIComponent(matched.id)}` : `/categories/${category}`;
+  // A filtered variant (?q / ?sort / ?tags) canonicalises to the plain
+  // listing; a page number is part of the canonical (each page is its own).
+  const { page } = paginateMeta(sp.page ?? 1);
+  const pageSuffix = page > 1 ? ` – Page ${page}` : "";
 
+  // "<Category> <Items> (N) | <Site>" and the category's own description,
+  // else a factual sentence naming its first items (Spec 062).
   return generateListingMetadata({
-    title: `${formattedCategory} Category`,
+    title: `${taxonomyTitle({ name: categoryName, itemsName: config.items_name ?? "Items", count: categoryItems.length })}${pageSuffix}`,
+    description: taxonomyDescription({
+      name: categoryName,
+      itemsName: config.items_name ?? "Items",
+      count: categoryItems.length,
+      siteName,
+      description: (matched as { description?: unknown } | undefined)?.description,
+      sampleNames: categoryItems.slice(0, 3).map((item) => item.name),
+    }),
     path,
     locale,
     itemCount: categoryItems.length,
-    keywords: [decodedCategory, "category", "directory", "listings"],
+    keywords: [categoryName, config.items_name ?? "items", "directory"],
     hasMarkdownMirror: true,
+    canonicalQuery: page > 1 ? `page=${page}` : undefined,
   });
 }
 
@@ -149,7 +174,17 @@ export default async function CategoryListing({
           { name: categoryName },
         ]}
       />
+      {/* CollectionPage + ItemList of the items on this page (Spec 062). */}
+      <CollectionJsonLd
+        name={categoryName}
+        description={(matchedCategory as { description?: string }).description}
+        path={`/categories/${encodeURIComponent(matchedCategory.id)}`}
+        locale={locale}
+        total={total}
+        items={pageItems}
+      />
       <Listing
+        emitBreadcrumbJsonLd={false}
         categories={categories}
         tags={tags}
         items={pageItems}

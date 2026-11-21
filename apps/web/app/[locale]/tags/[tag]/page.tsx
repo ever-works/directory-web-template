@@ -1,9 +1,12 @@
 import { Metadata } from "next";
-import { getCachedItems } from "@/lib/content";
+import { getCachedConfig, getCachedItems } from "@/lib/content";
 import Listing from "../../(listing)/listing";
 import { notFound } from "next/navigation";
 import { getTagsEnabled } from "@/lib/utils/settings";
 import { generateListingMetadata } from "@/lib/seo/listing-metadata";
+import { taxonomyDescription, taxonomyTitle } from "@/lib/seo/meta-text";
+import { getSiteName } from "@/lib/seo/site-identity";
+import { CollectionJsonLd } from "@/components/seo/collection-json-ld";
 import { toTitleCase } from "@/lib/utils";
 import { findTagBySegment } from "@/lib/seo/route-segment";
 import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-json-ld";
@@ -27,12 +30,16 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { tag, locale } = await params;
   const decodedTag = decodeURIComponent(tag);
-  const { items, tags } = await getCachedItems({ lang: locale });
+  const [{ items, tags }, config, siteName] = await Promise.all([
+    getCachedItems({ lang: locale }),
+    getCachedConfig(),
+    getSiteName(),
+  ]);
   // Title and canonical from the tag's id, whatever spelling the URL used
   // (`/tags/Open%20Source`): that answered as its own self-canonical duplicate
   // of /tags/<id>. An unknown tag keeps the raw segment; the page below 404s it.
   const matchedTag = findTagBySegment(tags, decodedTag);
-  const formattedTag = toTitleCase(matchedTag ? matchedTag.id : decodedTag);
+  const tagName = matchedTag?.name || toTitleCase(matchedTag ? matchedTag.id : decodedTag);
   const path = matchedTag ? `/tags/${encodeURIComponent(matchedTag.id)}` : `/tags/${tag}`;
   const taggedItems = items.filter((item) =>
     item.tags?.some((t: string | { id: string }) => {
@@ -41,12 +48,23 @@ export async function generateMetadata({
     })
   );
 
+  // "<Tag> <Items> (N) | <Site>" and a factual description naming the
+  // first tagged items (Spec 062).
+  const itemsName = config.items_name ?? "Items";
   return generateListingMetadata({
-    title: `${formattedTag} Tag`,
+    title: taxonomyTitle({ name: tagName, itemsName, count: taggedItems.length }),
+    description: taxonomyDescription({
+      name: tagName,
+      itemsName,
+      count: taggedItems.length,
+      siteName,
+      description: (matchedTag as { description?: unknown } | undefined)?.description,
+      sampleNames: taggedItems.slice(0, 3).map((item) => item.name),
+    }),
     path,
     locale,
     itemCount: taggedItems.length,
-    keywords: [decodedTag, "tag", "directory", "listings"],
+    keywords: [tagName, itemsName, "directory"],
     hasMarkdownMirror: true,
   });
 }
@@ -96,6 +114,14 @@ export default async function TagListing({
   // (`/tags/Open%20Source`, which item pages link) rendered an empty listing
   // while canonicalising to the full /tags/<id>.
   const tagName = toTitleCase(matchedTag.id);
+  // The items carrying the tag, for the CollectionPage JSON-LD (the listing
+  // itself filters client-side, see above).
+  const taggedItems = items.filter((item) =>
+    item.tags?.some((t: string | { id: string }) => {
+      const tagValue = typeof t === "string" ? t : t?.id;
+      return tagValue?.toLowerCase() === matchedTag.id.toLowerCase();
+    })
+  );
 
   return (
     <>
@@ -106,7 +132,16 @@ export default async function TagListing({
           { name: tagName },
         ]}
       />
+      {/* CollectionPage + ItemList of the tagged items (Spec 062). */}
+      <CollectionJsonLd
+        name={matchedTag.name || tagName}
+        path={`/tags/${encodeURIComponent(matchedTag.id)}`}
+        locale={locale}
+        total={taggedItems.length}
+        items={taggedItems}
+      />
       <Listing
+        emitBreadcrumbJsonLd={false}
         categories={categories}
         tags={tags}
         items={items}
