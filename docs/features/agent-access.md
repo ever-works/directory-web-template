@@ -25,8 +25,13 @@ The MCP endpoint is `https://<your-directory>/mcp` (Streamable HTTP, stateless, 
 }
 ```
 
-Claude Code: `claude mcp add --transport http my-directory https://<your-directory>/mcp`.
-`/llms.txt` on every directory prints this snippet with the real URL.
+That snippet is for clients that take a remote (HTTP) server in their configuration file (Cursor, VS Code, Windsurf).
+
+- Claude Code: `claude mcp add --transport http my-directory https://<your-directory>/mcp`.
+- Claude (desktop and web): Settings > Connectors > Add custom connector, with the URL above. The Claude Desktop
+  configuration file only launches local servers.
+
+`/llms.txt` on every directory prints these instructions with the real URL.
 
 | Tool | Arguments | Returns |
 | --- | --- | --- |

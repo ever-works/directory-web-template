@@ -7,6 +7,7 @@ import {
 	categoriesDocument,
 	isoDate,
 	itemsDocument,
+	newestDate,
 	publicRepositoryUrl,
 	relatedSlugs,
 	relationKey,
@@ -229,5 +230,38 @@ describe('helpers', () => {
 		assert.equal(publicRepositoryUrl('git@github.com:acme/data.git'), null);
 		assert.equal(publicRepositoryUrl('https://github.com/acme/data/?x=1#y'), 'https://github.com/acme/data');
 		assert.equal(publicRepositoryUrl(undefined), null);
+	});
+});
+
+describe('review follow-ups (PR #1181)', () => {
+	it('resolves a non-Latin display name to its category (no slug key exists for it)', () => {
+		const catalog = buildCatalog({
+			...fixtureInput,
+			categories: [{ id: 'tokyo', name: '東京' }, { id: 'osaka', name: '大阪' }],
+			items: [{ slug: 'a', name: 'A', category: '東京' }, { slug: 'b', name: 'B', category: [{ id: '大阪', name: '大阪' }] }]
+		});
+		assert.deepEqual(catalog.items.map((entry) => entry.category_ids), [['tokyo'], ['osaka']]);
+		assert.deepEqual(catalog.categories.map((entry) => [entry.id, entry.count]), [['tokyo', 1], ['osaka', 1]]);
+	});
+
+	it('picks the newest update as an instant and keeps its raw string', () => {
+		assert.equal(
+			newestDate([
+				{ updated_at: '2026-11-05T09:00:00Z' },
+				{ updated_at: '2026-11-05T10:00:00+02:00' },
+				{ updated_at: 'not a date' },
+				{ updated_at: null }
+			]),
+			'2026-11-05T09:00:00Z'
+		);
+		assert.equal(newestDate([{ updated_at: 'garbage' }]), null);
+	});
+
+	it('builds page URLs on pagesBaseUrl (locale URL style) and keeps data URLs on the origin', () => {
+		const catalog = buildCatalog({ ...fixtureInput, pagesBaseUrl: 'https://tools.example.com/en/' });
+		assert.equal(catalog.items[0].url, 'https://tools.example.com/en/items/toggl');
+		assert.equal(catalog.categories[0].url, 'https://tools.example.com/en/categories/time-tracking');
+		assert.equal(catalog.tags[0].url, 'https://tools.example.com/en/tags/free');
+		assert.equal(catalog.info.endpoints.items, 'https://tools.example.com/data/items.json');
 	});
 });

@@ -87,9 +87,10 @@ export async function generateMetadata({
 		// near 155 characters from the item's own text (lib/seo/meta-text.ts,
 		// Spec 062); an item without one gets a factual sentence, never a claim.
 		const siteName = await getSiteName();
-		const primaryCategory = getCategoriesName(
-			Array.isArray(meta.category) ? (meta.category[0] as never) : meta.category
-		);
+		// The first category only; none for `category: []` or a missing value
+		// (getCategoriesName reads `.name` and would throw on undefined).
+		const firstCategory = Array.isArray(meta.category) ? meta.category[0] : meta.category;
+		const primaryCategory = firstCategory ? getCategoriesName(firstCategory as never) : '';
 		const pageTitle = itemTitle({ name: meta.name, category: primaryCategory });
 		const metaDescription = itemDescription({
 			name: meta.name,

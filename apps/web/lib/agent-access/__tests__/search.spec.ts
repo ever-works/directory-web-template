@@ -103,6 +103,14 @@ describe('filterSummaries', () => {
 		assert.deepEqual(filterSummaries(items, { category: 'unknown stuff' }).map((entry) => entry.slug), ['timer']);
 	});
 
+	it('keeps two different non-Latin names apart (their slugs are both empty)', () => {
+		const tokyo = item({ slug: 't', name: 'T', categories: ['東京'], category_ids: ['東京'] });
+		const osaka = item({ slug: 'o', name: 'O', categories: ['大阪'], category_ids: ['大阪'] });
+		assert.deepEqual(filterSummaries([tokyo, osaka], { category: '東京' }).map((entry) => entry.slug), ['t']);
+		assert.deepEqual(filterSummaries([tokyo, osaka], { tag: '大阪' }).length, 0);
+		assert.deepEqual(filterSummaries([tokyo, osaka], { category: '大阪' }).map((entry) => entry.slug), ['o']);
+	});
+
 	it('filters by tag; featured: true keeps featured items, false does not filter', () => {
 		assert.deepEqual(filterSummaries(items, { tag: 'free' }).map((entry) => entry.slug), ['toggl', 'kimai']);
 		assert.deepEqual(filterSummaries(items, { featured: true }).map((entry) => entry.slug), ['toggl']);
@@ -134,5 +142,24 @@ describe('taxonomySlug', () => {
 	it('collapses everything but [a-z0-9] to dashes after stripping accents', () => {
 		assert.equal(taxonomySlug(' Café  Tools '), 'cafe-tools');
 		assert.equal(taxonomySlug('Open-Source'), 'open-source');
+	});
+});
+
+describe('sortSummaries by date (PR #1181)', () => {
+	it('orders instants, not raw strings; missing or unparseable dates come last both ways', () => {
+		const items = [
+			item({ slug: 'utc9', name: 'A', updated_at: '2026-11-05T09:00:00Z' }),
+			item({ slug: 'plus2', name: 'B', updated_at: '2026-11-05T10:00:00+02:00' }),
+			item({ slug: 'space', name: 'C', updated_at: '2026-11-05 10:00' }),
+			item({ slug: 'none', name: 'D', updated_at: null }),
+			item({ slug: 'bad', name: 'E', updated_at: 'soon' })
+		];
+		// plus2 is 08:00Z; space parses as local time, so only compare it with itself across both sorts.
+		const desc = sortSummaries(items, 'date-desc').map((entry) => entry.slug);
+		const asc = sortSummaries(items, 'date-asc').map((entry) => entry.slug);
+		assert.ok(desc.indexOf('utc9') < desc.indexOf('plus2'), desc.join());
+		assert.ok(asc.indexOf('plus2') < asc.indexOf('utc9'), asc.join());
+		assert.deepEqual(desc.slice(-2), ['none', 'bad']);
+		assert.deepEqual(asc.slice(-2), ['none', 'bad']);
 	});
 });

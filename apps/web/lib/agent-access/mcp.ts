@@ -310,6 +310,19 @@ export async function handleMcpRequest(request: Request, loadDataset: () => Prom
 		);
 	}
 
+	// Streamable HTTP (2025-06-18+): after initialisation a client sends the
+	// negotiated version in MCP-Protocol-Version; an unsupported one is a 400.
+	// Absent (initialize, older clients) is fine.
+	const headerVersion = request.headers.get('mcp-protocol-version');
+	if (headerVersion !== null && !(MCP_PROTOCOL_VERSIONS as ReadonlyArray<string>).includes(headerVersion.trim())) {
+		return rpcError(
+			null,
+			JSON_RPC_ERRORS.INVALID_REQUEST,
+			`Unsupported MCP-Protocol-Version. Supported: ${MCP_PROTOCOL_VERSIONS.join(', ')}`,
+			400
+		);
+	}
+
 	let message: unknown;
 	try {
 		message = await request.json();
@@ -325,6 +338,14 @@ export async function handleMcpRequest(request: Request, loadDataset: () => Prom
 	}
 
 	const rpc = message as JsonRpcMessage;
+	// "jsonrpc" may be omitted (lenient, as the minimal template), but when present it must be "2.0";
+	// a present "id" must be a string, a number or null, or the message is not a notification either.
+	if ('jsonrpc' in rpc && rpc.jsonrpc !== '2.0') {
+		return rpcError(null, JSON_RPC_ERRORS.INVALID_REQUEST, 'Invalid request: "jsonrpc" must be "2.0"', 400);
+	}
+	if ('id' in rpc && rpc.id !== null && typeof rpc.id !== 'string' && typeof rpc.id !== 'number') {
+		return rpcError(null, JSON_RPC_ERRORS.INVALID_REQUEST, 'Invalid request: "id" must be a string, a number or null', 400);
+	}
 	const hasId = typeof rpc.id === 'string' || typeof rpc.id === 'number';
 	const id: JsonRpcId = hasId ? (rpc.id as string | number) : null;
 

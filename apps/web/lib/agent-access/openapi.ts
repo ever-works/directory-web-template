@@ -48,7 +48,7 @@ const schemas = {
 					comparisons: { type: 'integer' }
 				}
 			},
-			updated_at: { ...nullableString, format: 'date-time', description: 'Newest item update.' },
+			updated_at: { ...nullableString, description: 'Newest item update, as written in the item YAML (not normalised).' },
 			data_repository: { ...nullableString, description: 'Public Git URL of the data repository, when known.' },
 			submit_url: { ...nullableString, description: 'Page where a new item can be submitted, when enabled.' },
 			endpoints: {
@@ -97,7 +97,7 @@ const schemas = {
 			tag_ids: { ...stringArray, description: 'Tag ids (see /data/tags.json).' },
 			featured: { type: 'boolean' },
 			logo: nullableString,
-			updated_at: { ...nullableString, format: 'date-time' }
+			updated_at: { ...nullableString, description: 'As written in the item YAML, e.g. "2026-11-05" (not normalised).' }
 		}
 	},
 	ItemDetail: {

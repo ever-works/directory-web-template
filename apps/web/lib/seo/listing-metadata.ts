@@ -1,7 +1,7 @@
 import { Metadata } from 'next';
 import { getSiteName, getSiteDescription } from '@/lib/seo/site-identity';
-import { DEFAULT_LOCALE } from '@/lib/constants';
-import { generateHreflangAlternates } from './hreflang';
+import type { Locale } from '@/lib/constants';
+import { generateHreflangAlternates, getLocalizedUrl } from './hreflang';
 import { getBaseUrl } from '@/lib/utils/url-cleaner';
 import { toMetaDescription } from './meta-text';
 
@@ -50,7 +50,8 @@ export async function generateListingMetadata({
 	);
 	const query = canonicalQuery ? `?${canonicalQuery}` : '';
 	const pagePath = `${path}${query}`;
-	const canonicalUrl = `${appUrl}${locale === DEFAULT_LOCALE ? '' : `/${locale}`}${pagePath}`;
+	// The shared builder: honours LOCALE_URL_STYLE=always like the hreflang alternates.
+	const canonicalUrl = getLocalizedUrl(pagePath, locale as Locale);
 	// A page that sets `openGraph` without images loses the root file-based image,
 	// so listings name the site-wide card (app/opengraph-image.tsx) themselves.
 	const ogImage = imageUrl ?? `${appUrl.replace(/\/+$/, '')}/opengraph-image`;

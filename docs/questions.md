@@ -942,8 +942,11 @@ confirm, override, or refine.
 
 - **Context.** Item YAML holds `updated_at` as written (`2026-11-05`, `2026-11-05 10:00`, ISO).
 - **Options.** Publish the raw value (the minimal template does) or normalise to ISO-8601.
-- **Default.** **Raw value**, ISO only when the YAML has none but a parsed date exists. Same output
-  as the minimal template; `date-desc` sorts compare the strings.
+- **Default.** **Raw value**, ISO only when the YAML has none but a parsed date exists (same output
+  as the minimal template). Ordering parses it: `date-desc` / `date-asc` and `DirectoryInfo.updated_at`
+  compare instants, so `2026-11-05T10:00:00+02:00` is older than `2026-11-05T09:00:00Z`. A value that
+  does not parse (or is missing) sorts after every dated item in both directions and is never the
+  directory's `updated_at`. (PR #1181 review; the minimal template still compares strings.)
 - **Owner.** Maintainers (both templates).
 - **Status.** open
 

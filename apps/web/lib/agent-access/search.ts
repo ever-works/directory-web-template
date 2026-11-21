@@ -15,6 +15,7 @@
 
 import type { ItemSummary, TagEntry } from './types';
 import { normalizeText, taxonomySlug } from './text';
+import { dateMs } from './dataset';
 
 export { normalizeText, taxonomySlug };
 
@@ -81,9 +82,16 @@ export function searchSummaries(items: readonly ItemSummary[], query: string): I
 	return scored.map((entry) => entry.item);
 }
 
+/**
+ * Whether an id or name equals the wanted filter: as normalised text, or by
+ * slug. The slug only counts when it is not empty: a name with no [a-z0-9]
+ * (`東京`, `大阪`) slugifies to '', and two such names must not match each other.
+ */
 function matchesTaxonomy(ids: readonly string[], names: readonly string[], wanted: string): boolean {
+	const exact = normalizeText(wanted.trim());
 	const key = taxonomySlug(wanted);
-	return ids.some((id) => taxonomySlug(id) === key) || names.some((name) => taxonomySlug(name) === key);
+	const same = (value: string) => normalizeText(value.trim()) === exact || (key !== '' && taxonomySlug(value) === key);
+	return ids.some(same) || names.some(same);
 }
 
 export interface ItemFilters {
@@ -108,9 +116,19 @@ export function filterSummaries(items: readonly ItemSummary[], filters: ItemFilt
 export const ITEM_SORTS = ['featured', 'name-asc', 'name-desc', 'date-desc', 'date-asc'] as const;
 export type ItemSort = (typeof ITEM_SORTS)[number];
 
-/** A sorted copy of `items`. */
+/**
+ * A sorted copy of `items`. Date sorts compare `updated_at` as instants
+ * (raw values keep their timezone offsets and formats); items whose date is
+ * missing or does not parse come last in both directions, by name.
+ */
 export function sortSummaries(items: readonly ItemSummary[], sort: ItemSort): ItemSummary[] {
 	const byName = (a: ItemSummary, b: ItemSummary) => a.name.localeCompare(b.name);
+	const byDate = (a: ItemSummary, b: ItemSummary, direction: 1 | -1) => {
+		const left = dateMs(a.updated_at);
+		const right = dateMs(b.updated_at);
+		if (left === null || right === null) return left === right ? 0 : left === null ? 1 : -1;
+		return (left - right) * direction;
+	};
 	return [...items].sort((a, b) => {
 		switch (sort) {
 			case 'name-asc':
@@ -118,9 +136,9 @@ export function sortSummaries(items: readonly ItemSummary[], sort: ItemSort): It
 			case 'name-desc':
 				return byName(b, a);
 			case 'date-desc':
-				return (b.updated_at ?? '').localeCompare(a.updated_at ?? '') || byName(a, b);
+				return byDate(a, b, -1) || byName(a, b);
 			case 'date-asc':
-				return (a.updated_at ?? '').localeCompare(b.updated_at ?? '') || byName(a, b);
+				return byDate(a, b, 1) || byName(a, b);
 			default:
 				return Number(b.featured) - Number(a.featured) || byName(a, b);
 		}

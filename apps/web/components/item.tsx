@@ -233,20 +233,31 @@ const Item = memo(function Item(props: ItemProps) {
 								</Tooltip>
 								{props.source_url && (
 									<Tooltip content="Visit website" placement="top" size="sm" showArrow>
-										<a
-											href={props.source_url}
-											target="_blank"
-											rel="noopener noreferrer"
+										{/*
+											Not an <a>: the whole card is already a link, and an anchor
+											inside an anchor is invalid HTML. The parser closes the outer
+											link at the inner one, so the server-rendered card (similar
+											items on item pages, Spec 062) failed hydration.
+										*/}
+										<span
+											role="link"
+											tabIndex={0}
 											aria-label={`Visit ${props.name} website`}
 											onClick={(e) => {
 												e.preventDefault();
 												e.stopPropagation();
 												window.open(props.source_url, '_blank', 'noopener,noreferrer');
 											}}
-											className="flex items-center gap-1 text-xs font-medium text-gray-400 dark:text-gray-500 hover:text-primary dark:hover:text-primary transition-colors duration-150 shrink-0"
+											onKeyDown={(e) => {
+												if (e.key !== 'Enter') return;
+												e.preventDefault();
+												e.stopPropagation();
+												window.open(props.source_url, '_blank', 'noopener,noreferrer');
+											}}
+											className="flex items-center gap-1 text-xs font-medium text-gray-400 dark:text-gray-500 hover:text-primary dark:hover:text-primary transition-colors duration-150 shrink-0 cursor-pointer"
 										>
 											<Globe className="w-3 h-3 shrink-0" />
-										</a>
+										</span>
 									</Tooltip>
 								)}
 							</div>

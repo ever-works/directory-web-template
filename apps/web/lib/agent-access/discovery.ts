@@ -115,13 +115,14 @@ export function buildLlmsTxt({ info, categories, categoriesEnabled = true, maxCa
 			'',
 			'### Connect an MCP client',
 			'',
-			'Add this to your MCP client configuration (Claude Desktop, Cursor, VS Code, …):',
+			'Clients that take a remote (HTTP) server in their configuration file (Cursor, VS Code, Windsurf, …):',
 			'',
 			'```json',
 			mcpClientConfig(info) ?? '',
 			'```',
 			'',
-			`Claude Code: \`claude mcp add --transport http ${mcpClientKey(info)} ${info.endpoints.mcp}\``
+			`- Claude Code: \`claude mcp add --transport http ${mcpClientKey(info)} ${info.endpoints.mcp}\``,
+			`- Claude (desktop and web): Settings > Connectors > Add custom connector, URL \`${info.endpoints.mcp}\` (the desktop configuration file only launches local servers).`
 		);
 	}
 	lines.push('');

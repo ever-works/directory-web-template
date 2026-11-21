@@ -178,7 +178,8 @@ export default async function CategoryListing({
       <CollectionJsonLd
         name={categoryName}
         description={(matchedCategory as { description?: string }).description}
-        path={`/categories/${encodeURIComponent(matchedCategory.id)}`}
+        // The page's own URL, page number included from page 2 on (like its canonical).
+        path={`/categories/${encodeURIComponent(matchedCategory.id)}${page > 1 ? `?page=${page}` : ""}`}
         locale={locale}
         total={total}
         items={pageItems}

@@ -11,7 +11,7 @@
 
 import { generateCollectionSchema, jsonLdScript } from '@/lib/seo/schema';
 import { getBaseUrl } from '@/lib/utils/url-cleaner';
-import { DEFAULT_LOCALE } from '@/lib/constants';
+import { localePathPrefix } from '@/lib/seo/hreflang';
 
 interface CollectionJsonLdProps {
 	name: string;
@@ -27,7 +27,7 @@ interface CollectionJsonLdProps {
 
 export function CollectionJsonLd({ name, description, path, locale, total, items }: CollectionJsonLdProps) {
 	const base = getBaseUrl().replace(/\/+$/, '');
-	const localePrefix = locale === DEFAULT_LOCALE ? '' : `/${locale}`;
+	const localePrefix = localePathPrefix(locale);
 	const schema = generateCollectionSchema({
 		name,
 		description: description || undefined,

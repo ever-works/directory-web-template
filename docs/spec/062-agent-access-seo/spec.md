@@ -82,7 +82,9 @@ Agent Access Contract v1 (identical in the minimal template, whose spec is
 - **R4 Ranking.** Normalised (lowercase, accents stripped) unique tokens; per token +8 whole name,
   else +5 a name word starts with it, else +3 name contains; +2 category/tag name contains; +1
   description contains; every token must match; +10 when the whole query is the name; +0.5 featured;
-  ties by name. `list_items` default sort: featured first, then name.
+  ties by name. `list_items` default sort: featured first, then name; date sorts compare instants,
+  undated items last. Category / tag filters compare normalised text, and slugs only when not empty
+  (`東京` and `大阪` both slugify to `''` and must not match each other).
 - **R5 Discovery.** `/.well-known/mcp.json` (server card), `/.well-known/api-catalog` (RFC 9727
   linkset: `service-desc`, `service-doc`, `service-meta`), `<head>` links (`alternate` JSON ->
   `/data/items.json`, `service-desc` -> `/data/openapi.json`, `alternate` text/plain -> `/llms.txt`).

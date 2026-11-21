@@ -19,7 +19,7 @@ import {
 	type TagEntry,
 	type TagsDocument
 } from './types';
-import { taxonomySlug } from './text';
+import { normalizeText, taxonomySlug } from './text';
 
 /** A category / tag as an item carries it: an id string, a display name, or a populated `{ id, name }`. */
 export type RawRef = string | { id?: unknown; name?: unknown } | null | undefined;
@@ -53,6 +53,12 @@ export interface RawTaxonomy {
 export interface DirectoryInput {
 	/** Absolute public origin, no trailing slash (lib/utils/url-cleaner `getBaseUrl()`). */
 	baseUrl: string;
+	/**
+	 * Base of the default locale's PAGE URLs (item, category, tag pages):
+	 * `baseUrl` itself, or `baseUrl/en` with `LOCALE_URL_STYLE=always`.
+	 * Defaults to `baseUrl`. Data endpoints and Markdown mirrors stay on `baseUrl`.
+	 */
+	pagesBaseUrl?: string;
 	name: string;
 	/** Already resolved; `buildDirectoryInfo` generates one when blank. */
 	description?: string | null;
@@ -135,22 +141,29 @@ function segment(id: string): string {
 
 interface TaxonomyIndex {
 	byId: Map<string, RawTaxonomy & { id: string; name: string }>;
+	/** Normalised id and display name, exact: resolves names with no [a-z0-9] (`東京`), which have no slug key. */
+	byText: Map<string, RawTaxonomy & { id: string; name: string }>;
 	byKey: Map<string, RawTaxonomy & { id: string; name: string }>;
 }
 
 function indexTaxonomy(list: ReadonlyArray<RawTaxonomy>): TaxonomyIndex {
 	const byId = new Map<string, RawTaxonomy & { id: string; name: string }>();
+	const byText = new Map<string, RawTaxonomy & { id: string; name: string }>();
 	const byKey = new Map<string, RawTaxonomy & { id: string; name: string }>();
 	for (const entry of list) {
 		const id = text(entry?.id);
 		if (!id || byId.has(id)) continue;
 		const normalized = { ...entry, id, name: text(entry.name) || id };
 		byId.set(id, normalized);
+		for (const value of [id, normalized.name]) {
+			const exact = normalizeText(value);
+			if (exact && !byText.has(exact)) byText.set(exact, normalized);
+		}
 		for (const key of [relationKey(id), relationKey(normalized.name)]) {
 			if (key && !byKey.has(key)) byKey.set(key, normalized);
 		}
 	}
-	return { byId, byKey };
+	return { byId, byText, byKey };
 }
 
 /** Resolve one item reference to `{ id, name }` against categories.yml / tags.yml (slugified id when unknown). */
@@ -166,7 +179,12 @@ function resolveRef(ref: RawRef, index: TaxonomyIndex): { id: string; name: stri
 		if (!id) id = name;
 	}
 	if (!id) return null;
-	const known = index.byId.get(id) ?? index.byKey.get(relationKey(id)) ?? index.byKey.get(relationKey(name));
+	const known =
+		index.byId.get(id) ??
+		index.byText.get(normalizeText(id)) ??
+		index.byText.get(normalizeText(name)) ??
+		(relationKey(id) ? index.byKey.get(relationKey(id)) : undefined) ??
+		(relationKey(name) ? index.byKey.get(relationKey(name)) : undefined);
 	if (known) return { id: known.id, name: known.name };
 	// Unknown to categories.yml / tags.yml: its slug, or the raw value when it has no [a-z0-9] (minimal template rule).
 	return { id: relationKey(id) || id, name: name || id };
@@ -202,19 +220,21 @@ export function buildItemSummary(
 	item: RawItem,
 	baseUrl: string,
 	categoryIndex: TaxonomyIndex,
-	tagIndex: TaxonomyIndex
+	tagIndex: TaxonomyIndex,
+	pagesBaseUrl: string = baseUrl
 ): ItemSummary | null {
 	const slug = text(item?.slug);
 	const name = text(item?.name);
 	if (!slug || !name) return null;
 	const base = trimSlash(baseUrl);
+	const pages = trimSlash(pagesBaseUrl);
 	const categories = resolveRefs(item.category, categoryIndex);
 	const tags = resolveRefs(item.tags, tagIndex);
 	return {
 		slug,
 		name,
 		description: text(item.description),
-		url: `${base}/items/${segment(slug)}`,
+		url: `${pages}/items/${segment(slug)}`,
 		website: absoluteUrl(item.source_url, base),
 		categories: categories.map((c) => c.name),
 		category_ids: categories.map((c) => c.id),
@@ -231,13 +251,14 @@ export function buildItemSummary(
 /** Build the whole catalogue (directory info, item summaries, categories, tags). */
 export function buildCatalog(input: DirectoryInput): BuiltCatalog {
 	const base = trimSlash(input.baseUrl);
+	const pages = trimSlash(input.pagesBaseUrl ?? input.baseUrl);
 	const categoryIndex = indexTaxonomy(input.categories);
 	const tagIndex = indexTaxonomy(input.tags);
 
 	const items: ItemSummary[] = [];
 	const rawBySlug = new Map<string, RawItem>();
 	for (const raw of input.items) {
-		const summary = buildItemSummary(raw, base, categoryIndex, tagIndex);
+		const summary = buildItemSummary(raw, base, categoryIndex, tagIndex, pages);
 		if (!summary || rawBySlug.has(summary.slug)) continue;
 		rawBySlug.set(summary.slug, raw);
 		items.push(summary);
@@ -255,7 +276,7 @@ export function buildCatalog(input: DirectoryInput): BuiltCatalog {
 		name: category.name,
 		description: textOrNull(category.description),
 		count: categoryCounts.get(category.id) ?? 0,
-		url: `${base}/categories/${segment(category.id)}`
+		url: `${pages}/categories/${segment(category.id)}`
 	}));
 
 	const tags: TagEntry[] = [...tagIndex.byId.values()]
@@ -263,7 +284,7 @@ export function buildCatalog(input: DirectoryInput): BuiltCatalog {
 			id: tag.id,
 			name: tag.name,
 			count: tagCounts.get(tag.id) ?? 0,
-			url: `${base}/tags/${segment(tag.id)}`
+			url: `${pages}/tags/${segment(tag.id)}`
 		}))
 		.sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
 
@@ -277,10 +298,27 @@ export function buildCatalog(input: DirectoryInput): BuiltCatalog {
 	return { info, items, categories, tags, rawBySlug };
 }
 
-function newestDate(items: ReadonlyArray<ItemSummary>): string | null {
+/** Milliseconds of a raw date string, or null when it does not parse. */
+export function dateMs(value: string | null | undefined): number | null {
+	if (!value) return null;
+	const ms = Date.parse(value);
+	return Number.isNaN(ms) ? null : ms;
+}
+
+/**
+ * The raw `updated_at` of the most recently updated item, compared as instants
+ * (`2026-11-05T10:00:00+02:00` is earlier than `2026-11-05T09:00:00Z`), not as
+ * text. Values that do not parse never win over one that does.
+ */
+export function newestDate(items: ReadonlyArray<Pick<ItemSummary, 'updated_at'>>): string | null {
 	let newest: string | null = null;
+	let newestMs = -Infinity;
 	for (const item of items) {
-		if (item.updated_at && (!newest || item.updated_at > newest)) newest = item.updated_at;
+		const ms = dateMs(item.updated_at);
+		if (ms !== null && ms > newestMs) {
+			newest = item.updated_at;
+			newestMs = ms;
+		}
 	}
 	return newest;
 }

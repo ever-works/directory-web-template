@@ -271,3 +271,32 @@ describe('tools/call', () => {
 		assert.deepEqual(await response.json(), { jsonrpc: '2.0', id: 'a', result: {} });
 	});
 });
+
+describe('envelope and header validation (PR #1181)', () => {
+	const send = (body: unknown, headers: Record<string, string> = {}) =>
+		handleMcpRequest(
+			new Request(URL, { method: 'POST', headers: { 'Content-Type': 'application/json', ...headers }, body: JSON.stringify(body) }),
+			async () => fixtureDataset()
+		);
+
+	it('rejects an unsupported MCP-Protocol-Version header with 400, accepts supported ones and none', async () => {
+		const bad = await send({ jsonrpc: '2.0', id: 1, method: 'ping' }, { 'MCP-Protocol-Version': 'unsupported' });
+		assert.equal(bad.status, 400);
+		assert.equal((await bad.json()).error.code, -32600);
+		const good = await send({ jsonrpc: '2.0', id: 1, method: 'ping' }, { 'MCP-Protocol-Version': '2025-06-18' });
+		assert.equal(good.status, 200);
+		assert.equal((await send({ jsonrpc: '2.0', id: 1, method: 'ping' })).status, 200);
+	});
+
+	it('rejects "jsonrpc" other than "2.0" and an id that is not a string, number or null', async () => {
+		const version = await send({ jsonrpc: '1.0', id: 1, method: 'ping' });
+		assert.equal(version.status, 400);
+		assert.equal((await version.json()).error.code, -32600);
+		for (const id of [{ a: 1 }, true, [1]]) {
+			const response = await send({ jsonrpc: '2.0', id, method: 'ping' });
+			assert.equal(response.status, 400, JSON.stringify(id));
+		}
+		// id: null with a method stays a notification (202), as before.
+		assert.equal((await send({ jsonrpc: '2.0', id: null, method: 'notifications/initialized' })).status, 202);
+	});
+});

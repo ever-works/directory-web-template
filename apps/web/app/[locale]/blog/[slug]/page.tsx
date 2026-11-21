@@ -9,7 +9,7 @@ import { MDX } from '@/components/mdx';
 import { PostImage, hasRenderablePostImage } from '@/components/blog/post-image';
 import { getCachedAdjacentPosts, getCachedAllPostSummaries, getCachedPost } from '@/lib/content';
 import { getSiteName } from '@/lib/seo/site-identity';
-import { getLocalizedUrl } from '@/lib/seo/hreflang';
+import { generateHreflangAlternates, getLocalizedUrl } from '@/lib/seo/hreflang';
 import { getBaseUrl } from '@/lib/utils/url-cleaner';
 import {
 	BLOG_BASE_PATH,
@@ -83,7 +83,10 @@ export async function generateMetadata({ params }: PostPageProps): Promise<Metad
 			...(imageUrl && { images: [imageUrl] })
 		},
 		alternates: {
-			canonical
+			canonical,
+			// Every locale renders the post (falling back to the English file), so
+			// it declares all of them, as app/sitemap.ts does (Spec 062).
+			languages: generateHreflangAlternates(buildPostHref(post.slug))
 		}
 	};
 }

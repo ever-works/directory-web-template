@@ -9,6 +9,7 @@ import {
 	jsonLdScript
 } from '../schema';
 import { breadcrumbTrail } from '../breadcrumb-trail';
+import { siteConfig } from '../../config/client';
 
 /**
  * JSON-LD fixes of Spec 062 (lib/seo/schema.ts, lib/seo/breadcrumb-trail.ts).
@@ -41,7 +42,9 @@ describe('identity overrides', () => {
 		const organization = generateOrganizationSchema({ name: 'Awesome Time', url: 'https://time.example', description: 'D' });
 		assert.equal(organization.name, 'Awesome Time');
 		assert.equal(organization.url, 'https://time.example');
-		assert.match(String(organization.logo), /^https:\/\/time\.example\//);
+		// The configured logo (NEXT_PUBLIC_SITE_LOGO) resolved against the override origin:
+		// a relative path lands on it, an absolute URL is kept as configured.
+		assert.equal(organization.logo, new URL(siteConfig.logo, 'https://time.example/').toString());
 
 		const website = generateWebSiteSchema('fr', { name: 'Awesome Time', url: 'https://time.example/' });
 		assert.equal(website.url, 'https://time.example/fr');
