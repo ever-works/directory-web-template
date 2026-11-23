@@ -6,11 +6,28 @@ import type { ItemData } from '@/lib/content';
 // ######################### Display Types #########################
 
 /**
- * Sponsor ad with associated item data for display purposes.
- * Used when displaying sponsor ads in UI components.
+ * Sponsor ad with associated item data, carrying the full `sponsor_ads` row
+ * (user, payment and review ids included). Server-side only: public
+ * responses use `PublicSponsorWithItem`.
  */
 export interface SponsorWithItem {
 	sponsor: SponsorAd;
+	item: ItemData | null;
+}
+
+/**
+ * The sponsor ad fields that may leave the server in a public response
+ * (`GET /api/sponsor-ads`). Built by `toPublicSponsorAd`
+ * (`lib/sponsor-ads/public-sponsor-ad.ts`).
+ */
+export type PublicSponsorAd = Pick<SponsorAd, 'id' | 'itemSlug' | 'status' | 'interval' | 'startDate' | 'endDate'>;
+
+/**
+ * Sponsor ad with associated item data for public display.
+ * Used by `GET /api/sponsor-ads` and the sponsor UI components.
+ */
+export interface PublicSponsorWithItem {
+	sponsor: PublicSponsorAd;
 	item: ItemData | null;
 }
 

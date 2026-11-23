@@ -48,7 +48,7 @@ type SponsorAdIntervalType = 'weekly' | 'monthly';
 
 ### `SponsorWithItem`
 
-A sponsor ad with its associated item data for UI display. The `item` field may be `null` if the linked item no longer exists.
+A sponsor ad with its associated item data, carrying the full `sponsor_ads` row (user, payment and review ids included). Server-side only. The `item` field may be `null` if the linked item no longer exists.
 
 ```typescript
 import type { SponsorAd } from '@/lib/db/schema';
@@ -56,6 +56,19 @@ import type { ItemData } from '@/lib/content';
 
 interface SponsorWithItem {
   sponsor: SponsorAd;
+  item: ItemData | null;
+}
+```
+
+### `PublicSponsorAd` and `PublicSponsorWithItem`
+
+What the public `GET /api/sponsor-ads` returns and the sponsor UI components (`useActiveSponsorAds`, `SponsorAdsProvider`, `SponsorCard`, `SidebarSponsor`) take. `toPublicSponsorAd` (`lib/sponsor-ads/public-sponsor-ad.ts`) copies these fields from the row, so the sponsor's user id, payment ids, amount and review details never leave the server.
+
+```typescript
+type PublicSponsorAd = Pick<SponsorAd, 'id' | 'itemSlug' | 'status' | 'interval' | 'startDate' | 'endDate'>;
+
+interface PublicSponsorWithItem {
+  sponsor: PublicSponsorAd;
   item: ItemData | null;
 }
 ```
