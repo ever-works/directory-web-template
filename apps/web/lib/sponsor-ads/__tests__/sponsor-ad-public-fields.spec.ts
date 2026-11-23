@@ -72,7 +72,8 @@ const loadProjection = async (): Promise<Projection> => {
 	return mod.toPublicSponsorAd!;
 };
 
-const raw = (relative: string) => readFileSync(join(WEB, relative), 'utf8');
+/** LF line endings, so the `\n` markers below also match a Windows (core.autocrlf) checkout. */
+const raw = (relative: string) => readFileSync(join(WEB, relative), 'utf8').replace(/\r\n/g, '\n');
 
 /**
  * Code only, on one line: block comments and whole-line `//` comments are dropped, since
