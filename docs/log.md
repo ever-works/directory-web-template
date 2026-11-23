@@ -9,7 +9,7 @@ sidebar_position: 99
 
 ## 2026-11-23
 
-- `apps/web/components/item-detail/item-detail.tsx` `apps/web/lib/utils/tag-path.ts`: the item page's sidebar category and tag links were plain `<a href>` that dropped the locale (a French page linked to the default-locale listing), and the tag href was built from the raw tag text, so `a/b`, `what?`, `c#` or `100%` produced a broken URL or a 404. Both now use the locale-aware `Link`, and the tag path is percent-encoded (`tagPath()`, `lib/utils/__tests__/tag-path.spec.ts`); a tag with no text is no longer linked to `/tags/`. Small defect fix, no spec; PR number to be added when opened.
+- `apps/web/components/item-detail/item-detail.tsx` `apps/web/lib/utils/tag-path.ts`: the item page's sidebar category and tag links were plain `<a href>` that dropped the locale (a French page linked to the default-locale listing), and the tag href was built from the raw tag text, so `a/b`, `what?`, `c#` or `100%` produced a broken URL or a 404. Both now use the locale-aware `Link`, and the tag path is percent-encoded (`tagPath()`, `lib/utils/__tests__/tag-path.spec.ts`); a tag with no text is no longer linked to `/tags/`. `app/[locale]/tags/[tag]/page.tsx` decodes its segment with `decodeSegment` (a lone `%`, `/tags/100%`, answered HTTP 500 from `decodeURIComponent`); a source guard keeps the sidebar on `Link` (`lib/utils/__tests__/item-detail-links-wiring.spec.ts`). Small defect fix, no spec. PR #1185.
 
 ## 2026-11-21
 

@@ -8,7 +8,7 @@ import { taxonomyDescription, taxonomyTitle } from "@/lib/seo/meta-text";
 import { getSiteName } from "@/lib/seo/site-identity";
 import { CollectionJsonLd } from "@/components/seo/collection-json-ld";
 import { toTitleCase } from "@/lib/utils";
-import { findTagBySegment } from "@/lib/seo/route-segment";
+import { decodeSegment, findTagBySegment } from "@/lib/seo/route-segment";
 import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-json-ld";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { DEFAULT_LOCALE } from "@/lib/constants";
@@ -29,7 +29,9 @@ export async function generateMetadata({
   params: Promise<{ tag: string; locale: string }>;
 }): Promise<Metadata> {
   const { tag, locale } = await params;
-  const decodedTag = decodeURIComponent(tag);
+  // A malformed or already-decoded segment (`100%`) must not throw: decoding it again
+  // raised URIError (HTTP 500). The raw segment then simply matches no tag, or the tag.
+  const decodedTag = decodeSegment(tag) ?? tag;
   const [{ items, tags }, config, siteName] = await Promise.all([
     getCachedItems({ lang: locale }),
     getCachedConfig(),
@@ -92,7 +94,7 @@ export default async function TagListing({
   const { categories, tags, items } = await getCachedItems({ lang: locale });
 
   // Decode the tag from URL
-  const decodedTag = decodeURIComponent(tag);
+  const decodedTag = decodeSegment(tag) ?? tag;
 
   // Unknown tag slug → proper 404 (not a soft-404 with full item list).
   // Same lookup as generateMetadata above.
