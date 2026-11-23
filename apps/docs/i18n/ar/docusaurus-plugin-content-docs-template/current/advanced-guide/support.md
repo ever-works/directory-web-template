@@ -44,7 +44,7 @@ sidebar_position: 1
 
 ### العرض التوضيحي والأمثلة
 
-- **🌐 [الموقع التجريبي](https://demo.ever.works)** - شاهد القالب أثناء العمل
+- **🌐 [الموقع التجريبي](https://dir.ever.works)** - شاهد القالب أثناء العمل
 - **📚 [التوثيق](https://docs.ever.works)** - التوثيق الكامل
 - **💻 [مستودع GitHub](https://github.com/ever-works/directory-web-template)** - كود المصدر والأمثلة
 

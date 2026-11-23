@@ -11,10 +11,12 @@ import {
 	type WebhookResource
 } from './lemonsqueezy-webhook';
 import {
+	lemonSqueezyVariantInterval,
 	matchLemonSqueezyVariant,
 	type LemonSqueezyVariantCatalog,
 	type LemonSqueezyVariantMatch
 } from './lemonsqueezy-variant-plan';
+import { mergeLemonSqueezyBillingDetails, type LemonSqueezyBillingDetails } from './lemonsqueezy-price';
 
 /**
  * LemonSqueezy subscription events → plan rows and sponsor ads (spec 060 R8-R11).
@@ -26,6 +28,9 @@ import {
  *   ad, or one no plan is configured for) can only update the status of a row that already exists.
  *   On `subscription_created` an unknown variant writes nothing and is acknowledged.
  * - **Invoices** carry no variant, so they never create a plan row either.
+ * - **Amount and billing period** of a plan row come from the subscription's price
+ *   (`first_subscription_item.price_id`, LemonSqueezy Prices API), or, when that cannot be read, the
+ *   period the variant catalog names for the variant. Subscription payloads carry neither.
  * - **Sponsor ads** are activated only by a sponsor-ad variant whose interval matches the ad named in
  *   the custom data, and `confirmPayment` binds the ad to that subscription. Every later event acts
  *   on the ad only when the custom data names an ad already bound to the same subscription, so a
@@ -78,6 +83,12 @@ export interface LemonSqueezySubscriptionEventDeps {
 	 * an event without a user id is handled as before.
 	 */
 	findUserIdByVerifiedEmail?: (email: string) => Promise<string | null>;
+	/**
+	 * Amount and billing period of a LemonSqueezy price id (`createLemonSqueezyPriceLoader`); `null`
+	 * when LemonSqueezy has no such price. A thrown error falls back to the catalog's period. Left
+	 * out, only the catalog's period is used.
+	 */
+	loadBillingDetails?: (priceId: string) => Promise<LemonSqueezyBillingDetails | null>;
 	now?: () => number;
 	logger?: Pick<Console, 'log' | 'warn' | 'error'>;
 }
@@ -138,8 +149,38 @@ export function createLemonSqueezySubscriptionEvents(
 		return false;
 	}
 
-	async function variantOf(resource: LemonSqueezySubscriptionResource): Promise<LemonSqueezyVariantMatch> {
-		return matchLemonSqueezyVariant(await deps.loadVariantCatalog(), resource.attributes?.variant_id);
+	async function variantOf(
+		resource: LemonSqueezySubscriptionResource
+	): Promise<LemonSqueezyVariantMatch & { catalog: LemonSqueezyVariantCatalog }> {
+		const catalog = await deps.loadVariantCatalog();
+		return { ...matchLemonSqueezyVariant(catalog, resource.attributes?.variant_id), catalog };
+	}
+
+	/**
+	 * The amount and billing period to store for a plan subscription. A failed price lookup must not
+	 * lose the event (LemonSqueezy retries only a few times), so it falls back to the catalog.
+	 */
+	async function billingOf(
+		resource: LemonSqueezySubscriptionResource,
+		catalog: LemonSqueezyVariantCatalog
+	): Promise<LemonSqueezyBillingDetails | undefined> {
+		const priceId = toId(resource.attributes?.first_subscription_item?.price_id);
+		let fromPrice: LemonSqueezyBillingDetails | null = null;
+		if (priceId && deps.loadBillingDetails) {
+			try {
+				fromPrice = await deps.loadBillingDetails(priceId);
+			} catch (error) {
+				log.warn(
+					`⚠️ LemonSqueezy price ${priceId} of subscription ${resource.id} could not be read; ` +
+						'using the billing period the variant configuration names',
+					error instanceof Error ? error.message : error
+				);
+			}
+		}
+		return mergeLemonSqueezyBillingDetails(
+			fromPrice,
+			lemonSqueezyVariantInterval(catalog, resource.attributes?.variant_id)
+		);
 	}
 
 	/**
@@ -150,9 +191,10 @@ export function createLemonSqueezySubscriptionEvents(
 	 */
 	async function planData(
 		resource: LemonSqueezySubscriptionResource,
-		planId: string
+		planId: string,
+		catalog: LemonSqueezyVariantCatalog
 	): Promise<SubscriptionServiceInput> {
-		const data = toSubscriptionServiceData(resource, now(), planId);
+		const data = toSubscriptionServiceData(resource, now(), planId, await billingOf(resource, catalog));
 		const email = resource.attributes?.user_email;
 		if (data.metadata.userId || !deps.findUserIdByVerifiedEmail || typeof email !== 'string' || !email.trim()) {
 			return data;
@@ -227,7 +269,7 @@ export function createLemonSqueezySubscriptionEvents(
 		created: guarded('subscription created', async (resource) => {
 			const variant = await variantOf(resource);
 			if (variant.kind === 'plan') {
-				const data = await planData(resource, variant.planId);
+				const data = await planData(resource, variant.planId, variant.catalog);
 				return runPlan('subscription created', () => plans.handleSubscriptionCreated(data));
 			}
 			if (variant.kind === 'sponsor_ad') return activateSponsorAd(resource, variant.interval);
@@ -239,8 +281,9 @@ export function createLemonSqueezySubscriptionEvents(
 		updated: guarded('subscription updated', async (resource) => {
 			const variant = await variantOf(resource);
 			if (variant.kind === 'plan') {
-				// With no row yet the service creates one, so the same user match applies.
-				const data = await planData(resource, variant.planId);
+				// With no row yet the service creates one, so the same user match applies. A plan
+				// change moves the subscription to another price, so its amount and period are read too.
+				const data = await planData(resource, variant.planId, variant.catalog);
 				return runPlan('subscription updated', () => plans.handleSubscriptionUpdated(data));
 			}
 

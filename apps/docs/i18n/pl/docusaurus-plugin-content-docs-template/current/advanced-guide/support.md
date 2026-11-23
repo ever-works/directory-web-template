@@ -44,7 +44,7 @@ Witamy w centrum wsparcia Ever Works. Jesteśmy tutaj, aby pomóc Ci w pełni wy
 
 ### Demo i przykłady
 
-- **🌐 [Witryna demonstracyjna](https://demo.ever.works)** - Zobacz szablon w akcji
+- **🌐 [Witryna demonstracyjna](https://dir.ever.works)** - Zobacz szablon w akcji
 - **📚 [Dokumentacja](https://docs.ever.works)** - Kompletna dokumentacja
 - **💻 [Repozytorium GitHub](https://github.com/ever-works/directory-web-template)** - Kod źródłowy i przykłady
 

@@ -1524,7 +1524,7 @@ html[data-theme="dark"] .header-locale-link:before {
 /* =====================================================
    DROPDOWN MENU (general)
    ===================================================== */
-html[data-theme="light"] .dropdown__menu {
+html:not([data-theme="dark"]) .dropdown__menu {
   background-color: #ffffff;
   border: 1px solid var(--ifm-hr-border-color);
 }
@@ -1540,7 +1540,7 @@ html[data-theme="dark"] .dropdown__menu {
   transition: background-color 0.15s ease;
 }
 
-html[data-theme="light"] .dropdown__menu .dropdown__link {
+html:not([data-theme="dark"]) .dropdown__menu .dropdown__link {
   color: var(--ifm-font-color-base);
 }
 

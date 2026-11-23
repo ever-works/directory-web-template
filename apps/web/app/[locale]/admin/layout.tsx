@@ -1,4 +1,12 @@
+import type { Metadata } from 'next';
 import AdminLayoutClient from "./layout-client";
+
+/**
+ * Private, per-visitor pages: never indexed (Spec 062). Pages below can still
+ * set their own `robots`; this is the default for the whole segment.
+ */
+export const metadata: Metadata = { robots: { index: false, follow: false } };
+
 
 // Per-visitor pages: always rendered per request, never cached. Public content pages
 // under `[locale]` are cached (ISR) since Spec 061; this keeps this segment as it was.

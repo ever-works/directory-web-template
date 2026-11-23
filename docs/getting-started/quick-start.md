@@ -232,6 +232,6 @@ Now that you have a working site:
 ## Getting Help
 
 - **Documentation**: Browse the full docs for detailed guides
-- **Examples**: Check the [demo site](https://demo.ever.works) for inspiration
+- **Examples**: Check the [demo site](https://dir.ever.works) for inspiration
 - **Community**: Join our [Discord](https://discord.gg/ever) for support
 - **Issues**: Report problems on [GitHub](https://github.com/ever-works/directory-web-template/issues)

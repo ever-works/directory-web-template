@@ -40,7 +40,7 @@ Bienvenue dans le centre de support Ever Works. Nous sommes là pour vous aider 
 
 ## Démonstration et exemples
 
-- **[Site de démonstration](https://demo.ever.works)** — Voir le modèle en action
+- **[Site de démonstration](https://dir.ever.works)** — Voir le modèle en action
 - **[Dépôt GitHub](https://github.com/ever-works/directory-web-template)** — Code source et exemples
 
 ## Dépannage

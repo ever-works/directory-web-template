@@ -1,7 +1,8 @@
-import { eq, sql, and, inArray, isNull, isNotNull } from 'drizzle-orm';
+import { eq, sql, and, isNotNull } from 'drizzle-orm';
 import { db } from '../drizzle';
 import { users, clientProfiles, accounts, roles, userRoles, type NewUser, type User } from '../schema';
 import { getTenantId } from '@/lib/auth/tenant';
+import { replacesEmailAddress } from '@/lib/auth/email-change';
 
 /**
  * Get user by email address
@@ -189,19 +190,18 @@ export async function updateUser(values: Pick<NewUser, 'email'>, userId: string)
 	if (!tenantId) throw new Error('Tenant ID not found');
 	const where = and(eq(users.id, userId), eq(users.tenantId, tenantId));
 	return db.transaction(async (tx) => {
-		const [current] = await tx.select({ email: users.email }).from(users).where(where).limit(1);
-		const normalise = (email: string | null | undefined) => (email ?? '').trim().toLowerCase();
-		const previousEmail = current?.email ?? null;
-		const emailChanged = current !== undefined && values.email !== undefined && normalise(previousEmail) !== normalise(values.email);
+		// Locks the row, so a concurrent address change or verification cannot land between the
+		// comparison and the write.
+		const [current] = await tx.select({ email: users.email }).from(users).where(where).limit(1).for('update');
+		const emailChanged = current !== undefined && replacesEmailAddress(current.email, values.email);
 		if (!emailChanged) return tx.update(users).set(values).where(where);
 
-		// A verification belongs to the address that was verified. Clear it, and bind the
-		// user's OAuth rows to the address they verified, so neither proves the new one
-		// (see `isEmailVerifiedForOwnership`).
-		await tx
-			.update(accounts)
-			.set({ email: previousEmail })
-			.where(and(eq(accounts.userId, userId), inArray(accounts.type, ['oauth', 'oidc']), isNull(accounts.email)));
+		// A verification belongs to the address that was verified: clear it so it does not prove
+		// the new one (see `isEmailVerifiedForOwnership`). OAuth rows are left alone. Each holds
+		// the address its provider proved (`lib/auth/oauth-link-email.ts`), which this change does
+		// not alter, and a row with no address proves nothing. Binding such a row to the previous
+		// address would let an address the user never proved (set earlier, unverified) count as
+		// proven once they changed it again.
 		return tx
 			.update(users)
 			.set({ ...values, emailVerified: null })

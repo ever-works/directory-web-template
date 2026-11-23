@@ -1,6 +1,14 @@
+import type { Metadata } from 'next';
 import { auth } from '@/lib/auth';
 import { isAdmin } from '@/lib/db/roles';
 import { NotificationStreamProvider } from '@/components/notifications';
+
+/**
+ * Private, per-visitor pages: never indexed (Spec 062). Pages below can still
+ * set their own `robots`; this is the default for the whole segment.
+ */
+export const metadata: Metadata = { robots: { index: false, follow: false } };
+
 
 /**
  * Spec 027 — wraps all /client/** routes in a single SSE subscription

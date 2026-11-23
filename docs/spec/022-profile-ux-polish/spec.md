@@ -150,6 +150,10 @@ persist across sessions, so that I can showcase work over time.
   jobTitle, bio, or location (case-insensitive); results paginate
   at 30/page; each row uses `ProfileRow` with a Follow button
   initialized from the viewer's follow state; admins are excluded.
+  Profiles whose `profileVisibility` is `private` are excluded too
+  ("Hidden from the people directory"), and a location whose
+  `locationPrivacy` is `private` (the default) is neither shown on
+  the row nor matched by the search, as on the profile page.
 - [ ] AC-19: The `/client/profile/<username>` page header card
   shows a "Discover users" link to `/client/users` for any
   authenticated viewer (alongside the Edit-profile / Follow
@@ -184,6 +188,19 @@ persist across sessions, so that I can showcase work over time.
   inline displayName editor invalidate the `auth-session`
   React-Query key on successful save so active subscribers
   refetch immediately.
+- [x] AC-23: The Private profile setting
+  (`client_profiles.profile_visibility = 'private'`) covers the
+  follow graph too. `/client/profile/<username>/followers` and
+  `/following` 404 for everyone but the owner, like the profile
+  page's private placeholder. `GET`, `POST` and `DELETE
+  /api/user/profile/follow/<username>` keep `isFollowing` (and
+  `GET` keeps `isSelf`) so follow buttons and the comment
+  hovercard still work, but answer `followers: null, following:
+  null` for a Private or deactivated target that is not the
+  viewer. `GET` 404s a deactivated target for everyone but its
+  owner. Guarded by
+  `apps/web/lib/db/queries/__tests__/follow-lists-private.spec.ts`
+  (T-2654).
 
 ## 7. Out-of-Scope Considerations
 

@@ -229,12 +229,28 @@ export async function GET(
  *                   example: false
  *                 error:
  *                   type: string
- *                   examples:
- *                     invalid_email: "Invalid email format"
- *                     invalid_username: "Username must be between 3 and 50 characters"
- *                     invalid_name: "Name must be between 2 and 100 characters"
- *                     invalid_role: "Invalid role"
- *                     invalid_status: "Invalid status. Must be \"active\" or \"inactive\""
+ *                   example: "Invalid email format"
+ *             examples:
+ *               invalid_email:
+ *                 value:
+ *                   success: false
+ *                   error: "Invalid email format"
+ *               invalid_username:
+ *                 value:
+ *                   success: false
+ *                   error: "Username must be between 3 and 50 characters"
+ *               invalid_name:
+ *                 value:
+ *                   success: false
+ *                   error: "Name must be between 2 and 100 characters"
+ *               invalid_role:
+ *                 value:
+ *                   success: false
+ *                   error: "Invalid role"
+ *               invalid_status:
+ *                 value:
+ *                   success: false
+ *                   error: "Invalid status. Must be \"active\" or \"inactive\""
  *       401:
  *         description: "Unauthorized - Authentication required"
  *         content:

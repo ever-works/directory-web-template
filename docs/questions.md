@@ -54,7 +54,7 @@ confirm, override, or refine.
 - **Owner.** Maintainers.
 - **Status.** open
 
-### Q-061c Runtime page cache: memory only, 64 MB
+### Q-061c Runtime page cache: memory only, 256 MB
 
 - **Context.** With public pages cached, a 4,000-item, 21-locale directory has ~86,000
   cacheable pages, each counted as ~0.65 MB (measured ~0.9 MB of heap); Next.js writes
@@ -62,8 +62,10 @@ confirm, override, or refine.
 - **Options.**
   - Disk (Next.js default): unbounded growth of the pod filesystem.
   - Memory only, LRU-bounded; a CDN in front holds the long tail.
-- **Default.** **Memory only, `NEXT_CACHE_MAX_MEMORY_MB=64`** (under ~90 MB of heap; sites
-  on 2 GiB pods were OOM-killed); `NEXT_ISR_FLUSH_TO_DISK=true` (read at server start by
+- **Default.** **Memory only, `NEXT_CACHE_MAX_MEMORY_MB=256`** (~390 pages in ~360 MB of
+  heap; the measured peak stays near ~1.45 GB on the 2 GiB pods, where sites were
+  OOM-killed before Spec 061; the first default, 64, held ~70 pages and crawlers evicted
+  even the home page); `NEXT_ISR_FLUSH_TO_DISK=true` (read at server start by
   `apps/web/cache-handler.cjs`) restores disk writes. Optimized images keep Next's disk cache.
 - **Owner.** Maintainers.
 - **Status.** open
@@ -147,6 +149,76 @@ confirm, override, or refine.
 - **Default.** **Keep the stored plan and update only status and dates**, and restrict `update-plan` and
   `update` to configured plan variants (spec 060 R12; the owner check is #1114). Only a dashboard change
   can still move a plan subscription to another variant.
+- **Owner.** Template maintainers.
+- **Status.** `open`.
+
+### Q-060c OAuth links made before links were bound to an address
+
+- **Context.** The LemonSqueezy ownership check now counts an `oauth` / `oidc` link only when its
+  `accounts.email` is the user's address, and `events.signIn` records the address the provider proved
+  (`lib/auth/oauth-link-email.ts`). Links written before have no address. They used to count as proof, which
+  let an OAuth-only user change their address to someone else's, link a second provider of their own and
+  then manage that person's LemonSqueezy subscriptions (Greptile on #1153).
+- **Options.**
+  - Backfill empty rows from `users.email` (cannot tell an address changed before the fix from one the
+    provider proved, so it would keep the gap open for those users).
+  - Backfill OIDC rows from the stored `id_token`'s `email` / `email_verified` claims (covers Google, not
+    GitHub, and reads a token whose signature is not checked again).
+  - No backfill: an empty row proves nothing; the next sign-in through that provider records its address, and
+    the user can verify the address by email meanwhile.
+- **Default.** **No backfill, and forget what is there.** Migration `0045_unbind_oauth_link_emails` clears
+  `accounts.email` on every OAuth / OIDC row: the only addresses on those rows were copied from `users.email`
+  by `updateUser` (#1123), not proved by a provider, and could be an address the user set but never proved.
+  Ever Works has no real users yet; a user hit by it gets the 403 `EMAIL_NOT_VERIFIED`, whose message names
+  both ways out.
+- **Owner.** Template maintainers.
+- **Status.** `open`.
+
+### Q-060d Providers that do not say whether the address is verified
+
+- **Context.** A link's address is recorded unless the profile says it is not verified (`email_verified:
+  false`, or Google's older `verified_email: false`). GitHub's profile carries no such claim (Auth.js picks the
+  primary email), and Microsoft Entra ID's `email` claim is not verified by Microsoft.
+- **Options.** Trust every configured provider's address; keep a per-provider allowlist of providers whose
+  address counts; for GitHub, read `/user/emails` and record only a verified primary address.
+- **Default.** **Trust every configured provider**, as before this change. Revisit before enabling a provider
+  whose email claim is user-editable (Entra ID multi-tenant apps).
+- **Owner.** Template maintainers.
+- **Status.** `open`.
+
+### Q-060e What the LemonSqueezy subscription amount means
+
+- **Context.** Subscription events carry no price, so the webhook reads `first_subscription_item.price_id` from
+  the Prices API: `unit_price` (cents) and the renewal period. Prices carry no currency (it is the store's), so
+  a new row is stored as `usd` until the first paid invoice writes the charged currency (#1152); the amount
+  itself is right in any currency because LemonSqueezy uses cents everywhere. `unit_price` is the list price per
+  period: discounts and tax are not in it, and usage-based or tiered prices store no amount.
+- **Options.** List price per period (now); read the store's currency on create (one more API call per new
+  subscription); take the amount from the invoices instead.
+- **Default.** **List price per period, currency from the first invoice.** The invoice amounts (`amountDue`,
+  `amountPaid`) already record what was charged. When the Prices API cannot be read, a monthly / yearly variant
+  of `LEMONSQUEEZY_CONFIG` still sets the period and the amount stays as it was.
+- **Owner.** Template maintainers.
+- **Status.** `open`.
+
+---
+
+## Spec 009 — Admin dashboard
+
+### Q-009a Report retries that leave no history row
+
+- **Context.** `PUT /api/admin/reports/{id}` runs the moderation action before it saves the report. A retry
+  after a failed save finishes the save without acting twice, using the `moderation_history` rows this report
+  wrote as proof (`lib/services/report-moderation.ts`). Two cases leave no row: `banUser` / `suspendUser` change
+  the user and then write the history row in two statements (if the second fails the retry answers 409
+  `ALREADY_BANNED`), and `removeContent` writes no row for content whose owner has no client profile (the retry
+  answers 409 `NOT_FOUND`).
+- **Options.** Write the status change and the history row in one transaction; give `moderation_history` a
+  nullable user so ownerless removals are recorded; treat any `ALREADY_*` or `NOT_FOUND` for the same
+  resolution as done (would also accept a ban made by another report, or an item that is only unreadable, as
+  this report's doing).
+- **Default.** **Keep the 409** for both. The admin sees the message and can save the report with another
+  resolution; the transaction and a nullable history user are the follow-ups.
 - **Owner.** Template maintainers.
 - **Status.** `open`.
 
@@ -849,6 +921,73 @@ confirm, override, or refine.
 - **Status.** `resolved` (PR #1048).
 
 ---
+
+## Spec 062 — Agent access and SEO
+
+### Q-062a When to publish `data_repository`
+
+- **Context.** `DirectoryInfo.data_repository` tells agents they may clone the data. The site only knows
+  `DATA_REPOSITORY`, not whether that repository is public.
+- **Options.**
+  - Publish it only when no GitHub token is configured (`GH_TOKEN`, `GITHUB_TOKEN`, the Spec 054
+    broker): without a token the clone only works for a public repository.
+  - Always publish it (credentials stripped).
+  - An explicit `works.yml` / env switch.
+- **Default.** **Only without a token** (conservative: most platform sites have a token and report
+  `null`). Credentials in the URL are never published.
+- **Owner.** Maintainers.
+- **Status.** open
+
+### Q-062b `updated_at` format in the Read API
+
+- **Context.** Item YAML holds `updated_at` as written (`2026-11-05`, `2026-11-05 10:00`, ISO).
+- **Options.** Publish the raw value (the minimal template does) or normalise to ISO-8601.
+- **Default.** **Raw value**, ISO only when the YAML has none but a parsed date exists (same output
+  as the minimal template). Ordering parses it: `date-desc` / `date-asc` and `DirectoryInfo.updated_at`
+  compare instants, so `2026-11-05T10:00:00+02:00` is older than `2026-11-05T09:00:00Z`. A value that
+  does not parse (or is missing) sorts after every dated item in both directions and is never the
+  directory's `updated_at`. (PR #1181 review; the minimal template still compares strings.)
+- **Owner.** Maintainers (both templates).
+- **Status.** open
+
+### Q-062c `related` slugs of `ItemDetail`
+
+- **Context.** The minimal template takes `related` from its related-items plugin (1 per shared tag, 2
+  for a shared category, +0.5 featured, top 5; a featured item with nothing in common also qualifies).
+- **Options.** Same rule; or require at least one shared tag or category.
+- **Default.** **Same weights and top 5, but a shared tag or category is required** (featured alone
+  is not "similar"). Align both templates when the contract gets a v1.1.
+- **Owner.** Maintainers (both templates).
+- **Status.** open
+
+### Q-062d Sitemap size with hreflang alternates
+
+- **Context.** Each sitemap entry now carries 22 `xhtml:link` alternates (21 locales + x-default),
+  the same set the pages declare. 4,000 items make a ~9 MB sitemap (limit 50 MB / 50,000 URLs).
+- **Options.** Keep one sitemap; split into a sitemap index (`generateSitemaps`) per section.
+- **Default.** **One sitemap** until a directory approaches the limits; a split is a follow-up.
+- **Owner.** Maintainers.
+- **Status.** open
+
+### Q-062e Share the agent-access code with the minimal template as a package
+
+- **Context.** `apps/web/lib/agent-access/` mirrors the minimal template's `packages/agent-api`.
+- **Options.** Keep two copies (tests pin the same behaviour); publish one package both use.
+- **Default.** **Two copies for now**; the full template's content types differ (populated
+  `{ id, name }` categories, Markdown in files). A shared package is a follow-up once the contract
+  settles.
+- **Owner.** Maintainers.
+- **Status.** open
+
+### Q-062f Relative `logo` / `images` URLs
+
+- **Context.** Item YAML may hold site-relative paths (`/logos/x.png`). The minimal template drops
+  anything that is not an absolute http(s) URL.
+- **Options.** Drop them (minimal) or resolve them against the site origin.
+- **Default.** **Resolve them** to absolute URLs on the site origin (still `string | null`, still
+  absolute): a relative logo is a real logo.
+- **Owner.** Maintainers (both templates).
+- **Status.** open
 
 ## How to add a question
 

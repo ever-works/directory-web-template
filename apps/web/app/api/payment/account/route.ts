@@ -88,10 +88,7 @@ const SUPPORTED_PROVIDERS: ReadonlySet<string> = new Set(Object.values(PaymentPr
  *               properties:
  *                 error:
  *                   type: string
- *                   examples:
- *                     missing_provider: "Provider is required"
- *                     missing_user: "User ID is required"
- *                     missing_customer: "Customer ID is required"
+ *                   example: "Provider is required"
  *             examples:
  *               missing_provider:
  *                 summary: "Missing provider"
@@ -268,11 +265,7 @@ export async function POST(request: NextRequest) {
  *               properties:
  *                 error:
  *                   type: string
- *                   examples:
- *                     missing_id: "Account ID is required"
- *                     missing_provider: "Provider is required"
- *                     missing_user: "User ID is required"
- *                     missing_customer: "Customer ID is required"
+ *                   example: "Account ID is required"
  *             examples:
  *               missing_id:
  *                 summary: "Missing account ID"

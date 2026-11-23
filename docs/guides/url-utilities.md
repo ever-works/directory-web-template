@@ -105,7 +105,7 @@ The base URL is resolved through a priority chain:
 
 1. `NEXT_PUBLIC_APP_URL` environment variable (cleaned and validated)
 2. `VERCEL_URL` environment variable (with `https://` prepended)
-3. Hardcoded fallback: `https://demo.ever.works`
+3. Hardcoded fallback: `https://dir.ever.works`
 
 Each step includes validation. If an environment variable is set but produces an invalid URL after cleaning, a console warning is emitted and the next fallback is tried.
 
@@ -231,7 +231,7 @@ The URL resolution follows a clear priority chain across both modules:
 | 3 | `siteConfig.url` | `server-url.ts` | Server-side fallback |
 | 4 | `NEXT_PUBLIC_APP_URL` | `url-cleaner.ts` | Used by `getBaseUrl()` |
 | 5 | `VERCEL_URL` | `url-cleaner.ts` | Vercel deployment fallback |
-| 6 | `https://demo.ever.works` | `url-cleaner.ts` | Hardcoded last resort |
+| 6 | `https://dir.ever.works` | `url-cleaner.ts` | Hardcoded last resort |
 
 ## Source Files
 

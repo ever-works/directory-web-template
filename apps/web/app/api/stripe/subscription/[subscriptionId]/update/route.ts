@@ -117,9 +117,7 @@ import { getTenantId } from '@/lib/auth/tenant';
  *               properties:
  *                 error:
  *                   type: string
- *                   examples:
- *                     invalid_plan: "Invalid plan ID"
- *                     not_active: "Subscription is not active"
+ *                   example: "Invalid plan ID"
  *             examples:
  *               invalid_plan:
  *                 summary: "Invalid plan ID"
@@ -225,7 +223,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
 
 		const appUrl =
 			process.env.NEXT_PUBLIC_APP_URL ??
-			(process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://demo.ever.works');
+			(process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'https://dir.ever.works');
 
 		// Send plan change email
 		try {

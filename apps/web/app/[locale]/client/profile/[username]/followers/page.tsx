@@ -38,6 +38,11 @@ export default async function ProfileFollowersPage({
 		notFound();
 	}
 
+	// A Private profile keeps its follow lists to its owner, like the profile page itself.
+	if (profile.profileVisibility === 'private' && viewerUserId !== profile.userId) {
+		notFound();
+	}
+
 	const [total, followers] = await Promise.all([
 		getFollowerCount(profile.userId),
 		listFollowers(profile.userId, FOLLOW_LIST_PAGE_SIZE, (page - 1) * FOLLOW_LIST_PAGE_SIZE)

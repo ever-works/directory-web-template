@@ -27,4 +27,4 @@ Ever Works est une solution complète pour créer et gérer des sites web d'annu
 
 - **[GitHub](https://github.com/ever-works)** — Code source et signalement de problèmes
 - **[Discord](https://discord.gg/ever)** — Rejoindre la communauté
-- **[Site de démonstration](https://demo.ever.works)** — Voir le modèle en action
+- **[Site de démonstration](https://dir.ever.works)** — Voir le modèle en action

@@ -287,11 +287,24 @@ export async function GET(request: NextRequest) {
  *                   example: false
  *                 error:
  *                   type: string
- *                   examples:
- *                     missing_fields: "Missing required fields: name, description"
- *                     invalid_name_length: "Role name must be between 3 and 100 characters"
- *                     invalid_description_length: "Role description must be at most 500 characters"
- *                     invalid_id: "Unable to derive a valid role ID from name"
+ *                   example: "Missing required fields: name, description"
+ *             examples:
+ *               missing_fields:
+ *                 value:
+ *                   success: false
+ *                   error: "Missing required fields: name, description"
+ *               invalid_name_length:
+ *                 value:
+ *                   success: false
+ *                   error: "Role name must be between 3 and 100 characters"
+ *               invalid_description_length:
+ *                 value:
+ *                   success: false
+ *                   error: "Role description must be at most 500 characters"
+ *               invalid_id:
+ *                 value:
+ *                   success: false
+ *                   error: "Unable to derive a valid role ID from name"
  *       409:
  *         description: "Conflict - Role with similar name already exists"
  *         content:

@@ -58,10 +58,20 @@ import { checkAdminAuth } from '@/lib/auth/admin-guard';
  *                   example: false
  *                 error:
  *                   type: string
- *                   examples:
- *                     not_array: "categoryIds must be an array"
- *                     empty_array: "categoryIds array cannot be empty"
- *                     invalid_ids: "All category IDs must be strings"
+ *                   example: "categoryIds must be an array"
+ *             examples:
+ *               not_array:
+ *                 value:
+ *                   success: false
+ *                   error: "categoryIds must be an array"
+ *               empty_array:
+ *                 value:
+ *                   success: false
+ *                   error: "categoryIds array cannot be empty"
+ *               invalid_ids:
+ *                 value:
+ *                   success: false
+ *                   error: "All category IDs must be strings"
  *       401:
  *         description: "Unauthorized - Admin access required"
  *         content:

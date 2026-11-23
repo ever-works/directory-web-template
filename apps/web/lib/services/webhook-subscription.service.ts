@@ -13,7 +13,7 @@ import {
 } from '@/lib/db/schema';
 import { PaymentPlan, PaymentProvider } from '@/lib/constants';
 import { convertCentsToDecimal, convertNumberToDate, WebhookEventType } from '@/lib/payment/types/payment-types';
-import { toStoredAmount } from '@/lib/payment/stored-amount';
+import { toStoredAmount, updatedSubscriptionAmount } from '@/lib/payment/stored-amount';
 
 /**
  * The raw (pre-`formatData`) layout the service reads, for providers that adapt their events to it
@@ -39,7 +39,19 @@ export interface SubscriptionServiceInput {
 	/** An invoice's own id when `id` carries its subscription id (LemonSqueezy invoices). */
 	invoice_id?: string;
 	parent?: { subscription_details: { subscription: string } };
-	items?: { data: Array<{ price: { id?: string } }> };
+	items?: {
+		data: Array<{
+			price: {
+				id?: string;
+				/**
+				 * Price per billing period in the provider's minor unit. Missing: unknown, the stored amount
+				 * is kept on update. `null`: the price has no flat amount, so the stored amount is cleared.
+				 */
+				unit_amount?: number | null;
+				recurring?: { interval?: string; interval_count?: number };
+			};
+		}>;
+	};
 	[key: string]: unknown;
 }
 
@@ -287,12 +299,13 @@ export class WebhookSubscriptionService {
 				status: newStatus,
 				planId: response.planId || existingSubscription.planId,
 				endDate: convertNumberToDate(response.endDate as unknown as number) ?? existingSubscription.endDate,
-				amount:
-					response.planId === 'free'
-						? 0
-						: response.amount > 0
-							? toStoredAmount(response.amount, currency, this.paymentProvider)
-							: existingSubscription.amount,
+				amount: updatedSubscriptionAmount({
+					planId: response.planId,
+					minorAmount: response.amount,
+					currency,
+					provider: this.paymentProvider,
+					storedAmount: existingSubscription.amount
+				}),
 				priceId: response.priceId || existingSubscription.priceId,
 				currency,
 				interval: response.interval || existingSubscription.interval,
@@ -540,7 +553,9 @@ export class WebhookSubscriptionService {
 			// A failed payment never creates a row; with `createIfMissing: false` (LemonSqueezy) a missing
 			// one is not an error either: no retry can make it appear (spec 060 R15).
 			if (!existingSubscription && options.createIfMissing === false) {
-				console.log(`⚠️ Subscription ${response.subscriptionId} not found for payment failure; nothing to update`);
+				console.log(
+					`⚠️ Subscription ${response.subscriptionId} not found for payment failure; nothing to update`
+				);
 				return { success: true, message: 'Subscription not found; nothing to update' };
 			}
 

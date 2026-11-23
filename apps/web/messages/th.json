@@ -461,6 +461,7 @@
 		"PROMO_CODE": "Promo Code",
 		"SIMILAR_PRODUCTS": "ผลิตภัณฑ์ที่คล้ายกัน",
 		"SIMILAR_PRODUCTS_DESCRIPTION": "สำรวจรายการอื่นที่เกี่ยวข้อง",
+		"ALTERNATIVES_TO": "ทางเลือกแทน {name}",
 		"STATISTICS": "สถิติ",
 		"STATS_VIEWS": "การดู",
 		"STATS_VOTES": "โหวตขึ้น",
