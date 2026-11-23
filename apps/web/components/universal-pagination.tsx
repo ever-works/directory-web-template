@@ -1,4 +1,5 @@
 import { Pagination, cn } from '@heroui/react';
+import { useTranslations } from 'next-intl';
 
 interface UniversalPaginationProps {
 	page: number;
@@ -8,6 +9,8 @@ interface UniversalPaginationProps {
 }
 
 export function UniversalPagination({ page, totalPages, onPageChange, className = '' }: UniversalPaginationProps) {
+	const t = useTranslations('common');
+
 	if (totalPages <= 1) return null;
 
 	return (
@@ -15,14 +18,19 @@ export function UniversalPagination({ page, totalPages, onPageChange, className 
 			{/* Page info - small */}
 			<div className="text-center">
 				<p className="text-xs text-gray-500 dark:text-gray-400">
-					Page <span className="font-medium text-theme-primary dark:text-theme-primary">{page}</span> of{' '}
-					<span className="font-medium text-theme-primary dark:text-theme-primary">{totalPages}</span>
+					{t.rich('PAGINATION_PAGE_OF', {
+						current: page,
+						total: totalPages,
+						num: (chunks) => (
+							<span className="font-medium text-theme-primary dark:text-theme-primary">{chunks}</span>
+						)
+					})}
 				</p>
 			</div>
 
 			{/* Modern compact pagination */}
 			<Pagination
-				aria-label="pagination"
+				aria-label={t('PAGINATION_LABEL')}
 				showControls
 				total={totalPages}
 				page={page}
