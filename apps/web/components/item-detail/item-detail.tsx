@@ -18,6 +18,8 @@ import type { ItemData } from '@/lib/content';
 import type { ItemLocationData } from '@/lib/types/item';
 import { ItemStatsSection } from './item-stats-section';
 import dynamic from 'next/dynamic';
+import { Link } from '@/i18n/navigation';
+import { tagLabel, tagPath } from '@/lib/utils/tag-path';
 
 // Server-rendered (no `ssr: false`) so the similar items' links are in the HTML:
 // they are the item page's internal links to related items (Spec 062). Still a
@@ -124,7 +126,12 @@ function ItemDetailContent({
 	const { features, isPending: featureFlagsPending } = useFeatureFlagsWithSimulation();
 	const containerWidth = useContainerWidth();
 	const isFluid = containerWidth === 'fluid';
-	const tagNames = Array.isArray(meta.tags) ? meta.tags.map((tag) => (typeof tag === 'string' ? tag : tag.name)) : [];
+	// Tags without text or a usable path are left out rather than linked to `/tags/`.
+	const tagLinks = (Array.isArray(meta.tags) ? meta.tags : []).flatMap((tag) => {
+		const label = tagLabel(tag);
+		const href = tagPath(tag);
+		return label && href ? [{ label, href }] : [];
+	});
 	const firstCategory = Array.isArray(meta.category) ? meta.category[0] : meta.category;
 	const rawCategoryId = typeof firstCategory === 'string'
 		? firstCategory
@@ -446,18 +453,18 @@ function ItemDetailContent({
 									</span>
 								</div>
 								<div className="flex flex-wrap gap-2">
-									<a
+									<Link
 										href={`/categories/${encodedCategory}`}
 										className="inline-flex items-center px-3 py-1 text-xs font-semibold rounded-full bg-white dark:bg-white/5 text-gray-700 dark:text-gray-500 border border-gray-200 dark:border-white/8 transition-all duration-300 hover:bg-gray-50 dark:hover:bg-white/8 capitalize"
 									>
 										{toTitleCase(categoryName)}
-									</a>
+									</Link>
 								</div>
 							</div>
 						)}
 
 						{/* Tags - Only show if tags exist and tags are enabled */}
-						{tagsEnabled && tagNames.length > 0 && (
+						{tagsEnabled && tagLinks.length > 0 && (
 							<div className="bg-white dark:bg-white/3 rounded-xl p-3 border border-gray-200 dark:border-white/6 shadow-sm">
 								<div className="flex justify-between mb-4">
 									<div className="flex items-center gap-4">
@@ -482,18 +489,18 @@ function ItemDetailContent({
 										</h2>
 									</div>
 									<span className="text-xs text-gray-500">
-										{tagNames.length} {tagNames.length === 1 ? t('common.ITEM') : t('common.ITEMS')}
+										{tagLinks.length} {tagLinks.length === 1 ? t('common.ITEM') : t('common.ITEMS')}
 									</span>
 								</div>
 								<div className="flex flex-wrap gap-1">
-									{tagNames.map((tag, index) => (
-										<a
+									{tagLinks.map((tag, index) => (
+										<Link
 											key={index}
-											href={`/tags/${tag}`}
+											href={tag.href}
 											className="inline-flex items-center px-2 py-1 text-xs font-medium text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 rounded-md hover:bg-gray-100 dark:hover:bg-white/6 transition-all duration-300"
 										>
-											#{tag}
-										</a>
+											#{tag.label}
+										</Link>
 									))}
 								</div>
 							</div>

@@ -7,6 +7,10 @@ sidebar_position: 99
 
 # Documentation & Specs Change Log
 
+## 2026-11-23
+
+- `apps/web/components/item-detail/item-detail.tsx` `apps/web/lib/utils/tag-path.ts`: the item page's sidebar category and tag links were plain `<a href>` that dropped the locale (a French page linked to the default-locale listing), and the tag href was built from the raw tag text, so `a/b`, `what?`, `c#` or `100%` produced a broken URL or a 404. Both now use the locale-aware `Link`, and the tag path is percent-encoded (`tagPath()`, `lib/utils/__tests__/tag-path.spec.ts`); a tag with no text is no longer linked to `/tags/`. Small defect fix, no spec; PR number to be added when opened.
+
 ## 2026-11-21
 
 - `apps/web` URL fallbacks (`APP_URL` / `NEXT_PUBLIC_APP_URL` unset and no `VERCEL_URL`: `lib/config*`, `lib/utils/url-cleaner.ts`, mail, payment, surveys and Stripe/Polar routes, the help page example and mock URL bar, the seed's sample icon URLs) and the docs that describe them (`configuration/feature-config.md`, `architecture/utils-reference.md` and their translations): `https://demo.ever.works` -> `https://dir.ever.works`, the template's live example (owner ruling R45). Seed e-mail identities (`admin@demo.ever.works`) and history notes are unchanged. PR #1176.
