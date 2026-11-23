@@ -305,7 +305,7 @@ isValidAbsoluteUrl('')                     // false
 Возвращает нормализованный базовый URL-адрес приложения с резервной цепочкой:
 
 ```
-Priority: NEXT_PUBLIC_APP_URL -> VERCEL_URL -> https://demo.ever.works
+Priority: NEXT_PUBLIC_CANONICAL_URL (valid origin) -> NEXT_PUBLIC_APP_URL -> VERCEL_URL -> https://dir.ever.works
 ```
 
 ### построитьUrl

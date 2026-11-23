@@ -180,10 +180,16 @@ test('LemonSqueezy amounts are cents in every currency', () => {
 test('the subscription service passes the currency to every stored amount', () => {
 	const source = readFileSync(join(__dirname, '../../services/webhook-subscription.service.ts'), 'utf8');
 	const calls = source.match(/toStoredAmount\([^)]*\)/g) ?? [];
-	assert.ok(calls.length >= 4, 'expected the amount, amount_due and amount_paid writes');
+	assert.ok(calls.length >= 3, 'expected the created amount, amount_due and amount_paid writes');
 	for (const call of calls) {
 		assert.match(call, /, (currency|response\.currency), this\.paymentProvider\)$/, `${call} drops the currency or provider`);
 	}
+	// The update's amount goes through updatedSubscriptionAmount (stored-amount.ts), with both.
+	const update = source.replace(/\s+/g, ' ').match(/updatedSubscriptionAmount\(\{[^}]*\}\)/)?.[0] ?? '';
+	assert.ok(
+		update.includes(' currency,') && update.includes('provider: this.paymentProvider'),
+		`${update} drops the currency or provider`
+	);
 
 	// An invoice carries the charged currency, which a LemonSqueezy subscription event never does.
 	const start = source.indexOf('async handleSubscriptionPaymentSucceeded(');

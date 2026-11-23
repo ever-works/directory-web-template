@@ -886,13 +886,24 @@
 										},
 										"message": {
 											"type": "string",
-											"examples": {
-												"soft_delete": "Category deactivated successfully",
-												"hard_delete": "Category permanently deleted"
-											}
+											"example": "Category deactivated successfully"
 										}
 									},
 									"required": ["success", "message"]
+								},
+								"examples": {
+									"soft_delete": {
+										"value": {
+											"success": true,
+											"message": "Category deactivated successfully"
+										}
+									},
+									"hard_delete": {
+										"value": {
+											"success": true,
+											"message": "Category permanently deleted"
+										}
+									}
 								}
 							}
 						}
@@ -972,63 +983,112 @@
 				],
 				"responses": {
 					"200": {
-						"description": "Git repository status retrieved successfully",
+						"description": "Git repository status retrieved successfully, or Git sync is not configured (success false, configured false: DATA_REPOSITORY missing or invalid, or no GitHub token)",
 						"content": {
 							"application/json": {
 								"schema": {
-									"type": "object",
-									"properties": {
-										"success": {
-											"type": "boolean",
-											"example": true
-										},
-										"status": {
+									"oneOf": [
+										{
 											"type": "object",
-											"description": "Git repository status information"
-										},
-										"categories": {
-											"type": "array",
-											"items": {
-												"$ref": "#/components/schemas/Category"
+											"description": "Git repository status and categories",
+											"properties": {
+												"success": {
+													"type": "boolean",
+													"example": true
+												},
+												"status": {
+													"type": "object",
+													"description": "Git repository status information"
+												},
+												"categories": {
+													"type": "array",
+													"items": {
+														"$ref": "#/components/schemas/Category"
+													},
+													"description": "List of categories from Git repository"
+												},
+												"message": {
+													"type": "string",
+													"example": "Git repository status retrieved successfully"
+												}
 											},
-											"description": "List of categories from Git repository"
+											"required": ["success", "status", "categories", "message"]
 										},
-										"message": {
-											"type": "string",
-											"example": "Git repository status retrieved successfully"
+										{
+											"type": "object",
+											"description": "Git sync is not configured",
+											"properties": {
+												"success": {
+													"type": "boolean",
+													"example": false
+												},
+												"configured": {
+													"type": "boolean",
+													"example": false
+												},
+												"error": {
+													"type": "string",
+													"example": "DATA_REPOSITORY not configured. Please set DATA_REPOSITORY environment variable."
+												}
+											},
+											"required": ["success", "configured", "error"]
 										}
-									},
-									"required": ["success", "status", "categories", "message"]
+									]
 								},
-								"example": {
-									"success": true,
-									"status": {
-										"repository": "ever-co/awesome-time-tracking-data",
-										"branch": "main",
-										"lastCommit": "abc123def456",
-										"lastCommitDate": "2024-01-20T10:30:00.000Z",
-										"lastCommitMessage": "Update categories data",
-										"isUpToDate": true
-									},
-									"categories": [
-										{
-											"id": "productivity",
-											"name": "Productivity",
-											"isActive": true,
-											"itemCount": 15,
-											"createdAt": "2024-01-15T10:30:00.000Z",
-											"updatedAt": "2024-01-15T10:30:00.000Z"
-										},
-										{
-											"id": "design",
-											"name": "Design",
-											"isActive": true,
-											"itemCount": 8,
-											"createdAt": "2024-01-16T11:20:00.000Z",
-											"updatedAt": "2024-01-16T11:20:00.000Z"
+								"examples": {
+									"success": {
+										"value": {
+											"success": true,
+											"status": {
+												"repository": "ever-co/awesome-time-tracking-data",
+												"branch": "main",
+												"lastCommit": "abc123def456",
+												"lastCommitDate": "2024-01-20T10:30:00.000Z",
+												"lastCommitMessage": "Update categories data",
+												"isUpToDate": true
+											},
+											"categories": [
+												{
+													"id": "productivity",
+													"name": "Productivity",
+													"isActive": true,
+													"itemCount": 15,
+													"createdAt": "2024-01-15T10:30:00.000Z",
+													"updatedAt": "2024-01-15T10:30:00.000Z"
+												},
+												{
+													"id": "design",
+													"name": "Design",
+													"isActive": true,
+													"itemCount": 8,
+													"createdAt": "2024-01-16T11:20:00.000Z",
+													"updatedAt": "2024-01-16T11:20:00.000Z"
+												}
+											],
+											"message": "Git repository status retrieved successfully"
 										}
-									],
-									"message": "Git repository status retrieved successfully"
+									},
+									"config_missing": {
+										"value": {
+											"success": false,
+											"configured": false,
+											"error": "DATA_REPOSITORY not configured. Please set DATA_REPOSITORY environment variable."
+										}
+									},
+									"invalid_format": {
+										"value": {
+											"success": false,
+											"configured": false,
+											"error": "Invalid DATA_REPOSITORY format. Expected: https://github.com/owner/repo"
+										}
+									},
+									"token_missing": {
+										"value": {
+											"success": false,
+											"configured": false,
+											"error": "GitHub token not configured. Please set GITHUB_TOKEN environment variable."
+										}
+									}
 								}
 							}
 						}
@@ -1050,7 +1110,7 @@
 						}
 					},
 					"500": {
-						"description": "Server error - Configuration or Git issues",
+						"description": "Server error - Git issues",
 						"content": {
 							"application/json": {
 								"schema": {
@@ -1062,14 +1122,13 @@
 										},
 										"error": {
 											"type": "string",
-											"examples": {
-												"config_missing": "DATA_REPOSITORY not configured. Please set DATA_REPOSITORY environment variable.",
-												"invalid_format": "Invalid DATA_REPOSITORY format. Expected: https://github.com/owner/repo",
-												"token_missing": "GitHub token not configured. Please set GITHUB_TOKEN environment variable.",
-												"git_error": "Failed to get Git repository status"
-											}
+											"example": "Failed to get Git repository status"
 										}
 									}
+								},
+								"example": {
+									"success": false,
+									"error": "Failed to get Git repository status"
 								}
 							}
 						}
@@ -1214,12 +1273,33 @@
 										},
 										"error": {
 											"type": "string",
-											"examples": {
-												"config_missing": "DATA_REPOSITORY not configured. Please set DATA_REPOSITORY environment variable.",
-												"invalid_format": "Invalid DATA_REPOSITORY format. Expected: https://github.com/owner/repo",
-												"token_missing": "GitHub token not configured. Please set GH_TOKEN environment variable.",
-												"git_error": "Failed to create category via Git"
-											}
+											"example": "DATA_REPOSITORY not configured. Please set DATA_REPOSITORY environment variable."
+										}
+									}
+								},
+								"examples": {
+									"config_missing": {
+										"value": {
+											"success": false,
+											"error": "DATA_REPOSITORY not configured. Please set DATA_REPOSITORY environment variable."
+										}
+									},
+									"invalid_format": {
+										"value": {
+											"success": false,
+											"error": "Invalid DATA_REPOSITORY format. Expected: https://github.com/owner/repo"
+										}
+									},
+									"token_missing": {
+										"value": {
+											"success": false,
+											"error": "GitHub token not configured. Please set GH_TOKEN environment variable."
+										}
+									},
+									"git_error": {
+										"value": {
+											"success": false,
+											"error": "Failed to create category via Git"
 										}
 									}
 								}
@@ -1300,11 +1380,27 @@
 										},
 										"error": {
 											"type": "string",
-											"examples": {
-												"not_array": "categoryIds must be an array",
-												"empty_array": "categoryIds array cannot be empty",
-												"invalid_ids": "All category IDs must be strings"
-											}
+											"example": "categoryIds must be an array"
+										}
+									}
+								},
+								"examples": {
+									"not_array": {
+										"value": {
+											"success": false,
+											"error": "categoryIds must be an array"
+										}
+									},
+									"empty_array": {
+										"value": {
+											"success": false,
+											"error": "categoryIds array cannot be empty"
+										}
+									},
+									"invalid_ids": {
+										"value": {
+											"success": false,
+											"error": "All category IDs must be strings"
 										}
 									}
 								}
@@ -1659,10 +1755,21 @@
 										},
 										"error": {
 											"type": "string",
-											"examples": {
-												"missing_name": "Category name is required",
-												"invalid_format": "Category name must be at least 2 characters"
-											}
+											"example": "Category name is required"
+										}
+									}
+								},
+								"examples": {
+									"missing_name": {
+										"value": {
+											"success": false,
+											"error": "Category name is required"
+										}
+									},
+									"invalid_format": {
+										"value": {
+											"success": false,
+											"error": "Category name must be at least 2 characters long"
 										}
 									}
 								}
@@ -3610,13 +3717,33 @@
 								"schema": {
 									"type": "object",
 									"properties": {
+										"success": {
+											"type": "boolean",
+											"example": false
+										},
 										"error": {
 											"type": "string",
-											"examples": {
-												"missing_email": "Email is required",
-												"user_creation_failed": "Failed to create user: [error details]",
-												"invalid_user": "Failed to create or find user for client"
-											}
+											"example": "Email is required"
+										}
+									}
+								},
+								"examples": {
+									"missing_email": {
+										"value": {
+											"success": false,
+											"error": "Email is required"
+										}
+									},
+									"user_creation_failed": {
+										"value": {
+											"success": false,
+											"error": "Failed to create user: [error details]"
+										}
+									},
+									"invalid_user": {
+										"value": {
+											"success": false,
+											"error": "Failed to create or find user for client"
 										}
 									}
 								}
@@ -5872,10 +5999,21 @@
 										},
 										"error": {
 											"type": "string",
-											"examples": {
-												"missing_fields": "Item slug and name are required",
-												"already_featured": "Item is already featured"
-											}
+											"example": "Item slug and name are required"
+										}
+									}
+								},
+								"examples": {
+									"missing_fields": {
+										"value": {
+											"success": false,
+											"error": "Item slug and name are required"
+										}
+									},
+									"already_featured": {
+										"value": {
+											"success": false,
+											"error": "Item is already featured"
 										}
 									}
 								}
@@ -6968,10 +7106,21 @@
 										},
 										"error": {
 											"type": "string",
-											"examples": {
-												"duplicate_id": "Item with ID 'item_123abc' already exists",
-												"duplicate_slug": "Item with slug 'awesome-tool' already exists"
-											}
+											"example": "Item with ID 'item_123abc' already exists"
+										}
+									}
+								},
+								"examples": {
+									"duplicate_id": {
+										"value": {
+											"success": false,
+											"error": "Item with ID 'item_123abc' already exists"
+										}
+									},
+									"duplicate_slug": {
+										"value": {
+											"success": false,
+											"error": "Item with slug 'awesome-tool' already exists"
 										}
 									}
 								}
@@ -8046,11 +8195,27 @@
 										},
 										"error": {
 											"type": "string",
-											"examples": {
-												"empty_name": "Role name cannot be empty",
-												"invalid_name_length": "Role name must be between 3 and 100 characters",
-												"invalid_description_length": "Role description must be at most 500 characters"
-											}
+											"example": "Role name cannot be empty"
+										}
+									}
+								},
+								"examples": {
+									"empty_name": {
+										"value": {
+											"success": false,
+											"error": "Role name cannot be empty"
+										}
+									},
+									"invalid_name_length": {
+										"value": {
+											"success": false,
+											"error": "Role name must be between 3 and 100 characters"
+										}
+									},
+									"invalid_description_length": {
+										"value": {
+											"success": false,
+											"error": "Role description must be at most 500 characters"
 										}
 									}
 								}
@@ -8187,10 +8352,7 @@
 										"message": {
 											"type": "string",
 											"description": "Success message indicating deletion type",
-											"examples": {
-												"soft_delete": "Role deleted (marked as inactive)",
-												"hard_delete": "Role permanently deleted"
-											}
+											"example": "Role deleted (marked as inactive)"
 										}
 									},
 									"required": ["success", "message"]
@@ -8666,12 +8828,33 @@
 										},
 										"error": {
 											"type": "string",
-											"examples": {
-												"missing_fields": "Missing required fields: name, description",
-												"invalid_name_length": "Role name must be between 3 and 100 characters",
-												"invalid_description_length": "Role description must be at most 500 characters",
-												"invalid_id": "Unable to derive a valid role ID from name"
-											}
+											"example": "Missing required fields: name, description"
+										}
+									}
+								},
+								"examples": {
+									"missing_fields": {
+										"value": {
+											"success": false,
+											"error": "Missing required fields: name, description"
+										}
+									},
+									"invalid_name_length": {
+										"value": {
+											"success": false,
+											"error": "Role name must be between 3 and 100 characters"
+										}
+									},
+									"invalid_description_length": {
+										"value": {
+											"success": false,
+											"error": "Role description must be at most 500 characters"
+										}
+									},
+									"invalid_id": {
+										"value": {
+											"success": false,
+											"error": "Unable to derive a valid role ID from name"
 										}
 									}
 								}
@@ -9057,10 +9240,21 @@
 										},
 										"error": {
 											"type": "string",
-											"examples": {
-												"missing_name": "Tag name is required",
-												"validation_error": "Tag name must be between 2 and 50 characters"
-											}
+											"example": "Tag name is required"
+										}
+									}
+								},
+								"examples": {
+									"missing_name": {
+										"value": {
+											"success": false,
+											"error": "Tag name is required"
+										}
+									},
+									"validation_error": {
+										"value": {
+											"success": false,
+											"error": "Tag name must be between 2 and 50 characters"
 										}
 									}
 								}
@@ -9539,10 +9733,21 @@
 										},
 										"error": {
 											"type": "string",
-											"examples": {
-												"missing_fields": "Tag ID and name are required",
-												"validation_error": "Tag name must be between 2 and 50 characters"
-											}
+											"example": "Tag ID and name are required"
+										}
+									}
+								},
+								"examples": {
+									"missing_fields": {
+										"value": {
+											"success": false,
+											"error": "Tag ID and name are required"
+										}
+									},
+									"validation_error": {
+										"value": {
+											"success": false,
+											"error": "Tag name must be between 2 and 50 characters"
 										}
 									}
 								}
@@ -9880,13 +10085,39 @@
 										},
 										"error": {
 											"type": "string",
-											"examples": {
-												"invalid_email": "Invalid email format",
-												"invalid_username": "Username must be between 3 and 50 characters",
-												"invalid_name": "Name must be between 2 and 100 characters",
-												"invalid_role": "Invalid role",
-												"invalid_status": "Invalid status. Must be \"active\" or \"inactive\""
-											}
+											"example": "Invalid email format"
+										}
+									}
+								},
+								"examples": {
+									"invalid_email": {
+										"value": {
+											"success": false,
+											"error": "Invalid email format"
+										}
+									},
+									"invalid_username": {
+										"value": {
+											"success": false,
+											"error": "Username must be between 3 and 50 characters"
+										}
+									},
+									"invalid_name": {
+										"value": {
+											"success": false,
+											"error": "Name must be between 2 and 100 characters"
+										}
+									},
+									"invalid_role": {
+										"value": {
+											"success": false,
+											"error": "Invalid role"
+										}
+									},
+									"invalid_status": {
+										"value": {
+											"success": false,
+											"error": "Invalid status. Must be \"active\" or \"inactive\""
 										}
 									}
 								}
@@ -10604,13 +10835,39 @@
 										},
 										"error": {
 											"type": "string",
-											"examples": {
-												"invalid_page": "Invalid page parameter. Must be a positive integer.",
-												"invalid_limit": "Invalid limit parameter. Must be between 1 and 100.",
-												"invalid_status": "Invalid status parameter",
-												"invalid_sort": "Invalid sortBy parameter",
-												"search_too_long": "Search parameter too long"
-											}
+											"example": "Invalid page parameter. Must be a positive integer."
+										}
+									}
+								},
+								"examples": {
+									"invalid_page": {
+										"value": {
+											"success": false,
+											"error": "Invalid page parameter. Must be a positive integer."
+										}
+									},
+									"invalid_limit": {
+										"value": {
+											"success": false,
+											"error": "Invalid limit parameter. Must be between 1 and 100."
+										}
+									},
+									"invalid_status": {
+										"value": {
+											"success": false,
+											"error": "Invalid status parameter"
+										}
+									},
+									"invalid_sort": {
+										"value": {
+											"success": false,
+											"error": "Invalid sortBy parameter"
+										}
+									},
+									"search_too_long": {
+										"value": {
+											"success": false,
+											"error": "Search parameter too long"
 										}
 									}
 								}
@@ -10794,16 +11051,45 @@
 										},
 										"error": {
 											"type": "string",
-											"examples": {
-												"missing_fields": "Missing required fields: username, email, name, password, and role are required",
-												"invalid_email": "Invalid email format",
-												"invalid_username": "Username must be 3-30 characters and contain only letters, numbers, dashes, and underscores",
-												"invalid_name": "Name must be between 2 and 100 characters",
-												"weak_password": "Password must be at least 8 characters long",
-												"invalid_role": "Invalid role",
-												"duplicate_email": "Email already exists",
-												"duplicate_username": "Username already exists"
-											}
+											"example": "Missing required fields: username, email, name, password, and role are required"
+										}
+									}
+								},
+								"examples": {
+									"missing_fields": {
+										"value": {
+											"success": false,
+											"error": "Missing required fields: username, email, name, password, and role are required"
+										}
+									},
+									"invalid_email": {
+										"value": {
+											"success": false,
+											"error": "Invalid email format"
+										}
+									},
+									"invalid_username": {
+										"value": {
+											"success": false,
+											"error": "Username must be 3-30 characters and contain only letters, numbers, dashes, and underscores"
+										}
+									},
+									"invalid_name": {
+										"value": {
+											"success": false,
+											"error": "Name must be between 2 and 100 characters"
+										}
+									},
+									"weak_password": {
+										"value": {
+											"success": false,
+											"error": "Password must be at least 8 characters"
+										}
+									},
+									"invalid_role": {
+										"value": {
+											"success": false,
+											"error": "Invalid role"
 										}
 									}
 								}
@@ -10846,6 +11132,30 @@
 											"example": "Forbidden"
 										}
 									}
+								}
+							}
+						}
+					},
+					"409": {
+						"description": "Conflict - Email already in use",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"success": {
+											"type": "boolean",
+											"example": false
+										},
+										"error": {
+											"type": "string",
+											"example": "Email already in use"
+										}
+									}
+								},
+								"example": {
+									"success": false,
+									"error": "Email already in use"
 								}
 							}
 						}
@@ -11241,10 +11551,74 @@
 						"description": "Redirect response for authentication flows"
 					},
 					"400": {
-						"description": "Bad request - Invalid parameters or configuration"
+						"description": "Bad request - Invalid parameters, or the requested OAuth provider (providerId) is not configured",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"error": {
+											"type": "object",
+											"properties": {
+												"message": {
+													"type": "string"
+												},
+												"code": {
+													"type": "string",
+													"enum": ["PROVIDER_NOT_CONFIGURED", "AUTH_ERROR"]
+												}
+											},
+											"required": ["message", "code"]
+										}
+									}
+								},
+								"examples": {
+									"provider_not_configured": {
+										"value": {
+											"error": {
+												"message": "Authentication provider \"github\" is not available.",
+												"code": "PROVIDER_NOT_CONFIGURED"
+											}
+										}
+									}
+								}
+							}
+						}
 					},
 					"500": {
-						"description": "Internal server error"
+						"description": "Internal server error - the Auth.js handler threw",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"error": {
+											"type": "object",
+											"properties": {
+												"message": {
+													"type": "string"
+												},
+												"code": {
+													"type": "string",
+													"enum": ["PROVIDER_NOT_CONFIGURED", "AUTH_ERROR"]
+												}
+											},
+											"required": ["message", "code"]
+										}
+									}
+								},
+								"examples": {
+									"auth_error": {
+										"value": {
+											"error": {
+												"message": "Authentication service error",
+												"code": "AUTH_ERROR"
+											}
+										}
+									}
+								}
+							}
+						}
 					}
 				}
 			},
@@ -11412,18 +11786,58 @@
 						"description": "Redirect response for successful authentication or OAuth flows"
 					},
 					"400": {
-						"description": "Bad request - Invalid credentials or missing CSRF token",
+						"description": "Bad request - Invalid credentials, missing CSRF token, or the requested OAuth provider (providerId) is not configured",
 						"content": {
 							"application/json": {
 								"schema": {
 									"type": "object",
 									"properties": {
 										"error": {
-											"type": "string",
-											"examples": {
-												"invalid_credentials": "Invalid email or password",
-												"missing_csrf": "CSRF token missing",
-												"invalid_email": "Invalid email format"
+											"oneOf": [
+												{
+													"type": "string",
+													"example": "Invalid email or password"
+												},
+												{
+													"type": "object",
+													"description": "Returned when the providerId query parameter names an OAuth provider that is not configured",
+													"properties": {
+														"message": {
+															"type": "string",
+															"example": "Authentication provider \"github\" is not available."
+														},
+														"code": {
+															"type": "string",
+															"example": "PROVIDER_NOT_CONFIGURED"
+														}
+													},
+													"required": ["message", "code"]
+												}
+											]
+										}
+									}
+								},
+								"examples": {
+									"invalid_credentials": {
+										"value": {
+											"error": "Invalid email or password"
+										}
+									},
+									"missing_csrf": {
+										"value": {
+											"error": "CSRF token missing"
+										}
+									},
+									"invalid_email": {
+										"value": {
+											"error": "Invalid email format"
+										}
+									},
+									"provider_not_configured": {
+										"value": {
+											"error": {
+												"message": "Authentication provider \"github\" is not available.",
+												"code": "PROVIDER_NOT_CONFIGURED"
 											}
 										}
 									}
@@ -11451,15 +11865,34 @@
 						"description": "Too many requests - Rate limit exceeded"
 					},
 					"500": {
-						"description": "Internal server error",
+						"description": "Internal server error - the Auth.js handler threw",
 						"content": {
 							"application/json": {
 								"schema": {
 									"type": "object",
 									"properties": {
 										"error": {
-											"type": "string",
-											"example": "Internal server error"
+											"type": "object",
+											"properties": {
+												"message": {
+													"type": "string"
+												},
+												"code": {
+													"type": "string",
+													"enum": ["PROVIDER_NOT_CONFIGURED", "AUTH_ERROR"]
+												}
+											},
+											"required": ["message", "code"]
+										}
+									}
+								},
+								"examples": {
+									"auth_error": {
+										"value": {
+											"error": {
+												"message": "Authentication service error",
+												"code": "AUTH_ERROR"
+											}
 										}
 									}
 								}
@@ -11549,12 +11982,7 @@
 										},
 										"error": {
 											"type": "string",
-											"examples": {
-												"validation_error": "Invalid input data",
-												"wrong_current": "Current password is incorrect",
-												"same_password": "New password must be different from current password",
-												"oauth_account": "Password change not available for OAuth accounts. Please contact support."
-											}
+											"example": "Invalid input data"
 										},
 										"details": {
 											"type": "array",
@@ -12611,9 +13039,14 @@
 							"text/plain": {
 								"schema": {
 									"type": "string",
-									"examples": {
-										"client_not_found": "Client profile not found",
-										"comment_not_found": "Comment not found or not authorized"
+									"example": "Comment not found or not authorized"
+								},
+								"examples": {
+									"client_not_found": {
+										"value": "Client profile not found"
+									},
+									"comment_not_found": {
+										"value": "Comment not found or not authorized"
 									}
 								}
 							}
@@ -12833,7 +13266,6 @@
 											"user": {
 												"id": "client_456def",
 												"name": "John Doe",
-												"email": "john.doe@example.com",
 												"avatar": "https://example.com/avatars/john.jpg"
 											}
 										},
@@ -12849,7 +13281,6 @@
 											"user": {
 												"id": "client_789ghi",
 												"name": "Jane Smith",
-												"email": "jane.smith@example.com",
 												"avatar": null
 											}
 										}
@@ -13028,7 +13459,6 @@
 										"user": {
 											"id": "client_456def",
 											"name": "John Doe",
-											"email": "john.doe@example.com",
 											"avatar": "https://example.com/avatars/john.jpg"
 										}
 									}
@@ -13886,10 +14316,7 @@
 										},
 										"message": {
 											"type": "string",
-											"examples": {
-												"period_end": "Subscription will be cancelled at the end of the current period",
-												"immediate": "Subscription cancelled immediately"
-											}
+											"example": "Subscription will be cancelled at the end of the current period"
 										},
 										"timestamp": {
 											"type": "string",
@@ -14171,14 +14598,11 @@
 									"data": {
 										"checkoutUrl": "https://checkout.lemonsqueezy.com/checkout/custom/abc123",
 										"email": "user@example.com",
-										"customPrice": 2999,
 										"variantId": "123456",
 										"metadata": {
 											"userId": "user_123abc",
 											"email": "user@example.com",
-											"name": "John Doe",
-											"plan": "pro",
-											"source": "website"
+											"name": "John Doe"
 										}
 									},
 									"message": "Checkout session created successfully"
@@ -14195,24 +14619,40 @@
 									"properties": {
 										"error": {
 											"type": "string",
-											"enum": ["VALIDATION_ERROR"],
-											"example": "VALIDATION_ERROR"
+											"enum": ["Validation Error"],
+											"example": "Validation Error"
 										},
 										"message": {
 											"type": "string",
-											"examples": {
-												"invalid_json": "Invalid JSON in request body",
-												"validation_failed": "variantId is required",
-												"invalid_price": "Custom price must be a positive number"
-											}
+											"example": "Invalid JSON in request body"
+										}
+									}
+								},
+								"examples": {
+									"invalid_json": {
+										"value": {
+											"error": "Validation Error",
+											"message": "Invalid JSON in request body"
+										}
+									},
+									"validation_failed": {
+										"value": {
+											"error": "Validation Error",
+											"message": "Variant ID must be a positive integer"
+										}
+									},
+									"invalid_price": {
+										"value": {
+											"error": "Validation Error",
+											"message": "Custom price must be a non-negative integer in cents"
 										}
 									}
 								}
 							}
 						}
 					},
-					"500": {
-						"description": "Internal server error",
+					"401": {
+						"description": "Unauthorized - Authentication required",
 						"content": {
 							"application/json": {
 								"schema": {
@@ -14220,16 +14660,50 @@
 									"properties": {
 										"error": {
 											"type": "string",
-											"enum": ["INTERNAL_ERROR", "CONFIGURATION_ERROR"],
-											"example": "INTERNAL_ERROR"
+											"example": "Unauthorized"
 										},
 										"message": {
 											"type": "string",
-											"examples": {
-												"unauthorized": "Unauthorized",
-												"config_error": "Checkout service unavailable",
-												"internal_error": "Failed to create checkout session"
-											}
+											"example": "Authentication required"
+										}
+									}
+								},
+								"example": {
+									"error": "Unauthorized",
+									"message": "Authentication required"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Internal server error or missing LemonSqueezy configuration",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"error": {
+											"type": "string",
+											"enum": ["Internal Server Error", "Configuration Error"],
+											"example": "Internal Server Error"
+										},
+										"message": {
+											"type": "string",
+											"example": "Failed to create checkout session"
+										}
+									}
+								},
+								"examples": {
+									"config_error": {
+										"value": {
+											"error": "Configuration Error",
+											"message": "Checkout service unavailable"
+										}
+									},
+									"internal_error": {
+										"value": {
+											"error": "Internal Server Error",
+											"message": "Failed to create checkout session"
 										}
 									}
 								}
@@ -14245,8 +14719,8 @@
 									"properties": {
 										"error": {
 											"type": "string",
-											"enum": ["PAYMENT_SERVICE_ERROR"],
-											"example": "PAYMENT_SERVICE_ERROR"
+											"enum": ["Payment Service Error"],
+											"example": "Payment Service Error"
 										},
 										"message": {
 											"type": "string",
@@ -14362,12 +14836,12 @@
 									"properties": {
 										"error": {
 											"type": "string",
-											"enum": ["VALIDATION_ERROR"],
-											"example": "VALIDATION_ERROR"
+											"enum": ["Validation Error"],
+											"example": "Validation Error"
 										},
 										"message": {
 											"type": "string",
-											"example": "variantId is required, email must be valid"
+											"example": "Invalid email format, Variant ID must be a positive integer"
 										}
 									}
 								}
@@ -14375,7 +14849,7 @@
 						}
 					},
 					"500": {
-						"description": "Internal server error",
+						"description": "Internal server error or missing LemonSqueezy configuration",
 						"content": {
 							"application/json": {
 								"schema": {
@@ -14383,8 +14857,8 @@
 									"properties": {
 										"error": {
 											"type": "string",
-											"enum": ["INTERNAL_ERROR", "CONFIGURATION_ERROR"],
-											"example": "INTERNAL_ERROR"
+											"enum": ["Internal Server Error", "Configuration Error"],
+											"example": "Internal Server Error"
 										},
 										"message": {
 											"type": "string",
@@ -14404,8 +14878,8 @@
 									"properties": {
 										"error": {
 											"type": "string",
-											"enum": ["PAYMENT_SERVICE_ERROR"],
-											"example": "PAYMENT_SERVICE_ERROR"
+											"enum": ["Payment Service Error"],
+											"example": "Payment Service Error"
 										},
 										"message": {
 											"type": "string",
@@ -14916,19 +15390,49 @@
 									"properties": {
 										"error": {
 											"type": "string",
-											"examples": {
-												"invalid_body": "Invalid request body",
-												"validation_error": "Invalid request parameters"
-											}
+											"example": "Invalid request body"
 										},
 										"message": {
 											"type": "string",
+											"description": "INVALID_BODY only",
 											"example": "Request body must be a valid JSON object"
+										},
+										"details": {
+											"type": "array",
+											"description": "VALIDATION_ERROR only: the validation issues",
+											"items": {
+												"type": "object"
+											}
 										},
 										"code": {
 											"type": "string",
 											"enum": ["INVALID_BODY", "VALIDATION_ERROR"],
 											"example": "INVALID_BODY"
+										}
+									}
+								},
+								"examples": {
+									"invalid_body": {
+										"value": {
+											"message": "Request body must be a valid JSON object",
+											"code": "INVALID_BODY",
+											"error": "Invalid request body"
+										}
+									},
+									"validation_error": {
+										"value": {
+											"error": "Invalid request parameters",
+											"code": "VALIDATION_ERROR",
+											"details": [
+												{
+													"origin": "number",
+													"code": "too_big",
+													"maximum": 100,
+													"inclusive": true,
+													"path": ["limit"],
+													"message": "Too big: expected number to be <=100"
+												}
+											]
 										}
 									}
 								}
@@ -15794,6 +16298,25 @@
 							}
 						}
 					},
+					"403": {
+						"description": "The signed-in user's email address is not verified",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"error": {
+											"type": "string"
+										},
+										"code": {
+											"type": "string",
+											"example": "EMAIL_NOT_VERIFIED"
+										}
+									}
+								}
+							}
+						}
+					},
 					"404": {
 						"description": "Subscription not found",
 						"content": {
@@ -16005,10 +16528,7 @@
 									"properties": {
 										"error": {
 											"type": "string",
-											"examples": {
-												"missing_user": "User ID is required",
-												"missing_provider": "Provider is required"
-											}
+											"example": "User ID is required"
 										}
 									}
 								},
@@ -16170,11 +16690,7 @@
 									"properties": {
 										"error": {
 											"type": "string",
-											"examples": {
-												"missing_provider": "Provider is required",
-												"missing_user": "User ID is required",
-												"missing_customer": "Customer ID is required"
-											}
+											"example": "Provider is required"
 										}
 									}
 								},
@@ -16320,12 +16836,7 @@
 									"properties": {
 										"error": {
 											"type": "string",
-											"examples": {
-												"missing_id": "Account ID is required",
-												"missing_provider": "Provider is required",
-												"missing_user": "User ID is required",
-												"missing_customer": "Customer ID is required"
-											}
+											"example": "Account ID is required"
 										}
 									}
 								},
@@ -17175,11 +17686,27 @@
 										},
 										"error": {
 											"type": "string",
-											"examples": {
-												"missing_id": "Payment method ID is required",
-												"no_customer": "Payment method not associated with any customer",
-												"stripe_error": "Invalid payment method ID"
-											}
+											"example": "Payment method ID is required"
+										}
+									}
+								},
+								"examples": {
+									"missing_id": {
+										"value": {
+											"success": false,
+											"error": "Payment method ID is required"
+										}
+									},
+									"no_customer": {
+										"value": {
+											"success": false,
+											"error": "Payment method not associated with any customer"
+										}
+									},
+									"stripe_error": {
+										"value": {
+											"success": false,
+											"error": "Invalid payment method ID"
 										}
 									}
 								}
@@ -17239,10 +17766,21 @@
 										},
 										"error": {
 											"type": "string",
-											"examples": {
-												"payment_method": "Payment method not found",
-												"customer": "Customer not found"
-											}
+											"example": "Payment method not found"
+										}
+									}
+								},
+								"examples": {
+									"payment_method": {
+										"value": {
+											"success": false,
+											"error": "Payment method not found"
+										}
+									},
+									"customer": {
+										"value": {
+											"success": false,
+											"error": "Customer not found"
 										}
 									}
 								}
@@ -17344,11 +17882,27 @@
 										},
 										"error": {
 											"type": "string",
-											"examples": {
-												"missing_id": "Payment method ID is required",
-												"no_customer": "Payment method not associated with a customer",
-												"stripe_error": "Invalid payment method ID"
-											}
+											"example": "Payment method ID is required"
+										}
+									}
+								},
+								"examples": {
+									"missing_id": {
+										"value": {
+											"success": false,
+											"error": "Payment method ID is required"
+										}
+									},
+									"no_customer": {
+										"value": {
+											"success": false,
+											"error": "Payment method not associated with a customer"
+										}
+									},
+									"stripe_error": {
+										"value": {
+											"success": false,
+											"error": "Invalid payment method ID"
 										}
 									}
 								}
@@ -17408,10 +17962,21 @@
 										},
 										"error": {
 											"type": "string",
-											"examples": {
-												"payment_method": "Payment method not found",
-												"customer": "Customer not found"
-											}
+											"example": "Payment method not found"
+										}
+									}
+								},
+								"examples": {
+									"payment_method": {
+										"value": {
+											"success": false,
+											"error": "Payment method not found"
+										}
+									},
+									"customer": {
+										"value": {
+											"success": false,
+											"error": "Customer not found"
 										}
 									}
 								}
@@ -17601,16 +18166,50 @@
 										},
 										"error": {
 											"type": "string",
-											"examples": {
-												"validation": "Invalid request data",
-												"setup_intent_failed": "Setup intent has not succeeded",
-												"no_payment_method": "No payment method found in setup intent",
-												"stripe_error": "Invalid setup intent ID"
-											}
+											"example": "Invalid request data"
 										},
 										"details": {
 											"type": "object",
-											"description": "Validation error details (if applicable)"
+											"description": "Validation error details (only on validation errors): the serialized ZodError, whose message is a JSON string of the validation issues",
+											"properties": {
+												"name": {
+													"type": "string",
+													"example": "ZodError"
+												},
+												"message": {
+													"type": "string"
+												}
+											}
+										}
+									}
+								},
+								"examples": {
+									"validation": {
+										"value": {
+											"success": false,
+											"error": "Invalid request data",
+											"details": {
+												"name": "ZodError",
+												"message": "[\n  {\n    \"origin\": \"string\",\n    \"code\": \"too_small\",\n    \"minimum\": 1,\n    \"inclusive\": true,\n    \"path\": [\n      \"setup_intent_id\"\n    ],\n    \"message\": \"Setup intent ID is required\"\n  }\n]"
+											}
+										}
+									},
+									"setup_intent_failed": {
+										"value": {
+											"success": false,
+											"error": "Setup intent has not succeeded"
+										}
+									},
+									"no_payment_method": {
+										"value": {
+											"success": false,
+											"error": "No payment method found in setup intent"
+										}
+									},
+									"stripe_error": {
+										"value": {
+											"success": false,
+											"error": "Invalid setup intent ID"
 										}
 									}
 								}
@@ -17776,7 +18375,7 @@
 						}
 					},
 					"400": {
-						"description": "Bad request - Invalid request data or payment method issues",
+						"description": "Bad request - Invalid request data or payment method issues (including a payment method Stripe cannot find)",
 						"content": {
 							"application/json": {
 								"schema": {
@@ -17788,11 +18387,7 @@
 										},
 										"error": {
 											"type": "string",
-											"examples": {
-												"validation": "Invalid request data",
-												"no_customer": "Payment method not associated with a customer",
-												"stripe_error": "Stripe error: Invalid payment method ID"
-											}
+											"example": "Invalid request data"
 										},
 										"details": {
 											"type": "array",
@@ -17810,6 +18405,38 @@
 													}
 												}
 											}
+										}
+									}
+								},
+								"examples": {
+									"validation": {
+										"value": {
+											"success": false,
+											"error": "Invalid request data",
+											"details": [
+												{
+													"path": "paymentMethodId",
+													"message": "Payment method ID is required"
+												}
+											]
+										}
+									},
+									"no_customer": {
+										"value": {
+											"success": false,
+											"error": "Payment method not associated with a customer"
+										}
+									},
+									"payment_method_not_found": {
+										"value": {
+											"success": false,
+											"error": "Stripe error: No such PaymentMethod: 'pm_1234567890abcdef'"
+										}
+									},
+									"stripe_error": {
+										"value": {
+											"success": false,
+											"error": "Stripe error: Invalid payment method ID"
 										}
 									}
 								}
@@ -17857,7 +18484,7 @@
 						}
 					},
 					"404": {
-						"description": "Not found - Payment method or customer not found",
+						"description": "Not found - The Stripe customer that owns the payment method was deleted",
 						"content": {
 							"application/json": {
 								"schema": {
@@ -17869,12 +18496,13 @@
 										},
 										"error": {
 											"type": "string",
-											"examples": {
-												"payment_method": "Stripe error: No such payment method",
-												"customer": "Customer not found"
-											}
+											"example": "Customer not found"
 										}
 									}
+								},
+								"example": {
+									"success": false,
+									"error": "Customer not found"
 								}
 							}
 						}
@@ -18424,7 +19052,7 @@
 						}
 					},
 					"400": {
-						"description": "Bad request - Invalid request data or Stripe error",
+						"description": "Bad request - Invalid request data or Stripe error (including a payment method Stripe cannot find)",
 						"content": {
 							"application/json": {
 								"schema": {
@@ -18436,11 +19064,7 @@
 										},
 										"error": {
 											"type": "string",
-											"examples": {
-												"validation": "Invalid request data",
-												"no_customer": "Payment method not associated with a customer",
-												"stripe_error": "Stripe error: Invalid payment method ID"
-											}
+											"example": "Invalid request data"
 										},
 										"details": {
 											"type": "array",
@@ -18458,6 +19082,38 @@
 													}
 												}
 											}
+										}
+									}
+								},
+								"examples": {
+									"validation": {
+										"value": {
+											"success": false,
+											"error": "Invalid request data",
+											"details": [
+												{
+													"path": "billing_details.email",
+													"message": "Invalid email format"
+												}
+											]
+										}
+									},
+									"no_customer": {
+										"value": {
+											"success": false,
+											"error": "Payment method not associated with a customer"
+										}
+									},
+									"payment_method_not_found": {
+										"value": {
+											"success": false,
+											"error": "Stripe error: No such PaymentMethod: 'pm_1234567890abcdef'"
+										}
+									},
+									"stripe_error": {
+										"value": {
+											"success": false,
+											"error": "Stripe error: Invalid payment method ID"
 										}
 									}
 								}
@@ -18505,7 +19161,7 @@
 						}
 					},
 					"404": {
-						"description": "Not found - Payment method or customer not found",
+						"description": "Not found - The Stripe customer that owns the payment method was deleted",
 						"content": {
 							"application/json": {
 								"schema": {
@@ -18517,12 +19173,13 @@
 										},
 										"error": {
 											"type": "string",
-											"examples": {
-												"payment_method": "Stripe error: No such payment method",
-												"customer": "Customer not found"
-											}
+											"example": "Customer not found"
 										}
 									}
+								},
+								"example": {
+									"success": false,
+									"error": "Customer not found"
 								}
 							}
 						}
@@ -18600,7 +19257,7 @@
 						}
 					},
 					"400": {
-						"description": "Bad request - Invalid request data or Stripe error",
+						"description": "Bad request - Invalid request data or Stripe error (including a payment method Stripe cannot find)",
 						"content": {
 							"application/json": {
 								"schema": {
@@ -18612,10 +19269,56 @@
 										},
 										"error": {
 											"type": "string",
-											"examples": {
-												"validation": "Invalid request data",
-												"stripe_error": "Stripe error: Invalid payment method ID"
+											"example": "Invalid request data"
+										},
+										"details": {
+											"type": "array",
+											"description": "Validation error details (only on validation errors)",
+											"items": {
+												"type": "object",
+												"properties": {
+													"path": {
+														"type": "string",
+														"example": "payment_method_id"
+													},
+													"message": {
+														"type": "string",
+														"example": "Payment method ID is required"
+													}
+												}
 											}
+										}
+									}
+								},
+								"examples": {
+									"validation": {
+										"value": {
+											"success": false,
+											"error": "Invalid request data",
+											"details": [
+												{
+													"path": "payment_method_id",
+													"message": "Payment method ID is required"
+												}
+											]
+										}
+									},
+									"no_customer": {
+										"value": {
+											"success": false,
+											"error": "Payment method not associated with a customer"
+										}
+									},
+									"payment_method_not_found": {
+										"value": {
+											"success": false,
+											"error": "Stripe error: No such PaymentMethod: 'pm_1234567890abcdef'"
+										}
+									},
+									"stripe_error": {
+										"value": {
+											"success": false,
+											"error": "Stripe error: Invalid payment method ID"
 										}
 									}
 								}
@@ -18658,6 +19361,30 @@
 											"example": "Access denied: payment method does not belong to user"
 										}
 									}
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "Not found - The Stripe customer that owns the payment method was deleted",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"success": {
+											"type": "boolean",
+											"example": false
+										},
+										"error": {
+											"type": "string",
+											"example": "Customer not found"
+										}
+									}
+								},
+								"example": {
+									"success": false,
+									"error": "Customer not found"
 								}
 							}
 						}
@@ -19104,10 +19831,7 @@
 										},
 										"message": {
 											"type": "string",
-											"examples": {
-												"period_end": "Subscription will be cancelled at the end of the current period",
-												"immediate": "Subscription cancelled immediately"
-											}
+											"example": "Subscription will be cancelled at the end of the current period"
 										}
 									},
 									"required": ["success", "data", "message"]
@@ -19570,10 +20294,7 @@
 									"properties": {
 										"error": {
 											"type": "string",
-											"examples": {
-												"invalid_plan": "Invalid plan ID",
-												"not_active": "Subscription is not active"
-											}
+											"example": "Invalid plan ID"
 										}
 									}
 								},
@@ -20106,6 +20827,22 @@
 							}
 						}
 					},
+					"404": {
+						"description": "Subscription not found, or it does not belong to the signed-in user",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"error": {
+											"type": "string",
+											"example": "Subscription not found or access denied"
+										}
+									}
+								}
+							}
+						}
+					},
 					"500": {
 						"description": "Internal server error",
 						"content": {
@@ -20207,6 +20944,22 @@
 										"error": {
 											"type": "string",
 											"example": "Unauthorized"
+										}
+									}
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "Subscription not found, or it does not belong to the signed-in user",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"error": {
+											"type": "string",
+											"example": "Subscription not found or access denied"
 										}
 									}
 								}
@@ -20793,11 +21546,7 @@
 									"properties": {
 										"error": {
 											"type": "string",
-											"examples": {
-												"no_signature": "No signature provided",
-												"not_processed": "Webhook not processed",
-												"processing_failed": "Webhook processing failed"
-											}
+											"example": "No signature provided"
 										}
 									}
 								},
@@ -21416,10 +22165,19 @@
 									"properties": {
 										"error": {
 											"type": "string",
-											"examples": {
-												"stripe_error": "Failed to fetch subscription data from Stripe",
-												"general_error": "Failed to fetch subscription data"
-											}
+											"example": "Failed to fetch subscription data from Stripe"
+										}
+									}
+								},
+								"examples": {
+									"stripe_error": {
+										"value": {
+											"error": "Failed to fetch subscription data from Stripe"
+										}
+									},
+									"general_error": {
+										"value": {
+											"error": "Failed to fetch subscription data"
 										}
 									}
 								}
@@ -21707,10 +22465,7 @@
 									"properties": {
 										"error": {
 											"type": "string",
-											"examples": {
-												"repo_not_found": "Data repository not found",
-												"no_commits": "No commits found in repository"
-											}
+											"example": "Data repository not found"
 										},
 										"code": {
 											"type": "string",
@@ -21728,6 +22483,24 @@
 											"example": "Git directory not found at: /path/to/content/.git"
 										}
 									}
+								},
+								"examples": {
+									"repo_not_found": {
+										"value": {
+											"code": "REPOSITORY_NOT_FOUND",
+											"timestamp": "2024-01-15T10:35:00.000Z",
+											"details": "Git directory not found at: /path/to/content/.git",
+											"error": "Data repository not found"
+										}
+									},
+									"no_commits": {
+										"value": {
+											"code": "NO_COMMITS",
+											"timestamp": "2024-01-15T10:35:00.000Z",
+											"details": "Repository exists but contains no commits",
+											"error": "No commits found in repository"
+										}
+									}
 								}
 							}
 						}
@@ -21741,11 +22514,7 @@
 									"properties": {
 										"error": {
 											"type": "string",
-											"examples": {
-												"git_error": "Failed to retrieve commit information",
-												"validation_error": "Invalid commit data",
-												"internal_error": "Internal server error"
-											}
+											"example": "Failed to retrieve commit information"
 										},
 										"code": {
 											"type": "string",
@@ -21761,6 +22530,32 @@
 											"type": "string",
 											"description": "Additional error details",
 											"example": "Commit is missing required fields"
+										}
+									}
+								},
+								"examples": {
+									"git_error": {
+										"value": {
+											"code": "GIT_ERROR",
+											"timestamp": "2024-01-15T10:35:00.000Z",
+											"details": "Unknown git error",
+											"error": "Failed to retrieve commit information"
+										}
+									},
+									"validation_error": {
+										"value": {
+											"code": "VALIDATION_ERROR",
+											"timestamp": "2024-01-15T10:35:00.000Z",
+											"details": "Commit is missing required fields",
+											"error": "Invalid commit data"
+										}
+									},
+									"internal_error": {
+										"value": {
+											"code": "INTERNAL_ERROR",
+											"timestamp": "2024-01-15T10:35:00.000Z",
+											"details": "Unknown error occurred",
+											"error": "Internal server error"
 										}
 									}
 								}
@@ -22331,6 +23126,68 @@
 							}
 						}
 					},
+					"201": {
+						"description": "Response submitted successfully",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"success": {
+											"type": "boolean",
+											"example": true
+										},
+										"data": {
+											"type": "object",
+											"properties": {
+												"id": {
+													"type": "string"
+												},
+												"surveyId": {
+													"type": "string"
+												},
+												"userId": {
+													"type": "string",
+													"nullable": true
+												},
+												"itemId": {
+													"type": "string",
+													"nullable": true
+												},
+												"data": {
+													"type": "object"
+												},
+												"completedAt": {
+													"type": "string",
+													"format": "date-time"
+												},
+												"ipAddress": {
+													"type": "string",
+													"nullable": true
+												},
+												"userAgent": {
+													"type": "string",
+													"nullable": true
+												},
+												"createdAt": {
+													"type": "string",
+													"format": "date-time"
+												},
+												"updatedAt": {
+													"type": "string",
+													"format": "date-time"
+												}
+											}
+										},
+										"message": {
+											"type": "string",
+											"example": "Response submitted successfully"
+										}
+									}
+								}
+							}
+						}
+					},
 					"400": {
 						"description": "Bad request"
 					},
@@ -22569,6 +23426,9 @@
 								}
 							}
 						}
+					},
+					"201": {
+						"description": "Survey created successfully"
 					},
 					"401": {
 						"description": "Unauthorized"
@@ -25848,10 +26708,10 @@
 								"example": {
 									"success": true,
 									"data": {
-										"id": "session_1234567890abcdef",
-										"url": "https://polar.sh/customer-portal/session_1234567890abcdef",
-										"customer": "customer_1234567890abcdef",
-										"returnUrl": "https://example.com/settings/billing"
+										"id": "cs_1234567890abcdef",
+										"url": "https://polar.sh/customer/session/abc123def456",
+										"customer": "cus_1234567890abcdef",
+										"return_url": "https://example.com/settings/billing"
 									},
 									"message": "Customer portal session created"
 								}
@@ -26016,11 +26876,7 @@
 									"properties": {
 										"error": {
 											"type": "string",
-											"examples": {
-												"no_signature": "No signature provided",
-												"not_processed": "Webhook not processed",
-												"processing_failed": "Webhook processing failed"
-											}
+											"example": "No signature provided"
 										}
 									}
 								},
@@ -26132,7 +26988,7 @@
 			"put": {
 				"tags": ["Admin - Reports"],
 				"summary": "Update report status and resolution",
-				"description": "Updates a report's status, resolution, and/or review note. Requires admin privileges. A resolution other than no_action runs its moderation action first (remove the content, or warn / suspend / ban its owner's client profile); if that action fails, the report is left unchanged and the response is an error. A resolution the report already has is not run again, so the note and status of a completed report can still be edited.",
+				"description": "Updates a report's status, resolution, and/or review note. Requires admin privileges. A resolution other than no_action runs its moderation action first (remove the content, or warn / suspend / ban its owner's client profile); if that action fails, the report is left unchanged and the response is an error. A resolution the report already has is not run again, so the note and status of a completed report can still be edited. Retrying a resolution whose action ran but whose report save failed saves the report without acting twice: a warning or content removal this report already recorded in the moderation history is skipped, and a ban or suspension this report already applied (ALREADY_BANNED / ALREADY_SUSPENDED with a history row for this report) counts as done.",
 				"security": [
 					{
 						"sessionAuth": []
@@ -26190,6 +27046,9 @@
 					},
 					"404": {
 						"description": "Report not found"
+					},
+					"409": {
+						"description": "The moderation action does not fit the target's current state (for example 'User is already banned' by another report or by hand, the user to warn, suspend or ban no longer exists, or content_removed on content that cannot be found); the report is unchanged"
 					},
 					"500": {
 						"description": "Internal server error"
@@ -26486,10 +27345,7 @@
 										},
 										"message": {
 											"type": "string",
-											"examples": {
-												"period_end": "Subscription will be cancelled at the end of the current period",
-												"immediate": "Subscription cancelled immediately"
-											}
+											"example": "Subscription will be cancelled at the end of the current period"
 										}
 									},
 									"required": ["success", "data", "message"]
@@ -27178,6 +28034,9 @@
 					},
 					"401": {
 						"description": "Unauthorized - Authentication required"
+					},
+					"409": {
+						"description": "Conflict - A pending or approved item already uses this link (compared ignoring http/https, www, trailing slash, fragment and tracking parameters), or another request created an item with the same slug while this one was being saved"
 					},
 					"500": {
 						"description": "Internal server error"
@@ -29551,46 +30410,6 @@
 									"required": ["currency", "detected"]
 								},
 								"examples": {
-									"us_user": {
-										"summary": "US user",
-										"value": {
-											"currency": "USD",
-											"country": "US",
-											"detected": true
-										}
-									},
-									"eu_user": {
-										"summary": "EU user",
-										"value": {
-											"currency": "EUR",
-											"country": "FR",
-											"detected": true
-										}
-									},
-									"default": {
-										"summary": "Default fallback (also used on error)",
-										"value": {
-											"currency": "USD",
-											"country": null,
-											"detected": false
-										}
-									},
-									"error_fallback": {
-										"summary": "Error occurred - using fallback",
-										"value": {
-											"currency": "USD",
-											"country": null,
-											"detected": false
-										}
-									},
-									"default_fallback": {
-										"summary": "Default fallback when detection fails",
-										"value": {
-											"currency": "USD",
-											"country": null,
-											"detected": false
-										}
-									},
 									"us_user_detected": {
 										"summary": "US user (successfully detected)",
 										"value": {
@@ -29609,6 +30428,14 @@
 									},
 									"detection_failed": {
 										"summary": "Detection failed - using fallback",
+										"value": {
+											"currency": "USD",
+											"country": null,
+											"detected": false
+										}
+									},
+									"error_fallback": {
+										"summary": "Error occurred - using fallback",
 										"value": {
 											"currency": "USD",
 											"country": null,
@@ -31212,11 +32039,24 @@
 									"properties": {
 										"error": {
 											"type": "string",
-											"examples": {
-												"no_signature": "No signature provided",
-												"not_processed": "Webhook not processed",
-												"processing_failed": "Webhook processing failed"
-											}
+											"example": "No signature provided"
+										}
+									}
+								},
+								"examples": {
+									"no_signature": {
+										"value": {
+											"error": "No signature provided"
+										}
+									},
+									"not_processed": {
+										"value": {
+											"error": "Webhook not processed"
+										}
+									},
+									"processing_failed": {
+										"value": {
+											"error": "Webhook processing failed"
 										}
 									}
 								}

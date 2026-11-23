@@ -23,6 +23,7 @@ The Directory Web Template is a modern, full-stack directory website solution bu
 - **AI Chat**: Opt-in Vercel-AI-SDK [chat assistant](features/ai-chat.md) for visitors — works.yml-driven, six-locale, anonymous vs. authenticated personas, lazy-loaded panel preserves the public bundle when disabled
 - **Analytics & Monitoring**: PostHog, Sentry, performance monitoring
 - **Admin Dashboard**: Content management, user management, and analytics
+- **AI Agent Access**: JSON [Read API and MCP server](features/agent-access.md) on every directory, discoverable through `llms.txt` and `/.well-known/`
 - **SEO Optimized**: Sitemap generation, structured data (JSON-LD), meta tags
 
 ## Quick Start
@@ -82,5 +83,5 @@ The Template can be used standalone or paired with the **Ever Works Platform** f
 
 - Check our [documentation](./index.md) for general information
 - Join our [Discord community](https://discord.gg/ever) for support
-- Visit the [demo site](https://demo.ever.works) to see it in action
+- Visit the [demo site](https://dir.ever.works) to see it in action
 - Contact [support](/support) for technical assistance

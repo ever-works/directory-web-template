@@ -181,7 +181,7 @@ import { z } from 'zod';
  *                   example: "Payment method updated successfully"
  *               required: ["success", "data", "message"]
  *       400:
- *         description: "Bad request - Invalid request data or Stripe error"
+ *         description: "Bad request - Invalid request data or Stripe error (including a payment method Stripe cannot find)"
  *         content:
  *           application/json:
  *             schema:
@@ -192,10 +192,7 @@ import { z } from 'zod';
  *                   example: false
  *                 error:
  *                   type: string
- *                   examples:
- *                     validation: "Invalid request data"
- *                     no_customer: "Payment method not associated with a customer"
- *                     stripe_error: "Stripe error: Invalid payment method ID"
+ *                   example: "Invalid request data"
  *                 details:
  *                   type: array
  *                   description: "Validation error details (if applicable)"
@@ -208,6 +205,26 @@ import { z } from 'zod';
  *                       message:
  *                         type: string
  *                         example: "Invalid email format"
+ *             examples:
+ *               validation:
+ *                 value:
+ *                   success: false
+ *                   error: "Invalid request data"
+ *                   details:
+ *                     - path: "billing_details.email"
+ *                       message: "Invalid email format"
+ *               no_customer:
+ *                 value:
+ *                   success: false
+ *                   error: "Payment method not associated with a customer"
+ *               payment_method_not_found:
+ *                 value:
+ *                   success: false
+ *                   error: "Stripe error: No such PaymentMethod: 'pm_1234567890abcdef'"
+ *               stripe_error:
+ *                 value:
+ *                   success: false
+ *                   error: "Stripe error: Invalid payment method ID"
  *       401:
  *         description: "Unauthorized - Authentication required"
  *         content:
@@ -235,7 +252,7 @@ import { z } from 'zod';
  *                   type: string
  *                   example: "Access denied: payment method does not belong to user"
  *       404:
- *         description: "Not found - Payment method or customer not found"
+ *         description: "Not found - The Stripe customer that owns the payment method was deleted"
  *         content:
  *           application/json:
  *             schema:
@@ -246,9 +263,10 @@ import { z } from 'zod';
  *                   example: false
  *                 error:
  *                   type: string
- *                   examples:
- *                     payment_method: "Stripe error: No such payment method"
- *                     customer: "Customer not found"
+ *                   example: "Customer not found"
+ *             example:
+ *               success: false
+ *               error: "Customer not found"
  *       500:
  *         description: "Internal server error"
  *         content:
@@ -297,7 +315,7 @@ import { z } from 'zod';
  *                   example: "Payment method set as default successfully"
  *               required: ["success", "message"]
  *       400:
- *         description: "Bad request - Invalid request data or Stripe error"
+ *         description: "Bad request - Invalid request data or Stripe error (including a payment method Stripe cannot find)"
  *         content:
  *           application/json:
  *             schema:
@@ -308,9 +326,39 @@ import { z } from 'zod';
  *                   example: false
  *                 error:
  *                   type: string
- *                   examples:
- *                     validation: "Invalid request data"
- *                     stripe_error: "Stripe error: Invalid payment method ID"
+ *                   example: "Invalid request data"
+ *                 details:
+ *                   type: array
+ *                   description: "Validation error details (only on validation errors)"
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       path:
+ *                         type: string
+ *                         example: "payment_method_id"
+ *                       message:
+ *                         type: string
+ *                         example: "Payment method ID is required"
+ *             examples:
+ *               validation:
+ *                 value:
+ *                   success: false
+ *                   error: "Invalid request data"
+ *                   details:
+ *                     - path: "payment_method_id"
+ *                       message: "Payment method ID is required"
+ *               no_customer:
+ *                 value:
+ *                   success: false
+ *                   error: "Payment method not associated with a customer"
+ *               payment_method_not_found:
+ *                 value:
+ *                   success: false
+ *                   error: "Stripe error: No such PaymentMethod: 'pm_1234567890abcdef'"
+ *               stripe_error:
+ *                 value:
+ *                   success: false
+ *                   error: "Stripe error: Invalid payment method ID"
  *       401:
  *         description: "Unauthorized - Authentication required"
  *         content:
@@ -337,6 +385,22 @@ import { z } from 'zod';
  *                 error:
  *                   type: string
  *                   example: "Access denied: payment method does not belong to user"
+ *       404:
+ *         description: "Not found - The Stripe customer that owns the payment method was deleted"
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 error:
+ *                   type: string
+ *                   example: "Customer not found"
+ *             example:
+ *               success: false
+ *               error: "Customer not found"
  *       500:
  *         description: "Internal server error"
  *         content:

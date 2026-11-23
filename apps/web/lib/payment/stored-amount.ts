@@ -55,3 +55,26 @@ export function toStoredAmount(
 	if (typeof minorAmount !== 'number' || !Number.isFinite(minorAmount)) return 0;
 	return Math.round(minorAmount / providerMinorUnitFactor(currency, provider));
 }
+
+/**
+ * The `subscriptions.amount` a subscription update stores (`handleSubscriptionUpdated`). The price's
+ * own amount when the event carries one: a zero price is stored as 0, and a price with no flat amount
+ * (`unit_amount: null`: tiered, usage-based) clears it, so a plan change never keeps the previous
+ * price's amount. Only an event that carries no price amount at all keeps the stored one. The free
+ * plan is always 0.
+ */
+export function updatedSubscriptionAmount(input: {
+	planId?: string | null;
+	/** `items.data[0].price.unit_amount` of the event, in the provider's minor unit. */
+	minorAmount: unknown;
+	currency?: string | null;
+	provider?: string | null;
+	storedAmount: number | null;
+}): number | null {
+	if (input.planId === 'free') return 0;
+	if (input.minorAmount === null) return null;
+	if (typeof input.minorAmount === 'number' && Number.isFinite(input.minorAmount) && input.minorAmount >= 0) {
+		return toStoredAmount(input.minorAmount, input.currency, input.provider);
+	}
+	return input.storedAmount;
+}

@@ -134,7 +134,7 @@ Poza flagami funkcji, szablon zapewnia obiekt `siteConfig` w `lib/config.ts` do 
 export const siteConfig = {
   name: process.env.NEXT_PUBLIC_SITE_NAME || 'Ever Works',
   tagline: process.env.NEXT_PUBLIC_SITE_TAGLINE || 'The Open-Source, AI-Powered Directory Builder',
-  url: process.env.NEXT_PUBLIC_APP_URL ?? 'https://demo.ever.works',
+  url: process.env.NEXT_PUBLIC_APP_URL ?? 'https://dir.ever.works',
   logo: process.env.NEXT_PUBLIC_SITE_LOGO || '/logo-ever-works.svg',
   brandName: process.env.NEXT_PUBLIC_BRAND_NAME || 'Ever Works',
   description: process.env.NEXT_PUBLIC_SITE_DESCRIPTION || '...',
@@ -162,7 +162,7 @@ export const siteConfig = {
 |---------|----------|-----|
 | `NEXT_PUBLIC_SITE_NAME` | `'Ever Works'` | Nazwa witryny w metadanych i obrazach OG |
 | `NEXT_PUBLIC_SITE_TAGLINE` | Domyślna szablonu | Slogan strony głównej |
-| `NEXT_PUBLIC_APP_URL` | `'https://demo.ever.works'` | Pełny URL witryny (bez końcowego ukośnika) |
+| `NEXT_PUBLIC_APP_URL` | `'https://dir.ever.works'` | Pełny URL witryny (bez końcowego ukośnika) |
 | `NEXT_PUBLIC_SITE_LOGO` | `'/logo-ever-works.svg'` | Ścieżka logo względna do `/public` |
 | `NEXT_PUBLIC_BRAND_NAME` | `'Ever Works'` | Nazwa organizacji Schema.org |
 | `NEXT_PUBLIC_SITE_DESCRIPTION` | Domyślna szablonu | Meta opis SEO |

@@ -185,7 +185,7 @@ export function HeroLanding() {
                 <div className="w-2.5 h-2.5 bg-neutral-300 dark:bg-neutral-600 rounded-full" />
               </div>
               <div className="flex-1 bg-neutral-100 dark:bg-white/6 rounded-md px-3 py-1 text-xs text-neutral-400 dark:text-neutral-500 font-mono">
-                demo.ever.works
+                dir.ever.works
               </div>
             </div>
 

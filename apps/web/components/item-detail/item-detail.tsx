@@ -19,14 +19,17 @@ import type { ItemLocationData } from '@/lib/types/item';
 import { ItemStatsSection } from './item-stats-section';
 import dynamic from 'next/dynamic';
 
+// Server-rendered (no `ssr: false`) so the similar items' links are in the HTML:
+// they are the item page's internal links to related items (Spec 062). Still a
+// separate chunk; the carousel only measures its container in effects.
 const ItemsCarousel = dynamic(
 	() => import('@/components/shared/items-carousel').then((m) => ({ default: m.ItemsCarousel })),
-	{ ssr: false, loading: () => null }
+	{ loading: () => null }
 );
 import { LocationSection } from './LocationSection';
 import { UserSurveySection } from '@/components/surveys/user-survey-section';
 import { useTranslations } from 'next-intl';
-import { generateProductSchema, generateBreadcrumbSchema, BreadcrumbItem } from '@/lib/seo/schema';
+import { generateProductSchema, generateBreadcrumbSchema, jsonLdScript, BreadcrumbItem } from '@/lib/seo/schema';
 import { ratingWhenEnabled, type RatingSummary } from '@/lib/seo/aggregate-rating';
 import { useFeatureFlagsWithSimulation } from '@/hooks/use-feature-flags-with-simulation';
 import { useParams } from 'next/navigation';
@@ -74,6 +77,29 @@ export interface ItemDetailProps {
 	headings?: TocHeading[];
 	/** Review rating summary computed on the server; feeds the Product `aggregateRating` JSON-LD. */
 	rating?: RatingSummary | null;
+	/**
+	 * Public origin resolved on the server (getBaseUrl()). The build-time
+	 * `siteConfig.url` names the fallback origin on images built without
+	 * NEXT_PUBLIC_APP_URL, so the JSON-LD URLs use this when given.
+	 */
+	siteUrl?: string;
+}
+
+/** An absolute http(s) URL for an item image, or undefined. */
+function absoluteImage(url: string | undefined, origin: string): string | undefined {
+	if (!url) return undefined;
+	try {
+		const resolved = new URL(url, `${origin}/`);
+		return resolved.protocol === 'http:' || resolved.protocol === 'https:' ? resolved.toString() : undefined;
+	} catch {
+		return undefined;
+	}
+}
+
+/** The item's own `brand` (a string or `{ name }`), or undefined. */
+function brandNameOf(brand: unknown): string | undefined {
+	const name = typeof brand === 'string' ? brand : (brand as { name?: unknown } | null | undefined)?.name;
+	return typeof name === 'string' && name.trim() ? name.trim() : undefined;
 }
 
 function ItemDetailContent({
@@ -82,7 +108,8 @@ function ItemDetailContent({
 	categoryName,
 	similarItemsPromise,
 	headings = [],
-	rating
+	rating,
+	siteUrl
 }: ItemDetailProps) {
 	const t = useTranslations();
 	const params = useParams();
@@ -105,15 +132,19 @@ function ItemDetailContent({
 	const encodedCategory = encodeURIComponent(slugify(rawCategoryId || categoryName));
 	const localePrefix = locale === DEFAULT_LOCALE ? '' : `/${locale}`;
 
-	// Generate Product schema for SEO
+	const origin = (siteUrl || siteConfig.url).replace(/\/+$/, '');
+
+	// Product schema for SEO: the item's own data only. No Offer (there is no
+	// price) and no brand unless the item names one: before Spec 062 the
+	// directory's own brand was published as every item's brand.
 	const productSchema = generateProductSchema({
 		name: meta.name,
 		description: meta.description,
-		image: meta.icon_url,
-		url: `${siteConfig.url}${localePrefix}/items/${meta.slug}`,
+		image: absoluteImage(meta.icon_url, origin),
+		url: `${origin}${localePrefix}/items/${meta.slug}`,
 		category: categoryName,
 		sourceUrl: meta.source_url,
-		brandName: siteConfig.brandName,
+		brandName: brandNameOf((meta as { brand?: unknown }).brand),
 		rating: ratingWhenEnabled(rating, featureFlagsPending || features.ratings)
 	});
 
@@ -121,7 +152,7 @@ function ItemDetailContent({
 	const breadcrumbItems: BreadcrumbItem[] = [
 		{
 			name: t('common.HOME'),
-			url: `${siteConfig.url}${localePrefix}`
+			url: `${origin}${localePrefix || '/'}`
 		}
 	];
 
@@ -129,14 +160,14 @@ function ItemDetailContent({
 	if (categoriesEnabled && categoryName) {
 		breadcrumbItems.push({
 			name: toTitleCase(categoryName),
-			url: `${siteConfig.url}${localePrefix}/categories/${encodedCategory}`
+			url: `${origin}${localePrefix}/categories/${encodedCategory}`
 		});
 	}
 
 	// Add current item
 	breadcrumbItems.push({
 		name: meta.name,
-		url: `${siteConfig.url}${localePrefix}/items/${meta.slug}`
+		url: `${origin}${localePrefix}/items/${meta.slug}`
 	});
 
 	const breadcrumbSchema = generateBreadcrumbSchema(breadcrumbItems);
@@ -146,12 +177,12 @@ function ItemDetailContent({
 			{/* Product Schema JSON-LD */}
 			<script
 				type="application/ld+json"
-				dangerouslySetInnerHTML={{ __html: JSON.stringify(productSchema) }}
+				dangerouslySetInnerHTML={{ __html: jsonLdScript(productSchema) }}
 			/>
 			{/* Breadcrumb Schema JSON-LD */}
 			<script
 				type="application/ld+json"
-				dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+				dangerouslySetInnerHTML={{ __html: jsonLdScript(breadcrumbSchema) }}
 			/>
 			<Container maxWidth="7xl" padding="default" useGlobalWidth className="py-8 lg:py-12">
 				{/* Breadcrumb row */}
@@ -477,9 +508,9 @@ function ItemDetailContent({
 				    similarity scan never blocks the page's first paint. */}
 				<Suspense fallback={<SimilarProductsSkeleton />}>
 					{similarItemsPromise ? (
-						<SimilarProductsSection promise={similarItemsPromise} max={12} />
+						<SimilarProductsSection promise={similarItemsPromise} max={12} itemName={meta.name} />
 					) : (
-						<SimilarProductsView items={meta.allItems ?? []} max={12} />
+						<SimilarProductsView items={meta.allItems ?? []} max={12} itemName={meta.name} />
 					)}
 				</Suspense>
 			</Container>
@@ -500,7 +531,8 @@ export function ItemDetail({
 	categoryName,
 	similarItemsPromise,
 	headings,
-	rating
+	rating,
+	siteUrl
 }: ItemDetailProps) {
 	return (
 		<Suspense fallback={<ItemDetailSkeleton />}>
@@ -511,6 +543,7 @@ export function ItemDetail({
 				similarItemsPromise={similarItemsPromise}
 				headings={headings}
 				rating={rating}
+				siteUrl={siteUrl}
 			/>
 		</Suspense>
 	);
@@ -521,7 +554,7 @@ export function ItemDetail({
  * items, so an empty similarity result simply omits the section (same as the
  * previous `meta.allItems.length > 0` guard).
  */
-function SimilarProductsView({ items, max = 12 }: { items: ItemData[]; max?: number }) {
+function SimilarProductsView({ items, max = 12, itemName }: { items: ItemData[]; max?: number; itemName?: string }) {
 	const t = useTranslations();
 	if (!items || items.length === 0) {
 		return null;
@@ -530,7 +563,10 @@ function SimilarProductsView({ items, max = 12 }: { items: ItemData[]; max?: num
 		<div className="mt-16 pt-8 border-t border-gray-200 dark:border-white/10">
 			<div className="mb-6">
 				<h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-					{t('itemDetail.SIMILAR_PRODUCTS', { defaultValue: 'Similar Products' })}
+					{/* "Alternatives to <item>" (Spec 062): the phrase people search for. */}
+					{itemName
+						? t('itemDetail.ALTERNATIVES_TO', { name: itemName })
+						: t('itemDetail.SIMILAR_PRODUCTS', { defaultValue: 'Similar Products' })}
 				</h2>
 				<p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
 					{t('itemDetail.SIMILAR_PRODUCTS_DESCRIPTION', {
@@ -547,9 +583,17 @@ function SimilarProductsView({ items, max = 12 }: { items: ItemData[]; max?: num
  * Suspense child that unwraps the streamed similar-items promise with `use()`.
  * Suspends only this subtree (the bottom carousel), not the whole page.
  */
-function SimilarProductsSection({ promise, max = 12 }: { promise: Promise<ItemData[]>; max?: number }) {
+function SimilarProductsSection({
+	promise,
+	max = 12,
+	itemName
+}: {
+	promise: Promise<ItemData[]>;
+	max?: number;
+	itemName?: string;
+}) {
 	const items = use(promise);
-	return <SimilarProductsView items={items} max={max} />;
+	return <SimilarProductsView items={items} max={max} itemName={itemName} />;
 }
 
 /** Lightweight skeleton shown while the similar-items rail streams in. */

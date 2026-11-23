@@ -88,7 +88,9 @@ Found on a local production build with that data repo:
   boundary (categories, tags, tags/collections paging, collections) are pinned to
   `force-dynamic`: rendered per request, as before.
 - **R6.** The runtime page cache stays in memory, LRU-bounded by `NEXT_CACHE_MAX_MEMORY_MB`
-  (default 64: a cached item page is counted as ~0.65 MB and measured ~0.9 MB of heap),
+  (default 256, ~390 pages in ~360 MB: a cached item page is counted as ~0.65 MB and
+  measured ~0.9 MB of heap; 64 held ~70 pages, and crawlers evicted even the home page on
+  mcpserver.ever.works; 256 keeps the measured peak near ~1.45 GB on 2 GiB pods),
   and is written to disk only with `NEXT_ISR_FLUSH_TO_DISK=true`: `apps/web/cache-handler.cjs`
   is Next's own cache handler without disk writes. `experimental.isrFlushToDisk` keeps its
   default, because turning it off also turns off the optimized-image disk cache.
@@ -140,6 +142,23 @@ Found on a local production build with that data repo:
   heap by gigabytes (a heap snapshot after 75 s of load: 452 MB under the 5-minute timer
   list alone, ~11 timers per request). Short timers (retry back-off, at most 30 s) still
   run.
+- **R15.** The server reads the default locale's content in the background when it starts
+  (`instrumentation.ts`; production servers only, not Vercel or `next dev`). A request for
+  the default locale's listing joins that read; other reads share its directory walk and
+  parsed item files. The
+  home page lists the whole catalogue: on a busy node its first render, together with the
+  start-up content sync (pull, cache clear, location index rebuild), took minutes, and
+  after the release a mcpserver.ever.works pod used up its `GET /` startup probe (10 s
+  timeout, 30 tries) and was restarted. The probe itself moved to `/api/health` with
+  surge-first rollouts in the Ever Works k8s plugin (platform), not in this template.
+- **R16.** An item's `updated_at` is optional. Without it the item is still listed, with no
+  `updatedAt`. It sorts as the oldest, gets no recency score, uses the sitemap's fallback
+  date and is left out of the RSS/Atom/JSON feeds (like an undated post). `yyyy-MM-dd HH:mm`
+  is the data repositories' form; an ISO timestamp or a bare date is read too
+  (`lib/item-updated-at.ts`, used by `parseItemYaml` in `lib/item-yaml.ts`). Before, date-fns `parse(undefined)` threw and the parser
+  dropped the item: three mcpserver.ever.works items were missing until their data was
+  fixed. There is no fallback to the file's last commit date, because walking the content
+  checkout's history for each undated file costs more than the date is worth.
 
 ## 4. Out of scope
 
@@ -207,6 +226,8 @@ faster in the same test (5.3 GB: more pages served per second, each leaving its 
 - `apps/web/lib/__tests__/cacheable-public-pages.spec.ts` — source guards against the
   request-scoped reads that made pages dynamic, for the rewrite conditions and for the
   server-side React Query timers (R14).
+- `apps/web/lib/__tests__/item-updated-at.spec.ts` — R16: missing, unreadable and other
+  date forms, undated items in the feeds, and the parser keeping an undated item.
 - `apps/web/lib/__tests__/page-cache-handler.spec.ts` — the cache handler extends Next's,
   writes nothing to disk unless asked, and keeps Next's 2 MB data-cache entry limit.
 - `apps/web/lib/auth/__tests__/shared-render-tenant.spec.ts` — the shared-render tenant pick.

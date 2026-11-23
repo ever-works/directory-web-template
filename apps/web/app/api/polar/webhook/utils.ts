@@ -15,7 +15,7 @@ export const DEFAULT_CURRENCY = 'usd';
 export const DEFAULT_INTERVAL = 'month';
 export const DEFAULT_PLAN_NAME = 'Premium Plan';
 
-export const APP_URL = coreConfig.APP_URL || 'https://demo.ever.works';
+export const APP_URL = coreConfig.APP_URL || 'https://dir.ever.works';
 
 export const PLAN_FEATURES: Record<string, string[]> = {
 	'Free Plan': ['Access to basic features', 'Email support', 'Limited storage'],

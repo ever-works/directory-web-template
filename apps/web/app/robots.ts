@@ -6,7 +6,7 @@ import { buildAiCrawlerRules, resolveAiCrawlerPolicy } from '@/lib/seo/ai-crawle
 // NEXT_PUBLIC_APP_URL (the deploy platform injects it at runtime), so a
 // robots.txt prerendered by `next build` baked in the fallback origin and told
 // crawlers of EVERY directory built from this template that its sitemap was
-// https://demo.ever.works/sitemap.xml. Read at request time, it names the
+// https://dir.ever.works/sitemap.xml. Read at request time, it names the
 // deployment's own origin.
 export const dynamic = 'force-dynamic';
 
@@ -36,10 +36,20 @@ export default function robots(): MetadataRoute.Robots {
 		'/feed.json',
 		// Markdown mirrors of every public page (per https://llmstxt.org and
 		// the per-page .md mirror convention used by AI crawlers).
-		'/*.md'
+		'/*.md',
+		// Agent Access Contract v1 (Spec 062): the JSON Read API, the MCP
+		// endpoint and the discovery documents. Never disallowed.
+		'/data/',
+		'/mcp',
+		'/.well-known/'
 	];
 
-	const sharedDisallow = ['/admin/*', '/api/*', '/client/settings/*', '/dashboard/*'];
+	// Private areas, unprefixed and under a locale prefix (`/fr/admin/...`):
+	// the bare rules never matched the 20 prefixed locales. These pages also
+	// answer `noindex` (their layouts), which is what keeps them out of the
+	// index; this only spares the crawl budget.
+	const privatePaths = ['/admin/*', '/client/settings/*', '/dashboard/*'];
+	const sharedDisallow = ['/api/*', ...privatePaths, ...privatePaths.map((path) => `/*${path}`)];
 
 	// Default rule for every other crawler (Googlebot, Bingbot, generic bots).
 	const defaultRule = {

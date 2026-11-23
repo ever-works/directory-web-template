@@ -73,9 +73,7 @@ const cancelSubscriptionSchema = z.object({
  *                       example: "2024-02-20T10:30:00.000Z"
  *                 message:
  *                   type: string
- *                   examples:
- *                     period_end: "Subscription will be cancelled at the end of the current period"
- *                     immediate: "Subscription cancelled immediately"
+ *                   example: "Subscription will be cancelled at the end of the current period"
  *                 timestamp:
  *                   type: string
  *                   format: date-time

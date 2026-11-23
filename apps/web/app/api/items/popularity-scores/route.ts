@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getEngagementMetricsPerItem } from '@/lib/db/queries/engagement.queries';
 import { getCachedItems } from '@/lib/content';
+import { itemDateMs } from '@/lib/item-updated-at';
 
 export const dynamic = 'force-dynamic';
 
@@ -67,9 +68,8 @@ export async function GET(request: NextRequest) {
 
       // Recency
       const now = Date.now();
-      const itemTime = item.updatedAt instanceof Date 
-        ? item.updatedAt.getTime() 
-        : new Date(item.updatedAt).getTime();
+      // 0 for an undated item: it gets no recency points.
+      const itemTime = itemDateMs(item.updatedAt);
       const ageInDays = (now - itemTime) / (1000 * 60 * 60 * 24);
       
       if (ageInDays < 30) {

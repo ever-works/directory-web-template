@@ -1,6 +1,16 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { isSitemapPathEnabled, sanitizeSlug, sitemapDate, sitemapSlug, validateSlug } from '../sitemap-urls';
+import {
+	isSitemapPathEnabled,
+	latestDate,
+	newestByTerm,
+	optionalDate,
+	sanitizeSlug,
+	sitemapDate,
+	sitemapSlug,
+	termIds,
+	validateSlug
+} from '../sitemap-urls';
 
 /**
  * Sitemap URL helpers (lib/seo/sitemap-urls.ts), used by app/sitemap.ts.
@@ -120,5 +130,33 @@ describe('sitemapDate', () => {
 		assert.equal(sitemapDate('', fallback), fallback);
 		assert.equal(sitemapDate('not a date', fallback), fallback);
 		assert.equal(sitemapDate(new Date('nope'), fallback), fallback);
+	});
+});
+
+describe('sitemap lastModified helpers (Spec 062)', () => {
+	const items = [
+		{ category: [{ id: 'a' }, { id: 'b' }], tags: ['x'], updatedAt: '2026-01-01' },
+		{ category: { id: 'a' }, tags: [{ id: 'x' }, { id: 'y' }], updatedAt: '2026-03-01' },
+		{ category: 'b', tags: [], updatedAt: 'garbage' },
+		{ category: 'c', tags: [] }
+	];
+
+	it('newestByTerm keeps the newest valid date per term id', () => {
+		const categories = newestByTerm(items, (item) => item.category, (item) => item.updatedAt);
+		assert.equal(categories.get('a')?.toISOString(), '2026-03-01T00:00:00.000Z');
+		assert.equal(categories.get('b')?.toISOString(), '2026-01-01T00:00:00.000Z');
+		assert.equal(categories.has('c'), false, 'no date, no entry (lastModified is then omitted)');
+		const tags = newestByTerm(items, (item) => item.tags, (item) => item.updatedAt);
+		assert.equal(tags.get('x')?.toISOString(), '2026-03-01T00:00:00.000Z');
+		assert.equal(tags.get('y')?.toISOString(), '2026-03-01T00:00:00.000Z');
+	});
+
+	it('termIds, optionalDate and latestDate', () => {
+		assert.deepEqual(termIds(['a', { id: 'b' }, { name: 'no id' }, null, ' ']), ['a', 'b']);
+		assert.deepEqual(termIds('solo'), ['solo']);
+		assert.equal(optionalDate('nope'), null);
+		assert.equal(optionalDate(undefined), null);
+		assert.equal(latestDate([null, new Date('2026-01-01'), new Date('2025-01-01')])?.getUTCFullYear(), 2026);
+		assert.equal(latestDate([]), null);
 	});
 });

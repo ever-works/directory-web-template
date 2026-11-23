@@ -245,9 +245,16 @@ export async function GET(request: NextRequest) {
  *                   example: false
  *                 error:
  *                   type: string
- *                   examples:
- *                     missing_fields: "Tag ID and name are required"
- *                     validation_error: "Tag name must be between 2 and 50 characters"
+ *                   example: "Tag ID and name are required"
+ *             examples:
+ *               missing_fields:
+ *                 value:
+ *                   success: false
+ *                   error: "Tag ID and name are required"
+ *               validation_error:
+ *                 value:
+ *                   success: false
+ *                   error: "Tag name must be between 2 and 50 characters"
  *       401:
  *         description: "Unauthorized - Admin access required"
  *         content:

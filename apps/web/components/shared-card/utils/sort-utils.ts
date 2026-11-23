@@ -1,6 +1,7 @@
 import type { ItemData } from "@/lib/content";
 import type { SortOption } from "@/components/filters/types";
 import type { ItemEngagementMetrics } from "@/lib/db/queries/engagement.queries";
+import { itemDateMs } from "@/lib/item-updated-at";
 
 export const SORT_OPTIONS = {
   POPULARITY: "popularity",
@@ -21,11 +22,9 @@ export interface ItemWithEngagement extends ItemData {
  * Helper function to safely get timestamp from Date or string
  * Handles both Date objects and date strings (from cached data)
  */
-function getTime(date: Date | string): number {
-  if (date instanceof Date) {
-    return date.getTime();
-  }
-  return new Date(date).getTime();
+function getTime(date: Date | string | undefined): number {
+  // An undated item (optional updated_at) sorts as the oldest instead of giving NaN.
+  return itemDateMs(date);
 }
 
 /**

@@ -25,7 +25,7 @@ sidebar_label: Ondersteuning & hulp
 - Implementatie: /deployment/deployment-introduction
 
 ## Demo & voorbeelden
-- Demosite: https://demo.ever.works
+- Demosite: https://dir.ever.works
 - GitHub-repository: https://github.com/ever-works/directory-web-template
 
 ## Probleemoplossing

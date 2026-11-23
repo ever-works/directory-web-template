@@ -46,7 +46,7 @@ Welkom bij het Ever Works-ondersteuningscentrum. Wij zijn er om u te helpen het 
 
 ### Demo en voorbeelden
 
-- **🌐 [Demosite](https://demo.ever.works)** - Zie de sjabloon in actie
+- **🌐 [Demosite](https://dir.ever.works)** - Zie de sjabloon in actie
 - **📚 [Documentatie](https://docs.ever.works)** - Volledige documentatie
 - **💻 [GitHub Repository](https://github.com/ever-works/directory-web-template)** - Broncode en voorbeelden
 

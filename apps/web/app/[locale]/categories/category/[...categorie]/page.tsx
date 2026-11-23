@@ -125,6 +125,7 @@ export default async function CategoryListing({
     <>
       <BreadcrumbJsonLd items={breadcrumbItems} />
       <Listing
+        emitBreadcrumbJsonLd={false}
         total={total}
         start={start}
         page={page}

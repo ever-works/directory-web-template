@@ -95,6 +95,19 @@ reachability in CI).
 - `curl -I https://<site>/` still returns `x-frame-options: DENY` and the
   unchanged global CSP.
 
+## 5a. Follow-up: response examples the reference can show (2026-11-18)
+
+`public/openapi.json` is OpenAPI 3.0, where a Schema Object has no `examples` keyword. 43 responses in 31
+`@swagger` blocks (and two entries `generate-docs` keeps from the existing file) listed named error examples
+inside a schema property, so the reference dropped them. They now sit next to `schema` on the media type, each
+an Example Object whose `value` is the body that handler branch returns (#1152 for the comment routes, #1163 for
+the rest). `apps/web/scripts/openapi-examples.spec.ts` checks every `@swagger` block `generate-docs` reads and
+the generated `openapi.json`: no `examples` inside a schema (paths, parameters, headers, components), every
+named example has a `value`, and no media type has both `example` and `examples`. `generate-docs`
+(`scripts/generate-openapi.ts`) lets an annotation's examples replace the ones already in the file, as it
+already did for descriptions. How to write them:
+`docs/development/api-documentation.md` §5.
+
 ## 6. Rollout
 
 Normal `develop → stage → main` cascade; deployed Works pick it up on their next

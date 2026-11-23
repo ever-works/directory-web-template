@@ -10,6 +10,10 @@
  * Content detection is automatic in v4 — no "content" config needed.
  */
 
+/* Tailwind `dark:` follows Docusaurus's data-theme="dark" (the visitor's System / Light / Dark choice), not the
+   OS media query, so a page without data-theme (JavaScript off) is light like Infima. */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
 @theme {
   /* Font families */
   --font-sans: "Inter", system-ui, -apple-system, sans-serif;
