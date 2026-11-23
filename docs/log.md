@@ -19,6 +19,8 @@ sidebar_position: 99
 
 ## 2026-11-18
 
+- `spec-047` `apps/web/app/[locale]/items/[slug]/{md/route,page}.ts(x)` `apps/web/lib/item-slug.ts` `apps/web/lib/seo/__tests__/item-md-mirror-slug.spec.ts` `apps/web-e2e/tests/public/md-mirror-routes.spec.ts` `docs/spec/047-md-mirror-route-reachability/spec.md`: the item Markdown mirror (`/items/<slug>.md`) passed every slug to `getCachedItem`, and `fetchItem` throws for one that cannot name an item (`Invalid slug format` outside `[A-Za-z0-9_-]`, `ENAMETOOLONG` past a path segment), so `/items/foo.bar.md` and `/items/<300 × a>.md` answered 500 instead of the JSON 404 an unknown slug gets. The handler now answers that 404 for `slug.length > MAX_ITEM_SLUG_LENGTH || !isItemSlug(slug)` before the lookup, as the item page does; the 255 limit moved from `page.tsx` to `lib/item-slug.ts` and both use it. Source-check unit spec (4 tests, all fail on the old code); both URLs join the e2e mirror 404 loop; Spec 047 goals and acceptance name the case. PR #1160 (T-2655).
+
 - `docs/spec/061-shared-item-parse-cache/spec.md` R16 `docs/content-management/content-management.md` `docs/features/seo.md` An item without `updated_at` is listed instead of dropped (date-fns threw on the missing value); it sorts as the oldest and is left out of the feeds. (#1169)
 
 - `docs/{api/auth-endpoints,authentication/session-management,database/users-queries-deep-dive,hooks/use-change-password-reference}.md` `docs/spec/003-auth-providers/spec.md` The admin survey pages' ended-session caveat is gone: since #1154 they call `requireAdmin()` (`auth()` and the live role) before reading the survey. (#1167)
