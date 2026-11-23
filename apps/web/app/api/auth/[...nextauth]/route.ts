@@ -126,9 +126,49 @@ export const runtime = 'nodejs';
  *       302:
  *         description: "Redirect response for authentication flows"
  *       400:
- *         description: "Bad request - Invalid parameters or configuration"
+ *         description: "Bad request - Invalid parameters, or the requested OAuth provider (providerId) is not configured"
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: object
+ *                   properties:
+ *                     message:
+ *                       type: string
+ *                     code:
+ *                       type: string
+ *                       enum: ["PROVIDER_NOT_CONFIGURED", "AUTH_ERROR"]
+ *                   required: ["message", "code"]
+ *             examples:
+ *               provider_not_configured:
+ *                 value:
+ *                   error:
+ *                     message: 'Authentication provider "github" is not available.'
+ *                     code: "PROVIDER_NOT_CONFIGURED"
  *       500:
- *         description: "Internal server error"
+ *         description: "Internal server error - the Auth.js handler threw"
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 error:
+ *                   type: object
+ *                   properties:
+ *                     message:
+ *                       type: string
+ *                     code:
+ *                       type: string
+ *                       enum: ["PROVIDER_NOT_CONFIGURED", "AUTH_ERROR"]
+ *                   required: ["message", "code"]
+ *             examples:
+ *               auth_error:
+ *                 value:
+ *                   error:
+ *                     message: "Authentication service error"
+ *                     code: "AUTH_ERROR"
  */
 export async function GET(req: NextRequest) {
   return handleWithErrorHandling(req, 'GET');
@@ -247,18 +287,41 @@ export async function GET(req: NextRequest) {
  *       302:
  *         description: "Redirect response for successful authentication or OAuth flows"
  *       400:
- *         description: "Bad request - Invalid credentials or missing CSRF token"
+ *         description: "Bad request - Invalid credentials, missing CSRF token, or the requested OAuth provider (providerId) is not configured"
  *         content:
  *           application/json:
  *             schema:
  *               type: object
  *               properties:
  *                 error:
- *                   type: string
- *                   examples:
- *                     invalid_credentials: "Invalid email or password"
- *                     missing_csrf: "CSRF token missing"
- *                     invalid_email: "Invalid email format"
+ *                   oneOf:
+ *                     - type: string
+ *                       example: "Invalid email or password"
+ *                     - type: object
+ *                       description: "Returned when the providerId query parameter names an OAuth provider that is not configured"
+ *                       properties:
+ *                         message:
+ *                           type: string
+ *                           example: 'Authentication provider "github" is not available.'
+ *                         code:
+ *                           type: string
+ *                           example: "PROVIDER_NOT_CONFIGURED"
+ *                       required: ["message", "code"]
+ *             examples:
+ *               invalid_credentials:
+ *                 value:
+ *                   error: "Invalid email or password"
+ *               missing_csrf:
+ *                 value:
+ *                   error: "CSRF token missing"
+ *               invalid_email:
+ *                 value:
+ *                   error: "Invalid email format"
+ *               provider_not_configured:
+ *                 value:
+ *                   error:
+ *                     message: 'Authentication provider "github" is not available.'
+ *                     code: "PROVIDER_NOT_CONFIGURED"
  *       401:
  *         description: "Unauthorized - Authentication failed"
  *         content:
@@ -272,15 +335,27 @@ export async function GET(req: NextRequest) {
  *       429:
  *         description: "Too many requests - Rate limit exceeded"
  *       500:
- *         description: "Internal server error"
+ *         description: "Internal server error - the Auth.js handler threw"
  *         content:
  *           application/json:
  *             schema:
  *               type: object
  *               properties:
  *                 error:
- *                   type: string
- *                   example: "Internal server error"
+ *                   type: object
+ *                   properties:
+ *                     message:
+ *                       type: string
+ *                     code:
+ *                       type: string
+ *                       enum: ["PROVIDER_NOT_CONFIGURED", "AUTH_ERROR"]
+ *                   required: ["message", "code"]
+ *             examples:
+ *               auth_error:
+ *                 value:
+ *                   error:
+ *                     message: "Authentication service error"
+ *                     code: "AUTH_ERROR"
  */
 export async function POST(req: NextRequest) {
   return handleWithErrorHandling(req, 'POST');

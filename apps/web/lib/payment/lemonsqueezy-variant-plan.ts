@@ -22,15 +22,29 @@ export type LemonSqueezyVariantMatch = LemonSqueezyVariantTarget | { kind: 'unkn
 
 type VariantIdInput = string | number | null | undefined;
 
+/** The billing period a configured plan variant renews at. */
+export type LemonSqueezyBillingInterval = 'month' | 'year';
+
 export interface LemonSqueezyVariantSources {
 	plans: ReadonlyArray<{ planId: string; variantIds: ReadonlyArray<VariantIdInput> }>;
 	sponsorAds: ReadonlyArray<{ interval: string; variantIds: ReadonlyArray<VariantIdInput> }>;
+	/**
+	 * The plan variants whose billing period the configuration names (`LEMONSQUEEZY_CONFIG`'s
+	 * monthly / yearly ids). A fallback for the subscription row's interval when the LemonSqueezy
+	 * Prices API cannot be asked; it grants nothing.
+	 */
+	billingIntervals?: ReadonlyArray<{
+		interval: LemonSqueezyBillingInterval;
+		variantIds: ReadonlyArray<VariantIdInput>;
+	}>;
 }
 
 export interface LemonSqueezyVariantCatalog {
 	readonly targets: ReadonlyMap<string, LemonSqueezyVariantTarget>;
 	/** Ids configured for two different targets. They grant nothing until the configuration is fixed. */
 	readonly ambiguous: ReadonlySet<string>;
+	/** Billing period per variant id; an id configured as both monthly and yearly has none. */
+	readonly intervals?: ReadonlyMap<string, LemonSqueezyBillingInterval>;
 }
 
 /** The plans the pricing page can check out (`validateAndMapPlanName`). */
@@ -74,7 +88,35 @@ export function buildLemonSqueezyVariantCatalog(sources: LemonSqueezyVariantSour
 		for (const id of sponsorAd.variantIds) add(id, { kind: 'sponsor_ad', interval: sponsorAd.interval });
 	}
 
-	return { targets, ambiguous };
+	const intervals = new Map<string, LemonSqueezyBillingInterval>();
+	const conflicting = new Set<string>();
+	for (const { interval, variantIds } of sources.billingIntervals ?? []) {
+		for (const variantId of variantIds) {
+			const id = normalizeVariantId(variantId);
+			if (!id || conflicting.has(id)) continue;
+			const existing = intervals.get(id);
+			if (!existing) intervals.set(id, interval);
+			else if (existing !== interval) {
+				intervals.delete(id);
+				conflicting.add(id);
+			}
+		}
+	}
+
+	return { targets, ambiguous, intervals };
+}
+
+/**
+ * The billing period the configuration names for a plan variant, or `undefined` when it names none
+ * (a `works.yml` card or a built-in default id), the id is not a plan variant, or it is ambiguous.
+ */
+export function lemonSqueezyVariantInterval(
+	catalog: LemonSqueezyVariantCatalog,
+	variantId: unknown
+): LemonSqueezyBillingInterval | undefined {
+	const id = normalizeVariantId(variantId);
+	if (!id || matchLemonSqueezyVariant(catalog, id).kind !== 'plan') return undefined;
+	return catalog.intervals?.get(id);
 }
 
 /** What the paid variant grants; `unknown` for a missing, unconfigured or ambiguous id. */
@@ -113,13 +155,19 @@ export interface LemonSqueezyVariantConfig {
  */
 export function collectLemonSqueezyVariantSources(config: LemonSqueezyVariantConfig): LemonSqueezyVariantSources {
 	const plans: Array<{ planId: string; variantIds: VariantIdInput[] }> = [];
+	const monthly: VariantIdInput[] = [];
+	const yearly: VariantIdInput[] = [];
 
 	for (const [planId, planConfig] of Object.entries(config.billing)) {
 		if (!CHECKOUT_PLAN_IDS.has(planId) || !planConfig) continue;
 		const variantIds: VariantIdInput[] = [];
 		for (const currency of BILLING_CURRENCIES) {
 			const amount = planConfig[currency]?.amount;
-			if (amount) variantIds.push(amount.monthly, amount.yearly);
+			if (amount) {
+				variantIds.push(amount.monthly, amount.yearly);
+				monthly.push(amount.monthly);
+				yearly.push(amount.yearly);
+			}
 		}
 		plans.push({ planId, variantIds });
 	}
@@ -141,5 +189,12 @@ export function collectLemonSqueezyVariantSources(config: LemonSqueezyVariantCon
 		variantIds: [variantId]
 	}));
 
-	return { plans, sponsorAds };
+	return {
+		plans,
+		sponsorAds,
+		billingIntervals: [
+			{ interval: 'month', variantIds: monthly },
+			{ interval: 'year', variantIds: yearly }
+		]
+	};
 }

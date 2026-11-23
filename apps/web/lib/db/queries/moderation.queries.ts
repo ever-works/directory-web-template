@@ -115,6 +115,22 @@ export async function getModerationHistoryByUser(userId: string, limit = 50): Pr
 }
 
 /**
+ * The actions `moderation_history` records for a report, in the current tenant. The admin report
+ * route reads them so that retrying a resolution whose report save failed does not warn, remove or
+ * notify a second time (`lib/services/report-moderation.ts`).
+ * @param reportId - Report ID
+ */
+export async function getModerationActionsByReport(reportId: string): Promise<ModerationActionValues[]> {
+	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
+	const rows = await db
+		.select({ action: moderationHistory.action })
+		.from(moderationHistory)
+		.where(and(eq(moderationHistory.reportId, reportId), eq(moderationHistory.tenantId, tenantId)));
+	return rows.map((row) => row.action);
+}
+
+/**
  * Get moderation history for a report
  * @param reportId - Report ID
  * @returns Moderation history entries related to the report

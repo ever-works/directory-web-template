@@ -280,7 +280,7 @@ export async function sendWelcomeBackEmail(
   const emailService = new EmailService({
     provider: emailConfig.EMAIL_PROVIDER,
     defaultFrom: emailConfig.EMAIL_FROM || 'info@ever.works',
-    domain: coreConfig.APP_URL || 'https://demo.ever.works',
+    domain: coreConfig.APP_URL || 'https://dir.ever.works',
     apiKeys: {
       resend: emailConfig.resend.apiKey || '',
       novu: emailConfig.novu.apiKey || '',

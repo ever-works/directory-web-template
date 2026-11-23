@@ -7,10 +7,12 @@ import NextAuth from 'next-auth';
 import { DrizzleAdapter } from '@auth/drizzle-adapter';
 import type { Adapter } from 'next-auth/adapters';
 import { db, getDrizzleInstance } from '../db/drizzle';
-import { eq } from 'drizzle-orm';
+import { and, eq, inArray } from 'drizzle-orm';
 import { users, accounts, sessions, verificationTokens } from '../db/schema';
 import authConfig from '../../auth.config';
 import { invalidateSessionCache } from './cached-session';
+import { OAUTH_ACCOUNT_TYPES } from './connected-accounts';
+import { recordOAuthLinkEmail } from './oauth-link-email';
 import { getClientProfileByUserId, createClientProfile } from '../db/queries/client.queries';
 import { coreConfig } from '@/lib/config/config-service';
 import { getRuntimeAuthSecret, getRuntimeAuthSecretSource } from './auth-secret';
@@ -390,6 +392,32 @@ export const { handlers, auth, signIn, signOut, unstable_update } = NextAuth({
 		}
 	},
 	events: {
+		// Bind the OAuth / OIDC link to the address its provider proved at this sign-in (a new link
+		// included: the adapter's linkAccount gets no profile). The LemonSqueezy ownership check
+		// accepts a link only for that address (lib/auth/oauth-link-email.ts).
+		signIn: async ({ account, profile }) => {
+			if (!isDatabaseAvailable) return;
+			try {
+				await recordOAuthLinkEmail(account, profile, (provider, providerAccountId, email) =>
+					db
+						.update(accounts)
+						.set({ email })
+						.where(
+							and(
+								eq(accounts.provider, provider),
+								eq(accounts.providerAccountId, providerAccountId),
+								inArray(accounts.type, [...OAUTH_ACCOUNT_TYPES])
+							)
+						)
+				);
+			} catch (error) {
+				// The link keeps its previous address (none for a new link), which proves nothing new.
+				console.error(
+					'[auth][signIn] Could not record the OAuth link email',
+					error instanceof Error ? { name: error.name, message: error.message } : { message: 'Unknown error' }
+				);
+			}
+		},
 		signOut: async (event) => {
 			// Invalidate cached session on sign-out
 			const token = 'token' in event ? event.token : undefined;

@@ -119,8 +119,8 @@ architecture (`AuthProvider` adapter) tracked in
   reset or change. A database error while reading it ends the session,
   so an outage signs out the sessions used during it. `proxy.ts` decodes
   the cookie without the jwt callback, so the authorization stays with
-  `auth()`; the admin survey edit, preview and responses pages read the
-  survey without it (documented in `docs/authentication/`; T-2645).
+  `auth()`, which the admin survey edit, preview and responses pages also
+  call (through `requireAdmin()`) before reading the survey (T-2645, #1154).
 - **Open:** should we ship Passkey support? See `docs/questions.md`.
 
 ## 12. Acceptance Test Plan

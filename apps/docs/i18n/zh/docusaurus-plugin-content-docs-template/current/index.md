@@ -50,5 +50,5 @@ pnpm run dev
 
 - [文档](./index.md)
 - [Discord](https://discord.gg/ever)
-- [演示站点](https://demo.ever.works)
+- [演示站点](https://dir.ever.works)
 - [支持](./support.md)

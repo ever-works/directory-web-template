@@ -83,7 +83,7 @@ sits outside `categories/` so that a category named `category` cannot resolve to
 
 | Variable | Default | Read at |
 |---|---|---|
-| `NEXT_CACHE_MAX_MEMORY_MB` | 64 | build (`next.config.ts`) |
+| `NEXT_CACHE_MAX_MEMORY_MB` | 256 | build (`next.config.ts`) |
 | `NEXT_ISR_FLUSH_TO_DISK` | off | server start (`cache-handler.cjs`) |
 | `CONTENT_LISTING_CACHE_MAX_ENTRIES` | 16 | runtime |
 

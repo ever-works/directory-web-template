@@ -909,7 +909,7 @@ export async function runSeed(): Promise<void> {
 								.split('-')
 								.map((word) => word.charAt(0).toUpperCase() + word.slice(1))
 								.join(' '),
-							itemIconUrl: `https://demo.ever.works/icons/${itemSlug}.png`,
+							itemIconUrl: `https://dir.ever.works/icons/${itemSlug}.png`,
 							itemCategory: faker.helpers.arrayElement([
 								'Time Tracking',
 								'Project Management',

@@ -53,5 +53,5 @@ pnpm run dev
 
 - Lesen Sie unsere Dokumentation für allgemeine Informationen
 - Treten Sie unserer Discord-Community für Support bei
-- Besuchen Sie die Demo-Website unter https://demo.ever.works
+- Besuchen Sie die Demo-Website unter https://dir.ever.works
 - Kontaktieren Sie den Support für technische Unterstützung

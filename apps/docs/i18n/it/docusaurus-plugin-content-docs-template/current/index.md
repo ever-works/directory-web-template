@@ -53,5 +53,5 @@ pnpm run dev
 
 - Consulta la nostra documentazione per informazioni generali
 - Unisciti alla nostra community Discord per assistenza
-- Visita il sito demo su https://demo.ever.works
+- Visita il sito demo su https://dir.ever.works
 - Contatta il supporto per assistenza tecnica

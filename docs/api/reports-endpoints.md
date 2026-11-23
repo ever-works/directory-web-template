@@ -274,7 +274,7 @@ The following automated actions are triggered based on the resolution value:
 | 400 | Invalid status or resolution value; content owner not found for user-level actions (for example `Item submitter has no client profile`, or `Item not found` when the content is gone) |
 | 403 | Not an admin |
 | 404 | Report not found |
-| 409 | The moderation action does not fit the target's state (`User is already banned`, `User is already suspended`, `User not found`, or `content_removed` on content that is already gone) |
+| 409 | The moderation action does not fit the target's state (`User is already banned` or `User is already suspended` by another report or by hand, `User not found`, or `content_removed` on content that cannot be found) |
 | 500 | The moderation action failed (for example `Failed to warn user`), or the report could not be saved |
 
 On every moderation error (400 owner not found, 409, 500 action failed) the report is **left unchanged**: the action runs before the report is saved. The `error` field carries the action's message, which the admin reports page shows in its error toast.
@@ -301,4 +301,12 @@ When a report is resolved with a user-level resolution (`user_warned`, `user_sus
 
 The moderation action runs before the report is saved. If the owner cannot be identified or the action fails, the route answers an error with the action's message and the report stays as it was, so the admin can pick another resolution.
 
-The action runs only when the resolution changes. The review dialog sends the saved resolution back with every edit, so a resolution the report already has is not run again: editing the note or status of a completed report saves without banning, suspending, warning or removing a second time. To run an action again, save the report with another resolution first.
+The action runs only when the resolution changes. The review dialog sends the saved resolution back with every edit, so a resolution the report already has is not run again: editing the note or status of a completed report saves without banning, suspending, warning or removing a second time.
+
+**Retry after a failed save.** The action and the report save are two writes (`content_removed` deletes from the Git data repository, so one transaction cannot cover both). If the action succeeds and the save fails, the admin retries the same resolution, and the retry saves the report without acting twice (`lib/services/report-moderation.ts`):
+
+- `user_warned` / `content_removed`: skipped when `moderation_history` already records that action for this report, so the user is not warned, or notified of the removal, a second time.
+- `user_banned` / `user_suspended`: the action runs; an `ALREADY_BANNED` / `ALREADY_SUSPENDED` answer counts as done only when `moderation_history` records the same action for this report. A ban or suspension from another report (or made by hand) stays a 409, and a user unbanned since is banned again.
+- `content_removed` answering `NOT_FOUND` stays a 409: the item may only be unreadable (data repository not synced yet, a YAML file that fails to parse) while it is still public.
+
+The same rule applies when a report is moved to another resolution and back: a warning or removal this report recorded is not repeated. Two cases leave no history row, so their retry still answers 409: content whose owner has no client profile, and a ban or suspension whose history write failed after the user was changed (`docs/questions.md` Q-009a).

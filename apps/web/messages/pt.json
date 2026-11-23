@@ -461,6 +461,7 @@
 		"PROMO_CODE": "Promo Code",
 		"SIMILAR_PRODUCTS": "Produtos semelhantes",
 		"SIMILAR_PRODUCTS_DESCRIPTION": "Explore mais itens relacionados a este",
+		"ALTERNATIVES_TO": "Alternativas a {name}",
 		"STATISTICS": "Estatísticas",
 		"STATS_VIEWS": "Visualizações",
 		"STATS_VOTES": "Votos positivos",

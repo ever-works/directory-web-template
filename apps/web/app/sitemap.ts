@@ -10,12 +10,16 @@ import { buildCategoryHref, buildPostHref, buildTagHref } from '@/lib/blog/urls'
 import { getBaseUrl as getPublicBaseUrl } from '@/lib/utils/url-cleaner';
 import {
 	isSitemapPathEnabled,
-	sitemapDate,
+	latestDate,
+	newestByTerm,
+	optionalDate,
 	sitemapSlug,
 	validateSlug,
 	type SitemapSections
 } from '@/lib/seo/sitemap-urls';
 import { getCategoriesEnabled, getTagsEnabled } from '@/lib/utils/settings';
+import { generateHreflangAlternates, getLocalizedUrl } from '@/lib/seo/hreflang';
+import { DEFAULT_LOCALE, LOCALES } from '@/lib/constants';
 
 // Rendered per request, never prerendered. The image is built without
 // NEXT_PUBLIC_APP_URL (the deploy platform injects it at runtime), so the copy
@@ -32,11 +36,39 @@ interface RouteConfig {
 
 interface SitemapEntry {
 	url: string;
-	lastModified: Date;
+	/**
+	 * When the page's content last changed, from the data (item `updated_at`,
+	 * comparison `generated_at`, post date). Omitted when the data has no
+	 * date: "now" on every fetch made crawlers ignore every date (Spec 062).
+	 */
+	lastModified?: Date;
 	changeFrequency: 'always' | 'hourly' | 'daily' | 'weekly' | 'monthly' | 'yearly' | 'never';
 	priority: number;
 	images?: string[];
+	/** hreflang alternates (every locale + x-default), the same set each page declares in its <head>. */
+	alternates?: { languages: Record<string, string> };
 }
+
+/**
+ * A path's URL in the default locale: unprefixed in the `as-needed` style, `/<default>`-prefixed with
+ * `LOCALE_URL_STYLE=always` (getLocalizedUrl), the same URL the page names as its canonical.
+ */
+const defaultLocaleUrl = (path: string): string => getLocalizedUrl(path, DEFAULT_LOCALE);
+
+/** The page's hreflang alternates, as `generateHreflangAlternates` puts them in its <head>. */
+const languagesFor = (path: string): SitemapEntry['alternates'] => ({ languages: generateHreflangAlternates(path) });
+
+/** Pages whose content is the item listing: their lastModified is the newest item's. */
+const ITEM_LISTING_PATHS = new Set(['', '/categories', '/tags']);
+
+/** Newest dates of the records a listing page shows; a path with no known date gets no lastModified. */
+interface ListingDates {
+	newestItem: Date | null;
+	newestComparison: Date | null;
+}
+
+const listingDate = (path: string, dates: ListingDates): Date | null =>
+	ITEM_LISTING_PATHS.has(path) ? dates.newestItem : path === '/comparisons' ? dates.newestComparison : null;
 
 // Constants
 const DEFAULT_PRIORITIES = {
@@ -219,12 +251,13 @@ const toAbsoluteImageUrl = (iconUrl: string | undefined, baseUrl: string): strin
 	}
 };
 
-const generateStaticRoutes = (baseUrl: string, sections: SitemapSections): SitemapEntry[] => {
+const generateStaticRoutes = (sections: SitemapSections, dates: ListingDates): SitemapEntry[] => {
 	return STATIC_ROUTES.filter((route) => isSitemapPathEnabled(route.path, sections)).map((route) => ({
-		url: `${baseUrl}${route.path}`,
-		lastModified: new Date(),
+		url: defaultLocaleUrl(route.path),
+		...(listingDate(route.path, dates) && { lastModified: listingDate(route.path, dates)! }),
 		changeFrequency: route.changeFrequency,
-		priority: route.priority
+		priority: route.priority,
+		alternates: languagesFor(route.path)
 	}));
 };
 
@@ -236,48 +269,50 @@ const generateStaticRoutes = (baseUrl: string, sections: SitemapSections): Sitem
  * directory with none sends crawlers to an empty-state page. Emitted only when
  * `generateDynamicRoutes()` found at least one post.
  */
-const generateBlogListingRoutes = (baseUrl: string): SitemapEntry[] => [
+const generateBlogListingRoutes = (baseUrl: string, newestPost: Date | null): SitemapEntry[] => [
 	{
-		url: `${baseUrl}/blog`,
-		lastModified: new Date(),
+		url: defaultLocaleUrl('/blog'),
+		...(newestPost && { lastModified: newestPost }),
 		changeFrequency: DEFAULT_CHANGE_FREQUENCIES.WEEKLY,
-		priority: DEFAULT_PRIORITIES.MAIN
+		priority: DEFAULT_PRIORITIES.MAIN,
+		alternates: languagesFor('/blog')
 	},
 	...PREFIXED_LOCALES.map((locale) => ({
 		url: `${baseUrl}/${locale}/blog`,
-		lastModified: new Date(),
+		...(newestPost && { lastModified: newestPost }),
 		changeFrequency: DEFAULT_CHANGE_FREQUENCIES.WEEKLY,
-		priority: DEFAULT_PRIORITIES.MAIN
+		priority: DEFAULT_PRIORITIES.MAIN,
+		alternates: languagesFor('/blog')
 	}))
 ];
 
 const generatePaginationRoutes = (baseUrl: string): SitemapEntry[] => {
 	return PAGINATION_ROUTES.map((route) => ({
 		url: `${baseUrl}${route}`,
-		lastModified: new Date(),
 		changeFrequency: DEFAULT_CHANGE_FREQUENCIES.WEEKLY,
 		priority: DEFAULT_PRIORITIES.LOW
 	}));
 };
 
-/** Locales that carry a URL prefix (the default locale is served unprefixed). */
-const PREFIXED_LOCALES = ['fr', 'es', 'de', 'ar', 'zh'];
+/**
+ * Locales that carry a URL prefix (the default locale is served unprefixed):
+ * every supported locale, the same list the hreflang alternates use. It was a
+ * hard-coded five while every page declared all of them (Spec 062).
+ */
+const PREFIXED_LOCALES = LOCALES.filter((locale) => locale !== DEFAULT_LOCALE);
 
-const generateLocaleRoutes = (baseUrl: string, sections: SitemapSections): SitemapEntry[] => {
-	const locales = ['en', ...PREFIXED_LOCALES];
+const generateLocaleRoutes = (baseUrl: string, sections: SitemapSections, dates: ListingDates): SitemapEntry[] => {
 	const routes: SitemapEntry[] = [];
 
-	locales.forEach((locale) => {
+	PREFIXED_LOCALES.forEach((locale) => {
 		STATIC_ROUTES.filter((route) => isSitemapPathEnabled(route.path, sections)).forEach((route) => {
-			if (locale !== 'en') {
-				// Skip default locale prefix
-				routes.push({
-					url: `${baseUrl}/${locale}${route.path}`,
-					lastModified: new Date(),
-					changeFrequency: route.changeFrequency,
-					priority: route.priority
-				});
-			}
+			routes.push({
+				url: `${baseUrl}/${locale}${route.path}`,
+				...(listingDate(route.path, dates) && { lastModified: listingDate(route.path, dates)! }),
+				changeFrequency: route.changeFrequency,
+				priority: route.priority,
+				alternates: languagesFor(route.path)
+			});
 		});
 	});
 
@@ -311,19 +346,21 @@ const fetchAllPostsForSitemap = async (): Promise<PostSummary[]> => {
  */
 const recordEntries = <T>(
 	records: ReadonlyArray<T>,
-	base: string,
+	section: string,
 	slugOf: (record: T) => string | null | undefined,
 	entryOf: (record: T) => Omit<SitemapEntry, 'url'>
 ): SitemapEntry[] =>
 	records.flatMap((record) => {
 		const slug = sitemapSlug(slugOf(record));
-		return slug ? [{ url: `${base}/${slug}`, ...entryOf(record) }] : [];
+		if (!slug) return [];
+		const path = `${section}/${slug}`;
+		return [{ url: defaultLocaleUrl(path), ...entryOf(record), alternates: languagesFor(path) }];
 	});
 
 const generateDynamicRoutes = async (
 	baseUrl: string,
 	sections: SitemapSections
-): Promise<{ entries: SitemapEntry[]; hasPosts: boolean }> => {
+): Promise<{ entries: SitemapEntry[]; hasPosts: boolean; dates: ListingDates }> => {
 	try {
 		const [{ items, categories, tags, collections }, { comparisons }, posts, postTaxonomies] = await Promise.all([
 			getCachedItems(),
@@ -334,19 +371,27 @@ const generateDynamicRoutes = async (
 			getCachedPostTaxonomies().catch(() => ({ categories: [], tags: [] }))
 		]);
 
+		// lastModified of a category / tag: its newest item (Spec 062).
+		const itemDate = (item: (typeof items)[number]) => item.updatedAt ?? item.updated_at;
+		const newestByCategory = newestByTerm(items, (item) => item.category, itemDate);
+		const newestByTag = newestByTerm(items, (item) => item.tags, itemDate);
+		const newestItem = latestDate(items.map((item) => optionalDate(itemDate(item))));
+
 		const entries: SitemapEntry[] = [
 			// Directory records, each under its stored slug VERBATIM (recordEntries).
 			// Items - include images for items with icon_url
 			...recordEntries(
 				items,
-				`${baseUrl}/items`,
+				'/items',
 				(item) => item.slug,
 				(item) => {
 					const absoluteImageUrl = toAbsoluteImageUrl(item.icon_url, baseUrl);
+					const lastModified = optionalDate(itemDate(item));
 					return {
 						// updatedAt comes back from the content cache as a string, and an
-						// unparseable updated_at is an Invalid Date; sitemapDate() copes.
-						lastModified: sitemapDate(item.updatedAt),
+						// unparseable updated_at is an Invalid Date; optionalDate() copes
+						// (and an item without a date gets no lastModified).
+						...(lastModified && { lastModified }),
 						changeFrequency: DEFAULT_CHANGE_FREQUENCIES.WEEKLY,
 						priority: item.featured ? DEFAULT_PRIORITIES.MAIN : DEFAULT_PRIORITIES.SECONDARY,
 						...(absoluteImageUrl && { images: [absoluteImageUrl] })
@@ -360,10 +405,10 @@ const generateDynamicRoutes = async (
 			// None when the site switches categories off (the pages 404).
 			...recordEntries(
 				sections.categories ? categories : [],
-				`${baseUrl}/categories`,
+				'/categories',
 				(category) => category.id,
-				() => ({
-					lastModified: new Date(),
+				(category) => ({
+					...(newestByCategory.get(category.id) && { lastModified: newestByCategory.get(category.id) }),
 					changeFrequency: DEFAULT_CHANGE_FREQUENCIES.WEEKLY,
 					priority: DEFAULT_PRIORITIES.SECONDARY
 				})
@@ -371,20 +416,19 @@ const generateDynamicRoutes = async (
 			// None when the site switches tags off (the pages 404).
 			...recordEntries(
 				sections.tags ? tags : [],
-				`${baseUrl}/tags`,
+				'/tags',
 				(tag) => tag.id,
-				() => ({
-					lastModified: new Date(),
+				(tag) => ({
+					...(newestByTag.get(tag.id) && { lastModified: newestByTag.get(tag.id) }),
 					changeFrequency: DEFAULT_CHANGE_FREQUENCIES.WEEKLY,
 					priority: DEFAULT_PRIORITIES.TERTIARY
 				})
 			),
 			...recordEntries(
 				collections.filter((collection) => collection.isActive !== false),
-				`${baseUrl}/collections`,
+				'/collections',
 				(collection) => collection.slug || collection.id,
 				() => ({
-					lastModified: new Date(),
 					changeFrequency: DEFAULT_CHANGE_FREQUENCIES.WEEKLY,
 					priority: DEFAULT_PRIORITIES.SECONDARY
 				})
@@ -394,10 +438,10 @@ const generateDynamicRoutes = async (
 			// every comparison <loc> was a 404.
 			...recordEntries(
 				comparisons,
-				`${baseUrl}/comparisons`,
+				'/comparisons',
 				(comparison) => comparison.slug,
 				(comparison) => ({
-					lastModified: sitemapDate(comparison.generated_at),
+					...(optionalDate(comparison.generated_at) && { lastModified: optionalDate(comparison.generated_at)! }),
 					changeFrequency: DEFAULT_CHANGE_FREQUENCIES.WEEKLY,
 					priority: DEFAULT_PRIORITIES.SECONDARY
 				})
@@ -406,7 +450,7 @@ const generateDynamicRoutes = async (
 			...posts
 				.filter((post) => validatePostSlug(post.slug))
 				.map((post) => {
-					const lastModified = post.date ? new Date(post.date) : new Date();
+					const lastModified = optionalDate(post.date);
 					const entry: SitemapEntry = {
 						// NOT `sanitizeSlug()`: it lowercases, and the post loader looks
 						// slugs up against filenames case-sensitively, so a post file with
@@ -414,10 +458,13 @@ const generateDynamicRoutes = async (
 						// `buildPostHref()` is the same builder the in-app links use, so
 						// the sitemap can never advertise a different URL than the site
 						// links to.
-						url: `${baseUrl}${buildPostHref(post.slug)}`,
-						lastModified: Number.isNaN(lastModified.getTime()) ? new Date() : lastModified,
+						url: defaultLocaleUrl(buildPostHref(post.slug)),
+						...(lastModified && { lastModified }),
 						changeFrequency: DEFAULT_CHANGE_FREQUENCIES.MONTHLY,
-						priority: DEFAULT_PRIORITIES.SECONDARY
+						priority: DEFAULT_PRIORITIES.SECONDARY,
+						// Every locale renders the post (the loader falls back to the
+						// English file), and the post page declares the same set.
+						alternates: languagesFor(buildPostHref(post.slug))
 					};
 
 					const absoluteImageUrl = toAbsoluteImageUrl(post.image, baseUrl);
@@ -434,31 +481,36 @@ const generateDynamicRoutes = async (
 			...postTaxonomies.categories
 				.filter((category) => category.count > 0 && validateSlug(category.id))
 				.map((category) => ({
-					url: `${baseUrl}${buildCategoryHref(category.id)}`,
-					lastModified: new Date(),
+					url: defaultLocaleUrl(buildCategoryHref(category.id)),
 					changeFrequency: DEFAULT_CHANGE_FREQUENCIES.WEEKLY,
-					priority: DEFAULT_PRIORITIES.TERTIARY
+					priority: DEFAULT_PRIORITIES.TERTIARY,
+					alternates: languagesFor(buildCategoryHref(category.id))
 				})),
 			...postTaxonomies.tags
 				.filter((tag) => tag.count > 0 && validateSlug(tag.id))
 				.map((tag) => ({
-					url: `${baseUrl}${buildTagHref(tag.id)}`,
-					lastModified: new Date(),
+					url: defaultLocaleUrl(buildTagHref(tag.id)),
 					changeFrequency: DEFAULT_CHANGE_FREQUENCIES.WEEKLY,
-					priority: DEFAULT_PRIORITIES.TERTIARY
+					priority: DEFAULT_PRIORITIES.TERTIARY,
+					alternates: languagesFor(buildTagHref(tag.id))
 				}))
 		];
 
 		// The blog listing URL rides along here rather than in STATIC_ROUTES so
 		// it is advertised only when the data repository actually ships posts.
 		const hasPosts = posts.length > 0;
+		const newestPost = latestDate(posts.map((post) => optionalDate(post.date)));
 		return {
-			entries: hasPosts ? [...entries, ...generateBlogListingRoutes(baseUrl)] : entries,
-			hasPosts
+			entries: hasPosts ? [...entries, ...generateBlogListingRoutes(baseUrl, newestPost)] : entries,
+			hasPosts,
+			dates: {
+				newestItem,
+				newestComparison: latestDate(comparisons.map((comparison) => optionalDate(comparison.generated_at)))
+			}
 		};
 	} catch (error) {
 		console.error('Failed to generate dynamic routes:', error);
-		return { entries: [], hasPosts: false };
+		return { entries: [], hasPosts: false, dates: { newestItem: null, newestComparison: null } };
 	}
 };
 
@@ -468,18 +520,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 		const baseUrl = getBaseUrl();
 		const sections = await getSitemapSections();
 
-		const [staticRoutes, paginationRoutes, localeRoutes, dynamicRoutes] = await Promise.all([
-			Promise.resolve(generateStaticRoutes(baseUrl, sections)),
-			Promise.resolve(ADVERTISE_PAGINATION_ROUTES ? generatePaginationRoutes(baseUrl) : []),
-			Promise.resolve(generateLocaleRoutes(baseUrl, sections)),
-			generateDynamicRoutes(baseUrl, sections)
-		]);
+		const dynamicRoutes = await generateDynamicRoutes(baseUrl, sections);
+		const staticRoutes = generateStaticRoutes(sections, dynamicRoutes.dates);
+		const paginationRoutes = ADVERTISE_PAGINATION_ROUTES ? generatePaginationRoutes(baseUrl) : [];
+		const localeRoutes = generateLocaleRoutes(baseUrl, sections, dynamicRoutes.dates);
 
 		return [...staticRoutes, ...dynamicRoutes.entries, ...paginationRoutes, ...localeRoutes];
 	} catch (error) {
 		console.error('Error generating sitemap:', error);
 		// Return basic sitemap with static routes in case of error
-		const baseUrl = getBaseUrl();
-		return generateStaticRoutes(baseUrl, getEnabledSections());
+		return generateStaticRoutes(getEnabledSections(), { newestItem: null, newestComparison: null });
 	}
 }

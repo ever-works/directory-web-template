@@ -10,6 +10,7 @@ import { ItemViewTracker } from '@/components/tracking/item-view-tracker';
 import { Metadata } from 'next';
 import { siteConfig } from '@/lib/config';
 import { getSiteName } from '@/lib/seo/site-identity';
+import { itemDescription, itemTitle } from '@/lib/seo/meta-text';
 import { getBaseUrl } from '@/lib/utils/url-cleaner';
 import { generateItemHreflangAlternates, getLocalizedUrl } from '@/lib/seo/hreflang';
 import { type Locale } from '@/lib/constants';
@@ -82,26 +83,35 @@ export async function generateMetadata({
 			? meta.tags.map((tag) => (typeof tag === 'string' ? tag : tag.name))
 			: [];
 
-		// Truncate description to 160 characters for meta description
-		const MAX_DESCRIPTION_LENGTH = 160;
-		const metaDescription = meta.description
-			? meta.description.length > MAX_DESCRIPTION_LENGTH
-				? `${meta.description.slice(0, MAX_DESCRIPTION_LENGTH - 3)}...`
-				: meta.description
-			: `Discover ${meta.name} on ${await getSiteName()}`;
+		// "<Item> – <Category> | <Site>" and a description cut on a word boundary
+		// near 155 characters from the item's own text (lib/seo/meta-text.ts,
+		// Spec 062); an item without one gets a factual sentence, never a claim.
+		const siteName = await getSiteName();
+		// The first category only; none for `category: []` or a missing value
+		// (getCategoriesName reads `.name` and would throw on undefined).
+		const firstCategory = Array.isArray(meta.category) ? meta.category[0] : meta.category;
+		const primaryCategory = firstCategory ? getCategoriesName(firstCategory as never) : '';
+		const pageTitle = itemTitle({ name: meta.name, category: primaryCategory });
+		const metaDescription = itemDescription({
+			name: meta.name,
+			category: primaryCategory,
+			siteName,
+			description: meta.description
+		});
 
 		// Use dynamic OG image endpoint, with fallback to icon or logo
-		const ogImageUrl = new URL(`/${locale}/items/${slug}/opengraph-image`, appUrl).toString();
+		// Unprefixed for the default locale: `/en/...` answers a redirect.
+		const ogImageUrl = getLocalizedUrl(`/items/${slug}/opengraph-image`, locale as Locale);
 		const fallbackImageUrl = new URL(meta.icon_url ?? siteConfig.logo, appUrl).toString();
 
 		return {
 			metadataBase: new URL(appUrl),
-			title: `${meta.name} | ${await getSiteName()}`,
+			title: `${pageTitle} | ${siteName}`,
 			description: metaDescription,
 			keywords,
 			openGraph: {
-				title: meta.name,
-				description: meta.description || metaDescription,
+				title: pageTitle,
+				description: metaDescription,
 				images: [
 					{
 						url: ogImageUrl,
@@ -115,12 +125,12 @@ export async function generateMetadata({
 					}
 				],
 				type: 'website',
-				siteName: await getSiteName(),
+				siteName,
 				url: getLocalizedUrl(`/items/${slug}`, locale as Locale)
 			},
 			twitter: {
 				card: 'summary_large_image',
-				title: meta.name,
+				title: pageTitle,
 				description: metaDescription,
 				images: [ogImageUrl, fallbackImageUrl]
 			},
@@ -247,6 +257,7 @@ export default async function ItemDetails({ params }: { params: Promise<{ slug: 
 							similarItemsPromise={similarItemsPromise}
 							headings={headings}
 							rating={rating}
+							siteUrl={appUrl}
 						/>
 					</Container>
 				</div>

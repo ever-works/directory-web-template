@@ -362,12 +362,25 @@ export async function GET(request: NextRequest) {
  *             schema:
  *               type: object
  *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
  *                 error:
  *                   type: string
- *                   examples:
- *                     missing_email: "Email is required"
- *                     user_creation_failed: "Failed to create user: [error details]"
- *                     invalid_user: "Failed to create or find user for client"
+ *                   example: "Email is required"
+ *             examples:
+ *               missing_email:
+ *                 value:
+ *                   success: false
+ *                   error: "Email is required"
+ *               user_creation_failed:
+ *                 value:
+ *                   success: false
+ *                   error: "Failed to create user: [error details]"
+ *               invalid_user:
+ *                 value:
+ *                   success: false
+ *                   error: "Failed to create or find user for client"
  *       401:
  *         description: "Unauthorized - Admin access required"
  *         content:

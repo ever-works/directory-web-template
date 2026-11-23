@@ -18,6 +18,7 @@ import { RelayEventCoordinator } from '@/lib/payment/relay-event-coordinator';
 import { getLemonSqueezyEventKey, parseLemonSqueezyEvent, toOrderEmailData } from '@/lib/payment/lemonsqueezy-webhook';
 import { createLemonSqueezySubscriptionEvents } from '@/lib/payment/lemonsqueezy-subscription-events';
 import { loadLemonSqueezyVariantCatalog } from '@/lib/payment/lemonsqueezy-variant-catalog';
+import { createLemonSqueezyPriceLoader } from '@/lib/payment/lemonsqueezy-price';
 import { createVerifiedEmailUserFinder } from '@/lib/payment/lemonsqueezy-verified-email-user';
 import { getUsersByEmailIgnoringCase, loadEmailVerificationState } from '@/lib/payment/subscription-email-verification';
 import { getUserByEmail } from '@/lib/db/queries';
@@ -36,7 +37,11 @@ const subscriptionEvents = createLemonSqueezySubscriptionEvents({
 		getUserByEmail,
 		getUsersByEmailIgnoringCase,
 		loadVerificationState: loadEmailVerificationState
-	})
+	}),
+	// Subscription events carry no amount or interval: read them from the subscription's price.
+	loadBillingDetails: createLemonSqueezyPriceLoader((priceId) =>
+		getOrCreateLemonsqueezyProvider().getPriceAttributes(priceId)
+	)
 });
 
 // Per-pod burst de-duplication of redelivered events, bounded (the coordinator clears its keys
