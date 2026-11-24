@@ -11,9 +11,10 @@ import { describe, it } from 'node:test';
  * user follows, or is followed by, a public user, the public user's followers / following pages
  * must not list the Private user's row (name, avatar, job title, bio) to anyone but the Private
  * user. `listFollowers` and `listFollowing` drop those rows unless the row's user is the viewer;
- * the two list pages pass the viewer's id. The counts stay as they are (they name nobody). The
- * queries import the database and the pages import Next.js, so neither can be loaded under
- * `tsx --test`; these guards read the source.
+ * the two list pages pass the viewer's id and page by `countVisibleFollowers` /
+ * `countVisibleFollowing`, which count the same rows. The header counts stay as they are (they
+ * name nobody). The queries import the database and the pages import Next.js, so neither can be
+ * loaded under `tsx --test`; these guards read the source.
  */
 const source = (relative: string) => readFileSync(join(__dirname, relative), 'utf8').replace(/\s+/g, ' ');
 
@@ -91,6 +92,24 @@ describe('the follow-list rows leave out Private profiles except the viewer', ()
 		});
 	}
 
+	for (const [name, column, joinColumn] of [
+		['countVisibleFollowers', 'followingId', 'followerId'],
+		['countVisibleFollowing', 'followerId', 'followingId']
+	] as const) {
+		it(`${name} counts the rows the list shows`, () => {
+			const body = functionBody(queries, `export async function ${name}(`);
+			assert.ok(/viewerUserId\?: string \| null/.test(body), `${name} does not take an optional viewerUserId`);
+			assert.ok(
+				body.includes(`.innerJoin(clientProfiles, eq(clientProfiles.userId, userFollows.${joinColumn}))`),
+				`${name} does not join the profile of each row`
+			);
+			assert.ok(body.includes('isNull(users.deactivatedAt)'), `${name} counts deactivated accounts`);
+			assert.ok(body.includes(`eq(userFollows.${column}, userId)`), `${name} lost its ${column} filter`);
+			assert.ok(body.includes('eq(userFollows.tenantId, tenantId)'), `${name} lost its tenant filter`);
+			assert.ok(body.includes('followListVisibleTo(viewerUserId)'), `${name} counts Private rows`);
+		});
+	}
+
 	it('the follower and following counts stay unfiltered', () => {
 		for (const name of ['getFollowerCount', 'getFollowingCount']) {
 			const body = functionBody(queries, `export async function ${name}(`);
@@ -99,9 +118,21 @@ describe('the follow-list rows leave out Private profiles except the viewer', ()
 		}
 	});
 
-	for (const [label, page, signature, listCall] of [
-		['followers/page.tsx', followersPage, 'export default async function ProfileFollowersPage(', 'listFollowers('],
-		['following/page.tsx', followingPage, 'export default async function ProfileFollowingPage(', 'listFollowing(']
+	for (const [label, page, signature, listCall, countCall] of [
+		[
+			'followers/page.tsx',
+			followersPage,
+			'export default async function ProfileFollowersPage(',
+			'listFollowers(',
+			'countVisibleFollowers('
+		],
+		[
+			'following/page.tsx',
+			followingPage,
+			'export default async function ProfileFollowingPage(',
+			'listFollowing(',
+			'countVisibleFollowing('
+		]
 	] as const) {
 		it(`${label} passes the viewer to ${listCall}`, () => {
 			const body = functionBody(page, signature);
@@ -110,6 +141,18 @@ describe('the follow-list rows leave out Private profiles except the viewer', ()
 					`${listCall}profile.userId, FOLLOW_LIST_PAGE_SIZE, (page - 1) * FOLLOW_LIST_PAGE_SIZE, viewerUserId)`
 				),
 				`${label} does not pass viewerUserId to ${listCall}`
+			);
+		});
+
+		it(`${label} pages by the rows the viewer can see`, () => {
+			const body = functionBody(page, signature);
+			assert.ok(
+				body.includes(`${countCall}profile.userId, viewerUserId)`),
+				`${label} does not count the rows the viewer can see`
+			);
+			assert.ok(
+				body.includes('Math.ceil(visibleTotal / FOLLOW_LIST_PAGE_SIZE)'),
+				`${label} pages by the full count, so it offers empty pages`
 			);
 		});
 	}

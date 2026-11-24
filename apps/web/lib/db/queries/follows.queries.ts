@@ -174,6 +174,56 @@ function followListVisibleTo(viewerUserId?: string | null): SQL {
 }
 
 /**
+ * How many rows `listFollowers` shows this viewer: the same joins and the same
+ * `followListVisibleTo` filter, counted. The list pages page by this number, so
+ * the pagination never offers pages that only Private rows would fill. The
+ * header keeps `getFollowerCount`.
+ */
+export async function countVisibleFollowers(userId: string, viewerUserId?: string | null): Promise<number> {
+	const tenantId = await getTenantId();
+	if (!tenantId) return 0;
+
+	const [row] = await db
+		.select({ count: sql<number>`count(*)::int` })
+		.from(userFollows)
+		.innerJoin(clientProfiles, eq(clientProfiles.userId, userFollows.followerId))
+		.innerJoin(users, and(eq(users.id, userFollows.followerId), isNull(users.deactivatedAt)))
+		.where(
+			and(
+				eq(userFollows.followingId, userId),
+				eq(userFollows.tenantId, tenantId),
+				followListVisibleTo(viewerUserId)
+			)
+		);
+
+	return row?.count ?? 0;
+}
+
+/**
+ * How many rows `listFollowing` shows this viewer (see `countVisibleFollowers`).
+ * The header keeps `getFollowingCount`.
+ */
+export async function countVisibleFollowing(userId: string, viewerUserId?: string | null): Promise<number> {
+	const tenantId = await getTenantId();
+	if (!tenantId) return 0;
+
+	const [row] = await db
+		.select({ count: sql<number>`count(*)::int` })
+		.from(userFollows)
+		.innerJoin(clientProfiles, eq(clientProfiles.userId, userFollows.followingId))
+		.innerJoin(users, and(eq(users.id, userFollows.followingId), isNull(users.deactivatedAt)))
+		.where(
+			and(
+				eq(userFollows.followerId, userId),
+				eq(userFollows.tenantId, tenantId),
+				followListVisibleTo(viewerUserId)
+			)
+		);
+
+	return row?.count ?? 0;
+}
+
+/**
  * List people who follow the given userId within the current tenant.
  * Ordered by most recent follow first. Caller passes limit + offset, and the
  * viewer's id so that a Private follower is listed only to themselves.

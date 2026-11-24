@@ -211,7 +211,10 @@ persist across sessions, so that I can showcase work over time.
   not listed by name, avatar, job title or bio on the public
   user's `/followers` or `/following` page, nor in the owner's
   recent-follows activity on their own profile page. The follower
-  and following counts are unchanged (they name nobody). Guarded by
+  and following counts are unchanged (they name nobody). The two
+  pages page by `countVisibleFollowers` / `countVisibleFollowing`,
+  which count the rows the viewer can see, so the pagination never
+  offers an empty page. Guarded by
   `apps/web/lib/db/queries/__tests__/follow-lists-hide-private.spec.ts`
   (T-2729).
 
