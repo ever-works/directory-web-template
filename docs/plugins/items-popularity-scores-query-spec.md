@@ -14,8 +14,8 @@ smoke spec** paired with
 
 This is the **first per-source-file GET smoke** the docs
 tree publishes that pins a **public (no-auth-gate) debug
-endpoint** combining a `Math.min(parseInt(limit), 100)`
-admit-clamp invariant, a `locale` default-`'en'` fallback,
+endpoint** combining a `parsePaginationParams` 1–100
+`limit` clamp (default 20), a `locale` default-`'en'` fallback,
 a `getCachedItems({ lang })` cache-aware fetch path, an
 empty-items short-circuit envelope, a logarithmic-scaling
 score formula, a featured-boost score cap, a three-tier
@@ -36,14 +36,14 @@ caller that hits the URL.
   `isAdmin` / feature-flag gate guards the handler.
   All callers (anon / signed-in / admin) see the same
   envelope.
-- **`Math.min(parseInt(limit), 100)` admit-clamp** —
+- **`parsePaginationParams` 1–100 `limit` clamp** —
   UNIQUE: the FIRST per-source-file GET smoke pinning a
-  silent integer-clamp on a query parameter (`limit`
-  values above 100 are clamped to 100; `parseInt` of an
-  empty / non-numeric string falls back to the default
-  `'20'`). The route NEVER 4xxs on a malformed `limit`;
-  the `parseInt` + `Math.min` chain absorbs the bad
-  input.
+  silent integer-clamp on a query parameter (spec 056
+  R6: `limit` values above 100 are clamped to 100, zero
+  or negative values to 1, and an empty / non-numeric
+  string falls back to the default 20). The route NEVER
+  4xxs on a malformed `limit`; the shared helper absorbs
+  the bad input.
 - **Logarithmic-scaling score formula** — UNIQUE: the
   FIRST per-source-file GET smoke pinning a
   `Math.log10(value + 1) * weight` engagement-scoring
@@ -97,9 +97,10 @@ The route under test
 exports only `GET` and is marked `export const dynamic =
 'force-dynamic'`. The handler combines:
 
-1. **`searchParams` extraction** — `limit =
-   Math.min(parseInt(searchParams.get('limit') ||
-   '20'), 100)`; `locale =
+1. **`searchParams` extraction** — `{ limit } =
+   parsePaginationParams(null,
+   searchParams.get('limit'), { defaultLimit: 20,
+   maxLimit: 100 })`; `locale =
    searchParams.get('locale') || 'en'`.
 2. **`getCachedItems({ lang: locale })` cache-aware
    items fetch** — load-bearing — empty array
@@ -144,8 +145,8 @@ parameter-parsing logic crashed before the data layer.
 | ---------------------------------------------------- | ------------------------------------------------------------------------------------ |
 | No-arg baseline                                      | Pins the same path as `discovery.spec.ts`.                                           |
 | Valid `limit` (`5` / `20`)                           | Pins admit-no-clamp on in-range integers.                                            |
-| Out-of-range `limit` (`999` / `10000`)               | Pins silent `Math.min(..., 100)` clamp on above-100 values.                          |
-| Empty-string / `abc` / `-5` / `0` `limit`            | Pins `parseInt`-default fallback to `'20'` and admit-no-error on negative / zero.    |
+| Out-of-range `limit` (`999` / `10000`)               | Pins the silent clamp to 100 on above-100 values.                                    |
+| Empty-string / `abc` / `-5` / `0` `limit`            | Pins the fallback to 20 (empty / `abc`) and the raise to 1 (negative / zero).        |
 | Known `locale` (`en` / `fr` / `zh`)                  | Pins multi-locale cache lookup.                                                      |
 | Unknown `locale` (`__no_such_locale__`)              | Pins empty-items short-circuit on cache miss (NOT an error).                         |
 | Combined `limit + locale` (`limit=10&locale=fr`)     | Pins both params interact correctly.                                                 |
@@ -166,7 +167,7 @@ parameter-parsing logic crashed before the data layer.
   ALSO probes `GET /api/items/popularity-scores` BUT
   only the no-arg baseline; this per-source-file
   spec adds the **query-param surface** so a
-  regression in `parseInt`, the `Math.min` clamp,
+  regression in the `limit` parsing, the 1–100 clamp,
   the `locale` default, or the empty-items branch is
   caught explicitly.
 - The neighbouring engagement endpoint sibling

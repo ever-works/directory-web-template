@@ -9,7 +9,7 @@ sidebar_position: 99
 
 ## 2026-11-24
 
-- `apps/web/app/api/items/popularity-scores/route.ts`: `limit` now goes through `parsePaginationParams` (default 20, range 1–100), so `?limit=abc` or a negative value no longer returns an empty list with `showing: null` or all but the last N items. Test: `apps/web/lib/utils/__tests__/popularity-scores-limit-wiring.spec.ts`. PR number to be added.
+- `spec-056` `apps/web/app/api/items/popularity-scores/route.ts` `docs/spec/056-pagination-params/{spec,plan,tasks}.md`: `limit` now goes through `parsePaginationParams` (default 20, range 1–100), so `?limit=abc` or a negative value no longer returns an empty list with `showing: null` or all but the last N items. A malformed number that `parseInt` used to read loosely (`2abc`, `1.5`, `1e3`) now gets the default 20 (spec R6). This is spec 056 T-004, the last open task, so the spec is now shipped. The e2e spec's comments, `apps/web-e2e/E2E-TESTS.md` and `docs/plugins/items-popularity-scores-query-spec.md` no longer describe the old `parseInt` / `Math.min` chain. Test: `apps/web/lib/utils/__tests__/popularity-scores-limit-wiring.spec.ts` (4 tests, 1 fails on the old code). T-2732 (#1186)
 
 ## 2026-11-21
 
