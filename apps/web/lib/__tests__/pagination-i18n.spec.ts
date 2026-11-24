@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, it } from 'node:test';
+import { createTranslator } from 'next-intl';
 
 /**
  * The two shared pagination controls: `components/universal-pagination.tsx` (client-side paging in grids and admin
@@ -34,8 +35,16 @@ describe('pagination controls i18n', () => {
 	for (const [name, source] of Object.entries(COMPONENTS)) {
 		it(`${name} takes its label and page line from the message catalogue`, () => {
 			assert.match(source, /useTranslations\(\s*["']common["']\s*\)/, 'useTranslations("common") not found');
-			assert.match(source, /aria-label=\{\s*t\(\s*["']PAGINATION_LABEL["']\s*\)\s*\}/, 'aria-label is not t("PAGINATION_LABEL")');
-			assert.match(source, /t\.rich\(\s*["']PAGINATION_PAGE_OF["']/, 'the page line is not t.rich("PAGINATION_PAGE_OF")');
+			assert.match(
+				source,
+				/aria-label=\{\s*t\(\s*["']PAGINATION_LABEL["']\s*\)\s*\}/,
+				'aria-label is not t("PAGINATION_LABEL")'
+			);
+			assert.match(
+				source,
+				/t\.rich\(\s*["']PAGINATION_PAGE_OF["']/,
+				'the page line is not t.rich("PAGINATION_PAGE_OF")'
+			);
 			assert.doesNotMatch(source, /aria-label="/, 'a hard-coded aria-label is left');
 			assert.doesNotMatch(source, /\bPage\{["' ]+\}|>\s*Page\s/, 'hard-coded "Page … of" text is left');
 		});
@@ -59,16 +68,43 @@ describe('pagination controls i18n', () => {
 			const common = readLocale(file).common ?? {};
 
 			const label = common.PAGINATION_LABEL;
-			assert.ok(typeof label === 'string' && label.trim().length > 0, `${file}: common.PAGINATION_LABEL is missing`);
+			assert.ok(
+				typeof label === 'string' && label.trim().length > 0,
+				`${file}: common.PAGINATION_LABEL is missing`
+			);
 			assert.doesNotMatch(label, /[{}<>]/, `${file}: common.PAGINATION_LABEL should be a plain label`);
 
 			const line = common.PAGINATION_PAGE_OF;
 			assert.ok(typeof line === 'string', `${file}: common.PAGINATION_PAGE_OF is missing`);
 			assert.match(line, /\{current\}/, `${file}: PAGINATION_PAGE_OF has no {current}`);
 			assert.match(line, /\{total\}/, `${file}: PAGINATION_PAGE_OF has no {total}`);
-			// The components highlight both numbers through the `num` tag.
-			assert.equal((line.match(/<num>/g) ?? []).length, 2, `${file}: PAGINATION_PAGE_OF needs two <num> tags`);
-			assert.equal((line.match(/<\/num>/g) ?? []).length, 2, `${file}: PAGINATION_PAGE_OF has unbalanced <num> tags`);
+			// The components highlight both numbers through the `num` tag. Format the message the way they do, so a
+			// broken placeholder or tag fails here instead of reaching the page as the raw key.
+			const t = createTranslator({
+				locale,
+				messages: { common },
+				namespace: 'common',
+				onError: (error: Error) => {
+					throw error;
+				}
+			} as unknown as Parameters<typeof createTranslator>[0]) as unknown as {
+				markup: (key: string, values: Record<string, number | ((chunks: string) => string)>) => string;
+			};
+			const rendered = t.markup('PAGINATION_PAGE_OF', {
+				current: 3,
+				total: 17,
+				num: (chunks: string) => `[${chunks}]`
+			});
+			assert.deepEqual(
+				(rendered.match(/\[[^\]]*\]/g) ?? []).sort(),
+				['[17]', '[3]'],
+				`${file}: PAGINATION_PAGE_OF does not wrap each number in one <num> tag: "${rendered}"`
+			);
+			assert.doesNotMatch(
+				rendered,
+				/[{}<>]/,
+				`${file}: PAGINATION_PAGE_OF left a placeholder or tag in "${rendered}"`
+			);
 
 			if (locale !== 'en') {
 				// French spells the word the same way as English, so the label is exempt there.
