@@ -88,16 +88,17 @@ Adds an item to the authenticated user's favorites. Includes duplicate checking 
 | `itemIconUrl` | string | No | URL to the item's icon |
 | `itemCategory` | string | No | Category name for the item |
 
-The request body is validated using a Zod schema:
+The request body is checked by `validateFavoriteInput` (`apps/web/lib/validations/favorite.ts`).
+The body must be a JSON object. Every string is trimmed, then checked:
 
-```ts
-const addFavoriteSchema = z.object({
-  itemSlug: z.string().min(1),
-  itemName: z.string().min(1),
-  itemIconUrl: z.string().optional(),
-  itemCategory: z.string().optional(),
-});
-```
+| Field | Rule |
+|-------|------|
+| `itemSlug` | Required, non-blank string, at most 200 characters |
+| `itemName` | Required, non-blank string, at most 300 characters |
+| `itemIconUrl` | Optional string, at most 2048 characters; absent, `null` or blank means "not set" |
+| `itemCategory` | Optional string, at most 200 characters; absent, `null` or blank means "not set" |
+
+No field may contain a NUL character.
 
 ### Request Example
 
@@ -136,9 +137,13 @@ const addFavoriteSchema = z.object({
 {
   "success": false,
   "error": "Invalid request data",
-  "details": "itemSlug is required and must be a non-empty string"
+  "details": "itemSlug is required"
 }
 ```
+
+A body that breaks the rules above answers `400` with this shape; `details` names the first field
+that failed. A body that is not valid JSON answers `400` with
+`{ "success": false, "error": "Invalid JSON body" }`.
 
 #### 401 -- Unauthorized
 
@@ -181,6 +186,10 @@ if (existingFavorite.length > 0) {
   );
 }
 ```
+
+Two adds of the same item can both pass this check (a double click). The insert uses
+`onConflictDoNothing()` against the `(userId, itemSlug)` unique index, and an insert that returns
+no row also answers `409`, instead of a `500` from the unique violation.
 
 ---
 

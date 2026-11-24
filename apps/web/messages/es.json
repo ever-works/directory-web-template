@@ -45,6 +45,8 @@
 		"BACK_TO_TOP": "Volver arriba"
 	},
 	"common": {
+		"PAGINATION_LABEL": "Paginación",
+		"PAGINATION_PAGE_OF": "Página <num>{current}</num> de <num>{total}</num>",
 		"DEMO_BANNER_TEXT": "Está usando una cuenta de demostración. ¿Le resulta útil nuestro software?",
 		"DEMO_BANNER_SIGN_UP": "¡Haga clic aquí para registrarse y empezar a usarlo gratis!",
 		"FAQ": "Preguntas frecuentes",

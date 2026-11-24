@@ -36,22 +36,24 @@ function useActiveSponsorAds(options?: UseActiveSponsorAdsOptions): UseActiveSpo
 
 | Property    | Type                   | Description                                         |
 |------------|------------------------|-----------------------------------------------------|
-| `sponsors` | `SponsorWithItem[]`    | Array of active sponsor ads with their item data    |
+| `sponsors` | `PublicSponsorWithItem[]` | Array of active sponsor ads with their item data |
 | `isLoading`| `boolean`              | `true` during the initial fetch                     |
 | `isError`  | `boolean`              | `true` if the query failed                          |
 | `error`    | `Error \| null`        | The error object, if the query failed               |
 | `refetch`  | `() => void`           | Manually trigger a refetch of active sponsor ads    |
 
-### `SponsorWithItem`
+### `PublicSponsorWithItem`
 
 ```typescript
-interface SponsorWithItem {
-  sponsor: SponsorAd;
+type PublicSponsorAd = Pick<SponsorAd, 'id' | 'itemSlug' | 'status' | 'interval' | 'startDate' | 'endDate'>;
+
+interface PublicSponsorWithItem {
+  sponsor: PublicSponsorAd;
   item: ItemData | null;
 }
 ```
 
-Each entry pairs the sponsor ad database record (`SponsorAd`) with the associated item data (`ItemData`). The `item` field may be `null` if the referenced item no longer exists.
+Each entry pairs the public fields of a sponsor ad (`PublicSponsorAd`, from `lib/types/sponsor-ad.ts`) with the associated item data (`ItemData`). The endpoint is public, so the sponsor's user, payment and review details are not part of the response. The dates arrive as ISO strings after JSON parsing. The `item` field may be `null` if the referenced item no longer exists.
 
 ## Exported Query Keys
 

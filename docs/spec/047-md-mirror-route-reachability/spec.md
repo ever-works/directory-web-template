@@ -60,7 +60,10 @@ would have fixed only the locale-prefixed half.
 - Public URLs are unchanged: `/about.md`, `/items/<slug>.md`, … are what
   crawlers were told about and stay exactly as they are. Only the internal
   segment moves.
-- An unknown slug is a hard `404`, matching the HTML page it mirrors.
+- An unknown slug is a hard `404`, matching the HTML page it mirrors. So is an
+  item slug that cannot name an item (a character outside `[A-Za-z0-9_-]`, or
+  longer than 255 characters): the item mirror rejects it before the content
+  lookup, as the item page does, instead of letting `fetchItem` throw a `500`.
 - A mirror answers like the page it mirrors — including when the whole
   category / tag surface is switched off for the site.
 - The e2e guard asserts the real contract so this cannot rot silently again.
@@ -155,6 +158,8 @@ Against `next build && next start`:
 - `/items/<unknown>.md`, `/pages/<unknown>.md`, `/collections/<unknown>.md`,
   `/comparisons/<unknown>.md`, `/categories/<unknown>.md`,
   `/tags/<unknown>.md` → `404 application/json`, from the handler.
+- `/items/foo.bar.md` and `/items/<300 × a>.md` (item slugs that cannot name an
+  item) → `404 application/json`, from the handler, never `500`.
 - `/zz/about.md` (unsupported locale) → `404`, never `text/markdown`.
 - With `settings.categories_enabled: false` (resp. `tags_enabled: false`),
   `/categories/<id>.md` (resp. `/tags/<id>.md`) answers with the same status

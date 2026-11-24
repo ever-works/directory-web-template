@@ -6,13 +6,14 @@ sidebar_label: 056 Pagination params
 
 # Feature spec — `056-pagination-params`
 
-> **Status:** in-progress (first route shipped; follow-up routes open) · **Plan:** [`plan.md`](./plan.md) · **Tasks:** [`tasks.md`](./tasks.md)
+> **Status:** shipped · **Plan:** [`plan.md`](./plan.md) · **Tasks:** [`tasks.md`](./tasks.md)
 
 ## 1. Summary
 
 A shared parser, `parsePaginationParams()` in `apps/web/lib/utils/pagination-params.ts`,
 turns the `page` and `limit` query-string values into safe integers. The first
-route to use it is `GET /api/auth/security/login-activity`.
+route to use it is `GET /api/auth/security/login-activity`. The second is
+`GET /api/items/popularity-scores` (R6).
 
 ## 2. Motivation
 
@@ -46,6 +47,13 @@ routes parse the same way (see plan, "Follow-ups").
   get the defaults: values that used to answer 500 (`?page=abc`), and malformed
   numbers that `parseInt` used to read loosely (`?page=2abc` was page 2 and is now
   page 1; `?limit=1.5` returned 1 row and now returns 10).
+- **R6.** `GET /api/items/popularity-scores` reads `limit` through the helper with a
+  default of 20 and a maximum of 100 (its documented bounds). A missing, empty or
+  non-numeric `limit` returns 20 items, zero or a negative value returns 1, and a value
+  above 100 returns 100. A whole number from 1 to 100 behaves as before. The old code
+  answered `?limit=abc` with no items and `showing: null`, and `?limit=-3` with every
+  item but the last three. Malformed numbers that `parseInt` read loosely (`2abc`,
+  `1.5`, `1e3`) now get 20.
 
 ## 4. Out of scope
 

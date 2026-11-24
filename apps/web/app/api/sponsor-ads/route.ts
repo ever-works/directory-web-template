@@ -35,6 +35,7 @@ import { checkDatabaseAvailability } from '@/lib/utils/database-check';
  *                     properties:
  *                       sponsor:
  *                         type: object
+ *                         description: "Public sponsor ad fields only; the sponsor's user, payment and review details are not returned."
  *                         properties:
  *                           id:
  *                             type: string
@@ -44,6 +45,15 @@ import { checkDatabaseAvailability } from '@/lib/utils/database-check';
  *                             type: string
  *                           interval:
  *                             type: string
+ *                             enum: ["weekly", "monthly"]
+ *                           startDate:
+ *                             type: string
+ *                             format: date-time
+ *                             nullable: true
+ *                           endDate:
+ *                             type: string
+ *                             format: date-time
+ *                             nullable: true
  *                       item:
  *                         type: object
  *                         nullable: true

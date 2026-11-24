@@ -45,6 +45,8 @@
 		"BACK_TO_TOP": "ऊपर जाएँ"
 	},
 	"common": {
+		"PAGINATION_LABEL": "पेजिनेशन",
+		"PAGINATION_PAGE_OF": "पृष्ठ <num>{current}</num> / <num>{total}</num>",
 		"DEMO_BANNER_TEXT": "आप एक डेमो खाते का उपयोग कर रहे हैं। क्या आपको हमारा सॉफ़्टवेयर उपयोगी लगा?",
 		"DEMO_BANNER_SIGN_UP": "साइन अप करने और मुफ़्त में उपयोग शुरू करने के लिए यहाँ क्लिक करें!",
 		"FAQ": "अक्सर पूछे जाने वाले प्रश्न",

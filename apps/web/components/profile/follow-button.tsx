@@ -40,16 +40,21 @@ export function FollowButton({
 
 		try {
 			const path = `/api/user/profile/follow/${encodeURIComponent(username)}`;
+			// The counts are null when the profile is Private (they stay with its owner).
+			type FollowResponse = { isFollowing: boolean; followers: number | null; following: number | null };
 			const response = previous
-				? await serverClient.delete<{ isFollowing: boolean; followers: number; following: number }>(path)
-				: await serverClient.post<{ isFollowing: boolean; followers: number; following: number }>(path);
+				? await serverClient.delete<FollowResponse>(path)
+				: await serverClient.post<FollowResponse>(path);
 			if (!apiUtils.isSuccess(response) || !response.data) {
 				setIsFollowing(previous);
 				toast.error(apiUtils.getErrorMessage(response) || t('FOLLOW_FAILED'));
 				return;
 			}
 			setIsFollowing(response.data.isFollowing);
-			onCountsChange?.({ followers: response.data.followers, following: response.data.following });
+			const { followers, following } = response.data;
+			if (followers !== null && following !== null) {
+				onCountsChange?.({ followers, following });
+			}
 			nextRouter.refresh();
 		} catch (error) {
 			setIsFollowing(previous);

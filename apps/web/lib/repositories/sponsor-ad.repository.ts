@@ -2,7 +2,13 @@ import 'server-only';
 import { and, eq, desc, asc, count, like, or, sql, SQL } from 'drizzle-orm';
 import { db } from '@/lib/db/drizzle';
 import { sponsorAds, users, SponsorAdStatus, type SponsorAd, type NewSponsorAd } from '@/lib/db/schema';
-import type { SponsorAdListOptions, SponsorAdStats, SponsorAdWithUser, SponsorWithItem } from '@/lib/types/sponsor-ad';
+import type {
+	SponsorAdListOptions,
+	SponsorAdStats,
+	SponsorAdWithUser,
+	PublicSponsorWithItem
+} from '@/lib/types/sponsor-ad';
+import { toPublicSponsorAd } from '@/lib/sponsor-ads/public-sponsor-ad';
 import { getCachedItems, type ItemData } from '@/lib/content';
 import { getTenantId } from '@/lib/auth/tenant';
 
@@ -127,9 +133,11 @@ export async function getActiveSponsorAds(limit?: number): Promise<SponsorAd[]> 
 
 /**
  * Get active sponsor ads with their associated item data
- * This performs a server-side join between sponsor ads and items
+ * This performs a server-side join between sponsor ads and items.
+ * Public (`GET /api/sponsor-ads` needs no session): each row goes through
+ * `toPublicSponsorAd`, so user, payment and review ids never leave the server.
  */
-export async function getActiveSponsorAdsWithItems(limit?: number): Promise<SponsorWithItem[]> {
+export async function getActiveSponsorAdsWithItems(limit?: number): Promise<PublicSponsorWithItem[]> {
 	const sponsors = await getActiveSponsorAds(limit);
 
 	if (sponsors.length === 0) {
@@ -141,7 +149,7 @@ export async function getActiveSponsorAdsWithItems(limit?: number): Promise<Spon
 	const itemsMap = new Map<string, ItemData>(items.map((item) => [item.slug, item]));
 
 	return sponsors.map((sponsor) => ({
-		sponsor,
+		sponsor: toPublicSponsorAd(sponsor),
 		item: itemsMap.get(sponsor.itemSlug) || null
 	}));
 }

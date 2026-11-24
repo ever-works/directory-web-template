@@ -54,7 +54,9 @@ Returns active sponsor ads with associated item data for public display. **No au
         "id": "sp_123",
         "itemSlug": "featured-tool",
         "status": "active",
-        "interval": "monthly"
+        "interval": "monthly",
+        "startDate": "2026-11-01T00:00:00.000Z",
+        "endDate": "2026-12-01T00:00:00.000Z"
       },
       "item": {
         "name": "Featured Tool",
@@ -67,6 +69,8 @@ Returns active sponsor ads with associated item data for public display. **No au
   ]
 }
 ```
+
+`sponsor` carries only these public fields (`PublicSponsorAd`, built by `toPublicSponsorAd` in `apps/web/lib/sponsor-ads/public-sponsor-ad.ts`). The sponsor's user id, the payment provider, customer and subscription ids, the amount and currency, and the review and cancellation details stay on the server.
 
 ---
 
