@@ -22,7 +22,7 @@ through the same clamp.
 
 ## Constitution Check
 
-- [x] **I — Plugin-First** — not applicable; a pure utility used by two API routes.
+- [x] **I — Plugin-First** — not applicable; a pure utility used by four API routes.
 - [x] **II — TypeScript Everywhere** — the helper, its route change and its unit spec are TypeScript.
 - [x] **III — Spec Before Code** — spec, plan and tasks exist.
 - [x] **IV — Documentation First-Class** — spec folder and `docs/log.md` entry added.
@@ -39,6 +39,14 @@ Routes with the same `parseInt` / `Number` pattern that can adopt this lenient h
 without changing a documented answer: `apps/web/app/api/items/popularity-scores` (public,
 `limit` only). It moved onto the helper in T-004 (#1186, spec R6): `limit=abc` used to
 return no items and a negative `limit` dropped items from the end.
+
+`apps/web/app/api/admin/clients/advanced-search` and `apps/web/app/api/admin/clients/dashboard`
+(admin, `page` and `limit`, default 10, maximum 100) read both with a bare `Number()` and
+never answered 400, so the lenient helper keeps their contract. `Number(null)` and
+`Number('')` are 0, so advanced-search returned 1 client per page without a `limit` and both
+did for `?limit=`; `page` had no upper bound, so a huge one pushed the OFFSET past the bigint
+range and answered 500; and `0x10` was read as 16. They moved onto the helper in T-005
+(spec R7).
 
 Not candidates: `apps/web/app/api/admin/companies` and `apps/web/app/api/admin/collections`
 already answer 400 for a non-numeric or out-of-range `page` / `limit` (the companies OpenAPI

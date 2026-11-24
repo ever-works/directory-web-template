@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { checkAdminAuth } from '@/lib/auth/admin-guard';
 import { getAdminDashboardData } from '@/lib/db/queries';
+import { parsePaginationParams } from '@/lib/utils/pagination-params';
 
 /**
  * @swagger
@@ -250,10 +251,10 @@ export async function GET(request: NextRequest) {
 		console.log('API: Parsed search params');
 
 		// Pagination with validation
-		const rawPage = Number(searchParams.get('page') ?? 1);
-		const rawLimit = Number(searchParams.get('limit') ?? 10);
-		const page = Number.isFinite(rawPage) && rawPage > 0 ? Math.floor(rawPage) : 1;
-		const limit = Number.isFinite(rawLimit) ? Math.min(Math.max(1, Math.floor(rawLimit)), 100) : 10;
+		const { page, limit } = parsePaginationParams(searchParams.get('page'), searchParams.get('limit'), {
+			defaultLimit: 10,
+			maxLimit: 100
+		});
 
 		// Parse all search parameters
 		const search = searchParams.get('search') || undefined;

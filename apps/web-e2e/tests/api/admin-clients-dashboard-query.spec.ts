@@ -143,10 +143,9 @@ const ADMIN_CLIENTS_DASHBOARD_QUERIES = [
 	// Baseline — the no-arg unauthenticated case.
 	'/api/admin/clients/dashboard',
 
-	// `?page=` / `?limit=` — pagination params validated
-	// via `Number.isFinite()` + `Math.floor()` +
-	// `Math.min(Math.max(1, ...), 100)` clamps after the
-	// gate.
+	// `?page=` / `?limit=` — pagination params parsed
+	// with the lenient `parsePaginationParams()` helper
+	// (default 10, maximum 100) after the gate.
 	'/api/admin/clients/dashboard?page=1',
 	'/api/admin/clients/dashboard?page=2',
 	'/api/admin/clients/dashboard?limit=10',
@@ -304,11 +303,11 @@ test.describe('API: /api/admin/clients/dashboard query-param surface', () => {
 		request
 	}) => {
 		// The pagination params are clamped via
-		// `Math.min(Math.max(1, Math.floor(...)), 100)`
-		// after the gate. A regression that runs the
-		// clamping before the gate would not change the
-		// unauth-branch contract today (the inline clamps
-		// never throw), but a regression that switches to
+		// `parsePaginationParams()` after the gate. A
+		// regression that runs the clamping before the
+		// gate would not change the unauth-branch contract
+		// today (the helper never throws), but a
+		// regression that switches to
 		// a strict validator would change it.
 		const baseline = await request.get('/api/admin/clients/dashboard');
 		const responses = await Promise.all([
