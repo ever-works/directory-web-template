@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
-import { getClientProfileByUsername } from '@/lib/db/queries/client.queries';
+import { getClientProfileByUsername, isUserAccountDeactivated } from '@/lib/db/queries/client.queries';
 import {
 	followUser,
 	getFollowerCount,
@@ -12,10 +12,50 @@ import { Logger } from '@/lib/logger';
 
 const logger = Logger.create('userProfileFollow');
 
-async function resolveTargetUserId(username: string): Promise<{ userId: string; status: number; error?: string } | null> {
+type FollowTarget = {
+	userId: string;
+	status: number;
+	error?: string;
+	profileVisibility: 'public' | 'private';
+	isDeactivated: boolean;
+};
+
+async function resolveTargetUserId(username: string): Promise<FollowTarget | null> {
 	const profile = await getClientProfileByUsername(username);
-	if (!profile) return { userId: '', status: 404, error: 'Profile not found' };
-	return { userId: profile.userId, status: 200 };
+	if (!profile) {
+		return {
+			userId: '',
+			status: 404,
+			error: 'Profile not found',
+			profileVisibility: 'public',
+			isDeactivated: false
+		};
+	}
+	return {
+		userId: profile.userId,
+		status: 200,
+		profileVisibility: profile.profileVisibility,
+		isDeactivated: await isUserAccountDeactivated(profile.userId)
+	};
+}
+
+/**
+ * Follower / following counts of a target. A Private profile shows visitors only a
+ * placeholder, and a deactivated one 404s, so their counts stay with the owner: anyone
+ * else gets `null` for both.
+ */
+async function readFollowCounts(
+	target: FollowTarget,
+	viewerUserId: string | null
+): Promise<{ followers: number | null; following: number | null }> {
+	if (target.userId !== viewerUserId && (target.profileVisibility === 'private' || target.isDeactivated)) {
+		return { followers: null, following: null };
+	}
+	const [followers, following] = await Promise.all([
+		getFollowerCount(target.userId),
+		getFollowingCount(target.userId)
+	]);
+	return { followers, following };
 }
 
 /**
@@ -24,7 +64,7 @@ async function resolveTargetUserId(username: string): Promise<{ userId: string; 
  *   get:
  *     tags: ["User - Profile Follow"]
  *     summary: "Get follow state + counts for a profile"
- *     description: "Returns isFollowing (whether the authenticated user follows this profile) plus public follower/following counts. isFollowing is null for unauthenticated viewers."
+ *     description: "Returns isFollowing (whether the authenticated user follows this profile) plus follower/following counts. isFollowing is null for unauthenticated viewers. followers and following are null when the profile is Private and the viewer is not its owner. A deactivated account answers 404 to everyone but its owner."
  */
 export async function GET(_request: NextRequest, ctx: { params: Promise<{ username: string }> }) {
 	try {
@@ -38,17 +78,20 @@ export async function GET(_request: NextRequest, ctx: { params: Promise<{ userna
 		const viewerUserId = session?.user?.id ?? null;
 		const isSelf = viewerUserId === target.userId;
 
-		const [followers, following, viewerFollows] = await Promise.all([
-			getFollowerCount(target.userId),
-			getFollowingCount(target.userId),
+		// A deactivated account is hidden from everyone but its owner, like its profile page.
+		if (target.isDeactivated && !isSelf) {
+			return NextResponse.json({ error: 'Profile not found' }, { status: 404 });
+		}
+
+		const [counts, viewerFollows] = await Promise.all([
+			readFollowCounts(target, viewerUserId),
 			viewerUserId && !isSelf ? isFollowing(viewerUserId, target.userId) : Promise.resolve(false)
 		]);
 
 		return NextResponse.json({
 			isFollowing: viewerUserId ? viewerFollows : null,
 			isSelf,
-			followers,
-			following
+			...counts
 		});
 	} catch (error) {
 		logger.error('Error reading follow state:', error);
@@ -82,12 +125,9 @@ export async function POST(_request: NextRequest, ctx: { params: Promise<{ usern
 		}
 
 		await followUser(session.user.id, target.userId);
-		const [followers, following] = await Promise.all([
-			getFollowerCount(target.userId),
-			getFollowingCount(target.userId)
-		]);
+		const counts = await readFollowCounts(target, session.user.id);
 
-		return NextResponse.json({ isFollowing: true, followers, following });
+		return NextResponse.json({ isFollowing: true, ...counts });
 	} catch (error) {
 		logger.error('Error following profile:', error);
 		return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
@@ -115,12 +155,9 @@ export async function DELETE(_request: NextRequest, ctx: { params: Promise<{ use
 		}
 
 		await unfollowUser(session.user.id, target.userId);
-		const [followers, following] = await Promise.all([
-			getFollowerCount(target.userId),
-			getFollowingCount(target.userId)
-		]);
+		const counts = await readFollowCounts(target, session.user.id);
 
-		return NextResponse.json({ isFollowing: false, followers, following });
+		return NextResponse.json({ isFollowing: false, ...counts });
 	} catch (error) {
 		logger.error('Error unfollowing profile:', error);
 		return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

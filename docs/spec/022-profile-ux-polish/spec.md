@@ -188,6 +188,35 @@ persist across sessions, so that I can showcase work over time.
   inline displayName editor invalidate the `auth-session`
   React-Query key on successful save so active subscribers
   refetch immediately.
+- [x] AC-23: The Private profile setting
+  (`client_profiles.profile_visibility = 'private'`) covers the
+  follow graph too. `/client/profile/<username>/followers` and
+  `/following` 404 for everyone but the owner, like the profile
+  page's private placeholder. `GET`, `POST` and `DELETE
+  /api/user/profile/follow/<username>` keep `isFollowing` (and
+  `GET` keeps `isSelf`) so follow buttons and the comment
+  hovercard still work, but answer `followers: null, following:
+  null` for a Private or deactivated target that is not the
+  viewer. `GET` 404s a deactivated target for everyone but its
+  owner. Guarded by
+  `apps/web/lib/db/queries/__tests__/follow-lists-private.spec.ts`
+  (T-2654).
+- [x] AC-24: A Private profile does not show up in other users'
+  follow lists either. `listFollowers` and `listFollowing` take an
+  optional `viewerUserId` and leave out every row whose
+  `client_profiles.profile_visibility = 'private'` unless that
+  row's user is the viewer (with no viewer, every Private row is
+  left out). The followers and following pages pass the viewer, so
+  a Private user who follows, or is followed by, a public user is
+  not listed by name, avatar, job title or bio on the public
+  user's `/followers` or `/following` page, nor in the owner's
+  recent-follows activity on their own profile page. The follower
+  and following counts are unchanged (they name nobody). The two
+  pages page by `countVisibleFollowers` / `countVisibleFollowing`,
+  which count the rows the viewer can see, so the pagination never
+  offers an empty page. Guarded by
+  `apps/web/lib/db/queries/__tests__/follow-lists-hide-private.spec.ts`
+  (T-2729).
 
 ## 7. Out-of-Scope Considerations
 

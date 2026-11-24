@@ -99,7 +99,7 @@ import { SponsorCard } from "@/components/sponsor-ads";
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| `sponsors` | `SponsorWithItem[]` | -- | Active sponsors with item data |
+| `sponsors` | `PublicSponsorWithItem[]` | -- | Active sponsors (public fields) with item data |
 | `rotationInterval` | `number` | `5000` | Rotation interval in milliseconds |
 | `variant` | `"default" \| "compact"` | `"default"` | Card size variant |
 | `className` | `string?` | -- | Additional CSS classes |
