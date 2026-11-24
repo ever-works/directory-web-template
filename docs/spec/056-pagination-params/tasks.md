@@ -17,4 +17,5 @@ sidebar_label: 056 Tasks
   (default 20, maximum 100; spec R6), with `apps/web/lib/utils/__tests__/popularity-scores-limit-wiring.spec.ts`
   (#1186). The admin lists that already answer 400 stay off it (plan, "Follow-ups").
 - [x] **T-005** Move `admin/clients/advanced-search` and `admin/clients/dashboard` onto the helper
-  (default 10, maximum 100; spec R7), with `apps/web/lib/utils/__tests__/admin-clients-pagination-wiring.spec.ts`.
+  (default 10, maximum 100; spec R7), with `apps/web/lib/utils/__tests__/admin-clients-pagination-wiring.spec.ts`
+  (#1188).

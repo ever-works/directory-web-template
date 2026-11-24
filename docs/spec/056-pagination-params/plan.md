@@ -46,7 +46,7 @@ never answered 400, so the lenient helper keeps their contract. `Number(null)` a
 `Number('')` are 0, so advanced-search returned 1 client per page without a `limit` and both
 did for `?limit=`; `page` had no upper bound, so a huge one pushed the OFFSET past the bigint
 range and answered 500; and `0x10` was read as 16. They moved onto the helper in T-005
-(spec R7).
+(#1188, spec R7).
 
 Not candidates: `apps/web/app/api/admin/companies` and `apps/web/app/api/admin/collections`
 already answer 400 for a non-numeric or out-of-range `page` / `limit` (the companies OpenAPI
