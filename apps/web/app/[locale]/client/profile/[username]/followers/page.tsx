@@ -6,6 +6,7 @@ import { Link } from '@/i18n/navigation';
 import { FiArrowLeft, FiChevronLeft, FiChevronRight, FiUserPlus } from 'react-icons/fi';
 import {
 	getClientProfileByUsername,
+	countVisibleFollowers,
 	getFollowerCount,
 	getFollowingSubset,
 	isUserAccountDeactivated,
@@ -43,9 +44,10 @@ export default async function ProfileFollowersPage({
 		notFound();
 	}
 
-	const [total, followers] = await Promise.all([
+	const [total, visibleTotal, followers] = await Promise.all([
 		getFollowerCount(profile.userId),
-		listFollowers(profile.userId, FOLLOW_LIST_PAGE_SIZE, (page - 1) * FOLLOW_LIST_PAGE_SIZE)
+		countVisibleFollowers(profile.userId, viewerUserId),
+		listFollowers(profile.userId, FOLLOW_LIST_PAGE_SIZE, (page - 1) * FOLLOW_LIST_PAGE_SIZE, viewerUserId)
 	]);
 
 	const followingSet = viewerUserId
@@ -55,7 +57,8 @@ export default async function ProfileFollowersPage({
 			)
 		: new Set<string>();
 
-	const totalPages = Math.max(1, Math.ceil(total / FOLLOW_LIST_PAGE_SIZE));
+	// Page by the rows this viewer can see; the header keeps the full count.
+	const totalPages = Math.max(1, Math.ceil(visibleTotal / FOLLOW_LIST_PAGE_SIZE));
 	const displayName = profile.displayName || profile.name || profile.username || 'this user';
 	const t = await getTranslations('profile');
 

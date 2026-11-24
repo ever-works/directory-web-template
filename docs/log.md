@@ -7,6 +7,10 @@ sidebar_position: 99
 
 # Documentation & Specs Change Log
 
+## 2026-11-24
+
+- `spec-022` `apps/web/lib/db/queries/follows.queries.ts` `apps/web/app/[locale]/client/profile/[username]/{followers,following}/page.tsx` `docs/spec/022-profile-ux-polish/spec.md`: a Private profile still showed up in other users' follow lists. #1161 made a Private user's own `/followers` and `/following` pages 404 for non-owners, but `listFollowers` and `listFollowing` read every row's `client_profiles` name, avatar, job title and bio without checking `profile_visibility`, so when a Private user followed (or was followed by) a public user, the public user's lists showed the Private user's row to every signed-in viewer. Both queries now take an optional `viewerUserId` and leave out a row whose profile is Private unless that row's user is the viewer (no viewer: every Private row is left out, which also covers the owner's recent-follows activity on the profile page); the two list pages pass the viewer and page by `countVisibleFollowers` / `countVisibleFollowing` (the rows the viewer can see), so they never offer an empty page. The follower and following counts in the header are unchanged. Spec 022 gains AC-24. Unit spec `apps/web/lib/db/queries/__tests__/follow-lists-hide-private.spec.ts` (10 tests, 9 fail on the old code). T-2729 (#1187)
+
 ## 2026-11-21
 
 - `apps/web` URL fallbacks (`APP_URL` / `NEXT_PUBLIC_APP_URL` unset and no `VERCEL_URL`: `lib/config*`, `lib/utils/url-cleaner.ts`, mail, payment, surveys and Stripe/Polar routes, the help page example and mock URL bar, the seed's sample icon URLs) and the docs that describe them (`configuration/feature-config.md`, `architecture/utils-reference.md` and their translations): `https://demo.ever.works` -> `https://dir.ever.works`, the template's live example (owner ruling R45). Seed e-mail identities (`admin@demo.ever.works`) and history notes are unchanged. PR #1176.
