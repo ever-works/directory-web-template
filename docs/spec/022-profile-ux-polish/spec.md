@@ -201,6 +201,19 @@ persist across sessions, so that I can showcase work over time.
   owner. Guarded by
   `apps/web/lib/db/queries/__tests__/follow-lists-private.spec.ts`
   (T-2654).
+- [x] AC-24: A Private profile does not show up in other users'
+  follow lists either. `listFollowers` and `listFollowing` take an
+  optional `viewerUserId` and leave out every row whose
+  `client_profiles.profile_visibility = 'private'` unless that
+  row's user is the viewer (with no viewer, every Private row is
+  left out). The followers and following pages pass the viewer, so
+  a Private user who follows, or is followed by, a public user is
+  not listed by name, avatar, job title or bio on the public
+  user's `/followers` or `/following` page, nor in the owner's
+  recent-follows activity on their own profile page. The follower
+  and following counts are unchanged (they name nobody). Guarded by
+  `apps/web/lib/db/queries/__tests__/follow-lists-hide-private.spec.ts`
+  (T-2729).
 
 ## 7. Out-of-Scope Considerations
 

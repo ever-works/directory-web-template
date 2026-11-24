@@ -45,7 +45,7 @@ export default async function ProfileFollowingPage({
 
 	const [total, following] = await Promise.all([
 		getFollowingCount(profile.userId),
-		listFollowing(profile.userId, FOLLOW_LIST_PAGE_SIZE, (page - 1) * FOLLOW_LIST_PAGE_SIZE)
+		listFollowing(profile.userId, FOLLOW_LIST_PAGE_SIZE, (page - 1) * FOLLOW_LIST_PAGE_SIZE, viewerUserId)
 	]);
 
 	const followingSet = viewerUserId

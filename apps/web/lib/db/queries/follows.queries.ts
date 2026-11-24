@@ -1,4 +1,4 @@
-import { and, desc, eq, inArray, isNull, sql } from 'drizzle-orm';
+import { and, desc, eq, inArray, isNull, ne, or, sql, type SQL } from 'drizzle-orm';
 import { db } from '../drizzle';
 import { clientProfiles, notifications, userFollows, users, type NewUserFollow, type UserFollow } from '../schema';
 import { getTenantId } from '@/lib/auth/tenant';
@@ -159,13 +159,30 @@ export interface FollowListRow {
 }
 
 /**
+ * Which rows of a follow list the viewer may see. A Private profile
+ * (`client_profiles.profile_visibility = 'private'`) is hidden from the people
+ * directory and shown only to its owner, so the followers / following lists of
+ * other users leave its row out for everyone but the Private user. With no
+ * viewer every Private row is left out. The counts are not filtered: they name
+ * nobody.
+ */
+function followListVisibleTo(viewerUserId?: string | null): SQL {
+	if (!viewerUserId) {
+		return ne(clientProfiles.profileVisibility, 'private');
+	}
+	return or(ne(clientProfiles.profileVisibility, 'private'), eq(clientProfiles.userId, viewerUserId))!;
+}
+
+/**
  * List people who follow the given userId within the current tenant.
- * Ordered by most recent follow first. Caller passes limit + offset.
+ * Ordered by most recent follow first. Caller passes limit + offset, and the
+ * viewer's id so that a Private follower is listed only to themselves.
  */
 export async function listFollowers(
 	userId: string,
 	limit = 30,
-	offset = 0
+	offset = 0,
+	viewerUserId?: string | null
 ): Promise<FollowListRow[]> {
 	const tenantId = await getTenantId();
 	if (!tenantId) return [];
@@ -184,16 +201,28 @@ export async function listFollowers(
 		.from(userFollows)
 		.innerJoin(clientProfiles, eq(clientProfiles.userId, userFollows.followerId))
 		.innerJoin(users, and(eq(users.id, userFollows.followerId), isNull(users.deactivatedAt)))
-		.where(and(eq(userFollows.followingId, userId), eq(userFollows.tenantId, tenantId)))
+		.where(
+			and(
+				eq(userFollows.followingId, userId),
+				eq(userFollows.tenantId, tenantId),
+				followListVisibleTo(viewerUserId)
+			)
+		)
 		.orderBy(desc(userFollows.createdAt))
 		.limit(limit)
 		.offset(offset);
 }
 
 /**
- * List people the given userId follows within the current tenant.
+ * List people the given userId follows within the current tenant. Pass the
+ * viewer's id so that a Private profile is listed only to its owner.
  */
-export async function listFollowing(userId: string, limit = 30, offset = 0): Promise<FollowListRow[]> {
+export async function listFollowing(
+	userId: string,
+	limit = 30,
+	offset = 0,
+	viewerUserId?: string | null
+): Promise<FollowListRow[]> {
 	const tenantId = await getTenantId();
 	if (!tenantId) return [];
 
@@ -211,7 +240,13 @@ export async function listFollowing(userId: string, limit = 30, offset = 0): Pro
 		.from(userFollows)
 		.innerJoin(clientProfiles, eq(clientProfiles.userId, userFollows.followingId))
 		.innerJoin(users, and(eq(users.id, userFollows.followingId), isNull(users.deactivatedAt)))
-		.where(and(eq(userFollows.followerId, userId), eq(userFollows.tenantId, tenantId)))
+		.where(
+			and(
+				eq(userFollows.followerId, userId),
+				eq(userFollows.tenantId, tenantId),
+				followListVisibleTo(viewerUserId)
+			)
+		)
 		.orderBy(desc(userFollows.createdAt))
 		.limit(limit)
 		.offset(offset);
