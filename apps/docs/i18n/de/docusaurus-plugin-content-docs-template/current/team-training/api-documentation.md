@@ -105,7 +105,7 @@ open http://localhost:3000/api/reference
 
 ```bash
 # Live-Dokumentation
-https://demo.ever.works/api/reference
+https://dir.ever.works/api/reference
 ```
 
 ### 2. Wesentliche Befehle

@@ -25,8 +25,12 @@ export async function generateStaticParams() {
 type Params = Promise<{ category: string; page: string; locale: string }>;
 
 export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
-	const { category, locale } = await params;
-	return generateCategoryMetadata({ params: Promise.resolve({ category, locale }) });
+	const { category, page, locale } = await params;
+	// The page number is part of the canonical from page 2 on (Spec 062).
+	return generateCategoryMetadata({
+		params: Promise.resolve({ category, locale }),
+		searchParams: Promise.resolve({ page })
+	});
 }
 
 export default async function CachedCategoryListing({ params }: { params: Params }) {

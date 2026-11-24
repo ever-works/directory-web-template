@@ -1,5 +1,5 @@
 import { getCachedItem, getCachedSimilarItems } from '@/lib/content';
-import { isItemSlug } from '@/lib/item-slug';
+import { isItemSlug, MAX_ITEM_SLUG_LENGTH } from '@/lib/item-slug';
 import { notFound, unstable_rethrow } from 'next/navigation';
 import { getCategoriesName } from '@/lib/utils';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
@@ -10,6 +10,7 @@ import { ItemViewTracker } from '@/components/tracking/item-view-tracker';
 import { Metadata } from 'next';
 import { siteConfig } from '@/lib/config';
 import { getSiteName } from '@/lib/seo/site-identity';
+import { itemDescription, itemTitle } from '@/lib/seo/meta-text';
 import { getBaseUrl } from '@/lib/utils/url-cleaner';
 import { generateItemHreflangAlternates, getLocalizedUrl } from '@/lib/seo/hreflang';
 import { type Locale } from '@/lib/constants';
@@ -48,10 +49,10 @@ export async function generateMetadata({
 }): Promise<Metadata> {
 	const { slug, locale } = await params;
 
-	// See note next to MAX_SLUG_LENGTH below — short-circuit before the
+	// See the note on MAX_ITEM_SLUG_LENGTH (lib/item-slug.ts) — short-circuit before the
 	// git-CMS lookup so a 2KB slug returns a clean noindex envelope
 	// instead of crashing inside `realpath`.
-	if (slug.length > 255) {
+	if (slug.length > MAX_ITEM_SLUG_LENGTH) {
 		return {
 			metadataBase: new URL(appUrl),
 			title: `Not Found | ${await getSiteName()}`,
@@ -82,26 +83,35 @@ export async function generateMetadata({
 			? meta.tags.map((tag) => (typeof tag === 'string' ? tag : tag.name))
 			: [];
 
-		// Truncate description to 160 characters for meta description
-		const MAX_DESCRIPTION_LENGTH = 160;
-		const metaDescription = meta.description
-			? meta.description.length > MAX_DESCRIPTION_LENGTH
-				? `${meta.description.slice(0, MAX_DESCRIPTION_LENGTH - 3)}...`
-				: meta.description
-			: `Discover ${meta.name} on ${await getSiteName()}`;
+		// "<Item> – <Category> | <Site>" and a description cut on a word boundary
+		// near 155 characters from the item's own text (lib/seo/meta-text.ts,
+		// Spec 062); an item without one gets a factual sentence, never a claim.
+		const siteName = await getSiteName();
+		// The first category only; none for `category: []` or a missing value
+		// (getCategoriesName reads `.name` and would throw on undefined).
+		const firstCategory = Array.isArray(meta.category) ? meta.category[0] : meta.category;
+		const primaryCategory = firstCategory ? getCategoriesName(firstCategory as never) : '';
+		const pageTitle = itemTitle({ name: meta.name, category: primaryCategory });
+		const metaDescription = itemDescription({
+			name: meta.name,
+			category: primaryCategory,
+			siteName,
+			description: meta.description
+		});
 
 		// Use dynamic OG image endpoint, with fallback to icon or logo
-		const ogImageUrl = new URL(`/${locale}/items/${slug}/opengraph-image`, appUrl).toString();
+		// Unprefixed for the default locale: `/en/...` answers a redirect.
+		const ogImageUrl = getLocalizedUrl(`/items/${slug}/opengraph-image`, locale as Locale);
 		const fallbackImageUrl = new URL(meta.icon_url ?? siteConfig.logo, appUrl).toString();
 
 		return {
 			metadataBase: new URL(appUrl),
-			title: `${meta.name} | ${await getSiteName()}`,
+			title: `${pageTitle} | ${siteName}`,
 			description: metaDescription,
 			keywords,
 			openGraph: {
-				title: meta.name,
-				description: meta.description || metaDescription,
+				title: pageTitle,
+				description: metaDescription,
 				images: [
 					{
 						url: ogImageUrl,
@@ -115,12 +125,12 @@ export async function generateMetadata({
 					}
 				],
 				type: 'website',
-				siteName: await getSiteName(),
+				siteName,
 				url: getLocalizedUrl(`/items/${slug}`, locale as Locale)
 			},
 			twitter: {
 				card: 'summary_large_image',
-				title: meta.name,
+				title: pageTitle,
 				description: metaDescription,
 				images: [ogImageUrl, fallbackImageUrl]
 			},
@@ -161,12 +171,6 @@ export async function generateMetadata({
 //   return (await Promise.all(params)).flat();
 // }
 
-// Filesystems (ext4, NTFS) cap a single path segment at ~255 bytes. A
-// pathological 2KB slug bubbles up as `ENAMETOOLONG` from `realpath`
-// inside the git-CMS lookup and 500s. Reject anything obviously too
-// long up-front — see `directory-traversal-defense.spec.ts`.
-const MAX_SLUG_LENGTH = 255;
-
 export default async function ItemDetails({ params }: { params: Promise<{ slug: string; locale: string }> }) {
 	const { slug, locale } = await params;
 	// Sets the request locale for next-intl's server helpers, so they do not read it
@@ -174,7 +178,7 @@ export default async function ItemDetails({ params }: { params: Promise<{ slug: 
 	setRequestLocale(locale);
 
 	// A slug that cannot name an item is a 404, not a read failure (the catch below rethrows those).
-	if (slug.length > MAX_SLUG_LENGTH || !isItemSlug(slug)) {
+	if (slug.length > MAX_ITEM_SLUG_LENGTH || !isItemSlug(slug)) {
 		return notFound();
 	}
 
@@ -253,6 +257,7 @@ export default async function ItemDetails({ params }: { params: Promise<{ slug: 
 							similarItemsPromise={similarItemsPromise}
 							headings={headings}
 							rating={rating}
+							siteUrl={appUrl}
 						/>
 					</Container>
 				</div>

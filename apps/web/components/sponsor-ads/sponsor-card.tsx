@@ -8,10 +8,10 @@ import { FiFolder, FiExternalLink } from 'react-icons/fi';
 import { getItemPath } from '@/lib/utils';
 import { SponsorBadge } from './sponsor-badge';
 import { shouldShowFallback, isProblematicUrl } from '@/lib/utils/image-domains';
-import type { SponsorWithItem } from '@/lib/types/sponsor-ad';
+import type { PublicSponsorWithItem } from '@/lib/types/sponsor-ad';
 
 interface SponsorCardProps {
-	sponsors: SponsorWithItem[];
+	sponsors: PublicSponsorWithItem[];
 	rotationInterval?: number; // in milliseconds, default 5000 (5 seconds)
 	className?: string;
 	variant?: 'default' | 'compact';

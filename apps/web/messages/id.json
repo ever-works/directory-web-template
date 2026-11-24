@@ -487,6 +487,7 @@
 		"PROMO_CODE": "Kode Promo",
 		"SIMILAR_PRODUCTS": "Produk serupa",
 		"SIMILAR_PRODUCTS_DESCRIPTION": "Jelajahi item lain yang terkait",
+		"ALTERNATIVES_TO": "Alternatif untuk {name}",
 		"STATISTICS": "Statistik",
 		"STATS_VIEWS": "Tampilan",
 		"STATS_VOTES": "Suara positif",

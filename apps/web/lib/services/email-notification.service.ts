@@ -10,7 +10,7 @@ function getEmailServiceConfig() {
 	return {
 		provider: emailConfig.EMAIL_PROVIDER,
 		defaultFrom: emailConfig.EMAIL_FROM || 'info@ever.works',
-		domain: coreConfig.APP_URL || 'https://demo.ever.works',
+		domain: coreConfig.APP_URL || 'https://dir.ever.works',
 		apiKeys: {
 			resend: emailConfig.resend.apiKey || '',
 			novu: emailConfig.novu.apiKey || '',
@@ -59,7 +59,7 @@ function getEmailServiceConfig() {
    *
    *   - **Fallback defaults leak `ever.works` branding** —
    *     missing `EMAIL_FROM` falls back to `'info@ever.works'`;
-   *     missing `APP_URL` falls back to `'https://demo.ever.works'`.
+   *     missing `APP_URL` falls back to `'https://dir.ever.works'`.
    *     Customer-facing deployments must set both env vars to
    *     avoid sending mail "from Ever Works".
    */

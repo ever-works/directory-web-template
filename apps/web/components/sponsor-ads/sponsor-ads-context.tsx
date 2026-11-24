@@ -3,15 +3,15 @@
 import { createContext, useContext, ReactNode } from 'react';
 import { useActiveSponsorAds } from '@/hooks/use-active-sponsor-ads';
 import type { ItemData } from '@/lib/content';
-import type { SponsorWithItem } from '@/lib/types/sponsor-ad';
+import type { PublicSponsorWithItem } from '@/lib/types/sponsor-ad';
 
 // Re-export for convenience (maintains backwards compatibility)
-export type { SponsorWithItem } from '@/lib/types/sponsor-ad';
+export type { SponsorWithItem, PublicSponsorWithItem } from '@/lib/types/sponsor-ad';
 
 // ######################### Types #########################
 
 interface SponsorAdsContextValue {
-	sponsors: SponsorWithItem[];
+	sponsors: PublicSponsorWithItem[];
 	isLoading: boolean;
 	isError: boolean;
 }

@@ -27,18 +27,17 @@ The context provider fetches active sponsor ads via the `useActiveSponsorAds` ho
 
 ```ts
 interface SponsorAdsContextValue {
-  sponsors: SponsorWithItem[];
+  sponsors: PublicSponsorWithItem[];
   isLoading: boolean;
   isError: boolean;
 }
 
-interface SponsorWithItem {
-  id: string;
-  itemSlug: string;
-  interval: "weekly" | "monthly";
-  status: "active" | "pending" | "expired";
-  startDate: string;
-  endDate: string;
+// lib/types/sponsor-ad.ts: only the public fields of the sponsor ad row
+// (toPublicSponsorAd), never the sponsor's user, payment or review details.
+type PublicSponsorAd = Pick<SponsorAd, 'id' | 'itemSlug' | 'status' | 'interval' | 'startDate' | 'endDate'>;
+
+interface PublicSponsorWithItem {
+  sponsor: PublicSponsorAd;
   item: ItemData | null;  // Server-side joined item data
 }
 ```
@@ -61,7 +60,7 @@ Displays a sponsored item with automatic time-based rotation when multiple spons
 
 ```ts
 interface SponsorCardProps {
-  sponsors: SponsorWithItem[];
+  sponsors: PublicSponsorWithItem[];
   rotationInterval?: number;  // Milliseconds, default 5000 (5 seconds)
   className?: string;
   variant?: 'default' | 'compact';

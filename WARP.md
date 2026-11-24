@@ -521,7 +521,7 @@ This web app is deployed as part of the Turborepo monorepo.
 
 - **Main Docs**: https://docs.ever.works
 - **Architecture Docs**: https://github.com/ever-works/ever-works-docs/tree/develop/website/docs
-- **Demo Site**: https://demo.ever.works
+- **Demo Site**: https://dir.ever.works
 - **Next.js Docs**: https://nextjs.org/docs
 - **Drizzle ORM**: https://orm.drizzle.team
 - **Auth.js**: https://authjs.dev

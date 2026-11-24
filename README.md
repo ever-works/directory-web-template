@@ -8,7 +8,7 @@ This versatile template is an essential component of the [Ever Works Platform](h
 
 ## 🔗 Links
 
-- **Demo:** [https://demo.ever.works](https://demo.ever.works) (deployed from `main` branch of this repo)
+- **Demo:** [https://dir.ever.works](https://dir.ever.works) (a directory built from this template by the [Ever Works](https://ever.works) platform; the platform's own demo is [https://demo.ever.works](https://demo.ever.works))
 - **Docs:** [https://docs.ever.works](https://docs.ever.works)
 - **Ever Works website:** [https://ever.works](https://ever.works) (WIP)
 

@@ -73,7 +73,7 @@ The `EmailService` class at `lib/mail/index.ts` is the main entry point for send
 const service = new EmailService({
   provider: 'resend',
   defaultFrom: 'info@ever.works',
-  domain: 'https://demo.ever.works',
+  domain: 'https://dir.ever.works',
   apiKeys: {
     resend: process.env.RESEND_API_KEY || '',
   },

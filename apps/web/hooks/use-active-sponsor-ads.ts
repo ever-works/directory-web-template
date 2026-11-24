@@ -1,11 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
-import type { SponsorWithItem } from "@/lib/types/sponsor-ad";
+import type { PublicSponsorWithItem } from "@/lib/types/sponsor-ad";
 
 // ######################### Types #########################
 
 interface ActiveSponsorAdsResponse {
 	success: boolean;
-	data: SponsorWithItem[];
+	data: PublicSponsorWithItem[];
 }
 
 interface UseActiveSponsorAdsOptions {
@@ -14,7 +14,7 @@ interface UseActiveSponsorAdsOptions {
 }
 
 interface UseActiveSponsorAdsReturn {
-	sponsors: SponsorWithItem[];
+	sponsors: PublicSponsorWithItem[];
 	isLoading: boolean;
 	isError: boolean;
 	error: Error | null;
@@ -30,7 +30,7 @@ export const activeSponsorAdsQueryKeys = {
 
 // ######################### API Functions #########################
 
-async function fetchActiveSponsorAds(limit: number): Promise<SponsorWithItem[]> {
+async function fetchActiveSponsorAds(limit: number): Promise<PublicSponsorWithItem[]> {
 	const params = new URLSearchParams();
 	if (limit) params.set("limit", limit.toString());
 

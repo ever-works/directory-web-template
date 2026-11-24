@@ -134,7 +134,7 @@ Naast functievlaggen biedt het template een `siteConfig`-object in `lib/config.t
 export const siteConfig = {
   name: process.env.NEXT_PUBLIC_SITE_NAME || 'Ever Works',
   tagline: process.env.NEXT_PUBLIC_SITE_TAGLINE || 'The Open-Source, AI-Powered Directory Builder',
-  url: process.env.NEXT_PUBLIC_APP_URL ?? 'https://demo.ever.works',
+  url: process.env.NEXT_PUBLIC_APP_URL ?? 'https://dir.ever.works',
   logo: process.env.NEXT_PUBLIC_SITE_LOGO || '/logo-ever-works.svg',
   brandName: process.env.NEXT_PUBLIC_BRAND_NAME || 'Ever Works',
   description: process.env.NEXT_PUBLIC_SITE_DESCRIPTION || '...',
@@ -162,7 +162,7 @@ export const siteConfig = {
 |-----------|-----------|------|
 | `NEXT_PUBLIC_SITE_NAME` | `'Ever Works'` | Sitenaam in metadata en OG-afbeeldingen |
 | `NEXT_PUBLIC_SITE_TAGLINE` | Sjabloonstandaard | Homepage-tagline |
-| `NEXT_PUBLIC_APP_URL` | `'https://demo.ever.works'` | Volledige site-URL (geen afsluitende schuine streep) |
+| `NEXT_PUBLIC_APP_URL` | `'https://dir.ever.works'` | Volledige site-URL (geen afsluitende schuine streep) |
 | `NEXT_PUBLIC_SITE_LOGO` | `'/logo-ever-works.svg'` | Logo-pad relatief aan `/public` |
 | `NEXT_PUBLIC_BRAND_NAME` | `'Ever Works'` | Schema.org-organisatienaam |
 | `NEXT_PUBLIC_SITE_DESCRIPTION` | Sjabloonstandaard | SEO-metabeschrijving |

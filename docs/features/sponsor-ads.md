@@ -73,13 +73,24 @@ The `SponsorAd` type comes from the Drizzle schema (`lib/db/schema`). Key fields
 - `rejectionReason`, `cancelReason`
 - `createdAt`, `updatedAt`
 
-### SponsorWithItem
+### SponsorWithItem and PublicSponsorWithItem
 
-Used for display components -- pairs a sponsor ad with its resolved item data:
+`SponsorWithItem` pairs the full sponsor ad row with its resolved item data, for server-side code only:
 
 ```ts
 interface SponsorWithItem {
   sponsor: SponsorAd;
+  item: ItemData | null;
+}
+```
+
+The public `GET /api/sponsor-ads` endpoint and the display components (`useActiveSponsorAds`, `SponsorAdsProvider`, `SponsorCard`, `SidebarSponsor`) use `PublicSponsorWithItem`. Its `sponsor` holds only the public fields, copied by `toPublicSponsorAd` (`lib/sponsor-ads/public-sponsor-ad.ts`), so the sponsor's user id, payment ids, amount and review details never reach the browser:
+
+```ts
+type PublicSponsorAd = Pick<SponsorAd, 'id' | 'itemSlug' | 'status' | 'interval' | 'startDate' | 'endDate'>;
+
+interface PublicSponsorWithItem {
+  sponsor: PublicSponsorAd;
   item: ItemData | null;
 }
 ```
@@ -403,7 +414,7 @@ interface UseActiveSponsorAdsOptions {
 
 ```ts
 const {
-  sponsors,     // SponsorWithItem[] - sponsor ad + resolved item data
+  sponsors,     // PublicSponsorWithItem[] - public sponsor ad fields + resolved item data
   isLoading,
   isError,
   error,

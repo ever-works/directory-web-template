@@ -240,7 +240,7 @@ Returns the application base URL with a fallback chain:
 
 1. `NEXT_PUBLIC_APP_URL` environment variable
 2. `VERCEL_URL` environment variable (with `https://` prefix)
-3. Hardcoded fallback: `https://demo.ever.works`
+3. Hardcoded fallback: `https://dir.ever.works`
 
 ### buildUrl
 

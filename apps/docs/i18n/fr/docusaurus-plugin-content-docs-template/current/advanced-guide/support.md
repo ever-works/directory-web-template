@@ -46,7 +46,7 @@ Welcome to the Ever Works support center. We're here to help you get the most ou
 
 ### Demo & Examples
 
-- **🌐 [Demo Site](https://demo.ever.works)** - See the template in action
+- **🌐 [Demo Site](https://dir.ever.works)** - See the template in action
 - **📚 [Documentation](https://docs.ever.works)** - Complete documentation
 - **💻 [GitHub Repository](https://github.com/ever-works/directory-web-template)** - Source code and examples
 
