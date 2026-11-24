@@ -49,10 +49,16 @@ export function findTagBySegment<T extends TagLike>(tags: readonly T[], segment:
  * `/tags/a%20b` gives. So the as-given lookup lets a literal tag `a%20b` be
  * reached, and if a tag `a b` also exists, the literal one wins. A tag id with a
  * lone `%` (`/tags/100%25`) never reaches the page: Next answers HTTP 400.
+ *
+ * Ids come before display names in both spellings: the id as given, then the
+ * decoded id, then the display names. So a tag whose display name is `a%2Fb`
+ * cannot shadow the tag `a/b` that `tagPath()` links to as `/tags/a%2Fb`.
  */
 export function findTagByParam<T extends TagLike>(tags: readonly T[], param: string): T | undefined {
-	const asGiven = findTagBySegment(tags, param);
-	if (asGiven) return asGiven;
 	const decoded = decodeSegment(param);
-	return decoded !== null && decoded !== param ? findTagBySegment(tags, decoded) : undefined;
+	const other = decoded !== null && decoded !== param ? decoded : null;
+	const byId =
+		tags.find((tag) => tag.id === param) ?? (other === null ? undefined : tags.find((tag) => tag.id === other));
+	if (byId) return byId;
+	return findTagBySegment(tags, param) ?? (other === null ? undefined : findTagBySegment(tags, other));
 }

@@ -47,7 +47,10 @@ describe('findTagBySegment', () => {
 	it('prefers an exact id over the display name of another tag', () => {
 		// An EARLIER tag named like a LATER tag's id must not shadow it: /tags/<id>
 		// would otherwise list and canonicalise to the wrong tag.
-		const shadowing = [{ id: 'editors-pick', name: 'Popular' }, { id: 'popular', name: 'Most Popular' }];
+		const shadowing = [
+			{ id: 'editors-pick', name: 'Popular' },
+			{ id: 'popular', name: 'Most Popular' }
+		];
 		assert.equal(findTagBySegment(shadowing, 'popular')?.id, 'popular');
 		assert.equal(findTagBySegment(shadowing, 'Popular')?.id, 'editors-pick');
 	});
@@ -95,6 +98,19 @@ describe('findTagByParam', () => {
 		// Alone, the literal tag is reached from both conventions.
 		assert.equal(findTagByParam([{ id: 'a%20b' }], 'a%2520b')?.id, 'a%20b');
 		assert.equal(findTagByParam([{ id: 'a%20b' }], 'a%20b')?.id, 'a%20b');
+	});
+
+	it('does not let a display name that looks encoded shadow the id it encodes', () => {
+		// tagPath('a/b') links to /tags/a%2Fb. Another tag DISPLAYED as "a%2Fb" must not win.
+		const shadow = [
+			{ id: 'other', name: 'a%2Fb' },
+			{ id: 'a/b', name: 'Slashed' }
+		];
+		const segment = tagPath('a/b')!.slice('/tags/'.length);
+		assert.equal(segment, 'a%2Fb');
+		assert.equal(findTagByParam(shadow, segment)?.id, 'a/b');
+		// The display name still works when no id matches either spelling.
+		assert.equal(findTagByParam([{ id: 'other', name: 'a%2Fb' }], 'a%2Fb')?.id, 'other');
 	});
 
 	it('keeps the old results for display names, any case, and unknown tags', () => {
