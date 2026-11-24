@@ -88,16 +88,17 @@ Adds an item to the authenticated user's favorites. Includes duplicate checking 
 | `itemIconUrl` | string | No | URL to the item's icon |
 | `itemCategory` | string | No | Category name for the item |
 
-The request body is validated using a Zod schema:
+The request body is checked by `validateFavoriteInput` (`apps/web/lib/validations/favorite.ts`).
+The body must be a JSON object. Every string is trimmed, then checked:
 
-```ts
-const addFavoriteSchema = z.object({
-  itemSlug: z.string().min(1),
-  itemName: z.string().min(1),
-  itemIconUrl: z.string().optional(),
-  itemCategory: z.string().optional(),
-});
-```
+| Field | Rule |
+|-------|------|
+| `itemSlug` | Required, non-blank string, at most 200 characters |
+| `itemName` | Required, non-blank string, at most 300 characters |
+| `itemIconUrl` | Optional string, at most 2048 characters; absent, `null` or blank means "not set" |
+| `itemCategory` | Optional string, at most 200 characters; absent, `null` or blank means "not set" |
+
+No field may contain a NUL character.
 
 ### Request Example
 
@@ -140,10 +141,8 @@ const addFavoriteSchema = z.object({
 }
 ```
 
-`itemSlug` and `itemName` are required, non-blank strings; `itemIconUrl` and `itemCategory`
-are optional (absent, `null` or blank means "not set"). Every string is trimmed and bounded
-(`itemSlug` 200, `itemName` 300, `itemIconUrl` 2048, `itemCategory` 200 characters) and may not
-contain a NUL character. A body that is not valid JSON answers `400` with
+A body that breaks the rules above answers `400` with this shape; `details` names the first field
+that failed. A body that is not valid JSON answers `400` with
 `{ "success": false, "error": "Invalid JSON body" }`.
 
 #### 401 -- Unauthorized

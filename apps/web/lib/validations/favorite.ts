@@ -22,12 +22,7 @@ export type FavoriteInputResult = { ok: true; value: FavoriteInput } | { ok: fal
 
 type FieldResult = { ok: true; value: string | undefined } | { ok: false; error: string };
 
-function checkText(
-	raw: unknown,
-	label: string,
-	maxLength: number,
-	{ required }: { required: boolean }
-): FieldResult {
+function checkText(raw: unknown, label: string, maxLength: number, { required }: { required: boolean }): FieldResult {
 	if (raw === undefined || raw === null) {
 		return required ? { ok: false, error: `${label} is required` } : { ok: true, value: undefined };
 	}
