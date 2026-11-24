@@ -3,17 +3,10 @@ import { auth } from '@/lib/auth';
 import { db } from '@/lib/db/drizzle';
 import { favorites } from '@/lib/db/schema';
 import { eq, and } from 'drizzle-orm';
-import { z } from 'zod';
 import { checkDatabaseAvailability } from '@/lib/utils/database-check';
 import { safeErrorResponse } from '@/lib/utils/api-error';
 import { getTenantId } from '@/lib/auth/tenant';
-
-const addFavoriteSchema = z.object({
-	itemSlug: z.string().min(1),
-	itemName: z.string().min(1),
-	itemIconUrl: z.string().optional(),
-	itemCategory: z.string().optional()
-});
+import { validateFavoriteInput } from '@/lib/validations/favorite';
 
 /**
  * @swagger
@@ -161,7 +154,7 @@ export async function GET() {
  *   post:
  *     tags: ["Favorites"]
  *     summary: "Add item to favorites"
- *     description: "Adds an item to the authenticated user's favorites list. Includes duplicate checking to prevent adding the same item twice. Stores item metadata for quick access without needing to query the items table. Requires user authentication."
+ *     description: "Adds an item to the authenticated user's favorites list. Includes duplicate checking to prevent adding the same item twice. Stores item metadata for quick access without needing to query the items table. Strings are trimmed and bounded (itemSlug 200, itemName 300, itemIconUrl 2048, itemCategory 200 characters); a malformed JSON body or an invalid field is a 400, and losing a race with a concurrent add of the same item is a 409. Requires user authentication."
  *     security:
  *       - sessionAuth: []
  *     requestBody:
@@ -327,8 +320,21 @@ export async function POST(request: NextRequest) {
 			return NextResponse.json({ success: false, error: 'Tenant not found' }, { status: 403 });
 		}
 
-		const body = await request.json();
-		const validatedData = addFavoriteSchema.parse(body);
+		let body: unknown;
+		try {
+			body = await request.json();
+		} catch {
+			return NextResponse.json({ success: false, error: 'Invalid JSON body' }, { status: 400 });
+		}
+
+		const input = validateFavoriteInput(body);
+		if (!input.ok) {
+			return NextResponse.json(
+				{ success: false, error: 'Invalid request data', details: input.error },
+				{ status: 400 }
+			);
+		}
+		const validatedData = input.value;
 
 		// Check if favorite already exists
 		const existingFavorite = await db
@@ -347,6 +353,8 @@ export async function POST(request: NextRequest) {
 			return NextResponse.json({ success: false, error: 'Item is already in favorites' }, { status: 409 });
 		}
 
+		// The (user, item) unique index decides a race between two concurrent adds
+		// (a double click): the loser inserts nothing and answers 409, not a 500.
 		const newFavorite = await db
 			.insert(favorites)
 			.values({
@@ -357,7 +365,12 @@ export async function POST(request: NextRequest) {
 				itemCategory: validatedData.itemCategory,
 				tenantId
 			})
+			.onConflictDoNothing()
 			.returning();
+
+		if (newFavorite.length === 0) {
+			return NextResponse.json({ success: false, error: 'Item is already in favorites' }, { status: 409 });
+		}
 
 		return NextResponse.json(
 			{
@@ -367,13 +380,6 @@ export async function POST(request: NextRequest) {
 			{ status: 201 }
 		);
 	} catch (error) {
-		if (error instanceof z.ZodError) {
-			return NextResponse.json(
-				{ success: false, error: 'Invalid request data', details: error.message },
-				{ status: 400 }
-			);
-		}
-
 		return safeErrorResponse(error, 'Failed to add favorite');
 	}
 }
