@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { decodeSegment, findTagBySegment } from '../route-segment';
+import { tagPath } from '../../utils/tag-path';
+import { decodeSegment, findTagByParam, findTagBySegment } from '../route-segment';
 
 /**
  * Route-segment helpers (lib/seo/route-segment.ts).
@@ -46,7 +47,10 @@ describe('findTagBySegment', () => {
 	it('prefers an exact id over the display name of another tag', () => {
 		// An EARLIER tag named like a LATER tag's id must not shadow it: /tags/<id>
 		// would otherwise list and canonicalise to the wrong tag.
-		const shadowing = [{ id: 'editors-pick', name: 'Popular' }, { id: 'popular', name: 'Most Popular' }];
+		const shadowing = [
+			{ id: 'editors-pick', name: 'Popular' },
+			{ id: 'popular', name: 'Most Popular' }
+		];
 		assert.equal(findTagBySegment(shadowing, 'popular')?.id, 'popular');
 		assert.equal(findTagBySegment(shadowing, 'Popular')?.id, 'editors-pick');
 	});
@@ -54,5 +58,69 @@ describe('findTagBySegment', () => {
 	it('finds nothing for an unknown segment', () => {
 		assert.equal(findTagBySegment(tags, 'zz-unknown'), undefined);
 		assert.equal(findTagBySegment([], 'tag-a'), undefined);
+	});
+});
+
+/**
+ * The lookup side of the route boundary: given the segment a `tagPath()` link carries, or
+ * its decoded form, `findTagByParam` names the right tag and never throws. This does not
+ * cover the middleware: a `%` tag (`/tags/100%25`) is answered HTTP 400 before the page
+ * runs, so the `100%` cases below pass here but that link still fails in the app.
+ */
+describe('findTagByParam', () => {
+	const tags = [
+		{ id: '100%', name: 'Hundred' },
+		{ id: 'a b', name: 'Spaced' },
+		{ id: 'a/b', name: 'Slashed' },
+		{ id: 'c#', name: 'Sharp' },
+		{ id: 'open-source', name: 'Open Source' }
+	];
+
+	for (const tag of tags) {
+		const segment = tagPath(tag.id)!.slice('/tags/'.length);
+
+		it(`reaches "${tag.id}" from an encoded param (${segment})`, () => {
+			assert.equal(findTagByParam(tags, segment)?.id, tag.id);
+		});
+
+		it(`reaches "${tag.id}" from an already-decoded param`, () => {
+			assert.equal(findTagByParam(tags, tag.id)?.id, tag.id);
+		});
+	}
+
+	it('does not decode a tag whose own text looks like an escape into another tag', () => {
+		// A tag literally named `a%20b` next to a tag `a b`: an already-decoded param `a%20b`
+		// is the literal tag (as given first), not decoded again into `a b`.
+		const literal = [{ id: 'a b' }, { id: 'a%20b' }];
+		assert.equal(findTagByParam(literal, 'a%20b')?.id, 'a%20b');
+		// Its encoded form (what tagPath() links to) still reaches it.
+		assert.equal(findTagByParam(literal, tagPath('a%20b')!.slice('/tags/'.length))?.id, 'a%20b');
+		// Alone, the literal tag is reached from both conventions.
+		assert.equal(findTagByParam([{ id: 'a%20b' }], 'a%2520b')?.id, 'a%20b');
+		assert.equal(findTagByParam([{ id: 'a%20b' }], 'a%20b')?.id, 'a%20b');
+	});
+
+	it('does not let a display name that looks encoded shadow the id it encodes', () => {
+		// tagPath('a/b') links to /tags/a%2Fb. Another tag DISPLAYED as "a%2Fb" must not win.
+		const shadow = [
+			{ id: 'other', name: 'a%2Fb' },
+			{ id: 'a/b', name: 'Slashed' }
+		];
+		const segment = tagPath('a/b')!.slice('/tags/'.length);
+		assert.equal(segment, 'a%2Fb');
+		assert.equal(findTagByParam(shadow, segment)?.id, 'a/b');
+		// The display name still works when no id matches either spelling.
+		assert.equal(findTagByParam([{ id: 'other', name: 'a%2Fb' }], 'a%2Fb')?.id, 'other');
+	});
+
+	it('keeps the old results for display names, any case, and unknown tags', () => {
+		assert.equal(findTagByParam(tags, 'Open%20Source')?.id, 'open-source');
+		assert.equal(findTagByParam(tags, 'open source')?.id, 'open-source');
+		assert.equal(findTagByParam(tags, 'zz-unknown'), undefined);
+	});
+
+	it('does not throw on malformed percent-encoding', () => {
+		assert.equal(findTagByParam(tags, '%E0%A4%A'), undefined);
+		assert.equal(findTagByParam([], '100%'), undefined);
 	});
 });
