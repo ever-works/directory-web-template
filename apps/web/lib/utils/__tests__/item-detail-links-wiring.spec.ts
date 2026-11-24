@@ -28,8 +28,9 @@ describe('item page sidebar links', () => {
 		assert.ok(!itemDetail.includes('`/tags/${tag}`'), 'a raw tag is put in the URL');
 	});
 
-	it('the single-tag page decodes its segment without throwing on a lone %', () => {
-		assert.ok(tagPage.includes('decodeSegment(tag) ?? tag'), 'the segment is not decoded with decodeSegment');
-		assert.ok(!tagPage.includes('decodeURIComponent(tag)'), 'decodeURIComponent can throw URIError (HTTP 500)');
+	it('the single-tag page looks its segment up with findTagByParam and never decodes it blindly', () => {
+		assert.equal(tagPage.split('findTagByParam(tags, tag)').length - 1, 2, 'metadata and page must both use it');
+		assert.ok(!tagPage.includes('decodeURIComponent('), 'decodeURIComponent can throw URIError (HTTP 500)');
+		assert.ok(!tagPage.includes('findTagBySegment('), 'a decoded-only lookup misses an already-decoded param');
 	});
 });

@@ -38,3 +38,17 @@ export function findTagBySegment<T extends TagLike>(tags: readonly T[], segment:
 	const lower = segment.toLowerCase();
 	return tags.find((tag) => typeof tag.name === 'string' && tag.name.toLowerCase() === lower);
 }
+
+/**
+ * The tag a dynamic route's `params.tag` names, whether the framework hands the
+ * segment over percent-encoded (`100%25`, `Open%20Source`) or already decoded
+ * (`100%`). The value is looked up as given FIRST and decoded only if that finds
+ * nothing, so a tag whose own text contains an escape-looking run (`a%20b`) is
+ * never decoded a second time into a different tag, and a lone `%` never throws.
+ */
+export function findTagByParam<T extends TagLike>(tags: readonly T[], param: string): T | undefined {
+	const asGiven = findTagBySegment(tags, param);
+	if (asGiven) return asGiven;
+	const decoded = decodeSegment(param);
+	return decoded !== null && decoded !== param ? findTagBySegment(tags, decoded) : undefined;
+}

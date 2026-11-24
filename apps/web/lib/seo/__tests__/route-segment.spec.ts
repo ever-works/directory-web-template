@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { decodeSegment, findTagBySegment } from '../route-segment';
+import { tagPath } from '../../utils/tag-path';
+import { decodeSegment, findTagByParam, findTagBySegment } from '../route-segment';
 
 /**
  * Route-segment helpers (lib/seo/route-segment.ts).
@@ -54,5 +55,54 @@ describe('findTagBySegment', () => {
 	it('finds nothing for an unknown segment', () => {
 		assert.equal(findTagBySegment(tags, 'zz-unknown'), undefined);
 		assert.equal(findTagBySegment([], 'tag-a'), undefined);
+	});
+});
+
+/**
+ * The route boundary: a link built by `tagPath()` (the item page's sidebar) must reach the
+ * tag it names whether `params.tag` arrives percent-encoded or already decoded.
+ */
+describe('findTagByParam', () => {
+	const tags = [
+		{ id: '100%', name: 'Hundred' },
+		{ id: 'a b', name: 'Spaced' },
+		{ id: 'a/b', name: 'Slashed' },
+		{ id: 'c#', name: 'Sharp' },
+		{ id: 'open-source', name: 'Open Source' }
+	];
+
+	for (const tag of tags) {
+		const segment = tagPath(tag.id)!.slice('/tags/'.length);
+
+		it(`reaches "${tag.id}" from an encoded param (${segment})`, () => {
+			assert.equal(findTagByParam(tags, segment)?.id, tag.id);
+		});
+
+		it(`reaches "${tag.id}" from an already-decoded param`, () => {
+			assert.equal(findTagByParam(tags, tag.id)?.id, tag.id);
+		});
+	}
+
+	it('does not decode a tag whose own text looks like an escape into another tag', () => {
+		// A tag literally named `a%20b` next to a tag `a b`: an already-decoded param `a%20b`
+		// is the literal tag (as given first), not decoded again into `a b`.
+		const literal = [{ id: 'a b' }, { id: 'a%20b' }];
+		assert.equal(findTagByParam(literal, 'a%20b')?.id, 'a%20b');
+		// Its encoded form (what tagPath() links to) still reaches it.
+		assert.equal(findTagByParam(literal, tagPath('a%20b')!.slice('/tags/'.length))?.id, 'a%20b');
+		// Alone, the literal tag is reached from both conventions.
+		assert.equal(findTagByParam([{ id: 'a%20b' }], 'a%2520b')?.id, 'a%20b');
+		assert.equal(findTagByParam([{ id: 'a%20b' }], 'a%20b')?.id, 'a%20b');
+	});
+
+	it('keeps the old results for display names, any case, and unknown tags', () => {
+		assert.equal(findTagByParam(tags, 'Open%20Source')?.id, 'open-source');
+		assert.equal(findTagByParam(tags, 'open source')?.id, 'open-source');
+		assert.equal(findTagByParam(tags, 'zz-unknown'), undefined);
+	});
+
+	it('does not throw on malformed percent-encoding', () => {
+		assert.equal(findTagByParam(tags, '%E0%A4%A'), undefined);
+		assert.equal(findTagByParam([], '100%'), undefined);
 	});
 });

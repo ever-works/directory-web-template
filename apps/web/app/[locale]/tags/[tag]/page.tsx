@@ -8,7 +8,7 @@ import { taxonomyDescription, taxonomyTitle } from "@/lib/seo/meta-text";
 import { getSiteName } from "@/lib/seo/site-identity";
 import { CollectionJsonLd } from "@/components/seo/collection-json-ld";
 import { toTitleCase } from "@/lib/utils";
-import { decodeSegment, findTagBySegment } from "@/lib/seo/route-segment";
+import { decodeSegment, findTagByParam } from "@/lib/seo/route-segment";
 import { BreadcrumbJsonLd } from "@/components/seo/breadcrumb-json-ld";
 import { getTranslations, setRequestLocale } from "next-intl/server";
 import { DEFAULT_LOCALE } from "@/lib/constants";
@@ -29,8 +29,9 @@ export async function generateMetadata({
   params: Promise<{ tag: string; locale: string }>;
 }): Promise<Metadata> {
   const { tag, locale } = await params;
-  // A malformed or already-decoded segment (`100%`) must not throw: decoding it again
-  // raised URIError (HTTP 500). The raw segment then simply matches no tag, or the tag.
+  // The segment is looked up as given, then decoded (findTagByParam): it is never decoded
+  // blindly, so `100%` cannot throw and `a%20b` cannot become another tag. Only used for
+  // the unknown-tag fallback below.
   const decodedTag = decodeSegment(tag) ?? tag;
   const [{ items, tags }, config, siteName] = await Promise.all([
     getCachedItems({ lang: locale }),
@@ -40,7 +41,7 @@ export async function generateMetadata({
   // Title and canonical from the tag's id, whatever spelling the URL used
   // (`/tags/Open%20Source`): that answered as its own self-canonical duplicate
   // of /tags/<id>. An unknown tag keeps the raw segment; the page below 404s it.
-  const matchedTag = findTagBySegment(tags, decodedTag);
+  const matchedTag = findTagByParam(tags, tag);
   const tagName = matchedTag?.name || toTitleCase(matchedTag ? matchedTag.id : decodedTag);
   const path = matchedTag ? `/tags/${encodeURIComponent(matchedTag.id)}` : `/tags/${tag}`;
   const taggedItems = items.filter((item) =>
@@ -93,12 +94,9 @@ export default async function TagListing({
   // Fetch all items (filtering will be done client-side via FilterURLParser)
   const { categories, tags, items } = await getCachedItems({ lang: locale });
 
-  // Decode the tag from URL
-  const decodedTag = decodeSegment(tag) ?? tag;
-
   // Unknown tag slug → proper 404 (not a soft-404 with full item list).
   // Same lookup as generateMetadata above.
-  const matchedTag = findTagBySegment(tags, decodedTag);
+  const matchedTag = findTagByParam(tags, tag);
   if (!matchedTag) {
     notFound();
   }
