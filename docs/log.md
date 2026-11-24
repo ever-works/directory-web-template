@@ -7,6 +7,10 @@ sidebar_position: 99
 
 # Documentation & Specs Change Log
 
+## 2026-11-24
+
+- `apps/web/app/api/items/popularity-scores/route.ts`: `limit` now goes through `parsePaginationParams` (default 20, range 1–100), so `?limit=abc` or a negative value no longer returns an empty list with `showing: null` or all but the last N items. Test: `apps/web/lib/utils/__tests__/popularity-scores-limit-wiring.spec.ts`. PR number to be added.
+
 ## 2026-11-21
 
 - `apps/web` URL fallbacks (`APP_URL` / `NEXT_PUBLIC_APP_URL` unset and no `VERCEL_URL`: `lib/config*`, `lib/utils/url-cleaner.ts`, mail, payment, surveys and Stripe/Polar routes, the help page example and mock URL bar, the seed's sample icon URLs) and the docs that describe them (`configuration/feature-config.md`, `architecture/utils-reference.md` and their translations): `https://demo.ever.works` -> `https://dir.ever.works`, the template's live example (owner ruling R45). Seed e-mail identities (`admin@demo.ever.works`) and history notes are unchanged. PR #1176.

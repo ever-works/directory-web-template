@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getEngagementMetricsPerItem } from '@/lib/db/queries/engagement.queries';
 import { getCachedItems } from '@/lib/content';
 import { itemDateMs } from '@/lib/item-updated-at';
+import { parsePaginationParams } from '@/lib/utils/pagination-params';
 
 export const dynamic = 'force-dynamic';
 
@@ -18,7 +19,8 @@ export const dynamic = 'force-dynamic';
 export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams;
-    const limit = Math.min(parseInt(searchParams.get('limit') || '20'), 100);
+    // `?limit=abc` / `?limit=-3` used to reach `slice(0, NaN | -3)` (empty list / all but the last 3).
+    const { limit } = parsePaginationParams(null, searchParams.get('limit'), { defaultLimit: 20, maxLimit: 100 });
     const locale = searchParams.get('locale') || 'en';
 
     // Fetch all items
