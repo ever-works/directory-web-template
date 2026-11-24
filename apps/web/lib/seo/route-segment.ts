@@ -40,11 +40,15 @@ export function findTagBySegment<T extends TagLike>(tags: readonly T[], segment:
 }
 
 /**
- * The tag a dynamic route's `params.tag` names, whether the framework hands the
- * segment over percent-encoded (`100%25`, `Open%20Source`) or already decoded
- * (`100%`). The value is looked up as given FIRST and decoded only if that finds
- * nothing, so a tag whose own text contains an escape-looking run (`a%20b`) is
- * never decoded a second time into a different tag, and a lone `%` never throws.
+ * The tag a dynamic route's `params.tag` names. The value is looked up as given
+ * FIRST and decoded only if that finds nothing, so a lone `%` never throws.
+ *
+ * Through the real route, `/tags/[tag]` gets the segment still percent-encoded
+ * (`Open%20Source`, `a%2Fb`), but only after next-intl's middleware has
+ * `decodeURI`d the path once: `/tags/a%2520b` arrives as `a%20b`, the same value
+ * `/tags/a%20b` gives. So the as-given lookup lets a literal tag `a%20b` be
+ * reached, and if a tag `a b` also exists, the literal one wins. A tag id with a
+ * lone `%` (`/tags/100%25`) never reaches the page: Next answers HTTP 400.
  */
 export function findTagByParam<T extends TagLike>(tags: readonly T[], param: string): T | undefined {
 	const asGiven = findTagBySegment(tags, param);

@@ -27,6 +27,10 @@ export function tagLabel(tag: ItemTagValue): string {
  *
  * Returns null when the tag has no usable text, so the caller can skip the link
  * instead of publishing `/tags/`.
+ *
+ * Known gap: a `%` is encoded correctly here (`/tags/100%25`), but next-intl's
+ * middleware `decodeURI`s the path and rewrites it to `/en/tags/100%`, which Next
+ * answers with HTTP 400. A tag id containing `%` still cannot be opened.
  */
 export function tagPath(tag: ItemTagValue): string | null {
 	const segment = typeof tag === 'string' ? text(tag) : text(tag?.id) || text(tag?.name);

@@ -59,8 +59,10 @@ describe('findTagBySegment', () => {
 });
 
 /**
- * The route boundary: a link built by `tagPath()` (the item page's sidebar) must reach the
- * tag it names whether `params.tag` arrives percent-encoded or already decoded.
+ * The lookup side of the route boundary: given the segment a `tagPath()` link carries, or
+ * its decoded form, `findTagByParam` names the right tag and never throws. This does not
+ * cover the middleware: a `%` tag (`/tags/100%25`) is answered HTTP 400 before the page
+ * runs, so the `100%` cases below pass here but that link still fails in the app.
  */
 describe('findTagByParam', () => {
 	const tags = [

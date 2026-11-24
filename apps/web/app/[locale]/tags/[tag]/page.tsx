@@ -29,9 +29,11 @@ export async function generateMetadata({
   params: Promise<{ tag: string; locale: string }>;
 }): Promise<Metadata> {
   const { tag, locale } = await params;
-  // The segment is looked up as given, then decoded (findTagByParam): it is never decoded
-  // blindly, so `100%` cannot throw and `a%20b` cannot become another tag. Only used for
-  // the unknown-tag fallback below.
+  // Next passes the segment still percent-encoded (`a%2Fb`, `caf%C3%A9`). findTagByParam
+  // looks it up as given, then decoded, and never throws. A tag id with a `%` still cannot
+  // be opened: next-intl's middleware decodeURIs `/tags/100%25` to `/en/tags/100%`, and
+  // Next answers HTTP 400 before this page runs. decodedTag is only for the unknown-tag
+  // fallback below.
   const decodedTag = decodeSegment(tag) ?? tag;
   const [{ items, tags }, config, siteName] = await Promise.all([
     getCachedItems({ lang: locale }),

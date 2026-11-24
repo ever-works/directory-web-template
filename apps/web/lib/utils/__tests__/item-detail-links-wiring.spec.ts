@@ -18,9 +18,15 @@ describe('item page sidebar links', () => {
 
 	it('uses the locale-aware Link, not a plain anchor', () => {
 		assert.ok(itemDetail.includes("import { Link } from '@/i18n/navigation';"), 'Link is not imported');
-		assert.ok(!/<a (?:[^>]*\s)?href=\{`\/(?:categories|tags)\//.test(itemDetail), 'a plain <a> links to a taxonomy page');
+		assert.ok(
+			!/<a (?:[^>]*\s)?href=\{`\/(?:categories|tags)\//.test(itemDetail),
+			'a plain <a> links to a taxonomy page'
+		);
 		assert.ok(itemDetail.includes('<Link key={index} href={tag.href}'), 'tag links are not <Link>s');
-		assert.ok(itemDetail.includes('<Link href={`/categories/${encodedCategory}`}'), 'the category link is not a <Link>');
+		assert.ok(
+			itemDetail.includes('<Link href={`/categories/${encodedCategory}`}'),
+			'the category link is not a <Link>'
+		);
 	});
 
 	it('builds tag hrefs with tagPath, never from the raw tag text', () => {
@@ -30,7 +36,7 @@ describe('item page sidebar links', () => {
 
 	it('the single-tag page looks its segment up with findTagByParam and never decodes it blindly', () => {
 		assert.equal(tagPage.split('findTagByParam(tags, tag)').length - 1, 2, 'metadata and page must both use it');
-		assert.ok(!tagPage.includes('decodeURIComponent('), 'decodeURIComponent can throw URIError (HTTP 500)');
-		assert.ok(!tagPage.includes('findTagBySegment('), 'a decoded-only lookup misses an already-decoded param');
+		assert.ok(!tagPage.includes('decodeURIComponent('), 'decodeURIComponent throws on malformed percent-encoding');
+		assert.ok(!tagPage.includes('findTagBySegment('), 'a decoded-only lookup misses a literal tag such as `a%20b`');
 	});
 });
