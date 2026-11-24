@@ -45,6 +45,8 @@
 		"BACK_TO_TOP": "返回顶部"
 	},
 	"common": {
+		"PAGINATION_LABEL": "分页",
+		"PAGINATION_PAGE_OF": "第 <num>{current}</num> 页，共 <num>{total}</num> 页",
 		"DEMO_BANNER_TEXT": "您正在使用演示账户。觉得我们的软件有用吗？",
 		"DEMO_BANNER_SIGN_UP": "点击此处注册，免费开始使用！",
 		"FAQ": "常见问题",

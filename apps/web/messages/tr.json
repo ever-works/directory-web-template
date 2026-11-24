@@ -45,6 +45,8 @@
 		"BACK_TO_TOP": "Başa dön"
 	},
 	"common": {
+		"PAGINATION_LABEL": "Sayfalandırma",
+		"PAGINATION_PAGE_OF": "Sayfa <num>{current}</num> / <num>{total}</num>",
 		"DEMO_BANNER_TEXT": "Bir demo hesabı kullanıyorsunuz. Yazılımımızı faydalı buldunuz mu?",
 		"DEMO_BANNER_SIGN_UP": "Kaydolmak ve ücretsiz kullanmaya başlamak için buraya tıklayın!",
 		"FAQ": "SSS",

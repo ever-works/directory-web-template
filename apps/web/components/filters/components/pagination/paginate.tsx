@@ -1,4 +1,5 @@
 import { Pagination, cn } from "@heroui/react";
+import { useTranslations } from "next-intl";
 import { PaginateProps } from "../../types";
 import { useScrollToTop } from "@/hooks/use-scroll-to-top";
 import { FILTER_CONSTANTS } from "../../constants";
@@ -17,6 +18,7 @@ export function Paginate({
   paginationType?: "standard" | "infinite";
   onPageChange?: (page: number) => void;
 }) {
+  const t = useTranslations("common");
   const { navigateWithScroll } = useScrollToTop({
     easing: "easeInOut",
     duration: FILTER_CONSTANTS.SCROLL_DURATION,
@@ -48,14 +50,15 @@ export function Paginate({
           {/* Page info */}
           <div className="text-center">
             <p className="text-sm text-gray-600 dark:text-gray-400">
-              Page{" "}
-              <span className="font-semibold text-theme-primary dark:text-theme-primary">
-                {initialPage}
-              </span>{" "}
-              of{" "}
-              <span className="font-semibold text-theme-primary dark:text-theme-primary">
-                {total}
-              </span>
+              {t.rich("PAGINATION_PAGE_OF", {
+                current: initialPage,
+                total,
+                num: (chunks) => (
+                  <span className="font-semibold text-theme-primary dark:text-theme-primary">
+                    {chunks}
+                  </span>
+                ),
+              })}
             </p>
           </div>
 
@@ -66,7 +69,7 @@ export function Paginate({
 
             <div className="relative bg-white/80 dark:bg-[#0a0a0a]/80 backdrop-blur-xs border border-gray-200/50 dark:border-white/4 rounded-2xl p-2 shadow-lg hover:shadow-xl transition-all duration-300 dark:shadow-lg dark:shadow-theme-primary-500/20 dark:shadow-theme-primary-500/20">
               <Pagination
-                aria-label="pagination"
+                aria-label={t("PAGINATION_LABEL")}
                 showControls
                 total={total}
                 initialPage={initialPage}

@@ -45,6 +45,8 @@
 		"BACK_TO_TOP": "Kembali ke atas"
 	},
 	"common": {
+		"PAGINATION_LABEL": "Penomoran halaman",
+		"PAGINATION_PAGE_OF": "Halaman <num>{current}</num> dari <num>{total}</num>",
 		"DEMO_BANNER_TEXT": "Anda menggunakan akun demo. Merasa perangkat lunak kami bermanfaat?",
 		"DEMO_BANNER_SIGN_UP": "Klik di sini untuk mendaftar dan mulai menggunakannya secara gratis!",
 		"FAQ": "FAQ",

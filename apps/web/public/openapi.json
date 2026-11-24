@@ -12573,7 +12573,7 @@
 			"post": {
 				"tags": ["Favorites"],
 				"summary": "Add item to favorites",
-				"description": "Adds an item to the authenticated user's favorites list. Includes duplicate checking to prevent adding the same item twice. Stores item metadata for quick access without needing to query the items table. Requires user authentication.",
+				"description": "Adds an item to the authenticated user's favorites list. Includes duplicate checking to prevent adding the same item twice. Stores item metadata for quick access without needing to query the items table. Strings are trimmed and bounded (itemSlug 200, itemName 300, itemIconUrl 2048, itemCategory 200 characters); a malformed JSON body or an invalid field is a 400, and losing a race with a concurrent add of the same item is a 409. Requires user authentication.",
 				"security": [
 					{
 						"sessionAuth": []

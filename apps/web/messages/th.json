@@ -45,6 +45,8 @@
 		"BACK_TO_TOP": "กลับขึ้นด้านบน"
 	},
 	"common": {
+		"PAGINATION_LABEL": "การแบ่งหน้า",
+		"PAGINATION_PAGE_OF": "หน้า <num>{current}</num> จาก <num>{total}</num>",
 		"DEMO_BANNER_TEXT": "คุณกำลังใช้บัญชีทดลอง พบว่าซอฟต์แวร์ของเรามีประโยชน์หรือไม่?",
 		"DEMO_BANNER_SIGN_UP": "คลิกที่นี่เพื่อสมัครและเริ่มใช้งานฟรี!",
 		"FAQ": "คำถามที่พบบ่อย",
