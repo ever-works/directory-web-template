@@ -32,17 +32,16 @@ import { test, expect } from '@playwright/test';
  *      surface. Every key is parsed AFTER the gate and
  *      the unauth branch must therefore be invariant to
  *      the entire combinatorial surface.
- *   3. The **`Number()` / `Number.isFinite()` /
- *      `Math.floor()` / `Math.min(Math.max(…, 1), 100)`
- *      pagination clamp posture** — distinct from the
- *      admin-roles route's
+ *   3. The **lenient `parsePaginationParams()`
+ *      pagination posture** (spec 056 R7: default 10,
+ *      maximum 100, `page` capped at 100000) — distinct
+ *      from the admin-roles route's
  *      `validatePaginationParams(searchParams)` helper
  *      and from the admin-categories route's
- *      Zod-schema-validated pagination posture. The
- *      route's clamp accepts every parseable integer
- *      (including negative / zero / non-integer
- *      values via the floor + clamp pipeline) and
- *      defaults silently rather than emitting a 400.
+ *      Zod-schema-validated pagination posture. A
+ *      whole number is clamped into range and anything
+ *      else (`abc`, `1.5`, `0x10`) gets the default,
+ *      silently rather than emitting a 400.
  *   4. A **`parseDate(v)` helper** that normalises
  *      `?createdAfter=` / `?createdBefore=` /
  *      `?updatedAfter=` / `?updatedBefore=` via
@@ -135,10 +134,9 @@ import { test, expect } from '@playwright/test';
  *   2. It has the **largest** documented query-param
  *      surface in the admin tree (13+ keys plus
  *      pagination), all parsed AFTER the gate.
- *   3. It uses an **inline** pagination clamp (`Number()`
- *      → `Number.isFinite()` → `Math.floor()` →
- *      `Math.min(Math.max(…, 1), 100)`) rather than the
- *      shared `validatePaginationParams()` helper.
+ *   3. It parses pagination with the lenient shared
+ *      `parsePaginationParams()` helper rather than the
+ *      strict `validatePaginationParams()` one.
  *   4. It exposes **four distinct date-range filters**
  *      (`createdAfter` / `createdBefore` /
  *      `updatedAfter` / `updatedBefore`) via a shared
@@ -155,8 +153,9 @@ const ADMIN_CLIENTS_ADVANCED_SEARCH_QUERIES = [
 	'/api/admin/clients/advanced-search',
 
 	// `?page=` / `?limit=` — the documented pagination
-	// keys. The route uses an inline clamp rather than
-	// the shared `validatePaginationParams()` helper.
+	// keys. The route uses the lenient
+	// `parsePaginationParams()` helper rather than the
+	// strict `validatePaginationParams()` one.
 	'/api/admin/clients/advanced-search?page=1',
 	'/api/admin/clients/advanced-search?page=0',
 	'/api/admin/clients/advanced-search?page=-1',
@@ -339,9 +338,7 @@ test.describe('API: /api/admin/clients/advanced-search query-param surface', () 
 		request
 	}) => {
 		// The pagination params are parsed AFTER the
-		// gate via the inline `Number()` /
-		// `Number.isFinite()` / `Math.floor()` /
-		// `Math.min(Math.max(…, 1), 100)` clamp. A
+		// gate via `parsePaginationParams()`. A
 		// regression that reads pagination before the
 		// gate would change the unauth branch from
 		// "always 401" to "400 if pagination is

@@ -13,7 +13,9 @@ sidebar_label: 056 Pagination params
 A shared parser, `parsePaginationParams()` in `apps/web/lib/utils/pagination-params.ts`,
 turns the `page` and `limit` query-string values into safe integers. The first
 route to use it is `GET /api/auth/security/login-activity`. The second is
-`GET /api/items/popularity-scores` (R6).
+`GET /api/items/popularity-scores` (R6). The admin client lists
+`GET /api/admin/clients/advanced-search` and `GET /api/admin/clients/dashboard`
+followed (R7).
 
 ## 2. Motivation
 
@@ -54,6 +56,17 @@ routes parse the same way (see plan, "Follow-ups").
   answered `?limit=abc` with no items and `showing: null`, and `?limit=-3` with every
   item but the last three. Malformed numbers that `parseInt` read loosely (`2abc`,
   `1.5`, `1e3`) now get 20.
+- **R7.** `GET /api/admin/clients/advanced-search` and `GET /api/admin/clients/dashboard`
+  read `page` and `limit` through the helper with a default limit of 10 and a maximum
+  of 100 (their documented bounds). A missing or empty `limit` returns 10 clients: the
+  old `Number(searchParams.get('limit'))` read it as 0, so advanced-search returned 1
+  client per page without a `limit`, and both routes did for `?limit=`. A `page` above
+  100000 is capped at 100000 (and reported as 100000), and one beyond the safe-integer
+  range is page 1 (R0), so `?page=1000000000000000000` no longer pushes the OFFSET
+  past the bigint range and answers 500. Other whole numbers behave as before
+  (`page=0` is page 1, `limit=0` is 1, `limit=500` is 100). Loose numbers that `Number()`
+  read (`0x10` was 16, `1e2` was 100, `1.5` was floored to 1) now get the defaults. The
+  response shape does not change.
 
 ## 4. Out of scope
 
