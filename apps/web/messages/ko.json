@@ -45,6 +45,8 @@
 		"BACK_TO_TOP": "맨 위로"
 	},
 	"common": {
+		"PAGINATION_LABEL": "페이지 이동",
+		"PAGINATION_PAGE_OF": "<num>{total}</num>페이지 중 <num>{current}</num>페이지",
 		"DEMO_BANNER_TEXT": "데모 계정을 사용하고 있습니다. 저희 소프트웨어가 유용하신가요?",
 		"DEMO_BANNER_SIGN_UP": "여기를 클릭하여 가입하고 무료로 사용을 시작하세요!",
 		"FAQ": "자주 묻는 질문",

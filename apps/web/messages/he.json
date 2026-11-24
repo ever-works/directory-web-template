@@ -45,6 +45,8 @@
 		"BACK_TO_TOP": "חזרה למעלה"
 	},
 	"common": {
+		"PAGINATION_LABEL": "ניווט בין עמודים",
+		"PAGINATION_PAGE_OF": "עמוד <num>{current}</num> מתוך <num>{total}</num>",
 		"DEMO_BANNER_TEXT": "אתם משתמשים בחשבון הדגמה. מוצאים את התוכנה שלנו שימושית?",
 		"DEMO_BANNER_SIGN_UP": "לחצו כאן כדי להירשם ולהתחיל להשתמש בחינם!",
 		"FAQ": "שאלות נפוצות",

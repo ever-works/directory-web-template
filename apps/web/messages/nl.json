@@ -45,6 +45,8 @@
 		"BACK_TO_TOP": "Terug naar boven"
 	},
 	"common": {
+		"PAGINATION_LABEL": "Paginering",
+		"PAGINATION_PAGE_OF": "Pagina <num>{current}</num> van <num>{total}</num>",
 		"DEMO_BANNER_TEXT": "U gebruikt een demo-account. Vindt u onze software nuttig?",
 		"DEMO_BANNER_SIGN_UP": "Klik hier om u aan te melden en gratis aan de slag te gaan!",
 		"FAQ": "Veelgestelde vragen",

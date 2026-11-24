@@ -45,6 +45,8 @@
 		"BACK_TO_TOP": "Về đầu trang"
 	},
 	"common": {
+		"PAGINATION_LABEL": "Phân trang",
+		"PAGINATION_PAGE_OF": "Trang <num>{current}</num> trên <num>{total}</num>",
 		"DEMO_BANNER_TEXT": "Bạn đang sử dụng tài khoản demo. Bạn thấy phần mềm của chúng tôi hữu ích?",
 		"DEMO_BANNER_SIGN_UP": "Nhấp vào đây để đăng ký và bắt đầu sử dụng miễn phí!",
 		"FAQ": "Câu hỏi thường gặp",
