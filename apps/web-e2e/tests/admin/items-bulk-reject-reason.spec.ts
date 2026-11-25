@@ -48,17 +48,25 @@ test.describe('Admin: bulk reject reason (a11y)', () => {
 			return url.pathname === '/api/admin/items' && url.searchParams.get('status') === 'pending';
 		});
 		await adminPage.getByRole('tab', { name: /^pending/i }).click();
-		const body = (await (await pendingList).json().catch(() => ({}))) as {
-			items?: Array<{ name?: string; status?: string }>;
-		};
+		// A failed list request must fail the test, not look like an empty queue and skip every check
+		const response = await pendingList;
+		expect(response.ok(), `the pending list answered ${response.status()}`).toBe(true);
+		const body = (await response.json()) as { items?: Array<{ name?: string; status?: string }> };
+		expect(Array.isArray(body.items), 'the pending list response has an items array').toBe(true);
 		const listed = body.items ?? [];
 		test.skip(
 			!listed.some((item) => item.status === 'pending'),
 			'No pending item available to open the bulk reject dialog'
 		);
 
-		// One "Select <name>" checkbox per row, besides "Select all items"
+		// One "Select <name>" checkbox per row, besides "Select all items". The previous tab can have
+		// as many rows, so also wait for each listed row by name before Select all
 		await expect(adminPage.getByRole('checkbox', { name: /^select (?!all items$)/i })).toHaveCount(listed.length);
+		for (const { name } of listed) {
+			if (!name) continue;
+			const rowCheckbox = adminPage.getByRole('checkbox', { name: `Select ${name}`, exact: true });
+			await expect(rowCheckbox.first()).toBeVisible();
+		}
 		await bulkPage.selectAllCheckbox.click();
 		await expect(bulkPage.bulkActionBar).toBeVisible();
 
