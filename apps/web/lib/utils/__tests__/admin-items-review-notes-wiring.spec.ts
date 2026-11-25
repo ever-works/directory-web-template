@@ -34,4 +34,19 @@ describe('admin item review route review_notes wiring', () => {
 		assert.ok(source.includes('const review_notes = notesResult.notes;'), 'validated notes are not used');
 		assert.ok(!source.includes('rawReviewNotes,'), 'the raw value still reaches a call');
 	});
+
+	it('the reject dialog applies the same trimmed minimum and the 2000 cap', () => {
+		const read = (p: string) => readFileSync(join(__dirname, p), 'utf8').replace(/\s+/g, ' ');
+		const modal = read('../../../components/admin/items/item-reject-modal.tsx');
+		const page = read('../../../app/[locale]/admin/items/page.tsx');
+		assert.ok(
+			modal.includes('rejectionReason.trim().length >= REJECTION_REASON_MIN_LENGTH'),
+			'the dialog counts untrimmed characters'
+		);
+		assert.ok(modal.includes('maxLength={REVIEW_NOTES_MAX_LENGTH}'), 'the dialog textarea has no 2000 cap');
+		assert.ok(
+			page.includes('rejectionReason.trim().length < REJECTION_REASON_MIN_LENGTH'),
+			'the page sends an untrimmed-length reason'
+		);
+	});
 });

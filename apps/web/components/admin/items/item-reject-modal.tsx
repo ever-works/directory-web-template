@@ -3,6 +3,7 @@ import { XCircle, X, Loader2 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { cn } from '@/lib/utils';
 import type { ItemData } from '@/lib/types/item';
+import { REJECTION_REASON_MIN_LENGTH, REVIEW_NOTES_MAX_LENGTH } from '@/lib/utils/review-notes';
 
 interface ItemRejectModalProps {
 	isOpen: boolean;
@@ -39,7 +40,8 @@ export function ItemRejectModal({
 
 	if (!isOpen) return null;
 
-	const isReasonValid = rejectionReason.length >= 10;
+	// Same rule as POST /api/admin/items/{id}/review: the trimmed reason counts
+	const isReasonValid = rejectionReason.trim().length >= REJECTION_REASON_MIN_LENGTH;
 	const categories = item ? (Array.isArray(item.category) ? item.category : [item.category]) : [];
 
 	return (
@@ -117,6 +119,7 @@ export function ItemRejectModal({
 							onChange={(e) => onReasonChange(e.target.value)}
 							placeholder={t('REJECTION_REASON_PLACEHOLDER')}
 							rows={4}
+							maxLength={REVIEW_NOTES_MAX_LENGTH}
 							disabled={isSubmitting}
 							className={cn(
 								"w-full px-3 py-2.5 text-sm rounded-xl resize-none",
