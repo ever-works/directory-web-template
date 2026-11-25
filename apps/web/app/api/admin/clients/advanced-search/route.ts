@@ -2,6 +2,14 @@ import { NextRequest, NextResponse } from 'next/server';
 import { advancedClientSearch } from '@/lib/db/queries';
 import { checkAdminAuth } from '@/lib/auth/admin-guard';
 import { parsePaginationParams } from '@/lib/utils/pagination-params';
+import { MAX_INT32, parseNonNegativeIntParam } from '@/lib/utils/non-negative-int-param';
+
+function invalidSubmissionsParam(name: 'minSubmissions' | 'maxSubmissions') {
+  return NextResponse.json(
+    { success: false, error: `Invalid ${name} parameter. Must be a whole number between 0 and ${MAX_INT32}.` },
+    { status: 400 }
+  );
+}
 
 /**
  * @swagger
@@ -123,7 +131,8 @@ import { parsePaginationParams } from '@/lib/utils/pagination-params';
  *         schema:
  *           type: integer
  *           minimum: 0
- *         description: "Minimum number of submissions"
+ *           maximum: 2147483647
+ *         description: "Minimum number of submissions. An empty value is no filter; any other value that is not a whole number from 0 to 2147483647 answers 400."
  *         example: 5
  *       - name: "maxSubmissions"
  *         in: "query"
@@ -131,7 +140,8 @@ import { parsePaginationParams } from '@/lib/utils/pagination-params';
  *         schema:
  *           type: integer
  *           minimum: 0
- *         description: "Maximum number of submissions"
+ *           maximum: 2147483647
+ *         description: "Maximum number of submissions. An empty value is no filter; any other value that is not a whole number from 0 to 2147483647 answers 400."
  *         example: 100
  *       - name: "emailVerified"
  *         in: "query"
@@ -221,6 +231,19 @@ import { parsePaginationParams } from '@/lib/utils/pagination-params';
  *                     plan: "premium"
  *                     emailVerified: true
  *                   searchTime: 45.2
+ *       400:
+ *         description: "Bad request - invalid minSubmissions or maxSubmissions"
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 error:
+ *                   type: string
+ *                   example: "Invalid minSubmissions parameter. Must be a whole number between 0 and 2147483647."
  *       401:
  *         description: "Unauthorized - Admin access required"
  *         content:
@@ -281,14 +304,12 @@ export async function GET(request: NextRequest) {
     const locationSearch = searchParams.get('locationSearch') || undefined;
     const industrySearch = searchParams.get('industrySearch') || undefined;
     
-    // Numeric filters with validation
-    const parseIntSafe = (v: string | null) => {
-      if (v == null) return undefined;
-      const n = Number(v);
-      return Number.isFinite(n) ? Math.floor(n) : undefined;
-    };
-    const minSubmissions = parseIntSafe(searchParams.get('minSubmissions'));
-    const maxSubmissions = parseIntSafe(searchParams.get('maxSubmissions'));
+    // Numeric filters: a missing or empty value is no filter. Anything else must be a whole number
+    // in the integer column's range, or the request is a 400 (not a filter on 0, and not a 500).
+    const minSubmissions = parseNonNegativeIntParam(searchParams.get('minSubmissions'));
+    if (!minSubmissions.ok) return invalidSubmissionsParam('minSubmissions');
+    const maxSubmissions = parseNonNegativeIntParam(searchParams.get('maxSubmissions'));
+    if (!maxSubmissions.ok) return invalidSubmissionsParam('maxSubmissions');
     
     // Boolean filters
     const hasAvatar = searchParams.get('hasAvatar') ? searchParams.get('hasAvatar') === 'true' : undefined;
@@ -313,8 +334,8 @@ export async function GET(request: NextRequest) {
       companySearch,
       locationSearch,
       industrySearch,
-      minSubmissions,
-      maxSubmissions,
+      minSubmissions: minSubmissions.value,
+      maxSubmissions: maxSubmissions.value,
       hasAvatar,
       hasWebsite,
       hasPhone,
