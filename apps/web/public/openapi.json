@@ -31345,7 +31345,7 @@
 									},
 									"reason": {
 										"type": "string",
-										"description": "Rejection reason (required when action is 'reject', minimum 10 characters)",
+										"description": "Rejection reason (required when action is 'reject'; minimum 10 characters and maximum 2000 characters after trimming). Ignored for 'approve' and 'delete'.",
 										"example": "Does not meet quality standards"
 									}
 								},
