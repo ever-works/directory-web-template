@@ -1,6 +1,12 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
-import { REJECTION_REASON_MIN_LENGTH, REVIEW_NOTES_MAX_LENGTH, validateReviewNotes } from '../review-notes';
+import {
+	isItemStatus,
+	REJECTION_REASON_MIN_LENGTH,
+	REVIEW_NOTES_MAX_LENGTH,
+	reviewNotesRuleForUpdate,
+	validateReviewNotes
+} from '../review-notes';
 
 /**
  * Run with: `pnpm --filter @ever-works/web test:unit`
@@ -55,6 +61,96 @@ describe('validateReviewNotes', () => {
 			assert.deepEqual(validateReviewNotes(status, ` ${atLimit} `), { ok: true, notes: atLimit });
 			const over = validateReviewNotes(status, `${atLimit}x`);
 			assert.deepEqual(over, { ok: false, error: 'review_notes must be at most 2000 characters' });
+		}
+	});
+});
+
+/**
+ * `PUT /api/admin/items/{id}` stored any `status` it was sent ('published', 'Rejected'), and on an item that was
+ * already rejected it treated `review_notes` as optional, so `{ "review_notes": "" }` (or null, or "ok") deleted
+ * or shortened the reason the submitter reads.
+ */
+describe('isItemStatus', () => {
+	it('accepts every ITEM_STATUSES value', () => {
+		for (const status of ['draft', 'pending', 'approved', 'rejected']) {
+			assert.equal(isItemStatus(status), true, `refused ${status}`);
+		}
+	});
+
+	it('refuses any other value, matched exactly', () => {
+		for (const raw of [
+			'published',
+			'Rejected',
+			'REJECTED',
+			' rejected',
+			'rejected ',
+			'',
+			null,
+			1,
+			{},
+			['rejected']
+		]) {
+			assert.equal(isItemStatus(raw), false, `accepted ${JSON.stringify(raw)}`);
+		}
+	});
+});
+
+describe('reviewNotesRuleForUpdate', () => {
+	it('needs a reason when the update rejects an item that is not already rejected', () => {
+		for (const storedStatus of ['draft', 'pending', 'approved']) {
+			for (const notesSent of [false, true]) {
+				assert.equal(
+					reviewNotesRuleForUpdate({ storedStatus, sentStatus: 'rejected', notesSent }),
+					'rejected',
+					`${storedStatus} -> rejected, notesSent ${notesSent}`
+				);
+			}
+		}
+	});
+
+	it('needs a reason when review_notes is sent for an item that stays rejected', () => {
+		for (const sentStatus of [undefined, 'rejected'] as const) {
+			assert.equal(
+				reviewNotesRuleForUpdate({ storedStatus: 'rejected', sentStatus, notesSent: true }),
+				'rejected',
+				`status ${sentStatus}`
+			);
+		}
+	});
+
+	it('refuses to blank or shorten the reason of an item that stays rejected', () => {
+		for (const sentStatus of [undefined, 'rejected'] as const) {
+			const rule = reviewNotesRuleForUpdate({ storedStatus: 'rejected', sentStatus, notesSent: true });
+			assert.ok(rule, 'no rule for review_notes on a rejected item');
+			for (const raw of ['', '   ', null, 'ok', 'too short']) {
+				assert.deepEqual(
+					validateReviewNotes(rule, raw),
+					{ ok: false, error: 'Rejection reason is required (minimum 10 characters)' },
+					`accepted ${JSON.stringify(raw)} (status ${sentStatus})`
+				);
+			}
+		}
+	});
+
+	it('needs no reason for other edits of an item that is already rejected', () => {
+		for (const sentStatus of [undefined, 'rejected'] as const) {
+			assert.equal(reviewNotesRuleForUpdate({ storedStatus: 'rejected', sentStatus, notesSent: false }), null);
+		}
+	});
+
+	it('keeps review_notes optional but bounded when the item does not end up rejected', () => {
+		for (const storedStatus of ['draft', 'pending', 'approved', 'rejected']) {
+			for (const sentStatus of [undefined, 'draft', 'pending', 'approved'] as const) {
+				if (storedStatus === 'rejected' && sentStatus === undefined) continue;
+				assert.equal(reviewNotesRuleForUpdate({ storedStatus, sentStatus, notesSent: true }), 'approved');
+				assert.equal(reviewNotesRuleForUpdate({ storedStatus, sentStatus, notesSent: false }), null);
+			}
+		}
+	});
+
+	it('checks nothing when neither a rejection nor review_notes is sent and the item was not loaded', () => {
+		for (const sentStatus of [undefined, 'draft', 'pending', 'approved'] as const) {
+			assert.equal(reviewNotesRuleForUpdate({ storedStatus: undefined, sentStatus, notesSent: false }), null);
 		}
 	});
 });
