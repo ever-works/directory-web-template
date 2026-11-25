@@ -223,8 +223,8 @@ Performs a multi-dimensional search across client profiles. In addition to the b
 | `companySearch`    | string  | Search within company names                    |
 | `locationSearch`   | string  | Search within locations                        |
 | `industrySearch`   | string  | Search within industries                       |
-| `minSubmissions`   | integer | Minimum submission count                       |
-| `maxSubmissions`   | integer | Maximum submission count                       |
+| `minSubmissions`   | integer | Minimum submission count (0–2147483647; empty = no filter; anything else is a 400) |
+| `maxSubmissions`   | integer | Maximum submission count (0–2147483647; empty = no filter; anything else is a 400) |
 | `emailVerified`    | boolean | Filter by email verification status            |
 | `twoFactorEnabled` | boolean | Filter by 2FA status                          |
 | `hasAvatar`        | boolean | Filter clients with/without avatar             |
@@ -245,6 +245,12 @@ Performs a multi-dimensional search across client profiles. In addition to the b
     }
   }
 }
+```
+
+**Response (400):** `minSubmissions` or `maxSubmissions` is not a whole number from 0 to 2147483647 (for example `-1`, `2.9`, `0x10`, `1e2` or `3000000000`).
+
+```json
+{ "success": false, "error": "Invalid minSubmissions parameter. Must be a whole number between 0 and 2147483647." }
 ```
 
 ---

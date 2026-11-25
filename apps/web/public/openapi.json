@@ -2382,9 +2382,10 @@
 						"required": false,
 						"schema": {
 							"type": "integer",
-							"minimum": 0
+							"minimum": 0,
+							"maximum": 2147483647
 						},
-						"description": "Minimum number of submissions",
+						"description": "Minimum number of submissions. An empty value is no filter; any other value that is not a whole number from 0 to 2147483647 answers 400.",
 						"example": 5
 					},
 					{
@@ -2393,9 +2394,10 @@
 						"required": false,
 						"schema": {
 							"type": "integer",
-							"minimum": 0
+							"minimum": 0,
+							"maximum": 2147483647
 						},
-						"description": "Maximum number of submissions",
+						"description": "Maximum number of submissions. An empty value is no filter; any other value that is not a whole number from 0 to 2147483647 answers 400.",
 						"example": 100
 					},
 					{
@@ -2515,6 +2517,26 @@
 												"emailVerified": true
 											},
 											"searchTime": 45.2
+										}
+									}
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Bad request - invalid minSubmissions or maxSubmissions",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"success": {
+											"type": "boolean",
+											"example": false
+										},
+										"error": {
+											"type": "string",
+											"example": "Invalid minSubmissions parameter. Must be a whole number between 0 and 2147483647."
 										}
 									}
 								}
