@@ -5,7 +5,7 @@ import { getLocationEnabled } from '@/lib/utils/settings';
 import { getLocationIndexService } from '@/lib/services/location';
 import { safeErrorResponse } from '@/lib/utils/api-error';
 import { checkAdminAuth, requireAdminSession } from '@/lib/auth/admin-guard';
-import { validateReviewNotes } from '@/lib/utils/review-notes';
+import { isItemStatus, reviewNotesRuleForUpdate, validateReviewNotes } from '@/lib/utils/review-notes';
 
 const itemRepository = new ItemRepository();
 
@@ -133,7 +133,7 @@ export async function GET(
  *   put:
  *     tags: ["Admin - Items"]
  *     summary: "Update item"
- *     description: "Updates a specific item's properties including name, description, categories, tags, status, and other metadata. All fields are optional and only provided fields will be updated. Setting status to 'rejected' on an item that is not already rejected needs a review_notes reason (minimum 10 characters after trimming), like POST /api/admin/items/{id}/review. Requires admin privileges."
+ *     description: "Updates a specific item's properties including name, description, categories, tags, status, and other metadata. All fields are optional and only provided fields will be updated. status must be one of draft, pending, approved or rejected, matched exactly. Setting status to 'rejected' on an item that is not already rejected needs a review_notes reason (minimum 10 characters after trimming), like POST /api/admin/items/{id}/review, and so does sending review_notes for an item that stays rejected, so its reason cannot be blanked or shortened. Other edits of an item that is already rejected need no reason. Requires admin privileges."
  *     security:
  *       - sessionAuth: []
  *     parameters:
@@ -196,11 +196,11 @@ export async function GET(
  *               status:
  *                 type: string
  *                 enum: ["draft", "pending", "approved", "rejected"]
- *                 description: "Item status"
+ *                 description: "Item status, matched exactly. Any other value answers 400."
  *                 example: "approved"
  *               review_notes:
  *                 type: string
- *                 description: "Review notes the submitter reads, trimmed. Required when status changes the item to 'rejected' (minimum 10 characters after trimming); optional otherwise. Maximum 2000 characters after trimming. A blank note is stored as no note."
+ *                 description: "Review notes the submitter reads, trimmed. Required (minimum 10 characters after trimming) when status changes the item to 'rejected', and whenever it is sent for an item that stays rejected (no status, or status 'rejected'), as it replaces the reason; optional otherwise. Maximum 2000 characters after trimming. A blank note on an item that does not end up rejected is stored as no note."
  *                 example: "The source URL does not lead to the product described."
  *     responses:
  *       200:
@@ -237,7 +237,7 @@ export async function GET(
  *                 updated_at: "2024-01-20T16:45:00.000Z"
  *               message: "Item updated successfully"
  *       400:
- *         description: "Bad request - review_notes missing for a rejection, not a string, or too long"
+ *         description: "Bad request - status not one of draft, pending, approved or rejected; review_notes missing or short for an item that ends up rejected, not a string, or too long"
  *         content:
  *           application/json:
  *             schema:
@@ -306,11 +306,22 @@ export async function PUT(
       ...body,
     };
 
+    // status is stored as sent, so only an ITEM_STATUSES value, matched exactly ('Rejected' would also skip the
+    // reason rule below)
+    if (body?.status !== undefined && !isItemStatus(body.status)) {
+      return NextResponse.json(
+        { success: false, error: `status must be one of: ${Object.values(ITEM_STATUSES).join(', ')}` },
+        { status: 400 }
+      );
+    }
+
     // Rejecting an item here is a review decision its submitter reads, so it needs the same reason as
-    // POST /api/admin/items/{id}/review. Editing other fields of an item that is already rejected does not.
+    // POST /api/admin/items/{id}/review, and review_notes sent for an item that stays rejected replaces that
+    // reason, so it needs one too. Other edits of an item that is already rejected do not.
     // Soft-deleted items included, as itemRepository.update reads them too.
-    let isNewRejection = false;
-    if (body?.status === ITEM_STATUSES.REJECTED) {
+    const notesSent = body?.review_notes !== undefined;
+    let storedStatus: string | undefined;
+    if (body?.status === ITEM_STATUSES.REJECTED || notesSent) {
       const existing = await itemRepository.findById(resolvedParams.id, true);
       if (!existing) {
         return NextResponse.json(
@@ -318,12 +329,13 @@ export async function PUT(
           { status: 404 }
         );
       }
-      isNewRejection = existing.status !== ITEM_STATUSES.REJECTED;
+      storedStatus = existing.status;
     }
 
     // review_notes is trimmed and bounded whenever it is sent ('approved' = the note is optional)
-    if (isNewRejection || body?.review_notes !== undefined) {
-      const notesResult = validateReviewNotes(isNewRejection ? 'rejected' : 'approved', body.review_notes);
+    const notesRule = reviewNotesRuleForUpdate({ storedStatus, sentStatus: body?.status, notesSent });
+    if (notesRule) {
+      const notesResult = validateReviewNotes(notesRule, body.review_notes);
       if (!notesResult.ok) {
         return NextResponse.json({ success: false, error: notesResult.error }, { status: 400 });
       }

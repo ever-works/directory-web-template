@@ -6389,7 +6389,7 @@
 			"put": {
 				"tags": ["Admin - Items"],
 				"summary": "Update item",
-				"description": "Updates a specific item's properties including name, description, categories, tags, status, and other metadata. All fields are optional and only provided fields will be updated. Setting status to 'rejected' on an item that is not already rejected needs a review_notes reason (minimum 10 characters after trimming), like POST /api/admin/items/{id}/review. Requires admin privileges.",
+				"description": "Updates a specific item's properties including name, description, categories, tags, status, and other metadata. All fields are optional and only provided fields will be updated. status must be one of draft, pending, approved or rejected, matched exactly. Setting status to 'rejected' on an item that is not already rejected needs a review_notes reason (minimum 10 characters after trimming), like POST /api/admin/items/{id}/review, and so does sending review_notes for an item that stays rejected, so its reason cannot be blanked or shortened. Other edits of an item that is already rejected need no reason. Requires admin privileges.",
 				"security": [
 					{
 						"sessionAuth": []
@@ -6470,12 +6470,12 @@
 									"status": {
 										"type": "string",
 										"enum": ["draft", "pending", "approved", "rejected"],
-										"description": "Item status",
+										"description": "Item status, matched exactly. Any other value answers 400.",
 										"example": "approved"
 									},
 									"review_notes": {
 										"type": "string",
-										"description": "Review notes the submitter reads, trimmed. Required when status changes the item to 'rejected' (minimum 10 characters after trimming); optional otherwise. Maximum 2000 characters after trimming. A blank note is stored as no note.",
+										"description": "Review notes the submitter reads, trimmed. Required (minimum 10 characters after trimming) when status changes the item to 'rejected', and whenever it is sent for an item that stays rejected (no status, or status 'rejected'), as it replaces the reason; optional otherwise. Maximum 2000 characters after trimming. A blank note on an item that does not end up rejected is stored as no note.",
 										"example": "The source URL does not lead to the product described."
 									}
 								}
@@ -6528,7 +6528,7 @@
 						}
 					},
 					"400": {
-						"description": "Bad request - review_notes missing for a rejection, not a string, or too long",
+						"description": "Bad request - status not one of draft, pending, approved or rejected; review_notes missing or short for an item that ends up rejected, not a string, or too long",
 						"content": {
 							"application/json": {
 								"schema": {
