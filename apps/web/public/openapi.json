@@ -6389,7 +6389,7 @@
 			"put": {
 				"tags": ["Admin - Items"],
 				"summary": "Update item",
-				"description": "Updates a specific item's properties including name, description, categories, tags, status, and other metadata. All fields are optional and only provided fields will be updated. Requires admin privileges.",
+				"description": "Updates a specific item's properties including name, description, categories, tags, status, and other metadata. All fields are optional and only provided fields will be updated. Setting status to 'rejected' on an item that is not already rejected needs a review_notes reason (minimum 10 characters after trimming), like POST /api/admin/items/{id}/review. Requires admin privileges.",
 				"security": [
 					{
 						"sessionAuth": []
@@ -6472,6 +6472,11 @@
 										"enum": ["draft", "pending", "approved", "rejected"],
 										"description": "Item status",
 										"example": "approved"
+									},
+									"review_notes": {
+										"type": "string",
+										"description": "Review notes the submitter reads, trimmed. Required when status changes the item to 'rejected' (minimum 10 characters after trimming); optional otherwise. Maximum 2000 characters after trimming. A blank note is stored as no note.",
+										"example": "The source URL does not lead to the product described."
 									}
 								}
 							}
@@ -6518,6 +6523,26 @@
 										"updated_at": "2024-01-20T16:45:00.000Z"
 									},
 									"message": "Item updated successfully"
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Bad request - review_notes missing for a rejection, not a string, or too long",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"success": {
+											"type": "boolean",
+											"example": false
+										},
+										"error": {
+											"type": "string",
+											"example": "Rejection reason is required (minimum 10 characters)"
+										}
+									}
 								}
 							}
 						}
