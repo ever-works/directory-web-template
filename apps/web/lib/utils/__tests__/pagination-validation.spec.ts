@@ -65,3 +65,47 @@ describe('validateStrictPaginationParams', () => {
 		assert.deepEqual(validatePaginationParams(qs('limit=1.5')), { page: 1, limit: 1 });
 	});
 });
+
+/**
+ * `GET /api/admin/clients?page=1000000000000000000` (and the other admin lists that use
+ * the lenient validator) turned the page into an OFFSET of about 1e19, past the Postgres
+ * bigint range, so the query threw and the route answered 500 instead of 400.
+ */
+describe('validatePaginationParams', () => {
+	const pageError = { error: 'Invalid page parameter. Must be a positive integer.', status: 400 };
+
+	for (const [name, page] of [
+		['page=1000000000000000000 (OFFSET past bigint)', '1000000000000000000'],
+		['a 400-digit page (parseInt gives Infinity)', '9'.repeat(400)],
+		['page=9007199254740991 (page * limit not a safe integer)', '9007199254740991']
+	]) {
+		it(`rejects ${name} with limit=100`, () => {
+			assert.deepEqual(validatePaginationParams(qs(`page=${page}&limit=100`)), pageError);
+		});
+	}
+
+	it('rejects a huge page with the default limit too', () => {
+		assert.deepEqual(validatePaginationParams(qs('page=1000000000000000000')), pageError);
+	});
+
+	it('accepts a large but safe page', () => {
+		assert.deepEqual(validatePaginationParams(qs('page=100000&limit=100')), { page: 100000, limit: 100 });
+	});
+
+	it('keeps the lenient parsing and the range rules', () => {
+		assert.deepEqual(validatePaginationParams(qs('')), { page: 1, limit: 10 });
+		assert.deepEqual(validatePaginationParams(qs('page=2abc&limit=12')), { page: 2, limit: 12 });
+		assert.deepEqual(validatePaginationParams(qs('page=0')), pageError);
+		assert.deepEqual(validatePaginationParams(qs('page=abc')), pageError);
+		assert.deepEqual(validatePaginationParams(qs('limit=101')), {
+			error: 'Invalid limit parameter. Must be between 1 and 100.',
+			status: 400
+		});
+	});
+
+	it('reports an out-of-range limit before a huge page', () => {
+		const result = validatePaginationParams(qs('page=1000000000000000000&limit=500'));
+		assert.ok('error' in result);
+		assert.match(result.error, /limit/);
+	});
+});
