@@ -89,4 +89,31 @@ describe('admin items bulk reject dialog reason wiring', () => {
 		);
 		assert.ok(!dialog.includes('maxLength='), 'a raw maxLength would cut a long paste silently');
 	});
+
+	it('shows the min-length message only for a typed reason under the trimmed minimum, with an id', () => {
+		assert.ok(
+			dialog.includes(
+				'const isReasonTooShort = rejectionReason.length > 0 && trimmedLength < REJECTION_REASON_MIN_LENGTH;'
+			),
+			'the dialog does not work out when the min-length message shows'
+		);
+		assert.ok(
+			dialog.includes('{isReasonTooShort && ( <p id="bulkRejectionReasonMinLength"'),
+			'the min-length message has no id, so aria-describedby cannot name it'
+		);
+	});
+
+	it('names the min-length message in aria-describedby only while it shows, keeping the counter', () => {
+		const describedBy = (/aria-describedby=\{([^}]*)\}/.exec(dialog)?.[1].trim() ?? '').replace(/"/g, "'");
+		assert.equal(
+			describedBy,
+			"isReasonTooShort ? 'bulkRejectionReasonCount bulkRejectionReasonMinLength' : 'bulkRejectionReasonCount'",
+			'aria-describedby does not name the min-length message while it shows'
+		);
+		assert.ok(
+			!dialog.includes('aria-describedby="bulkRejectionReasonCount"'),
+			'aria-describedby still names only the counter'
+		);
+		assert.ok(dialog.includes('<p id="bulkRejectionReasonCount"'), 'the counter lost its id');
+	});
 });

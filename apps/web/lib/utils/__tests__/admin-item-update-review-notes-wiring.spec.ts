@@ -151,6 +151,35 @@ describe('admin edit form Review step rejection reason wiring', () => {
 		assert.ok(!reviewStep.includes('maxLength='), 'a raw maxLength would cut a long paste silently');
 	});
 
+	it('gives the reason error message an id and shows it under one condition', () => {
+		assert.ok(
+			reviewStep.includes('const showReasonError = Boolean(errors.review_notes) && !isReasonTooLong;'),
+			'the step does not work out when the reason error message shows'
+		);
+		assert.ok(
+			reviewStep.includes('{showReasonError && ( <p id="review_notes_error"'),
+			'the reason error message has no id, so aria-describedby cannot name it'
+		);
+	});
+
+	it('names the reason error message in aria-describedby only while it shows, keeping the counter', () => {
+		const describedBy = (/aria-describedby=\{([^}]*)\}/.exec(reviewStep)?.[1].trim() ?? '').replace(/"/g, "'");
+		assert.equal(
+			describedBy,
+			"showReasonError ? 'review_notes_count review_notes_error' : 'review_notes_count'",
+			'aria-describedby does not name the reason error message while it shows'
+		);
+		assert.ok(
+			!reviewStep.includes('aria-describedby="review_notes_count"'),
+			'aria-describedby still names only the counter'
+		);
+		assert.ok(reviewStep.includes('<p id="review_notes_count"'), 'the counter lost its id');
+		assert.ok(
+			reviewStep.includes('aria-invalid={Boolean(errors.review_notes) || isReasonTooLong}'),
+			'the textarea is no longer marked aria-invalid for a missing, too-short or over-cap reason'
+		);
+	});
+
 	it('sends the reason as review_notes only with that rejection', () => {
 		assert.ok(
 			form.includes('const { review_notes: reviewNotes, ...review } = formData.review;'),
