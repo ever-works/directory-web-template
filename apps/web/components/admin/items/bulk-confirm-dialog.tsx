@@ -170,7 +170,7 @@ export function BulkConfirmDialog({
 								onChange={(e) => setRejectionReason(e.target.value)}
 								placeholder={t("REJECTION_REASON_PLACEHOLDER")}
 								rows={4}
-								aria-invalid={isReasonTooLong}
+								aria-invalid={rejectionReason.length > 0 && !isReasonValid}
 								aria-describedby="bulkRejectionReasonCount"
 								disabled={isProcessing}
 								className={cn(

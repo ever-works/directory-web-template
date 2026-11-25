@@ -83,6 +83,10 @@ describe('admin items bulk reject dialog reason wiring', () => {
 			dialog.includes('trimmedLength < REJECTION_REASON_MIN_LENGTH'),
 			'the minimum-length hint does not follow the trimmed minimum'
 		);
+		assert.ok(
+			dialog.includes('aria-invalid={rejectionReason.length > 0 && !isReasonValid}'),
+			'a typed reason that is too short or too long is not marked aria-invalid'
+		);
 		assert.ok(!dialog.includes('maxLength='), 'a raw maxLength would cut a long paste silently');
 	});
 });
