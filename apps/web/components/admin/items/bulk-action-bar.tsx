@@ -66,7 +66,10 @@ export function BulkActionBar({
 		>
 			{/* Selection badge */}
 			<div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-gray-100 dark:bg-white/[0.06]">
-				<span className="flex items-center justify-center w-4.5 h-4.5 text-[11px] font-bold rounded-full bg-gray-900 dark:bg-white text-white dark:text-gray-900 leading-none min-w-[18px] min-h-[18px]">
+				<span
+					data-testid="bulk-selected-count"
+					className="flex items-center justify-center w-4.5 h-4.5 text-[11px] font-bold rounded-full bg-gray-900 dark:bg-white text-white dark:text-gray-900 leading-none min-w-[18px] min-h-[18px]"
+				>
 					{selectedCount}
 				</span>
 				<span className="text-xs font-medium text-gray-700 dark:text-gray-200 whitespace-nowrap">
