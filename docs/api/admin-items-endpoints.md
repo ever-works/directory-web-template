@@ -255,7 +255,9 @@ Approves or rejects an item. Records the review decision with optional notes. Se
 | Field          | Type   | Required | Description                          |
 | -------------- | ------ | -------- | ------------------------------------ |
 | `status`       | string | Yes      | `approved` or `rejected`             |
-| `review_notes` | string | No       | Explanation of the review decision   |
+| `review_notes` | string | When `status` is `rejected` | Explanation of the decision, trimmed. At least 10 characters for a rejection (the submitter reads it), optional for an approval, at most 2000 characters. |
+
+A rejection without a valid reason, a `review_notes` value that is not a string, or a note over 2000 characters answers `400 { "success": false, "error": "..." }` before the item changes.
 
 **Response (200):**
 

@@ -5,6 +5,7 @@ import { EmailNotificationService } from '@/lib/services/email-notification.serv
 import { ReviewRequest } from '@/lib/types/item';
 import { safeErrorResponse } from '@/lib/utils/api-error';
 import { requireAdminSession } from '@/lib/auth/admin-guard';
+import { validateReviewNotes } from '@/lib/utils/review-notes';
 
 const itemRepository = new ItemRepository();
 const userRepository = new UserRepository();
@@ -40,7 +41,8 @@ const userRepository = new UserRepository();
  *                 example: "approved"
  *               review_notes:
  *                 type: string
- *                 description: "Optional review notes explaining the decision"
+ *                 description: "Review notes explaining the decision. Required when status is 'rejected' (minimum 10 characters after trimming); optional for 'approved'. Maximum 2000 characters."
+ *                 maxLength: 2000
  *                 example: "Great tool, meets all quality standards. Approved for listing."
  *             required: ["status"]
  *     responses:
@@ -80,7 +82,7 @@ const userRepository = new UserRepository();
  *                 reviewed_at: "2024-01-20T16:45:00.000Z"
  *               message: "Item approved successfully"
  *       400:
- *         description: "Bad request - Invalid review status"
+ *         description: "Bad request - Invalid review status, or review_notes missing for a rejection, not a string, or too long"
  *         content:
  *           application/json:
  *             schema:
@@ -143,7 +145,7 @@ export async function POST(
     const { session } = authResult;
 
     const body = await request.json();
-    const { status, review_notes }: ReviewRequest = body;
+    const { status, review_notes: rawReviewNotes }: ReviewRequest = body;
 
     // Validate review data
     if (!status || !['approved', 'rejected'].includes(status)) {
@@ -152,6 +154,13 @@ export async function POST(
         { status: 400 }
       );
     }
+
+    // A rejection needs a reason (the submitter reads it); every note is trimmed and bounded
+    const notesResult = validateReviewNotes(status, rawReviewNotes);
+    if (!notesResult.ok) {
+      return NextResponse.json({ success: false, error: notesResult.error }, { status: 400 });
+    }
+    const review_notes = notesResult.notes;
 
     // Review the item with audit logging
     const resolvedParams = await params;

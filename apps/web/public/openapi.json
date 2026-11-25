@@ -6122,7 +6122,8 @@
 									},
 									"review_notes": {
 										"type": "string",
-										"description": "Optional review notes explaining the decision",
+										"description": "Review notes explaining the decision. Required when status is 'rejected' (minimum 10 characters after trimming); optional for 'approved'. Maximum 2000 characters.",
+										"maxLength": 2000,
 										"example": "Great tool, meets all quality standards. Approved for listing."
 									}
 								},
@@ -6178,7 +6179,7 @@
 						}
 					},
 					"400": {
-						"description": "Bad request - Invalid review status",
+						"description": "Bad request - Invalid review status, or review_notes missing for a rejection, not a string, or too long",
 						"content": {
 							"application/json": {
 								"schema": {
