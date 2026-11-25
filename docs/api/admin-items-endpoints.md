@@ -228,7 +228,9 @@ Partial update -- only provided fields are modified. Triggers CRM sync when `bra
 }
 ```
 
-`review_notes` (string) is trimmed and at most 2000 characters whenever it is sent; a blank note is stored as no note. Setting `status` to `rejected` on an item that is not already rejected also needs a `review_notes` reason of at least 10 characters after trimming, because the submitter reads it (the same rule as [Review Item](#review-item)). Editing other fields of an item that is already rejected needs no new reason. A missing or short reason, a `review_notes` value that is not a string, or a note over 2000 characters answers `400 { "success": false, "error": "..." }` before the item changes.
+`status` must be one of `draft`, `pending`, `approved` or `rejected`, matched exactly; any other value (`published`, `Rejected`, `null`) answers `400 { "success": false, "error": "status must be one of: draft, pending, approved, rejected" }` before the item is read or changed.
+
+`review_notes` (string) is trimmed and at most 2000 characters whenever it is sent; on an item that does not end up rejected, a blank note is stored as no note. Setting `status` to `rejected` on an item that is not already rejected also needs a `review_notes` reason of at least 10 characters after trimming, because the submitter reads it (the same rule as [Review Item](#review-item)). Sending `review_notes` for an item that stays rejected (no `status`, or `status: "rejected"`) replaces that reason, so it needs the same 10 characters: `""`, `null` or a short note answers 400 instead of blanking or shortening the reason. Editing other fields of an item that is already rejected, without `review_notes`, needs no new reason. A missing or short reason, a `review_notes` value that is not a string, or a note over 2000 characters answers `400 { "success": false, "error": "..." }` before the item changes.
 
 ### Delete Item
 
@@ -337,7 +339,7 @@ Returns the complete audit trail for an item, including creation, updates, statu
 | `reason`     | Required for bulk reject; 10--2000 characters after trimming |
 | `ids`        | Bulk: 1--100 non-empty unique strings                      |
 | `action`     | History filter: valid audit action types only              |
-| `review_notes` | Required when Review Item or Update Item rejects an item; 10--2000 characters after trimming |
+| `review_notes` | Required when Review Item or Update Item rejects an item, or when Update Item sends it for an item that stays rejected; 10--2000 characters after trimming |
 
 ## Error Codes
 
