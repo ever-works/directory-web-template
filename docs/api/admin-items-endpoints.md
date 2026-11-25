@@ -172,7 +172,9 @@ Performs bulk approve, reject, or delete on up to 100 items. Each item is proces
 | -------- | -------- | ------------------ | ---------------------------------------------------- |
 | `action` | string   | Yes                | `approve`, `reject`, or `delete`                     |
 | `ids`    | string[] | Yes                | Item IDs to process (1--100, no duplicates)          |
-| `reason` | string   | Yes (for `reject`) | Rejection reason (minimum 10 characters)             |
+| `reason` | string   | Yes (for `reject`) | Rejection reason, trimmed: at least 10 and at most 2000 characters. Ignored for `approve` and `delete`. |
+
+For `reject`, a missing or short `reason`, a `reason` that is not a string, or one over 2000 characters answers `400 { "success": false, "error": "..." }` before any item changes (the same rules as `review_notes` on the single-item review route).
 
 **Response (200):**
 
@@ -330,7 +332,7 @@ Returns the complete audit trail for an item, including creation, updates, statu
 | `description`| Required for creation                                      |
 | `source_url` | Required for creation; valid URL format                    |
 | `status`     | Must be `draft`, `pending`, `approved`, or `rejected`      |
-| `reason`     | Required for bulk reject; minimum 10 characters            |
+| `reason`     | Required for bulk reject; 10--2000 characters after trimming |
 | `ids`        | Bulk: 1--100 non-empty unique strings                      |
 | `action`     | History filter: valid audit action types only              |
 

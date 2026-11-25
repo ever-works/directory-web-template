@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { CheckCircle, XCircle, Trash2, AlertTriangle, X, Loader2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
+import { REJECTION_REASON_MIN_LENGTH, REVIEW_NOTES_MAX_LENGTH } from "@/lib/utils/review-notes";
 
 type BulkActionType = "approve" | "reject" | "delete";
 
@@ -93,7 +94,11 @@ export function BulkConfirmDialog({
 	if (!isOpen || !action) return null;
 
 	const Icon = ICON_MAP[action];
-	const isReasonValid = action !== "reject" || rejectionReason.trim().length >= 10;
+	// Same rule as POST /api/admin/items/bulk: the trimmed reason counts. No maxLength on the textarea:
+	// it would cut a long paste without a word, so an over-long reason blocks confirm instead
+	const trimmedLength = rejectionReason.trim().length;
+	const isReasonTooLong = trimmedLength > REVIEW_NOTES_MAX_LENGTH;
+	const isReasonValid = action !== "reject" || (trimmedLength >= REJECTION_REASON_MIN_LENGTH && !isReasonTooLong);
 	const affectedCount = action === "delete" ? selectedCount : pendingCount;
 
 	const handleConfirm = () => {
@@ -165,6 +170,8 @@ export function BulkConfirmDialog({
 								onChange={(e) => setRejectionReason(e.target.value)}
 								placeholder={t("REJECTION_REASON_PLACEHOLDER")}
 								rows={4}
+								aria-invalid={isReasonTooLong}
+								aria-describedby="bulkRejectionReasonCount"
 								disabled={isProcessing}
 								className={cn(
 									"w-full px-3 py-2.5 text-sm rounded-xl resize-none",
@@ -176,7 +183,16 @@ export function BulkConfirmDialog({
 									"transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
 								)}
 							/>
-							{rejectionReason.length > 0 && !isReasonValid && (
+							<p
+								id="bulkRejectionReasonCount"
+								className={cn(
+									"text-xs text-right",
+									isReasonTooLong ? "text-red-500" : "text-gray-400 dark:text-gray-500"
+								)}
+							>
+								{trimmedLength}/{REVIEW_NOTES_MAX_LENGTH}
+							</p>
+							{rejectionReason.length > 0 && trimmedLength < REJECTION_REASON_MIN_LENGTH && (
 								<p className="text-xs text-red-500 flex items-center gap-1">
 									<span className="inline-block w-1 h-1 rounded-full bg-red-500 shrink-0" />
 									{t("REJECTION_REASON_MIN_LENGTH")}

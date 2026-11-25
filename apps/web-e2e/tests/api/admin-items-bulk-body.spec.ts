@@ -64,7 +64,8 @@ import { test, expect } from '@playwright/test';
  *            on per-id duplicate detection via a
  *            `Set<string>`.
  *        (f) `"Rejection reason is required (minimum 10 characters)"`
- *            on `action === 'reject' && (!reason || reason.trim().length < 10)`.
+ *            on `action === 'reject'` when `validateReviewNotes('rejected', reason)`
+ *            fails (it also answers its type and 2000-character errors).
  *      Distinct from the **single-step** body
  *      validation of `admin/items/[id]/review`
  *      (one 400 message) and the **three-step**

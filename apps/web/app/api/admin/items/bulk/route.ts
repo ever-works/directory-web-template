@@ -4,6 +4,7 @@ import { UserRepository } from '@/lib/repositories/user.repository';
 import { EmailNotificationService } from '@/lib/services/email-notification.service';
 import { safeErrorMessage, safeErrorResponse } from '@/lib/utils/api-error';
 import { requireAdminSession } from '@/lib/auth/admin-guard';
+import { validateReviewNotes } from '@/lib/utils/review-notes';
 
 const itemRepository = new ItemRepository();
 const userRepository = new UserRepository();
@@ -75,7 +76,7 @@ export interface BulkActionResponse {
  *                     maxItems: 100
  *                   reason:
  *                     type: string
- *                     description: "Rejection reason (required when action is 'reject', minimum 10 characters)"
+ *                     description: "Rejection reason (required when action is 'reject'; minimum 10 characters and maximum 2000 characters after trimming)"
  *                     minLength: 10
  *                 required: ["action", "ids", "reason"]
  *     responses:
@@ -173,18 +174,16 @@ export async function POST(
 			uniqueIds.add(id);
 		}
 
-		// Validate reason for reject action
+		// Only a rejection reads `reason` (approve and delete ignore it). It follows the single-item review
+		// rules: a string, 10 to 2000 characters after trimming, since it is stored on and emailed for every item
+		let rejectionReason: string | undefined;
 		if (action === 'reject') {
-			if (!reason || reason.trim().length < 10) {
-				return NextResponse.json(
-					{ success: false, error: 'Rejection reason is required (minimum 10 characters)' },
-					{ status: 400 }
-				);
+			const reasonResult = validateReviewNotes('rejected', reason);
+			if (!reasonResult.ok) {
+				return NextResponse.json({ success: false, error: reasonResult.error }, { status: 400 });
 			}
+			rejectionReason = reasonResult.notes;
 		}
-
-		// Trim reason after validation to ensure clean data storage
-		const trimmedReason = reason?.trim();
 
 		// Extract audit user from session for audit trail
 		const auditUser = session.user.id
@@ -216,13 +215,13 @@ export async function POST(
 						id,
 						{
 							status: 'rejected',
-							review_notes: trimmedReason
+							review_notes: rejectionReason
 						},
 						auditUser
 					);
 
 					// Send notification email (fire-and-forget with error logging)
-					sendReviewNotification(item, 'rejected', trimmedReason).catch((err) =>
+					sendReviewNotification(item, 'rejected', rejectionReason).catch((err) =>
 						console.error('[Bulk] Failed to send rejection notification for item %s:', id, err)
 					);
 
