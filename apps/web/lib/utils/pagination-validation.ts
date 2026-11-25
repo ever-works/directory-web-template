@@ -29,12 +29,14 @@ export function validatePaginationParams(
 	const page = pageParam ? parseInt(pageParam, 10) : 1;
 	const limit = limitParam ? parseInt(limitParam, 10) : 10;
 
+	const pageError: PaginationError = {
+		error: 'Invalid page parameter. Must be a positive integer.',
+		status: 400
+	};
+
 	// Validate page parameter
 	if (isNaN(page) || page < 1) {
-		return {
-			error: 'Invalid page parameter. Must be a positive integer.',
-			status: 400
-		};
+		return pageError;
 	}
 
 	// Validate limit parameter
@@ -43,6 +45,14 @@ export function validatePaginationParams(
 			error: 'Invalid limit parameter. Must be between 1 and 100.',
 			status: 400
 		};
+	}
+
+	// Callers turn `page` into `OFFSET (page - 1) * limit`. A ~400-digit `page` parses
+	// to Infinity and `page=1000000000000000000` gives an OFFSET past the Postgres bigint
+	// range, so the query throws and the route answers 500. Reject anything whose page or
+	// OFFSET is beyond the safe-integer range.
+	if (!Number.isSafeInteger(page) || !Number.isSafeInteger(page * limit)) {
+		return pageError;
 	}
 
 	return { page, limit };
@@ -65,18 +75,6 @@ export function validateStrictPaginationParams(
 		};
 	}
 
-	const result = validatePaginationParams(searchParams);
-	if ('error' in result) return result;
-
-	// A ~400-digit `page` is a valid integer token but `parseInt` turns it into
-	// Infinity (and a 20-digit one loses precision), which would become a
-	// non-numeric OFFSET downstream. Reject anything beyond the safe-integer range.
-	if (!Number.isSafeInteger(result.page) || !Number.isSafeInteger(result.page * result.limit)) {
-		return {
-			error: 'Invalid page parameter. Must be a whole number.',
-			status: 400
-		};
-	}
-
-	return result;
+	// The safe-integer bound on `page` / OFFSET lives in `validatePaginationParams`.
+	return validatePaginationParams(searchParams);
 }
