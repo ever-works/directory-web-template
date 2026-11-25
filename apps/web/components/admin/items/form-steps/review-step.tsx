@@ -76,6 +76,8 @@ export function ReviewStep({
   const reasonLength = (data.review_notes ?? '').trim().length;
   const isReasonTooLong = reasonLength > REVIEW_NOTES_MAX_LENGTH;
   const isReasonValid = reasonLength >= REJECTION_REASON_MIN_LENGTH && !isReasonTooLong;
+  // Past the cap the red counter says what is wrong, so the error message shows only below it
+  const showReasonError = Boolean(errors.review_notes) && !isReasonTooLong;
 
   const validateData = useCallback((): Record<string, string> => {
     const newErrors: Record<string, string> = {};
@@ -203,7 +205,9 @@ export function ReviewStep({
                   placeholder={tItems('REJECTION_REASON_PLACEHOLDER')}
                   rows={4}
                   aria-invalid={Boolean(errors.review_notes) || isReasonTooLong}
-                  aria-describedby="review_notes_count"
+                  aria-describedby={
+                    showReasonError ? 'review_notes_count review_notes_error' : 'review_notes_count'
+                  }
                   className={`w-full px-3 py-2 border rounded-md text-sm transition-colors focus:outline-hidden focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
                     errors.review_notes || isReasonTooLong
                       ? 'border-red-300 bg-red-50 dark:bg-red-900/20 dark:border-red-700'
@@ -216,8 +220,8 @@ export function ReviewStep({
                 >
                   {reasonLength}/{REVIEW_NOTES_MAX_LENGTH}
                 </p>
-                {errors.review_notes && !isReasonTooLong && (
-                  <p className="text-sm text-red-600">{errors.review_notes}</p>
+                {showReasonError && (
+                  <p id="review_notes_error" className="text-sm text-red-600">{errors.review_notes}</p>
                 )}
               </div>
             )}

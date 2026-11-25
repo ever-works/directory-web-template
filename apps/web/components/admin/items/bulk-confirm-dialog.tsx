@@ -99,6 +99,7 @@ export function BulkConfirmDialog({
 	const trimmedLength = rejectionReason.trim().length;
 	const isReasonTooLong = trimmedLength > REVIEW_NOTES_MAX_LENGTH;
 	const isReasonValid = action !== "reject" || (trimmedLength >= REJECTION_REASON_MIN_LENGTH && !isReasonTooLong);
+	const isReasonTooShort = rejectionReason.length > 0 && trimmedLength < REJECTION_REASON_MIN_LENGTH;
 	const affectedCount = action === "delete" ? selectedCount : pendingCount;
 
 	const handleConfirm = () => {
@@ -171,7 +172,11 @@ export function BulkConfirmDialog({
 								placeholder={t("REJECTION_REASON_PLACEHOLDER")}
 								rows={4}
 								aria-invalid={rejectionReason.length > 0 && !isReasonValid}
-								aria-describedby="bulkRejectionReasonCount"
+								aria-describedby={
+									isReasonTooShort
+										? "bulkRejectionReasonCount bulkRejectionReasonMinLength"
+										: "bulkRejectionReasonCount"
+								}
 								disabled={isProcessing}
 								className={cn(
 									"w-full px-3 py-2.5 text-sm rounded-xl resize-none",
@@ -192,8 +197,8 @@ export function BulkConfirmDialog({
 							>
 								{trimmedLength}/{REVIEW_NOTES_MAX_LENGTH}
 							</p>
-							{rejectionReason.length > 0 && trimmedLength < REJECTION_REASON_MIN_LENGTH && (
-								<p className="text-xs text-red-500 flex items-center gap-1">
+							{isReasonTooShort && (
+								<p id="bulkRejectionReasonMinLength" className="text-xs text-red-500 flex items-center gap-1">
 									<span className="inline-block w-1 h-1 rounded-full bg-red-500 shrink-0" />
 									{t("REJECTION_REASON_MIN_LENGTH")}
 								</p>
