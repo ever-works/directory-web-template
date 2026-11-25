@@ -35,18 +35,28 @@ describe('admin item review route review_notes wiring', () => {
 		assert.ok(!source.includes('rawReviewNotes,'), 'the raw value still reaches a call');
 	});
 
-	it('the reject dialog applies the same trimmed minimum and the 2000 cap', () => {
+	it('the reject dialog applies the same trimmed minimum and trimmed 2000 cap, without cutting a paste', () => {
 		const read = (p: string) => readFileSync(join(__dirname, p), 'utf8').replace(/\s+/g, ' ');
 		const modal = read('../../../components/admin/items/item-reject-modal.tsx');
 		const page = read('../../../app/[locale]/admin/items/page.tsx');
 		assert.ok(
-			modal.includes('rejectionReason.trim().length >= REJECTION_REASON_MIN_LENGTH'),
+			modal.includes('const trimmedLength = rejectionReason.trim().length;'),
 			'the dialog counts untrimmed characters'
 		);
-		assert.ok(modal.includes('maxLength={REVIEW_NOTES_MAX_LENGTH}'), 'the dialog textarea has no 2000 cap');
 		assert.ok(
-			page.includes('rejectionReason.trim().length < REJECTION_REASON_MIN_LENGTH'),
+			modal.includes('trimmedLength >= REJECTION_REASON_MIN_LENGTH && !isReasonTooLong'),
+			'the dialog does not apply the trimmed minimum and the cap'
+		);
+		assert.ok(modal.includes('trimmedLength > REVIEW_NOTES_MAX_LENGTH'), 'the dialog has no trimmed 2000 cap');
+		assert.ok(!modal.includes('maxLength='), 'a raw maxLength would cut a long paste silently');
+		assert.ok(
+			page.includes('const reasonLength = rejectionReason.trim().length;'),
 			'the page sends an untrimmed-length reason'
+		);
+		assert.ok(
+			page.includes('reasonLength < REJECTION_REASON_MIN_LENGTH') &&
+				page.includes('reasonLength > REVIEW_NOTES_MAX_LENGTH'),
+			'the page does not apply the trimmed minimum and cap'
 		);
 	});
 });

@@ -40,8 +40,11 @@ export function ItemRejectModal({
 
 	if (!isOpen) return null;
 
-	// Same rule as POST /api/admin/items/{id}/review: the trimmed reason counts
-	const isReasonValid = rejectionReason.trim().length >= REJECTION_REASON_MIN_LENGTH;
+	// Same rule as POST /api/admin/items/{id}/review: the trimmed reason counts. No maxLength on the
+	// textarea: it would cut a long paste without a word, so an over-long reason blocks confirm instead
+	const trimmedLength = rejectionReason.trim().length;
+	const isReasonTooLong = trimmedLength > REVIEW_NOTES_MAX_LENGTH;
+	const isReasonValid = trimmedLength >= REJECTION_REASON_MIN_LENGTH && !isReasonTooLong;
 	const categories = item ? (Array.isArray(item.category) ? item.category : [item.category]) : [];
 
 	return (
@@ -119,7 +122,8 @@ export function ItemRejectModal({
 							onChange={(e) => onReasonChange(e.target.value)}
 							placeholder={t('REJECTION_REASON_PLACEHOLDER')}
 							rows={4}
-							maxLength={REVIEW_NOTES_MAX_LENGTH}
+							aria-invalid={isReasonTooLong}
+							aria-describedby="rejectionReasonCount"
 							disabled={isSubmitting}
 							className={cn(
 								"w-full px-3 py-2.5 text-sm rounded-xl resize-none",
@@ -130,7 +134,13 @@ export function ItemRejectModal({
 								"transition-all duration-150 disabled:opacity-50"
 							)}
 						/>
-						{rejectionReason.length > 0 && !isReasonValid && (
+						<p
+							id="rejectionReasonCount"
+							className={cn('text-xs text-right', isReasonTooLong ? 'text-red-500' : 'text-gray-400 dark:text-gray-500')}
+						>
+							{trimmedLength}/{REVIEW_NOTES_MAX_LENGTH}
+						</p>
+						{rejectionReason.length > 0 && trimmedLength < REJECTION_REASON_MIN_LENGTH && (
 							<p className="text-xs text-red-500 flex items-center gap-1">
 								<span className="inline-block w-1 h-1 rounded-full bg-red-500 shrink-0" />
 								{t('REJECTION_REASON_MIN_LENGTH')}
