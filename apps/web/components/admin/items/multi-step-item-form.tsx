@@ -212,13 +212,21 @@ export function MultiStepItemForm({
     }
   };
 
+  // Rejecting an item here is a review decision its submitter reads, so it needs a reason, like the reject
+  // dialog (PUT /api/admin/items/{id} answers 400 without one). Editing an item already rejected does not.
+  const rejectionReasonRequired =
+    mode === 'edit' && formData.review.status === ITEM_STATUSES.REJECTED && item?.status !== ITEM_STATUSES.REJECTED;
+
   // Form submission
   function handleFormSubmit() {
+    const { review_notes: reviewNotes, ...review } = formData.review;
     const combinedData = {
       ...formData.basicInfo,
       ...formData.mediaLinks,
       ...formData.classification,
-      ...formData.review,
+      ...review,
+      // Only that rejection sends the reason; other saves leave the stored review notes as they are
+      ...(rejectionReasonRequired ? { review_notes: reviewNotes } : {}),
       // Include location data if location feature is enabled and data exists
       ...(locationEnabled && hasLocationData(formData.location) ? { location: formData.location } : {}),
     } as CreateItemRequest | UpdateItemRequest;
@@ -329,6 +337,7 @@ export function MultiStepItemForm({
               data={formData.review}
               onChange={updateReview}
               onValidationChange={(isValid) => handleStepValidation(reviewStepNumber, isValid)}
+              rejectionReasonRequired={rejectionReasonRequired}
               basicInfo={formData.basicInfo}
               mediaLinks={formData.mediaLinks}
               classification={formData.classification}

@@ -226,6 +226,8 @@ Partial update -- only provided fields are modified. Triggers CRM sync when `bra
 }
 ```
 
+`review_notes` (string) is trimmed and at most 2000 characters whenever it is sent; a blank note is stored as no note. Setting `status` to `rejected` on an item that is not already rejected also needs a `review_notes` reason of at least 10 characters after trimming, because the submitter reads it (the same rule as [Review Item](#review-item)). Editing other fields of an item that is already rejected needs no new reason. A missing or short reason, a `review_notes` value that is not a string, or a note over 2000 characters answers `400 { "success": false, "error": "..." }` before the item changes.
+
 ### Delete Item
 
 ```
@@ -333,6 +335,7 @@ Returns the complete audit trail for an item, including creation, updates, statu
 | `reason`     | Required for bulk reject; minimum 10 characters            |
 | `ids`        | Bulk: 1--100 non-empty unique strings                      |
 | `action`     | History filter: valid audit action types only              |
+| `review_notes` | Required when Review Item or Update Item rejects an item; 10--2000 characters after trimming |
 
 ## Error Codes
 

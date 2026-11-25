@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { ItemRepository } from '@/lib/repositories/item.repository';
-import { UpdateItemRequest } from '@/lib/types/item';
+import { ITEM_STATUSES, UpdateItemRequest } from '@/lib/types/item';
 import { getLocationEnabled } from '@/lib/utils/settings';
 import { getLocationIndexService } from '@/lib/services/location';
 import { safeErrorResponse } from '@/lib/utils/api-error';
 import { checkAdminAuth, requireAdminSession } from '@/lib/auth/admin-guard';
+import { validateReviewNotes } from '@/lib/utils/review-notes';
 
 const itemRepository = new ItemRepository();
 
@@ -132,7 +133,7 @@ export async function GET(
  *   put:
  *     tags: ["Admin - Items"]
  *     summary: "Update item"
- *     description: "Updates a specific item's properties including name, description, categories, tags, status, and other metadata. All fields are optional and only provided fields will be updated. Requires admin privileges."
+ *     description: "Updates a specific item's properties including name, description, categories, tags, status, and other metadata. All fields are optional and only provided fields will be updated. Setting status to 'rejected' on an item that is not already rejected needs a review_notes reason (minimum 10 characters after trimming), like POST /api/admin/items/{id}/review. Requires admin privileges."
  *     security:
  *       - sessionAuth: []
  *     parameters:
@@ -197,6 +198,10 @@ export async function GET(
  *                 enum: ["draft", "pending", "approved", "rejected"]
  *                 description: "Item status"
  *                 example: "approved"
+ *               review_notes:
+ *                 type: string
+ *                 description: "Review notes the submitter reads, trimmed. Required when status changes the item to 'rejected' (minimum 10 characters after trimming); optional otherwise. Maximum 2000 characters after trimming. A blank note is stored as no note."
+ *                 example: "The source URL does not lead to the product described."
  *     responses:
  *       200:
  *         description: "Item updated successfully"
@@ -231,6 +236,19 @@ export async function GET(
  *                 created_at: "2024-01-20T10:30:00.000Z"
  *                 updated_at: "2024-01-20T16:45:00.000Z"
  *               message: "Item updated successfully"
+ *       400:
+ *         description: "Bad request - review_notes missing for a rejection, not a string, or too long"
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: false
+ *                 error:
+ *                   type: string
+ *                   example: "Rejection reason is required (minimum 10 characters)"
  *       401:
  *         description: "Unauthorized - Admin access required"
  *         content:
@@ -287,6 +305,30 @@ export async function PUT(
       id: resolvedParams.id,
       ...body,
     };
+
+    // Rejecting an item here is a review decision its submitter reads, so it needs the same reason as
+    // POST /api/admin/items/{id}/review. Editing other fields of an item that is already rejected does not.
+    // Soft-deleted items included, as itemRepository.update reads them too.
+    let isNewRejection = false;
+    if (body?.status === ITEM_STATUSES.REJECTED) {
+      const existing = await itemRepository.findById(resolvedParams.id, true);
+      if (!existing) {
+        return NextResponse.json(
+          { success: false, error: "Item not found" },
+          { status: 404 }
+        );
+      }
+      isNewRejection = existing.status !== ITEM_STATUSES.REJECTED;
+    }
+
+    // review_notes is trimmed and bounded whenever it is sent ('approved' = the note is optional)
+    if (isNewRejection || body?.review_notes !== undefined) {
+      const notesResult = validateReviewNotes(isNewRejection ? 'rejected' : 'approved', body.review_notes);
+      if (!notesResult.ok) {
+        return NextResponse.json({ success: false, error: notesResult.error }, { status: 400 });
+      }
+      updateData.review_notes = notesResult.notes;
+    }
 
     // Pass audit user context for logging
     const auditUser = session.user.id

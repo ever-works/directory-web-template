@@ -14,16 +14,21 @@ import { useTranslations } from 'next-intl';
 import { ItemCompanyManager } from '@/components/admin/items/item-company-manager';
 import { useCompaniesEnabled } from '@/hooks/use-companies-enabled';
 import type { LocationStepData } from './location-step';
+import { REJECTION_REASON_MIN_LENGTH, REVIEW_NOTES_MAX_LENGTH } from '@/lib/utils/review-notes';
 
 export interface ReviewData {
   featured: boolean;
   status: ItemStatus;
+  /** Rejection reason, sent only when this edit rejects the item */
+  review_notes?: string;
 }
 
 interface ReviewStepProps {
   data: ReviewData;
   onChange: (data: ReviewData) => void;
   onValidationChange: (isValid: boolean) => void;
+  /** True when this edit rejects an item that is not already rejected: a reason is then required */
+  rejectionReasonRequired?: boolean;
   // All form data for review
   basicInfo: {
     id: string;
@@ -53,6 +58,7 @@ export function ReviewStep({
   data,
   onChange,
   onValidationChange,
+  rejectionReasonRequired = false,
   basicInfo,
   mediaLinks,
   classification,
@@ -60,9 +66,16 @@ export function ReviewStep({
 }: ReviewStepProps) {
   const t = useTranslations('admin.ITEM_FORM');
   const tCompany = useTranslations('admin.ITEM_COMPANY');
+  const tItems = useTranslations('admin.ADMIN_ITEMS_PAGE');
   const { companiesEnabled } = useCompaniesEnabled();
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [touchedFields, setTouchedFields] = useState<Set<string>>(new Set());
+
+  // Same rule as PUT /api/admin/items/{id} and the reject dialog: the trimmed reason counts. No maxLength on
+  // the textarea: it would cut a long paste without a word, so an over-long reason blocks saving instead
+  const reasonLength = (data.review_notes ?? '').trim().length;
+  const isReasonTooLong = reasonLength > REVIEW_NOTES_MAX_LENGTH;
+  const isReasonValid = reasonLength >= REJECTION_REASON_MIN_LENGTH && !isReasonTooLong;
 
   const validateData = useCallback((): Record<string, string> => {
     const newErrors: Record<string, string> = {};
@@ -71,10 +84,14 @@ export function ReviewStep({
       newErrors.status = t('ERRORS.STATUS_REQUIRED');
     }
 
-    return newErrors;
-  }, [data, t]);
+    if (rejectionReasonRequired && !isReasonValid) {
+      newErrors.review_notes = tItems('REJECTION_REASON_MIN_LENGTH');
+    }
 
-  const handleFieldChange = (field: keyof ReviewData, value: boolean | ItemStatus) => {
+    return newErrors;
+  }, [data, t, tItems, rejectionReasonRequired, isReasonValid]);
+
+  const handleFieldChange = (field: keyof ReviewData, value: boolean | string) => {
     const newData = { ...data, [field]: value };
     onChange(newData);
     setTouchedFields(prev => new Set(prev).add(field));
@@ -171,6 +188,39 @@ export function ReviewStep({
                 </p>
               )}
             </div>
+
+            {/* Rejection reason: the submitter reads it, so a rejection made here needs one */}
+            {rejectionReasonRequired && (
+              <div className="space-y-2">
+                <Label htmlFor="review_notes" className="text-sm font-medium">
+                  {tItems('REJECTION_REASON_LABEL')} <span className="text-red-500">*</span>
+                </Label>
+                <p className="text-xs text-gray-500">{tItems('REJECT_MODAL_DESCRIPTION')}</p>
+                <textarea
+                  id="review_notes"
+                  value={data.review_notes ?? ''}
+                  onChange={(e) => handleFieldChange('review_notes', e.target.value)}
+                  placeholder={tItems('REJECTION_REASON_PLACEHOLDER')}
+                  rows={4}
+                  aria-invalid={Boolean(errors.review_notes) || isReasonTooLong}
+                  aria-describedby="review_notes_count"
+                  className={`w-full px-3 py-2 border rounded-md text-sm transition-colors focus:outline-hidden focus:ring-2 focus:ring-blue-500 focus:border-blue-500 ${
+                    errors.review_notes || isReasonTooLong
+                      ? 'border-red-300 bg-red-50 dark:bg-red-900/20 dark:border-red-700'
+                      : 'border-gray-300 dark:border-white/8 bg-white dark:bg-white/8 text-gray-900 dark:text-white'
+                  }`}
+                />
+                <p
+                  id="review_notes_count"
+                  className={`text-xs text-right ${isReasonTooLong ? 'text-red-500' : 'text-gray-400 dark:text-gray-500'}`}
+                >
+                  {reasonLength}/{REVIEW_NOTES_MAX_LENGTH}
+                </p>
+                {errors.review_notes && !isReasonTooLong && (
+                  <p className="text-sm text-red-600">{errors.review_notes}</p>
+                )}
+              </div>
+            )}
           </CardContent>
         </Card>
 
