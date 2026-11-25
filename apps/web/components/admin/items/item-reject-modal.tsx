@@ -45,6 +45,7 @@ export function ItemRejectModal({
 	const trimmedLength = rejectionReason.trim().length;
 	const isReasonTooLong = trimmedLength > REVIEW_NOTES_MAX_LENGTH;
 	const isReasonValid = trimmedLength >= REJECTION_REASON_MIN_LENGTH && !isReasonTooLong;
+	const isReasonTooShort = rejectionReason.length > 0 && trimmedLength < REJECTION_REASON_MIN_LENGTH;
 	const categories = item ? (Array.isArray(item.category) ? item.category : [item.category]) : [];
 
 	return (
@@ -122,8 +123,12 @@ export function ItemRejectModal({
 							onChange={(e) => onReasonChange(e.target.value)}
 							placeholder={t('REJECTION_REASON_PLACEHOLDER')}
 							rows={4}
-							aria-invalid={isReasonTooLong}
-							aria-describedby="rejectionReasonCount"
+							aria-invalid={rejectionReason.length > 0 && !isReasonValid}
+							aria-describedby={
+								isReasonTooShort
+									? 'rejectionReasonCount rejectionReasonMinLength'
+									: 'rejectionReasonCount'
+							}
 							disabled={isSubmitting}
 							className={cn(
 								"w-full px-3 py-2.5 text-sm rounded-xl resize-none",
@@ -140,8 +145,8 @@ export function ItemRejectModal({
 						>
 							{trimmedLength}/{REVIEW_NOTES_MAX_LENGTH}
 						</p>
-						{rejectionReason.length > 0 && trimmedLength < REJECTION_REASON_MIN_LENGTH && (
-							<p className="text-xs text-red-500 flex items-center gap-1">
+						{isReasonTooShort && (
+							<p id="rejectionReasonMinLength" className="text-xs text-red-500 flex items-center gap-1">
 								<span className="inline-block w-1 h-1 rounded-full bg-red-500 shrink-0" />
 								{t('REJECTION_REASON_MIN_LENGTH')}
 							</p>

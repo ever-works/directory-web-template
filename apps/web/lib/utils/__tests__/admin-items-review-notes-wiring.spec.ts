@@ -59,4 +59,31 @@ describe('admin item review route review_notes wiring', () => {
 			'the page does not apply the trimmed minimum and cap'
 		);
 	});
+
+	const modalPath = join(__dirname, '../../../components/admin/items/item-reject-modal.tsx');
+	const readModal = () => readFileSync(modalPath, 'utf8').replace(/\s+/g, ' ');
+
+	it('the reject dialog marks a too-short reason aria-invalid, like the rule that disables Reject', () => {
+		const modal = readModal();
+		assert.ok(
+			modal.includes('aria-invalid={rejectionReason.length > 0 && !isReasonValid}'),
+			'a too-short reason is not marked aria-invalid'
+		);
+		assert.ok(!modal.includes('aria-invalid={isReasonTooLong}'), 'aria-invalid still covers only the 2000 cap');
+	});
+
+	it('the reject dialog links its min-length message to the textarea while it shows, keeping the counter', () => {
+		const modal = readModal();
+		assert.ok(
+			modal.includes('{isReasonTooShort && ( <p id="rejectionReasonMinLength"'),
+			'the min-length message has no id'
+		);
+		const describedBy = /aria-describedby=\{([^}]*)\}/.exec(modal)?.[1].trim() ?? '';
+		assert.equal(
+			describedBy,
+			"isReasonTooShort ? 'rejectionReasonCount rejectionReasonMinLength' : 'rejectionReasonCount'",
+			'aria-describedby does not name the min-length message while it shows'
+		);
+		assert.ok(modal.includes('<p id="rejectionReasonCount"'), 'the counter lost its id');
+	});
 });
