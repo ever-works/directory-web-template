@@ -15,6 +15,7 @@ import { UniversalPagination } from "@/components/universal-pagination";
 import { Plus, Package, Clock, CheckCircle, XCircle, Star, Loader2, Folder, Tag as TagIcon, Hash, Link2, Calendar, LayoutGrid, List, X, ExternalLink, Edit } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { slugify } from "@/lib/utils/slug";
+import { REJECTION_REASON_MIN_LENGTH, REVIEW_NOTES_MAX_LENGTH } from "@/lib/utils/review-notes";
 import { useAdminItems } from "@/hooks/use-admin-items";
 import { useAllCategories } from "@/hooks/use-admin-categories";
 import { useAllTags } from "@/hooks/use-admin-tags";
@@ -300,7 +301,14 @@ export default function AdminItemsPage() {
   };
 
   const handleRejectConfirm = async () => {
-    if (isRejecting || !selectedItemForReject || rejectionReason.length < 10) return;
+    const reasonLength = rejectionReason.trim().length;
+    if (
+      isRejecting ||
+      !selectedItemForReject ||
+      reasonLength < REJECTION_REASON_MIN_LENGTH ||
+      reasonLength > REVIEW_NOTES_MAX_LENGTH
+    )
+      return;
     const success = await reviewItem(selectedItemForReject.id, 'rejected', rejectionReason);
     if (success) closeRejectModal();
   };
