@@ -62,6 +62,14 @@ async function commitCount(page: Page): Promise<number> {
 	return page.evaluate(() => (window as unknown as { __e2eReactCommits: number }).__e2eReactCommits);
 }
 
+/**
+ * The page and the form have rendered by now, so the counter must have moved. Without this, a hook
+ * React never called would count zero and every idle check would pass, hiding a loop in a production build.
+ */
+async function expectCommitCounterRuns(page: Page) {
+	expect(await commitCount(page), 'React never called the stand-in DevTools hook').toBeGreaterThan(0);
+}
+
 /** Collect every "Maximum update depth exceeded" the page logs or throws. */
 function watchForLoopWarnings(page: Page): string[] {
 	const warnings: string[] = [];
@@ -107,6 +115,7 @@ test.describe('Admin: item form render loop', () => {
 
 		await itemsPage.addItemButton.click();
 		await expect(formPage.nameInput).toBeVisible();
+		await expectCommitCounterRuns(adminPage);
 		await expectStepSettles(adminPage, loopWarnings, 'the create form, step 1 (basic info)');
 
 		await formPage.idInput.fill(`e2e-render-loop-${Date.now()}`);
@@ -165,6 +174,7 @@ test.describe('Admin: item form render loop', () => {
 		await itemsPage.openActionsMenu(itemName!);
 		await itemsPage.clickAction('Edit');
 		await expect(formPage.nameInput).toHaveValue(itemName!);
+		await expectCommitCounterRuns(adminPage);
 		await expectStepSettles(adminPage, loopWarnings, 'the edit form, step 1 (basic info)');
 		await expect(formPage.nextButton).toBeEnabled();
 		await formPage.goToNextStep();
