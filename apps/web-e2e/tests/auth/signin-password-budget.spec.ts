@@ -291,4 +291,60 @@ test.describe('Auth: sign-in password budget', () => {
 			await context.close();
 		}
 	});
+
+	test('a new submission after a refused callback tries the callback once more, then stops', async ({ browser }) => {
+		test.setTimeout(300_000);
+		const email = TEST_DATA.generateClientEmail();
+		await registerClient(browser, email);
+
+		const context = await browser.newContext();
+		try {
+			const page = await context.newPage();
+			let callbackPosts = 0;
+			page.on('request', (request) => {
+				if (
+					request.method() === 'POST' &&
+					new URL(request.url()).pathname === '/api/auth/callback/credentials'
+				) {
+					callbackPosts++;
+				}
+			});
+
+			// The form's own callback request goes out with a wrong password, so the callback refuses
+			// the sign-in the action accepted, on every submission. The budget never runs out here (each
+			// refusal takes one slot of five), so a second submission reaches the action and the
+			// callback again. This keeps the T-2839 check that the case above cannot reach any more:
+			// with one store, the slot the raced guess took also refuses the second submission at the
+			// action.
+			await page.route(
+				(url) => url.pathname === '/api/auth/callback/credentials',
+				async (route) => {
+					const request = route.request();
+					if (request.method() !== 'POST') return route.continue();
+					const body = new URLSearchParams(request.postData() ?? '');
+					body.set('password', WRONG_PASSWORD);
+					await route.continue({ postData: body.toString() });
+				}
+			);
+
+			await submitSignIn(page, email, CLIENT_PASSWORD);
+			const outcome = await signInOutcome(page);
+			expect(outcome).toBe(`error: ${SESSION_REFRESH_FAILED_MESSAGE}`);
+			await page.waitForTimeout(5_000);
+			expect(callbackPosts, 'sign-in requests the form sent for one submission').toBe(1);
+
+			// Submitting again is a new action result, so the form tries the callback once more (and
+			// is refused again), then stops. The action accepted the password, so the submit button
+			// may read "Signed in!" next to the error; it stays enabled.
+			await page.locator('#email').fill(email);
+			await page.locator('#password').fill(CLIENT_PASSWORD);
+			await page.getByRole('button', { name: /sign(ed)? in/i }).click();
+			await expect.poll(() => callbackPosts, { timeout: 60_000 }).toBe(2);
+			await page.waitForTimeout(3_000);
+			expect(callbackPosts, 'sign-in requests after the second submission').toBe(2);
+			expect(new URL(page.url()).pathname).not.toMatch(DASHBOARD_URL);
+		} finally {
+			await context.close();
+		}
+	});
 });
