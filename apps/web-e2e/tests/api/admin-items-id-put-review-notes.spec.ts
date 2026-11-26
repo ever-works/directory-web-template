@@ -28,7 +28,8 @@ const ITEM_PATH = (id: string) => `${ITEMS_PATH}/${encodeURIComponent(id)}`;
 const MISSING_ID = 'e2e-t2809-no-such-item';
 
 const STATUS_ERROR = /^status must be one of: /;
-const REASON_ERROR = /^Rejection reason is required \(minimum \d+ characters\)$/;
+// REJECTION_REASON_MIN_LENGTH in apps/web/lib/utils/review-notes.ts, pinned here so that lowering it fails the spec
+const REASON_ERROR = /^Rejection reason is required \(minimum 10 characters\)$/;
 
 type ItemRow = { id?: unknown; status?: unknown; review_notes?: unknown };
 type ReviewState = { status: unknown; review_notes: unknown };
@@ -80,7 +81,9 @@ test.describe('API: PUT /api/admin/items/{id} status and rejection-reason 400s (
 			{ status: 'rejected' },
 			{ status: 'rejected', review_notes: 'Short' },
 			// 12 characters sent, 5 once trimmed: the trimmed length is what counts
-			{ status: 'rejected', review_notes: '   Short    ' }
+			{ status: 'rejected', review_notes: '   Short    ' },
+			// 9 characters, one short of the minimum
+			{ status: 'rejected', review_notes: 'Too short' }
 		]) {
 			const before = await readReviewState(request, id!);
 			expect(before.status, `item ${id} must still be pending`).toBe('pending');
@@ -98,7 +101,13 @@ test.describe('API: PUT /api/admin/items/{id} status and rejection-reason 400s (
 		const id = await findItemId(request, 'rejected');
 		test.skip(!id, 'No seeded rejected item');
 
-		for (const data of [{ review_notes: '' }, { review_notes: null }, { review_notes: 'ok' }]) {
+		for (const data of [
+			{ review_notes: '' },
+			{ review_notes: null },
+			{ review_notes: 'ok' },
+			// 9 characters, one short of the minimum
+			{ review_notes: 'Too short' }
+		]) {
 			const before = await readReviewState(request, id!);
 			expect(before.status, `item ${id} must still be rejected`).toBe('rejected');
 
