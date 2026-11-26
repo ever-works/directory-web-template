@@ -39,9 +39,13 @@ status change adds or removes the item's row, and every rebuild drops rows left 
 - **R3.** Every status change updates the index: `ItemGitService.reviewItem` (single and bulk review),
   `POST /api/admin/items/{id}/review` (awaited before it answers) and `updateItem` (it already re-indexes
   every located item, and `indexItem` now follows the status). The git service's index sync no longer
-  skips an item without a location, so `indexItem` is the one rule.
-- **R4.** The four public routes return only approved items. Rows written for other items before this
-  change are gone after the next rebuild; the content sync rebuilds on its first run after a start.
+  skips an item without a location, so `indexItem` is the one rule. Writes for one item (`indexItem`,
+  `removeFromIndex`) run one at a time in call order on each server instance, so an approval whose
+  geocode is slow cannot restore the row after a later rejection removed it.
+- **R4.** The four public routes return only approved items once the index has been rebuilt. Rows
+  written for other items before this change stay public until a rebuild succeeds; the content sync
+  rebuilds on its first run after a start, and `POST /api/admin/location-index` `{"action":"rebuild"}`
+  does it on demand.
 - **R5.** The query side and the table are unchanged: no status column, no migration.
 
 ## 4. Non-goals
@@ -53,7 +57,8 @@ status change adds or removes the item's row, and every rebuild drops rows left 
 
 - `apps/web/lib/utils/__tests__/location-indexable.spec.ts` (`pnpm --filter @ever-works/web test:unit`):
   the helper's truth table, the rebuild filter, and the wiring in the service, the git service and the
-  review route.
+  review route. `apps/web/lib/utils/__tests__/keyed-serial-queue.spec.ts`: writes for one key run in call
+  order, other keys are not held back, a failed write does not stop the next.
 - `apps/web-e2e/tests/api/location-index-unpublished.spec.ts`: one item per status; an anonymous context
   sees only the approved one in coordinates, radius, city and country search, cities and countries; a
   rejection, an approval and a `PUT` back to draft move items out of and into the index. It skips when the

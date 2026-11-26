@@ -241,6 +241,7 @@ const indexService = getLocationIndexService();
 // Index a single item (geocodes if coordinates missing).
 // Only an approved, non-deleted item with a location is indexed (isLocationIndexable in
 // lib/utils/location-indexable.ts); for any other item indexItem removes its row instead.
+// indexItem and removeFromIndex run one at a time per slug, in call order.
 const result = await indexService.indexItem(item);
 // { slug, success, geocoded, error? }
 

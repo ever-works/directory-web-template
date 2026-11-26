@@ -138,7 +138,30 @@ describe('location index wiring', () => {
 		const firstUpsert = body.indexOf('upsertLocationIndex(');
 		assert.ok(remove > gate, 'indexItem does not remove the row of an item that is not indexable');
 		assert.ok(firstUpsert > remove, 'indexItem can write a row before the indexable check');
+		assert.ok(
+			body.indexOf('result.removed = true;', remove) > remove,
+			'indexItem does not report a completed removal'
+		);
 		assert.ok(!body.includes('if (!item.location) {'), 'indexItem still checks only for a location');
+	});
+
+	it('indexItem and removeFromIndex run one write at a time per slug', () => {
+		assert.ok(
+			service.includes('private slugWrites = createKeyedSerialQueue();'),
+			'the service has no per-slug queue'
+		);
+		assert.ok(
+			service.includes(
+				'async indexItem(item: ItemData): Promise<IndexItemResult> { return this.slugWrites.run(item.slug, () => this.writeIndexEntry(item)); }'
+			),
+			'indexItem does not go through the per-slug queue'
+		);
+		assert.ok(
+			service.includes(
+				'async removeFromIndex(slug: string): Promise<boolean> { return this.slugWrites.run(slug, () => removeFromLocationIndex(slug)); }'
+			),
+			'removeFromIndex does not go through the per-slug queue'
+		);
 	});
 
 	const git = readFileSync(join(__dirname, '../../services/item-git.service.ts'), 'utf8').replace(/\s+/g, ' ');
@@ -171,9 +194,13 @@ describe('location index wiring', () => {
 		const gate = route.indexOf('if (getLocationEnabled()) {', review);
 		assert.ok(review >= 0, 'the route does not review the item');
 		assert.ok(gate > review, 'the route does not update the index after the review');
+		const call = route.indexOf('const indexResult = await getLocationIndexService().indexItem(item);', gate);
+		assert.ok(call > gate, 'the route does not wait for indexItem');
+		const outcome = route.indexOf('if (indexResult.success || indexResult.removed) {', call);
+		assert.ok(outcome > call, 'the route does not tell a completed removal from a failed one');
 		assert.ok(
-			route.indexOf('await getLocationIndexService().indexItem(item);', gate) > gate,
-			'the route does not wait for indexItem'
+			route.indexOf("status: 'error'", outcome) > outcome,
+			'a failed index update after the review is not logged as an error'
 		);
 		assert.ok(
 			route.indexOf('return NextResponse.json({ success: true,', gate) > gate,

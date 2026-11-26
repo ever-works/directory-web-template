@@ -13,7 +13,10 @@ sidebar_label: 063 Tasks
   the row otherwise), `prepareLocationEntry` and `rebuildIndex` (R2).
 - [x] **T-003** `apps/web/lib/services/item-git.service.ts`: `reviewItem` syncs the index; `indexLocationAsync`
   no longer skips an item without a location (R3).
-- [x] **T-004** `apps/web/app/api/admin/items/[id]/review/route.ts`: awaited `indexItem` after the review (R3).
+- [x] **T-004** `apps/web/app/api/admin/items/[id]/review/route.ts`: awaited `indexItem` after the review,
+  an error log when the index could not be updated (R3).
+- [x] **T-008** `apps/web/lib/utils/keyed-serial-queue.ts`: index writes for one slug run in call order (R3);
+  `keyed-serial-queue.spec.ts`.
 - [x] **T-005** Unit spec `apps/web/lib/utils/__tests__/location-indexable.spec.ts` and Playwright API spec
   `apps/web-e2e/tests/api/location-index-unpublished.spec.ts`; `location-search-radius-reach.spec.ts` now
   creates approved items.

@@ -179,13 +179,25 @@ export async function POST(
     if (getLocationEnabled()) {
       try {
         const indexResult = await getLocationIndexService().indexItem(item);
-        console.info('[Location Index] Index updated after review', {
-          action: 'review_item',
-          status: 'success',
-          slug: item.slug,
-          reviewStatus: status,
-          indexed: indexResult.success,
-        });
+        if (indexResult.success || indexResult.removed) {
+          console.info('[Location Index] Index updated after review', {
+            action: 'review_item',
+            status: 'success',
+            slug: item.slug,
+            reviewStatus: status,
+            indexed: indexResult.success,
+          });
+        } else {
+          // A rejected item whose row could not be removed stays public until a rebuild
+          // (POST /api/admin/location-index {"action":"rebuild"}, or the next content sync)
+          console.error('[Location Index] Failed to update index after review; rebuild the location index', {
+            action: 'review_item',
+            status: 'error',
+            slug: item.slug,
+            reviewStatus: status,
+            error: indexResult.error,
+          });
+        }
       } catch (error) {
         console.error('[Location Index] Failed to update index after review', {
           action: 'review_item',

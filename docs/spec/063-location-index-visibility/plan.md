@@ -22,7 +22,11 @@ sidebar_label: 063 Plan
   writes the new status, which covers the single review route and the bulk route. The review route also
   awaits `indexItem`, like the `PUT` and `POST` admin routes already do, so the index is current when the
   admin gets the answer. `indexLocationAsync` no longer returns early for an item without a location;
-  `indexItem` decides.
+  `indexItem` decides. The route logs an error, with the rebuild as the repair, when the index could
+  not be updated (`IndexItemResult.removed` tells a completed removal from a failed one).
+- **Write order (R3).** The git service's sync is not awaited, so an approval's write could wait for a
+  slow geocode and land after a later rejection had removed the row. `apps/web/lib/utils/keyed-serial-queue.ts`
+  runs `indexItem` and `removeFromIndex` one at a time per slug, in call order, in the service singleton.
 - **Existing rows (R4).** No migration: the content sync rebuilds on its first run after a deploy
   (`lastIndexedRevision` starts empty), and the admin rebuild (`POST /api/admin/location-index`) does it
   on demand.
@@ -36,6 +40,6 @@ sidebar_label: 063 Plan
 
 ## Risks
 
-- The git service sync is not awaited. A slow geocode started by an approval can still land after a
-  quick rejection of the same item; the next rebuild removes that row. Items with coordinates are
-  written at once, so this needs an address that must be geocoded.
+- The per-slug order holds within one server instance. With several instances, an approval's slow
+  geocode on one can still land after a rejection on another; the next rebuild removes that row.
+  Items with coordinates are written at once, so this needs an address that must be geocoded.

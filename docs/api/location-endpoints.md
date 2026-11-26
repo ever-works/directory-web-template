@@ -11,7 +11,7 @@ sidebar_position: 51
 
 The Location endpoints provide access to the spatial location index for items in the directory. They support querying items by city, country, radius-based proximity search, and retrieving coordinate data for map rendering. All location endpoints require the location feature to be enabled in system settings.
 
-These endpoints need no sign-in, so the index holds only **approved, non-deleted** items with location data: a draft, pending or rejected item is never indexed, a review or status change adds or removes the item's row, and every rebuild drops rows left from before ([Spec 063](../spec/063-location-index-visibility/spec.md)).
+These endpoints need no sign-in, so only **approved, non-deleted** items with location data are written to the index: a draft, pending or rejected item is not indexed, and a review or status change adds or removes the item's row ([Spec 063](../spec/063-location-index-visibility/spec.md)). Rows written for unpublished items before that change stay public until a rebuild succeeds. The content sync runs one on its first run after a start; an admin can run one at any time with `POST /api/admin/location-index` and the body `{"action":"rebuild"}`.
 
 ## Endpoints
 
