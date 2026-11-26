@@ -520,10 +520,10 @@ export class ItemGitService {
     }
   }
 
+  /** Syncs the item's location index row: indexed when approved, not deleted and located, removed otherwise. */
   private indexLocationAsync(item: ItemData): void {
     const indexService = getLocationIndexService();
     if (!indexService.isEnabled()) return;
-    if (!item.location) return;
     indexService.indexItem(item).catch((err) => {
       console.error(`⚠️ Failed to index location for ${item.slug}:`, err);
     });
@@ -646,6 +646,8 @@ export class ItemGitService {
     };
 
     await this.writeItem(updatedItem);
+    // The status decides whether the item's location is public
+    this.indexLocationAsync(updatedItem);
     return updatedItem;
   }
 

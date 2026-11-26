@@ -36,6 +36,8 @@ import {
 import { getGeocodingService } from '../geocoding/geocoding.service';
 import { getLocationService, type Coordinates } from './location.service';
 import { getLocationEnabled } from '@/lib/utils/settings';
+import { isLocationIndexable } from '@/lib/utils/location-indexable';
+import { createKeyedSerialQueue } from '@/lib/utils/keyed-serial-queue';
 
 // ===================== Types =====================
 
@@ -43,6 +45,8 @@ export interface IndexItemResult {
 	slug: string;
 	success: boolean;
 	geocoded: boolean;
+	/** True when the item is not indexable and its row is gone (removed now, or there was none). */
+	removed?: boolean;
 	error?: string;
 }
 
@@ -71,15 +75,23 @@ export interface RadiusQueryOptions {
 export class LocationIndexService {
 	private geocodingService = getGeocodingService();
 	private locationService = getLocationService();
+	/** Index writes for one slug run in call order (an approval's slow geocode cannot land after a rejection). */
+	private slugWrites = createKeyedSerialQueue();
 
 	/**
 	 * Index a single item's location data.
 	 * Reads location from YAML, geocodes if needed, and upserts to the index.
+	 * An item that is not indexable (not approved, soft-deleted or without a location) is removed
+	 * from the index instead, since every location route is public.
 	 *
 	 * @param item - Item data with optional location
 	 * @returns Result of the indexing operation
 	 */
 	async indexItem(item: ItemData): Promise<IndexItemResult> {
+		return this.slugWrites.run(item.slug, () => this.writeIndexEntry(item));
+	}
+
+	private async writeIndexEntry(item: ItemData): Promise<IndexItemResult> {
 		const result: IndexItemResult = {
 			slug: item.slug,
 			success: false,
@@ -87,9 +99,11 @@ export class LocationIndexService {
 		};
 
 		try {
-			// Check if item has location data
-			if (!item.location) {
-				result.error = 'No location data';
+			// Only an approved, non-deleted item with a location is public; any other item leaves the index
+			if (!isLocationIndexable(item)) {
+				await removeFromLocationIndex(item.slug);
+				result.removed = true;
+				result.error = item.location ? 'Item is not public (not approved, or deleted)' : 'No location data';
 				return result;
 			}
 
@@ -171,12 +185,12 @@ export class LocationIndexService {
 	 * @returns true if an entry was removed
 	 */
 	async removeFromIndex(slug: string): Promise<boolean> {
-		return removeFromLocationIndex(slug);
+		return this.slugWrites.run(slug, () => removeFromLocationIndex(slug));
 	}
 
 	/**
 	 * Rebuild the entire location index from a list of items.
-	 * Clears the existing index and re-indexes all items with location data.
+	 * Clears the existing index and re-indexes the approved, non-deleted items with location data.
 	 *
 	 * @param items - Array of items to index
 	 * @returns Result of the rebuild operation
@@ -196,14 +210,14 @@ export class LocationIndexService {
 			// Clear existing index
 			await clearLocationIndex();
 
-			// Filter items with location data
-			const itemsWithLocation = items.filter((item) => item.location);
+			// Only approved, non-deleted items with location data are public
+			const indexableItems = items.filter(isLocationIndexable);
 
 			// Process items in batches for better performance
 			const BATCH_SIZE = 50;
 			const batchEntries: UpsertLocationIndexParams[] = [];
 
-			for (const item of itemsWithLocation) {
+			for (const item of indexableItems) {
 				const indexResult = await this.prepareLocationEntry(item);
 
 				if (indexResult.success && indexResult.entry) {
@@ -231,8 +245,8 @@ export class LocationIndexService {
 				result.indexed += batchEntries.length;
 			}
 
-			// Items without location are considered skipped
-			result.skipped += items.length - itemsWithLocation.length;
+			// Items that are not indexable (no location, not approved, deleted) are skipped
+			result.skipped += items.length - indexableItems.length;
 		} catch (error) {
 			console.error('[LocationIndexService] Rebuild failed:', error);
 			throw error;
@@ -257,7 +271,7 @@ export class LocationIndexService {
 	private async prepareLocationEntry(
 		item: ItemData
 	): Promise<{ success: boolean; entry?: UpsertLocationIndexParams; skipped?: boolean; error?: string }> {
-		if (!item.location) {
+		if (!isLocationIndexable(item)) {
 			return { success: false, skipped: true };
 		}
 
