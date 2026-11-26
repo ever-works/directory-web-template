@@ -39,7 +39,8 @@ import { authServiceFactory } from '@/lib/auth/services';
 import { ratelimit, refundRateLimit } from '@/lib/utils/rate-limit';
 
 const PASSWORD_MIN_LENGTH = 8;
-// Rate limiting: 5 attempts per 15 minutes per email
+// Sign-in password budget: 5 failed attempts (wrong password or unknown email) per 15 minutes
+// per email. A correct password gives its slot back, so it does not count (see signInAction).
 const AUTH_RATE_LIMIT = 5;
 const AUTH_RATE_WINDOW_MS = 15 * 60 * 1000;
 // Second sign-in leg (email 2FA code). Kept on its own key so submitting
@@ -75,7 +76,8 @@ export const signInAction = validatedAction(signInSchema, async (data) => {
 		// pair around the password verification would not be, and concurrent
 		// requests could all observe "slots remaining" before any of them was
 		// charged. Attaching a `code` therefore cannot buy extra password
-		// guesses.
+		// guesses. The slot is given back below once the password proves
+		// correct, so only failed attempts stay counted.
 		const passwordGate = await ratelimit(passwordBudgetKey, AUTH_RATE_LIMIT, AUTH_RATE_WINDOW_MS);
 		if (!passwordGate.success) {
 			return { error: AuthErrorCode.RATE_LIMITED, ...data };
@@ -91,21 +93,24 @@ export const signInAction = validatedAction(signInSchema, async (data) => {
 				AUTH_RATE_WINDOW_MS
 			);
 			if (!codeGate.success) {
-				refundRateLimit(passwordBudgetKey);
+				refundRateLimit(passwordBudgetKey, passwordGate.resetTime);
 				return { error: AuthErrorCode.RATE_LIMITED, ...data };
 			}
 		}
 
 		/**
 		 * Hand the reserved password slot back once the password has proven
-		 * CORRECT on a code-carrying submission: that request was a second-factor
-		 * attempt, not a password guess, so it must not count against a budget
-		 * that exists to bound password guessing.
+		 * CORRECT, on every submission, with or without a code: the budget
+		 * exists to bound password guessing, so it counts failed attempts (a
+		 * wrong password or an unknown email), not correct passwords. Keeping
+		 * the slot refused the sixth correct sign-in in a window (sign out and
+		 * back in, or five people sharing one account). The slot is still
+		 * reserved up front, so concurrent guesses stay bounded while in flight.
+		 * The refund names the window it reserved in: if that window ran out
+		 * during the check, it is dropped rather than erase a newer attempt.
 		 */
 		const releasePasswordReservation = () => {
-			if (submittedCode) {
-				refundRateLimit(passwordBudgetKey);
-			}
+			refundRateLimit(passwordBudgetKey, passwordGate.resetTime);
 		};
 
 		// Normalize email for consistent lookup
