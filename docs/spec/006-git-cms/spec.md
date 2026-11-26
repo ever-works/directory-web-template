@@ -59,6 +59,15 @@ catches typos.
 - [x] AC-5: Public listing and item detail pages render content.
 - [x] AC-6: Recent hardening landed in PR #690 (auth secret + content
   bootstrap).
+- [x] AC-7: Only public items reach the public read API. `fetchItems()`
+  and `fetchItem()` skip an item that `isPubliclyVisibleItem()`
+  (`apps/web/lib/item-visibility.ts`) rejects: a `draft`, `pending` or
+  `rejected` status, any other status value, or a `deleted_at`
+  timestamp. An item with no `status` counts as approved, as
+  `ItemGitService` reads it. The skip comes before categories, tags and
+  collections are counted, and `fetchItem()` returns `null` for a hidden
+  item, so its page answers 404. The admin and client dashboards read
+  through `ItemGitService` and still see every item (T-2846).
 
 ## 7. Out-of-Scope Considerations
 
@@ -93,6 +102,8 @@ a headless CMS (Contentful, Sanity, Hygraph) without touching core.
 - `apps/web-e2e/tests/public/discover.spec.ts`,
   `apps/web-e2e/tests/public/item-detail.spec.ts`,
   `apps/web-e2e/tests/public/categories.spec.ts`.
+- AC-7: `apps/web/lib/__tests__/public-item-visibility.spec.ts` (unit) and
+  `apps/web-e2e/tests/public/unpublished-items-hidden.spec.ts`.
 
 ## 13. References
 

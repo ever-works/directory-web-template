@@ -10,6 +10,7 @@ import { parseItemYaml } from './item-yaml';
 import { dirExists, fsExists, getContentPath } from './lib';
 import { ItemFileCache } from './item-file-cache';
 import { isItemSlug } from './item-slug';
+import { isPubliclyVisibleItem } from './item-visibility';
 import { readGitHeadRevision } from './content-revision';
 import { getContentConfigPaths, mergeConfigObjects, PRIMARY_CONTENT_CONFIG_FILENAME } from './content-config-file';
 import { parseWorksPricingConfig } from './config/schemas/works-pricing.schema';
@@ -388,6 +389,8 @@ export interface ItemData {
 	showSurveys?: boolean; // Whether to show surveys section (default: true)
 	publisher?: string; // Publisher name for display
 	location?: ItemLocationData; // Location data from YAML
+	status?: string; // Approval status from YAML (draft / pending / approved / rejected); missing means approved
+	deleted_at?: string; // Soft-delete timestamp from YAML
 }
 
 export interface AuthOptions {
@@ -1437,6 +1440,11 @@ async function fetchItemsImpl(options: FetchOptions = {}, repairAttempted = fals
 			// Missing YAML, IO error (both counted above) or a file that failed to parse.
 			return null;
 		}
+		// Draft, pending, rejected and soft-deleted items are not public. Skipped before the
+		// tags, categories and collections below count them (T-2846).
+		if (!isPubliclyVisibleItem(entry.item)) {
+			return null;
+		}
 		try {
 			// Shallow copy: the parsed base item is shared by every locale. Fields replaced
 			// below (tags, category, collections, translated fields) get new values on the copy.
@@ -1925,7 +1933,9 @@ export async function fetchItem(slug: string, options: FetchOptions = {}) {
 		// item page answers 404 for it. A transient read failure must instead fail the render,
 		// so ISR keeps the last good page (Spec 061).
 		const meta = await parseItem(metaPath, `${sanitizedSlug}.yml`, undefined, { throwIoErrors: true });
-		if (!meta) {
+		// A draft, pending, rejected or soft-deleted item has no public page: the page answers 404
+		// and its metadata is noindex (T-2846). The base YAML decides, not a translation.
+		if (!meta || !isPubliclyVisibleItem(meta)) {
 			return null;
 		}
 		if (options.lang && options.lang !== 'en') {
