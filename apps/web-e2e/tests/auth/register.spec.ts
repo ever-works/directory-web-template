@@ -45,15 +45,30 @@ test.describe('Auth: Registration', () => {
 		await page.locator('#email').fill(TEST_DATA.ADMIN_EMAIL);
 		await page.locator('#password').fill(submittedPassword);
 
-		// The register form posts to the signUp server action (a POST with a Next-Action header).
-		const actionAnswer = page.waitForResponse(
-			(response) => response.request().method() === 'POST' && !!response.request().headers()['next-action'],
-			{ timeout: 60_000 }
+		// The register form posts to the signUp server action (a POST with a Next-Action header). The
+		// route fetches the answer in the test runner and hands it to the page unchanged: reading it
+		// back from the browser with `response.text()` sometimes fails with "No data found for
+		// resource" because the browser has already dropped the body.
+		let actionPost: { request: string; response: string } | undefined;
+		await page.route(
+			(url) => url.pathname.endsWith('/auth/register'),
+			async (route) => {
+				const request = route.request();
+				if (request.method() !== 'POST' || !request.headers()['next-action']) {
+					await route.continue();
+					return;
+				}
+				const answer = await route.fetch({ timeout: 60_000 });
+				const body = await answer.text();
+				actionPost ??= { request: request.postDataBuffer()?.toString('utf8') ?? '', response: body };
+				await route.fulfill({ response: answer, body });
+			}
 		);
 		await page.locator('#password').press('Enter');
-		// Read the body as soon as it arrives: the browser may drop it once the page moves on.
-		const response = await actionAnswer;
-		const responseBody = await response.text();
+		await expect
+			.poll(() => actionPost, { message: 'the signUp server action answered', timeout: 60_000 })
+			.toBeDefined();
+		const responseBody = actionPost?.response ?? '';
 
 		// A taken email says the account exists and how to get in (sign in or reset the password), not
 		// the generic "An error occurred. Please try again.", which every retry would show again.
@@ -64,10 +79,9 @@ test.describe('Auth: Registration', () => {
 
 		// The action result goes to the browser and stays in the form's state, so it must not carry the
 		// password back (T-2855): it used to echo every submitted field, password and captcha token too.
-		expect(
-			response.request().postDataBuffer()?.toString('utf8') ?? '',
-			'the checked request is the submission that carried the password'
-		).toContain(submittedPassword);
+		expect(actionPost?.request ?? '', 'the checked request is the submission that carried the password').toContain(
+			submittedPassword
+		);
 		expect(responseBody, 'the server action answered with the taken-email error').toContain(
 			'EMAIL_ALREADY_REGISTERED'
 		);
