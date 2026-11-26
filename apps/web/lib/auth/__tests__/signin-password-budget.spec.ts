@@ -44,7 +44,10 @@ describe('sign-in password budget wiring', () => {
 		const definition = action.indexOf('const releasePasswordReservation = () =>');
 		assert.ok(definition >= 0, 'releasePasswordReservation not found');
 		const body = action.slice(definition, action.indexOf('const normalizedEmail', definition));
-		assert.ok(body.includes('refundRateLimit(passwordBudgetKey)'), 'the slot is not refunded');
+		assert.ok(
+			body.includes('refundRateLimit(passwordBudgetKey, passwordGate.resetTime)'),
+			'the slot is not refunded to the window that reserved it'
+		);
 		assert.ok(
 			!body.includes('submittedCode') && !body.includes('if ('),
 			'the refund still depends on the submission (only code-carrying submissions get the slot back)'

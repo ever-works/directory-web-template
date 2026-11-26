@@ -93,7 +93,7 @@ export const signInAction = validatedAction(signInSchema, async (data) => {
 				AUTH_RATE_WINDOW_MS
 			);
 			if (!codeGate.success) {
-				refundRateLimit(passwordBudgetKey);
+				refundRateLimit(passwordBudgetKey, passwordGate.resetTime);
 				return { error: AuthErrorCode.RATE_LIMITED, ...data };
 			}
 		}
@@ -106,9 +106,11 @@ export const signInAction = validatedAction(signInSchema, async (data) => {
 		 * the slot refused the sixth correct sign-in in a window (sign out and
 		 * back in, or five people sharing one account). The slot is still
 		 * reserved up front, so concurrent guesses stay bounded while in flight.
+		 * The refund names the window it reserved in: if that window ran out
+		 * during the check, it is dropped rather than erase a newer attempt.
 		 */
 		const releasePasswordReservation = () => {
-			refundRateLimit(passwordBudgetKey);
+			refundRateLimit(passwordBudgetKey, passwordGate.resetTime);
 		};
 
 		// Normalize email for consistent lookup

@@ -163,7 +163,10 @@ rows that expired more than a day ago so the table cannot grow without bound.
   or an unknown email keeps its slot, so 5 failed attempts in 15 minutes lock
   the email, while correct passwords never use the budget up (before T-2831
   only a code-carrying submission got its slot back, so the sixth correct
-  sign-in in a window was refused). A check-then-act pair around the password
+  sign-in in a window was refused). The refund passes the `resetTime` its
+  reservation got, so a refund that arrives after that window ran out and a
+  new one opened is dropped instead of erasing a failed attempt the new
+  window counted. A check-then-act pair around the password
   verification would let concurrent requests all observe "slots remaining",
   which is exactly how a second factor turns into extra password guesses.
 
