@@ -82,6 +82,13 @@ sidebar_label: 046 Tasks
       `apps/web/lib/auth/signin-password-budget.ts`, a slot reserved before any
       lookup, `RATE_LIMITED` when spent, a refund only for a correct password;
       covered by `apps/web-e2e/tests/api/auth-callback-password-budget.spec.ts`.
+- [x] T-020 (security follow-up, T-2844): keep the `ratelimit()` store on
+      `globalThis` (`apps/web/lib/utils/rate-limit.ts`), so the server action
+      and the route handler, which the bundler gives separate copies of the
+      module, count the budget in one map and the form's failures count at the
+      callback too; covered by
+      `apps/web/lib/utils/__tests__/rate-limit-shared-store.spec.ts` and
+      `apps/web-e2e/tests/auth/signin-password-budget.spec.ts`.
 
 ## Acceptance Criteria → Task Map
 

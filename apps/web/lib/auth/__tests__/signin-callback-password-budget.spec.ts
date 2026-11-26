@@ -189,7 +189,8 @@ describe('authorize spends the sign-in password budget', () => {
 });
 
 describe('the sign-in form after a refused callback', () => {
-	// When the callback refuses (its budget is spent while the action's copy of the limiter is not),
+	// When the callback refuses a password the action accepted (another guess took the last slot
+	// between the two; before T-2844 the action and the callback also counted in separate maps),
 	// the form shows SESSION_REFRESH_FAILED. It used to reset its once-only auto-login guard there,
 	// and the effect's identity-unstable dependencies fired signIn again at once: the form posted to
 	// the callback in a loop (66 requests in about six seconds in `next dev`).
