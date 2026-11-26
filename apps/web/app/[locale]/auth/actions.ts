@@ -36,13 +36,14 @@ import { issueTwoFactorCode, verifyTwoFactorCode } from '@/lib/auth/two-factor';
 import { generatePasswordResetToken, generateVerificationToken } from '@/lib/db/tokens';
 import { sendPasswordResetEmail, sendVerificationEmailWithTemplate } from '@/lib/mail';
 import { authServiceFactory } from '@/lib/auth/services';
+import { AUTH_RATE_LIMIT, AUTH_RATE_WINDOW_MS, signInPasswordBudgetKey } from '@/lib/auth/signin-password-budget';
 import { ratelimit, refundRateLimit } from '@/lib/utils/rate-limit';
 
 const PASSWORD_MIN_LENGTH = 8;
-// Sign-in password budget: 5 failed attempts (wrong password or unknown email) per 15 minutes
-// per email. A correct password gives its slot back, so it does not count (see signInAction).
-const AUTH_RATE_LIMIT = 5;
-const AUTH_RATE_WINDOW_MS = 15 * 60 * 1000;
+// Sign-in password budget (AUTH_RATE_LIMIT, AUTH_RATE_WINDOW_MS, signInPasswordBudgetKey): 5 failed
+// attempts (wrong password or unknown email) per 15 minutes per email, shared with the credentials
+// provider's `authorize` (lib/auth/signin-password-budget.ts). A correct password gives its slot
+// back, so it does not count (see signInAction).
 // Second sign-in leg (email 2FA code). Kept on its own key so submitting
 // codes does not consume the password budget — otherwise the sign-in
 // limiter would fire before the 5-attempt 2FA lockout it is meant to
@@ -67,8 +68,9 @@ export const signInAction = validatedAction(signInSchema, async (data) => {
 		const { email, password } = data;
 		const submittedCode = (data.code ?? '').trim();
 
-		// Rate limiting check (by email to prevent brute force on specific accounts)
-		const passwordBudgetKey = `signin:${email.toLowerCase()}`;
+		// Rate limiting check (by email to prevent brute force on specific accounts). The same key
+		// `authorize` spends, so a POST straight to the credentials callback is bounded too.
+		const passwordBudgetKey = signInPasswordBudgetKey(email);
 
 		// RESERVE a password slot for every submission, code-carrying or not.
 		// `ratelimit()` reads and writes its map with no `await` in between, so

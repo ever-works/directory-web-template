@@ -8,8 +8,15 @@ import {
 	isUserAdmin
 } from '../db/queries';
 import { ActivityType } from '../db/schema';
+import { ratelimit, refundRateLimit } from '../utils/rate-limit';
 import { AuthErrorCode } from './auth-error-codes';
 import { passwordVersionOf } from './password-change';
+import {
+	AUTH_RATE_LIMIT,
+	AUTH_RATE_WINDOW_MS,
+	SIGN_IN_EMAIL_MAX_LENGTH,
+	signInPasswordBudgetKey
+} from './signin-password-budget';
 import { issueTwoFactorCode, verifyTwoFactorCode } from './two-factor';
 
 // Re-export AuthErrorCode for backwards compatibility
@@ -87,9 +94,35 @@ export const credentialsProvider = Credentials({
 		// change ends the session (lib/auth/password-change.ts), even one whose query read the old
 		// hash while that change was being committed.
 		try {
-			const email = credentials.email as string;
+			// The callback hands over the raw request body (a form or JSON), so the email can be any
+			// size or not a string at all. Refuse that before it becomes a budget key: the limiter
+			// keeps each key for its 15-minute window, and a padded key still holds the whole string
+			// it was trimmed from. No account lookup or password check has run, so nothing is guessed.
+			if (typeof credentials.email !== 'string' || credentials.email.length > SIGN_IN_EMAIL_MAX_LENGTH) {
+				throw new Error(AuthErrorCode.ACCOUNT_NOT_FOUND);
+			}
+			const email = credentials.email;
 			const password = credentials.password as string;
 			const twoFactorCode = typeof credentials.code === 'string' ? credentials.code.trim() : '';
+
+			// Per-email password budget (lib/auth/signin-password-budget.ts), on the same key, limit
+			// and window as signInAction. That action only pre-checks the password for the form; a
+			// POST straight to /api/auth/callback/credentials skips it, so the budget has to hold
+			// here, where the session is minted (T-2839). The slot is reserved before any account
+			// lookup or password check: `ratelimit()` reads and writes its map with no `await` in
+			// between, so concurrent guesses cannot all see a free slot. It is given back once the
+			// password proves correct, so the normal flow (the action, then this callback) does not
+			// count a correct sign-in twice; a wrong password or an unknown email keeps its slot.
+			const passwordBudgetKey = signInPasswordBudgetKey(email);
+			const passwordGate = await ratelimit(passwordBudgetKey, AUTH_RATE_LIMIT, AUTH_RATE_WINDOW_MS);
+			if (!passwordGate.success) {
+				throw new Error(AuthErrorCode.RATE_LIMITED);
+			}
+			// The refund names the window it reserved in, so a refund that arrives after that
+			// window ran out is dropped instead of erasing an attempt a newer window counted.
+			const releasePasswordReservation = () => {
+				refundRateLimit(passwordBudgetKey, passwordGate.resetTime);
+			};
 
 			// Check admin user first via role-based check
 			const foundUser = await getUserByEmail(email);
@@ -99,6 +132,7 @@ export const credentialsProvider = Credentials({
 				const isPasswordValid = await comparePasswords(password, foundUser.passwordHash);
 
 				if (isPasswordValid) {
+					releasePasswordReservation();
 					void logActivity(ActivityType.SIGN_IN, foundUser.id, 'user', undefined, foundUser.tenantId || undefined).catch(() => {});
 
 					// Only the fields the jwt callback and the default token need. Spreading the
@@ -125,6 +159,8 @@ export const credentialsProvider = Credentials({
 				const clientPassword = await verifyClientPasswordForSignIn(email, password);
 
 				if (clientPassword.valid) {
+					releasePasswordReservation();
+
 					// The account whose hash matched, read in that same statement; the email may
 					// belong to another account by the time a second lookup runs.
 					const clientProfile = await getClientProfileByUserId(clientPassword.userId);
