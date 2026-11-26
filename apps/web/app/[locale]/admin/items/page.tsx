@@ -214,9 +214,11 @@ export default function AdminItemsPage() {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [bulkAction, setBulkAction] = useState<'approve' | 'reject' | 'delete' | null>(null);
 
+  // A new list query shows other rows, so drop the selection: a bulk action must never reach an item
+  // that is no longer on screen
   useEffect(() => {
     setSelectedIds(new Set());
-  }, [currentPage]);
+  }, [currentPage, statusFilter, categoriesFilter, tagsFilter, debouncedSearchTerm, sortBy, sortOrder, viewMode]);
 
   const toggleSelection = useCallback((id: string) => {
     setSelectedIds((prev) => {
@@ -229,32 +231,44 @@ export default function AdminItemsPage() {
 
   const toggleSelectAll = useCallback(() => {
     setSelectedIds((prev) =>
-      prev.size === items.length ? new Set() : new Set(items.map((item) => item.id))
+      items.length > 0 && items.every((item) => prev.has(item.id)) ? new Set() : new Set(items.map((item) => item.id))
     );
   }, [items]);
 
   const clearSelection = useCallback(() => setSelectedIds(new Set()), []);
 
-  const isAllSelected = items.length > 0 && selectedIds.size === items.length;
-  const isPartiallySelected = selectedIds.size > 0 && selectedIds.size < items.length;
+  // The list keeps the previous query's rows on screen while the next one loads, so a row ticked then
+  // can be gone once it arrives: the counts and the bulk actions use only the ids of the rows shown
+  const visibleSelectedIds = useMemo(
+    () => new Set(items.filter((item) => selectedIds.has(item.id)).map((item) => item.id)),
+    [items, selectedIds]
+  );
+
+  const isAllSelected = items.length > 0 && visibleSelectedIds.size === items.length;
+  const isPartiallySelected = visibleSelectedIds.size > 0 && visibleSelectedIds.size < items.length;
   const pendingSelectedCount = items.filter(
     (item) => selectedIds.has(item.id) && item.status === 'pending'
   ).length;
 
+  // The list can refresh while the confirm dialog is open and drop every ticked row. Then there is
+  // nothing to send (the route answers an empty ids list with a 400), so each handler just closes the dialog
   const handleBulkApprove = useCallback(async () => {
-    const result = await bulkApprove(Array.from(selectedIds));
+    if (visibleSelectedIds.size === 0) { setBulkAction(null); return; }
+    const result = await bulkApprove(Array.from(visibleSelectedIds));
     if (result) { clearSelection(); setBulkAction(null); }
-  }, [selectedIds, bulkApprove, clearSelection]);
+  }, [visibleSelectedIds, bulkApprove, clearSelection]);
 
   const handleBulkReject = useCallback(async (reason: string) => {
-    const result = await bulkReject(Array.from(selectedIds), reason);
+    if (visibleSelectedIds.size === 0) { setBulkAction(null); return; }
+    const result = await bulkReject(Array.from(visibleSelectedIds), reason);
     if (result) { clearSelection(); setBulkAction(null); }
-  }, [selectedIds, bulkReject, clearSelection]);
+  }, [visibleSelectedIds, bulkReject, clearSelection]);
 
   const handleBulkDelete = useCallback(async () => {
-    const result = await bulkDelete(Array.from(selectedIds));
+    if (visibleSelectedIds.size === 0) { setBulkAction(null); return; }
+    const result = await bulkDelete(Array.from(visibleSelectedIds));
     if (result) { clearSelection(); setBulkAction(null); }
-  }, [selectedIds, bulkDelete, clearSelection]);
+  }, [visibleSelectedIds, bulkDelete, clearSelection]);
 
   const handleCreateItem = async (data: CreateItemRequest) => {
     const success = await createItem(data);
@@ -988,7 +1002,7 @@ export default function AdminItemsPage() {
       )}
 
       <BulkActionBar
-        selectedIds={selectedIds}
+        selectedIds={visibleSelectedIds}
         items={items}
         onApprove={() => setBulkAction('approve')}
         onReject={() => setBulkAction('reject')}
@@ -1001,7 +1015,7 @@ export default function AdminItemsPage() {
       <BulkConfirmDialog
         isOpen={bulkAction !== null}
         action={bulkAction}
-        selectedCount={selectedIds.size}
+        selectedCount={visibleSelectedIds.size}
         pendingCount={pendingSelectedCount}
         isProcessing={isBulkProcessing}
         onConfirm={(reason) => {
