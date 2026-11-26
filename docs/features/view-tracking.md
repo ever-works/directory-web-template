@@ -41,8 +41,9 @@ Request arrives
   +--> Bot detection (user-agent analysis)
   |      (skips recording if bot detected)
   |
-  +--> Item existence check
-  |      (returns 404 if not found)
+  +--> Public item check (findPublicItem)
+  |      (returns 404 for an unknown, draft, pending,
+  |       rejected or soft-deleted item)
   |
   +--> Owner exclusion
   |      (skips if session user owns the item)
@@ -66,6 +67,9 @@ Request arrives
 | `counted: false` | Duplicate for today (same viewer + item + date) |
 | `counted: false, reason: "bot"` | Bot user-agent detected |
 | `counted: false, reason: "owner"` | Authenticated user viewing their own item |
+| 404 `{ success: false, error: "Item not found" }` | No public item has this slug |
+
+The item check reads the item through `findPublicItem` (`lib/public-item.ts`), as the item page does, so a draft, pending, rejected or soft-deleted item answers exactly like a slug that does not exist: nobody can learn from this route that an unpublished slug exists, or add views to it (T-2853).
 
 ## Client-Side Tracker
 

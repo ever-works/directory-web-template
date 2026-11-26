@@ -4,7 +4,7 @@ import { auth } from '@/lib/auth';
 import { checkDatabaseAvailability } from '@/lib/utils/database-check';
 import { isBot } from '@/lib/utils/bot-detection';
 import { recordItemView } from '@/lib/db/queries/item-view.queries';
-import { ItemRepository } from '@/lib/repositories/item.repository';
+import { findPublicItem } from '@/lib/public-item';
 import { VIEWER_COOKIE_NAME, VIEWER_COOKIE_MAX_AGE } from '@/lib/constants/analytics';
 
 type RouteParams = { params: Promise<{ slug: string }> };
@@ -17,7 +17,8 @@ type RouteParams = { params: Promise<{ slug: string }> };
  * Flow:
  * 1. Check database availability
  * 2. Detect and reject bots
- * 3. Exclude owner views (if authenticated)
+ * 3. Find the public item (a draft, pending, rejected or soft-deleted item answers 404, as an
+ *    unknown slug does: T-2853) and exclude owner views (if authenticated)
  * 4. Get or create viewer ID from cookie
  * 5. Record view with daily deduplication
  *
@@ -26,6 +27,7 @@ type RouteParams = { params: Promise<{ slug: string }> };
  * - { success: true, counted: false } - Duplicate view (same day)
  * - { success: true, counted: false, reason: "bot" } - Bot detected
  * - { success: true, counted: false, reason: "owner" } - Owner viewing own item
+ * - 404 { success: false, error: "Item not found" } - No public item has this slug
  */
 export async function POST(request: NextRequest, { params }: RouteParams) {
 	try {
@@ -41,11 +43,9 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
 			return NextResponse.json({ success: true, counted: false, reason: 'bot' });
 		}
 
-		// 3. Validate item exists and owner exclusion (if authenticated)
-		const itemRepository = new ItemRepository();
-		const item = await itemRepository.findBySlug(slug);
-
-		// Validate item exists before recording view
+		// 3. Only a public item counts views: anything else answers as an unknown slug, so the
+		// route tells nobody that an unpublished slug exists (T-2853)
+		const item = await findPublicItem(slug);
 		if (!item) {
 			return NextResponse.json({ success: false, error: 'Item not found' }, { status: 404 });
 		}

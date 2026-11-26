@@ -1,4 +1,4 @@
-import path from 'path';
+import { resolve } from 'path';
 import { test, expect } from '@playwright/test';
 import { ADMIN_STATE_FILE, CLIENT_STATE_FILE } from '../../helpers/test-data';
 
@@ -25,7 +25,7 @@ import { ADMIN_STATE_FILE, CLIENT_STATE_FILE } from '../../helpers/test-data';
  * They key their rows by the slug in the URL and looked no item up (the views route found any
  * item, whatever its status), so `POST /api/items/<draft>/views` counted a view where an unknown
  * slug got 404, and a signed-in user could comment on and vote for a draft. The spec posts a view
- * for each item without cookies, then, as the client user from global-setup.ts, a comment and a
+ * for each item with no session, then, as the client user from global-setup.ts, a comment and a
  * vote on the approved item (the control) and on the draft, and reads the draft's comments,
  * rating and votes back. The comment and the votes are deleted at the end.
  */
@@ -52,8 +52,9 @@ test.describe('Public: unpublished items are hidden from anonymous visitors', ()
 		playwright,
 		baseURL
 	}) => {
-		// Four creates, four deletes and six public page renders (each first one compiles in dev)
-		test.slow();
+		// Four creates, four deletes, six public page renders and four engagement routes, each first
+		// request compiling in dev: under `next dev` the run took 2.8 of the 3 minutes of test.slow()
+		test.setTimeout(300_000);
 
 		// The first request to a page compiles it in dev, which can take longer than the 30 s default
 		const anonymous = await playwright.request.newContext({
@@ -64,7 +65,7 @@ test.describe('Public: unpublished items are hidden from anonymous visitors', ()
 		// The client user from global-setup.ts has a client profile, which comments and votes need
 		const client = await playwright.request.newContext({
 			baseURL,
-			storageState: path.resolve(__dirname, '../..', CLIENT_STATE_FILE),
+			storageState: resolve(__dirname, '../..', CLIENT_STATE_FILE),
 			timeout: 90_000
 		});
 		const comments: { slug: string; id: string }[] = [];
@@ -129,7 +130,9 @@ test.describe('Public: unpublished items are hidden from anonymous visitors', ()
 				expect(await view.json(), `POST views ${approved.slug} body`).toEqual({ success: true, counted: true });
 
 				for (const fixture of unpublished) {
-					const response = await anonymous.post(`/api/items/${fixture.slug}/views`, { headers: BROWSER_HEADERS });
+					const response = await anonymous.post(`/api/items/${fixture.slug}/views`, {
+						headers: BROWSER_HEADERS
+					});
 					expect.soft(response.status(), `POST views ${fixture.slug} (${fixture.status})`).toBe(404);
 					expect.soft(await response.json(), `POST views ${fixture.slug} body`).toEqual(NOT_FOUND);
 				}
@@ -156,7 +159,10 @@ test.describe('Public: unpublished items are hidden from anonymous visitors', ()
 				expect(approvedComment.status, `POST comments ${approved.slug}`).toBe(200);
 				const approvedVote = await vote(approved.slug);
 				expect(approvedVote.status, `POST votes ${approved.slug}`).toBe(200);
-				expect(approvedVote.body, `POST votes ${approved.slug} body`).toMatchObject({ count: 1, userVote: 'up' });
+				expect(approvedVote.body, `POST votes ${approved.slug} body`).toMatchObject({
+					count: 1,
+					userVote: 'up'
+				});
 				const approvedComments = await (await anonymous.get(`/api/items/${approved.slug}/comments`)).json();
 				expect(
 					approvedComments.comments.map((row: { content: string }) => row.content),
@@ -236,6 +242,15 @@ test.describe('Public: unpublished items are hidden from anonymous visitors', ()
 				}
 			});
 		} finally {
+			if (collectionCreated) {
+				const response = await request.delete(`/api/admin/collections/${collection.id}`);
+				expect.soft(response.status(), `DELETE /api/admin/collections/${collection.id}`).toBe(200);
+			}
+			for (const slug of created) {
+				const response = await request.delete(`${ITEMS_PATH}/${encodeURIComponent(slug)}`);
+				expect.soft(response.status(), `DELETE ${ITEMS_PATH}/${slug}`).toBe(200);
+			}
+			// Neither DELETE looks the item up, so they work once the items are gone
 			for (const { slug, id } of comments) {
 				const response = await client.delete(`/api/items/${slug}/comments/${id}`);
 				expect.soft(response.status(), `DELETE comment ${id} on ${slug}`).toBe(204);
@@ -245,14 +260,6 @@ test.describe('Public: unpublished items are hidden from anonymous visitors', ()
 				expect.soft(response.status(), `DELETE votes ${slug}`).toBe(200);
 			}
 			await client.dispose();
-			if (collectionCreated) {
-				const response = await request.delete(`/api/admin/collections/${collection.id}`);
-				expect.soft(response.status(), `DELETE /api/admin/collections/${collection.id}`).toBe(200);
-			}
-			for (const slug of created) {
-				const response = await request.delete(`${ITEMS_PATH}/${encodeURIComponent(slug)}`);
-				expect.soft(response.status(), `DELETE ${ITEMS_PATH}/${slug}`).toBe(200);
-			}
 			await anonymous.dispose();
 		}
 	});

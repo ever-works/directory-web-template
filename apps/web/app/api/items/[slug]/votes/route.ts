@@ -9,6 +9,7 @@ import {
 } from '@/lib/db/queries';
 import { isUserBlocked, getBlockReasonMessage } from '@/lib/db/queries/moderation.queries';
 import { VoteType } from '@/lib/db/schema';
+import { findPublicItem } from '@/lib/public-item';
 
 type RouteParams = { params: Promise<{ slug: string }> };
 
@@ -18,7 +19,7 @@ type RouteParams = { params: Promise<{ slug: string }> };
  *   get:
  *     tags: ["Item Votes"]
  *     summary: "Get item vote information"
- *     description: "Returns the total vote count for an item and the current user's vote status if authenticated. The vote count represents the net score (upvotes - downvotes). User vote status shows whether the user has upvoted, downvoted, or not voted on the item."
+ *     description: "Returns the total vote count for an item and the current user's vote status if authenticated. The vote count represents the net score (upvotes - downvotes). User vote status shows whether the user has upvoted, downvoted, or not voted on the item. A slug with no public item (unknown, draft, pending, rejected or soft-deleted) returns a count of 0 and no user vote."
  *     parameters:
  *       - name: "slug"
  *         in: "path"
@@ -90,7 +91,13 @@ type RouteParams = { params: Promise<{ slug: string }> };
  */
 export async function GET(request: Request, context: { params: Promise<{ slug: string }> }) {
 	try {
-		const [session, { slug }] = await Promise.all([auth(), Promise.resolve(context.params)]);
+		const { slug } = await context.params;
+		const [session, item] = await Promise.all([auth(), findPublicItem(slug)]);
+
+		// A draft, pending, rejected or soft-deleted item has no votes to show, as an unknown slug (T-2853)
+		if (!item) {
+			return NextResponse.json({ success: true, count: 0, userVote: null });
+		}
 
 		const count = await getVoteCountForItem(slug);
 
@@ -128,7 +135,7 @@ export async function GET(request: Request, context: { params: Promise<{ slug: s
  *   post:
  *     tags: ["Item Votes"]
  *     summary: "Cast or update vote"
- *     description: "Casts a new vote or updates an existing vote for an item. If the user has already voted, the previous vote is replaced with the new one. Supports upvote ('up') and downvote ('down') types. Requires user authentication and a valid client profile."
+ *     description: "Casts a new vote or updates an existing vote for an item. If the user has already voted, the previous vote is replaced with the new one. Supports upvote ('up') and downvote ('down') types. Requires user authentication, a public item (any other slug, a draft, pending or rejected item included, is a 404 `Item not found`) and a valid client profile."
  *     security:
  *       - sessionAuth: []
  *     parameters:
@@ -219,7 +226,7 @@ export async function GET(request: Request, context: { params: Promise<{ slug: s
  *                   type: string
  *                   example: "Unauthorized"
  *       404:
- *         description: "Client profile not found"
+ *         description: "No public item has this slug (an unknown, draft, pending, rejected or soft-deleted item), or the client profile was not found"
  *         content:
  *           application/json:
  *             schema:
@@ -230,7 +237,16 @@ export async function GET(request: Request, context: { params: Promise<{ slug: s
  *                   example: false
  *                 error:
  *                   type: string
- *                   example: "Client profile not found"
+ *                   example: "Item not found"
+ *             examples:
+ *               item_not_found:
+ *                 value:
+ *                   success: false
+ *                   error: "Item not found"
+ *               client_profile_not_found:
+ *                 value:
+ *                   success: false
+ *                   error: "Client profile not found"
  *       500:
  *         description: "Internal server error"
  *         content:
@@ -251,6 +267,11 @@ export async function POST(request: Request, params: RouteParams) {
 
 		if (!session?.user?.id) {
 			return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+		}
+
+		// Only a public item takes votes: anything else answers as an unknown slug (T-2853)
+		if (!(await findPublicItem(slug))) {
+			return NextResponse.json({ success: false, error: 'Item not found' }, { status: 404 });
 		}
 
 		const { type } = await request.json();
