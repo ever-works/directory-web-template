@@ -75,6 +75,13 @@ sidebar_label: 046 Tasks
       code-carrying one, so the budget counts failed attempts and the sixth
       correct sign-in in 15 minutes is no longer refused; covered by
       `apps/web-e2e/tests/auth/signin-password-budget.spec.ts`.
+- [x] T-019 (security follow-up, T-2839): spend the same per-email password
+      budget in the credentials provider's `authorize`, so posting straight to
+      `/api/auth/callback/credentials` cannot guess passwords without limit:
+      shared limit, window and key builder in
+      `apps/web/lib/auth/signin-password-budget.ts`, a slot reserved before any
+      lookup, `RATE_LIMITED` when spent, a refund only for a correct password;
+      covered by `apps/web-e2e/tests/api/auth-callback-password-budget.spec.ts`.
 
 ## Acceptance Criteria → Task Map
 

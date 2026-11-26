@@ -41,6 +41,15 @@ This single route handles all NextAuth operations:
 | `/api/auth/callback/credentials` | Process credentials sign-in |
 | `/api/auth/_log` | Auth.js internal logging |
 
+`/api/auth/callback/credentials` runs the credentials provider's `authorize`
+(`lib/auth/credentials.ts`), which spends the same per-email password budget as
+the sign-in form's server action (`lib/auth/signin-password-budget.ts`): 5 failed
+attempts (a wrong password or an unknown email) per 15 minutes per email,
+lowercased and trimmed. Once it is spent the callback refuses the sign-in, even
+with the right password, until the window ends (Auth.js answers with
+`?error=` on its URL and sets no session cookie). A correct password gives its
+slot back, so correct sign-ins never use the budget up (T-2839).
+
 ### OAuth Callback Flow
 
 When a user authenticates with an OAuth provider:
