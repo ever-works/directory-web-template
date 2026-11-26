@@ -17,11 +17,15 @@ import { test, expect } from '@playwright/test';
  *     query params from `searchParams`:
  *       * `near_lat` and `near_lng` — paired floats. If both are
  *         present the route enters the **radius branch**:
- *           - `parseFloat` must produce two finite numbers, otherwise
- *             the route 400s with `{ error: 'Invalid coordinates' }`.
- *           - `radius` is read as `parseInt(radius, 10)` and falls
- *             back to `50` when missing. `NaN`/`<= 0` 400s with
- *             `{ error: 'Invalid radius' }`.
+ *           - `parseRadiusSearchParams` (`lib/utils/location-search-params.ts`)
+ *             must read two plain finite numbers inside -90..90 and
+ *             -180..180, otherwise the route 400s with
+ *             `{ error: 'Invalid coordinates' }`.
+ *           - `radius` must be a plain number above 0 and falls back to
+ *             `50` when missing; anything else 400s with
+ *             `{ error: 'Invalid radius' }`. A radius above 40100 km is
+ *             capped. The strict contract is asserted in
+ *             `location-search-radius-validation.spec.ts`.
  *           - On success the route returns
  *             `{ success: true, data: { slugs, distances } }` where
  *             `slugs` is `string[]` and `distances` is
@@ -45,7 +49,7 @@ import { test, expect } from '@playwright/test';
  * The five-tests baseline (`location.spec.ts`) covers the no-params
  * 400, single-param `city`/`country`/radius, and the invalid-coords
  * 400. This spec adds the **query-param surface detail** so a
- * regression in `parseFloat`, the `parseInt` radius default, the
+ * regression in the coordinate / radius parsing, the radius default, the
  * branch-priority order, the `if (city)` / `if (country)` truthy
  * guards, the `Number.isNaN` checks, the `Record<string, number>`
  * `distances` shape, or the catch-and-500 fallback is caught
@@ -72,14 +76,13 @@ const LOCATION_SEARCH_QUERIES = [
 	'/api/location/search?near_lat=90&near_lng=180',            // Pole + antimeridian
 	'/api/location/search?near_lat=-90&near_lng=-180',          // Opposite extreme
 
-	// Radius explicitly provided. The route uses `parseInt(radiusParam, 10)`
-	// so a decimal like `25.7` truncates to `25` rather than 5xx.
+	// Radius explicitly provided. A decimal like `25.7` is kept as 25.7.
 	'/api/location/search?near_lat=48.85&near_lng=2.35&radius=1',
 	'/api/location/search?near_lat=48.85&near_lng=2.35&radius=25',
 	'/api/location/search?near_lat=48.85&near_lng=2.35&radius=100',
 	'/api/location/search?near_lat=48.85&near_lng=2.35&radius=10000',
 	'/api/location/search?near_lat=48.85&near_lng=2.35&radius=25.7',
-	'/api/location/search?near_lat=48.85&near_lng=2.35&radius=25abc', // parseInt extracts 25
+	'/api/location/search?near_lat=48.85&near_lng=2.35&radius=25abc', // trailing junk: 400 'Invalid radius'
 
 	// Radius explicitly invalid — the route 400s (when enabled) but
 	// must not 5xx.
