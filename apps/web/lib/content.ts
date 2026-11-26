@@ -10,6 +10,7 @@ import { parseItemYaml } from './item-yaml';
 import { dirExists, fsExists, getContentPath } from './lib';
 import { ItemFileCache } from './item-file-cache';
 import { isItemSlug } from './item-slug';
+import { isPubliclyVisibleItem } from './item-visibility';
 import { readGitHeadRevision } from './content-revision';
 import { getContentConfigPaths, mergeConfigObjects, PRIMARY_CONTENT_CONFIG_FILENAME } from './content-config-file';
 import { parseWorksPricingConfig } from './config/schemas/works-pricing.schema';
@@ -388,6 +389,8 @@ export interface ItemData {
 	showSurveys?: boolean; // Whether to show surveys section (default: true)
 	publisher?: string; // Publisher name for display
 	location?: ItemLocationData; // Location data from YAML
+	status?: string; // Approval status from YAML (draft / pending / approved / rejected); missing means approved
+	deleted_at?: string; // Soft-delete timestamp from YAML
 }
 
 export interface AuthOptions {
@@ -1431,10 +1434,19 @@ async function fetchItemsImpl(options: FetchOptions = {}, repairAttempted = fals
 	// them separately so we can fail loud and refuse to serve a partial listing.
 	// See Spec 019, `docs/performance/content-loading.md`.
 	const ioErrors: Array<{ slug: string; error: unknown }> = [...snapshot.ioErrors];
+	// Slugs of the items skipped as not public: collections.yml can name them too (see below).
+	const hiddenSlugs = new Set<string>();
 	const itemsResults = await mapWithConcurrency(files, FS_CONCURRENCY, async (slug) => {
 		const entry = snapshot.entries.get(slug);
 		if (!entry || !entry.item) {
 			// Missing YAML, IO error (both counted above) or a file that failed to parse.
+			return null;
+		}
+		// Draft, pending, rejected and soft-deleted items are not public. Skipped before the
+		// tags, categories and collections below count them (T-2846).
+		if (!isPubliclyVisibleItem(entry.item)) {
+			hiddenSlugs.add(slug);
+			if (typeof entry.item.slug === 'string') hiddenSlugs.add(entry.item.slug);
 			return null;
 		}
 		try {
@@ -1530,6 +1542,21 @@ async function fetchItemsImpl(options: FetchOptions = {}, repairAttempted = fals
 		// here would deadlock — the single-flight map still has our own
 		// promise registered for this key, so we'd `await` ourselves.
 		return fetchItemsImpl(options, true);
+	}
+
+	// A collection's `items` start from collections.yml, where the admin "assign items" action
+	// stores every slug it was given, unpublished ones included, and its `item_count` with them.
+	// Drop the hidden slugs, or /collections and the collection pages still carry their slugs
+	// and count them (T-2846). Assign a new array: the cached maps must not change.
+	if (hiddenSlugs.size > 0) {
+		for (const collection of collections.values()) {
+			if (!Array.isArray(collection.items)) continue;
+			const visible = collection.items.filter((itemSlug) => !hiddenSlugs.has(itemSlug));
+			if (visible.length !== collection.items.length) {
+				collection.items = visible;
+				collection.item_count = visible.length;
+			}
+		}
 	}
 
 	const tagsArray = Array.from(tags.values());
@@ -1925,7 +1952,9 @@ export async function fetchItem(slug: string, options: FetchOptions = {}) {
 		// item page answers 404 for it. A transient read failure must instead fail the render,
 		// so ISR keeps the last good page (Spec 061).
 		const meta = await parseItem(metaPath, `${sanitizedSlug}.yml`, undefined, { throwIoErrors: true });
-		if (!meta) {
+		// A draft, pending, rejected or soft-deleted item has no public page: the page answers 404
+		// and its metadata is noindex (T-2846). The base YAML decides, not a translation.
+		if (!meta || !isPubliclyVisibleItem(meta)) {
 			return null;
 		}
 		if (options.lang && options.lang !== 'en') {
