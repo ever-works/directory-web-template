@@ -32161,7 +32161,7 @@
 			"post": {
 				"tags": ["Admin - Geographic"],
 				"summary": "Manage location index",
-				"description": "Rebuild or clear the location index. Action 'rebuild' re-indexes all items with location data. Action 'clear' removes all entries from the index. Requires admin privileges.",
+				"description": "Rebuild or clear the location index. Action 'rebuild' re-indexes every approved, non-deleted item with location data (the location routes are public, so draft, pending, rejected and deleted items are left out). Action 'clear' removes all entries from the index. Requires admin privileges.",
 				"security": [
 					{
 						"sessionAuth": []
@@ -32419,7 +32419,7 @@
 		"/api/location/coordinates": {
 			"get": {
 				"tags": ["Location"],
-				"summary": "Get coordinates for all indexed items",
+				"summary": "Get coordinates for all indexed (approved) items",
 				"parameters": [
 					{
 						"name": "city",

@@ -11,6 +11,8 @@ sidebar_position: 51
 
 The Location endpoints provide access to the spatial location index for items in the directory. They support querying items by city, country, radius-based proximity search, and retrieving coordinate data for map rendering. All location endpoints require the location feature to be enabled in system settings.
 
+These endpoints need no sign-in, so the index holds only **approved, non-deleted** items with location data: a draft, pending or rejected item is never indexed, a review or status change adds or removes the item's row, and every rebuild drops rows left from before ([Spec 063](../spec/063-location-index-visibility/spec.md)).
+
 ## Endpoints
 
 ### GET /api/location/cities
@@ -60,7 +62,7 @@ const { data: countries } = await response.json();
 
 ### GET /api/location/coordinates
 
-Returns coordinates for all indexed items, with optional filtering by city or country. Used for rendering map markers. Remote items are automatically excluded.
+Returns coordinates for all indexed (approved) items, with optional filtering by city or country. Used for rendering map markers. Remote items are automatically excluded.
 
 **Request**
 

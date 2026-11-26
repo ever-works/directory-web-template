@@ -27,6 +27,24 @@ confirm, override, or refine.
 
 ---
 
+## Spec 063 — Location index visibility
+
+### Q-063a Filter the public location routes by status at query time too
+
+- **Context.** The location routes answer anyone from `item_location_index`, which has no status
+  column. Spec 063 keeps unpublished items out of the index on every write and rebuild, so a row
+  written before the change (or by a slow geocode that lands after a rejection) stays until the next
+  rebuild.
+- **Options.**
+  - Keep the rule on the write side only; the content sync rebuilds after every start and new commit.
+  - Also filter each response against the approved items in the content cache.
+  - Add a status column to the index (migration) and filter in SQL.
+- **Default.** **Write side only** in Spec 063; a query-time filter is a follow-up (T-007).
+- **Owner.** Maintainers.
+- **Status.** open
+
+---
+
 ## Spec 061 — Fast, cached directory pages
 
 ### Q-061a Send only the message namespaces client components use
