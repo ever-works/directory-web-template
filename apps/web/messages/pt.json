@@ -3370,6 +3370,7 @@
 			"PLEASE_COMPLETE_VERIFICATION": "Por favor, complete a verificação de segurança",
 			"LOGIN_FAILED": "Falha no login",
 			"ACCOUNT_NOT_FOUND": "Nenhuma conta encontrada com este endereço de e-mail. Por favor, verifique seu e-mail ou crie uma nova conta.",
+			"EMAIL_ALREADY_REGISTERED": "Já existe uma conta com este endereço de e-mail. Por favor, faça login ou redefina sua senha.",
 			"INVALID_PASSWORD": "Senha inválida. Por favor, verifique sua senha e tente novamente.",
 			"PROFILE_NOT_FOUND": "Perfil da conta não encontrado. Por favor, entre em contato com o suporte.",
 			"GENERIC_ERROR_MESSAGE": "Ocorreu um erro. Por favor, tente novamente.",

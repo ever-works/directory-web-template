@@ -3419,6 +3419,7 @@
 			"PLEASE_COMPLETE_VERIFICATION": "Lütfen güvenlik doğrulamasını tamamlayın",
 			"LOGIN_FAILED": "Giriş Başarısız",
 			"ACCOUNT_NOT_FOUND": "Bu e-posta adresiyle hesap bulunamadı. Lütfen e-postanızı kontrol edin veya yeni bir hesap oluşturun.",
+			"EMAIL_ALREADY_REGISTERED": "Bu e-posta adresiyle zaten bir hesap var. Lütfen giriş yapın veya şifrenizi sıfırlayın.",
 			"INVALID_PASSWORD": "Yanlış şifre. Lütfen şifrenizi kontrol edin ve tekrar deneyin.",
 			"PROFILE_NOT_FOUND": "Hesap profili bulunamadı. Lütfen destekle iletişime geçin.",
 			"GENERIC_ERROR_MESSAGE": "Bir hata oluştu. Lütfen tekrar deneyin.",

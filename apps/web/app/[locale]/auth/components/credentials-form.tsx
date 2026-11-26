@@ -96,6 +96,8 @@ export function CredentialsForm({
 		switch (errorCode) {
 			case AuthErrorCode.ACCOUNT_NOT_FOUND:
 				return tCred('ACCOUNT_NOT_FOUND');
+			case AuthErrorCode.EMAIL_ALREADY_REGISTERED:
+				return tCred('EMAIL_ALREADY_REGISTERED');
 			case AuthErrorCode.INVALID_PASSWORD:
 				return tCred('INVALID_PASSWORD');
 			case AuthErrorCode.PROFILE_NOT_FOUND:

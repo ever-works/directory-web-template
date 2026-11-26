@@ -3401,6 +3401,7 @@
 			"PLEASE_COMPLETE_VERIFICATION": "Vui lòng hoàn thành xác minh bảo mật",
 			"LOGIN_FAILED": "Đăng nhập thất bại",
 			"ACCOUNT_NOT_FOUND": "Không tìm thấy tài khoản với địa chỉ email này. Vui lòng kiểm tra email hoặc tạo tài khoản mới.",
+			"EMAIL_ALREADY_REGISTERED": "Đã có tài khoản với địa chỉ email này. Vui lòng đăng nhập hoặc đặt lại mật khẩu.",
 			"INVALID_PASSWORD": "Mật khẩu không hợp lệ. Vui lòng kiểm tra mật khẩu và thử lại.",
 			"PROFILE_NOT_FOUND": "Không tìm thấy hồ sơ tài khoản. Vui lòng liên hệ hỗ trợ.",
 			"GENERIC_ERROR_MESSAGE": "Đã xảy ra lỗi. Vui lòng thử lại.",
