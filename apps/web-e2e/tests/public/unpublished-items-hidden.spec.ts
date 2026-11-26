@@ -27,7 +27,8 @@ import { ADMIN_STATE_FILE, CLIENT_STATE_FILE } from '../../helpers/test-data';
  * slug got 404, and a signed-in user could comment on and vote for a draft. The spec posts a view
  * for each item with no session, then, as the client user from global-setup.ts, a comment and a
  * vote on the approved item (the control) and on the draft, and reads the draft's comments,
- * rating and votes back. The comment and the votes are deleted at the end.
+ * rating and votes back. Last, it rejects the approved item: the comment, rating and vote it got
+ * while public no longer show. The comment and the votes are deleted at the end.
  */
 const ITEMS_PATH = '/api/admin/items';
 
@@ -240,6 +241,32 @@ test.describe('Public: unpublished items are hidden from anonymous visitors', ()
 						expect.soft(html, `${fixture.status} item on ${path}`).not.toContain(fixture.slug);
 					}
 				}
+			});
+
+			await test.step('the approved item shows no comment, rating or vote once it is rejected', async () => {
+				// The comment and the vote were left while the item was public (the control above read
+				// them back). The draft's reads cannot show this: its writes are refused first.
+				const review = await request.post(`${ITEMS_PATH}/${approved.slug}/review`, {
+					data: { status: 'rejected', review_notes: 'E2E T-2853: rejected after it got a comment and a vote' }
+				});
+				expect(review.status(), `POST ${ITEMS_PATH}/${approved.slug}/review`).toBe(200);
+
+				const rejectedComments = await client.get(`/api/items/${approved.slug}/comments`);
+				expect.soft(await rejectedComments.json(), `GET comments ${approved.slug} (rejected)`).toEqual({
+					success: true,
+					comments: []
+				});
+				const rejectedRating = await client.get(`/api/items/${approved.slug}/comments/rating`);
+				expect.soft(await rejectedRating.json(), `GET comments/rating ${approved.slug} (rejected)`).toEqual({
+					averageRating: 0,
+					totalRatings: 0
+				});
+				const rejectedVotes = await client.get(`/api/items/${approved.slug}/votes`);
+				expect.soft(await rejectedVotes.json(), `GET votes ${approved.slug} (rejected)`).toEqual({
+					success: true,
+					count: 0,
+					userVote: null
+				});
 			});
 		} finally {
 			if (collectionCreated) {

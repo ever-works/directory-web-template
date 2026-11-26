@@ -1,6 +1,14 @@
 import { fetchItem, type ItemData } from '@/lib/content';
-import { isItemSlug } from '@/lib/item-slug';
+import { isItemSlug, MAX_ITEM_SLUG_LENGTH } from '@/lib/item-slug';
 import { isPubliclyVisibleItem } from '@/lib/item-visibility';
+
+/**
+ * Longest slug that can name an item. An item is `data/<slug>/<slug>.yml`, and a file name is at
+ * most 255 bytes (ext4, NTFS), so a longer slug names no item. Reading one fails with
+ * `ENAMETOOLONG` on Linux, which `fetchItem` throws as a read error, and the routes would answer
+ * 500 instead of 404.
+ */
+const MAX_PUBLIC_ITEM_SLUG_LENGTH = MAX_ITEM_SLUG_LENGTH - '.yml'.length;
 
 /**
  * The item at `slug` that an anonymous visitor may see, or `null` when there is none: no item by
@@ -20,8 +28,8 @@ import { isPubliclyVisibleItem } from '@/lib/item-visibility';
  */
 export async function findPublicItem(slug: string): Promise<ItemData | null> {
 	// fetchItem keeps only the last path segment (`../x` reads item `x`) and throws for a slug with
-	// any other character
-	if (typeof slug !== 'string' || !isItemSlug(slug)) return null;
+	// any other character, or one too long to be a file name
+	if (typeof slug !== 'string' || slug.length > MAX_PUBLIC_ITEM_SLUG_LENGTH || !isItemSlug(slug)) return null;
 	const item = await fetchItem(slug);
 	if (!item || !isPubliclyVisibleItem(item.meta)) return null;
 	return item.meta;

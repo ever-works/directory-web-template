@@ -119,7 +119,8 @@ a headless CMS (Contentful, Sanity, Hygraph) without touching core.
   `apps/web-e2e/tests/public/unpublished-items-hidden.spec.ts`.
 - AC-8: `apps/web/lib/__tests__/public-item.spec.ts` (unit) and
   `apps/web-e2e/tests/public/unpublished-items-hidden.spec.ts` (a view per
-  status, then a comment and a vote on the approved item and the draft).
+  status, then a comment and a vote on the approved item and the draft, and
+  the approved item's comment, rating and vote reads once it is rejected).
 
 ## 13. References
 

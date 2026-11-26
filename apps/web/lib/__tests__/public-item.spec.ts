@@ -118,3 +118,37 @@ describe('findPublicItem', () => {
 		});
 	}
 });
+
+// An item is `data/<slug>/<slug>.yml`, and a file name is at most 255 bytes. Linux answers
+// ENAMETOOLONG for a longer one, which fetchItem throws as a read error, so the views route
+// answered 500 instead of 404. Windows answers ENOENT, so realpath answers here as Linux does.
+describe('findPublicItem with a slug too long to name a file', () => {
+	const promises = fs.promises as unknown as {
+		realpath: (target: fs.PathLike, ...rest: unknown[]) => Promise<string>;
+	};
+	const realpath = promises.realpath;
+
+	before(() => {
+		promises.realpath = async (target, ...rest) => {
+			const segments = String(target).split(/[\\/]/);
+			if (segments.some((segment) => segment.length > 255)) {
+				throw Object.assign(new Error(`ENAMETOOLONG: name too long, realpath '${String(target)}'`), {
+					code: 'ENAMETOOLONG',
+					syscall: 'realpath',
+					path: String(target)
+				});
+			}
+			return realpath(target, ...rest);
+		};
+	});
+
+	after(() => {
+		promises.realpath = realpath;
+	});
+
+	for (const length of [251, 252, 255, 256, 5000]) {
+		it(`returns null, without throwing, for a ${length}-character slug`, async () => {
+			assert.equal(await findPublicItem('a'.repeat(length)), null);
+		});
+	}
+});
