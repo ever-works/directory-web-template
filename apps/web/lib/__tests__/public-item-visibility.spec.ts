@@ -92,7 +92,18 @@ before(() => {
 	write('.works/works.yml', ['company_name: Test', 'item_name: Item', 'items_name: Items']);
 	write('categories.yml', ['- id: tools', '  name: Tools']);
 	write('tags.yml', ['- id: shared', '  name: Shared']);
-	write('collections.yml', ['- id: picks', '  name: Picks']);
+	// As the admin "assign items" action writes it: every slug it was given, unpublished ones
+	// included, with their count. `hidden-picks` holds only unpublished items.
+	write('collections.yml', [
+		'- id: picks',
+		'  name: Picks',
+		'  item_count: 3',
+		'  items: [approved-item, draft-item, deleted-item]',
+		'- id: hidden-picks',
+		'  name: Hidden picks',
+		'  item_count: 2',
+		'  items: [pending-item, rejected-item]'
+	]);
 	for (const [slug, extra] of Object.entries(ITEMS)) writeItem(slug, extra);
 	// A translation cannot publish an item: the base YAML decides
 	write('data/draft-item/draft-item.fr.yml', ['name: Brouillon', 'status: approved']);
@@ -153,8 +164,18 @@ describe('fetchItems lists public items only', () => {
 					collection.item_count,
 					[...(collection.items ?? [])].sort()
 				]),
-				[['picks', PUBLIC.length, PUBLIC]]
+				[
+					['picks', PUBLIC.length, PUBLIC],
+					['hidden-picks', 0, []]
+				]
 			);
+			// An item's own collections are the same objects: no hidden slug through them either
+			for (const item of result.items) {
+				for (const collection of item.collections ?? []) {
+					if (typeof collection === 'string') continue;
+					assert.deepEqual([...(collection.items ?? [])].sort(), PUBLIC, `${item.slug} collections`);
+				}
+			}
 		});
 	}
 

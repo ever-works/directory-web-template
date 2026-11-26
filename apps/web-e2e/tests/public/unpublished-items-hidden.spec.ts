@@ -13,7 +13,9 @@ import { ADMIN_STATE_FILE } from '../../helpers/test-data';
  * (storage state from global-setup.ts), newest last, so the unpublished ones would lead the home
  * listing. With a request context that has no cookies it checks that only the approved item has
  * a page, and that no unpublished item is on the home listing or in the /map page (soft checks, so
- * a failure lists every leak). The items are deleted at the end.
+ * a failure lists every leak). Then it assigns all four items to a new collection and checks that
+ * /collections and the collection page carry no unpublished slug. The collection and the items are
+ * deleted at the end.
  *
  * /map answers 404 when the location feature is off, the default for the CI content stub
  * (`.github/workflows/e2e.yml`); the map check then only confirms the route is gated.
@@ -58,6 +60,8 @@ test.describe('Public: unpublished items are hidden from anonymous visitors', ()
 		const approved = fixtures.find((fixture) => fixture.status === 'approved')!;
 		const unpublished = fixtures.filter((fixture) => fixture.status !== 'approved');
 		const created: string[] = [];
+		const collection = { id: `e2e-t2846-${suffix}`, name: `E2E T-2846 collection ${suffix}` };
+		let collectionCreated = false;
 
 		try {
 			await test.step('create one located item per status as the admin', async () => {
@@ -114,7 +118,36 @@ test.describe('Public: unpublished items are hidden from anonymous visitors', ()
 					expect.soft(html, `${fixture.status} item address on /map`).not.toContain(fixture.location.address);
 				}
 			});
+
+			await test.step('a collection does not carry the unpublished items', async () => {
+				// The admin "assign items" action stores every slug it is given in collections.yml,
+				// unpublished ones included, and the collection pages pass that list to the browser.
+				const createCollection = await request.post('/api/admin/collections', {
+					data: { id: collection.id, name: collection.name, description: 'Public visibility fixture' }
+				});
+				expect(createCollection.status(), 'POST /api/admin/collections').toBe(201);
+				collectionCreated = true;
+				const assign = await request.post(`/api/admin/collections/${collection.id}/items`, {
+					data: { itemIds: fixtures.map((fixture) => fixture.slug) }
+				});
+				expect(assign.status(), `POST /api/admin/collections/${collection.id}/items`).toBe(200);
+
+				for (const path of ['/collections', `/collections/${collection.id}`]) {
+					const response = await anonymous.get(path);
+					expect(response.status(), `GET ${path}`).toBe(200);
+					const html = await response.text();
+					// Control: the page carries the collection's item slugs at all
+					expect(html, `${path} carries the approved item`).toContain(approved.slug);
+					for (const fixture of unpublished) {
+						expect.soft(html, `${fixture.status} item on ${path}`).not.toContain(fixture.slug);
+					}
+				}
+			});
 		} finally {
+			if (collectionCreated) {
+				const response = await request.delete(`/api/admin/collections/${collection.id}`);
+				expect.soft(response.status(), `DELETE /api/admin/collections/${collection.id}`).toBe(200);
+			}
 			for (const slug of created) {
 				const response = await request.delete(`${ITEMS_PATH}/${encodeURIComponent(slug)}`);
 				expect.soft(response.status(), `DELETE ${ITEMS_PATH}/${slug}`).toBe(200);

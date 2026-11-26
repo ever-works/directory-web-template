@@ -66,8 +66,11 @@ catches typos.
   timestamp. An item with no `status` counts as approved, as
   `ItemGitService` reads it. The skip comes before categories, tags and
   collections are counted, and `fetchItem()` returns `null` for a hidden
-  item, so its page answers 404. The admin and client dashboards read
-  through `ItemGitService` and still see every item (T-2846).
+  item, so its page answers 404. A collection's `items` list from
+  `collections.yml` (where the admin "assign items" action stores every
+  slug it is given) drops the hidden slugs, and its `item_count` follows.
+  The admin and client dashboards read through `ItemGitService` and still
+  see every item (T-2846).
 
 ## 7. Out-of-Scope Considerations
 

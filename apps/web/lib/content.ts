@@ -1434,6 +1434,8 @@ async function fetchItemsImpl(options: FetchOptions = {}, repairAttempted = fals
 	// them separately so we can fail loud and refuse to serve a partial listing.
 	// See Spec 019, `docs/performance/content-loading.md`.
 	const ioErrors: Array<{ slug: string; error: unknown }> = [...snapshot.ioErrors];
+	// Slugs of the items skipped as not public: collections.yml can name them too (see below).
+	const hiddenSlugs = new Set<string>();
 	const itemsResults = await mapWithConcurrency(files, FS_CONCURRENCY, async (slug) => {
 		const entry = snapshot.entries.get(slug);
 		if (!entry || !entry.item) {
@@ -1443,6 +1445,8 @@ async function fetchItemsImpl(options: FetchOptions = {}, repairAttempted = fals
 		// Draft, pending, rejected and soft-deleted items are not public. Skipped before the
 		// tags, categories and collections below count them (T-2846).
 		if (!isPubliclyVisibleItem(entry.item)) {
+			hiddenSlugs.add(slug);
+			if (typeof entry.item.slug === 'string') hiddenSlugs.add(entry.item.slug);
 			return null;
 		}
 		try {
@@ -1538,6 +1542,21 @@ async function fetchItemsImpl(options: FetchOptions = {}, repairAttempted = fals
 		// here would deadlock — the single-flight map still has our own
 		// promise registered for this key, so we'd `await` ourselves.
 		return fetchItemsImpl(options, true);
+	}
+
+	// A collection's `items` start from collections.yml, where the admin "assign items" action
+	// stores every slug it was given, unpublished ones included, and its `item_count` with them.
+	// Drop the hidden slugs, or /collections and the collection pages still carry their slugs
+	// and count them (T-2846). Assign a new array: the cached maps must not change.
+	if (hiddenSlugs.size > 0) {
+		for (const collection of collections.values()) {
+			if (!Array.isArray(collection.items)) continue;
+			const visible = collection.items.filter((itemSlug) => !hiddenSlugs.has(itemSlug));
+			if (visible.length !== collection.items.length) {
+				collection.items = visible;
+				collection.item_count = visible.length;
+			}
+		}
 	}
 
 	const tagsArray = Array.from(tags.values());
