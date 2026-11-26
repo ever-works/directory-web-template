@@ -51,6 +51,9 @@ test.describe('Auth: Registration', () => {
 			{ timeout: 60_000 }
 		);
 		await page.locator('#password').press('Enter');
+		// Read the body as soon as it arrives: the browser may drop it once the page moves on.
+		const response = await actionAnswer;
+		const responseBody = await response.text();
 
 		// A taken email says the account exists and how to get in (sign in or reset the password), not
 		// the generic "An error occurred. Please try again.", which every retry would show again.
@@ -61,12 +64,10 @@ test.describe('Auth: Registration', () => {
 
 		// The action result goes to the browser and stays in the form's state, so it must not carry the
 		// password back (T-2855): it used to echo every submitted field, password and captcha token too.
-		const response = await actionAnswer;
 		expect(
 			response.request().postDataBuffer()?.toString('utf8') ?? '',
 			'the checked request is the submission that carried the password'
 		).toContain(submittedPassword);
-		const responseBody = await response.text();
 		expect(responseBody, 'the server action answered with the taken-email error').toContain(
 			'EMAIL_ALREADY_REGISTERED'
 		);
