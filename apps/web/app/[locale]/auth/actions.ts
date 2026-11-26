@@ -298,10 +298,12 @@ export const signUp = validatedAction(signUpSchema, async (data) => {
 			getUserByEmail(normalizedEmail).catch(() => null)
 		]);
 
-		// Fail fast if email already exists
+		// Fail fast if email already exists. The form maps the code to "an account with this
+		// email already exists, sign in or reset your password"; sign-in already tells an unknown
+		// email apart (ACCOUNT_NOT_FOUND), so naming a taken one reveals nothing new.
 		if (existingUser) {
 			return {
-				error: 'An account with this email already exists.',
+				error: AuthErrorCode.EMAIL_ALREADY_REGISTERED,
 				...data
 			};
 		}

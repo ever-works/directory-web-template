@@ -3420,6 +3420,7 @@
 			"PLEASE_COMPLETE_VERIFICATION": "Harap selesaikan verifikasi keamanan",
 			"LOGIN_FAILED": "Login Gagal",
 			"ACCOUNT_NOT_FOUND": "Tidak ada akun ditemukan dengan alamat email ini. Harap periksa email Anda atau buat akun baru.",
+			"EMAIL_ALREADY_REGISTERED": "Akun dengan alamat email ini sudah ada. Harap masuk atau atur ulang kata sandi Anda.",
 			"INVALID_PASSWORD": "Kata sandi salah. Harap periksa kata sandi Anda dan coba lagi.",
 			"PROFILE_NOT_FOUND": "Profil akun tidak ditemukan. Harap hubungi dukungan.",
 			"GENERIC_ERROR_MESSAGE": "Terjadi kesalahan. Silakan coba lagi.",
