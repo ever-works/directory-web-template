@@ -254,6 +254,8 @@ export async function fetchItems(options: FetchOptions = {}): Promise<FetchItems
 }
 ```
 
+**Public items only.** `fetchItems()` and `fetchItem()` skip every item that `isPubliclyVisibleItem()` (`lib/item-visibility.ts`) rejects: a `draft`, `pending` or `rejected` status, any other status value, or a `deleted_at` timestamp. An item with no `status` counts as approved. `fetchItems()` skips them before it counts categories, tags and collections, so the counts hold public items only, and `fetchItem()` returns `null` for a hidden item, so its page answers 404. A collection's `items` list in `collections.yml` (the admin "assign items" action stores every slug it is given there) loses the hidden slugs too, and its `item_count` follows. The admin and client dashboards read items through `ItemGitService` and still see every item ([Spec 006](../spec/006-git-cms/spec.md) AC-7).
+
 ## Multi-Layer Caching
 
 The content system uses multiple caching layers to minimize filesystem reads and improve performance.
