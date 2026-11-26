@@ -112,6 +112,18 @@ result's error: the form then had no error for the current result and
 showed "Login Successful!" and "Signed in!" with no session. Same spec
 file.
 
+The action result goes to the browser and stays in `useActionState`,
+so it never carries the password back (T-2855). The success result
+returns only the email, and the form keeps the typed password in its
+own `pendingPassword` state. The error results of `signInAction` and
+`signUp` are built by `authFormErrorState` (`apps/web/lib/auth/auth-form-error-state.ts`),
+which copies only `email`, `name` and `authProvider` from the form,
+the fields the form fills in again. Before T-2855 every error result
+spread the whole form (`...data`), so it carried the password, the 2FA
+code and the captcha token. Covered by
+`apps/web/lib/auth/__tests__/auth-error-results-no-password.spec.ts` and the
+taken-email case of `apps/web-e2e/tests/auth/register.spec.ts`.
+
 ## Files touched
 
 - `apps/web/app/[locale]/auth/actions.ts` — `signUp` calls
