@@ -32,9 +32,10 @@ confirm, override, or refine.
 ### Q-063a Filter the public location routes by status at query time too
 
 - **Context.** The location routes answer anyone from `item_location_index`, which has no status
-  column. Spec 063 keeps unpublished items out of the index on every write and rebuild, so a row
-  written before the change, or by a slow geocode on one server instance that lands after a rejection
-  on another, stays until the next rebuild.
+  column. Spec 063 keeps unpublished items out of the index on every write and rebuild, but a row
+  written before the change stays until the next rebuild. So does a rejected item's row restored by a
+  write from an older snapshot: from another server instance, from a call that arrives late, or from a
+  rebuild running at the same time (see the plan's Risks).
 - **Options.**
   - Keep the rule on the write side only; the content sync rebuilds after every start and new commit.
   - Also filter each response against the approved items in the content cache.

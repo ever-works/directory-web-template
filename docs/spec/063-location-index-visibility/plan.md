@@ -40,6 +40,19 @@ sidebar_label: 063 Plan
 
 ## Risks
 
-- The per-slug order holds within one server instance. With several instances, an approval's slow
-  geocode on one can still land after a rejection on another; the next rebuild removes that row.
-  Items with coordinates are written at once, so this needs an address that must be geocoded.
+The per-slug queue orders the calls, not the item states they carry. Each write uses the item snapshot
+its caller passed, so a row of a rejected item can still be restored until the next rebuild (or the
+next status change) in these cases:
+
+- **Another server instance.** The queue is per instance. An approval's slow geocode on one instance can
+  land after a rejection on another.
+- **A late call with an older snapshot.** The review route queues its own `indexItem` after the audit log
+  is written. If that stalls while another admin rejects the item, the approval's call can arrive after
+  the rejection's calls. The git service's own call can arrive late the same way when its commit and push
+  finish after a later review.
+- **A rebuild running at the same time.** `rebuildIndex` writes batches from the item list it read at
+  the start and does not go through the queue, so a rejection made during a rebuild can be undone by it.
+
+Each one needs two opposite decisions on the same item within seconds. The next rebuild (every content
+sync after a new commit) removes the row. Closing them for good needs the status at read time: the
+query-time filter of Q-063a, or a status column in the index.

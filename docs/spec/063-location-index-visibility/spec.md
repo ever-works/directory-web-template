@@ -41,7 +41,9 @@ status change adds or removes the item's row, and every rebuild drops rows left 
   every located item, and `indexItem` now follows the status). The git service's index sync no longer
   skips an item without a location, so `indexItem` is the one rule. Writes for one item (`indexItem`,
   `removeFromIndex`) run one at a time in call order on each server instance, so an approval whose
-  geocode is slow cannot restore the row after a later rejection removed it.
+  geocode is slow cannot restore the row after a later rejection's call removed it. A call made from an
+  older snapshot, or a rebuild running at the same time, can still restore a row until the next rebuild
+  (see the plan's Risks and Q-063a).
 - **R4.** The four public routes return only approved items once the index has been rebuilt. Rows
   written for other items before this change stay public until a rebuild succeeds; the content sync
   rebuilds on its first run after a start, and `POST /api/admin/location-index` `{"action":"rebuild"}`
