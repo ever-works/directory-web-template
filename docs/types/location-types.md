@@ -165,6 +165,8 @@ interface GeoBoundingBox {
 }
 ```
 
+A box that crosses the date line has `minLng > maxLng` (its west edge lies east of its east edge, as in a GeoJSON bbox) and covers `minLng..180` plus `-180..maxLng`. Use `getLongitudeRanges` (`apps/web/lib/utils/geo-bounding-box.ts`) to get its one or two longitude ranges instead of comparing with `minLng` and `maxLng` directly.
+
 ### `LocationQueryOptions`
 
 Options for location-based item queries. Supports radius search, city/country filtering, and remote item inclusion.
@@ -265,24 +267,24 @@ if (status.mapbox.isConfigured) {
 }
 ```
 
-### Using bounding box for viewport queries
+### Using bounding box for radius queries
 
 ```typescript
 import type { GeoBoundingBox } from '@/lib/types/location';
+import { getLocationService } from '@/lib/services/location';
+import { getLongitudeRanges } from '@/lib/utils/geo-bounding-box';
 
-function getViewportBounds(
-  center: { lat: number; lng: number },
-  radiusKm: number
-): GeoBoundingBox {
-  const latDelta = radiusKm / 111;
-  const lngDelta = radiusKm / (111 * Math.cos(center.lat * (Math.PI / 180)));
+// Spherical bounds: the box wraps at the date line (minLng > maxLng) and spans
+// every longitude once the circle reaches a pole
+const box: GeoBoundingBox = getLocationService().calculateBoundingBox(
+  { latitude: 0, longitude: 179.5 },
+  500
+);
+// { minLat: -4.5, maxLat: 4.5, minLng: 175.0, maxLng: -176.0 }
 
-  return {
-    minLat: center.lat - latDelta,
-    maxLat: center.lat + latDelta,
-    minLng: center.lng - lngDelta,
-    maxLng: center.lng + lngDelta,
-  };
+// A wrapped box has two longitude ranges: 175.0..180 and -180..-176.0
+for (const range of getLongitudeRanges(box)) {
+  // longitude >= range.minLng AND longitude <= range.maxLng
 }
 ```
 

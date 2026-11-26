@@ -10,11 +10,12 @@
  */
 
 /**
- * Largest radius in km. It is the full Earth circumference (about 40,075 km) rounded up, not half
- * of it: the bounding box in `LocationService.calculateBoundingBox` does not wrap at the date
- * line, so a "worldwide" search only finds items on the far side of the date line when the box
- * spans the full 360 degrees of longitude from any centre (radius / 111 km >= 360 at the equator,
- * the worst case). A radius above this adds nothing, so it is capped instead of rejected.
+ * Largest radius in km: the full Earth circumference (about 40,075 km) rounded up. The bounding
+ * box in `LocationService.calculateBoundingBox` uses the spherical bounds (it wraps at the date
+ * line and spans every longitude once the circle reaches a pole), so any radius past half the
+ * circumference (about 20,015 km) already covers the whole world from any centre; the cap keeps
+ * the value the route has accepted since T-2826. A radius above it adds nothing, so it is capped
+ * instead of rejected.
  */
 export const MAX_RADIUS_KM = 40_100;
 

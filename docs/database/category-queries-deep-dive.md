@@ -214,8 +214,14 @@ async function queryByBoundingBox(
 ```sql
 SELECT * FROM item_location_index
 WHERE latitude >= ? AND latitude <= ?
-  AND longitude >= ? AND longitude <= ?
+  AND (longitude >= ? AND longitude <= ?)
 LIMIT ? OFFSET ?;
+```
+
+A box with `minLng > maxLng` crosses the date line. The longitude ranges come from `getLongitudeRanges` (`apps/web/lib/utils/geo-bounding-box.ts`), so such a box matches either part:
+
+```sql
+  AND ((longitude >= :minLng AND longitude <= 180) OR (longitude >= -180 AND longitude <= :maxLng))
 ```
 
 ---

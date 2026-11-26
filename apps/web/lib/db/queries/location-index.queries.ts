@@ -5,7 +5,7 @@
  * This table serves as an index for fast geo queries - source of truth remains in YAML.
  */
 
-import { and, eq, gte, lte, inArray, count, sql, isNotNull } from 'drizzle-orm';
+import { and, eq, gte, lte, or, inArray, count, sql, isNotNull } from 'drizzle-orm';
 import { db } from '../drizzle';
 import {
 	itemLocationIndex,
@@ -15,6 +15,7 @@ import {
 	type LocationIndexMeta
 } from '../schema';
 import { getTenantId } from '@/lib/auth/tenant';
+import { getLongitudeRanges } from '@/lib/utils/geo-bounding-box';
 
 // ===================== Helpers =====================
 
@@ -279,6 +280,7 @@ export async function getLocationsBySlugs(itemSlugs: string[]): Promise<ItemLoca
 /**
  * Query items within a bounding box.
  * Useful for initial radius filtering before precise distance calculation.
+ * A box with `minLng > maxLng` crosses the date line and matches `minLng..180` or `-180..maxLng`.
  *
  * @param params - Query parameters including bounding box
  * @returns Array of location entries
@@ -298,11 +300,17 @@ export async function queryByBoundingBox(params: LocationQueryParams): Promise<I
 	if (params.maxLat !== undefined) {
 		conditions.push(lte(itemLocationIndex.latitude, params.maxLat));
 	}
-	if (params.minLng !== undefined) {
-		conditions.push(gte(itemLocationIndex.longitude, params.minLng));
-	}
-	if (params.maxLng !== undefined) {
-		conditions.push(lte(itemLocationIndex.longitude, params.maxLng));
+	if (params.minLng !== undefined || params.maxLng !== undefined) {
+		// A box that crosses the date line has minLng > maxLng and covers two ranges
+		// (minLng..180 and -180..maxLng); keep a row inside either one.
+		const lngRanges = getLongitudeRanges({ minLng: params.minLng ?? -180, maxLng: params.maxLng ?? 180 });
+		conditions.push(
+			or(
+				...lngRanges.map((range) =>
+					and(gte(itemLocationIndex.longitude, range.minLng), lte(itemLocationIndex.longitude, range.maxLng))
+				)
+			)
+		);
 	}
 
 	let query = db.select().from(itemLocationIndex);

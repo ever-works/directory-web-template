@@ -162,6 +162,8 @@ interface GeoBoundingBox {
 }
 ```
 
+A box that crosses the date line has `minLng > maxLng` (its west edge lies east of its east edge, as in a GeoJSON bbox) and covers `minLng..180` plus `-180..maxLng`. `LocationService.calculateBoundingBox` builds the radius-search box from the spherical bounds: latitude is the centre plus or minus the angular radius, the box spans every longitude once that range reaches a pole, and otherwise the longitude half-width is `asin(sin(d) / cos(lat))` (with `d = radiusKm / 6371`).
+
 ## Location Data
 
 ### `LocationData`

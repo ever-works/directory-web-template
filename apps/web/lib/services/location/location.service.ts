@@ -9,6 +9,7 @@
  */
 
 import type { GeoBoundingBox } from '@/lib/types/location';
+import { getLongitudeRanges } from '@/lib/utils/geo-bounding-box';
 
 /**
  * Earth's radius in kilometers.
@@ -174,27 +175,56 @@ export class LocationService {
 	 * Calculate a bounding box around a center point for initial filtering.
 	 * This is useful for efficient database queries before applying precise distance calculations.
 	 *
+	 * Uses the spherical bounds of the circle, so every point within `radiusKm` is inside the box:
+	 * - latitude is the centre +- the angular radius, clamped to -90..90;
+	 * - when that range reaches a pole, the circle covers every longitude near it, so the box
+	 *   spans -180..180;
+	 * - otherwise the longitude half-width is asin(sin(d) / cos(lat)), which is wider than
+	 *   radius / (111 * cos(lat)) at high latitudes;
+	 * - a box that crosses the date line wraps: it has `minLng > maxLng` and covers
+	 *   `minLng..180` plus `-180..maxLng` (see `getLongitudeRanges`).
+	 *
 	 * @param center - Center point coordinates
 	 * @param radiusKm - Radius in kilometers
-	 * @returns Bounding box with min/max lat/lng
+	 * @returns Bounding box with min/max lat/lng (`minLng > maxLng` when it crosses the date line)
 	 */
 	calculateBoundingBox(center: Coordinates, radiusKm: number): GeoBoundingBox {
-		// Latitude: 1 degree ≈ 111 km
-		const latDelta = radiusKm / 111;
+		// Angular radius of the circle, in radians
+		const angularRadius = radiusKm / EARTH_RADIUS_KM;
+		const latitude = this.toRadians(center.latitude);
+		const minLat = latitude - angularRadius;
+		const maxLat = latitude + angularRadius;
 
-		// Longitude: varies by latitude, approximately 111 * cos(lat) km per degree
-		const lngDelta = radiusKm / (111 * Math.cos(this.toRadians(center.latitude)));
+		// The circle reaches a pole, so it covers every longitude around that pole
+		if (minLat <= -Math.PI / 2 || maxLat >= Math.PI / 2) {
+			return {
+				minLat: Math.max(this.toDegrees(minLat), -90),
+				maxLat: Math.min(this.toDegrees(maxLat), 90),
+				minLng: -180,
+				maxLng: 180,
+			};
+		}
+
+		// Widest longitude offset of the circle. The ratio is below 1 here (the circle stays off the
+		// poles); the cap only guards against rounding.
+		const lngDelta = this.toDegrees(Math.asin(Math.min(1, Math.sin(angularRadius) / Math.cos(latitude))));
+		let minLng = center.longitude - lngDelta;
+		let maxLng = center.longitude + lngDelta;
+		// Wrap across the date line (lngDelta is at most 90, so only one side can cross it)
+		if (minLng < -180) minLng += 360;
+		if (maxLng > 180) maxLng -= 360;
 
 		return {
-			minLat: center.latitude - latDelta,
-			maxLat: center.latitude + latDelta,
-			minLng: center.longitude - lngDelta,
-			maxLng: center.longitude + lngDelta,
+			minLat: this.toDegrees(minLat),
+			maxLat: this.toDegrees(maxLat),
+			minLng,
+			maxLng,
 		};
 	}
 
 	/**
-	 * Check if a point is within a bounding box.
+	 * Check if a point is within a bounding box. Matches the filter `queryByBoundingBox` sends to
+	 * the database, including a box that crosses the date line (`minLng > maxLng`).
 	 *
 	 * @param point - Point coordinates to check
 	 * @param box - Bounding box
@@ -204,8 +234,7 @@ export class LocationService {
 		return (
 			point.latitude >= box.minLat &&
 			point.latitude <= box.maxLat &&
-			point.longitude >= box.minLng &&
-			point.longitude <= box.maxLng
+			getLongitudeRanges(box).some((range) => point.longitude >= range.minLng && point.longitude <= range.maxLng)
 		);
 	}
 
