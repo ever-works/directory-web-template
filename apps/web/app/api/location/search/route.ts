@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getLocationIndexService } from '@/lib/services/location/location-index.service';
+import { parseRadiusSearchParams } from '@/lib/utils/location-search-params';
 import { getLocationEnabled } from '@/lib/utils/settings';
 
 interface LocationSearchResponse {
@@ -58,17 +59,11 @@ export async function GET(request: NextRequest) {
 
 		// Radius-based search
 		if (nearLat && nearLng) {
-			const latitude = parseFloat(nearLat);
-			const longitude = parseFloat(nearLng);
-
-			if (isNaN(latitude) || isNaN(longitude)) {
-				return NextResponse.json({ error: 'Invalid coordinates' }, { status: 400 });
+			const parsed = parseRadiusSearchParams(nearLat, nearLng, radiusParam);
+			if (!parsed.ok) {
+				return NextResponse.json({ error: parsed.error }, { status: 400 });
 			}
-
-			const radiusKm = radiusParam ? parseInt(radiusParam, 10) : 50;
-			if (isNaN(radiusKm) || radiusKm <= 0) {
-				return NextResponse.json({ error: 'Invalid radius' }, { status: 400 });
-			}
+			const { latitude, longitude, radiusKm } = parsed;
 
 			const results = await locationIndexService.queryByRadius({
 				latitude,
