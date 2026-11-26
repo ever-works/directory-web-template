@@ -31314,7 +31314,7 @@
 			"post": {
 				"tags": ["Admin - Items"],
 				"summary": "Bulk action on items",
-				"description": "Performs bulk actions (approve, reject, delete) on multiple items. Processes each item individually and returns detailed results including successes and failures. Requires admin privileges.",
+				"description": "Performs bulk actions (approve, reject, delete) on multiple items. Processes each item individually and returns detailed results including successes and failures. Approve and reject act only on items whose status is 'pending': an id that is missing or not pending (a draft, or an item approved or rejected before) is left unchanged, no email is sent for it, and its result is { success: false, error: 'Item is not pending review' }. Delete acts on every id. Requires admin privileges.",
 				"security": [
 					{
 						"sessionAuth": []

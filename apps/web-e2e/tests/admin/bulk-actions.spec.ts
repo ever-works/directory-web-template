@@ -1,4 +1,4 @@
-import type { Response } from '@playwright/test';
+import type { Page, Response } from '@playwright/test';
 import { test, expect } from '../../fixtures';
 import { AdminBulkActionsPage } from '../../page-objects/admin/bulk-actions.page';
 
@@ -171,6 +171,42 @@ function isItemsList(url: string, status: string | null): boolean {
 	return parsed.pathname === '/api/admin/items' && (parsed.searchParams.get('status') || null) === status;
 }
 
+type BulkBody = { action?: string; ids?: unknown; reason?: unknown };
+
+const PAST_TENSE: Record<string, string> = { approve: 'approved', reject: 'rejected', delete: 'deleted' };
+
+/**
+ * Never let a bulk action reach the server: answer POST /api/admin/items/bulk like the route does
+ * (every id successful) and keep each request body, so the seeded items stay for the other specs.
+ */
+async function fakeBulkRoute(page: Page): Promise<BulkBody[]> {
+	const bodies: BulkBody[] = [];
+	await page.route('**/api/admin/items/bulk', async (route) => {
+		const request = route.request();
+		if (request.method() !== 'POST') return route.fallback();
+		const body = (request.postDataJSON() ?? {}) as BulkBody;
+		bodies.push(body);
+		const ids = Array.isArray(body.ids) ? (body.ids as string[]) : [];
+		await route.fulfill({
+			status: 200,
+			json: {
+				success: true,
+				message: `Bulk ${body.action} completed: ${ids.length} ${PAST_TENSE[body.action ?? ''] ?? 'done'}, 0 failed`,
+				results: ids.map((id) => ({ id, success: true })),
+				summary: { total: ids.length, successful: ids.length, failed: 0 }
+			}
+		});
+	});
+	return bodies;
+}
+
+async function readListed(response: Response): Promise<ListedItem[]> {
+	expect(response.ok(), `the items list answered ${response.status()}`).toBe(true);
+	const body = (await response.json()) as { items?: ListedItem[] };
+	expect(Array.isArray(body.items), 'the items list response has an items array').toBe(true);
+	return body.items ?? [];
+}
+
 test.describe('Admin: item bulk selection follows the list', () => {
 	test('a status tab change clears the selection, so bulk delete sends only the row ticked on the new tab', async ({
 		adminPage
@@ -180,31 +216,7 @@ test.describe('Admin: item bulk selection follows the list', () => {
 		const rowCheckboxes = adminPage.getByRole('checkbox', { name: /^select (?!all items$)/i });
 		const selectedCount = bulkPage.bulkActionBar.getByTestId('bulk-selected-count');
 
-		// Never let a bulk action reach the server: answer it like the route does, and keep the body
-		const bulkBodies: Array<{ action?: string; ids?: unknown }> = [];
-		await adminPage.route('**/api/admin/items/bulk', async (route) => {
-			const request = route.request();
-			if (request.method() !== 'POST') return route.fallback();
-			const body = (request.postDataJSON() ?? {}) as { action?: string; ids?: unknown };
-			bulkBodies.push(body);
-			const ids = Array.isArray(body.ids) ? (body.ids as string[]) : [];
-			await route.fulfill({
-				status: 200,
-				json: {
-					success: true,
-					message: `Bulk ${body.action} completed: ${ids.length} deleted, 0 failed`,
-					results: ids.map((id) => ({ id, success: true })),
-					summary: { total: ids.length, successful: ids.length, failed: 0 }
-				}
-			});
-		});
-
-		const readListed = async (response: Response) => {
-			expect(response.ok(), `the items list answered ${response.status()}`).toBe(true);
-			const body = (await response.json()) as { items?: ListedItem[] };
-			expect(Array.isArray(body.items), 'the items list response has an items array').toBe(true);
-			return body.items ?? [];
-		};
+		const bulkBodies = await fakeBulkRoute(adminPage);
 
 		await test.step('select every row on the All tab', async () => {
 			const allList = adminPage.waitForResponse(
@@ -260,6 +272,80 @@ test.describe('Admin: item bulk selection follows the list', () => {
 			await expect.poll(() => bulkBodies.length, { message: 'POST /api/admin/items/bulk was not sent' }).toBe(1);
 			expect(bulkBodies[0].action).toBe('delete');
 			expect(bulkBodies[0].ids, 'the bulk request carries ids that are not on screen').toEqual([target.id]);
+
+			// The fake success closes the dialog and clears the selection, as a real one does
+			await expect(dialog).toBeHidden();
+			await expect(selectedCount).toHaveText('0');
+		});
+	});
+});
+
+/**
+ * Bulk approve and reject act only on the pending rows the confirm dialog counts (T-2824).
+ *
+ * The dialog counts only the ticked pending rows for approve and reject, but the page sent every
+ * ticked row: select all on the All tab, reject, and the dialog said "1 item" while every ticked item
+ * was rejected (approved listings went offline) and each submitter was emailed. The bulk request must
+ * carry exactly the pending ids on screen.
+ *
+ * Nothing is rejected: POST /api/admin/items/bulk is answered by page.route with a fake success.
+ */
+test.describe('Admin: bulk approve and reject act only on pending rows', () => {
+	test('select all on the All tab, then bulk reject sends only the pending ids the dialog counts', async ({
+		adminPage
+	}) => {
+		const bulkPage = new AdminBulkActionsPage(adminPage);
+		// One "Select <name>" checkbox per row, besides "Select all items"
+		const rowCheckboxes = adminPage.getByRole('checkbox', { name: /^select (?!all items$)/i });
+		const selectedCount = bulkPage.bulkActionBar.getByTestId('bulk-selected-count');
+		const bulkBodies = await fakeBulkRoute(adminPage);
+
+		let pending: ListedItem[] = [];
+		await test.step('select every row on the All tab, pending and not', async () => {
+			const allList = adminPage.waitForResponse(
+				(response) => response.request().method() === 'GET' && isItemsList(response.url(), null)
+			);
+			await bulkPage.navigate();
+			await bulkPage.waitForPageReady();
+			expect(adminPage.url(), 'admin should not be bounced to signin').not.toMatch(/\/auth\/signin/);
+			const listed = await readListed(await allList);
+			pending = listed.filter((item) => item.status === 'pending' && item.id);
+			test.skip(pending.length === 0, 'No pending item on the All tab to reject');
+			test.skip(pending.length === listed.length, 'Every row on the All tab is pending, nothing to leave out');
+
+			await expect(rowCheckboxes).toHaveCount(listed.length);
+			for (const { name } of listed) {
+				if (!name) continue;
+				await expect(
+					adminPage.getByRole('checkbox', { name: `Select ${name}`, exact: true }).first()
+				).toBeVisible();
+			}
+			await bulkPage.selectAllCheckbox.click();
+			await expect(selectedCount).toHaveText(String(listed.length));
+		});
+
+		await test.step('bulk reject: the dialog counts and the request carries only the pending ids', async () => {
+			const rejectButton = bulkPage.bulkActionBar.getByRole('button', { name: /^reject$/i });
+			await expect(rejectButton).toBeEnabled();
+			await rejectButton.click();
+			const dialog = bulkPage.confirmDialog.filter({ hasText: /reject items/i });
+			await expect(dialog).toBeVisible();
+			await expect(dialog, 'the dialog does not count only the pending rows').toContainText(
+				new RegExp(`\\b${pending.length} items?\\b`)
+			);
+
+			const reason = 'Bulk reject e2e check: only pending rows are sent';
+			await dialog.getByRole('textbox').fill(reason);
+			await dialog.getByRole('button', { name: /^reject all$/i }).click();
+
+			await expect.poll(() => bulkBodies.length, { message: 'POST /api/admin/items/bulk was not sent' }).toBe(1);
+			expect(bulkBodies[0].action).toBe('reject');
+			expect(bulkBodies[0].reason).toBe(reason);
+			const sent = bulkBodies[0].ids;
+			expect(Array.isArray(sent), 'the bulk reject has no ids array').toBe(true);
+			expect([...(sent as string[])].sort(), 'the bulk reject carries ids that are not pending').toEqual(
+				pending.map((item) => item.id).sort()
+			);
 
 			// The fake success closes the dialog and clears the selection, as a real one does
 			await expect(dialog).toBeHidden();

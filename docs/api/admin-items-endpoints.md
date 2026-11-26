@@ -166,6 +166,8 @@ POST /api/admin/items/bulk
 
 Performs bulk approve, reject, or delete on up to 100 items. Each item is processed individually; partial failures do not abort the entire operation. Sends email notifications to submitters on approve/reject.
 
+Approve and reject act only on items whose status is `pending`. An id that is missing or not pending (a draft, or an item approved or rejected before) is left unchanged, no email is sent for it, and its result is `{ "id": "...", "success": false, "error": "Item is not pending review" }`. Delete acts on every id. The admin items page sends approve and reject only for the ticked pending rows, the ones its confirm dialog counts.
+
 **Request Body:**
 
 | Field    | Type     | Required           | Description                                          |
@@ -185,7 +187,7 @@ For `reject`, a missing or short `reason`, a `reason` that is not a string, or o
   "results": [
     { "id": "item_1", "success": true },
     { "id": "item_2", "success": true },
-    { "id": "item_3", "success": false, "error": "Item not found" }
+    { "id": "item_3", "success": false, "error": "Item is not pending review" }
   ],
   "summary": { "total": 3, "successful": 2, "failed": 1 }
 }
