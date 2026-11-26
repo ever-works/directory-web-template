@@ -6,11 +6,17 @@
  * nothing checked the range. An out-of-range or infinite centre produced a NaN bounding box and a
  * meaningless distance filter instead of a 400. Here a coordinate must be a plain finite number
  * inside the valid latitude / longitude range, and the radius must be a positive finite number
- * (capped at half the Earth's circumference, past which every point is already in range).
+ * (capped at `MAX_RADIUS_KM`, past which every point is already in range).
  */
 
-/** Half the Earth's circumference in km: no two points are further apart, so a larger radius adds nothing. */
-export const MAX_RADIUS_KM = 20_040;
+/**
+ * Largest radius in km. It is the full Earth circumference (about 40,075 km) rounded up, not half
+ * of it: the bounding box in `LocationService.calculateBoundingBox` does not wrap at the date
+ * line, so a "worldwide" search only finds items on the far side of the date line when the box
+ * spans the full 360 degrees of longitude from any centre (radius / 111 km >= 360 at the equator,
+ * the worst case). A radius above this adds nothing, so it is capped instead of rejected.
+ */
+export const MAX_RADIUS_KM = 40_100;
 
 /** Radius used when the request does not send one (unchanged from the route's previous default). */
 export const DEFAULT_RADIUS_KM = 50;

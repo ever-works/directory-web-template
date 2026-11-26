@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
+import { LocationService } from '../../services/location/location.service';
 import { DEFAULT_RADIUS_KM, MAX_RADIUS_KM, parseRadiusSearchParams } from '../location-search-params';
 
 /**
@@ -88,10 +89,33 @@ describe('parseRadiusSearchParams', () => {
 	});
 
 	it('caps a very large radius instead of rejecting it', () => {
-		assert.equal(MAX_RADIUS_KM, 20_040);
-		for (const radius of ['20040', '20041', '1000000', '1e12']) {
+		assert.equal(MAX_RADIUS_KM, 40_100);
+		for (const radius of ['40100', '40101', '1000000', '1e12']) {
 			const result = parseRadiusSearchParams('10', '20', radius);
 			assert.deepEqual(result, { ok: true, latitude: 10, longitude: 20, radiusKm: MAX_RADIUS_KM });
+		}
+	});
+
+	it('passes through radii below the cap unchanged, including ones past half the Earth', () => {
+		for (const radius of ['20040', '25000', '40000']) {
+			const result = parseRadiusSearchParams('10', '20', radius);
+			assert.deepEqual(result, { ok: true, latitude: 10, longitude: 20, radiusKm: Number(radius) });
+		}
+	});
+
+	it('keeps a capped worldwide search covering every longitude and latitude from any centre', () => {
+		// The bounding box does not wrap at the date line, so the capped radius must still span the
+		// whole world; a smaller cap dropped items on the far side of the date line.
+		const service = new LocationService();
+		for (const latitude of [-90, -60, 0, 45, 89.9, 90]) {
+			for (const longitude of [-180, -100, 0, 100, 180]) {
+				const box = service.calculateBoundingBox({ latitude, longitude }, MAX_RADIUS_KM);
+				assert.ok(box.minLat <= -90 && box.maxLat >= 90, `lat ${latitude}: box misses a latitude`);
+				assert.ok(
+					box.minLng <= -180 && box.maxLng >= 180,
+					`${latitude},${longitude}: box misses a longitude`
+				);
+			}
 		}
 	});
 });
