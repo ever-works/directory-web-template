@@ -431,8 +431,15 @@ export function CredentialsForm({
 		}
 	};
 
+	// The action accepted the submission, but the browser could not set up the session (the
+	// credentials callback refused the sign-in, or the request failed): every flow that sets
+	// `authSyncError` stops there with no redirect. That is a failed sign-in, so it must not show
+	// the success banner or the "Signed in!" label, and the form must stay usable for a new
+	// submission (which clears the error once its own auto-login starts).
+	const hasSucceeded = !!state?.success && !authSyncError;
+
 	// A resend must not race a verification in flight — see `handleResendCode`.
-	const isResendBlocked = pending || isPending || isVerifying || !!state?.success;
+	const isResendBlocked = pending || isPending || isVerifying || hasSucceeded;
 
 	/** Abandon the code step and go back to email + password. */
 	const handleBackToPassword = () => {
@@ -789,7 +796,7 @@ export function CredentialsForm({
 					)}
 
 					{/* Server-side success message */}
-					{state?.success && !clientMode && (
+					{hasSucceeded && !clientMode && (
 						<div className="flex items-center gap-2 p-2.5 bg-green-50 dark:bg-green-900/20 border border-green-100 dark:border-green-800/50 rounded-lg">
 							<svg
 								className="shrink-0 w-4 h-4 text-green-500 dark:text-green-400"
@@ -904,13 +911,13 @@ export function CredentialsForm({
 							'disabled:opacity-50 disabled:cursor-not-allowed'
 						)}
 						isLoading={
-							(pending && !state.success) || clientPending || clientSuccess || isPending || isVerifying
+							(pending && !hasSucceeded) || clientPending || clientSuccess || isPending || isVerifying
 						}
 						aria-busy={
-							(pending && !state.success) || clientPending || clientSuccess || isPending || isVerifying
+							(pending && !hasSucceeded) || clientPending || clientSuccess || isPending || isVerifying
 						}
 						aria-disabled={
-							(pending && !state.success) ||
+							(pending && !hasSucceeded) ||
 							clientPending ||
 							clientSuccess ||
 							isPending ||
@@ -918,7 +925,7 @@ export function CredentialsForm({
 							isRecaptchaBlocking
 						}
 					>
-						{(pending && !state.success) || clientPending ? (
+						{(pending && !hasSucceeded) || clientPending ? (
 							<span>{isLogin ? tCred('SIGNING_IN') : tCred('CREATING_ACCOUNT')}</span>
 						) : clientSuccess ? (
 							<span className="flex items-center justify-center gap-2">
@@ -931,7 +938,7 @@ export function CredentialsForm({
 								</svg>
 								<span>{tCred('REDIRECTING')}</span>
 							</span>
-						) : state.success && !clientMode ? (
+						) : hasSucceeded && !clientMode ? (
 							<span className="flex items-center justify-center gap-2">
 								<svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
 									<path

@@ -80,6 +80,18 @@ in about six seconds in `next dev`) while the error flickered. Now a failure lea
 set; a new submission brings a new action result (the effect also
 depends on `state` itself), and only that fires `signIn` again.
 
+When that `signIn` fails (the callback refuses the sign-in, or the
+request fails), the form shows `SESSION_REFRESH_FAILED` and stays put.
+Since T-2845 it treats that as a failed sign-in: the green "Login
+Successful! — Redirecting..." (or "Account Created Successfully!")
+banner and the "Signed in!" (or "Account created!") button label read
+`hasSucceeded` (the action's `success` with no `authSyncError`) instead
+of `success` alone, so the user sees only the error and the normal
+"Sign In" (or "Register") button, and can submit again. The 2FA "resend
+code" link unblocks the same way, so a code that expired between the
+action and the callback can be replaced. Covered by
+`apps/web-e2e/tests/auth/signin-session-setup-failure.spec.ts`.
+
 ## Files touched
 
 - `apps/web/app/[locale]/auth/actions.ts` — `signUp` calls
