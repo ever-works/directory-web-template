@@ -88,6 +88,38 @@ describe('parseRadiusSearchParams', () => {
 		}
 	});
 
+	it('keeps a decimal radius, including one under a kilometre', () => {
+		// The old route used parseInt, which read 2.5 as 2 and 0.5 as 0 (a 400).
+		assert.deepEqual(parseRadiusSearchParams('10', '20', '2.5'), {
+			ok: true,
+			latitude: 10,
+			longitude: 20,
+			radiusKm: 2.5
+		});
+		assert.deepEqual(parseRadiusSearchParams('10', '20', '0.5'), {
+			ok: true,
+			latitude: 10,
+			longitude: 20,
+			radiusKm: 0.5
+		});
+	});
+
+	it('rejects a very long malformed value in linear time', () => {
+		// With an ambiguous pattern (`\d+\.?\d*`) 50,000 digits followed by junk took about 10 s per
+		// value. The query string is attacker-controlled, so this must stay fast.
+		const long = `${'1'.repeat(50_000)}x`;
+		const started = performance.now();
+		assert.deepEqual(parseRadiusSearchParams(long, '10', '10'), { ok: false, error: 'Invalid coordinates' });
+		assert.deepEqual(parseRadiusSearchParams('10', long, '10'), { ok: false, error: 'Invalid coordinates' });
+		assert.deepEqual(parseRadiusSearchParams('10', '20', long), { ok: false, error: 'Invalid radius' });
+		assert.deepEqual(parseRadiusSearchParams(`${'1'.repeat(50_000)}.1e1x`, '10', '10'), {
+			ok: false,
+			error: 'Invalid coordinates'
+		});
+		const elapsedMs = performance.now() - started;
+		assert.ok(elapsedMs < 500, `parsing took ${elapsedMs.toFixed(0)} ms`);
+	});
+
 	it('caps a very large radius instead of rejecting it', () => {
 		assert.equal(MAX_RADIUS_KM, 40_100);
 		for (const radius of ['40100', '40101', '1000000', '1e12']) {
@@ -111,10 +143,7 @@ describe('parseRadiusSearchParams', () => {
 			for (const longitude of [-180, -100, 0, 100, 180]) {
 				const box = service.calculateBoundingBox({ latitude, longitude }, MAX_RADIUS_KM);
 				assert.ok(box.minLat <= -90 && box.maxLat >= 90, `lat ${latitude}: box misses a latitude`);
-				assert.ok(
-					box.minLng <= -180 && box.maxLng >= 180,
-					`${latitude},${longitude}: box misses a longitude`
-				);
+				assert.ok(box.minLng <= -180 && box.maxLng >= 180, `${latitude},${longitude}: box misses a longitude`);
 			}
 		}
 	});

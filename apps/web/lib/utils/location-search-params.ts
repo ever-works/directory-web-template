@@ -27,7 +27,10 @@ export type RadiusSearchParams =
 
 // Optional sign, digits with an optional fraction, optional exponent (`Number#toString` writes
 // very small values such as 1e-7 that way, and the client builds these params with it).
-const PLAIN_NUMBER = /^[+-]?(?:\d+\.?\d*|\.\d+)(?:[eE][+-]?\d+)?$/;
+// The fraction is one optional group (`(?:\.\d*)?`), not `\.?\d*`: with an optional dot the two
+// digit runs overlap, so a long digit string that ends in junk backtracks in quadratic time
+// (16,000 digits took about 1 s), and the query string is attacker-controlled.
+const PLAIN_NUMBER = /^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?$/;
 
 function parsePlainNumber(raw: string): number | undefined {
 	const trimmed = raw.trim();
