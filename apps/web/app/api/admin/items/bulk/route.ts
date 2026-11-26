@@ -9,6 +9,9 @@ import { validateReviewNotes } from '@/lib/utils/review-notes';
 const itemRepository = new ItemRepository();
 const userRepository = new UserRepository();
 
+/** Per-id error when approve or reject meets an item that is missing or not waiting for review */
+const NOT_PENDING_ERROR = 'Item is not pending review';
+
 export interface BulkActionRequest {
 	action: 'approve' | 'reject' | 'delete';
 	ids: string[];
@@ -38,7 +41,7 @@ export interface BulkActionResponse {
  *   post:
  *     tags: ["Admin - Items"]
  *     summary: "Bulk action on items"
- *     description: "Performs bulk actions (approve, reject, delete) on multiple items. Processes each item individually and returns detailed results including successes and failures. Requires admin privileges."
+ *     description: "Performs bulk actions (approve, reject, delete) on multiple items. Processes each item individually and returns detailed results including successes and failures. Approve and reject act only on items whose status is 'pending': an id that is missing or not pending (a draft, or an item approved or rejected before) is left unchanged, no email is sent for it, and its result is { success: false, error: 'Item is not pending review' }. Delete acts on every id. Requires admin privileges."
  *     security:
  *       - sessionAuth: []
  *     requestBody:
@@ -195,6 +198,17 @@ export async function POST(
 		// Process each item
 		for (const id of ids) {
 			try {
+				// Approve and reject are review decisions, and neither the repository nor the git service checks
+				// the status: a draft, or an item approved or rejected before, is left as it is and its submitter
+				// gets no email
+				if (action === 'approve' || action === 'reject') {
+					const current = await itemRepository.findById(id);
+					if (current?.status !== 'pending') {
+						results.push({ id, success: false, error: NOT_PENDING_ERROR });
+						continue;
+					}
+				}
+
 				if (action === 'approve') {
 					const item = await itemRepository.review(
 						id,
