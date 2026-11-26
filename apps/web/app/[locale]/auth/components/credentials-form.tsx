@@ -81,7 +81,10 @@ export function CredentialsForm({
 	// deps (refreshSession, invalidateAllUserData, tCred) re-fire the effect after a
 	// successful signIn, kicking off a second signIn fetch that gets aborted by the
 	// subsequent navigation and surfaces as `TypeError: Failed to fetch` in console.
-	const autoLoginFiredRef = useRef(false);
+	// It holds the action result the auto-login fired for, so it fires once per
+	// submission: a refused signIn is not retried until the user submits again
+	// (resetting a boolean after a failure let those same deps re-fire it in a loop).
+	const autoLoginFiredRef = useRef<ActionState | null>(null);
 	// Same idea for the post-success navigation: avoid double-navigating if the effect
 	// re-fires after we've already started window.location.href / router.push.
 	const successHandledRef = useRef(false);
@@ -182,8 +185,8 @@ export function CredentialsForm({
 		const autoLoginPassword = pendingPassword || state.credentials?.password;
 
 		if (state.autoLogin && autoLoginEmail && autoLoginPassword) {
-			if (autoLoginFiredRef.current) return;
-			autoLoginFiredRef.current = true;
+			if (autoLoginFiredRef.current === state) return;
+			autoLoginFiredRef.current = state;
 			const doAutoLogin = async () => {
 				setAuthSyncError(null);
 				try {
@@ -201,8 +204,7 @@ export function CredentialsForm({
 					if (res?.error) {
 						console.error('Auto-login failed:', res.error);
 						setAuthSyncError(tCred('SESSION_REFRESH_FAILED'));
-						autoLoginFiredRef.current = false; // allow a retry on user resubmit
-						return;
+						return; // a retry needs a new submission, which brings a new `state`
 					}
 
 					// Await session refresh to ensure cookies are properly set before navigation
@@ -222,7 +224,6 @@ export function CredentialsForm({
 				} catch (err) {
 					console.error('Auto-login error:', err);
 					setAuthSyncError(tCred('SESSION_REFRESH_FAILED'));
-					autoLoginFiredRef.current = false; // allow a retry on user resubmit
 				}
 			};
 			void doAutoLogin();
@@ -257,6 +258,9 @@ export function CredentialsForm({
 
 		router.push(finalRedirectPath);
 	}, [
+		// The action result itself, so a resubmission re-runs the effect even when it
+		// answers with the same fields (the auto-login guard is keyed on it).
+		state,
 		state.success,
 		state.redirect,
 		state.preserveLocale,

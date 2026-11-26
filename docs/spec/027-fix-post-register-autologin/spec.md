@@ -71,6 +71,15 @@ a `useRef` flag so the effect can call `signIn` **at most once** per
 form submission. The previous re-fire causing `TypeError: Failed to
 fetch` cannot happen anymore.
 
+The flag holds the action result it fired for (T-2839). It used to be a
+boolean that a refused `signIn` reset to `false` "to allow a retry on
+resubmit", but the effect's identity-unstable dependencies re-ran it at
+once, so a refused callback (for example a spent password budget) made
+the form post to `/api/auth/callback/credentials` in a loop (66 requests
+in about six seconds in `next dev`) while the error flickered. Now a failure leaves the flag
+set; a new submission brings a new action result (the effect also
+depends on `state` itself), and only that fires `signIn` again.
+
 ## Files touched
 
 - `apps/web/app/[locale]/auth/actions.ts` — `signUp` calls

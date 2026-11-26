@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { test, expect, type Browser, type Page } from '@playwright/test';
+import { postCredentialsCallback } from '../../helpers/credentials-callback';
 import { TEST_DATA } from '../../helpers/test-data';
 
 /**
@@ -12,6 +13,11 @@ import { TEST_DATA } from '../../helpers/test-data';
  * Before T-2831 only a submission that carried a 2FA code got its slot back, so five
  * correct sign-ins in one window (sign out and back in, or five people sharing an
  * account) refused the sixth with "Too many attempts".
+ *
+ * Since T-2839 the credentials callback (`authorize` in `apps/web/lib/auth/credentials.ts`)
+ * spends the same budget, so wrong passwords posted straight to
+ * `/api/auth/callback/credentials` lock the email too, and the form then shows an error
+ * instead of signing in or hanging.
  *
  * Every test registers its own account, so the per-email budget starts empty and the
  * tests do not use up each other's (or global-setup's) slots.
@@ -31,6 +37,9 @@ const credentialsFormMessages = (
 ).admin.CREDENTIALS_FORM;
 const RATE_LIMITED_MESSAGE = credentialsFormMessages.RATE_LIMITED;
 const INVALID_PASSWORD_MESSAGE = credentialsFormMessages.INVALID_PASSWORD;
+// What the form shows when the server action accepted the password but the credentials
+// callback that follows refused the sign-in.
+const SESSION_REFRESH_FAILED_MESSAGE = credentialsFormMessages.SESSION_REFRESH_FAILED;
 
 async function registerClient(browser: Browser, email: string) {
 	const context = await browser.newContext();
@@ -65,9 +74,13 @@ async function signInOutcome(page: Page): Promise<string> {
 					outcome = 'dashboard';
 				} else {
 					const error = page.getByTestId('auth-error');
-					outcome = (await error.isVisible())
-						? `error: ${((await error.textContent()) ?? '').trim()}`
-						: 'pending';
+					if (await error.isVisible()) {
+						outcome = `error: ${((await error.textContent()) ?? '').trim()}`;
+					} else if (await page.getByText(SESSION_REFRESH_FAILED_MESSAGE).isVisible()) {
+						outcome = `error: ${SESSION_REFRESH_FAILED_MESSAGE}`;
+					} else {
+						outcome = 'pending';
+					}
 				}
 				return outcome;
 			},
@@ -122,6 +135,71 @@ test.describe('Auth: sign-in password budget', () => {
 				`error: ${RATE_LIMITED_MESSAGE}`
 			);
 			expect(new URL(page.url()).pathname).not.toMatch(DASHBOARD_URL);
+		} finally {
+			await context.close();
+		}
+	});
+
+	test('five wrong passwords posted straight to the callback make the form show an error', async ({
+		browser,
+		playwright,
+		baseURL
+	}) => {
+		test.setTimeout(300_000);
+		const email = TEST_DATA.generateClientEmail();
+		await registerClient(browser, email);
+
+		// The form is skipped: the wrong passwords go straight to the credentials callback, the
+		// way a script would send them (T-2839).
+		for (let attempt = 1; attempt <= AUTH_RATE_LIMIT; attempt++) {
+			const wrong = await postCredentialsCallback(playwright, baseURL!, email, WRONG_PASSWORD);
+			expect(wrong.signedIn, `wrong password ${attempt} of ${AUTH_RATE_LIMIT}, posted to the callback`).toBe(
+				false
+			);
+		}
+
+		const context = await browser.newContext();
+		try {
+			const page = await context.newPage();
+			let callbackPosts = 0;
+			page.on('request', (request) => {
+				if (
+					request.method() === 'POST' &&
+					new URL(request.url()).pathname === '/api/auth/callback/credentials'
+				) {
+					callbackPosts++;
+				}
+			});
+
+			await submitSignIn(page, email, CLIENT_PASSWORD);
+			// Where the server action and the route handler load one copy of the in-memory limiter,
+			// the action refuses with the rate-limit error. Where each loads its own (as `next dev`
+			// does), the action passes and the callback refuses, and the form says the session
+			// could not be set up. Either way the form must show an error and stay off the dashboard.
+			const outcome = await signInOutcome(page);
+			expect([`error: ${RATE_LIMITED_MESSAGE}`, `error: ${SESSION_REFRESH_FAILED_MESSAGE}`]).toContain(outcome);
+
+			// And it must not retry by itself. After a refused callback the form used to re-arm its
+			// auto-login, and its identity-unstable effect dependencies fired it again at once, so it
+			// posted to the callback in a loop while the error flickered. Nothing else can show that
+			// no further request is sent, so this waits a fixed time.
+			await page.waitForTimeout(5_000);
+			expect(callbackPosts, 'sign-in requests the form sent for one submission').toBeLessThanOrEqual(1);
+			expect(await signInOutcome(page), 'the error is still shown').toBe(outcome);
+			expect(new URL(page.url()).pathname).not.toMatch(DASHBOARD_URL);
+
+			if (outcome === `error: ${SESSION_REFRESH_FAILED_MESSAGE}`) {
+				// Submitting again is a new action result, so the form tries the callback once more
+				// (and is refused again), then stops. The action accepted the password, so the submit
+				// button reads "Signed in!" next to the error; it stays enabled.
+				await page.locator('#email').fill(email);
+				await page.locator('#password').fill(CLIENT_PASSWORD);
+				await page.getByRole('button', { name: /sign(ed)? in/i }).click();
+				await expect.poll(() => callbackPosts, { timeout: 60_000 }).toBe(2);
+				await page.waitForTimeout(3_000);
+				expect(callbackPosts, 'sign-in requests after the second submission').toBe(2);
+				expect(new URL(page.url()).pathname).not.toMatch(DASHBOARD_URL);
+			}
 		} finally {
 			await context.close();
 		}

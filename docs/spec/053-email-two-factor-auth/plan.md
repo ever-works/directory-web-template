@@ -143,9 +143,9 @@ rows that expired more than a day ago so the table cannot grow without bound.
   endpoint to bomb that inbox.
 - **Issuance is capped inside `issueTwoFactorCode`** (6 per 10 minutes per
   account), not only at the routes. `authorize` is reachable by posting straight
-  to `/api/auth/callback/credentials`, which bypasses the server action's own
-  per-email limiter; putting the cap at the single choke point every issuance
-  path shares closes that hole. On the sign-in paths, exceeding it answers
+  to `/api/auth/callback/credentials`, which skips the server action (until
+  T-2839 it also skipped the per-email password budget, see below); putting the
+  cap at the single choke point every issuance path shares closes that hole. On the sign-in paths, exceeding it answers
   `AuthErrorCode.RATE_LIMITED` and mints nothing; the resend route keeps its
   generic `200`. The count comes from the **database** (rows in the window), not
   from the in-memory `ratelimit()` map, because a process-local counter would
@@ -169,6 +169,32 @@ rows that expired more than a day ago so the table cannot grow without bound.
   window counted. A check-then-act pair around the password
   verification would let concurrent requests all observe "slots remaining",
   which is exactly how a second factor turns into extra password guesses.
+- **`authorize` spends the same password budget (T-2839).** The action only
+  pre-checks the password; the browser then calls `signIn('credentials', …)`,
+  which posts to `/api/auth/callback/credentials` and runs `authorize`. Until
+  T-2839 nothing there touched the budget, so a script could take a CSRF token
+  from `/api/auth/csrf` and post password guesses straight to the callback, for
+  any account, admins included, with no limit. The limit, the window and the
+  `signin:<email>` key builder now live in `lib/auth/signin-password-budget.ts`,
+  imported by both. `authorize` reserves a slot on that key before any account
+  lookup or password check, throws `RATE_LIMITED` once the budget is spent, and
+  refunds the slot as soon as the password proves correct on the admin and the
+  client path, so the normal flow (the action, then the callback) never counts a
+  correct sign-in twice. The key is the email lowercased and trimmed, the way
+  the account lookups normalize it, so a re-cased or padded spelling cannot open
+  a fresh budget. The callback's email comes straight from the request body, so
+  `authorize` first refuses one that is not a string or is longer than the 255
+  characters `signInSchema` allows (`SIGN_IN_EMAIL_MAX_LENGTH`): the limiter
+  keeps every key for its window, and an unbounded key let each request keep
+  megabytes of memory alive for 15 minutes. The counter is still the in-memory
+  `ratelimit()` map, so the
+  bound is per server instance (see the spec's out-of-scope note). Where the
+  bundler gives the server action and the route handler separate copies of
+  `lib/utils/rate-limit.ts` (`next dev` with Turbopack does), each copy counts
+  the key on its own: the callback still stops after 5 failures, but the action
+  can then accept a correct password that the callback refuses. The form shows
+  `SESSION_REFRESH_FAILED` in that case and, since T-2839, sends one `signIn`
+  per submission instead of retrying in a loop (spec 027).
 
 ## 6. Alternatives Considered
 
