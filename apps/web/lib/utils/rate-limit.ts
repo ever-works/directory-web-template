@@ -98,11 +98,19 @@ export function resetRateLimit(key: string): void {
  * clear the whole bucket, so one caller's refund cannot wipe out another's
  * recorded attempts.
  *
- * No-op when the key has no live entry.
+ * `reservedResetTime` is the `resetTime` the reserving `ratelimit()` call
+ * returned. If that window ran out while the attempt was in flight and a
+ * later call opened a new one, the refund is dropped: taking it off the new
+ * window would erase an attempt that window counted.
+ *
+ * No-op when the key has no live entry, or its entry is a later window.
  */
-export function refundRateLimit(key: string): void {
+export function refundRateLimit(key: string, reservedResetTime: number): void {
   const entry = rateLimitStore.get(key);
   if (!entry) return;
+
+  // The reservation's window was replaced by a later one: nothing to give back.
+  if (entry.resetTime !== reservedResetTime) return;
 
   if (Date.now() > entry.resetTime) {
     rateLimitStore.delete(key);

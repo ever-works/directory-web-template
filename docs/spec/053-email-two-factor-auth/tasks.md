@@ -70,6 +70,11 @@ sidebar_label: 046 Tasks
       budget only after the account, password and 2FA flag have checked out, so
       its 429 cannot signal that an address exists and has had recent
       authenticated activity.
+- [x] T-018 (review follow-up, T-2831): give the reserved password slot back
+      once the password proves correct on every submission, not only on a
+      code-carrying one, so the budget counts failed attempts and the sixth
+      correct sign-in in 15 minutes is no longer refused; covered by
+      `apps/web-e2e/tests/auth/signin-password-budget.spec.ts`.
 
 ## Acceptance Criteria → Task Map
 

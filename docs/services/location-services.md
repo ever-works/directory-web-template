@@ -213,6 +213,8 @@ const box = location.calculateBoundingBox(center, 100); // 100km radius
 const isInside = location.isWithinBoundingBox(point, box);
 ```
 
+The box uses the spherical bounds, so every point within the radius is inside it. It spans every longitude once the circle reaches a pole, and a box that crosses the date line has `minLng > maxLng`. `isWithinBoundingBox` and `queryByBoundingBox` handle that case through `getLongitudeRanges`.
+
 ### Distance Formatting
 
 ```typescript
