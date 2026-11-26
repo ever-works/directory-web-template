@@ -30,7 +30,7 @@ describe('sign-in password budget wiring', () => {
 		);
 		assert.ok(reserve >= 0, 'the password slot is not reserved with ratelimit()');
 		const refused = action.indexOf(
-			'if (!passwordGate.success) { return { error: AuthErrorCode.RATE_LIMITED, ...data }; }',
+			'if (!passwordGate.success) { return authFormErrorState(AuthErrorCode.RATE_LIMITED, data); }',
 			reserve
 		);
 		assert.ok(refused > reserve, 'a spent budget does not answer RATE_LIMITED');
@@ -55,7 +55,7 @@ describe('sign-in password budget wiring', () => {
 	});
 
 	it('gives it back on the admin and the client path only after the password matched', () => {
-		const invalid = 'if (!isValid) { return { error: AuthErrorCode.INVALID_PASSWORD, ...data }; }';
+		const invalid = 'if (!isValid) { return authFormErrorState(AuthErrorCode.INVALID_PASSWORD, data); }';
 		assert.ok(
 			action.includes(
 				`const isValid = await comparePasswords(password, foundUser.passwordHash); ${invalid} releasePasswordReservation();`

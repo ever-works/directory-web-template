@@ -39,10 +39,36 @@ test.describe('Auth: Registration', () => {
 		test.setTimeout(60_000);
 		await page.goto('/auth/register', { waitUntil: 'domcontentloaded' });
 
+		// A password no other part of the page or the response could contain by chance.
+		const submittedPassword = `Taken-Email-${Date.now()}-Pw!`;
 		await page.locator('#name').fill('Duplicate User');
 		await page.locator('#email').fill(TEST_DATA.ADMIN_EMAIL);
-		await page.locator('#password').fill(TEST_DATA.CLIENT_PASSWORD);
+		await page.locator('#password').fill(submittedPassword);
+
+		// The register form posts to the signUp server action (a POST with a Next-Action header). The
+		// route fetches the answer in the test runner and hands it to the page unchanged: reading it
+		// back from the browser with `response.text()` sometimes fails with "No data found for
+		// resource" because the browser has already dropped the body.
+		let actionPost: { request: string; response: string } | undefined;
+		await page.route(
+			(url) => url.pathname.endsWith('/auth/register'),
+			async (route) => {
+				const request = route.request();
+				if (request.method() !== 'POST' || !request.headers()['next-action']) {
+					await route.continue();
+					return;
+				}
+				const answer = await route.fetch({ timeout: 60_000 });
+				const body = await answer.text();
+				actionPost ??= { request: request.postDataBuffer()?.toString('utf8') ?? '', response: body };
+				await route.fulfill({ response: answer, body });
+			}
+		);
 		await page.locator('#password').press('Enter');
+		await expect
+			.poll(() => actionPost, { message: 'the signUp server action answered', timeout: 60_000 })
+			.toBeDefined();
+		const responseBody = actionPost?.response ?? '';
 
 		// A taken email says the account exists and how to get in (sign in or reset the password), not
 		// the generic "An error occurred. Please try again.", which every retry would show again.
@@ -50,6 +76,22 @@ test.describe('Auth: Registration', () => {
 		const errorMessage = page.locator('[data-testid="auth-error"]');
 		await expect(errorMessage).toHaveText(EMAIL_ALREADY_REGISTERED_MESSAGE, { timeout: 60_000 });
 		await expect(errorMessage).not.toHaveText(GENERIC_ERROR_MESSAGE);
+
+		// The action result goes to the browser and stays in the form's state, so it must not carry the
+		// password back (T-2855): it used to echo every submitted field, password and captcha token too.
+		expect(actionPost?.request ?? '', 'the checked request is the submission that carried the password').toContain(
+			submittedPassword
+		);
+		expect(responseBody, 'the server action answered with the taken-email error').toContain(
+			'EMAIL_ALREADY_REGISTERED'
+		);
+		expect(responseBody, 'the server action response sends the submitted password back').not.toContain(
+			submittedPassword
+		);
+
+		// The form still fills the name and the email in again from the error result.
+		await expect(page.locator('#name')).toHaveValue('Duplicate User');
+		await expect(page.locator('#email')).toHaveValue(TEST_DATA.ADMIN_EMAIL);
 
 		// The sign-in link stays under the form.
 		await expect(page.locator('a[href*="/auth/signin"]').first()).toBeVisible();
