@@ -9,11 +9,22 @@ import { describe, it } from 'node:test';
  * /admin/items cleared the bulk selection only when the page number changed. A status tab, filter,
  * search, sort or view change on page 1 kept the old ids selected after their rows were gone, and the
  * bulk handlers sent every selected id, so a bulk delete (a hard delete) or reject also hit items the
- * admin could no longer see, and the bar and the confirm dialog counted them (T-2814). The page is a
- * client component that cannot load under `tsx --test`, so this guard reads the source; the browser
- * flow is covered by `apps/web-e2e/tests/admin/bulk-actions.spec.ts`.
+ * admin could no longer see, and the bar and the confirm dialog counted them (T-2814). The confirm
+ * dialog counts only the ticked pending rows for approve and reject, but those handlers still sent
+ * every ticked row, so a reject on the All tab said "1 item" and rejected (and emailed) every ticked
+ * one (T-2824). The page is a client component that cannot load under `tsx --test`, so this guard
+ * reads the source; the browser flow is covered by `apps/web-e2e/tests/admin/bulk-actions.spec.ts`.
  */
 const page = readFileSync(join(__dirname, '../../../app/[locale]/admin/items/page.tsx'), 'utf8').replace(/\s+/g, ' ');
+
+/** One useCallback handler, from its declaration to the end of its dependency list. */
+function handler(name: string): string {
+	const start = page.indexOf(`const ${name} = useCallback(`);
+	assert.ok(start >= 0, `${name} not found`);
+	const end = page.indexOf(']);', start);
+	assert.ok(end > start, `${name} has no dependency list`);
+	return page.slice(start, end + 3);
+}
 
 const QUERY_FIELDS = [
 	'currentPage',
@@ -50,39 +61,79 @@ describe('admin items page bulk selection wiring', () => {
 		);
 	});
 
-	it('sends only the visible selection to the bulk actions', () => {
+	it('sends only the visible selection to bulk delete', () => {
 		assert.ok(!page.includes('Array.from(selectedIds)'), 'a bulk handler still sends every selected id');
 		assert.ok(
-			page.includes('await bulkApprove(Array.from(visibleSelectedIds))'),
-			'bulk approve does not send the visible ids'
-		);
-		assert.ok(
-			page.includes('await bulkReject(Array.from(visibleSelectedIds), reason)'),
-			'bulk reject does not send the visible ids'
-		);
-		assert.ok(
-			page.includes('await bulkDelete(Array.from(visibleSelectedIds))'),
+			handler('handleBulkDelete').includes('await bulkDelete(Array.from(visibleSelectedIds))'),
 			'bulk delete does not send the visible ids'
 		);
 	});
 
-	it('closes the confirm dialog without a request when no ticked row is left on screen', () => {
+	it('closes the confirm dialog without a delete request when no ticked row is left on screen', () => {
 		// The list can refresh while the dialog is open and drop every ticked row; the route answers an
-		// empty ids list with a 400, so each handler must close the dialog instead of sending one
-		for (const [name, call] of [
-			['handleBulkApprove', 'await bulkApprove(Array.from(visibleSelectedIds))'],
-			['handleBulkReject', 'await bulkReject(Array.from(visibleSelectedIds), reason)'],
-			['handleBulkDelete', 'await bulkDelete(Array.from(visibleSelectedIds))'],
+		// empty ids list with a 400, so the handler must close the dialog instead of sending one
+		const body = handler('handleBulkDelete');
+		const guard = body.indexOf('if (visibleSelectedIds.size === 0) { setBulkAction(null); return; }');
+		assert.ok(guard >= 0, 'handleBulkDelete sends a bulk request when no ticked row is on screen');
+		assert.ok(guard < body.indexOf('await bulkDelete('), 'handleBulkDelete checks the selection after sending');
+	});
+
+	it('works out the ticked pending ids with the shared helper, and counts them for the dialog', () => {
+		assert.ok(
+			/import \{ pendingSelectedIds \} from ["']@\/lib\/utils\/pending-selected-ids["'];/.test(page),
+			'pendingSelectedIds is not imported'
+		);
+		assert.ok(
+			page.includes(
+				'const selectedPendingIds = useMemo( () => pendingSelectedIds(items, visibleSelectedIds), [items, visibleSelectedIds] );'
+			),
+			'no selectedPendingIds derived from the rows on screen with pendingSelectedIds'
+		);
+		assert.ok(
+			page.includes('const pendingSelectedCount = selectedPendingIds.length;'),
+			'the dialog count is not the length of the ids approve and reject send'
+		);
+		assert.ok(page.includes('pendingCount={pendingSelectedCount}'), 'the confirm dialog lost its pending count');
+		assert.ok(
+			!page.includes("item.status === 'pending'"),
+			'the page still counts pending rows with its own filter instead of the helper'
+		);
+	});
+
+	it('sends approve and reject only for the ticked pending rows the dialog counts', () => {
+		for (const [name, call, deps] of [
+			[
+				'handleBulkApprove',
+				'await bulkApprove(selectedPendingIds)',
+				'}, [selectedPendingIds, bulkApprove, clearSelection]);'
+			],
+			[
+				'handleBulkReject',
+				'await bulkReject(selectedPendingIds, reason)',
+				'}, [selectedPendingIds, bulkReject, clearSelection]);'
+			]
 		]) {
-			const start = page.indexOf(`const ${name} = useCallback(`);
-			assert.ok(start >= 0, `${name} not found`);
-			const end = page.indexOf(call, start);
-			assert.ok(end > start, `${name} does not send the visible ids`);
-			const body = page.slice(start, end);
+			const body = handler(name);
+			assert.ok(body.includes(call), `${name} does not send the ticked pending ids`);
 			assert.ok(
-				body.includes('if (visibleSelectedIds.size === 0) { setBulkAction(null); return; }'),
-				`${name} sends a bulk request when no ticked row is on screen`
+				!body.includes('visibleSelectedIds'),
+				`${name} still sends every ticked row, not only pending ones`
 			);
+			assert.ok(body.endsWith(deps), `${name} does not depend on selectedPendingIds`);
+		}
+	});
+
+	it('closes the confirm dialog without an approve or reject request when no ticked pending row is left', () => {
+		// The list can refresh while the dialog is open: the ticked pending rows can be gone or no longer
+		// pending. Then there is nothing the dialog counted, so the handler closes it and sends nothing
+		for (const [name, call] of [
+			['handleBulkApprove', 'await bulkApprove('],
+			['handleBulkReject', 'await bulkReject(']
+		]) {
+			const body = handler(name);
+			const guard = body.indexOf('if (selectedPendingIds.length === 0) { setBulkAction(null); return; }');
+			assert.ok(guard >= 0, `${name} sends a bulk request when no ticked pending row is on screen`);
+			assert.ok(guard < body.indexOf(call), `${name} checks the pending ids after sending`);
 		}
 	});
 

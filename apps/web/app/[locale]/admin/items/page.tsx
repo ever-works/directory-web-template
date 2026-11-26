@@ -16,6 +16,7 @@ import { Plus, Package, Clock, CheckCircle, XCircle, Star, Loader2, Folder, Tag 
 import { cn } from "@/lib/utils";
 import { slugify } from "@/lib/utils/slug";
 import { REJECTION_REASON_MIN_LENGTH, REVIEW_NOTES_MAX_LENGTH } from "@/lib/utils/review-notes";
+import { pendingSelectedIds } from "@/lib/utils/pending-selected-ids";
 import { useAdminItems } from "@/hooks/use-admin-items";
 import { useAllCategories } from "@/hooks/use-admin-categories";
 import { useAllTags } from "@/hooks/use-admin-tags";
@@ -246,23 +247,28 @@ export default function AdminItemsPage() {
 
   const isAllSelected = items.length > 0 && visibleSelectedIds.size === items.length;
   const isPartiallySelected = visibleSelectedIds.size > 0 && visibleSelectedIds.size < items.length;
-  const pendingSelectedCount = items.filter(
-    (item) => selectedIds.has(item.id) && item.status === 'pending'
-  ).length;
+  // Approve and reject act only on the ticked rows that are pending: the confirm dialog counts these,
+  // so the request carries exactly these ids. Delete acts on every ticked row on screen
+  const selectedPendingIds = useMemo(
+    () => pendingSelectedIds(items, visibleSelectedIds),
+    [items, visibleSelectedIds]
+  );
+  const pendingSelectedCount = selectedPendingIds.length;
 
-  // The list can refresh while the confirm dialog is open and drop every ticked row. Then there is
-  // nothing to send (the route answers an empty ids list with a 400), so each handler just closes the dialog
+  // The list can refresh while the confirm dialog is open and drop every ticked row (or every ticked
+  // pending row). Then there is nothing to send (the route answers an empty ids list with a 400), so
+  // each handler just closes the dialog
   const handleBulkApprove = useCallback(async () => {
-    if (visibleSelectedIds.size === 0) { setBulkAction(null); return; }
-    const result = await bulkApprove(Array.from(visibleSelectedIds));
+    if (selectedPendingIds.length === 0) { setBulkAction(null); return; }
+    const result = await bulkApprove(selectedPendingIds);
     if (result) { clearSelection(); setBulkAction(null); }
-  }, [visibleSelectedIds, bulkApprove, clearSelection]);
+  }, [selectedPendingIds, bulkApprove, clearSelection]);
 
   const handleBulkReject = useCallback(async (reason: string) => {
-    if (visibleSelectedIds.size === 0) { setBulkAction(null); return; }
-    const result = await bulkReject(Array.from(visibleSelectedIds), reason);
+    if (selectedPendingIds.length === 0) { setBulkAction(null); return; }
+    const result = await bulkReject(selectedPendingIds, reason);
     if (result) { clearSelection(); setBulkAction(null); }
-  }, [visibleSelectedIds, bulkReject, clearSelection]);
+  }, [selectedPendingIds, bulkReject, clearSelection]);
 
   const handleBulkDelete = useCallback(async () => {
     if (visibleSelectedIds.size === 0) { setBulkAction(null); return; }
