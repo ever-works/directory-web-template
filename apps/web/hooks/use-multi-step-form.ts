@@ -63,12 +63,17 @@ export function useMultiStepForm({
     return goToStep(currentStep - 1);
   }, [currentStep, isFirstStep, goToStep]);
 
+  // Both keep the previous Set when nothing changes, so a step that reports the same validity again does not
+  // re-render the form.
   const markStepAsCompleted = useCallback((step: number) => {
-    setCompletedSteps(prev => new Set(prev).add(step));
+    setCompletedSteps(prev => (prev.has(step) ? prev : new Set(prev).add(step)));
   }, []);
 
   const markStepAsIncomplete = useCallback((step: number) => {
     setCompletedSteps(prev => {
+      if (!prev.has(step)) {
+        return prev;
+      }
       const newSet = new Set(prev);
       newSet.delete(step);
       return newSet;

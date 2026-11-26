@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useMultiStepForm } from '@/hooks/use-multi-step-form';
 import { StepIndicator, StepNavigation } from '@/components/ui/multi-step-form';
 import {
@@ -159,37 +159,60 @@ export function MultiStepItemForm({
     onComplete: handleFormSubmit
   });
 
-  // Update form data handlers
-  const updateBasicInfo = (data: BasicInfoData) => {
+  // Update form data handlers. They and the validation handlers below keep one identity across renders: each step
+  // reports its validity from an effect that depends on them, so a new function on every render re-ran that effect,
+  // whose report re-rendered this form, without end ("Maximum update depth exceeded").
+  const updateBasicInfo = useCallback((data: BasicInfoData) => {
     setFormData(prev => ({ ...prev, basicInfo: data }));
-  };
+  }, []);
 
-  const updateMediaLinks = (data: MediaLinksData) => {
+  const updateMediaLinks = useCallback((data: MediaLinksData) => {
     setFormData(prev => ({ ...prev, mediaLinks: data }));
-  };
+  }, []);
 
-  const updateClassification = (data: ClassificationData) => {
+  const updateClassification = useCallback((data: ClassificationData) => {
     setFormData(prev => ({ ...prev, classification: data }));
-  };
+  }, []);
 
-  const updateLocation = (data: LocationStepData) => {
+  const updateLocation = useCallback((data: LocationStepData) => {
     setFormData(prev => ({ ...prev, location: data }));
-  };
+  }, []);
 
-  const updateReview = (data: ReviewData) => {
+  const updateReview = useCallback((data: ReviewData) => {
     setFormData(prev => ({ ...prev, review: data }));
-  };
+  }, []);
 
-  // Step validation handlers
-  const handleStepValidation = (step: number, isValid: boolean) => {
-    setStepValidation(prev => ({ ...prev, [step]: isValid }));
+  // Step validation handlers. An unchanged report keeps the previous state, so it does not re-render the form.
+  const handleStepValidation = useCallback((step: number, isValid: boolean) => {
+    setStepValidation(prev => (prev[step] === isValid ? prev : { ...prev, [step]: isValid }));
 
     if (isValid) {
       markStepAsCompleted(step);
     } else {
       markStepAsIncomplete(step);
     }
-  };
+  }, [markStepAsCompleted, markStepAsIncomplete]);
+
+  const handleBasicInfoValidation = useCallback(
+    (isValid: boolean) => handleStepValidation(1, isValid),
+    [handleStepValidation]
+  );
+  const handleMediaLinksValidation = useCallback(
+    (isValid: boolean) => handleStepValidation(2, isValid),
+    [handleStepValidation]
+  );
+  const handleClassificationValidation = useCallback(
+    (isValid: boolean) => handleStepValidation(3, isValid),
+    [handleStepValidation]
+  );
+  const handleLocationValidation = useCallback(
+    (isValid: boolean) => handleStepValidation(locationStepNumber, isValid),
+    [handleStepValidation, locationStepNumber]
+  );
+  const handleReviewValidation = useCallback(
+    (isValid: boolean) => handleStepValidation(reviewStepNumber, isValid),
+    [handleStepValidation, reviewStepNumber]
+  );
 
   // Navigation handlers
   const handleNext = () => {
@@ -303,7 +326,7 @@ export function MultiStepItemForm({
             <BasicInfoStep
               data={formData.basicInfo}
               onChange={updateBasicInfo}
-              onValidationChange={(isValid) => handleStepValidation(1, isValid)}
+              onValidationChange={handleBasicInfoValidation}
               mode={mode}
             />
           )}
@@ -312,7 +335,7 @@ export function MultiStepItemForm({
             <MediaLinksStep
               data={formData.mediaLinks}
               onChange={updateMediaLinks}
-              onValidationChange={(isValid) => handleStepValidation(2, isValid)}
+              onValidationChange={handleMediaLinksValidation}
             />
           )}
 
@@ -320,7 +343,7 @@ export function MultiStepItemForm({
             <ClassificationStep
               data={formData.classification}
               onChange={updateClassification}
-              onValidationChange={(isValid) => handleStepValidation(3, isValid)}
+              onValidationChange={handleClassificationValidation}
             />
           )}
 
@@ -328,7 +351,7 @@ export function MultiStepItemForm({
             <LocationStep
               data={formData.location}
               onChange={updateLocation}
-              onValidationChange={(isValid) => handleStepValidation(locationStepNumber, isValid)}
+              onValidationChange={handleLocationValidation}
             />
           )}
 
@@ -336,7 +359,7 @@ export function MultiStepItemForm({
             <ReviewStep
               data={formData.review}
               onChange={updateReview}
-              onValidationChange={(isValid) => handleStepValidation(reviewStepNumber, isValid)}
+              onValidationChange={handleReviewValidation}
               rejectionReasonRequired={rejectionReasonRequired}
               basicInfo={formData.basicInfo}
               mediaLinks={formData.mediaLinks}
