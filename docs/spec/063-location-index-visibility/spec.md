@@ -6,7 +6,7 @@ sidebar_label: 063 Location index visibility
 
 # Feature spec — `063-location-index-visibility`
 
-> **Status:** shipped (T-2840) · **Code:** `apps/web/lib/utils/location-indexable.ts`,
+> **Status:** shipped (T-2840, PR #1206) · **Code:** `apps/web/lib/utils/location-indexable.ts`,
 > `apps/web/lib/services/location/location-index.service.ts`, `apps/web/lib/services/item-git.service.ts`,
 > `apps/web/app/api/admin/items/[id]/review/route.ts`
 
