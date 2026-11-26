@@ -107,17 +107,22 @@ test.describe('API: the public location index holds only approved items', () => 
 	}) => {
 		const probe = await request.get(COORDINATES);
 		test.skip(probe.status() === 404, 'Location features are disabled in this deployment');
+		// Four creates, two reviews, a PUT, four deletes and about forty public reads (each first one compiles in dev)
+		test.slow();
 
 		const anonymous = await playwright.request.newContext({ baseURL, storageState: { cookies: [], origins: [] } });
 		const suffix = `${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
 		const statuses: Status[] = ['draft', 'pending', 'rejected', 'approved'];
+		// A random offset per run (at most 0.24 degrees, about 32 km, inside the radius), so the exact
+		// coordinates check cannot match an item a stopped earlier run left behind
+		const offset = Math.random() * 0.2;
 		const fixtures: Fixture[] = statuses.map((status, index) => ({
 			status,
 			slug: `e2e-t2840-${status}-${suffix}`,
 			city: `E2E T2840 ${status} city ${suffix}`,
 			country: `E2E T2840 ${status} country ${suffix}`,
-			latitude: Number((CENTER.latitude + 0.01 * (index + 1)).toFixed(4)),
-			longitude: Number((CENTER.longitude + 0.01 * (index + 1)).toFixed(4))
+			latitude: Number((CENTER.latitude + offset + 0.01 * (index + 1)).toFixed(4)),
+			longitude: Number((CENTER.longitude + offset + 0.01 * (index + 1)).toFixed(4))
 		}));
 		const bySlug = (status: Status) => fixtures.find((fixture) => fixture.status === status)!.slug;
 		const expectView = async (expected: Record<string, string[]>, label: string) => {
