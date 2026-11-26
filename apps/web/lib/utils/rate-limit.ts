@@ -8,18 +8,48 @@ interface RateLimitEntry {
   resetTime: number;
 }
 
-// In-memory store for rate limiting
-const rateLimitStore = new Map<string, RateLimitEntry>();
+interface RateLimitState {
+  store: Map<string, RateLimitEntry>;
+  cleanupStarted: boolean;
+}
 
-// Cleanup old entries every 5 minutes
-setInterval(() => {
-  const now = Date.now();
-  for (const [key, entry] of rateLimitStore.entries()) {
-    if (now > entry.resetTime) {
-      rateLimitStore.delete(key);
-    }
+/**
+ * The in-memory store lives on `globalThis`, so every copy of this module in the process reads and
+ * writes one map. The bundler loads this file once per layer: the sign-in server action
+ * (`app/[locale]/auth/actions.ts`) and the NextAuth route handler that runs `authorize`
+ * (`lib/auth/credentials.ts`) each get their own copy. With a map per copy, each counted the
+ * per-email sign-in password budget on its own, so five wrong passwords through the form left the
+ * callback a fresh budget of five more (T-2844).
+ */
+const RATE_LIMIT_STATE_KEY = Symbol.for('ever-works.rate-limit-state.v1');
+
+function rateLimitState(): RateLimitState {
+  const holder = globalThis as typeof globalThis & { [RATE_LIMIT_STATE_KEY]?: RateLimitState };
+  let state = holder[RATE_LIMIT_STATE_KEY];
+  if (!state) {
+    state = { store: new Map(), cleanupStarted: false };
+    holder[RATE_LIMIT_STATE_KEY] = state;
   }
-}, 5 * 60 * 1000);
+  return state;
+}
+
+const sharedState = rateLimitState();
+
+// In-memory store for rate limiting, shared by every copy of this module
+const rateLimitStore = sharedState.store;
+
+// Cleanup old entries every 5 minutes. One interval per process, not one per module copy.
+if (!sharedState.cleanupStarted) {
+  sharedState.cleanupStarted = true;
+  setInterval(() => {
+    const now = Date.now();
+    for (const [key, entry] of rateLimitStore.entries()) {
+      if (now > entry.resetTime) {
+        rateLimitStore.delete(key);
+      }
+    }
+  }, 5 * 60 * 1000);
+}
 
 export interface RateLimitResult {
   success: boolean;

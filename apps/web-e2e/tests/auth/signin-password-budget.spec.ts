@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { test, expect, type Browser, type Page } from '@playwright/test';
-import { postCredentialsCallback } from '../../helpers/credentials-callback';
+import { postCredentialsCallback, type CredentialsCallbackResult } from '../../helpers/credentials-callback';
 import { TEST_DATA } from '../../helpers/test-data';
 
 /**
@@ -18,6 +18,11 @@ import { TEST_DATA } from '../../helpers/test-data';
  * spends the same budget, so wrong passwords posted straight to
  * `/api/auth/callback/credentials` lock the email too, and the form then shows an error
  * instead of signing in or hanging.
+ *
+ * Since T-2844 both legs count on one in-memory store. The bundler loads the limiter once
+ * for the server action and once for the route handler, and each copy used to keep its own
+ * map, so five wrong passwords through the form left the callback a full budget of five
+ * more, and the right password posted there still got a session.
  *
  * Every test registers its own account, so the per-email budget starts empty and the
  * tests do not use up each other's (or global-setup's) slots.
@@ -172,34 +177,116 @@ test.describe('Auth: sign-in password budget', () => {
 			});
 
 			await submitSignIn(page, email, CLIENT_PASSWORD);
-			// Where the server action and the route handler load one copy of the in-memory limiter,
-			// the action refuses with the rate-limit error. Where each loads its own (as `next dev`
-			// does), the action passes and the callback refuses, and the form says the session
-			// could not be set up. Either way the form must show an error and stay off the dashboard.
+			// The server action and the route handler share one in-memory limiter (T-2844), so the
+			// action sees the five failures the callback counted and refuses with the rate-limit
+			// error. (While each kept its own copy, as `next dev` loads them, the action passed and
+			// only the callback refused.)
 			const outcome = await signInOutcome(page);
-			expect([`error: ${RATE_LIMITED_MESSAGE}`, `error: ${SESSION_REFRESH_FAILED_MESSAGE}`]).toContain(outcome);
+			expect(outcome).toBe(`error: ${RATE_LIMITED_MESSAGE}`);
+
+			// The action refused, so the form must not try the callback at all. Nothing else can show
+			// that no request is sent, so this waits a fixed time.
+			await page.waitForTimeout(5_000);
+			expect(callbackPosts, 'sign-in requests the form sent after the action refused').toBe(0);
+			expect(await signInOutcome(page), 'the error is still shown').toBe(outcome);
+			expect(new URL(page.url()).pathname).not.toMatch(DASHBOARD_URL);
+		} finally {
+			await context.close();
+		}
+	});
+
+	test('five wrong passwords through the form leave the callback refusing the right password', async ({
+		browser,
+		playwright,
+		baseURL
+	}) => {
+		test.setTimeout(300_000);
+		const email = TEST_DATA.generateClientEmail();
+		await registerClient(browser, email);
+
+		const context = await browser.newContext();
+		try {
+			const page = await context.newPage();
+			for (let attempt = 1; attempt <= AUTH_RATE_LIMIT; attempt++) {
+				await submitSignIn(page, email, WRONG_PASSWORD);
+				expect(await signInOutcome(page), `wrong password ${attempt} of ${AUTH_RATE_LIMIT}`).toBe(
+					`error: ${INVALID_PASSWORD_MESSAGE}`
+				);
+			}
+		} finally {
+			await context.close();
+		}
+
+		// The form's server action counted five failures. The callback must see them: while the
+		// action and the route handler kept separate copies of the limiter, the callback still had
+		// a full budget, took the right password and minted a session, so a script got five more
+		// guesses per window after the form's five (T-2844).
+		const callback = await postCredentialsCallback(playwright, baseURL!, email, CLIENT_PASSWORD);
+		expect(callback.signedIn, 'the right password posted to the callback after five wrong ones in the form').toBe(
+			false
+		);
+		expect(callback.error, 'the refused sign-in carries an error').toBeTruthy();
+	});
+
+	test('a callback refused after the action accepted the password shows an error, without retrying', async ({
+		browser,
+		playwright,
+		baseURL
+	}) => {
+		test.setTimeout(300_000);
+		const email = TEST_DATA.generateClientEmail();
+		await registerClient(browser, email);
+
+		// Four wrong passwords leave one slot, so the action accepts the right password (and gives
+		// the slot back).
+		for (let attempt = 1; attempt < AUTH_RATE_LIMIT; attempt++) {
+			const wrong = await postCredentialsCallback(playwright, baseURL!, email, WRONG_PASSWORD);
+			expect(wrong.signedIn, `wrong password ${attempt} of ${AUTH_RATE_LIMIT - 1}, posted to the callback`).toBe(
+				false
+			);
+		}
+
+		const context = await browser.newContext();
+		try {
+			const page = await context.newPage();
+			let callbackPosts = 0;
+			page.on('request', (request) => {
+				if (
+					request.method() === 'POST' &&
+					new URL(request.url()).pathname === '/api/auth/callback/credentials'
+				) {
+					callbackPosts++;
+				}
+			});
+
+			// A guess posted straight to the callback lands between the action and the form's own
+			// callback request and takes the last slot, so the callback refuses the password the
+			// action accepted.
+			// (`signIn()` adds a query string to the callback URL, so match on the path.)
+			const raced: { guess: CredentialsCallbackResult | null } = { guess: null };
+			await page.route(
+				(url) => url.pathname === '/api/auth/callback/credentials',
+				async (route) => {
+					if (route.request().method() === 'POST' && !raced.guess) {
+						raced.guess = await postCredentialsCallback(playwright, baseURL!, email, WRONG_PASSWORD);
+					}
+					await route.continue();
+				}
+			);
+
+			await submitSignIn(page, email, CLIENT_PASSWORD);
+			const outcome = await signInOutcome(page);
+			expect(raced.guess?.signedIn, 'the wrong guess posted between the action and the callback').toBe(false);
+			expect(outcome).toBe(`error: ${SESSION_REFRESH_FAILED_MESSAGE}`);
 
 			// And it must not retry by itself. After a refused callback the form used to re-arm its
 			// auto-login, and its identity-unstable effect dependencies fired it again at once, so it
 			// posted to the callback in a loop while the error flickered. Nothing else can show that
 			// no further request is sent, so this waits a fixed time.
 			await page.waitForTimeout(5_000);
-			expect(callbackPosts, 'sign-in requests the form sent for one submission').toBeLessThanOrEqual(1);
+			expect(callbackPosts, 'sign-in requests the form sent for one submission').toBe(1);
 			expect(await signInOutcome(page), 'the error is still shown').toBe(outcome);
 			expect(new URL(page.url()).pathname).not.toMatch(DASHBOARD_URL);
-
-			if (outcome === `error: ${SESSION_REFRESH_FAILED_MESSAGE}`) {
-				// Submitting again is a new action result, so the form tries the callback once more
-				// (and is refused again), then stops. The action accepted the password, so the submit
-				// button reads "Signed in!" next to the error; it stays enabled.
-				await page.locator('#email').fill(email);
-				await page.locator('#password').fill(CLIENT_PASSWORD);
-				await page.getByRole('button', { name: /sign(ed)? in/i }).click();
-				await expect.poll(() => callbackPosts, { timeout: 60_000 }).toBe(2);
-				await page.waitForTimeout(3_000);
-				expect(callbackPosts, 'sign-in requests after the second submission').toBe(2);
-				expect(new URL(page.url()).pathname).not.toMatch(DASHBOARD_URL);
-			}
 		} finally {
 			await context.close();
 		}

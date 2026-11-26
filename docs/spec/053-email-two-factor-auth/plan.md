@@ -188,13 +188,23 @@ rows that expired more than a day ago so the table cannot grow without bound.
   keeps every key for its window, and an unbounded key let each request keep
   megabytes of memory alive for 15 minutes. The counter is still the in-memory
   `ratelimit()` map, so the
-  bound is per server instance (see the spec's out-of-scope note). Where the
-  bundler gives the server action and the route handler separate copies of
-  `lib/utils/rate-limit.ts` (`next dev` with Turbopack does), each copy counts
-  the key on its own: the callback still stops after 5 failures, but the action
-  can then accept a correct password that the callback refuses. The form shows
-  `SESSION_REFRESH_FAILED` in that case and, since T-2839, sends one `signIn`
-  per submission instead of retrying in a loop (spec 027).
+  bound is per server instance (see the spec's out-of-scope note).
+- **One store for both legs (T-2844).** The bundler loads
+  `lib/utils/rate-limit.ts` once per layer, so the server action and the route
+  handler each get their own copy of the module (`next dev` with Turbopack
+  lists it as `[app-rsc]` and `[app-route]`). While each copy kept its own map,
+  each counted the key on its own: five wrong passwords through the form left
+  the callback a full budget, so a script got five more guesses per window and
+  the right password posted to the callback still got a session. The store now
+  lives on `globalThis` under `Symbol.for('ever-works.rate-limit-state.v1')`
+  (the way `lib/content.ts` keeps its caches), so every copy in the process
+  reads and writes one map, and the cleanup interval starts once per process.
+  The action now refuses with `RATE_LIMITED` once the callback has counted five
+  failures, and the callback refuses once the action has. The action can still
+  accept a correct password that the callback then refuses, when another guess
+  takes the last slot between the two; the form shows `SESSION_REFRESH_FAILED`
+  in that case and, since T-2839, sends one `signIn` per submission instead of
+  retrying in a loop (spec 027).
 
 ## 6. Alternatives Considered
 
