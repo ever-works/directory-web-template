@@ -155,13 +155,17 @@ rows that expired more than a day ago so the table cannot grow without bound.
   it runs inside a transaction that first takes a per-user
   `pg_advisory_xact_lock`; otherwise concurrent issues would all read the
   same under-limit count and all insert, and the cap would not hold at all.
-- **The password budget is reserved, not checked-then-charged.** The sign-in
-  action calls `ratelimit()` up front for every submission (an atomic map
-  read-and-write with no `await` inside) and hands the slot back with
-  `refundRateLimit()` once a code-carrying submission's password has proven
-  correct. A check-then-act pair around the password verification would let
-  concurrent requests all observe "slots remaining", which is exactly how a
-  second factor turns into extra password guesses.
+- **The password budget is reserved, not checked-then-charged, and counts
+  failed attempts.** The sign-in action calls `ratelimit()` up front for every
+  submission (an atomic map read-and-write with no `await` inside) and hands
+  the slot back with `refundRateLimit()` once the password has proven correct,
+  on the admin and the client path, with or without a code. A wrong password
+  or an unknown email keeps its slot, so 5 failed attempts in 15 minutes lock
+  the email, while correct passwords never use the budget up (before T-2831
+  only a code-carrying submission got its slot back, so the sixth correct
+  sign-in in a window was refused). A check-then-act pair around the password
+  verification would let concurrent requests all observe "slots remaining",
+  which is exactly how a second factor turns into extra password guesses.
 
 ## 6. Alternatives Considered
 
