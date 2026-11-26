@@ -3369,6 +3369,7 @@
 			"PLEASE_COMPLETE_VERIFICATION": "Si prega di completare la verifica di sicurezza",
 			"LOGIN_FAILED": "Accesso fallito",
 			"ACCOUNT_NOT_FOUND": "Nessun account trovato con questo indirizzo email. Si prega di verificare l'email o creare un nuovo account.",
+			"EMAIL_ALREADY_REGISTERED": "Esiste già un account con questo indirizzo email. Si prega di accedere o reimpostare la password.",
 			"INVALID_PASSWORD": "Password non valida. Si prega di verificare la password e riprovare.",
 			"PROFILE_NOT_FOUND": "Profilo account non trovato. Si prega di contattare il supporto.",
 			"GENERIC_ERROR_MESSAGE": "Si è verificato un errore. Si prega di riprovare.",

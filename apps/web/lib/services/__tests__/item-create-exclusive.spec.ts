@@ -3,9 +3,11 @@ import * as fs from 'node:fs';
 import Module from 'node:module';
 import * as os from 'node:os';
 import * as path from 'node:path';
-import { afterEach, beforeEach, describe, it } from 'node:test';
+import { after, afterEach, before, beforeEach, describe, it, mock } from 'node:test';
 
 import type { ItemGitService as ItemGitServiceType } from '@/lib/services/item-git.service';
+import type { LocationIndexService } from '@/lib/services/location/location-index.service';
+import type { ItemData } from '@/lib/types/item';
 
 /**
  * Run with: `pnpm --filter @ever-works/web test:unit`
@@ -20,14 +22,34 @@ import type { ItemGitService as ItemGitServiceType } from '@/lib/services/item-g
  * The real ItemGitService writes into a temporary content directory; git commit/push is replaced
  * by a counter. The routes import `next/server` and `server-only` and cannot be loaded under
  * `tsx --test`, so the 409 wiring is checked in their source.
+ *
+ * createItem also syncs the new item's location index row when the content config turns location
+ * on (`settings.location.enabled` in process.cwd()/.content). That sync reaches the database: every
+ * location index query starts with the tenant lookup. With a developer's location-on content folder
+ * this spec waited seconds on that lookup, which loads lib/auth, and the process then never exited,
+ * so `test:unit` hung after every test had passed (T-2854). The spec now runs in a content folder
+ * of its own with location on, so its result no longer depends on the developer's one. The real
+ * location index and the tenant lookup are spies: a test fails if createItem reaches either.
  */
+let tenantLookups = 0;
 const loader = Module as unknown as { _load: (request: string, ...rest: unknown[]) => unknown };
 const originalLoad = loader._load;
 loader._load = function (this: unknown, request: string, ...rest: unknown[]) {
 	if (request === 'server-only') return {};
+	if (request === '@/lib/auth/tenant') {
+		return {
+			getTenantId: async () => {
+				tenantLookups++;
+				return null;
+			}
+		};
+	}
 	return originalLoad.call(this, request, ...rest);
 };
 const { ItemGitService } = require('../item-git.service') as { ItemGitService: typeof ItemGitServiceType };
+const { getLocationIndexService } = require('../location/location-index.service') as {
+	getLocationIndexService: () => LocationIndexService;
+};
 loader._load = originalLoad;
 
 const FIRST_YAML = [
@@ -43,6 +65,12 @@ const FIRST_YAML = [
 let dir: string;
 let git: ItemGitServiceType;
 let commits: number;
+let contentRoot: string;
+let previousCwd: string;
+/** Location index syncs createItem asked for, through the stub. */
+let locationSyncs: string[];
+/** Calls that reached the real location index (the database behind it). */
+const locationIndexCalls: string[] = [];
 
 function itemFile(slug: string) {
 	return path.join(dir, 'data', slug, `${slug}.yml`);
@@ -67,6 +95,34 @@ function createRequest(slug: string, id = slug) {
 	};
 }
 
+before(() => {
+	// Location on, as a developer's content folder for the /map checks has it
+	contentRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'item-create-exclusive-content-'));
+	fs.mkdirSync(path.join(contentRoot, '.content', '.works'), { recursive: true });
+	fs.writeFileSync(
+		path.join(contentRoot, '.content', '.works', 'works.yml'),
+		['settings:', '  location:', '    enabled: true', ''].join('\n')
+	);
+	previousCwd = process.cwd();
+	process.chdir(contentRoot);
+
+	const locationIndex = getLocationIndexService();
+	mock.method(locationIndex, 'indexItem', async (item: ItemData) => {
+		locationIndexCalls.push(`indexItem ${item.slug}`);
+		return { slug: item.slug, success: false, geocoded: false };
+	});
+	mock.method(locationIndex, 'removeFromIndex', async (slug: string) => {
+		locationIndexCalls.push(`removeFromIndex ${slug}`);
+		return false;
+	});
+});
+
+after(() => {
+	mock.restoreAll();
+	process.chdir(previousCwd);
+	fs.rmSync(contentRoot, { recursive: true, force: true });
+});
+
 beforeEach(() => {
 	dir = fs.mkdtempSync(path.join(os.tmpdir(), 'item-create-exclusive-'));
 	fs.mkdirSync(path.join(dir, 'data'), { recursive: true });
@@ -75,6 +131,20 @@ beforeEach(() => {
 	(git as unknown as { commitAndPush: () => Promise<void> }).commitAndPush = async () => {
 		commits++;
 	};
+	// The location index sync is stubbed the same way: this spec checks the YAML write, not the index
+	locationSyncs = [];
+	const sync = git as unknown as {
+		indexLocationAsync: (item: ItemData) => void;
+		removeLocationIndexAsync: (slug: string) => void;
+	};
+	sync.indexLocationAsync = (item) => {
+		locationSyncs.push(`index ${item.slug}`);
+	};
+	sync.removeLocationIndexAsync = (slug) => {
+		locationSyncs.push(`remove ${slug}`);
+	};
+	locationIndexCalls.length = 0;
+	tenantLookups = 0;
 });
 
 afterEach(() => {
@@ -130,6 +200,24 @@ describe('single item create never replaces an item file written after its read 
 		assert.equal(item.slug, 'fresh');
 		assert.match(fs.readFileSync(itemFile('fresh'), 'utf8'), /submitted_by: second-user/);
 		assert.equal(commits, 1);
+	});
+});
+
+describe('createItem stays off the location index and the database when location is on (T-2854)', () => {
+	it('creates a located item without reaching the real location index or the tenant lookup', async () => {
+		assert.equal(getLocationIndexService().isEnabled(), true, 'location is off, so this test proves nothing');
+
+		const item = await git.createItem({
+			...createRequest('located'),
+			status: 'approved',
+			location: { city: 'Testville', country: 'Testland', latitude: 48.85, longitude: 2.35 }
+		});
+
+		assert.equal(item.slug, 'located');
+		assert.equal(commits, 1);
+		assert.deepEqual(locationIndexCalls, [], 'createItem called the real location index');
+		assert.equal(tenantLookups, 0, 'createItem looked the tenant up in the database');
+		assert.deepEqual(locationSyncs, ['index located']);
 	});
 });
 
