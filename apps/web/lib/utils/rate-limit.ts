@@ -41,7 +41,7 @@ const rateLimitStore = sharedState.store;
 // Cleanup old entries every 5 minutes. One interval per process, not one per module copy.
 if (!sharedState.cleanupStarted) {
   sharedState.cleanupStarted = true;
-  setInterval(() => {
+  const cleanup = setInterval(() => {
     const now = Date.now();
     for (const [key, entry] of rateLimitStore.entries()) {
       if (now > entry.resetTime) {
@@ -49,6 +49,9 @@ if (!sharedState.cleanupStarted) {
       }
     }
   }, 5 * 60 * 1000);
+  // Unref'd: a server still runs it, and a script or `tsx --test` spec that loads this module
+  // (directly or through lib/auth) can exit when its work is done (T-2854).
+  cleanup.unref?.();
 }
 
 export interface RateLimitResult {
