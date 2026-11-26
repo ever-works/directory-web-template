@@ -3748,6 +3748,7 @@
 			"PLEASE_COMPLETE_VERIFICATION": "Please complete the security verification",
 			"LOGIN_FAILED": "Login Failed",
 			"ACCOUNT_NOT_FOUND": "No account found with this email address. Please check your email or create a new account.",
+			"EMAIL_ALREADY_REGISTERED": "An account with this email address already exists. Please sign in or reset your password.",
 			"INVALID_PASSWORD": "Incorrect password. Please check your password and try again.",
 			"PROFILE_NOT_FOUND": "Account profile not found. Please contact support.",
 			"GENERIC_ERROR_MESSAGE": "An error occurred. Please try again.",

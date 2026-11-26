@@ -1,5 +1,16 @@
+import { readFileSync } from 'node:fs';
+import path from 'node:path';
 import { test, expect } from '@playwright/test';
 import { TEST_DATA } from '../../helpers/test-data';
+
+// Copy read from the app's English messages, so a wording change does not break the test.
+const credentialsFormMessages = (
+	JSON.parse(readFileSync(path.resolve(__dirname, '../../../web/messages/en.json'), 'utf8')) as {
+		admin: { CREDENTIALS_FORM: Record<string, string> };
+	}
+).admin.CREDENTIALS_FORM;
+const EMAIL_ALREADY_REGISTERED_MESSAGE = credentialsFormMessages.EMAIL_ALREADY_REGISTERED;
+const GENERIC_ERROR_MESSAGE = credentialsFormMessages.GENERIC_ERROR_MESSAGE;
 
 test.describe('Auth: Registration', () => {
 	test('shows registration form with name, email, and password fields', async ({ page }) => {
@@ -33,8 +44,15 @@ test.describe('Auth: Registration', () => {
 		await page.locator('#password').fill(TEST_DATA.CLIENT_PASSWORD);
 		await page.locator('#password').press('Enter');
 
-		const errorAlert = page.locator('.bg-red-50, [role="alert"]').first();
-		await expect(errorAlert).toBeVisible({ timeout: 60_000 });
+		// A taken email says the account exists and how to get in (sign in or reset the password), not
+		// the generic "An error occurred. Please try again.", which every retry would show again.
+		expect(EMAIL_ALREADY_REGISTERED_MESSAGE, 'en.json has the taken-email message').toBeTruthy();
+		const errorMessage = page.locator('[data-testid="auth-error"]');
+		await expect(errorMessage).toHaveText(EMAIL_ALREADY_REGISTERED_MESSAGE, { timeout: 60_000 });
+		await expect(errorMessage).not.toHaveText(GENERIC_ERROR_MESSAGE);
+
+		// The sign-in link stays under the form.
+		await expect(page.locator('a[href*="/auth/signin"]').first()).toBeVisible();
 	});
 
 	test('has link to sign in', async ({ page }) => {

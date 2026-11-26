@@ -3401,6 +3401,7 @@
 			"PLEASE_COMPLETE_VERIFICATION": "请完成安全验证",
 			"LOGIN_FAILED": "登录失败",
 			"ACCOUNT_NOT_FOUND": "未找到此邮箱地址的账户。请检查您的邮箱或创建新账户。",
+			"EMAIL_ALREADY_REGISTERED": "此邮箱地址已注册账户。请登录或重置密码。",
 			"INVALID_PASSWORD": "密码错误。请检查您的密码并重试。",
 			"PROFILE_NOT_FOUND": "未找到账户资料。请联系支持。",
 			"GENERIC_ERROR_MESSAGE": "发生错误。请重试。",
