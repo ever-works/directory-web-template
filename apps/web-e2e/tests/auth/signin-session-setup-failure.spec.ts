@@ -49,26 +49,26 @@ const isCredentialsCallback = (url: URL) => url.pathname === '/api/auth/callback
 // The sign-in server action posts to the page's own URL.
 const isSignInPage = (url: URL) => url.pathname.endsWith('/auth/signin');
 
+/** The request fails (a network error): `signIn` throws. */
+const abortCallback = (route: Route) => route.abort('failed');
+
+/**
+ * The callback refuses the sign-in: Auth.js answers `signIn`'s X-Auth-Return-Redirect request with a
+ * URL carrying `?error=`, which `signIn` hands back as `res.error`.
+ */
+const refuseCallback = (route: Route) => {
+	const url = new URL('/api/auth/signin?error=CredentialsSignin&code=credentials', route.request().url());
+	return route.fulfill({
+		status: 200,
+		contentType: 'application/json',
+		body: JSON.stringify({ url: url.href })
+	});
+};
+
 /** The two ways the callback can fail after the action accepted the password. */
 const callbackFailures: { name: string; answer: (route: Route) => Promise<void> }[] = [
-	{
-		// The request fails (a network error): `signIn` throws.
-		name: 'the callback request fails',
-		answer: (route) => route.abort('failed')
-	},
-	{
-		// The callback refuses the sign-in: Auth.js answers `signIn`'s X-Auth-Return-Redirect request
-		// with a URL carrying `?error=`, which `signIn` hands back as `res.error`.
-		name: 'the callback refuses the sign-in',
-		answer: (route) => {
-			const url = new URL('/api/auth/signin?error=CredentialsSignin&code=credentials', route.request().url());
-			return route.fulfill({
-				status: 200,
-				contentType: 'application/json',
-				body: JSON.stringify({ url: url.href })
-			});
-		}
-	}
+	{ name: 'the callback request fails', answer: abortCallback },
+	{ name: 'the callback refuses the sign-in', answer: refuseCallback }
 ];
 
 /** The form's submit button, found by its normal label only ("Sign In", or "Register"). */
@@ -201,6 +201,83 @@ test.describe('Auth: sign-in when the session cannot be set up', () => {
 			}
 		});
 	}
+
+	test('an earlier submission whose session setup fails last does not hide the current session error', async ({
+		browser
+	}) => {
+		test.setTimeout(300_000);
+		const email = TEST_DATA.generateClientEmail();
+		await registerClient(browser, email);
+
+		const context = await browser.newContext();
+		let releaseFirstCallback = () => {};
+		try {
+			const page = await context.newPage();
+
+			// The first submission's callback is held, so its `signIn` is still pending when the second
+			// submission's answer becomes the current result. The second callback fails at once; the
+			// first fails only after that.
+			const firstCallbackReleased = new Promise<void>((resolve) => {
+				releaseFirstCallback = resolve;
+			});
+			let markFirstCallbackHeld = () => {};
+			const firstCallbackHeld = new Promise<void>((resolve) => {
+				markFirstCallbackHeld = resolve;
+			});
+			let callbackPosts = 0;
+			await page.route(isCredentialsCallback, async (route) => {
+				callbackPosts++;
+				if (callbackPosts === 1) {
+					markFirstCallbackHeld();
+					await firstCallbackReleased;
+					await refuseCallback(route);
+					return;
+				}
+				await abortCallback(route);
+			});
+			// The form logs every failed session setup ("Auto-login failed:" / "Auto-login error:") just
+			// before it records it, so the test knows when the first submission's failure has landed.
+			const sessionSetupFailures: string[] = [];
+			page.on('console', (message) => {
+				if (message.type() === 'error' && message.text().includes('Auto-login')) {
+					sessionSetupFailures.push(message.text());
+				}
+			});
+
+			await openForm(page, '/auth/signin');
+			await submitSignIn(page, email, CLIENT_PASSWORD);
+			await firstCallbackHeld;
+
+			// The submit button does not wait for that `signIn`: it reads "Signed in!" and can be used.
+			await page.locator('#email').fill(email);
+			await page.locator('#password').fill(CLIENT_PASSWORD);
+			await expect(submitButton(page, SIGNED_IN_LABEL)).toBeEnabled();
+			await submitButton(page, SIGNED_IN_LABEL).click();
+
+			// The second submission's session setup fails first: its error shows.
+			await expect(page.getByText(SESSION_REFRESH_FAILED_MESSAGE)).toBeVisible({ timeout: 120_000 });
+			expect(callbackPosts, 'sign-in requests the form sent for two submissions').toBe(2);
+
+			// Now the first submission's session setup fails too. It is no longer the current result,
+			// so it must not replace the current error: that left the form with no error for the current
+			// result, which it then showed as a success ("Login Successful!", "Signed in!") with no session.
+			releaseFirstCallback();
+			await expect.poll(() => sessionSetupFailures.length, { timeout: 60_000 }).toBe(2);
+			// Let React render whatever that failure changed before looking at the form.
+			await page.evaluate(
+				() => new Promise<void>((resolve) => requestAnimationFrame(() => requestAnimationFrame(() => resolve())))
+			);
+
+			await expect(page.getByText(SESSION_REFRESH_FAILED_MESSAGE)).toBeVisible();
+			await expect(page.getByText(LOGIN_SUCCESSFUL_MESSAGE)).toHaveCount(0);
+			await expect(page.getByText(SIGNED_IN_LABEL)).toHaveCount(0);
+			await expect(submitButton(page)).toBeEnabled();
+			expect(new URL(page.url()).pathname).not.toMatch(DASHBOARD_URL);
+		} finally {
+			releaseFirstCallback();
+			await context.close();
+		}
+	});
 
 	test('registering when the callback request fails: the form shows the error and no success', async ({ page }) => {
 		test.setTimeout(300_000);

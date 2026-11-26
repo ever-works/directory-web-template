@@ -69,6 +69,15 @@ export function CredentialsForm({
 	// would show it as a success while that submission is pending.
 	const [authSyncFailure, setAuthSyncFailure] = useState<{ state: ActionState; message: string } | null>(null);
 	const authSyncError = authSyncFailure?.state === state ? authSyncFailure.message : null;
+	// The action result that is current now, read by the session-setup completions below. A
+	// submission's `signIn` can still be pending when the next accepted submission makes a new result
+	// current (the submit button does not wait for it). If the older one fails last, its failure must
+	// not replace the current result's: the form would then have no error for the current result and
+	// show it as a success. The closure's `state` is the result the completion was started for.
+	const currentStateRef = useRef(state);
+	useEffect(() => {
+		currentStateRef.current = state;
+	}, [state]);
 	// Store password locally for autoLogin - NEVER returned from server for security
 	const [pendingPassword, setPendingPassword] = useState<string | null>(null);
 	// ── Email 2FA second step (EW-139) ───────────────────────────────────────
@@ -138,6 +147,13 @@ export function CredentialsForm({
 
 	useEffect(() => {
 		if (!state.success) return;
+
+		// The session could not be set up for this result. Recorded only while it is still the
+		// current one (see `currentStateRef`); a newer result keeps its own outcome.
+		const recordSessionSetupFailure = () => {
+			if (currentStateRef.current !== state) return;
+			setAuthSyncFailure({ state, message: tCred('SESSION_REFRESH_FAILED') });
+		};
 
 		// Track success
 		track(isLogin ? AnalyticsEvent.USER_LOGGED_IN : AnalyticsEvent.USER_SIGNED_UP, {
@@ -210,7 +226,7 @@ export function CredentialsForm({
 
 					if (res?.error) {
 						console.error('Auto-login failed:', res.error);
-						setAuthSyncFailure({ state, message: tCred('SESSION_REFRESH_FAILED') });
+						recordSessionSetupFailure();
 						return; // a retry needs a new submission, which brings a new `state`
 					}
 
@@ -230,7 +246,7 @@ export function CredentialsForm({
 					window.location.href = finalRedirectPath;
 				} catch (err) {
 					console.error('Auto-login error:', err);
-					setAuthSyncFailure({ state, message: tCred('SESSION_REFRESH_FAILED') });
+					recordSessionSetupFailure();
 				}
 			};
 			void doAutoLogin();
@@ -246,7 +262,7 @@ export function CredentialsForm({
 					await refreshSession();
 				} catch (err) {
 					console.error('Failed to refresh session after auth', err);
-					setAuthSyncFailure({ state, message: tCred('SESSION_REFRESH_FAILED') });
+					recordSessionSetupFailure();
 					return;
 				}
 				router.refresh();
