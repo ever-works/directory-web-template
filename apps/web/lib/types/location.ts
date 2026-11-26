@@ -140,6 +140,8 @@ export interface MapStatusResponse {
 
 /**
  * Bounding box for geospatial queries.
+ * A box that crosses the date line has `minLng > maxLng` (west edge east of the east edge, as in a
+ * GeoJSON bbox) and covers `minLng..180` plus `-180..maxLng`; see `getLongitudeRanges`.
  */
 export interface GeoBoundingBox {
 	minLat: number;

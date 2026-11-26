@@ -136,8 +136,8 @@ describe('parseRadiusSearchParams', () => {
 	});
 
 	it('keeps a capped worldwide search covering every longitude and latitude from any centre', () => {
-		// The bounding box does not wrap at the date line, so the capped radius must still span the
-		// whole world; a smaller cap dropped items on the far side of the date line.
+		// The capped radius must still give a box that spans the whole world from any centre
+		// (location-bounding-box.spec.ts covers the date line and the poles for smaller radii).
 		const service = new LocationService();
 		for (const latitude of [-90, -60, 0, 45, 89.9, 90]) {
 			for (const longitude of [-180, -100, 0, 100, 180]) {
