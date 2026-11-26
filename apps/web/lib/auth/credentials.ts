@@ -11,7 +11,12 @@ import { ActivityType } from '../db/schema';
 import { ratelimit, refundRateLimit } from '../utils/rate-limit';
 import { AuthErrorCode } from './auth-error-codes';
 import { passwordVersionOf } from './password-change';
-import { AUTH_RATE_LIMIT, AUTH_RATE_WINDOW_MS, signInPasswordBudgetKey } from './signin-password-budget';
+import {
+	AUTH_RATE_LIMIT,
+	AUTH_RATE_WINDOW_MS,
+	SIGN_IN_EMAIL_MAX_LENGTH,
+	signInPasswordBudgetKey
+} from './signin-password-budget';
 import { issueTwoFactorCode, verifyTwoFactorCode } from './two-factor';
 
 // Re-export AuthErrorCode for backwards compatibility
@@ -89,7 +94,14 @@ export const credentialsProvider = Credentials({
 		// change ends the session (lib/auth/password-change.ts), even one whose query read the old
 		// hash while that change was being committed.
 		try {
-			const email = credentials.email as string;
+			// The callback hands over the raw request body (a form or JSON), so the email can be any
+			// size or not a string at all. Refuse that before it becomes a budget key: the limiter
+			// keeps each key for its 15-minute window, and a padded key still holds the whole string
+			// it was trimmed from. No account lookup or password check has run, so nothing is guessed.
+			if (typeof credentials.email !== 'string' || credentials.email.length > SIGN_IN_EMAIL_MAX_LENGTH) {
+				throw new Error(AuthErrorCode.ACCOUNT_NOT_FOUND);
+			}
+			const email = credentials.email;
 			const password = credentials.password as string;
 			const twoFactorCode = typeof credentials.code === 'string' ? credentials.code.trim() : '';
 

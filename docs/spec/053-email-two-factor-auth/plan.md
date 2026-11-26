@@ -182,7 +182,12 @@ rows that expired more than a day ago so the table cannot grow without bound.
   client path, so the normal flow (the action, then the callback) never counts a
   correct sign-in twice. The key is the email lowercased and trimmed, the way
   the account lookups normalize it, so a re-cased or padded spelling cannot open
-  a fresh budget. The counter is still the in-memory `ratelimit()` map, so the
+  a fresh budget. The callback's email comes straight from the request body, so
+  `authorize` first refuses one that is not a string or is longer than the 255
+  characters `signInSchema` allows (`SIGN_IN_EMAIL_MAX_LENGTH`): the limiter
+  keeps every key for its window, and an unbounded key let each request keep
+  megabytes of memory alive for 15 minutes. The counter is still the in-memory
+  `ratelimit()` map, so the
   bound is per server instance (see the spec's out-of-scope note). Where the
   bundler gives the server action and the route handler separate copies of
   `lib/utils/rate-limit.ts` (`next dev` with Turbopack does), each copy counts

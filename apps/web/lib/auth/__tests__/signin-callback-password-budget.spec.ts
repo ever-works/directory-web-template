@@ -88,7 +88,7 @@ describe('authorize spends the sign-in password budget', () => {
 		assert.ok(authorizeStart >= 0, 'authorize not found in lib/auth/credentials.ts');
 		assert.ok(
 			credentials.includes(
-				"import { AUTH_RATE_LIMIT, AUTH_RATE_WINDOW_MS, signInPasswordBudgetKey } from './signin-password-budget';"
+				"import { AUTH_RATE_LIMIT, AUTH_RATE_WINDOW_MS, SIGN_IN_EMAIL_MAX_LENGTH, signInPasswordBudgetKey } from './signin-password-budget';"
 			),
 			'credentials.ts does not import the shared budget'
 		);
@@ -117,6 +117,26 @@ describe('authorize spends the sign-in password budget', () => {
 			assert.ok(at >= 0, `${check} not found in authorize`);
 			assert.ok(at > reserve, `${check} runs before the password slot is reserved`);
 		}
+	});
+
+	it('refuses an email that is not a string or is longer than the form allows, before it becomes a key', async () => {
+		// The limiter keeps every key for its 15-minute window, and the callback's email comes
+		// straight from the request body: an unbounded one let each request keep megabytes alive.
+		const { SIGN_IN_EMAIL_MAX_LENGTH } = await loadBudget();
+		assert.equal(SIGN_IN_EMAIL_MAX_LENGTH, 255, 'the cap is not the 255 characters signInSchema allows');
+		assert.ok(
+			/email: z\.string\(\)\.email\(\)\.min\(3\)\.max\(255\)/.test(actions),
+			"signInSchema's email cap changed; keep SIGN_IN_EMAIL_MAX_LENGTH in step with it"
+		);
+		const guard = authorize.indexOf(
+			"if (typeof credentials.email !== 'string' || credentials.email.length > SIGN_IN_EMAIL_MAX_LENGTH) { throw new Error(AuthErrorCode.ACCOUNT_NOT_FOUND); }"
+		);
+		assert.ok(guard >= 0, 'authorize does not refuse a non-string or over-long email');
+		assert.ok(
+			guard < authorize.indexOf('signInPasswordBudgetKey(email)'),
+			'the email becomes a budget key before its length is checked'
+		);
+		assert.ok(!authorize.includes('credentials.email as string'), 'authorize still casts the email unchecked');
 	});
 
 	it('refuses with RATE_LIMITED once the budget is spent', () => {

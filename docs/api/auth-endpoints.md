@@ -48,7 +48,9 @@ attempts (a wrong password or an unknown email) per 15 minutes per email,
 lowercased and trimmed. Once it is spent the callback refuses the sign-in, even
 with the right password, until the window ends (Auth.js answers with
 `?error=` on its URL and sets no session cookie). A correct password gives its
-slot back, so correct sign-ins never use the budget up (T-2839).
+slot back, so correct sign-ins never use the budget up (T-2839). An email that
+is not a string or is longer than 255 characters (the form's own cap) is refused
+before it is counted, so a request cannot pin a huge key in the limiter.
 
 ### OAuth Callback Flow
 
