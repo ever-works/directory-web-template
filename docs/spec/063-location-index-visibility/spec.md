@@ -54,6 +54,10 @@ status change adds or removes the item's row, and every rebuild drops rows left 
 
 - Filtering at query time by joining the index with item status (Q-063a).
 - Making the location routes require a sign-in; approved items are public by design.
+- Hiding unapproved items from the public pages. `fetchItems` and `fetchItem` in `apps/web/lib/content.ts`
+  do not filter by status or `deleted_at`, so the home listing, `/map` and `/items/[slug]` still render a
+  draft, pending or rejected item with its `location` (address, city, coordinates) in the HTML. This spec
+  closes only the four location routes; the pages need their own task.
 
 ## 5. Acceptance
 
