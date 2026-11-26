@@ -3403,6 +3403,7 @@
 			"PLEASE_COMPLETE_VERIFICATION": "Bitte vervollständigen Sie die Sicherheitsverifizierung",
 			"LOGIN_FAILED": "Anmeldung fehlgeschlagen",
 			"ACCOUNT_NOT_FOUND": "Kein Konto mit dieser E-Mail-Adresse gefunden. Bitte überprüfen Sie Ihre E-Mail oder erstellen Sie ein neues Konto.",
+			"EMAIL_ALREADY_REGISTERED": "Es gibt bereits ein Konto mit dieser E-Mail-Adresse. Bitte melden Sie sich an oder setzen Sie Ihr Passwort zurück.",
 			"INVALID_PASSWORD": "Ungültiges Passwort. Bitte überprüfen Sie Ihr Passwort und versuchen Sie es erneut.",
 			"PROFILE_NOT_FOUND": "Kontoprofil nicht gefunden. Bitte kontaktieren Sie den Support.",
 			"GENERIC_ERROR_MESSAGE": "Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut.",

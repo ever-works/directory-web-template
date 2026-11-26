@@ -3460,6 +3460,7 @@
 			"PLEASE_COMPLETE_VERIFICATION": "Veuillez compléter la vérification de sécurité",
 			"LOGIN_FAILED": "Échec de la connexion",
 			"ACCOUNT_NOT_FOUND": "Aucun compte trouvé avec cette adresse e-mail. Veuillez vérifier votre e-mail ou créer un nouveau compte.",
+			"EMAIL_ALREADY_REGISTERED": "Un compte existe déjà avec cette adresse e-mail. Veuillez vous connecter ou réinitialiser votre mot de passe.",
 			"INVALID_PASSWORD": "Mot de passe incorrect. Veuillez vérifier votre mot de passe et réessayer.",
 			"PROFILE_NOT_FOUND": "Profil de compte non trouvé. Veuillez contacter le support.",
 			"GENERIC_ERROR_MESSAGE": "Une erreur s'est produite. Veuillez réessayer.",
