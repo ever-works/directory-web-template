@@ -2,153 +2,108 @@ import type { Page, Response } from '@playwright/test';
 import { test, expect } from '../../fixtures';
 import { AdminBulkActionsPage } from '../../page-objects/admin/bulk-actions.page';
 
+/**
+ * Open /admin/items and wait for the All tab's list (T-2825).
+ *
+ * These cases used to wait a fixed 2 s and then skip when the select-all checkbox was not there
+ * yet. Under `next dev` the first compile and load of the page takes longer than that, so all five
+ * skipped and a broken bulk bar still passed. They now wait for the list response and skip only
+ * when it has no item; the select-all checkbox renders once the list has rows, so it must show.
+ * The wait gets the navigation budget: the first `next dev` compile of the page and of the list
+ * route took about 31 s here, past the 30 s default.
+ */
+async function openAllItems(page: Page, bulkPage: AdminBulkActionsPage): Promise<ListedItem[]> {
+	const allList = page.waitForResponse(
+		(response) => response.request().method() === 'GET' && isItemsList(response.url(), null),
+		{ timeout: 60_000 }
+	);
+	await bulkPage.navigate();
+	await bulkPage.waitForPageReady();
+	expect(page.url(), 'admin should not be bounced to signin').not.toMatch(/\/auth\/signin/);
+	const listed = await readListed(await allList);
+	test.skip(listed.length === 0, 'No item on the All tab to select');
+	await expect(bulkPage.selectAllCheckbox).toBeVisible();
+	return listed;
+}
+
+/**
+ * Select every row on the All tab and wait for the bulk bar to show them.
+ *
+ * The bar stays in the page while nothing is selected, faded out (opacity 0) and not clickable, and
+ * Playwright counts an element with opacity 0 as visible. So toBeVisible() alone passes before any
+ * click: the count badge and the opacity are what show the bar opened.
+ */
+async function selectAllRows(bulkPage: AdminBulkActionsPage, listed: ListedItem[]): Promise<void> {
+	await bulkPage.selectAllCheckbox.click();
+	await expect(bulkPage.selectAllCheckbox).toBeChecked();
+	await expect(bulkPage.bulkActionBar).toBeVisible();
+	await expect(bulkPage.bulkActionBar.getByTestId('bulk-selected-count')).toHaveText(String(listed.length));
+	await expect(bulkPage.bulkActionBar, 'the bulk bar did not fade in').toHaveCSS('opacity', '1');
+}
+
 test.describe('Admin: Item Bulk Operations', () => {
 	test('select-all checkbox is visible on items page', async ({ adminPage }) => {
 		const bulkPage = new AdminBulkActionsPage(adminPage);
 
-		await bulkPage.navigate();
-		await bulkPage.waitForPageReady();
+		await openAllItems(adminPage, bulkPage);
 
-		// Wait for items to load
-		await expect(bulkPage.heading).toBeVisible({ timeout: 10_000 });
-		await adminPage.waitForTimeout(2_000);
-
-		const isCheckboxVisible = await bulkPage.selectAllCheckbox.isVisible().catch(() => false);
-
-		if (!isCheckboxVisible) {
-			test.skip(true, 'Select-all checkbox not visible on items page');
-			return;
-		}
-
+		await expect(bulkPage.heading).toBeVisible();
 		await expect(bulkPage.selectAllCheckbox).toBeVisible();
+		await expect(bulkPage.selectAllCheckbox).not.toBeChecked();
 	});
 
 	test('clicking select-all shows bulk action bar', async ({ adminPage }) => {
 		const bulkPage = new AdminBulkActionsPage(adminPage);
 
-		await bulkPage.navigate();
-		await bulkPage.waitForPageReady();
-		await adminPage.waitForTimeout(2_000);
+		const listed = await openAllItems(adminPage, bulkPage);
+		await expect(bulkPage.bulkActionBar, 'the bulk bar shows before any row is selected').toHaveCSS('opacity', '0');
 
-		const isCheckboxVisible = await bulkPage.selectAllCheckbox.isVisible().catch(() => false);
-
-		if (!isCheckboxVisible) {
-			test.skip(true, 'Select-all checkbox not visible');
-			return;
-		}
-
-		// Click select all
-		await bulkPage.selectAllCheckbox.click();
-		await adminPage.waitForTimeout(500);
-
-		// Bulk action bar should appear
-		await expect(bulkPage.bulkActionBar).toBeVisible({ timeout: 5_000 });
+		await selectAllRows(bulkPage, listed);
 	});
 
 	test('bulk action bar has approve, reject, and delete buttons', async ({ adminPage }) => {
 		const bulkPage = new AdminBulkActionsPage(adminPage);
 
-		await bulkPage.navigate();
-		await bulkPage.waitForPageReady();
-		await adminPage.waitForTimeout(2_000);
+		const listed = await openAllItems(adminPage, bulkPage);
+		await selectAllRows(bulkPage, listed);
 
-		const isCheckboxVisible = await bulkPage.selectAllCheckbox.isVisible().catch(() => false);
-
-		if (!isCheckboxVisible) {
-			test.skip(true, 'Select-all checkbox not visible');
-			return;
+		for (const name of [/^approve$/i, /^reject$/i, /^delete$/i]) {
+			await expect(bulkPage.bulkActionBar.getByRole('button', { name })).toBeVisible();
 		}
-
-		await bulkPage.selectAllCheckbox.click();
-		await adminPage.waitForTimeout(500);
-		await expect(bulkPage.bulkActionBar).toBeVisible({ timeout: 5_000 });
-
-		// Verify action buttons exist
-		const hasApprove = await bulkPage.approveButton.isVisible().catch(() => false);
-		const hasReject = await bulkPage.rejectButton.isVisible().catch(() => false);
-		const hasDelete = await bulkPage.deleteButton.isVisible().catch(() => false);
-
-		expect(hasApprove || hasReject || hasDelete).toBeTruthy();
 	});
 
 	test('clicking bulk delete opens confirmation dialog', async ({ adminPage }) => {
 		const bulkPage = new AdminBulkActionsPage(adminPage);
+		// Cancel must send nothing; if it did, the fake answer keeps the seeded items
+		const bulkBodies = await fakeBulkRoute(adminPage);
 
-		await bulkPage.navigate();
-		await bulkPage.waitForPageReady();
-		await adminPage.waitForTimeout(2_000);
+		const listed = await openAllItems(adminPage, bulkPage);
+		await selectAllRows(bulkPage, listed);
 
-		const isCheckboxVisible = await bulkPage.selectAllCheckbox.isVisible().catch(() => false);
+		const deleteButton = bulkPage.bulkActionBar.getByRole('button', { name: /^delete$/i });
+		await expect(deleteButton).toBeEnabled();
+		await deleteButton.click();
 
-		if (!isCheckboxVisible) {
-			test.skip(true, 'Select-all checkbox not visible');
-			return;
-		}
+		const dialog = bulkPage.confirmDialog.filter({ hasText: /delete items/i });
+		await expect(dialog).toBeVisible();
+		await expect(dialog).toContainText(new RegExp(`\\b${listed.length} items?\\b`));
 
-		await bulkPage.selectAllCheckbox.click();
-		await adminPage.waitForTimeout(500);
-
-		const isDeleteVisible = await bulkPage.deleteButton.isVisible().catch(() => false);
-
-		if (!isDeleteVisible) {
-			test.skip(true, 'Bulk delete button not visible');
-			return;
-		}
-
-		await bulkPage.deleteButton.click();
-
-		// Confirmation dialog should appear
-		await expect(bulkPage.confirmDialog).toBeVisible({ timeout: 5_000 });
-
-		// Cancel to avoid actual deletion
-		await adminPage.keyboard.press('Escape');
-		await adminPage.waitForTimeout(500);
+		await dialog.getByRole('button', { name: /^cancel$/i }).click();
+		await expect(dialog).toBeHidden();
+		expect(bulkBodies, 'Cancel sent a bulk request').toHaveLength(0);
 	});
 
 	test('clear selection removes bulk action bar', async ({ adminPage }) => {
 		const bulkPage = new AdminBulkActionsPage(adminPage);
 
-		await bulkPage.navigate();
-		await bulkPage.waitForPageReady();
-		await adminPage.waitForTimeout(2_000);
+		const listed = await openAllItems(adminPage, bulkPage);
+		await selectAllRows(bulkPage, listed);
 
-		const isCheckboxVisible = await bulkPage.selectAllCheckbox.isVisible().catch(() => false);
+		await bulkPage.bulkActionBar.getByRole('button', { name: /deselect|clear/i }).click();
 
-		if (!isCheckboxVisible) {
-			test.skip(true, 'Select-all checkbox not visible');
-			return;
-		}
-
-		// Select all → bar appears
-		await bulkPage.selectAllCheckbox.click();
-		await adminPage.waitForTimeout(500);
-		await expect(bulkPage.bulkActionBar).toBeVisible({ timeout: 5_000 });
-
-		// Clear selection: prefer the in-bar deselect button (when present),
-		// fall back to toggling select-all off.
-		const inBarDeselect = bulkPage.bulkActionBar
-			.getByRole('button', { name: /deselect|clear/i })
-			.first();
-		const isInBarDeselectVisible = await inBarDeselect.isVisible().catch(() => false);
-		if (isInBarDeselectVisible) {
-			await inBarDeselect.click();
-		} else {
-			// Some themes wire deselect to a checkbox toggle only.
-			await bulkPage.selectAllCheckbox.click();
-		}
-
-		await adminPage.waitForTimeout(500);
-		// Bar should hide OR all individual checkboxes should be unchecked.
-		// We accept either as proof that the clear path worked — different
-		// themes implement this two different ways.
-		const barHidden = await bulkPage.bulkActionBar
-			.waitFor({ state: 'hidden', timeout: 5_000 })
-			.then(() => true)
-			.catch(() => false);
-		if (!barHidden) {
-			const checkedCount = await adminPage.locator('[aria-checked="true"]').count();
-			expect(checkedCount, 'all items should be deselected after clear').toBe(0);
-		}
+		await expect(bulkPage.bulkActionBar.getByTestId('bulk-selected-count')).toHaveText('0');
+		await expect(adminPage.getByRole('checkbox', { checked: true }), 'a row is still ticked').toHaveCount(0);
+		await expect(bulkPage.bulkActionBar, 'the bulk bar did not fade out').toHaveCSS('opacity', '0');
 	});
 });
 
