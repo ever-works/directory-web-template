@@ -66,6 +66,26 @@ describe('admin items page bulk selection wiring', () => {
 		);
 	});
 
+	it('closes the confirm dialog without a request when no ticked row is left on screen', () => {
+		// The list can refresh while the dialog is open and drop every ticked row; the route answers an
+		// empty ids list with a 400, so each handler must close the dialog instead of sending one
+		for (const [name, call] of [
+			['handleBulkApprove', 'await bulkApprove(Array.from(visibleSelectedIds))'],
+			['handleBulkReject', 'await bulkReject(Array.from(visibleSelectedIds), reason)'],
+			['handleBulkDelete', 'await bulkDelete(Array.from(visibleSelectedIds))'],
+		]) {
+			const start = page.indexOf(`const ${name} = useCallback(`);
+			assert.ok(start >= 0, `${name} not found`);
+			const end = page.indexOf(call, start);
+			assert.ok(end > start, `${name} does not send the visible ids`);
+			const body = page.slice(start, end);
+			assert.ok(
+				body.includes('if (visibleSelectedIds.size === 0) { setBulkAction(null); return; }'),
+				`${name} sends a bulk request when no ticked row is on screen`
+			);
+		}
+	});
+
 	it('counts only the visible selection in the checkbox state, the bar and the confirm dialog', () => {
 		assert.ok(
 			page.includes('const isAllSelected = items.length > 0 && visibleSelectedIds.size === items.length;'),

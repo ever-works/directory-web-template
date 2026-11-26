@@ -250,17 +250,22 @@ export default function AdminItemsPage() {
     (item) => selectedIds.has(item.id) && item.status === 'pending'
   ).length;
 
+  // The list can refresh while the confirm dialog is open and drop every ticked row. Then there is
+  // nothing to send (the route answers an empty ids list with a 400), so each handler just closes the dialog
   const handleBulkApprove = useCallback(async () => {
+    if (visibleSelectedIds.size === 0) { setBulkAction(null); return; }
     const result = await bulkApprove(Array.from(visibleSelectedIds));
     if (result) { clearSelection(); setBulkAction(null); }
   }, [visibleSelectedIds, bulkApprove, clearSelection]);
 
   const handleBulkReject = useCallback(async (reason: string) => {
+    if (visibleSelectedIds.size === 0) { setBulkAction(null); return; }
     const result = await bulkReject(Array.from(visibleSelectedIds), reason);
     if (result) { clearSelection(); setBulkAction(null); }
   }, [visibleSelectedIds, bulkReject, clearSelection]);
 
   const handleBulkDelete = useCallback(async () => {
+    if (visibleSelectedIds.size === 0) { setBulkAction(null); return; }
     const result = await bulkDelete(Array.from(visibleSelectedIds));
     if (result) { clearSelection(); setBulkAction(null); }
   }, [visibleSelectedIds, bulkDelete, clearSelection]);
