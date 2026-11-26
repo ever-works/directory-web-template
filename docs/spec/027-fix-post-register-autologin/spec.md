@@ -92,6 +92,16 @@ code" link unblocks the same way, so a code that expired between the
 action and the callback can be replaced. Covered by
 `apps/web-e2e/tests/auth/signin-session-setup-failure.spec.ts`.
 
+That error belongs to the one action result whose session could not be
+set up. Since T-2851 the form keeps it with that `state` and shows it
+only while that result is current, so the next answer replaces it: a
+resubmission the action refuses (a wrong password) shows only its own
+error instead of showing it under the stale "Unable to refresh your
+session" message. The error is not cleared on submit: while the next
+submission is pending the accepted result is still current, and without
+the error the form would show the success banner and "Signed in!" for
+it. Same spec file.
+
 ## Files touched
 
 - `apps/web/app/[locale]/auth/actions.ts` — `signUp` calls

@@ -61,7 +61,14 @@ export function CredentialsForm({
 	const [clientPending, setClientPending] = useState(false);
 	const [clientError, setClientError] = useState<string | null>(null);
 	const [clientSuccess, setClientSuccess] = useState(false);
-	const [authSyncError, setAuthSyncError] = useState<string | null>(null);
+	// The browser could not set up the session after the action accepted a submission (see
+	// `hasSucceeded`). The error belongs to that one action result, so it is kept with the `state`
+	// it was raised for and shown only while that result is current: the next answer replaces it,
+	// and a refused resubmission shows only its own error. It is not cleared on submit, because the
+	// accepted result stays current until the next answer arrives, and without the error the form
+	// would show it as a success while that submission is pending.
+	const [authSyncFailure, setAuthSyncFailure] = useState<{ state: ActionState; message: string } | null>(null);
+	const authSyncError = authSyncFailure?.state === state ? authSyncFailure.message : null;
 	// Store password locally for autoLogin - NEVER returned from server for security
 	const [pendingPassword, setPendingPassword] = useState<string | null>(null);
 	// ── Email 2FA second step (EW-139) ───────────────────────────────────────
@@ -155,7 +162,7 @@ export function CredentialsForm({
 			if (successHandledRef.current) return;
 			successHandledRef.current = true;
 			const doRedirect = async () => {
-				setAuthSyncError(null);
+				setAuthSyncFailure(null);
 				try {
 					await refreshSession();
 				} catch (err) {
@@ -188,7 +195,7 @@ export function CredentialsForm({
 			if (autoLoginFiredRef.current === state) return;
 			autoLoginFiredRef.current = state;
 			const doAutoLogin = async () => {
-				setAuthSyncError(null);
+				setAuthSyncFailure(null);
 				try {
 					const { signIn } = await import('next-auth/react');
 					const res = await signIn('credentials', {
@@ -203,7 +210,7 @@ export function CredentialsForm({
 
 					if (res?.error) {
 						console.error('Auto-login failed:', res.error);
-						setAuthSyncError(tCred('SESSION_REFRESH_FAILED'));
+						setAuthSyncFailure({ state, message: tCred('SESSION_REFRESH_FAILED') });
 						return; // a retry needs a new submission, which brings a new `state`
 					}
 
@@ -223,7 +230,7 @@ export function CredentialsForm({
 					window.location.href = finalRedirectPath;
 				} catch (err) {
 					console.error('Auto-login error:', err);
-					setAuthSyncError(tCred('SESSION_REFRESH_FAILED'));
+					setAuthSyncFailure({ state, message: tCred('SESSION_REFRESH_FAILED') });
 				}
 			};
 			void doAutoLogin();
@@ -233,13 +240,13 @@ export function CredentialsForm({
 		// Modal success flow - refresh session and handle errors
 		if (onSuccess) {
 			const doModalSuccess = async () => {
-				setAuthSyncError(null);
+				setAuthSyncFailure(null);
 				invalidateAllUserData();
 				try {
 					await refreshSession();
 				} catch (err) {
 					console.error('Failed to refresh session after auth', err);
-					setAuthSyncError(tCred('SESSION_REFRESH_FAILED'));
+					setAuthSyncFailure({ state, message: tCred('SESSION_REFRESH_FAILED') });
 					return;
 				}
 				router.refresh();
@@ -435,7 +442,7 @@ export function CredentialsForm({
 	// credentials callback refused the sign-in, or the request failed): every flow that sets
 	// `authSyncError` stops there with no redirect. That is a failed sign-in, so it must not show
 	// the success banner or the "Signed in!" label, and the form must stay usable for a new
-	// submission (which clears the error once its own auto-login starts).
+	// submission (whose answer, accepted or refused, replaces the error).
 	const hasSucceeded = !!state?.success && !authSyncError;
 
 	// A resend must not race a verification in flight — see `handleResendCode`.

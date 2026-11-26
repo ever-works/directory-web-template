@@ -17,11 +17,16 @@ import { TEST_DATA } from '../../helpers/test-data';
  * the sign-in failed: no success banner, the normal "Sign In" label, and the user can submit again.
  * The register form runs the same two steps after `signUp` and gets the same treatment.
  *
+ * The error belongs to the submission whose session could not be set up. When the next submission
+ * is refused (a wrong password), only its own error shows; the old session error used to stay above
+ * it, so the user saw two errors and the stale one pointed at the wrong problem.
+ *
  * The callback is made to fail with `page.route`, so the tests do not depend on the rate limiter.
  * Every test uses its own new account, so it does not share a password budget with other specs.
  */
 
 const CLIENT_PASSWORD = TEST_DATA.CLIENT_PASSWORD;
+const WRONG_PASSWORD = 'WrongPassword123!';
 const DASHBOARD_URL = /\/client\/dashboard/;
 
 // Copy read from the app's English messages, so a wording change does not break the test.
@@ -31,14 +36,18 @@ const messages = JSON.parse(readFileSync(path.resolve(__dirname, '../../../web/m
 };
 const credentialsFormMessages = messages.admin.CREDENTIALS_FORM;
 const SESSION_REFRESH_FAILED_MESSAGE = credentialsFormMessages.SESSION_REFRESH_FAILED;
+const INVALID_PASSWORD_MESSAGE = credentialsFormMessages.INVALID_PASSWORD;
 const LOGIN_SUCCESSFUL_MESSAGE = credentialsFormMessages.LOGIN_SUCCESSFUL;
 const SIGNED_IN_LABEL = credentialsFormMessages.SIGNED_IN;
+const SIGNING_IN_LABEL = credentialsFormMessages.SIGNING_IN;
 const SIGN_IN_LABEL = messages.auth.SIGN_IN;
 const ACCOUNT_CREATED_MESSAGE = credentialsFormMessages.ACCOUNT_CREATED_SUCCESSFULLY;
 const ACCOUNT_CREATED_LABEL = credentialsFormMessages.ACCOUNT_CREATED;
 const CREATE_ACCOUNT_LABEL = messages.auth.CREATE_ACCOUNT;
 
 const isCredentialsCallback = (url: URL) => url.pathname === '/api/auth/callback/credentials';
+// The sign-in server action posts to the page's own URL.
+const isSignInPage = (url: URL) => url.pathname.endsWith('/auth/signin');
 
 /** The two ways the callback can fail after the action accepted the password. */
 const callbackFailures: { name: string; answer: (route: Route) => Promise<void> }[] = [
@@ -134,6 +143,60 @@ test.describe('Auth: sign-in when the session cannot be set up', () => {
 				await page.waitForURL(DASHBOARD_URL, { timeout: 120_000, waitUntil: 'domcontentloaded' });
 				expect(callbackPosts, 'the second submission went to the real callback, not the stub').toBe(1);
 			} finally {
+				await context.close();
+			}
+		});
+
+		test(`${failure.name}, then a wrong password: only the wrong-password error shows`, async ({ browser }) => {
+			test.setTimeout(300_000);
+			const email = TEST_DATA.generateClientEmail();
+			await registerClient(browser, email);
+
+			const context = await browser.newContext();
+			let releaseAction = () => {};
+			try {
+				const page = await context.newPage();
+				await page.route(isCredentialsCallback, (route) => failure.answer(route));
+
+				await openForm(page, '/auth/signin');
+				await submitSignIn(page, email, CLIENT_PASSWORD);
+				await expect(page.getByText(SESSION_REFRESH_FAILED_MESSAGE)).toBeVisible({ timeout: 120_000 });
+				await page.unroute(isCredentialsCallback);
+
+				// Hold the next sign-in action request, to look at the form while that submission is
+				// pending: the accepted result is still the current one then, and its session error must
+				// stay up rather than give way to the success banner or the "Signed in!" label.
+				const actionReleased = new Promise<void>((resolve) => {
+					releaseAction = resolve;
+				});
+				let markActionHeld = () => {};
+				const actionHeld = new Promise<void>((resolve) => {
+					markActionHeld = resolve;
+				});
+				await page.route(isSignInPage, async (route) => {
+					const request = route.request();
+					if (request.method() === 'POST' && request.headers()['next-action']) {
+						markActionHeld();
+						await actionReleased;
+					}
+					await route.fallback();
+				});
+
+				await submitSignIn(page, email, WRONG_PASSWORD);
+				await actionHeld;
+				await expect(page.getByText(SIGNING_IN_LABEL)).toBeVisible();
+				await expect(page.getByText(LOGIN_SUCCESSFUL_MESSAGE)).toHaveCount(0);
+				await expect(page.getByText(SIGNED_IN_LABEL)).toHaveCount(0);
+				releaseAction();
+
+				// The action refuses the password. Its error replaces the old one instead of showing below it.
+				await expect(page.getByText(INVALID_PASSWORD_MESSAGE)).toBeVisible({ timeout: 120_000 });
+				await expect(page.getByText(SESSION_REFRESH_FAILED_MESSAGE)).toHaveCount(0);
+				await expect(page.getByText(LOGIN_SUCCESSFUL_MESSAGE)).toHaveCount(0);
+				await expect(submitButton(page)).toBeEnabled();
+				expect(new URL(page.url()).pathname).not.toMatch(DASHBOARD_URL);
+			} finally {
+				releaseAction();
 				await context.close();
 			}
 		});
