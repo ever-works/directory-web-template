@@ -57,19 +57,37 @@ describe('sign-in and register error results do not send the password back', () 
 		const signIn = body('export const signInAction', 'const signInWithProviderSchema');
 		// RATE_LIMITED (password budget), RATE_LIMITED (code budget), ACCOUNT_NOT_FOUND,
 		// INVALID_PASSWORD (admin), INVALID_PASSWORD (client), USE_OAUTH_PROVIDER, GENERIC_ERROR (catch).
-		assert.equal(count(signIn, 'return authFormErrorState('), 7, 'signInAction has an error result not built by authFormErrorState');
-		assert.equal(count(signIn, 'return { error:'), 2, 'signInAction builds an error result by hand outside the 2FA prompts');
+		assert.equal(
+			count(signIn, 'return authFormErrorState('),
+			7,
+			'signInAction has an error result not built by authFormErrorState'
+		);
+		assert.equal(
+			count(signIn, 'return { error:'),
+			2,
+			'signInAction builds an error result by hand outside the 2FA prompts'
+		);
 		for (let at = signIn.indexOf('return { error:'); at >= 0; at = signIn.indexOf('return { error:', at + 1)) {
 			const result = signIn.slice(at, signIn.indexOf('email: normalizedEmail };', at));
-			assert.ok(result.includes('twoFactorRequired: true'), 'a hand-built signInAction error result is not a 2FA prompt');
-			assert.ok(!/\bpassword\b|\bdata\b/.test(result), 'a 2FA prompt result carries the password or the form data');
+			assert.ok(
+				result.includes('twoFactorRequired: true'),
+				'a hand-built signInAction error result is not a 2FA prompt'
+			);
+			assert.ok(
+				!/\bpassword\b|\bdata\b/.test(result),
+				'a 2FA prompt result carries the password or the form data'
+			);
 		}
 	});
 
 	it('every signUp error result is built by authFormErrorState', () => {
 		const signUp = body('export const signUp = ', 'const updatePasswordSchema');
 		// RATE_LIMITED, EMAIL_ALREADY_REGISTERED, the generic catch.
-		assert.equal(count(signUp, 'return authFormErrorState('), 3, 'signUp has an error result not built by authFormErrorState');
+		assert.equal(
+			count(signUp, 'return authFormErrorState('),
+			3,
+			'signUp has an error result not built by authFormErrorState'
+		);
 		assert.equal(count(signUp, 'return { error:'), 0, 'signUp builds an error result by hand');
 	});
 });

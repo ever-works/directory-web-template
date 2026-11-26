@@ -10,6 +10,7 @@ import { getTenantId } from '@/lib/auth/tenant';
 import { auth, signOut, unstable_update } from '@/lib/auth';
 import { validatedAction, validatedActionWithUser } from '@/lib/auth/middleware';
 import { comparePasswords, hashPassword, AuthProviders, AuthErrorCode } from '@/lib/auth/credentials';
+import { authFormErrorState } from '@/lib/auth/auth-form-error-state';
 import {
 	deletePasswordResetToken,
 	deleteVerificationToken,
@@ -82,7 +83,7 @@ export const signInAction = validatedAction(signInSchema, async (data) => {
 		// correct, so only failed attempts stay counted.
 		const passwordGate = await ratelimit(passwordBudgetKey, AUTH_RATE_LIMIT, AUTH_RATE_WINDOW_MS);
 		if (!passwordGate.success) {
-			return { error: AuthErrorCode.RATE_LIMITED, ...data };
+			return authFormErrorState(AuthErrorCode.RATE_LIMITED, data);
 		}
 
 		// A code-carrying submission is additionally bounded by its own, looser
@@ -96,7 +97,7 @@ export const signInAction = validatedAction(signInSchema, async (data) => {
 			);
 			if (!codeGate.success) {
 				refundRateLimit(passwordBudgetKey, passwordGate.resetTime);
-				return { error: AuthErrorCode.RATE_LIMITED, ...data };
+				return authFormErrorState(AuthErrorCode.RATE_LIMITED, data);
 			}
 		}
 
@@ -125,7 +126,7 @@ export const signInAction = validatedAction(signInSchema, async (data) => {
 
 		// No account found with this email
 		if (!foundUser && !clientAccount) {
-			return { error: AuthErrorCode.ACCOUNT_NOT_FOUND, ...data };
+			return authFormErrorState(AuthErrorCode.ACCOUNT_NOT_FOUND, data);
 		}
 
 		// Determine if this is an admin user via role-based check
@@ -135,7 +136,7 @@ export const signInAction = validatedAction(signInSchema, async (data) => {
 		if (isAdmin && foundUser) {
 			const isValid = await comparePasswords(password, foundUser.passwordHash);
 			if (!isValid) {
-				return { error: AuthErrorCode.INVALID_PASSWORD, ...data };
+				return authFormErrorState(AuthErrorCode.INVALID_PASSWORD, data);
 			}
 			releasePasswordReservation();
 		}
@@ -143,7 +144,7 @@ export const signInAction = validatedAction(signInSchema, async (data) => {
 		else if (clientAccount) {
 			const isValid = await verifyClientPassword(email, password);
 			if (!isValid) {
-				return { error: AuthErrorCode.INVALID_PASSWORD, ...data };
+				return authFormErrorState(AuthErrorCode.INVALID_PASSWORD, data);
 			}
 			releasePasswordReservation();
 
@@ -210,7 +211,7 @@ export const signInAction = validatedAction(signInSchema, async (data) => {
 		}
 		// OAuth-only user trying to use credentials form
 		else {
-			return { error: AuthErrorCode.USE_OAUTH_PROVIDER, ...data };
+			return authFormErrorState(AuthErrorCode.USE_OAUTH_PROVIDER, data);
 		}
 
 		// Step 2: Credentials validated - signal client to perform signIn
@@ -227,7 +228,7 @@ export const signInAction = validatedAction(signInSchema, async (data) => {
 		};
 	} catch (error) {
 		console.error('SignIn error:', error);
-		return { error: AuthErrorCode.GENERIC_ERROR, ...data };
+		return authFormErrorState(AuthErrorCode.GENERIC_ERROR, data);
 	}
 });
 
@@ -288,7 +289,7 @@ export const signUp = validatedAction(signUpSchema, async (data) => {
 		const rateLimitKey = `signup:${normalizedEmail}`;
 		const rateLimitResult = await ratelimit(rateLimitKey, AUTH_RATE_LIMIT, AUTH_RATE_WINDOW_MS);
 		if (!rateLimitResult.success) {
-			return { error: AuthErrorCode.RATE_LIMITED, ...data };
+			return authFormErrorState(AuthErrorCode.RATE_LIMITED, data);
 		}
 
 		// OPTIMIZATION 1: Parallelize password hashing with duplicate email check
@@ -302,10 +303,7 @@ export const signUp = validatedAction(signUpSchema, async (data) => {
 		// email already exists, sign in or reset your password"; sign-in already tells an unknown
 		// email apart (ACCOUNT_NOT_FOUND), so naming a taken one reveals nothing new.
 		if (existingUser) {
-			return {
-				error: AuthErrorCode.EMAIL_ALREADY_REGISTERED,
-				...data
-			};
+			return authFormErrorState(AuthErrorCode.EMAIL_ALREADY_REGISTERED, data);
 		}
 
 		// Handle Supabase auth if needed (after duplicate check to avoid unnecessary calls)
@@ -446,10 +444,7 @@ export const signUp = validatedAction(signUpSchema, async (data) => {
 		};
 	} catch (error) {
 		console.error('SignUp error:', error);
-		return {
-			error: 'Failed to create user. Please try again.',
-			...data
-		};
+		return authFormErrorState('Failed to create user. Please try again.', data);
 	}
 });
 
