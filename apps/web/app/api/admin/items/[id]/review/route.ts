@@ -6,6 +6,8 @@ import { ReviewRequest } from '@/lib/types/item';
 import { safeErrorResponse } from '@/lib/utils/api-error';
 import { requireAdminSession } from '@/lib/auth/admin-guard';
 import { validateReviewNotes } from '@/lib/utils/review-notes';
+import { getLocationEnabled } from '@/lib/utils/settings';
+import { getLocationIndexService } from '@/lib/services/location';
 
 const itemRepository = new ItemRepository();
 const userRepository = new UserRepository();
@@ -171,6 +173,41 @@ export async function POST(
       status,
       review_notes,
     }, auditUser);
+
+    // Location Index: the location routes are public, so only an approved item keeps its row
+    // (indexItem removes it otherwise). Awaited, so the index is current when the admin gets the answer.
+    if (getLocationEnabled()) {
+      try {
+        const indexResult = await getLocationIndexService().indexItem(item);
+        if (indexResult.success || indexResult.removed) {
+          console.info('[Location Index] Index updated after review', {
+            action: 'review_item',
+            status: 'success',
+            slug: item.slug,
+            reviewStatus: status,
+            indexed: indexResult.success,
+          });
+        } else {
+          // A rejected item whose row could not be removed stays public until a rebuild
+          // (POST /api/admin/location-index {"action":"rebuild"}, or the next content sync)
+          console.error('[Location Index] Failed to update index after review; rebuild the location index', {
+            action: 'review_item',
+            status: 'error',
+            slug: item.slug,
+            reviewStatus: status,
+            error: indexResult.error,
+          });
+        }
+      } catch (error) {
+        console.error('[Location Index] Failed to update index after review', {
+          action: 'review_item',
+          status: 'error',
+          slug: item.slug,
+          reviewStatus: status,
+          error: error instanceof Error ? error.message : String(error),
+        });
+      }
+    }
 
     // Debug: Log item details for troubleshooting
     console.log('[Review] Item reviewed:', {
