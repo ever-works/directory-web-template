@@ -13,8 +13,8 @@ import { ADMIN_STATE_FILE } from '../../helpers/test-data';
  * - over the North Pole: centre 80,0, radius 2000 km, item at 85,180 (about 1,668 km);
  * - at high latitude: centre 60,0, radius 3200 km, item at 75,65 (about 2,999 km).
  *
- * A mid-latitude case checks that ordinary searches still work. The spec creates one item per
- * case through `POST /api/admin/items` as the admin (storage state from global-setup.ts), which
+ * A mid-latitude case checks that ordinary searches still work. The spec creates one approved item
+ * per case through `POST /api/admin/items` as the admin (storage state from global-setup.ts), which
  * indexes its coordinates, and deletes the items again at the end.
  *
  * The route answers 404 when the location feature is off, the default for the CI content stub
@@ -106,7 +106,8 @@ test.describe('API: /api/location/search radius reach (date line, poles, high la
 							name: `E2E T-2832 ${testCase.key} ${suffix}`,
 							description: `Radius search reach fixture (${testCase.key})`,
 							source_url: `https://example.com/${slug}`,
-							status: 'draft',
+							// Only approved items are in the public index (T-2840)
+							status: 'approved',
 							location: { ...testCase.item, city: `E2E ${testCase.key}`, country: 'E2E' }
 						}
 					});

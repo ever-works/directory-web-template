@@ -238,7 +238,10 @@ import { getLocationIndexService } from '@/lib/services/location';
 
 const indexService = getLocationIndexService();
 
-// Index a single item (geocodes if coordinates missing)
+// Index a single item (geocodes if coordinates missing).
+// Only an approved, non-deleted item with a location is indexed (isLocationIndexable in
+// lib/utils/location-indexable.ts); for any other item indexItem removes its row instead.
+// indexItem and removeFromIndex run one at a time per slug, in call order.
 const result = await indexService.indexItem(item);
 // { slug, success, geocoded, error? }
 
@@ -248,7 +251,7 @@ await indexService.removeFromIndex('item-slug');
 
 ### Index Rebuilding
 
-Full index rebuild processes items in batches of 50 for performance:
+Full index rebuild clears the index and indexes only the items `isLocationIndexable` keeps (approved, not deleted, with a location), in batches of 50 for performance. The location routes are public, so draft, pending and rejected items never reach the index ([Spec 063](../spec/063-location-index-visibility/spec.md)):
 
 ```typescript
 const result = await indexService.rebuildIndex(allItems);

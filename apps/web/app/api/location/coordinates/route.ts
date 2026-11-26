@@ -15,7 +15,7 @@ interface CoordinateEntry {
  * /api/location/coordinates:
  *   get:
  *     tags: ["Location"]
- *     summary: "Get coordinates for all indexed items"
+ *     summary: "Get coordinates for all indexed (approved) items"
  *     parameters:
  *       - name: city
  *         in: query
