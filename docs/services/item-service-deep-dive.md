@@ -163,7 +163,7 @@ Creates data directories and syncs with the remote Git repository (clone or pull
 
 ### `readItems(includeDeleted?: boolean): Promise<ItemData[]>`
 
-Reads all item YAML files from the `data/` directory. Normalizes fields, provides defaults for missing values, and parses location data.
+Reads all item YAML files from the `data/` directory. Normalizes fields, provides defaults for missing values, and parses location data. An entry of `data/` it cannot stat (a folder that a hard delete removed after the listing, or a link to nothing) is skipped with a warning, and the other items still come back; only a failure to list `data/` itself answers `[]`. `readItemsRaw` (the item export) reads the folder the same way.
 
 ### `readItemsBySlugs(slugs: string[], includeDeleted?: boolean): Promise<ItemData[]>`
 
