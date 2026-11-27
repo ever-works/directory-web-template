@@ -1,4 +1,5 @@
 import * as fs from 'node:fs/promises';
+import type { Stats } from 'node:fs';
 import * as path from 'node:path';
 import * as yaml from 'yaml';
 import { ItemData, CreateItemRequest, UpdateItemRequest, ReviewRequest } from '@/lib/types/item';
@@ -131,6 +132,25 @@ export class ItemGitService {
     }
   }
 
+  /**
+   * Stats one entry of the data folder for readItems and readItemsRaw. An entry it cannot stat
+   * answers null, so the read skips it and still returns the other items, instead of one entry
+   * making the whole read answer no items (T-2873). ENOENT is a normal skip: a hard delete removed
+   * the folder after the listing, or the entry is a link to nothing.
+   */
+  private async statDataEntry(entryPath: string): Promise<Stats | null> {
+    try {
+      return await fs.stat(entryPath);
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException)?.code === 'ENOENT') {
+        console.warn(`⚠️ Skipping ${entryPath}: it is gone or links to nothing`);
+      } else {
+        console.warn(`⚠️ Could not read item entry ${entryPath}:`, error);
+      }
+      return null;
+    }
+  }
+
   async readItems(includeDeleted: boolean = false): Promise<ItemData[]> {
     try {
       const dataDir = path.join(this.config.dataDir, 'data');
@@ -149,9 +169,9 @@ export class ItemGitService {
 
       for (const itemDir of itemDirs) {
         const itemDirPath = path.join(dataDir, itemDir);
-        const itemDirStat = await fs.stat(itemDirPath);
+        const itemDirStat = await this.statDataEntry(itemDirPath);
 
-        if (itemDirStat.isDirectory()) {
+        if (itemDirStat?.isDirectory()) {
           const itemFile = path.join(itemDirPath, `${itemDir}.yml`);
 
           try {
@@ -309,9 +329,9 @@ export class ItemGitService {
 
       for (const itemDir of itemDirs) {
         const itemDirPath = path.join(dataDir, itemDir);
-        const itemDirStat = await fs.stat(itemDirPath);
+        const itemDirStat = await this.statDataEntry(itemDirPath);
 
-        if (itemDirStat.isDirectory()) {
+        if (itemDirStat?.isDirectory()) {
           const itemFile = path.join(itemDirPath, `${itemDir}.yml`);
 
           try {
