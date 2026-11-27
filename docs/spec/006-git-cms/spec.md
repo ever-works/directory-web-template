@@ -96,7 +96,11 @@ catches typos.
   `findPublicItemSlugs()` (same file, built on the cached `fetchItems()`
   listing) returns. For any other slug they answer as for an unknown one,
   with no database query for it: zero totals and `days` zero-filled series
-  entries, a count of 0, all zeros (T-2857).
+  entries, a count of 0, all zeros (T-2857). One exception: outside
+  `next dev` the listing is kept for up to 10 minutes and reviewing an item
+  does not clear it, so for up to 10 minutes after a reject the batch route
+  can still answer for that item (and a new item gets zeros there). The
+  activity and votes/count routes read the item file and change at once.
 
 ## 7. Out-of-Scope Considerations
 
