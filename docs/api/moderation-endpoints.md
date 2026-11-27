@@ -21,7 +21,7 @@ When an admin sets a `resolution` value on a report, the corresponding moderatio
 
 | Resolution Value | Moderation Function | Effect |
 |---|---|---|
-| `content_removed` | `removeContent()` | A reported comment is soft-deleted (`deletedAt` set). A reported item is permanently deleted from the content repository (its YAML file is removed) and cannot be restored |
+| `content_removed` | `removeContent()` | A reported comment is soft-deleted (`deletedAt` set). A reported item is hard-deleted: its YAML file is removed, it gets no `deleted_at`, and restore cannot bring it back |
 | `user_warned` | `warnUser()` | Increments the user's warning count |
 | `user_suspended` | `suspendUser()` | Sets user status to `"suspended"` |
 | `user_banned` | `banUser()` | Sets user status to `"banned"` |
@@ -35,9 +35,11 @@ When an admin sets a `resolution` value on a report, the corresponding moderatio
 removeContent(contentType, contentId, reportId, adminId): Promise<ModerationResult>
 ```
 
-Removes the reported content based on its type. For comments, this performs a soft delete (sets `deletedAt`). For items, this permanently deletes the item from the Git-based content repository: `itemRepository.delete()` removes the item's file (`data/<slug>/<slug>.yml`).
+Removes the reported content based on its type. For comments, this performs a soft delete (sets `deletedAt`). For items, this is a hard delete: `itemRepository.delete()` removes the item's file (`data/<slug>/<slug>.yml`) from the app's content checkout.
 
-Item removal is permanent and cannot be undone with restore. It is not the item soft delete (`itemRepository.softDelete()`, which sets `deleted_at` and keeps the file): the removed item gets no `deleted_at` and is not listed with deleted items, and restore (`itemRepository.restore()`, `POST /api/client/items/{id}/restore`) answers `Item not found`. To bring the item back, create or import it again.
+Item removal cannot be undone with restore. It is not the item soft delete (`itemRepository.softDelete()`, which sets `deleted_at` and keeps the file): the removed item gets no `deleted_at` and is not listed with deleted items, and restore (`itemRepository.restore()`, `POST /api/client/items/{id}/restore`) answers `Item not found`. To bring the item back, create or import it again.
+
+The removal does not reach the content repository yet. `ItemGitService.commitAndPush()` stages with `git.add` on `.`, and isomorphic-git does not stage a deleted file, so the `Delete item` commit records no change and the pushed repository still holds the file. A fresh clone of the content repository (for example on a new instance) brings the item back.
 
 **Parameters:**
 
@@ -52,7 +54,7 @@ Item removal is permanent and cannot be undone with restore. It is not the item 
 
 1. Look up content owner via `getContentOwner()`
 2. If comment: soft-delete via `deleteComment()`
-3. If item: permanently delete it from the Git repository via `itemRepository.delete()` (the item file is removed; there is no `deleted_at`, so restore cannot undo it)
+3. If item: hard-delete it via `itemRepository.delete()` (the item file is removed; there is no `deleted_at`, so restore cannot undo it)
 4. Log moderation history with action `CONTENT_REMOVED`
 5. Send content removal notification email to the content owner
 
