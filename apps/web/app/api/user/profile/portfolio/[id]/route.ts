@@ -18,6 +18,13 @@ const logger = Logger.create('userProfilePortfolioItem');
  *     summary: "Update a portfolio project owned by the authenticated user"
  *     security:
  *       - cookieAuth: []
+ *     parameters:
+ *       - name: "id"
+ *         in: "path"
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: "ID of the portfolio project"
  *     responses:
  *       200: { description: "Project updated" }
  *       400: { description: "Validation error" }
@@ -78,6 +85,13 @@ export async function PATCH(request: NextRequest, ctx: { params: Promise<{ id: s
  *     summary: "Delete a portfolio project owned by the authenticated user"
  *     security:
  *       - cookieAuth: []
+ *     parameters:
+ *       - name: "id"
+ *         in: "path"
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: "ID of the portfolio project"
  *     responses:
  *       200: { description: "Project deleted" }
  *       401: { description: "Unauthorized" }

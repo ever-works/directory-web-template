@@ -11425,7 +11425,7 @@
 				}
 			}
 		},
-		"/api/auth/{...nextauth}": {
+		"/api/auth/{nextauth}": {
 			"get": {
 				"tags": ["Authentication"],
 				"summary": "NextAuth.js GET handler",
@@ -13033,7 +13033,7 @@
 				}
 			}
 		},
-		"/api/items/{itemId}/comments": {
+		"/api/items/{slug}/comments": {
 			"get": {
 				"tags": ["Item Comments"],
 				"summary": "Get item comments",
@@ -22853,18 +22853,6 @@
 						"sessionAuth": []
 					}
 				],
-				"parameters": [
-					{
-						"name": "id",
-						"in": "path",
-						"required": true,
-						"schema": {
-							"type": "string"
-						},
-						"description": "Category ID",
-						"example": "productivity"
-					}
-				],
 				"responses": {
 					"200": {
 						"description": "Category retrieved successfully",
@@ -31858,6 +31846,17 @@
 						"cookieAuth": []
 					}
 				],
+				"parameters": [
+					{
+						"name": "id",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "string"
+						},
+						"description": "ID of the portfolio project"
+					}
+				],
 				"responses": {
 					"200": {
 						"description": "Project updated"
@@ -31879,6 +31878,17 @@
 				"security": [
 					{
 						"cookieAuth": []
+					}
+				],
+				"parameters": [
+					{
+						"name": "id",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "string"
+						},
+						"description": "ID of the portfolio project"
 					}
 				],
 				"responses": {
@@ -31983,16 +31993,49 @@
 			"get": {
 				"tags": ["User - Profile Follow"],
 				"summary": "Get follow state + counts for a profile",
-				"description": "Returns isFollowing (whether the authenticated user follows this profile) plus public follower/following counts. isFollowing is null for unauthenticated viewers."
+				"description": "Returns isFollowing (whether the authenticated user follows this profile) plus follower/following counts. isFollowing is null for unauthenticated viewers. followers and following are null when the profile is Private and the viewer is not its owner. A deactivated account answers 404 to everyone but its owner.",
+				"parameters": [
+					{
+						"name": "username",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "string"
+						},
+						"description": "Username of the profile"
+					}
+				]
 			},
 			"post": {
 				"tags": ["User - Profile Follow"],
 				"summary": "Follow a profile",
-				"description": "Idempotent — following an already-followed profile returns 200."
+				"description": "Idempotent — following an already-followed profile returns 200.",
+				"parameters": [
+					{
+						"name": "username",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "string"
+						},
+						"description": "Username of the profile"
+					}
+				]
 			},
 			"delete": {
 				"tags": ["User - Profile Follow"],
-				"summary": "Unfollow a profile"
+				"summary": "Unfollow a profile",
+				"parameters": [
+					{
+						"name": "username",
+						"in": "path",
+						"required": true,
+						"schema": {
+							"type": "string"
+						},
+						"description": "Username of the profile"
+					}
+				]
 			}
 		},
 		"/api/auth/security/connected-accounts/{provider}": {
