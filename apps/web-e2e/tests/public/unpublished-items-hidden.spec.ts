@@ -29,6 +29,22 @@ import { ADMIN_STATE_FILE, CLIENT_STATE_FILE } from '../../helpers/test-data';
  * vote on the approved item (the control) and on the draft, and reads the draft's comments,
  * rating and votes back. Last, it rejects the approved item: the comment, rating and vote it got
  * while public no longer show. The comment and the votes are deleted at the end.
+ *
+ * The routes that show engagement totals answer for an unpublished item as for an unknown one too
+ * (T-2857). `GET /api/items/[slug]/activity`, `GET .../votes/count` and `GET
+ * /api/items/engagement?slugs=` read the rows keyed by the slug in the URL and looked no item up,
+ * so the approved item's vote, comment and view still showed there once it was rejected. The spec
+ * reads all three for the approved item (its vote shows) and the draft (zero) after the vote, and
+ * again for the approved item once it is rejected (zero).
+ *
+ * `GET /api/items/engagement` reads the public listing (`fetchItems`), which `next start` keeps in
+ * memory for up to 10 minutes; e2e.yml runs `next start` (CI=true), `next dev` does not cache it.
+ * Creating an item or reviewing one does not clear that listing, the collection routes do (as a
+ * content sync does). So the batch route is read for the approved item only after the collection
+ * step, when the listing has the items created above, and for the rejected item only after the
+ * collection is deleted. Before that, a listing cached by another spec (any home page visit sorts
+ * by popularity and reads this route) could leave out the new item or still hold the rejected one.
+ * activity and votes/count read the item file on each request, so they answer zero at once.
  */
 const ITEMS_PATH = '/api/admin/items';
 
@@ -39,6 +55,10 @@ const BROWSER_HEADERS = {
 		'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36'
 };
 const NOT_FOUND = { success: false, error: 'Item not found' };
+const ZERO_TOTALS = { views: 0, votes: 0, favorites: 0, comments: 0, avgRating: 0 };
+const ACTIVITY_DAYS = 7;
+
+type ActivityDay = { date: string; views: number; votes: number; favorites: number; comments: number };
 
 type Status = 'approved' | 'rejected' | 'draft' | 'pending';
 
@@ -53,9 +73,10 @@ test.describe('Public: unpublished items are hidden from anonymous visitors', ()
 		playwright,
 		baseURL
 	}) => {
-		// Four creates, four deletes, six public page renders and four engagement routes, each first
+		// Four creates, four deletes, six public page renders and seven engagement routes, each first
 		// request compiling in dev: under `next dev` the run took 2.8 of the 3 minutes of test.slow()
-		test.setTimeout(300_000);
+		// before the three engagement total routes were added
+		test.setTimeout(420_000);
 
 		// The first request to a page compiles it in dev, which can take longer than the 30 s default
 		const anonymous = await playwright.request.newContext({
@@ -89,6 +110,44 @@ test.describe('Public: unpublished items are hidden from anonymous visitors', ()
 		const created: string[] = [];
 		const collection = { id: `e2e-t2846-${suffix}`, name: `E2E T-2846 collection ${suffix}` };
 		let collectionCreated = false;
+
+		/** What the three engagement total routes show for one slug, read with no session (T-2857). */
+		async function engagementTotals(slug: string) {
+			const activity = await anonymous.get(`/api/items/${slug}/activity?days=${ACTIVITY_DAYS}`);
+			expect(activity.status(), `GET activity ${slug}`).toBe(200);
+			const voteCount = await anonymous.get(`/api/items/${slug}/votes/count`);
+			expect(voteCount.status(), `GET votes/count ${slug}`).toBe(200);
+			const engagement = await anonymous.get(`/api/items/engagement?slugs=${slug}`);
+			expect(engagement.status(), `GET engagement ${slug}`).toBe(200);
+			const activityBody = (await activity.json()) as { totals: typeof ZERO_TOTALS; series: ActivityDay[] };
+			return {
+				totals: activityBody.totals,
+				series: activityBody.series,
+				voteCount: await voteCount.json(),
+				metrics: ((await engagement.json()) as { metrics: Record<string, typeof ZERO_TOTALS> }).metrics[slug]
+			};
+		}
+
+		/**
+		 * Checks that the routes show nothing for `slug`, as for an unknown slug. `batch: false` skips
+		 * `GET /api/items/engagement`, whose cached listing may not have caught up yet (see above).
+		 */
+		function expectNoEngagement(
+			read: Awaited<ReturnType<typeof engagementTotals>>,
+			label: string,
+			{ batch = true }: { batch?: boolean } = {}
+		) {
+			expect.soft(read.totals, `GET activity ${label}: totals`).toEqual(ZERO_TOTALS);
+			expect.soft(read.series, `GET activity ${label}: one entry per day`).toHaveLength(ACTIVITY_DAYS);
+			expect
+				.soft(
+					read.series.filter((day) => day.views || day.votes || day.favorites || day.comments),
+					`GET activity ${label}: days with engagement`
+				)
+				.toEqual([]);
+			expect.soft(read.voteCount, `GET votes/count ${label}`).toEqual({ success: true, count: 0 });
+			if (batch) expect.soft(read.metrics, `GET engagement ${label}`).toEqual(ZERO_TOTALS);
+		}
 
 		try {
 			await test.step('create one located item per status as the admin', async () => {
@@ -243,6 +302,37 @@ test.describe('Public: unpublished items are hidden from anonymous visitors', ()
 				}
 			});
 
+			// After the collection step: its admin routes cleared the cached public listing once the items
+			// above existed, so under `next start` the batch route lists the approved item (see above)
+			await test.step('activity, votes/count and engagement show the approved item only', async () => {
+				const draft = unpublished.find((fixture) => fixture.status === 'draft')!;
+
+				// Control: the approved item's vote and comment show on all three
+				const shown = await engagementTotals(approved.slug);
+				expect(shown.totals, `GET activity ${approved.slug}: totals`).toMatchObject({ votes: 1, comments: 1 });
+				expect(shown.series, `GET activity ${approved.slug}: one entry per day`).toHaveLength(ACTIVITY_DAYS);
+				expect(
+					shown.series.reduce((sum, day) => sum + day.votes, 0),
+					`GET activity ${approved.slug}: votes in the series`
+				).toBe(1);
+				expect(shown.voteCount, `GET votes/count ${approved.slug}`).toEqual({ success: true, count: 1 });
+				expect(shown.metrics, `GET engagement ${approved.slug}`).toMatchObject({ votes: 1, comments: 1 });
+
+				expectNoEngagement(await engagementTotals(draft.slug), `${draft.slug} (draft)`);
+
+				// One request for both: the approved item keeps its totals, the draft gets zeros
+				const both = await anonymous.get(`/api/items/engagement?slugs=${approved.slug},${draft.slug}`);
+				expect(both.status(), 'GET engagement for the approved item and the draft').toBe(200);
+				const { metrics } = (await both.json()) as { metrics: Record<string, typeof ZERO_TOTALS> };
+				expect.soft(metrics[approved.slug], `GET engagement ${approved.slug} with the draft`).toMatchObject({
+					votes: 1,
+					comments: 1
+				});
+				expect
+					.soft(metrics[draft.slug], `GET engagement ${draft.slug} with the approved item`)
+					.toEqual(ZERO_TOTALS);
+			});
+
 			await test.step('the approved item shows no comment, rating or vote once it is rejected', async () => {
 				// The comment and the vote were left while the item was public (the control above read
 				// them back). The draft's reads cannot show this: its writes are refused first.
@@ -267,6 +357,21 @@ test.describe('Public: unpublished items are hidden from anonymous visitors', ()
 					count: 0,
 					userVote: null
 				});
+				// The vote, comment and view it got while public no longer show in its totals (T-2857).
+				// activity and votes/count read the item file, so they show nothing at once.
+				expectNoEngagement(await engagementTotals(approved.slug), `${approved.slug} (rejected)`, {
+					batch: false
+				});
+				// The batch route follows the cached public listing, which the review does not clear and
+				// `next start` keeps for up to 10 minutes. Deleting the collection clears it, as a content
+				// sync does; then the rejected item gets zeros there too.
+				const deleteCollection = await request.delete(`/api/admin/collections/${collection.id}`);
+				expect(deleteCollection.status(), `DELETE /api/admin/collections/${collection.id}`).toBe(200);
+				collectionCreated = false;
+				expectNoEngagement(
+					await engagementTotals(approved.slug),
+					`${approved.slug} (rejected, listing cleared)`
+				);
 			});
 		} finally {
 			if (collectionCreated) {

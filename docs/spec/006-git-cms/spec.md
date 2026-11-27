@@ -90,6 +90,17 @@ catches typos.
   (`getPublicCommentById` in `apps/web/lib/db/queries/comment.queries.ts`).
   The admin routes and moderation still read deleted comments through
   `getCommentById` (T-2856).
+- [x] AC-10: The routes that show engagement totals answer only for a public
+  item too. `GET /api/items/[slug]/activity` and `GET .../votes/count` call
+  `findPublicItem()`, and `GET /api/items/engagement?slugs=` keeps the slugs
+  `findPublicItemSlugs()` (same file, built on the cached `fetchItems()`
+  listing) returns. For any other slug they answer as for an unknown one,
+  with no database query for it: zero totals and `days` zero-filled series
+  entries, a count of 0, all zeros (T-2857). One exception: outside
+  `next dev` the listing is kept for up to 10 minutes and reviewing an item
+  does not clear it, so for up to 10 minutes after a reject the batch route
+  can still answer for that item (and a new item gets zeros there). The
+  activity and votes/count routes read the item file and change at once.
 
 ## 7. Out-of-Scope Considerations
 
@@ -134,6 +145,11 @@ a headless CMS (Contentful, Sanity, Hygraph) without touching core.
   (source guard) and `apps/web-e2e/tests/api/comment-by-id-visibility.spec.ts`
   (a comment read through its own slug, another slug and an unknown one, then
   after its author deletes it, and a second one after its item is rejected).
+- AC-10: `apps/web/lib/__tests__/public-item-engagement-routes.spec.ts` and
+  the `findPublicItemSlugs` tests in `public-item.spec.ts` (unit), and
+  `apps/web-e2e/tests/public/unpublished-items-hidden.spec.ts` (activity,
+  votes/count and engagement for the approved item and the draft after the
+  vote, and for the approved item once it is rejected).
 
 ## 13. References
 
