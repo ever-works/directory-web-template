@@ -25467,7 +25467,7 @@
 			"delete": {
 				"tags": ["Item Votes"],
 				"summary": "Remove user vote",
-				"description": "Removes the current user's vote from an item if one exists. This effectively 'unvotes' the item, returning the user to a neutral state. Requires user authentication and a valid client profile.",
+				"description": "Removes the current user's vote from an item if one exists. This effectively 'unvotes' the item, returning the user to a neutral state. Requires user authentication, a public item (any other slug, a draft, pending, rejected or soft-deleted item included, is a 404 `Item not found` and no vote is removed) and a valid client profile.",
 				"security": [
 					{
 						"sessionAuth": []
@@ -25539,7 +25539,7 @@
 						}
 					},
 					"404": {
-						"description": "Client profile not found",
+						"description": "No public item has this slug (an unknown, draft, pending, rejected or soft-deleted item), or the client profile was not found",
 						"content": {
 							"application/json": {
 								"schema": {
@@ -25551,7 +25551,21 @@
 										},
 										"error": {
 											"type": "string",
-											"example": "Client profile not found"
+											"example": "Item not found"
+										}
+									}
+								},
+								"examples": {
+									"item_not_found": {
+										"value": {
+											"success": false,
+											"error": "Item not found"
+										}
+									},
+									"client_profile_not_found": {
+										"value": {
+											"success": false,
+											"error": "Client profile not found"
 										}
 									}
 								}

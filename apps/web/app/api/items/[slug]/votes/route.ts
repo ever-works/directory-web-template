@@ -327,7 +327,7 @@ export async function POST(request: Request, params: RouteParams) {
  *   delete:
  *     tags: ["Item Votes"]
  *     summary: "Remove user vote"
- *     description: "Removes the current user's vote from an item if one exists. This effectively 'unvotes' the item, returning the user to a neutral state. Requires user authentication and a valid client profile."
+ *     description: "Removes the current user's vote from an item if one exists. This effectively 'unvotes' the item, returning the user to a neutral state. Requires user authentication, a public item (any other slug, a draft, pending, rejected or soft-deleted item included, is a 404 `Item not found` and no vote is removed) and a valid client profile."
  *     security:
  *       - sessionAuth: []
  *     parameters:
@@ -376,7 +376,7 @@ export async function POST(request: Request, params: RouteParams) {
  *                   type: string
  *                   example: "Unauthorized"
  *       404:
- *         description: "Client profile not found"
+ *         description: "No public item has this slug (an unknown, draft, pending, rejected or soft-deleted item), or the client profile was not found"
  *         content:
  *           application/json:
  *             schema:
@@ -387,7 +387,16 @@ export async function POST(request: Request, params: RouteParams) {
  *                   example: false
  *                 error:
  *                   type: string
- *                   example: "Client profile not found"
+ *                   example: "Item not found"
+ *             examples:
+ *               item_not_found:
+ *                 value:
+ *                   success: false
+ *                   error: "Item not found"
+ *               client_profile_not_found:
+ *                 value:
+ *                   success: false
+ *                   error: "Client profile not found"
  *       500:
  *         description: "Internal server error"
  *         content:
@@ -408,6 +417,12 @@ export async function DELETE(request: Request, params: RouteParams) {
 
 		if (!session?.user?.id) {
 			return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+		}
+
+		// The answer carries the item's net votes: anything but a public item answers as an unknown slug,
+		// and no vote is removed (T-2864)
+		if (!(await findPublicItem(slug))) {
+			return NextResponse.json({ success: false, error: 'Item not found' }, { status: 404 });
 		}
 
 		const clientProfile = await getClientProfileByUserId(session.user.id);
