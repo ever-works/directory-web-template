@@ -26,7 +26,7 @@ loader._load = function (this: unknown, request: string, ...rest: unknown[]) {
 	if (request === 'server-only') return {};
 	return originalLoad.call(this, request, ...rest);
 };
-const { findPublicItem } = require('../public-item') as typeof PublicItemModule;
+const { findPublicItem, findPublicItemSlugs } = require('../public-item') as typeof PublicItemModule;
 loader._load = originalLoad;
 
 const PUBLIC = ['approved-item', 'blank-status-item', 'no-status-item'];
@@ -117,6 +117,29 @@ describe('findPublicItem', () => {
 			assert.equal(await findPublicItem(slug), null);
 		});
 	}
+});
+
+// GET /api/items/engagement takes up to 200 slugs and answered for every one of them (T-2857).
+// It now keeps only the slugs of public items, read from the public listing.
+describe('findPublicItemSlugs', () => {
+	it('keeps the public items and drops every other slug', async () => {
+		const slugs = [...PUBLIC, ...HIDDEN, 'no-such-item', '../approved-item', 'approved item', ''];
+		assert.deepEqual([...(await findPublicItemSlugs(slugs))].sort(), [...PUBLIC].sort());
+	});
+
+	for (const slug of HIDDEN) {
+		it(`drops ${slug}`, async () => {
+			assert.deepEqual([...(await findPublicItemSlugs([slug]))], []);
+		});
+	}
+
+	it('keeps a public slug that is given twice once', async () => {
+		assert.deepEqual([...(await findPublicItemSlugs(['approved-item', 'approved-item']))], ['approved-item']);
+	});
+
+	it('answers an empty set for no slugs', async () => {
+		assert.equal((await findPublicItemSlugs([])).size, 0);
+	});
 });
 
 // An item is `data/<slug>/<slug>.yml`, and a file name is at most 255 bytes. Linux answers
