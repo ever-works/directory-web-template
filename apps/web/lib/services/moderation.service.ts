@@ -15,6 +15,7 @@ import {
 } from '@/lib/db/schema';
 import { EmailNotificationService } from '@/lib/services/email-notification.service';
 import { resolveItemOwnerProfileId, type ContentOwnerResult } from '@/lib/services/moderation-content-owner';
+import { invalidateContentCaches } from '@/lib/cache-invalidation';
 
 // ===================== Types =====================
 
@@ -164,6 +165,10 @@ export async function removeContent(
 			// (action `deleted`) with the admin as performer, so the removal is recorded even when
 			// the item has no owner profile and no moderation_history row can be written below.
 			await itemRepository.delete(contentId, { id: adminId });
+
+			// The public listing is kept in memory (lib/content.ts fetchItems): clear it so the item leaves it
+			// at once. Right after the delete, so a failure of the history write below cannot skip it.
+			await invalidateContentCaches();
 
 			// Log moderation action and send email
 			if (ownerResult.userId) {

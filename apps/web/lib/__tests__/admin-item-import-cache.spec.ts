@@ -69,7 +69,8 @@ const stubs: Record<string, unknown> = {
 	'next/server': { NextResponse: StubNextResponse, NextRequest: Request },
 	'@/lib/auth/admin-guard': {
 		requireAdminSession: async () => {
-			if (!state.session) return StubNextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+			if (!state.session)
+				return StubNextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
 			return { session: state.session };
 		}
 	},
