@@ -61,6 +61,10 @@ processed my payment.
 - [x] AC-5: Subscription status mapped to a unified `SubscriptionStatus`.
 - [x] AC-6: Pricing page (`/pricing`) renders provider-agnostic UI.
 - [x] AC-7: Admin sponsorships page lists transactions across providers.
+- [x] AC-8: The public sponsor slots (`GET /api/sponsor-ads`) show a sponsorship only
+      inside its paid window: status `active` and `endDate` not past (a missing
+      `endDate` still shows). A renewal moves `endDate` forward, so a paying sponsor
+      stays. Rule: `apps/web/lib/sponsor-ads/live-window.ts`.
 
 ## 7. Out-of-Scope Considerations
 
