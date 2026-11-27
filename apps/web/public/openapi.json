@@ -25088,7 +25088,7 @@
 			"get": {
 				"tags": ["Item Votes"],
 				"summary": "Get item vote count",
-				"description": "Returns the total vote count for a specific item. The count represents the net score (upvotes - downvotes). This is a public endpoint that doesn't require authentication and is optimized for quick vote count retrieval.",
+				"description": "Returns the total vote count for a specific item. The count represents the net score (upvotes - downvotes). This is a public endpoint that doesn't require authentication and is optimized for quick vote count retrieval. A slug with no public item (unknown, draft, pending, rejected or soft-deleted) returns a count of 0.",
 				"parameters": [
 					{
 						"name": "slug",
@@ -25137,7 +25137,7 @@
 										}
 									},
 									"zero_score": {
-										"summary": "Item with no votes or equal votes",
+										"summary": "Item with no votes or equal votes, or no public item with this slug",
 										"value": {
 											"success": true,
 											"count": 0

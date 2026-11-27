@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getEngagementMetricsPerItem, ItemEngagementMetrics } from '@/lib/db/queries/engagement.queries';
+import { findPublicItemSlugs } from '@/lib/public-item';
 import { checkDatabaseAvailability } from '@/lib/utils/database-check';
 
 export const dynamic = 'force-dynamic';
@@ -13,6 +14,9 @@ export const dynamic = 'force-dynamic';
  * 
  * Returns:
  * - { metrics: Record<string, ItemEngagementMetrics> }
+ *
+ * A slug with no public item (unknown, draft, pending, rejected or soft-deleted) gets zeros, as an
+ * unknown slug, and is not queried (T-2857).
  */
 export async function GET(request: NextRequest) {
   try {
@@ -46,14 +50,26 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    // A draft, pending, rejected or soft-deleted item shows no engagement, as an unknown slug,
+    // so only public items are queried (T-2857). They come from the cached public listing.
+    const publicSlugs = await findPublicItemSlugs(slugs);
+
     // Fetch engagement metrics
-    const metricsMap = await getEngagementMetricsPerItem(slugs);
+    const metricsMap =
+      publicSlugs.size > 0
+        ? await getEngagementMetricsPerItem([...publicSlugs])
+        : new Map<string, ItemEngagementMetrics>();
 
     // Convert Map to plain object for JSON response
     const metrics: Record<string, ItemEngagementMetrics> = {};
     metricsMap.forEach((value, key) => {
       metrics[key] = value;
     });
+    for (const slug of slugs) {
+      if (!publicSlugs.has(slug)) {
+        metrics[slug] = { views: 0, votes: 0, favorites: 0, comments: 0, avgRating: 0 };
+      }
+    }
 
     return NextResponse.json({ metrics });
   } catch (error) {

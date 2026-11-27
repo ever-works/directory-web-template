@@ -40,6 +40,8 @@ The Items API provides public-facing endpoints for interacting with items, inclu
 
 The views route, the comment list and create routes, the rating statistics route and the vote read and cast routes answer only for a public item: approved (or with no status) and not soft-deleted, as on the item page. For a draft, pending, rejected or soft-deleted item they answer as for an unknown slug: `POST .../views`, `POST .../comments` and `POST .../votes` return 404 `{ "success": false, "error": "Item not found" }`, the comment list is empty, and the rating and vote reads return zero. Comments and votes left while an item was public stay in the database and reappear if the item is approved again. All of them call `findPublicItem` (`apps/web/lib/public-item.ts`), which reads the item through `fetchItem` (T-2853). `POST .../views` needs no session, and it checks for bots first: a request whose user agent looks like a bot gets 200 `{ "success": true, "counted": false, "reason": "bot" }` for any slug, so the 404 applies only to requests that pass bot detection. `POST .../comments` and `POST .../votes` need one: a request without a session gets 401 first, whatever the item. `DELETE .../votes` still answers for any slug, so a user can take back a vote.
 
+The routes that show engagement totals do the same (T-2857): `GET /api/items/{slug}/activity` returns zero totals and `days` zero-filled entries, `GET .../votes/count` returns `{ "success": true, "count": 0 }`, and `GET /api/items/engagement` returns zeros for every slug that names no public item, as for an unknown slug, with no database query for it. The first two call `findPublicItem`; the batch route calls `findPublicItemSlugs` (same file), which keeps the slugs of the public listing (`fetchItems`, kept in memory), so it answers for exactly the items the listing cards show.
+
 ---
 
 ## Comments
@@ -619,7 +621,7 @@ Removes the current user's vote from an item.
 
 ### Get Vote Count
 
-A lightweight endpoint that returns only the vote count (no user status).
+A lightweight endpoint that returns only the vote count (no user status). A slug with no public item (unknown, draft, pending, rejected or soft-deleted) returns a count of 0.
 
 | Property | Value |
 |----------|-------|
@@ -679,7 +681,7 @@ null
 
 ### Batch Engagement Metrics
 
-Fetches engagement metrics (views, votes, ratings, favorites, comments) for multiple items in a single request.
+Fetches engagement metrics (views, votes, ratings, favorites, comments) for multiple items in a single request. A slug with no public item (unknown, draft, pending, rejected or soft-deleted) gets all zeros and is not queried.
 
 | Property | Value |
 |----------|-------|

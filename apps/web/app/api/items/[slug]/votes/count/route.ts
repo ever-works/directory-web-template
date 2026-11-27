@@ -1,4 +1,5 @@
 import { getVoteCountForItem } from '@/lib/db/queries';
+import { findPublicItem } from '@/lib/public-item';
 import { NextResponse } from 'next/server';
 
 /**
@@ -7,7 +8,7 @@ import { NextResponse } from 'next/server';
  *   get:
  *     tags: ["Item Votes"]
  *     summary: "Get item vote count"
- *     description: "Returns the total vote count for a specific item. The count represents the net score (upvotes - downvotes). This is a public endpoint that doesn't require authentication and is optimized for quick vote count retrieval."
+ *     description: "Returns the total vote count for a specific item. The count represents the net score (upvotes - downvotes). This is a public endpoint that doesn't require authentication and is optimized for quick vote count retrieval. A slug with no public item (unknown, draft, pending, rejected or soft-deleted) returns a count of 0."
  *     parameters:
  *       - name: "slug"
  *         in: "path"
@@ -44,7 +45,7 @@ import { NextResponse } from 'next/server';
  *                   success: true
  *                   count: -3
  *               zero_score:
- *                 summary: "Item with no votes or equal votes"
+ *                 summary: "Item with no votes or equal votes, or no public item with this slug"
  *                 value:
  *                   success: true
  *                   count: 0
@@ -68,6 +69,10 @@ export async function GET(
 ) {
   try {
     const { slug } = await context.params;
+    // A draft, pending, rejected or soft-deleted item has no votes to show, as an unknown slug (T-2857)
+    if (!(await findPublicItem(slug))) {
+      return NextResponse.json({ success: true, count: 0 });
+    }
     const count = await getVoteCountForItem(slug);
     return NextResponse.json({
       success: true,

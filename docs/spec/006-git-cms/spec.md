@@ -81,6 +81,13 @@ catches typos.
   list is empty and the rating and vote reads return zero. The answers when
   the database is unavailable are unchanged, and `DELETE .../votes` still
   answers for any slug (T-2853).
+- [x] AC-9: The routes that show engagement totals answer only for a public
+  item too. `GET /api/items/[slug]/activity` and `GET .../votes/count` call
+  `findPublicItem()`, and `GET /api/items/engagement?slugs=` keeps the slugs
+  `findPublicItemSlugs()` (same file, built on the cached `fetchItems()`
+  listing) returns. For any other slug they answer as for an unknown one,
+  with no database query for it: zero totals and `days` zero-filled series
+  entries, a count of 0, all zeros (T-2857).
 
 ## 7. Out-of-Scope Considerations
 
@@ -121,6 +128,11 @@ a headless CMS (Contentful, Sanity, Hygraph) without touching core.
   `apps/web-e2e/tests/public/unpublished-items-hidden.spec.ts` (a view per
   status, then a comment and a vote on the approved item and the draft, and
   the approved item's comment, rating and vote reads once it is rejected).
+- AC-9: `apps/web/lib/__tests__/public-item-engagement-routes.spec.ts` and
+  the `findPublicItemSlugs` tests in `public-item.spec.ts` (unit), and
+  `apps/web-e2e/tests/public/unpublished-items-hidden.spec.ts` (activity,
+  votes/count and engagement for the approved item and the draft after the
+  vote, and for the approved item once it is rejected).
 
 ## 13. References
 

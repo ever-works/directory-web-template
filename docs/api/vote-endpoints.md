@@ -146,7 +146,7 @@ Returns only the net vote count for an item. This is a lightweight public endpoi
 }
 ```
 
-The count can be positive, negative, or zero depending on the balance of upvotes and downvotes.
+The count can be positive, negative, or zero depending on the balance of upvotes and downvotes. A slug with no public item (unknown, draft, pending, rejected or soft-deleted) returns a count of 0, with no database query (T-2857).
 
 **Source:** `template/app/api/items/[slug]/votes/count/route.ts`
 
