@@ -5,6 +5,7 @@ import { EmailNotificationService } from '@/lib/services/email-notification.serv
 import { safeErrorMessage, safeErrorResponse } from '@/lib/utils/api-error';
 import { requireAdminSession } from '@/lib/auth/admin-guard';
 import { validateReviewNotes } from '@/lib/utils/review-notes';
+import { invalidateContentCaches } from '@/lib/cache-invalidation';
 
 const itemRepository = new ItemRepository();
 const userRepository = new UserRepository();
@@ -255,6 +256,12 @@ export async function POST(
 
 		const successful = results.filter((r) => r.success).length;
 		const failed = results.filter((r) => !r.success).length;
+
+		// The public listing is kept in memory (lib/content.ts fetchItems): clear it once for the whole batch,
+		// when at least one item was written
+		if (successful > 0) {
+			await invalidateContentCaches();
+		}
 
 		const actionPastTense = action === 'approve' ? 'approved' : action === 'reject' ? 'rejected' : 'deleted';
 

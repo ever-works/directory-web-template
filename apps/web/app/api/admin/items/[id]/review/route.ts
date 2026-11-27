@@ -8,6 +8,7 @@ import { requireAdminSession } from '@/lib/auth/admin-guard';
 import { validateReviewNotes } from '@/lib/utils/review-notes';
 import { getLocationEnabled } from '@/lib/utils/settings';
 import { getLocationIndexService } from '@/lib/services/location';
+import { invalidateContentCaches } from '@/lib/cache-invalidation';
 
 const itemRepository = new ItemRepository();
 const userRepository = new UserRepository();
@@ -173,6 +174,10 @@ export async function POST(
       status,
       review_notes,
     }, auditUser);
+
+    // The public listing is kept in memory (lib/content.ts fetchItems): clear it so an approved item shows,
+    // and a rejected one leaves it, at once
+    await invalidateContentCaches();
 
     // Location Index: the location routes are public, so only an approved item keeps its row
     // (indexItem removes it otherwise). Awaited, so the index is current when the admin gets the answer.

@@ -6,6 +6,7 @@ import { getLocationIndexService } from '@/lib/services/location';
 import { safeErrorResponse } from '@/lib/utils/api-error';
 import { checkAdminAuth, requireAdminSession } from '@/lib/auth/admin-guard';
 import { isItemStatus, reviewNotesRuleForUpdate, validateReviewNotes } from '@/lib/utils/review-notes';
+import { invalidateContentCaches } from '@/lib/cache-invalidation';
 
 const itemRepository = new ItemRepository();
 
@@ -349,6 +350,9 @@ export async function PUT(
 
     const item = await itemRepository.update(resolvedParams.id, updateData, auditUser);
 
+    // The public listing is kept in memory (lib/content.ts fetchItems): clear it so the change shows at once
+    await invalidateContentCaches();
+
     // Direct CRM sync: blocks response but with retry/timeout (non-blocking for DB)
     const crmEnabled = process.env.TWENTY_CRM_ENABLED !== 'false';
     if (crmEnabled) {
@@ -526,6 +530,9 @@ export async function DELETE(
       : undefined;
 
     await itemRepository.delete(resolvedParams.id, auditUser);
+
+    // The public listing is kept in memory (lib/content.ts fetchItems): clear it so the item leaves it at once
+    await invalidateContentCaches();
 
     // Location Index: Remove item from index (non-blocking)
     if (getLocationEnabled()) {
