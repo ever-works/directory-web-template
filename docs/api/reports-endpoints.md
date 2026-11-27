@@ -244,7 +244,7 @@ The following automated actions are triggered based on the resolution value:
 
 | Resolution | Action |
 |---|---|
-| `content_removed` | Calls `removeContent()` to remove the reported item or comment. Removing an item clears the public listing cache right after the delete, so `GET /api/items/listing` drops it at once; a cached listing page can still serve its previous version on the first visit while it regenerates (T-2872) |
+| `content_removed` | Calls `removeContent()` to remove the reported item or comment. Removing an item clears the public listing cache right after the delete, so `GET /api/items/listing` drops it at once; a cached listing page can still serve its previous version until its background regeneration succeeds (T-2872) |
 | `user_warned` | Calls `warnUser()` to issue a warning to the content owner |
 | `user_suspended` | Calls `suspendUser()` to suspend the content owner's account |
 | `user_banned` | Calls `banUser()` to permanently ban the content owner |
