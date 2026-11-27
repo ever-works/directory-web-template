@@ -1,5 +1,5 @@
 import 'server-only';
-import { and, eq, desc, asc, count, like, or, sql, SQL } from 'drizzle-orm';
+import { and, eq, desc, asc, count, gt, isNull, like, or, sql, SQL } from 'drizzle-orm';
 import { db } from '@/lib/db/drizzle';
 import { sponsorAds, users, SponsorAdStatus, type SponsorAd, type NewSponsorAd } from '@/lib/db/schema';
 import type {
@@ -112,7 +112,7 @@ export async function getSponsorAdsByUserId(userId: string): Promise<SponsorAd[]
 }
 
 /**
- * Get active sponsor ads (for display)
+ * Get active sponsor ads (for display): active AND inside the paid window (not past `endDate`).
  */
 export async function getActiveSponsorAds(limit?: number): Promise<SponsorAd[]> {
 	const tenantId = await getTenantId();
@@ -121,7 +121,7 @@ export async function getActiveSponsorAds(limit?: number): Promise<SponsorAd[]> 
 	const query = db
 		.select()
 		.from(sponsorAds)
-		.where(and(eq(sponsorAds.status, SponsorAdStatus.ACTIVE), eq(sponsorAds.tenantId, tenantId)))
+		.where(liveSponsorAdFilter(tenantId))
 		.orderBy(desc(sponsorAds.createdAt));
 
 	if (limit && limit > 0) {
@@ -129,6 +129,18 @@ export async function getActiveSponsorAds(limit?: number): Promise<SponsorAd[]> 
 	}
 
 	return await query;
+}
+
+/**
+ * SQL form of `isSponsorAdWithinPaidWindow` (lib/sponsor-ads/live-window.ts): active, and not
+ * past its end date. Keep the two in step.
+ */
+function liveSponsorAdFilter(tenantId: string, now: Date = new Date()): SQL | undefined {
+	return and(
+		eq(sponsorAds.status, SponsorAdStatus.ACTIVE),
+		eq(sponsorAds.tenantId, tenantId),
+		or(isNull(sponsorAds.endDate), gt(sponsorAds.endDate, now))
+	);
 }
 
 /**
