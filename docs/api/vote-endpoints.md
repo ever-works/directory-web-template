@@ -96,7 +96,7 @@ The response returns the updated net vote count after the vote is applied.
 | 400 | Invalid vote type (must be `"up"` or `"down"`) |
 | 401 | Not authenticated |
 | 403 | User is suspended or banned |
-| 404 | Client profile not found |
+| 404 | No public item has this slug (`Item not found`), or client profile not found |
 
 **Source:** `template/app/api/items/[slug]/votes/route.ts`
 
