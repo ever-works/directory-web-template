@@ -96,7 +96,7 @@ The response returns the updated net vote count after the vote is applied.
 | 400 | Invalid vote type (must be `"up"` or `"down"`) |
 | 401 | Not authenticated |
 | 403 | User is suspended or banned |
-| 404 | Client profile not found |
+| 404 | No public item has this slug (`Item not found`), or client profile not found |
 
 **Source:** `template/app/api/items/[slug]/votes/route.ts`
 
@@ -106,7 +106,7 @@ The response returns the updated net vote count after the vote is applied.
 DELETE /api/items/[slug]/votes
 ```
 
-Removes the current user's vote from an item. If no vote exists, the operation completes successfully without error (idempotent). After removal, `userVote` is `null`.
+Removes the current user's vote from an item. If no vote exists, the operation completes successfully without error (idempotent). After removal, `userVote` is `null`. The item must be public: for an unknown slug or a draft, pending, rejected or soft-deleted item the route answers 404 `{ "success": false, "error": "Item not found" }` and removes no vote, so the answer never shows the net votes of an unpublished item (T-2864).
 
 **Authentication:** Required
 
@@ -123,7 +123,7 @@ Removes the current user's vote from an item. If no vote exists, the operation c
 | Status | Condition |
 |---|---|
 | 401 | Not authenticated |
-| 404 | Client profile not found |
+| 404 | No public item has this slug (`Item not found`), or client profile not found |
 
 **Source:** `template/app/api/items/[slug]/votes/route.ts`
 
@@ -146,7 +146,7 @@ Returns only the net vote count for an item. This is a lightweight public endpoi
 }
 ```
 
-The count can be positive, negative, or zero depending on the balance of upvotes and downvotes.
+The count can be positive, negative, or zero depending on the balance of upvotes and downvotes. A slug with no public item (unknown, draft, pending, rejected or soft-deleted) returns a count of 0, with no database query (T-2857).
 
 **Source:** `template/app/api/items/[slug]/votes/count/route.ts`
 

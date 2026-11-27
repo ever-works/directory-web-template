@@ -79,8 +79,45 @@ catches typos.
   unknown slug: the views, comment and vote writes return 404 `Item not
   found` (a request without a session still gets its 401 first), the comment
   list is empty and the rating and vote reads return zero. The answers when
-  the database is unavailable are unchanged, and `DELETE .../votes` still
-  answers for any slug (T-2853).
+  the database is unavailable are unchanged (T-2853). `DELETE .../votes`
+  answered for any slug here; it follows AC-12 now.
+- [x] AC-9: `GET /api/items/[slug]/comments/rating/[commentId]` (public, no
+  session) answers only for a comment the public comments list of that item
+  shows: one that is not soft-deleted, whose author's account is active,
+  whose item is the slug in the URL, and whose item `findPublicItem()` finds.
+  Any other comment, a deleted one included, answers 404 `{ "error": "Comment
+  not found" }`, and the comment comes with the fields the list returns
+  (`getPublicCommentById` in `apps/web/lib/db/queries/comment.queries.ts`).
+  The admin routes and moderation still read deleted comments through
+  `getCommentById` (T-2856).
+- [x] AC-10: The routes that show engagement totals answer only for a public
+  item too. `GET /api/items/[slug]/activity` and `GET .../votes/count` call
+  `findPublicItem()`, and `GET /api/items/engagement?slugs=` keeps the slugs
+  `findPublicItemSlugs()` (same file, built on the cached `fetchItems()`
+  listing) returns. For any other slug they answer as for an unknown one,
+  with no database query for it: zero totals and `days` zero-filled series
+  entries, a count of 0, all zeros (T-2857). The batch route follows the
+  listing, which outside `next dev` is kept in memory for up to 10 minutes
+  unless a content sync or an admin write clears it (AC-11). The activity
+  and votes/count routes read the item file and change at once.
+- [x] AC-11: An admin item write clears the public listing at once.
+  `POST /api/admin/items` (create), `PUT` and `DELETE
+  /api/admin/items/[id]`, `POST /api/admin/items/[id]/review` and `POST
+  /api/admin/items/bulk` (approve, reject, delete) call
+  `invalidateContentCaches()` (`apps/web/lib/cache-invalidation.ts`) after a
+  successful write, as the category, tag and collection admin routes do, so
+  the listing pages, `GET /api/items/listing` and `GET
+  /api/items/engagement` show a new or approved item and drop a rejected or
+  deleted one without waiting for the next content sync or the 10-minute
+  listing TTL. The bulk route calls it once after its loop, when at least
+  one item was written; a refused or failed write calls it not at all
+  (T-2865).
+- [x] AC-12: `DELETE /api/items/[slug]/votes`, whose answer carries the
+  item's net votes, answers only for a public item too. After the 401 for a
+  request without a session it calls `findPublicItem()` and answers 404
+  `Item not found` for any other slug, as `POST .../votes` does, with no
+  vote query: the caller's vote is not removed and shows again if the item
+  is approved again (T-2864).
 
 ## 7. Out-of-Scope Considerations
 
@@ -121,6 +158,19 @@ a headless CMS (Contentful, Sanity, Hygraph) without touching core.
   `apps/web-e2e/tests/public/unpublished-items-hidden.spec.ts` (a view per
   status, then a comment and a vote on the approved item and the draft, and
   the approved item's comment, rating and vote reads once it is rejected).
+- AC-9: `apps/web/lib/db/queries/__tests__/comment-by-id-public.spec.ts`
+  (source guard) and `apps/web-e2e/tests/api/comment-by-id-visibility.spec.ts`
+  (a comment read through its own slug, another slug and an unknown one, then
+  after its author deletes it, and a second one after its item is rejected).
+- AC-10: `apps/web/lib/__tests__/public-item-engagement-routes.spec.ts` and
+  the `findPublicItemSlugs` tests in `public-item.spec.ts` (unit), and
+  `apps/web-e2e/tests/public/unpublished-items-hidden.spec.ts` (activity,
+  votes/count and engagement for the approved item and the draft after the
+  vote, and for the approved item once it is rejected).
+- AC-12: `apps/web/lib/__tests__/public-item-vote-delete.spec.ts` (unit) and
+  `apps/web-e2e/tests/api/votes-delete-unpublished.spec.ts` (an unknown slug,
+  a draft and a rejected item with a vote answer 404; approved again, the
+  vote is still there and the DELETE removes it).
 
 ## 13. References
 

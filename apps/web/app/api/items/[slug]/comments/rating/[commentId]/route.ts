@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
-import { getClientProfileByUserId, getCommentById, updateCommentRatingForOwner } from "@/lib/db/queries";
+import { getClientProfileByUserId, getPublicCommentById, updateCommentRatingForOwner } from "@/lib/db/queries";
+import { getItemIdFromSlug } from "@/lib/db/queries/item.queries";
+import { findPublicItem } from "@/lib/public-item";
 import { checkDatabaseAvailability } from "@/lib/utils/database-check";
 
 export async function PATCH(request: Request, { params }: { params: Promise<{ slug: string; commentId: string }> }) {
@@ -69,9 +71,12 @@ export async function GET(_request: Request, { params }: { params: Promise<{ slu
         const dbCheck = checkDatabaseAvailability();
         if (dbCheck) return dbCheck;
 
-        const { commentId } = await params;
-        const comment = await getCommentById(commentId);
-        if (!comment) {
+        // Comment ids are public (the comments list returns them), so this answers only for a
+        // comment the public list of the item in the URL shows, with the same fields: not deleted,
+        // by an active author, on that item, and the item is public (T-2856)
+        const { slug, commentId } = await params;
+        const comment = await getPublicCommentById(commentId);
+        if (!comment || comment.itemId !== getItemIdFromSlug(slug) || !(await findPublicItem(slug))) {
             return NextResponse.json({ error: "Comment not found" }, { status: 404 });
         }
         return NextResponse.json(comment);

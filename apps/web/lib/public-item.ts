@@ -1,4 +1,4 @@
-import { fetchItem, type ItemData } from '@/lib/content';
+import { fetchItem, fetchItems, type ItemData } from '@/lib/content';
 import { isItemSlug, MAX_ITEM_SLUG_LENGTH } from '@/lib/item-slug';
 import { isPubliclyVisibleItem } from '@/lib/item-visibility';
 
@@ -18,7 +18,9 @@ const MAX_PUBLIC_ITEM_SLUG_LENGTH = MAX_ITEM_SLUG_LENGTH - '.yml'.length;
  * The per-item engagement routes key their rows by the slug in the URL, so they call this first
  * and answer for an unpublished item as for an unknown one (T-2853): `POST
  * /api/items/[slug]/views` and the comment and vote writes answer 404, and the comment, rating and
- * vote reads answer an empty list or zero.
+ * vote reads answer an empty list or zero. `GET .../activity` and `GET .../votes/count` answer
+ * zero too (T-2857). `DELETE .../votes`, whose answer carries the net votes, answers 404 and
+ * removes no vote (T-2864).
  *
  * It reads the item as the item page does, through `fetchItem` (`lib/content.ts`), from the content
  * folder: no git sync and no database. `fetchItem` already returns `null` for an item that
@@ -33,4 +35,24 @@ export async function findPublicItem(slug: string): Promise<ItemData | null> {
 	const item = await fetchItem(slug);
 	if (!item || !isPubliclyVisibleItem(item.meta)) return null;
 	return item.meta;
+}
+
+/**
+ * The slugs of `slugs` that name a public item, for `GET /api/items/engagement`, which takes up
+ * to 200 slugs per request (T-2857). Any other slug (unknown, draft, pending, rejected,
+ * soft-deleted, or not an item slug at all) is left out, so the route answers zeros for it, as
+ * for an unknown slug, without a database query.
+ *
+ * It reads the public listing, `fetchItems()` (`lib/content.ts`), instead of one `fetchItem` per
+ * slug. That listing is kept in memory per set of options (the listing pages read it with other
+ * options, such as the locale) until `invalidateContentCaches()` clears it (a content sync, or an
+ * admin write of an item, category, tag or collection) or its 10-minute TTL ends. The
+ * `isPubliclyVisibleItem` check is repeated, as in `findPublicItem`. A read error is thrown, so
+ * the route's own error branch answers.
+ */
+export async function findPublicItemSlugs(slugs: readonly string[]): Promise<Set<string>> {
+	if (slugs.length === 0) return new Set();
+	const { items } = await fetchItems();
+	const listed = new Set(items.filter((item) => isPubliclyVisibleItem(item)).map((item) => item.slug));
+	return new Set(slugs.filter((slug) => listed.has(slug)));
 }

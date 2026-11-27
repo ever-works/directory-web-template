@@ -38,7 +38,9 @@ The Items API provides public-facing endpoints for interacting with items, inclu
 
 ### Unpublished items
 
-The views route, the comment list and create routes, the rating statistics route and the vote read and cast routes answer only for a public item: approved (or with no status) and not soft-deleted, as on the item page. For a draft, pending, rejected or soft-deleted item they answer as for an unknown slug: `POST .../views`, `POST .../comments` and `POST .../votes` return 404 `{ "success": false, "error": "Item not found" }`, the comment list is empty, and the rating and vote reads return zero. Comments and votes left while an item was public stay in the database and reappear if the item is approved again. All of them call `findPublicItem` (`apps/web/lib/public-item.ts`), which reads the item through `fetchItem` (T-2853). `POST .../views` needs no session, and it checks for bots first: a request whose user agent looks like a bot gets 200 `{ "success": true, "counted": false, "reason": "bot" }` for any slug, so the 404 applies only to requests that pass bot detection. `POST .../comments` and `POST .../votes` need one: a request without a session gets 401 first, whatever the item. `DELETE .../votes` still answers for any slug, so a user can take back a vote.
+The views route, the comment list and create routes, the rating statistics route and the vote read and cast routes answer only for a public item: approved (or with no status) and not soft-deleted, as on the item page. For a draft, pending, rejected or soft-deleted item they answer as for an unknown slug: `POST .../views`, `POST .../comments` and `POST .../votes` return 404 `{ "success": false, "error": "Item not found" }`, the comment list is empty, and the rating and vote reads return zero. Comments and votes left while an item was public stay in the database and reappear if the item is approved again. All of them call `findPublicItem` (`apps/web/lib/public-item.ts`), which reads the item through `fetchItem` (T-2853). `POST .../views` needs no session, and it checks for bots first: a request whose user agent looks like a bot gets 200 `{ "success": true, "counted": false, "reason": "bot" }` for any slug, so the 404 applies only to requests that pass bot detection. `POST .../comments` and `POST .../votes` need one: a request without a session gets 401 first, whatever the item. `DELETE .../votes` answers the item's net votes, so it answers only for a public item too: after the 401 for a request without a session, any other slug gets 404 `Item not found` and no vote is removed (T-2864). A vote left on an item that is no longer public can be taken back once the item is approved again.
+
+The routes that show engagement totals do the same (T-2857): `GET /api/items/{slug}/activity` returns zero totals and `days` zero-filled entries, `GET .../votes/count` returns `{ "success": true, "count": 0 }`, and `GET /api/items/engagement` returns zeros for every slug that names no public item, as for an unknown slug, with no database query for it. The first two call `findPublicItem`; the batch route calls `findPublicItemSlugs` (same file), which keeps the slugs of the public listing (`fetchItems`, kept in memory), so it reads no item file per slug. Outside `next dev` that listing is kept in memory for up to 10 minutes, unless `invalidateContentCaches()` clears it first: a content sync does, and so do the admin item routes (create, update, delete, review and bulk, since T-2865), the admin import route when it created or updated an item, a report resolved as content removed, a client's edit, delete or restore of its own item (T-2872), and the collection, category and tag admin routes. So the batch route follows an admin reject or delete at once; activity and votes/count read the item file and change at once too.
 
 ---
 
@@ -291,7 +293,7 @@ curl -s http://localhost:3000/api/items/awesome-productivity-tool/comments/ratin
 | **Path** | `/api/items/{slug}/comments/rating/{commentId}` |
 | **Auth** | None (public) |
 
-Returns the full comment object for a specific comment ID.
+Returns one comment as the comments list of the item shows it: the same fields, with the author's public profile in `user`. It answers only for a comment the list shows: not soft-deleted, by an author whose account is active, on the item named by `slug`, and that item is public (approved or with no status, not soft-deleted). Any other comment answers 404 `{ "error": "Comment not found" }`: a comment its author deleted or a moderator removed, one asked for through another slug, and one on a draft, pending or rejected item, including comments left while the item was public (T-2856).
 
 #### Update Comment Rating
 
@@ -619,7 +621,7 @@ Removes the current user's vote from an item.
 
 ### Get Vote Count
 
-A lightweight endpoint that returns only the vote count (no user status).
+A lightweight endpoint that returns only the vote count (no user status). A slug with no public item (unknown, draft, pending, rejected or soft-deleted) returns a count of 0.
 
 | Property | Value |
 |----------|-------|
@@ -679,7 +681,7 @@ null
 
 ### Batch Engagement Metrics
 
-Fetches engagement metrics (views, votes, ratings, favorites, comments) for multiple items in a single request.
+Fetches engagement metrics (views, votes, ratings, favorites, comments) for multiple items in a single request. A slug with no public item (unknown, draft, pending, rejected or soft-deleted) gets all zeros and is not queried.
 
 | Property | Value |
 |----------|-------|

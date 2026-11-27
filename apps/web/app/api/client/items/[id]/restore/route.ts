@@ -8,6 +8,7 @@ import {
 } from '@/lib/utils/client-auth';
 import { getClientItemRepository } from '@/lib/repositories/client-item.repository';
 import { itemIdParamSchema } from '@/lib/validations/client-item';
+import { invalidateContentCaches } from '@/lib/cache-invalidation';
 
 interface RouteParams {
 	params: Promise<{ id: string }>;
@@ -77,6 +78,10 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
 		try {
 			// Restore item (ownership check is done in repository)
 			const item = await clientItemRepository.restoreForUser(paramResult.data.id, userId);
+
+			// The public listing is kept in memory (lib/content.ts fetchItems): clear it so a restored approved
+			// item is back on it at once
+			await invalidateContentCaches();
 
 			return NextResponse.json({
 				success: true,
