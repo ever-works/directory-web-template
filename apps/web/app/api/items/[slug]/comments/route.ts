@@ -4,6 +4,7 @@ import { getCommentsByItemId, createComment, getCommentWithUserById, getClientPr
 import { isUserBlocked, getBlockReasonMessage } from '@/lib/db/queries/moderation.queries';
 import { checkDatabaseAvailability } from '@/lib/utils/database-check';
 import { validateCommentInput } from '@/lib/validations/comment';
+import { findPublicItem } from '@/lib/public-item';
 
 /**
  * @swagger
@@ -11,7 +12,7 @@ import { validateCommentInput } from '@/lib/validations/comment';
  *   get:
  *     tags: ["Item Comments"]
  *     summary: "Get item comments"
- *     description: "Returns all comments for a specific item including user information, ratings, and timestamps. Comments are returned with associated user profiles for display purposes. This is a public endpoint that doesn't require authentication."
+ *     description: "Returns all comments for a specific item including user information, ratings, and timestamps. Comments are returned with associated user profiles for display purposes. This is a public endpoint that doesn't require authentication. A slug with no public item (unknown, draft, pending, rejected or soft-deleted) returns an empty list."
  *     parameters:
  *       - name: "slug"
  *         in: "path"
@@ -139,7 +140,14 @@ export async function GET(request: Request, { params }: { params: Promise<{ slug
 			return NextResponse.json({ success: true, comments: [] });
 		}
 
-		const itemComments = await getCommentsByItemId((await params).slug);
+		const { slug } = await params;
+		// A draft, pending, rejected or soft-deleted item shows no comments, as an unknown slug
+		// does, even those left while it was public (T-2853)
+		if (!(await findPublicItem(slug))) {
+			return NextResponse.json({ success: true, comments: [] });
+		}
+
+		const itemComments = await getCommentsByItemId(slug);
 
 		return NextResponse.json({
 			success: true,
@@ -159,7 +167,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ slug
  *   post:
  *     tags: ["Item Comments"]
  *     summary: "Create item comment"
- *     description: "Creates a new comment for a specific item with a rating. Requires user authentication and a valid client profile. The content must be a string of 1 to 1000 characters after trimming and the rating an integer from 1 to 5 (the same rules as editing a comment); a malformed JSON body is a 400. Returns the created comment with user information."
+ *     description: "Creates a new comment for a specific item with a rating. Requires user authentication, a public item (any other slug, a draft, pending or rejected item included, is a 404 `Item not found`) and a valid client profile. The content must be a string of 1 to 1000 characters after trimming and the rating an integer from 1 to 5 (the same rules as editing a comment); a malformed JSON body is a 400. Returns the created comment with user information."
  *     security:
  *       - sessionAuth: []
  *     parameters:
@@ -336,7 +344,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ slug
  *                   type: string
  *                   example: "Authentication required"
  *       404:
- *         description: "Client profile not found"
+ *         description: "No public item has this slug (an unknown, draft, pending, rejected or soft-deleted item), or the client profile was not found"
  *         content:
  *           application/json:
  *             schema:
@@ -347,7 +355,16 @@ export async function GET(request: Request, { params }: { params: Promise<{ slug
  *                   example: false
  *                 error:
  *                   type: string
- *                   example: "Client profile not found"
+ *                   example: "Item not found"
+ *             examples:
+ *               item_not_found:
+ *                 value:
+ *                   success: false
+ *                   error: "Item not found"
+ *               client_profile_not_found:
+ *                 value:
+ *                   success: false
+ *                   error: "Client profile not found"
  *       500:
  *         description: "Internal server error"
  *         content:
@@ -371,6 +388,12 @@ export async function POST(request: Request, { params }: { params: Promise<{ slu
 		const session = await auth();
 		if (!session?.user) {
 			return NextResponse.json({ success: false, error: 'Authentication required' }, { status: 401 });
+		}
+
+		// Only a public item takes comments: anything else answers as an unknown slug (T-2853)
+		const { slug } = await params;
+		if (!(await findPublicItem(slug))) {
+			return NextResponse.json({ success: false, error: 'Item not found' }, { status: 404 });
 		}
 
 		let body: unknown;
@@ -402,7 +425,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ slu
 			content: input.value.content,
 			rating: input.value.rating,
 			userId: clientProfile.id,
-			itemId: (await params).slug
+			itemId: slug
 		});
 
 		const commentWithUser = await getCommentWithUserById(comment.id);

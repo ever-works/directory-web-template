@@ -71,6 +71,16 @@ catches typos.
   slug it is given) drops the hidden slugs, and its `item_count` follows.
   The admin and client dashboards read through `ItemGitService` and still
   see every item (T-2846).
+- [x] AC-8: The per-item engagement APIs answer only for a public item.
+  `POST /api/items/[slug]/views`, `GET` and `POST .../comments`,
+  `GET .../comments/rating` and `GET` and `POST .../votes` call
+  `findPublicItem()` (`apps/web/lib/public-item.ts`, built on `fetchItem()`)
+  and answer for a draft, pending, rejected or soft-deleted item as for an
+  unknown slug: the views, comment and vote writes return 404 `Item not
+  found` (a request without a session still gets its 401 first), the comment
+  list is empty and the rating and vote reads return zero. The answers when
+  the database is unavailable are unchanged, and `DELETE .../votes` still
+  answers for any slug (T-2853).
 
 ## 7. Out-of-Scope Considerations
 
@@ -107,6 +117,10 @@ a headless CMS (Contentful, Sanity, Hygraph) without touching core.
   `apps/web-e2e/tests/public/categories.spec.ts`.
 - AC-7: `apps/web/lib/__tests__/public-item-visibility.spec.ts` (unit) and
   `apps/web-e2e/tests/public/unpublished-items-hidden.spec.ts`.
+- AC-8: `apps/web/lib/__tests__/public-item.spec.ts` (unit) and
+  `apps/web-e2e/tests/public/unpublished-items-hidden.spec.ts` (a view per
+  status, then a comment and a vote on the approved item and the draft, and
+  the approved item's comment, rating and vote reads once it is rejected).
 
 ## 13. References
 

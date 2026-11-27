@@ -13117,7 +13117,7 @@
 			"get": {
 				"tags": ["Item Comments"],
 				"summary": "Get item rating statistics",
-				"description": "Returns aggregated rating statistics for a specific item including average rating and total number of ratings. Only counts non-deleted comments. This is a public endpoint that doesn't require authentication and includes database availability checking.",
+				"description": "Returns aggregated rating statistics for a specific item including average rating and total number of ratings. Only counts non-deleted comments. This is a public endpoint that doesn't require authentication and includes database availability checking. A slug with no public item (unknown, draft, pending, rejected or soft-deleted) returns zero ratings.",
 				"parameters": [
 					{
 						"name": "itemId",
@@ -13196,7 +13196,7 @@
 			"get": {
 				"tags": ["Item Comments"],
 				"summary": "Get item comments",
-				"description": "Returns all comments for a specific item including user information, ratings, and timestamps. Comments are returned with associated user profiles for display purposes. This is a public endpoint that doesn't require authentication.",
+				"description": "Returns all comments for a specific item including user information, ratings, and timestamps. Comments are returned with associated user profiles for display purposes. This is a public endpoint that doesn't require authentication. A slug with no public item (unknown, draft, pending, rejected or soft-deleted) returns an empty list.",
 				"parameters": [
 					{
 						"name": "slug",
@@ -13361,7 +13361,7 @@
 			"post": {
 				"tags": ["Item Comments"],
 				"summary": "Create item comment",
-				"description": "Creates a new comment for a specific item with a rating. Requires user authentication and a valid client profile. The content must be a string of 1 to 1000 characters after trimming and the rating an integer from 1 to 5 (the same rules as editing a comment); a malformed JSON body is a 400. Returns the created comment with user information.",
+				"description": "Creates a new comment for a specific item with a rating. Requires user authentication, a public item (any other slug, a draft, pending or rejected item included, is a 404 `Item not found`) and a valid client profile. The content must be a string of 1 to 1000 characters after trimming and the rating an integer from 1 to 5 (the same rules as editing a comment); a malformed JSON body is a 400. Returns the created comment with user information.",
 				"security": [
 					{
 						"sessionAuth": []
@@ -13609,7 +13609,7 @@
 						}
 					},
 					"404": {
-						"description": "Client profile not found",
+						"description": "No public item has this slug (an unknown, draft, pending, rejected or soft-deleted item), or the client profile was not found",
 						"content": {
 							"application/json": {
 								"schema": {
@@ -13621,7 +13621,21 @@
 										},
 										"error": {
 											"type": "string",
-											"example": "Client profile not found"
+											"example": "Item not found"
+										}
+									}
+								},
+								"examples": {
+									"item_not_found": {
+										"value": {
+											"success": false,
+											"error": "Item not found"
+										}
+									},
+									"client_profile_not_found": {
+										"value": {
+											"success": false,
+											"error": "Client profile not found"
 										}
 									}
 								}
@@ -24995,7 +25009,7 @@
 			"get": {
 				"tags": ["Item Comments"],
 				"summary": "Get item rating statistics",
-				"description": "Returns aggregated rating statistics for a specific item including average rating and total number of ratings. Only counts non-deleted comments from active accounts with a rating from 1 to 5. This is a public endpoint that doesn't require authentication and includes database availability checking.",
+				"description": "Returns aggregated rating statistics for a specific item including average rating and total number of ratings. Only counts non-deleted comments from active accounts with a rating from 1 to 5. This is a public endpoint that doesn't require authentication and includes database availability checking. A slug with no public item (unknown, draft, pending, rejected or soft-deleted) returns zero ratings.",
 				"parameters": [
 					{
 						"name": "slug",
@@ -25160,7 +25174,7 @@
 			"get": {
 				"tags": ["Item Votes"],
 				"summary": "Get item vote information",
-				"description": "Returns the total vote count for an item and the current user's vote status if authenticated. The vote count represents the net score (upvotes - downvotes). User vote status shows whether the user has upvoted, downvoted, or not voted on the item.",
+				"description": "Returns the total vote count for an item and the current user's vote status if authenticated. The vote count represents the net score (upvotes - downvotes). User vote status shows whether the user has upvoted, downvoted, or not voted on the item. A slug with no public item (unknown, draft, pending, rejected or soft-deleted) returns a count of 0 and no user vote.",
 				"parameters": [
 					{
 						"name": "slug",
@@ -25262,7 +25276,7 @@
 			"post": {
 				"tags": ["Item Votes"],
 				"summary": "Cast or update vote",
-				"description": "Casts a new vote or updates an existing vote for an item. If the user has already voted, the previous vote is replaced with the new one. Supports upvote ('up') and downvote ('down') types. Requires user authentication and a valid client profile.",
+				"description": "Casts a new vote or updates an existing vote for an item. If the user has already voted, the previous vote is replaced with the new one. Supports upvote ('up') and downvote ('down') types. Requires user authentication, a public item (any other slug, a draft, pending or rejected item included, is a 404 `Item not found`) and a valid client profile.",
 				"security": [
 					{
 						"sessionAuth": []
@@ -25395,7 +25409,7 @@
 						}
 					},
 					"404": {
-						"description": "Client profile not found",
+						"description": "No public item has this slug (an unknown, draft, pending, rejected or soft-deleted item), or the client profile was not found",
 						"content": {
 							"application/json": {
 								"schema": {
@@ -25407,7 +25421,21 @@
 										},
 										"error": {
 											"type": "string",
-											"example": "Client profile not found"
+											"example": "Item not found"
+										}
+									}
+								},
+								"examples": {
+									"item_not_found": {
+										"value": {
+											"success": false,
+											"error": "Item not found"
+										}
+									},
+									"client_profile_not_found": {
+										"value": {
+											"success": false,
+											"error": "Client profile not found"
 										}
 									}
 								}

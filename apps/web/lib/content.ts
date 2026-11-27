@@ -391,6 +391,7 @@ export interface ItemData {
 	location?: ItemLocationData; // Location data from YAML
 	status?: string; // Approval status from YAML (draft / pending / approved / rejected); missing means approved
 	deleted_at?: string; // Soft-delete timestamp from YAML
+	submitted_by?: string; // User id of the submitter, from YAML; the views route skips their own views
 }
 
 export interface AuthOptions {

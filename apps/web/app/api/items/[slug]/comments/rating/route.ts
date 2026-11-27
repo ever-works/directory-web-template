@@ -6,6 +6,7 @@ import { MAX_RATING, MIN_RATING } from '@/lib/seo/aggregate-rating';
 import { checkDatabaseAvailability } from '@/lib/utils/database-check';
 import { getItemIdFromSlug } from '@/lib/db/queries/item.queries';
 import { getTenantId } from '@/lib/auth/tenant';
+import { findPublicItem } from '@/lib/public-item';
 
 /**
  * @swagger
@@ -13,7 +14,7 @@ import { getTenantId } from '@/lib/auth/tenant';
  *   get:
  *     tags: ["Item Comments"]
  *     summary: "Get item rating statistics"
- *     description: "Returns aggregated rating statistics for a specific item including average rating and total number of ratings. Only counts non-deleted comments from active accounts with a rating from 1 to 5. This is a public endpoint that doesn't require authentication and includes database availability checking."
+ *     description: "Returns aggregated rating statistics for a specific item including average rating and total number of ratings. Only counts non-deleted comments from active accounts with a rating from 1 to 5. This is a public endpoint that doesn't require authentication and includes database availability checking. A slug with no public item (unknown, draft, pending, rejected or soft-deleted) returns zero ratings."
  *     parameters:
  *       - name: "slug"
  *         in: "path"
@@ -73,6 +74,10 @@ export async function GET(request: Request, { params }: { params: Promise<{ slug
 		}
 
 		const { slug } = await params;
+		// A draft, pending, rejected or soft-deleted item has no rating, as an unknown slug (T-2853)
+		if (!(await findPublicItem(slug))) {
+			return NextResponse.json({ averageRating: 0, totalRatings: 0 });
+		}
 		const itemId = getItemIdFromSlug(slug);
 
 		const tenantId = await getTenantId();

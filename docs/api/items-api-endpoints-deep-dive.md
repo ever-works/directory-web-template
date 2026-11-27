@@ -36,13 +36,17 @@ The Items API provides public-facing endpoints for interacting with items, inclu
 | `GET` | `/api/items/engagement` | Public | Batch engagement metrics |
 | `GET` | `/api/items/popularity-scores` | Public | Debug popularity scores |
 
+### Unpublished items
+
+The views route, the comment list and create routes, the rating statistics route and the vote read and cast routes answer only for a public item: approved (or with no status) and not soft-deleted, as on the item page. For a draft, pending, rejected or soft-deleted item they answer as for an unknown slug: `POST .../views`, `POST .../comments` and `POST .../votes` return 404 `{ "success": false, "error": "Item not found" }`, the comment list is empty, and the rating and vote reads return zero. Comments and votes left while an item was public stay in the database and reappear if the item is approved again. All of them call `findPublicItem` (`apps/web/lib/public-item.ts`), which reads the item through `fetchItem` (T-2853). `POST .../views` needs no session, and it checks for bots first: a request whose user agent looks like a bot gets 200 `{ "success": true, "counted": false, "reason": "bot" }` for any slug, so the 404 applies only to requests that pass bot detection. `POST .../comments` and `POST .../votes` need one: a request without a session gets 401 first, whatever the item. `DELETE .../votes` still answers for any slug, so a user can take back a vote.
+
 ---
 
 ## Comments
 
 ### List Comments
 
-Returns all comments for a specific item, including user profile information.
+Returns all comments for a specific item, including user profile information. A slug with no public item (unknown, draft, pending, rejected or soft-deleted) returns an empty list.
 
 | Property | Value |
 |----------|-------|
@@ -119,7 +123,7 @@ Creates a new comment with a rating for an item.
 | 400 | Invalid content or rating |
 | 401 | Authentication required |
 | 403 | User is blocked (suspended or banned) |
-| 404 | Client profile not found |
+| 404 | `Item not found`: no public item has this slug (unknown, draft, pending, rejected or soft-deleted); or `Client profile not found` |
 | 500 | Server error |
 
 **Status 200**
@@ -244,7 +248,7 @@ curl -s -X DELETE http://localhost:3000/api/items/awesome-tool/comments/comment_
 
 ### Get Rating Statistics
 
-Returns aggregated rating statistics for an item: average rating and total count.
+Returns aggregated rating statistics for an item: average rating and total count. A slug with no public item (unknown, draft, pending, rejected or soft-deleted) returns `{ "averageRating": 0, "totalRatings": 0 }`.
 
 | Property | Value |
 |----------|-------|
@@ -454,7 +458,7 @@ Records a unique daily view for an item with built-in deduplication, bot detecti
 
 1. **Database check** -- verifies database availability.
 2. **Bot detection** -- rejects known bot user agents.
-3. **Item validation** -- confirms the item exists (returns 404 if not found).
+3. **Item validation** -- confirms a public item has this slug: an unknown, draft, pending, rejected or soft-deleted item returns 404, so the route tells nobody that an unpublished slug exists.
 4. **Owner exclusion** -- if authenticated, skips counting if the viewer is the item owner.
 5. **Viewer ID** -- reads or creates a viewer cookie (`VIEWER_COOKIE_NAME`) for anonymous tracking.
 6. **Daily deduplication** -- records the view only once per viewer per day.
@@ -474,7 +478,7 @@ Records a unique daily view for an item with built-in deduplication, bot detecti
 | Bot detected | `false` | `"bot"` |
 | Owner viewing own item | `false` | `"owner"` |
 
-**Status 404** -- Item not found.
+**Status 404** -- No public item has this slug (unknown, draft, pending, rejected or soft-deleted).
 
 ```json
 { "success": false, "error": "Item not found" }
@@ -499,7 +503,7 @@ curl -s -X POST http://localhost:3000/api/items/awesome-productivity-tool/views 
 
 ### Get Vote Info
 
-Returns the total vote count and the current user's vote status (if authenticated).
+Returns the total vote count and the current user's vote status (if authenticated). A slug with no public item (unknown, draft, pending, rejected or soft-deleted) returns a count of 0 and `userVote: null`.
 
 | Property | Value |
 |----------|-------|
@@ -568,7 +572,7 @@ Casts a new vote or replaces an existing vote.
 | 400 | Invalid vote type |
 | 401 | Unauthorized |
 | 403 | User is blocked (suspended/banned) |
-| 404 | Client profile not found |
+| 404 | `Item not found`: no public item has this slug (unknown, draft, pending, rejected or soft-deleted); or `Client profile not found` |
 
 #### curl Example
 
