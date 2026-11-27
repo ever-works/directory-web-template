@@ -8,6 +8,7 @@ import {
 } from '@/lib/utils/client-auth';
 import { getClientItemRepository } from '@/lib/repositories/client-item.repository';
 import { clientUpdateItemSchema, itemIdParamSchema } from '@/lib/validations/client-item';
+import { invalidateContentCaches } from '@/lib/cache-invalidation';
 
 interface RouteParams {
   params: Promise<{ id: string }>;
@@ -191,6 +192,10 @@ export async function PUT(request: NextRequest, { params }: RouteParams) {
       // Update item (ownership check is done in repository)
       const result = await clientItemRepository.updateAsClient(paramResult.data.id, userId, updateData);
 
+      // The public listing is kept in memory (lib/content.ts fetchItems): clear it so the edit shows at once
+      // (an edited approved item goes back to pending and leaves the listing)
+      await invalidateContentCaches();
+
       let message = 'Item updated successfully';
       if (result.statusChanged) {
         message = 'Item updated successfully. Since it was previously approved, it has been moved to pending for re-review.';
@@ -284,6 +289,9 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     try {
       // Soft delete item (ownership check is done in repository)
       await clientItemRepository.softDeleteForUser(paramResult.data.id, userId);
+
+      // The public listing is kept in memory (lib/content.ts fetchItems): clear it so the item leaves it at once
+      await invalidateContentCaches();
 
       return NextResponse.json({
         success: true,

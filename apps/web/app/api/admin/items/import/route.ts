@@ -3,6 +3,7 @@ import { ItemImportService } from '@/lib/services/item-import.service';
 import { safeErrorResponse } from '@/lib/utils/api-error';
 import type { ImportRowValidation, ImportDuplicateStrategy } from '@/lib/types/item-import-export';
 import { requireAdminSession } from '@/lib/auth/admin-guard';
+import { invalidateContentCaches } from '@/lib/cache-invalidation';
 
 interface ImportRequestBody {
 	rows: ImportRowValidation[];
@@ -44,6 +45,12 @@ export async function POST(request: NextRequest) {
 			defaultStatus: body.options.defaultStatus || 'draft',
 			submittedBy: session.user.email || 'admin',
 		});
+
+		// The public listing is kept in memory (lib/content.ts fetchItems): clear it once for the whole import,
+		// when at least one item was created or updated
+		if (result.created + result.updated > 0) {
+			await invalidateContentCaches();
+		}
 
 		return NextResponse.json({
 			success: true,
