@@ -81,7 +81,16 @@ catches typos.
   list is empty and the rating and vote reads return zero. The answers when
   the database is unavailable are unchanged, and `DELETE .../votes` still
   answers for any slug (T-2853).
-- [x] AC-9: The routes that show engagement totals answer only for a public
+- [x] AC-9: `GET /api/items/[slug]/comments/rating/[commentId]` (public, no
+  session) answers only for a comment the public comments list of that item
+  shows: one that is not soft-deleted, whose author's account is active,
+  whose item is the slug in the URL, and whose item `findPublicItem()` finds.
+  Any other comment, a deleted one included, answers 404 `{ "error": "Comment
+  not found" }`, and the comment comes with the fields the list returns
+  (`getPublicCommentById` in `apps/web/lib/db/queries/comment.queries.ts`).
+  The admin routes and moderation still read deleted comments through
+  `getCommentById` (T-2856).
+- [x] AC-10: The routes that show engagement totals answer only for a public
   item too. `GET /api/items/[slug]/activity` and `GET .../votes/count` call
   `findPublicItem()`, and `GET /api/items/engagement?slugs=` keeps the slugs
   `findPublicItemSlugs()` (same file, built on the cached `fetchItems()`
@@ -128,7 +137,11 @@ a headless CMS (Contentful, Sanity, Hygraph) without touching core.
   `apps/web-e2e/tests/public/unpublished-items-hidden.spec.ts` (a view per
   status, then a comment and a vote on the approved item and the draft, and
   the approved item's comment, rating and vote reads once it is rejected).
-- AC-9: `apps/web/lib/__tests__/public-item-engagement-routes.spec.ts` and
+- AC-9: `apps/web/lib/db/queries/__tests__/comment-by-id-public.spec.ts`
+  (source guard) and `apps/web-e2e/tests/api/comment-by-id-visibility.spec.ts`
+  (a comment read through its own slug, another slug and an unknown one, then
+  after its author deletes it, and a second one after its item is rejected).
+- AC-10: `apps/web/lib/__tests__/public-item-engagement-routes.spec.ts` and
   the `findPublicItemSlugs` tests in `public-item.spec.ts` (unit), and
   `apps/web-e2e/tests/public/unpublished-items-hidden.spec.ts` (activity,
   votes/count and engagement for the approved item and the draft after the
