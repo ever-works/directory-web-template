@@ -96,11 +96,22 @@ catches typos.
   `findPublicItemSlugs()` (same file, built on the cached `fetchItems()`
   listing) returns. For any other slug they answer as for an unknown one,
   with no database query for it: zero totals and `days` zero-filled series
-  entries, a count of 0, all zeros (T-2857). One exception: outside
-  `next dev` the listing is kept for up to 10 minutes and reviewing an item
-  does not clear it, so for up to 10 minutes after a reject the batch route
-  can still answer for that item (and a new item gets zeros there). The
-  activity and votes/count routes read the item file and change at once.
+  entries, a count of 0, all zeros (T-2857). The batch route follows the
+  listing, which outside `next dev` is kept in memory for up to 10 minutes
+  unless a content sync or an admin write clears it (AC-11). The activity
+  and votes/count routes read the item file and change at once.
+- [x] AC-11: An admin item write clears the public listing at once.
+  `POST /api/admin/items` (create), `PUT` and `DELETE
+  /api/admin/items/[id]`, `POST /api/admin/items/[id]/review` and `POST
+  /api/admin/items/bulk` (approve, reject, delete) call
+  `invalidateContentCaches()` (`apps/web/lib/cache-invalidation.ts`) after a
+  successful write, as the category, tag and collection admin routes do, so
+  the listing pages, `GET /api/items/listing` and `GET
+  /api/items/engagement` show a new or approved item and drop a rejected or
+  deleted one without waiting for the next content sync or the 10-minute
+  listing TTL. The bulk route calls it once after its loop, when at least
+  one item was written; a refused or failed write calls it not at all
+  (T-2865).
 
 ## 7. Out-of-Scope Considerations
 

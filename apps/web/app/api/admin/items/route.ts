@@ -8,6 +8,7 @@ import { getLocationIndexService } from '@/lib/services/location';
 import { safeErrorResponse } from '@/lib/utils/api-error';
 import { checkAdminAuth, requireAdminSession } from '@/lib/auth/admin-guard';
 import { emitActivityEvent } from '@/lib/services/platform-activity-feed/push-client';
+import { invalidateContentCaches } from '@/lib/cache-invalidation';
 
 const itemRepository = new ItemRepository();
 
@@ -540,6 +541,9 @@ export async function POST(request: NextRequest) {
       submitted_by: session.user.id,
       location,
     }, auditUser);
+
+    // The public listing is kept in memory (lib/content.ts fetchItems): clear it so the new item shows at once
+    await invalidateContentCaches();
 
     // EW-120 push mode: emit WEBSITE_ITEM_SUBMITTED. Fire-and-forget;
     // never block the admin response on platform sync.
