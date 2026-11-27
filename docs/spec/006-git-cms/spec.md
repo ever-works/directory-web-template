@@ -80,7 +80,7 @@ catches typos.
   found` (a request without a session still gets its 401 first), the comment
   list is empty and the rating and vote reads return zero. The answers when
   the database is unavailable are unchanged (T-2853). `DELETE .../votes`
-  answered for any slug here; it follows AC-11 now.
+  answered for any slug here; it follows AC-12 now.
 - [x] AC-9: `GET /api/items/[slug]/comments/rating/[commentId]` (public, no
   session) answers only for a comment the public comments list of that item
   shows: one that is not soft-deleted, whose author's account is active,
@@ -96,12 +96,23 @@ catches typos.
   `findPublicItemSlugs()` (same file, built on the cached `fetchItems()`
   listing) returns. For any other slug they answer as for an unknown one,
   with no database query for it: zero totals and `days` zero-filled series
-  entries, a count of 0, all zeros (T-2857). One exception: outside
-  `next dev` the listing is kept for up to 10 minutes and reviewing an item
-  does not clear it, so for up to 10 minutes after a reject the batch route
-  can still answer for that item (and a new item gets zeros there). The
-  activity and votes/count routes read the item file and change at once.
-- [x] AC-11: `DELETE /api/items/[slug]/votes`, whose answer carries the
+  entries, a count of 0, all zeros (T-2857). The batch route follows the
+  listing, which outside `next dev` is kept in memory for up to 10 minutes
+  unless a content sync or an admin write clears it (AC-11). The activity
+  and votes/count routes read the item file and change at once.
+- [x] AC-11: An admin item write clears the public listing at once.
+  `POST /api/admin/items` (create), `PUT` and `DELETE
+  /api/admin/items/[id]`, `POST /api/admin/items/[id]/review` and `POST
+  /api/admin/items/bulk` (approve, reject, delete) call
+  `invalidateContentCaches()` (`apps/web/lib/cache-invalidation.ts`) after a
+  successful write, as the category, tag and collection admin routes do, so
+  the listing pages, `GET /api/items/listing` and `GET
+  /api/items/engagement` show a new or approved item and drop a rejected or
+  deleted one without waiting for the next content sync or the 10-minute
+  listing TTL. The bulk route calls it once after its loop, when at least
+  one item was written; a refused or failed write calls it not at all
+  (T-2865).
+- [x] AC-12: `DELETE /api/items/[slug]/votes`, whose answer carries the
   item's net votes, answers only for a public item too. After the 401 for a
   request without a session it calls `findPublicItem()` and answers 404
   `Item not found` for any other slug, as `POST .../votes` does, with no
@@ -156,7 +167,7 @@ a headless CMS (Contentful, Sanity, Hygraph) without touching core.
   `apps/web-e2e/tests/public/unpublished-items-hidden.spec.ts` (activity,
   votes/count and engagement for the approved item and the draft after the
   vote, and for the approved item once it is rejected).
-- AC-11: `apps/web/lib/__tests__/public-item-vote-delete.spec.ts` (unit) and
+- AC-12: `apps/web/lib/__tests__/public-item-vote-delete.spec.ts` (unit) and
   `apps/web-e2e/tests/api/votes-delete-unpublished.spec.ts` (an unknown slug,
   a draft and a rejected item with a vote answer 404; approved again, the
   vote is still there and the DELETE removes it).

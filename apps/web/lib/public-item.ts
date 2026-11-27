@@ -43,10 +43,12 @@ export async function findPublicItem(slug: string): Promise<ItemData | null> {
  * soft-deleted, or not an item slug at all) is left out, so the route answers zeros for it, as
  * for an unknown slug, without a database query.
  *
- * It reads the public listing, `fetchItems()` (`lib/content.ts`), which the listing pages read
- * too and keeps in memory, instead of one `fetchItem` per slug. So it answers for exactly the
- * items the listing cards show. The `isPubliclyVisibleItem` check is repeated, as in
- * `findPublicItem`. A read error is thrown, so the route's own error branch answers.
+ * It reads the public listing, `fetchItems()` (`lib/content.ts`), instead of one `fetchItem` per
+ * slug. That listing is kept in memory per set of options (the listing pages read it with other
+ * options, such as the locale) until `invalidateContentCaches()` clears it (a content sync, or an
+ * admin write of an item, category, tag or collection) or its 10-minute TTL ends. The
+ * `isPubliclyVisibleItem` check is repeated, as in `findPublicItem`. A read error is thrown, so
+ * the route's own error branch answers.
  */
 export async function findPublicItemSlugs(slugs: readonly string[]): Promise<Set<string>> {
 	if (slugs.length === 0) return new Set();
