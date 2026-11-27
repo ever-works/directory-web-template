@@ -118,11 +118,7 @@ export async function getActiveSponsorAds(limit?: number): Promise<SponsorAd[]> 
 	const tenantId = await getTenantId();
 	if (!tenantId) throw new Error('Tenant ID not found');
 
-	const query = db
-		.select()
-		.from(sponsorAds)
-		.where(liveSponsorAdFilter(tenantId))
-		.orderBy(desc(sponsorAds.createdAt));
+	const query = db.select().from(sponsorAds).where(liveSponsorAdFilter(tenantId)).orderBy(desc(sponsorAds.createdAt));
 
 	if (limit && limit > 0) {
 		return await query.limit(limit);

@@ -59,7 +59,11 @@ describe('isSponsorAdWithinPaidWindow', () => {
 });
 
 describe('the public listing applies the same rule in SQL', () => {
-	const repo = readFileSync(join(__dirname, '../../repositories/sponsor-ad.repository.ts'), 'utf8');
+	// Line endings normalised: on a CRLF checkout `bodyOf` would find no '\n}\n' and both guards would fail.
+	const repo = readFileSync(join(__dirname, '../../repositories/sponsor-ad.repository.ts'), 'utf8').replace(
+		/\r\n/g,
+		'\n'
+	);
 
 	const bodyOf = (signature: string): string => {
 		const start = repo.indexOf(signature);
