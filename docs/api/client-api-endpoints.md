@@ -352,7 +352,7 @@ Returns details of a specific item owned by the authenticated user.
 
 Updates an item owned by the authenticated user. If the item was previously approved, updating it changes its status to `pending` for re-review.
 
-After a successful write this route, `DELETE /api/client/items/{id}` and `POST /api/client/items/{id}/restore` clear the public listing cache (`invalidateContentCaches()`), so the listing pages, `GET /api/items/listing` and `GET /api/items/engagement` drop an edited (now pending) or deleted item and show a restored approved one at once, not after the 10-minute listing TTL. A refused or failed write clears nothing (T-2872).
+After a successful write this route, `DELETE /api/client/items/{id}` and `POST /api/client/items/{id}/restore` clear the public listing cache (`invalidateContentCaches()`), so `GET /api/items/listing` and `GET /api/items/engagement` drop an edited (now pending) or deleted item and show a restored approved one at once, not after the 10-minute listing TTL. Cached listing pages (ISR, for example `/categories/[category]`, `/tags/[tag]` and `/map`) are revalidated stale-while-revalidate (`revalidateTag(tag, 'max')`), so the first visit after a write can still get the previous page while it regenerates; the next one shows the change. A refused or failed write clears nothing (T-2872).
 
 | Property | Value |
 |----------|-------|
