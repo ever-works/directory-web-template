@@ -352,6 +352,8 @@ Returns details of a specific item owned by the authenticated user.
 
 Updates an item owned by the authenticated user. If the item was previously approved, updating it changes its status to `pending` for re-review.
 
+After a successful write this route, `DELETE /api/client/items/{id}` and `POST /api/client/items/{id}/restore` clear the public listing cache (`invalidateContentCaches()`), so the listing pages, `GET /api/items/listing` and `GET /api/items/engagement` drop an edited (now pending) or deleted item and show a restored approved one at once, not after the 10-minute listing TTL. A refused or failed write clears nothing (T-2872).
+
 | Property | Value |
 |----------|-------|
 | **Method** | `PUT` |
