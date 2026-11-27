@@ -17,7 +17,7 @@ The comments system provides endpoints for creating, reading, updating, and dele
 |---|---|---|---|
 | `/api/items/[slug]/comments` | GET | Public | List comments for an item |
 | `/api/items/[slug]/comments/rating` | GET | Public | Get aggregate rating statistics |
-| `/api/items/[slug]/comments/rating/[commentId]` | GET | Public | Get a single comment's rating |
+| `/api/items/[slug]/comments/rating/[commentId]` | GET | Public | Get one comment as the list shows it (404 for a deleted comment, another item's slug or an unpublished item) |
 
 ### Authenticated Endpoints
 

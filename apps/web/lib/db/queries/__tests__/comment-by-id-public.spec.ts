@@ -58,7 +58,11 @@ describe('GET comment by id answers only for a comment the public list shows', (
 		);
 		assert.ok(body.includes('.where(and('), 'the query has no and(...) WHERE');
 		const where = body.slice(body.indexOf('.where(and('));
-		for (const condition of ['eq(comments.id,id)', 'isNull(comments.deletedAt)', 'eq(comments.tenantId,tenantId)']) {
+		for (const condition of [
+			'eq(comments.id,id)',
+			'isNull(comments.deletedAt)',
+			'eq(comments.tenantId,tenantId)'
+		]) {
 			assert.ok(where.includes(condition), `the query WHERE is missing ${condition}`);
 		}
 		assert.ok(body.includes('if(!tenantId)returnnull;'), 'the query does not stop without a tenant');

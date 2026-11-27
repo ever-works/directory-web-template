@@ -72,7 +72,10 @@ test.describe('API: GET comment by id hides deleted comments and comments of unp
 
 			const [deleted, kept] = await test.step('the client posts two comments on the first item', async () => {
 				const ids: string[] = [];
-				for (const [index, content] of [`E2E T-2856 deleted ${suffix}`, `E2E T-2856 kept ${suffix}`].entries()) {
+				for (const [index, content] of [
+					`E2E T-2856 deleted ${suffix}`,
+					`E2E T-2856 kept ${suffix}`
+				].entries()) {
 					const response = await client.post(`/api/items/${commented.slug}/comments`, {
 						data: { content, rating: 3 + index }
 					});
@@ -100,7 +103,9 @@ test.describe('API: GET comment by id hides deleted comments and comments of unp
 
 			await test.step('the comment does not answer through another slug', async () => {
 				const otherSlug = await byId(other.slug, deleted);
-				expect.soft(otherSlug.status(), `GET comment ${deleted} on ${other.slug} (another public item)`).toBe(404);
+				expect
+					.soft(otherSlug.status(), `GET comment ${deleted} on ${other.slug} (another public item)`)
+					.toBe(404);
 				expect.soft(await otherSlug.json(), `GET comment ${deleted} on ${other.slug} body`).toEqual(NOT_FOUND);
 
 				const unknown = `e2e-t2856-unknown-${suffix}`;

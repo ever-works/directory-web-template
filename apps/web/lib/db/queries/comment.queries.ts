@@ -118,6 +118,48 @@ export async function getCommentById(id: string) {
 }
 
 /**
+ * Get a comment by ID as the public comments list shows it: the same fields as
+ * {@link getCommentsByItemId}, and only while the comment is not soft-deleted and its author's
+ * account is active. Comment ids are public, so the public by-id read uses this; the admin routes
+ * and moderation use {@link getCommentById}, which also returns deleted comments (T-2856).
+ * @param id - Comment ID
+ * @returns The comment with its author's public profile, or null when the list would not show it
+ */
+export async function getPublicCommentById(id: string): Promise<CommentWithUser | null> {
+	const tenantId = await getTenantId();
+	if (!tenantId) return null;
+	const [comment] = await db
+		.select({
+			id: comments.id,
+			content: comments.content,
+			rating: comments.rating,
+			userId: comments.userId,
+			itemId: comments.itemId,
+			createdAt: comments.createdAt,
+			updatedAt: comments.updatedAt,
+			editedAt: comments.editedAt,
+			deletedAt: comments.deletedAt,
+			tenantId: comments.tenantId,
+			user: {
+				id: clientProfiles.userId,
+				name: clientProfiles.name,
+				image: clientProfiles.avatar,
+				username: clientProfiles.username,
+				bio: clientProfiles.bio,
+				jobTitle: clientProfiles.jobTitle,
+				company: clientProfiles.company,
+				location: clientProfiles.location
+			}
+		})
+		.from(comments)
+		.innerJoin(clientProfiles, eq(comments.userId, clientProfiles.id))
+		.innerJoin(users, and(eq(users.id, clientProfiles.userId), isNull(users.deactivatedAt)))
+		.where(and(eq(comments.id, id), isNull(comments.deletedAt), eq(comments.tenantId, tenantId)))
+		.limit(1);
+	return comment ?? null;
+}
+
+/**
  * Get comment by ID with user information
  * @param id - Comment ID
  * @returns Comment with user details or undefined
