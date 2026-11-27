@@ -81,9 +81,10 @@ describe('comment rating is author-only', () => {
 		}
 	});
 
-	it('GET stays public and unscoped', () => {
+	it('GET stays public: no session, and the comment read is not owner-scoped', () => {
+		// It answers only for a comment the public list shows (T-2856, comment-by-id-public.spec.ts)
 		const get = functionBody(route, 'export async function GET(');
-		assert.ok(get.includes('getCommentById(commentId)'));
+		assert.ok(get.includes('getPublicCommentById(commentId)'));
 		assert.ok(!get.includes('getClientProfileByUserId'));
 	});
 });

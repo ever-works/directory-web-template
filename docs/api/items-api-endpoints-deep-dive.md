@@ -291,7 +291,7 @@ curl -s http://localhost:3000/api/items/awesome-productivity-tool/comments/ratin
 | **Path** | `/api/items/{slug}/comments/rating/{commentId}` |
 | **Auth** | None (public) |
 
-Returns the full comment object for a specific comment ID.
+Returns one comment as the comments list of the item shows it: the same fields, with the author's public profile in `user`. It answers only for a comment the list shows: not soft-deleted, by an author whose account is active, on the item named by `slug`, and that item is public (approved or with no status, not soft-deleted). Any other comment answers 404 `{ "error": "Comment not found" }`: a comment its author deleted or a moderator removed, one asked for through another slug, and one on a draft, pending or rejected item, including comments left while the item was public (T-2856).
 
 #### Update Comment Rating
 
