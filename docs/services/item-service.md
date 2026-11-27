@@ -101,7 +101,7 @@ const items = await itemService.readItems();
 const allItems = await itemService.readItems(true);
 ```
 
-The `readItems` method scans the `data/` directory, reads each `{slug}/{slug}.yml` file, and normalizes fields with sensible defaults. Categories are coerced to arrays, missing `status` defaults to `approved`, and `isActive` on locations defaults to `false`.
+The `readItems` method scans the `data/` directory, reads each `{slug}/{slug}.yml` file, and normalizes fields with sensible defaults. Categories are coerced to arrays, missing `status` defaults to `approved`, and `isActive` on locations defaults to `false`. An entry it cannot stat, such as a folder deleted while the scan runs or a dangling symlink, is skipped with a warning; the other items are still returned.
 
 ### Read by Slugs
 
