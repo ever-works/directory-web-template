@@ -203,6 +203,15 @@ A route is considered to have "detailed documentation" if it meets at least 2 of
 5. **Info**: Existing info fields preserved, generated fills gaps
 6. **Servers**: Always uses generated servers configuration
 
+### Path Templates and Path Parameters
+
+OpenAPI requires every `{name}` in a path to have an `in: path` parameter with that name, and every `in: path` parameter to appear in the path. Without that, the reference's "Try it out" and generated clients have no value to put in the template, or ask for one the route never reads.
+
+- Name the template after the route folder: `app/api/items/[slug]/comments/route.ts` is `/api/items/{slug}/comments` with a `slug` parameter, and a catch-all folder such as `[...nextauth]` is `{nextauth}` (not `{...nextauth}`).
+- Declare the path parameter in every operation's `@swagger` block (`GET`, `POST`, `PATCH`, `DELETE`, ...), and none on a path without a template.
+- The merge never removes anything from `public/openapi.json`: renaming a path in a `@swagger` block adds the new path and keeps the old one, removing a parameter leaves it in the file, and a new parameter in a short annotation (fewer than two of the quality criteria above) is not merged into an entry the file already has. Make the same change to the entry in `public/openapi.json` by hand in the same pull request.
+- `apps/web/scripts/openapi-path-params.spec.ts` (run by `pnpm --filter @ever-works/web test:unit`) fails when two paths in `public/openapi.json` differ only in their parameter names, or when an operation's path template and its `in: path` parameters (path-level and operation-level, `$ref`s resolved) do not name the same values.
+
 ## Backup and Recovery
 
 Before each generation run:

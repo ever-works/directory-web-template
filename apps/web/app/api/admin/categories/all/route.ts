@@ -12,14 +12,6 @@ import { checkAdminAuth } from '@/lib/auth/admin-guard';
  *     description: "Returns all categories in the system. Used for category management in admin interfaces. Requires admin privileges."
  *     security:
  *       - sessionAuth: []
- *     parameters:
- *       - name: "id"
- *         in: "path"
- *         required: true
- *         schema:
- *           type: string
- *         description: "Category ID"
- *         example: "productivity"
  *     responses:
  *       200:
  *         description: "Category retrieved successfully"

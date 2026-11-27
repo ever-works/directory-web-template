@@ -65,6 +65,13 @@ async function readFollowCounts(
  *     tags: ["User - Profile Follow"]
  *     summary: "Get follow state + counts for a profile"
  *     description: "Returns isFollowing (whether the authenticated user follows this profile) plus follower/following counts. isFollowing is null for unauthenticated viewers. followers and following are null when the profile is Private and the viewer is not its owner. A deactivated account answers 404 to everyone but its owner."
+ *     parameters:
+ *       - name: "username"
+ *         in: "path"
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: "Username of the profile"
  */
 export async function GET(_request: NextRequest, ctx: { params: Promise<{ username: string }> }) {
 	try {
@@ -106,6 +113,13 @@ export async function GET(_request: NextRequest, ctx: { params: Promise<{ userna
  *     tags: ["User - Profile Follow"]
  *     summary: "Follow a profile"
  *     description: "Idempotent — following an already-followed profile returns 200."
+ *     parameters:
+ *       - name: "username"
+ *         in: "path"
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: "Username of the profile"
  */
 export async function POST(_request: NextRequest, ctx: { params: Promise<{ username: string }> }) {
 	try {
@@ -140,6 +154,13 @@ export async function POST(_request: NextRequest, ctx: { params: Promise<{ usern
  *   delete:
  *     tags: ["User - Profile Follow"]
  *     summary: "Unfollow a profile"
+ *     parameters:
+ *       - name: "username"
+ *         in: "path"
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: "Username of the profile"
  */
 export async function DELETE(_request: NextRequest, ctx: { params: Promise<{ username: string }> }) {
 	try {

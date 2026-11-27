@@ -8,7 +8,7 @@ import { findPublicItem } from '@/lib/public-item';
 
 /**
  * @swagger
- * /api/items/{itemId}/comments:
+ * /api/items/{slug}/comments:
  *   get:
  *     tags: ["Item Comments"]
  *     summary: "Get item comments"
@@ -163,7 +163,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ slug
 
 /**
  * @swagger
- * /api/items/{itemId}/comments:
+ * /api/items/{slug}/comments:
  *   post:
  *     tags: ["Item Comments"]
  *     summary: "Create item comment"

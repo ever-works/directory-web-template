@@ -6,7 +6,7 @@ export const runtime = 'nodejs';
 
 /**
  * @swagger
- * /api/auth/{...nextauth}:
+ * /api/auth/{nextauth}:
  *   get:
  *     tags: ["Authentication"]
  *     summary: "NextAuth.js GET handler"
@@ -176,7 +176,7 @@ export async function GET(req: NextRequest) {
 
 /**
  * @swagger
- * /api/auth/{...nextauth}:
+ * /api/auth/{nextauth}:
  *   post:
  *     tags: ["Authentication"]
  *     summary: "NextAuth.js POST handler"
