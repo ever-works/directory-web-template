@@ -19,7 +19,8 @@ const MAX_PUBLIC_ITEM_SLUG_LENGTH = MAX_ITEM_SLUG_LENGTH - '.yml'.length;
  * and answer for an unpublished item as for an unknown one (T-2853): `POST
  * /api/items/[slug]/views` and the comment and vote writes answer 404, and the comment, rating and
  * vote reads answer an empty list or zero. `GET .../activity` and `GET .../votes/count` answer
- * zero too (T-2857).
+ * zero too (T-2857). `DELETE .../votes`, whose answer carries the net votes, answers 404 and
+ * removes no vote (T-2864).
  *
  * It reads the item as the item page does, through `fetchItem` (`lib/content.ts`), from the content
  * folder: no git sync and no database. `fetchItem` already returns `null` for an item that

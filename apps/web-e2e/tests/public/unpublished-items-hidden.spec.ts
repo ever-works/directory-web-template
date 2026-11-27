@@ -378,18 +378,24 @@ test.describe('Public: unpublished items are hidden from anonymous visitors', ()
 				const response = await request.delete(`/api/admin/collections/${collection.id}`);
 				expect.soft(response.status(), `DELETE /api/admin/collections/${collection.id}`).toBe(200);
 			}
+			// DELETE .../votes answers 404 for an item that is not public (T-2864), and the approved
+			// item was rejected above: approve each voted item again, then remove the vote
+			for (const slug of voted) {
+				if (created.includes(slug)) {
+					const review = await request.post(`${ITEMS_PATH}/${slug}/review`, { data: { status: 'approved' } });
+					expect.soft(review.status(), `POST ${ITEMS_PATH}/${slug}/review (cleanup)`).toBe(200);
+				}
+				const response = await client.delete(`/api/items/${slug}/votes`);
+				expect.soft(response.status(), `DELETE votes ${slug}`).toBe(200);
+			}
 			for (const slug of created) {
 				const response = await request.delete(`${ITEMS_PATH}/${encodeURIComponent(slug)}`);
 				expect.soft(response.status(), `DELETE ${ITEMS_PATH}/${slug}`).toBe(200);
 			}
-			// Neither DELETE looks the item up, so they work once the items are gone
+			// The comment DELETE does not look the item up, so it works once the items are gone
 			for (const { slug, id } of comments) {
 				const response = await client.delete(`/api/items/${slug}/comments/${id}`);
 				expect.soft(response.status(), `DELETE comment ${id} on ${slug}`).toBe(204);
-			}
-			for (const slug of voted) {
-				const response = await client.delete(`/api/items/${slug}/votes`);
-				expect.soft(response.status(), `DELETE votes ${slug}`).toBe(200);
 			}
 			await client.dispose();
 			await anonymous.dispose();
