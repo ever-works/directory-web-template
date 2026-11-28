@@ -515,6 +515,7 @@ if (require.main === module) {
 }
 
 export {
+	swaggerOptions,
 	generateOpenAPI,
 	mergeOpenAPISpecs,
 	hasDetailedDocumentation,
