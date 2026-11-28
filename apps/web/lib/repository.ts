@@ -86,10 +86,8 @@ function pushHead(dir: string, url: string, auth: GitAuthFactory): PushHead {
  * a recovery branch. A re-clone used to drop that work, although the API had reported the edit saved
  * (T-2923). A read-only runtime pushes nothing and clones, as before.
  *
- * `tipBeforePull` is where the branch was before a pull that failed. A pull that fast-forwarded the
- * branch and then could not check out (CheckoutConflictError) leaves the branch on the remote's commit
- * and the work tree on the old one; the branch is put back first, so the pending changes are committed
- * onto the commit they were made on and not as a commit that reverts the remote's changes.
+ * `tipBeforePull` is where the branch was before a pull that failed; the branch is put back there first
+ * (`putBranchBack`).
  *
  * @returns `keep` when the work could not be pushed (keep the checkout, the next sync retries),
  *          `pushed` after the normal push, else `clone`.
@@ -103,16 +101,8 @@ async function saveCheckoutBeforeClone(
   if (isReadOnlyContentRuntime()) {
     return "clone";
   }
-  if (tipBeforePull) {
-    const tip = await readBranchTip(dest);
-    if (tip?.ref === tipBeforePull.ref && tip.oid !== tipBeforePull.oid) {
-      try {
-        await git.writeRef({ fs, dir: dest, ref: tipBeforePull.ref, value: tipBeforePull.oid, force: true });
-      } catch (error) {
-        console.error("[SYNC] Keeping the content checkout: could not move its branch back after the failed pull:", error);
-        return "keep";
-      }
-    }
+  if (!(await putBranchBack(dest, tipBeforePull))) {
+    return "keep";
   }
   const saved = await saveUnpushedWork({ fs, dir: dest, push: pushHead(dest, url, auth) });
   if (saved.status === "failed") {
@@ -135,6 +125,30 @@ async function readBranchTip(dir: string): Promise<BranchTip | null> {
     return { ref, oid: await git.resolveRef({ fs, dir, ref }) };
   } catch {
     return null;
+  }
+}
+
+/**
+ * Puts the branch of the checkout at `dest` back on `tipBeforePull` when a failed pull moved it. git.pull
+ * merges first (a fast-forward or a merge commit, which moves the branch) and checks out after. When the
+ * checkout fails, with a CheckoutConflictError or another error (a file it cannot write, a timeout), the
+ * branch is on the new commit and the work tree on the old one. Saving the work there would commit the
+ * old work tree on top of the remote's commit, a commit that reverts the remote's changes, and its normal
+ * push is a fast-forward the remote accepts. Put back, the pending changes are committed onto the commit
+ * they were made on.
+ *
+ * @returns `false` when the branch could not be moved back (keep the checkout).
+ */
+async function putBranchBack(dest: string, tipBeforePull: BranchTip | null | undefined): Promise<boolean> {
+  if (!tipBeforePull) return true;
+  const tip = await readBranchTip(dest);
+  if (tip?.ref !== tipBeforePull.ref || tip.oid === tipBeforePull.oid) return true;
+  try {
+    await git.writeRef({ fs, dir: dest, ref: tipBeforePull.ref, value: tipBeforePull.oid, force: true });
+    return true;
+  } catch (error) {
+    console.error("[SYNC] Keeping the content checkout: could not move its branch back after the failed pull:", error);
+    return false;
   }
 }
 
@@ -164,7 +178,8 @@ async function cloneRepositoryAtomically(url: string, dest: string, auth: GitAut
 /**
  * Pulls the content checkout at `dest`. After a conflicting pull it pushes the checkout's unpushed work
  * (`saveCheckoutBeforeClone`) and clones again, or keeps the checkout when that work could not be pushed.
- * Other pull errors are thrown, for `trySyncRepository`'s fallback clone.
+ * Other pull errors are thrown, for `trySyncRepository`'s fallback clone, once the branch is back where
+ * the pull found it (`putBranchBack`).
  *
  * @returns `true` when the checkout was pulled or cloned again; `false` when it was kept as it is.
  */
@@ -236,6 +251,11 @@ export async function pullChanges(url: string, dest: string, auth: GitAuthFactor
       await cloneRepositoryAtomically(url, dest, auth);
       return true;
     } else {
+      // The fallback clone saves the unpushed work first. A pull that failed after it moved the branch
+      // left the work tree on the old commit, so the branch goes back first, as after a conflict.
+      if (!isReadOnlyContentRuntime() && !(await putBranchBack(dest, tipBeforePull))) {
+        return false;
+      }
       throw err;
     }
   }

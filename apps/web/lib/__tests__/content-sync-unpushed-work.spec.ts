@@ -53,8 +53,11 @@ let r0: string;
 let clock = Date.UTC(2026, 10, 28, 12);
 const originalCwd = process.cwd();
 
-/** The data repository the checkout syncs with: the tip of its `main`, and what fails. */
-let remote: { main: string; pushError?: () => Error; pullError?: () => Error };
+/**
+ * The data repository the checkout syncs with: the tip of its `main`, and what fails. `checkoutError`
+ * fails the pull after its merge moved the branch, as a checkout that cannot write a file does.
+ */
+let remote: { main: string; pushError?: () => Error; pullError?: () => Error; checkoutError?: () => Error };
 /** Network calls in order: `pull`, `push <remote ref>`, `clone`. */
 let calls: string[];
 /** What each accepted push sent: the commit, its parents and the two item files in it, read at push time. */
@@ -100,6 +103,7 @@ function mockNetwork() {
 		// The fetch: the remote-tracking ref takes the remote's tip. Then merge and checkout, as git.pull does.
 		await git.writeRef({ fs, dir: args.dir, ref: 'refs/remotes/origin/main', value: remote.main, force: true });
 		await git.merge({ fs, dir: args.dir, ours: 'main', theirs: 'refs/remotes/origin/main', author: AUTHOR });
+		if (remote.checkoutError) throw remote.checkoutError();
 		await git.checkout({ fs, dir: args.dir, ref: 'main' });
 	});
 	mock.method(git, 'push', async (args: { dir: string; ref?: string; remoteRef?: string }) => {
@@ -271,5 +275,34 @@ describe('the fallback clone of trySyncRepository pushes the unpushed work first
 		assert.equal(await head(), local);
 		assert.equal(readFile(FOO), 'name: Foo\ndescription: Local\n');
 		assert.equal(updated, false, 'a sync that kept the checkout reported an update');
+	});
+
+	it("pushes nothing after a pull whose checkout failed, so the remote's commit is not reverted", async () => {
+		// git.pull fast-forwarded main to the remote's commit, then could not write a file. The work tree and
+		// the index are still on the old commit, and the checkout has nothing of its own to save.
+		const r1 = await remoteCommit({ [FOO]: 'name: Foo\ndescription: Remote\n' });
+		remote.checkoutError = () => Object.assign(new Error('EACCES: permission denied'), { code: 'EACCES' });
+
+		const updated = await repository.trySyncRepository();
+
+		assert.equal(remote.main, r1, "a push replaced the remote's main with a commit that reverts its change");
+		assert.deepEqual(calls, ['pull', 'clone']);
+		assert.equal(updated, true);
+	});
+
+	it('saves the unpushed commit onto the commit it was made on after a pull whose checkout failed', async () => {
+		const r1 = await remoteCommit({ [BAR]: 'name: Bar\ndescription: Remote\n' });
+		const local = await localCommit({ [FOO]: 'name: Foo\ndescription: Local\n' });
+		remote.checkoutError = () => new Error('Operation timeout after 120000ms');
+
+		const updated = await repository.trySyncRepository();
+
+		assert.equal(remote.main, r1, "a push replaced the remote's main with a commit that reverts its change");
+		assert.equal(calls.at(-1), 'clone');
+		assert.deepEqual(
+			pushed.map(({ remoteRef, oid }) => ({ recovery: RECOVERY_REF.test(remoteRef), oid })),
+			[{ recovery: true, oid: local }]
+		);
+		assert.equal(updated, true);
 	});
 });

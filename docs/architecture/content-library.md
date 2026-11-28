@@ -189,7 +189,7 @@ The system handles merge conflicts through a multi-step strategy:
 3. **Retry pull** after a successful normal push
 4. **Full reset** (delete + re-clone) only once the unpushed work is on the remote. When both pushes fail, the checkout is kept and the next sync retries
 
-A pull that fails for another reason (a timeout, a 401) reaches the fallback clone of `trySyncRepository()`, which pushes the unpushed work first in the same way. A read-only runtime (Vercel, `DISABLE_AUTO_SYNC`) pushes nothing and clones again, as before.
+A pull that fails for another reason (a timeout, a 401) reaches the fallback clone of `trySyncRepository()`, which pushes the unpushed work first in the same way. `git.pull` merges before it checks out, so a pull whose checkout failed (a conflict, a file it could not write, a timeout) has already moved the branch to the remote's commit while the work tree is still on the old one. The branch is put back where the pull found it before the work is saved; otherwise the save would commit the old work tree on top of the remote's commit, and that push, a fast-forward, would revert the remote's changes. A read-only runtime (Vercel, `DISABLE_AUTO_SYNC`) pushes nothing and clones again, as before.
 
 ### Fallback Behavior
 
