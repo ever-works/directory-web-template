@@ -12,9 +12,18 @@ import { checkAdminAuth } from '@/lib/auth/admin-guard';
  *     description: "Returns all categories in the system. Used for category management in admin interfaces. Requires admin privileges."
  *     security:
  *       - sessionAuth: []
+ *     parameters:
+ *       - name: "locale"
+ *         in: "query"
+ *         required: false
+ *         schema:
+ *           type: string
+ *           default: "en"
+ *         description: "Locale of the category names to return"
+ *         example: "fr"
  *     responses:
  *       200:
- *         description: "Category retrieved successfully"
+ *         description: "Categories retrieved successfully"
  *         content:
  *           application/json:
  *             schema:
@@ -24,17 +33,16 @@ import { checkAdminAuth } from '@/lib/auth/admin-guard';
  *                   type: boolean
  *                   example: true
  *                 data:
- *                   $ref: "#/components/schemas/Category"
+ *                   type: array
+ *                   items:
+ *                     $ref: "#/components/schemas/Category"
  *               required: ["success", "data"]
  *             example:
  *               success: true
  *               data:
- *                 id: "productivity"
- *                 name: "Productivity"
- *                 isActive: true
- *                 itemCount: 15
- *                 createdAt: "2024-01-15T10:30:00.000Z"
- *                 updatedAt: "2024-01-15T10:30:00.000Z"
+ *                 - id: "productivity"
+ *                   name: "Productivity"
+ *                   count: 15
  *       401:
  *         description: "Unauthorized - Admin access required"
  *         content:
@@ -73,7 +81,7 @@ import { checkAdminAuth } from '@/lib/auth/admin-guard';
  *                   example: false
  *                 error:
  *                   type: string
- *                   example: "Failed to fetch category"
+ *                   example: "Failed to fetch categories"
  */
 export async function GET(request: NextRequest) {
 	try {

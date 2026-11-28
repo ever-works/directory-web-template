@@ -212,6 +212,13 @@ OpenAPI requires every `{name}` in a path to have an `in: path` parameter with t
 - The merge never removes anything from `public/openapi.json`: renaming a path in a `@swagger` block adds the new path and keeps the old one, removing a parameter leaves it in the file, and a new parameter in a short annotation (fewer than two of the quality criteria above) is not merged into an entry the file already has. Make the same change to the entry in `public/openapi.json` by hand in the same pull request.
 - `apps/web/scripts/openapi-path-params.spec.ts` (run by `pnpm --filter @ever-works/web test:unit`) fails when two paths in `public/openapi.json` differ only in their parameter names, or when an operation's path template and its `in: path` parameters (path-level and operation-level, `$ref`s resolved) do not name the same values.
 
+### Responses
+
+OpenAPI 3.0 requires `responses` on every operation, with at least one status code. Without it, validators reject the whole document, and the reference's "Try it out" and generated clients show no response shape.
+
+- Give every operation's `@swagger` block a `responses:` map: the success status with its body, and each error status the handler returns (`401`, `404`, `422`, `500`, ...). Make the same change to the entry in `public/openapi.json`.
+- `apps/web/scripts/openapi-annotations.spec.ts` (run by `pnpm --filter @ever-works/web test:unit`) builds the document from the `@swagger` blocks the way `generate-docs` does (`swagger-jsdoc` with the generator's own `swaggerOptions`, `apis` globs included) and fails when an operation there or in `public/openapi.json` has no responses, or when a block's path template and its `in: path` parameters differ. A bad block fails there before anyone copies it into the file.
+
 ## Backup and Recovery
 
 Before each generation run:

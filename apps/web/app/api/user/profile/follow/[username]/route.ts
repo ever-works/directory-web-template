@@ -72,6 +72,47 @@ async function readFollowCounts(
  *         schema:
  *           type: string
  *         description: "Username of the profile"
+ *     responses:
+ *       200:
+ *         description: "Follow state and counts"
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 isFollowing:
+ *                   type: boolean
+ *                   nullable: true
+ *                   description: "Whether the caller follows this profile; null when not signed in, false on the caller's own profile"
+ *                 isSelf:
+ *                   type: boolean
+ *                   description: "Whether the profile is the caller's own"
+ *                 followers:
+ *                   type: integer
+ *                   nullable: true
+ *                   description: "null when the profile is Private and the caller is not its owner"
+ *                 following:
+ *                   type: integer
+ *                   nullable: true
+ *                   description: "null when the profile is Private and the caller is not its owner"
+ *               required: ["isFollowing", "isSelf", "followers", "following"]
+ *             example:
+ *               isFollowing: false
+ *               isSelf: false
+ *               followers: 12
+ *               following: 3
+ *       404:
+ *         description: "No profile has this username, or its account is deactivated and the caller is not its owner"
+ *         content:
+ *           application/json:
+ *             schema: { type: object, properties: { error: { type: string } }, required: ["error"] }
+ *             example: { error: "Profile not found" }
+ *       500:
+ *         description: "Internal server error"
+ *         content:
+ *           application/json:
+ *             schema: { type: object, properties: { error: { type: string } }, required: ["error"] }
+ *             example: { error: "Internal server error" }
  */
 export async function GET(_request: NextRequest, ctx: { params: Promise<{ username: string }> }) {
 	try {
@@ -120,6 +161,54 @@ export async function GET(_request: NextRequest, ctx: { params: Promise<{ userna
  *         schema:
  *           type: string
  *         description: "Username of the profile"
+ *     responses:
+ *       200:
+ *         description: "Profile followed (also when it already was)"
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 isFollowing:
+ *                   type: boolean
+ *                   description: "Always true after this call"
+ *                 followers:
+ *                   type: integer
+ *                   nullable: true
+ *                   description: "null when the profile is Private or deactivated and the caller is not its owner"
+ *                 following:
+ *                   type: integer
+ *                   nullable: true
+ *                   description: "null when the profile is Private or deactivated and the caller is not its owner"
+ *               required: ["isFollowing", "followers", "following"]
+ *             example:
+ *               isFollowing: true
+ *               followers: 13
+ *               following: 3
+ *       400:
+ *         description: "The caller tried to follow their own profile"
+ *         content:
+ *           application/json:
+ *             schema: { type: object, properties: { error: { type: string } }, required: ["error"] }
+ *             example: { error: "Cannot follow yourself" }
+ *       401:
+ *         description: "Not signed in"
+ *         content:
+ *           application/json:
+ *             schema: { type: object, properties: { error: { type: string } }, required: ["error"] }
+ *             example: { error: "Unauthorized" }
+ *       404:
+ *         description: "No profile has this username"
+ *         content:
+ *           application/json:
+ *             schema: { type: object, properties: { error: { type: string } }, required: ["error"] }
+ *             example: { error: "Profile not found" }
+ *       500:
+ *         description: "Internal server error"
+ *         content:
+ *           application/json:
+ *             schema: { type: object, properties: { error: { type: string } }, required: ["error"] }
+ *             example: { error: "Internal server error" }
  */
 export async function POST(_request: NextRequest, ctx: { params: Promise<{ username: string }> }) {
 	try {
@@ -161,6 +250,48 @@ export async function POST(_request: NextRequest, ctx: { params: Promise<{ usern
  *         schema:
  *           type: string
  *         description: "Username of the profile"
+ *     responses:
+ *       200:
+ *         description: "Profile unfollowed (also when it was not followed)"
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 isFollowing:
+ *                   type: boolean
+ *                   description: "Always false after this call"
+ *                 followers:
+ *                   type: integer
+ *                   nullable: true
+ *                   description: "null when the profile is Private or deactivated and the caller is not its owner"
+ *                 following:
+ *                   type: integer
+ *                   nullable: true
+ *                   description: "null when the profile is Private or deactivated and the caller is not its owner"
+ *               required: ["isFollowing", "followers", "following"]
+ *             example:
+ *               isFollowing: false
+ *               followers: 13
+ *               following: 3
+ *       401:
+ *         description: "Not signed in"
+ *         content:
+ *           application/json:
+ *             schema: { type: object, properties: { error: { type: string } }, required: ["error"] }
+ *             example: { error: "Unauthorized" }
+ *       404:
+ *         description: "No profile has this username"
+ *         content:
+ *           application/json:
+ *             schema: { type: object, properties: { error: { type: string } }, required: ["error"] }
+ *             example: { error: "Profile not found" }
+ *       500:
+ *         description: "Internal server error"
+ *         content:
+ *           application/json:
+ *             schema: { type: object, properties: { error: { type: string } }, required: ["error"] }
+ *             example: { error: "Internal server error" }
  */
 export async function DELETE(_request: NextRequest, ctx: { params: Promise<{ username: string }> }) {
 	try {

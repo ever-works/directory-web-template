@@ -22853,9 +22853,22 @@
 						"sessionAuth": []
 					}
 				],
+				"parameters": [
+					{
+						"name": "locale",
+						"in": "query",
+						"required": false,
+						"schema": {
+							"type": "string",
+							"default": "en"
+						},
+						"description": "Locale of the category names to return",
+						"example": "fr"
+					}
+				],
 				"responses": {
 					"200": {
-						"description": "Category retrieved successfully",
+						"description": "Categories retrieved successfully",
 						"content": {
 							"application/json": {
 								"schema": {
@@ -22866,21 +22879,23 @@
 											"example": true
 										},
 										"data": {
-											"$ref": "#/components/schemas/Category"
+											"type": "array",
+											"items": {
+												"$ref": "#/components/schemas/Category"
+											}
 										}
 									},
 									"required": ["success", "data"]
 								},
 								"example": {
 									"success": true,
-									"data": {
-										"id": "productivity",
-										"name": "Productivity",
-										"isActive": true,
-										"itemCount": 15,
-										"createdAt": "2024-01-15T10:30:00.000Z",
-										"updatedAt": "2024-01-15T10:30:00.000Z"
-									}
+									"data": [
+										{
+											"id": "productivity",
+											"name": "Productivity",
+											"count": 15
+										}
+									]
 								}
 							}
 						}
@@ -22938,7 +22953,7 @@
 										},
 										"error": {
 											"type": "string",
-											"example": "Failed to fetch category"
+											"example": "Failed to fetch categories"
 										}
 									}
 								}
@@ -32008,7 +32023,85 @@
 						},
 						"description": "Username of the profile"
 					}
-				]
+				],
+				"responses": {
+					"200": {
+						"description": "Follow state and counts",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"isFollowing": {
+											"type": "boolean",
+											"nullable": true,
+											"description": "Whether the caller follows this profile; null when not signed in, false on the caller's own profile"
+										},
+										"isSelf": {
+											"type": "boolean",
+											"description": "Whether the profile is the caller's own"
+										},
+										"followers": {
+											"type": "integer",
+											"nullable": true,
+											"description": "null when the profile is Private and the caller is not its owner"
+										},
+										"following": {
+											"type": "integer",
+											"nullable": true,
+											"description": "null when the profile is Private and the caller is not its owner"
+										}
+									},
+									"required": ["isFollowing", "isSelf", "followers", "following"]
+								},
+								"example": {
+									"isFollowing": false,
+									"isSelf": false,
+									"followers": 12,
+									"following": 3
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "No profile has this username, or its account is deactivated and the caller is not its owner",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"error": {
+											"type": "string"
+										}
+									},
+									"required": ["error"]
+								},
+								"example": {
+									"error": "Profile not found"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Internal server error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"error": {
+											"type": "string"
+										}
+									},
+									"required": ["error"]
+								},
+								"example": {
+									"error": "Internal server error"
+								}
+							}
+						}
+					}
+				}
 			},
 			"post": {
 				"tags": ["User - Profile Follow"],
@@ -32024,7 +32117,117 @@
 						},
 						"description": "Username of the profile"
 					}
-				]
+				],
+				"responses": {
+					"200": {
+						"description": "Profile followed (also when it already was)",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"isFollowing": {
+											"type": "boolean",
+											"description": "Always true after this call"
+										},
+										"followers": {
+											"type": "integer",
+											"nullable": true,
+											"description": "null when the profile is Private or deactivated and the caller is not its owner"
+										},
+										"following": {
+											"type": "integer",
+											"nullable": true,
+											"description": "null when the profile is Private or deactivated and the caller is not its owner"
+										}
+									},
+									"required": ["isFollowing", "followers", "following"]
+								},
+								"example": {
+									"isFollowing": true,
+									"followers": 13,
+									"following": 3
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "The caller tried to follow their own profile",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"error": {
+											"type": "string"
+										}
+									},
+									"required": ["error"]
+								},
+								"example": {
+									"error": "Cannot follow yourself"
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "Not signed in",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"error": {
+											"type": "string"
+										}
+									},
+									"required": ["error"]
+								},
+								"example": {
+									"error": "Unauthorized"
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "No profile has this username",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"error": {
+											"type": "string"
+										}
+									},
+									"required": ["error"]
+								},
+								"example": {
+									"error": "Profile not found"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Internal server error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"error": {
+											"type": "string"
+										}
+									},
+									"required": ["error"]
+								},
+								"example": {
+									"error": "Internal server error"
+								}
+							}
+						}
+					}
+				}
 			},
 			"delete": {
 				"tags": ["User - Profile Follow"],
@@ -32039,7 +32242,98 @@
 						},
 						"description": "Username of the profile"
 					}
-				]
+				],
+				"responses": {
+					"200": {
+						"description": "Profile unfollowed (also when it was not followed)",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"isFollowing": {
+											"type": "boolean",
+											"description": "Always false after this call"
+										},
+										"followers": {
+											"type": "integer",
+											"nullable": true,
+											"description": "null when the profile is Private or deactivated and the caller is not its owner"
+										},
+										"following": {
+											"type": "integer",
+											"nullable": true,
+											"description": "null when the profile is Private or deactivated and the caller is not its owner"
+										}
+									},
+									"required": ["isFollowing", "followers", "following"]
+								},
+								"example": {
+									"isFollowing": false,
+									"followers": 13,
+									"following": 3
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "Not signed in",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"error": {
+											"type": "string"
+										}
+									},
+									"required": ["error"]
+								},
+								"example": {
+									"error": "Unauthorized"
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "No profile has this username",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"error": {
+											"type": "string"
+										}
+									},
+									"required": ["error"]
+								},
+								"example": {
+									"error": "Profile not found"
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Internal server error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"error": {
+											"type": "string"
+										}
+									},
+									"required": ["error"]
+								},
+								"example": {
+									"error": "Internal server error"
+								}
+							}
+						}
+					}
+				}
 			}
 		},
 		"/api/auth/security/connected-accounts/{provider}": {
@@ -32145,7 +32439,118 @@
 					{
 						"sessionAuth": []
 					}
-				]
+				],
+				"responses": {
+					"200": {
+						"description": "Security notification preferences",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"success": {
+											"type": "boolean",
+											"example": true
+										},
+										"data": {
+											"type": "object",
+											"description": "Channel settings per security event; a setting never saved is true",
+											"properties": {
+												"security_alert": {
+													"type": "object",
+													"properties": {
+														"in_app": {
+															"type": "boolean"
+														},
+														"email": {
+															"type": "boolean"
+														}
+													},
+													"required": ["in_app", "email"]
+												},
+												"password_changed": {
+													"type": "object",
+													"properties": {
+														"in_app": {
+															"type": "boolean"
+														},
+														"email": {
+															"type": "boolean"
+														}
+													},
+													"required": ["in_app", "email"]
+												}
+											},
+											"required": ["security_alert", "password_changed"]
+										}
+									},
+									"required": ["success", "data"]
+								},
+								"example": {
+									"success": true,
+									"data": {
+										"security_alert": {
+											"in_app": true,
+											"email": true
+										},
+										"password_changed": {
+											"in_app": true,
+											"email": true
+										}
+									}
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "Not signed in",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"success": {
+											"type": "boolean",
+											"example": false
+										},
+										"error": {
+											"type": "string"
+										}
+									},
+									"required": ["success", "error"]
+								},
+								"example": {
+									"success": false,
+									"error": "Unauthorized. Please sign in."
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Internal server error",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"success": {
+											"type": "boolean",
+											"example": false
+										},
+										"error": {
+											"type": "string"
+										}
+									},
+									"required": ["success", "error"]
+								},
+								"example": {
+									"success": false,
+									"error": "Internal server error."
+								}
+							}
+						}
+					}
+				}
 			},
 			"patch": {
 				"tags": ["Authentication"],
@@ -32155,7 +32560,152 @@
 					{
 						"sessionAuth": []
 					}
-				]
+				],
+				"responses": {
+					"200": {
+						"description": "Preferences after the update",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"success": {
+											"type": "boolean",
+											"example": true
+										},
+										"data": {
+											"type": "object",
+											"description": "Channel settings per security event; a setting never saved is true",
+											"properties": {
+												"security_alert": {
+													"type": "object",
+													"properties": {
+														"in_app": {
+															"type": "boolean"
+														},
+														"email": {
+															"type": "boolean"
+														}
+													},
+													"required": ["in_app", "email"]
+												},
+												"password_changed": {
+													"type": "object",
+													"properties": {
+														"in_app": {
+															"type": "boolean"
+														},
+														"email": {
+															"type": "boolean"
+														}
+													},
+													"required": ["in_app", "email"]
+												}
+											},
+											"required": ["security_alert", "password_changed"]
+										}
+									},
+									"required": ["success", "data"]
+								},
+								"example": {
+									"success": true,
+									"data": {
+										"security_alert": {
+											"in_app": true,
+											"email": false
+										},
+										"password_changed": {
+											"in_app": true,
+											"email": true
+										}
+									}
+								}
+							}
+						}
+					},
+					"401": {
+						"description": "Not signed in",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"success": {
+											"type": "boolean",
+											"example": false
+										},
+										"error": {
+											"type": "string"
+										}
+									},
+									"required": ["success", "error"]
+								},
+								"example": {
+									"success": false,
+									"error": "Unauthorized. Please sign in."
+								}
+							}
+						}
+					},
+					"422": {
+						"description": "The body is not a map of security event to in_app / email booleans",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"success": {
+											"type": "boolean",
+											"example": false
+										},
+										"error": {
+											"type": "string"
+										},
+										"details": {
+											"type": "object",
+											"description": "Zod flatten() output: formErrors and fieldErrors"
+										}
+									},
+									"required": ["success", "error", "details"]
+								},
+								"example": {
+									"success": false,
+									"error": "Invalid request body.",
+									"details": {
+										"formErrors": [],
+										"fieldErrors": {
+											"security_alert": ["Invalid input: expected boolean, received string"]
+										}
+									}
+								}
+							}
+						}
+					},
+					"500": {
+						"description": "Internal server error, also when the body is not JSON",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"success": {
+											"type": "boolean",
+											"example": false
+										},
+										"error": {
+											"type": "string"
+										}
+									},
+									"required": ["success", "error"]
+								},
+								"example": {
+									"success": false,
+									"error": "Internal server error."
+								}
+							}
+						}
+					}
+				}
 			}
 		},
 		"/api/auth/security/sessions/{token}": {
