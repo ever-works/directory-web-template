@@ -118,7 +118,7 @@ Typical reminder windows:
 
 ### What It Does
 
-Identifies subscriptions past their expiration date and updates their status. This handles subscriptions that were cancelled but had remaining time, as well as subscriptions that failed to renew.
+Identifies subscriptions past their expiration date and updates their status. This handles subscriptions that were cancelled but had remaining time, as well as subscriptions that failed to renew. The same run sets `active` sponsor ads whose `endDate` has passed to `expired`, and reports their count as `data.sponsorAdsExpired` (see [Cron API endpoints](./cron-api-endpoints.md#subscription-expiration)).
 
 ### Expiration Process
 

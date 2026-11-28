@@ -28369,7 +28369,7 @@
 		"/api/cron/subscription-expiration": {
 			"get": {
 				"summary": "Process expired subscriptions",
-				"description": "Cron job endpoint that finds and processes expired subscriptions.\nUpdates status from 'active' to 'expired' for subscriptions past their end date.\nShould be called daily.\n",
+				"description": "Cron job endpoint that finds and processes expired subscriptions.\nUpdates status from 'active' to 'expired' for subscriptions past their end date,\nand for sponsor ads whose paid window has closed (end date at or before now).\nShould be called daily.\n",
 				"tags": ["Cron Jobs"],
 				"security": [
 					{
@@ -28396,6 +28396,10 @@
 												"processed": {
 													"type": "integer",
 													"description": "Number of subscriptions updated"
+												},
+												"sponsorAdsExpired": {
+													"type": "integer",
+													"description": "Number of active sponsor ads set to expired because their end date has passed"
 												},
 												"affectedUsers": {
 													"type": "array",

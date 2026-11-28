@@ -122,7 +122,7 @@ curl -s http://localhost:3000/api/cron/sync \
 
 ## Subscription Expiration
 
-Finds and processes expired subscriptions by updating their status from `active` to `expired` and sending notification emails.
+Finds and processes expired subscriptions by updating their status from `active` to `expired` and sending notification emails. The same run sets sponsor ads whose paid window has closed to `expired` (spec 004 AC-9).
 
 | Property | Value |
 |----------|-------|
@@ -141,6 +141,7 @@ Finds and processes expired subscriptions by updating their status from `active`
   "message": "Processed 3 expired subscriptions",
   "data": {
     "processed": 3,
+    "sponsorAdsExpired": 1,
     "affectedUsers": [
       {
         "subscriptionId": "sub_abc123",
@@ -157,16 +158,18 @@ Finds and processes expired subscriptions by updating their status from `active`
 | Field | Type | Description |
 |-------|------|-------------|
 | `data.processed` | `number` | Number of subscriptions updated to expired |
+| `data.sponsorAdsExpired` | `number` | Number of `active` sponsor ads set to `expired` because their `endDate` is at or before now (`0` when the sweep failed; the reason is in `errors`) |
 | `data.affectedUsers` | `array` | List of affected subscriptions (no PII) |
-| `data.errors` | `string[]` | Any non-fatal errors (e.g., email delivery failures) |
+| `data.errors` | `string[]` | Any non-fatal errors (e.g., email delivery failures, a failed sponsor-ad sweep) |
 | `data.timestamp` | `string` | Processing timestamp |
 
 ### Processing Steps
 
 1. Finds active subscriptions past their end date.
 2. Updates status from `active` to `expired`.
-3. Sends expiration notification emails via the email service.
-4. Returns a summary -- email failures do not cause the entire job to fail.
+3. Sets `active` sponsor ads of the tenant whose `endDate` is at or before now to `expired` (`expireEndedSponsorAds`, through `runSponsorAdExpirySweep`). A failure is added to `errors` and does not stop the job. The local and Trigger.dev schedulers run the same sweep in their `subscription-expired-cleanup` job.
+4. Sends expiration notification emails via the email service.
+5. Returns a summary -- email failures do not cause the entire job to fail.
 
 ### curl Example
 

@@ -7,11 +7,17 @@
  * 3. Logging the status changes
  * 4. Optionally sending notification emails
  *
+ * The same run sets sponsor ads whose paid window has closed to 'expired'
+ * (`runSponsorAdExpirySweep`); a failure there is reported in `errors` and never
+ * stops the subscription processing.
+ *
  * Should be called daily by Vercel cron or external scheduler.
  */
 
 import { NextRequest, NextResponse } from 'next/server';
 import { subscriptionService } from '@/lib/services/subscription.service';
+import { sponsorAdService } from '@/lib/services/sponsor-ad.service';
+import { runSponsorAdExpirySweep } from '@/lib/sponsor-ads/expiry-sweep';
 import { getUserById } from '@/lib/db/queries/user.queries';
 import { getSubscriptionExpiredTemplate } from '@/lib/mail/templates/subscription-expired';
 import { createEmailService, sendEmailSafely } from '@/lib/newsletter/utils';
@@ -61,7 +67,8 @@ function verifyCronSecret(request: NextRequest): boolean {
  *     summary: Process expired subscriptions
  *     description: |
  *       Cron job endpoint that finds and processes expired subscriptions.
- *       Updates status from 'active' to 'expired' for subscriptions past their end date.
+ *       Updates status from 'active' to 'expired' for subscriptions past their end date,
+ *       and for sponsor ads whose paid window has closed (end date at or before now).
  *       Should be called daily.
  *     tags:
  *       - Cron Jobs
@@ -85,6 +92,9 @@ function verifyCronSecret(request: NextRequest): boolean {
  *                     processed:
  *                       type: integer
  *                       description: Number of subscriptions updated
+ *                     sponsorAdsExpired:
+ *                       type: integer
+ *                       description: Number of active sponsor ads set to expired because their end date has passed
  *                     affectedUsers:
  *                       type: array
  *                       items:
@@ -123,6 +133,12 @@ export async function GET(request: NextRequest) {
 
 		// Process expired subscriptions
 		const result = await subscriptionService.processExpiredSubscriptions();
+
+		// Sponsor ads past their paid window. Never throws: a failure is reported, not fatal.
+		const sponsorAdSweep = await runSponsorAdExpirySweep(() => sponsorAdService.expireEndedSponsorAds());
+		if (sponsorAdSweep.error) {
+			result.errors.push(sponsorAdSweep.error);
+		}
 
 		// Collect affected user information (without PII like email)
 		// Email notifications should be handled internally, not exposed in API responses
@@ -210,6 +226,7 @@ export async function GET(request: NextRequest) {
 			message: `Processed ${result.processed} expired subscriptions`,
 			data: {
 				processed: result.processed,
+				sponsorAdsExpired: sponsorAdSweep.expired,
 				affectedUsers,
 				errors: result.errors,
 				timestamp: new Date().toISOString()

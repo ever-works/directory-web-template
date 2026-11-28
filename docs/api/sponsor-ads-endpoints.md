@@ -37,7 +37,7 @@ The Sponsor Ads API manages the full lifecycle of sponsored advertisements: crea
 
 Returns active sponsor ads with associated item data for public display. **No authentication required.**
 
-An ad is returned only inside its paid period: `status` is `active` and `endDate` is missing or still ahead. At its `endDate` instant it leaves this list (and every public sponsor slot) even though the row still says `active`; the admin list keeps showing it. A renewal moves `endDate` forward (spec 004 AC-8).
+An ad is returned only inside its paid period: `status` is `active` and `endDate` is missing or still ahead. At its `endDate` instant it leaves this list (and every public sponsor slot), even before the daily expiration job sets the row to `expired` (spec 004 AC-9); the admin list keeps showing it. A renewal moves `endDate` forward (spec 004 AC-8).
 
 ### Query Parameters
 
@@ -209,6 +209,8 @@ Creates a new sponsor ad submission. The ad starts in a pending state awaiting a
   "error": "You already have an active sponsor ad"
 }
 ```
+
+Returned while the user has a pending ad for the item, or an `active` ad still inside its paid window. An ad whose `endDate` has passed does not block a new sponsorship, even before the daily expiration job sets it to `expired` (spec 004 AC-9).
 
 ---
 

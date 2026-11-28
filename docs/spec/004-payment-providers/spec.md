@@ -65,6 +65,11 @@ processed my payment.
       inside its paid window: status `active` and `endDate` not past (a missing
       `endDate` still shows). A renewal moves `endDate` forward, so a paying sponsor
       stays. Rule: `apps/web/lib/sponsor-ads/live-window.ts`.
+- [x] AC-9: The daily subscription-expiration job (`/api/cron/subscription-expiration`,
+      and the `subscription-expired-cleanup` job of the local scheduler) sets every
+      `active` sponsor ad whose `endDate` has passed to `expired` and reports the count.
+      An ad past its `endDate` does not block a new sponsorship for the same item, even
+      before that run. Rule: `isSponsorAdDueForExpiry` in the same file.
 
 ## 7. Out-of-Scope Considerations
 

@@ -47,7 +47,14 @@ import type {
  *             ├─ REJECT  → REJECTED
  *             └─ CANCEL  → CANCELLED
  *           ACTIVE → CANCEL → CANCELLED
- *                   └─ (expires at endDate via separate job)
+ *                   └─ endDate passed → EXPIRED (daily sweep `expireEndedSponsorAds`, run
+ *                      by the subscription-expiration job: app/api/cron/subscription-expiration
+ *                      and lib/background-jobs/initialize-jobs.ts)
+ *           EXPIRED → renewal paid (webhook) → ACTIVE
+ *
+ *   Between two sweeps an ended ad can still say `active`, so the
+ *   public listing and the duplicate check apply the paid window
+ *   themselves (lib/sponsor-ads/live-window.ts).
  *
  * **Footguns worth knowing:**
  *
@@ -370,6 +377,14 @@ export class SponsorAdService {
 		}
 
 		return await sponsorAdRepo.expireSponsorAd(id);
+	}
+
+	/**
+	 * Expire every active sponsor ad whose paid window has closed (daily sweep, run by the
+	 * subscription-expiration job). Returns the rows it changed.
+	 */
+	async expireEndedSponsorAds(now?: Date): Promise<SponsorAd[]> {
+		return await sponsorAdRepo.expireEndedSponsorAds(now);
 	}
 
 	/**

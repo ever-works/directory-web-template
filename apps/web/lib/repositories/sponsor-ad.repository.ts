@@ -1,5 +1,5 @@
 import 'server-only';
-import { and, eq, desc, asc, count, gt, isNull, like, or, sql, SQL } from 'drizzle-orm';
+import { and, eq, desc, asc, count, gt, isNull, like, lte, or, sql, SQL } from 'drizzle-orm';
 import { db } from '@/lib/db/drizzle';
 import { sponsorAds, users, SponsorAdStatus, type SponsorAd, type NewSponsorAd } from '@/lib/db/schema';
 import type {
@@ -351,6 +351,36 @@ export async function expireSponsorAd(id: string): Promise<SponsorAd | null> {
 }
 
 /**
+ * Set every `active` ad of the current tenant whose paid window has closed (`end_date <= now`)
+ * to `expired`, and return the rows it changed. SQL form of `isSponsorAdDueForExpiry`
+ * (lib/sponsor-ads/live-window.ts): an ad with no end date is left alone, as it is still shown.
+ *
+ * Run daily by the subscription-expiration job (see `runSponsorAdExpirySweep`). Until it runs,
+ * readers apply the paid window themselves (`liveSponsorAdFilter`, `hasActiveSponsorAdForItem`).
+ * A paid renewal still applies to an `expired` ad (`sponsorAdRenewalDecision`), so a payment
+ * that lands after the sweep makes the ad `active` again.
+ */
+export async function expireEndedSponsorAds(now: Date = new Date()): Promise<SponsorAd[]> {
+	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
+
+	return await db
+		.update(sponsorAds)
+		.set({
+			status: SponsorAdStatus.EXPIRED,
+			updatedAt: now
+		})
+		.where(
+			and(
+				eq(sponsorAds.status, SponsorAdStatus.ACTIVE),
+				eq(sponsorAds.tenantId, tenantId),
+				lte(sponsorAds.endDate, now)
+			)
+		)
+		.returning();
+}
+
+/**
  * Cancel sponsor ad
  */
 export async function cancelSponsorAd(id: string, cancelReason?: string): Promise<SponsorAd | null> {
@@ -516,9 +546,12 @@ export async function hasPendingSponsorAdForItem(userId: string, itemSlug: strin
 }
 
 /**
- * Check if user has active sponsor ad for an item
+ * Check if user has an active sponsor ad for an item that is still inside its paid window (the
+ * rule of `liveSponsorAdFilter`). An ad whose end date has passed no longer blocks a new
+ * sponsorship, even before the daily sweep (`expireEndedSponsorAds`) sets it to `expired`.
  */
 export async function hasActiveSponsorAdForItem(userId: string, itemSlug: string): Promise<boolean> {
+	const now = new Date();
 	const result = await db
 		.select({ count: count() })
 		.from(sponsorAds)
@@ -526,7 +559,8 @@ export async function hasActiveSponsorAdForItem(userId: string, itemSlug: string
 			and(
 				eq(sponsorAds.userId, userId),
 				eq(sponsorAds.itemSlug, itemSlug),
-				eq(sponsorAds.status, SponsorAdStatus.ACTIVE)
+				eq(sponsorAds.status, SponsorAdStatus.ACTIVE),
+				or(isNull(sponsorAds.endDate), gt(sponsorAds.endDate, now))
 			)
 		);
 

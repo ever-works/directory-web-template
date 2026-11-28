@@ -58,7 +58,8 @@ export async function initializeBackgroundJobs(): Promise<void> {
 	);
 
 	// Register subscription expiration cleanup job
-	// Runs daily at midnight to process and expire subscriptions past their end date
+	// Runs daily at midnight to process and expire subscriptions past their end date,
+	// then sponsor ads past their paid window (as /api/cron/subscription-expiration does)
 	manager.scheduleCronJob(
 		'subscription-expired-cleanup',
 		'Subscription Expiration Cleanup',
@@ -66,6 +67,11 @@ export async function initializeBackgroundJobs(): Promise<void> {
 			// Dynamic import to prevent bundling issues
 			const { subscriptionService } = await import('@/lib/services/subscription.service');
 			await subscriptionService.processExpiredSubscriptions();
+
+			// Never throws: a sweep failure is logged and does not affect the subscriptions
+			const { sponsorAdService } = await import('@/lib/services/sponsor-ad.service');
+			const { runSponsorAdExpirySweep } = await import('@/lib/sponsor-ads/expiry-sweep');
+			await runSponsorAdExpirySweep(() => sponsorAdService.expireEndedSponsorAds());
 		},
 		'0 0 * * *' // Daily at midnight
 	);
