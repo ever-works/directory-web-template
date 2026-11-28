@@ -62,10 +62,14 @@ export function pathParamMismatches(doc: OpenApiDocument): string[] {
 	return mismatches;
 }
 
+/** A Responses Object key that names a response: `default`, a status code (`200`) or a range (`4XX`). */
+const RESPONSE_KEY = /^(?:default|[1-5](?:\d{2}|XX))$/;
+
 /**
  * `METHOD /path` for each operation with no response. OpenAPI 3.0 requires `responses` on every
- * operation, with at least one status code: without it validators reject the document, and the
- * reference and generated clients show no response shape.
+ * operation, with at least one response code (`default`, `200`, `4XX`; an `x-` extension alone does
+ * not count): without it validators reject the document, and the reference and generated clients
+ * show no response shape.
  */
 export function operationsWithoutResponses(doc: OpenApiDocument): string[] {
 	const missing: string[] = [];
@@ -78,7 +82,7 @@ export function operationsWithoutResponses(doc: OpenApiDocument): string[] {
 				!!responses &&
 				typeof responses === 'object' &&
 				!Array.isArray(responses) &&
-				Object.keys(responses).length > 0;
+				Object.keys(responses).some((key) => RESPONSE_KEY.test(key));
 			if (!hasResponse) missing.push(`${method.toUpperCase()} ${path}`);
 		}
 	}

@@ -44,10 +44,15 @@ describe('operationsWithoutResponses', () => {
 				paths: {
 					'/api/a': { get: { responses: ok }, parameters: [] },
 					'/api/b': { get: {}, post: { responses: {} }, patch: { responses: ok } },
-					'/api/c/{id}': { delete: { responses: [] as unknown as Record<string, unknown> } }
+					'/api/c/{id}': { delete: { responses: [] as unknown as Record<string, unknown> } },
+					'/api/d': {
+						get: { responses: { 'x-note': 'pending' } },
+						put: { responses: { default: { description: 'Any' } } },
+						patch: { responses: { '4XX': { description: 'Client error' }, 'x-note': 'kept' } }
+					}
 				}
 			}),
-			['GET /api/b', 'POST /api/b', 'DELETE /api/c/{id}']
+			['GET /api/b', 'POST /api/b', 'DELETE /api/c/{id}', 'GET /api/d']
 		);
 	});
 });
