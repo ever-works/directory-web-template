@@ -127,9 +127,10 @@ Identifies subscriptions past their expiration date and updates their status. Th
 2. Query subscriptions with expiration date in the past
 3. Update subscription status to 'expired'
 4. Revoke associated access/permissions
-5. Send expiration notification emails
-6. Log expiration events for audit trail
-7. Return count of processed expirations
+5. Set 'active' sponsor ads whose endDate has passed to 'expired'
+6. Send expiration notification emails
+7. Log expiration events for audit trail
+8. Return count of processed expirations
 ```
 
 ### Response
@@ -137,10 +138,19 @@ Identifies subscriptions past their expiration date and updates their status. Th
 ```json
 {
   "success": true,
-  "message": "Subscription expirations processed",
+  "message": "Processed 3 expired subscriptions",
   "data": {
-    "expired": 3,
-    "errors": 0
+    "processed": 3,
+    "sponsorAdsExpired": 1,
+    "affectedUsers": [
+      {
+        "subscriptionId": "sub_abc123",
+        "userId": "user_456",
+        "planId": "standard"
+      }
+    ],
+    "errors": [],
+    "timestamp": "2024-01-20T00:00:05.123Z"
   }
 }
 ```
