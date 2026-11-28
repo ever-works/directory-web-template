@@ -7,6 +7,7 @@ import type { ItemExportData } from '@/lib/types/item-import-export';
 import { getLocationIndexService } from './location/location-index.service';
 import { isContentGitRemoteDisabled } from './content-git-offline';
 import { siteGitAuthCallbacks } from '@/lib/git/site-git-token';
+import { stageWorkTreeChanges } from '@/lib/git/stage-work-tree-changes';
 
 // Helper function to format date in the expected format for YAML files
 function formatDateForYaml(date: Date = new Date()): string {
@@ -498,12 +499,8 @@ export class ItemGitService {
       const git = (await import('isomorphic-git')).default;
       const http = (await import('isomorphic-git/http/node')).default;
 
-      // Add all changes
-      await git.add({
-        fs,
-        dir: this.config.dataDir,
-        filepath: '.',
-      });
+      // Stage all changes, deleted files included (git.add on '.' left a deleted item in the commit)
+      await stageWorkTreeChanges({ fs, dir: this.config.dataDir });
 
       // Commit changes
       const committer = this.getCommitter();
@@ -908,12 +905,8 @@ export class ItemGitService {
       const git = (await import('isomorphic-git')).default;
       const http = (await import('isomorphic-git/http/node')).default;
 
-      // Add all changes
-      await git.add({
-        fs,
-        dir: this.config.dataDir,
-        filepath: '.',
-      });
+      // Stage all changes, deleted files included
+      await stageWorkTreeChanges({ fs, dir: this.config.dataDir });
 
       // Commit changes
       const committer = this.getCommitter();

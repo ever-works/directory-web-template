@@ -8,6 +8,7 @@ import { fsExists, replaceDirectoryAtomically } from "./lib";
 import { coreConfig } from "@/lib/config/config-service";
 import { getPrimaryContentConfigPath, hasContentConfigFile } from "./content-config-file";
 import { siteGitAuthCallbacks, type SiteGitAuthCallbacks } from "@/lib/git/site-git-token";
+import { stageWorkTreeChanges } from "@/lib/git/stage-work-tree-changes";
 
 /**
  * isomorphic-git `onAuth` / `onAuthFailure` for the data repo: the platform's
@@ -100,8 +101,8 @@ async function tryPushLocalChanges(
     return false;
   }
   try {
-    // Stage all changes
-    await git.add({ fs, dir, filepath: '.' });
+    // Stage all changes, deleted files included (git.add on '.' stages only files that exist)
+    await stageWorkTreeChanges({ fs, dir });
 
     // Commit
     const author = {

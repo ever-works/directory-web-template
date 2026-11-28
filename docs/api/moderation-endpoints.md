@@ -35,11 +35,9 @@ When an admin sets a `resolution` value on a report, the corresponding moderatio
 removeContent(contentType, contentId, reportId, adminId): Promise<ModerationResult>
 ```
 
-Removes the reported content based on its type. For comments, this performs a soft delete (sets `deletedAt`). For items, this is a hard delete: `itemRepository.delete()` removes the item's file (`data/<slug>/<slug>.yml`) from the app's content checkout.
+Removes the reported content based on its type. For comments, this performs a soft delete (sets `deletedAt`). For items, this is a hard delete: `itemRepository.delete()` removes the item's file (`data/<slug>/<slug>.yml`) from the app's content checkout and commits the deletion, and the push sends it to the content repository.
 
 Item removal cannot be undone with restore. It is not the item soft delete (`itemRepository.softDelete()`, which sets `deleted_at` and keeps the file): the removed item gets no `deleted_at` and is not listed with deleted items, and restore (`itemRepository.restore()`, `POST /api/client/items/{id}/restore`) answers `Item not found`. To bring the item back, create or import it again.
-
-The removal does not reach the content repository yet. `ItemGitService.commitAndPush()` stages with `git.add` on `.`, and isomorphic-git does not stage a deleted file, so the `Delete item` commit records no change and the pushed repository still holds the file. A fresh clone of the content repository (for example on a new instance) brings the item back.
 
 **Parameters:**
 

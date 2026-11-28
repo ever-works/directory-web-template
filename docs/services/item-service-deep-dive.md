@@ -213,7 +213,7 @@ Returns whether there are pending changes and if a sync is in progress.
 
 The service implements a resilient sync pattern:
 
-1. **Primary path:** Write file, `git add .`, `git commit`, `git push`
+1. **Primary path:** Write or delete the file, stage every change with `stageWorkTreeChanges` (`lib/git/stage-work-tree-changes.ts`: `git.add` for new and changed files, `git.remove` for deleted ones), `git commit`, `git push`
 2. **On push failure:** Save locally, store pending changes, schedule background sync in 30 seconds
 3. **Background sync:** Retry push. On failure, retry again in 5 minutes
 

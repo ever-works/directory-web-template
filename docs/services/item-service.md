@@ -267,7 +267,7 @@ When an item is written:
 
 1. The item directory is created if missing under `data/{slug}/`
 2. Item data is serialized to YAML and written to `{slug}.yml`
-3. All changes are staged with `git add`
+3. All changes are staged with `stageWorkTreeChanges` (`lib/git/stage-work-tree-changes.ts`), which runs `git.add` for new and changed files and `git.remove` for deleted ones, so a deleted item leaves the commit too
 4. A commit is created with a timestamped message
 5. Changes are pushed to the remote repository
 
