@@ -9,6 +9,7 @@ import type {
 	PublicSponsorWithItem
 } from '@/lib/types/sponsor-ad';
 import { toPublicSponsorAd } from '@/lib/sponsor-ads/public-sponsor-ad';
+import { newSponsorAdRow } from '@/lib/sponsor-ads/new-sponsor-ad-row';
 import { getCachedItems, type ItemData } from '@/lib/content';
 import { getTenantId } from '@/lib/auth/tenant';
 
@@ -262,17 +263,15 @@ export async function getSponsorAdsPaginated(options: SponsorAdListOptions = {})
 // ######################### Write Operations #########################
 
 /**
- * Create a new sponsor ad
+ * Create a new sponsor ad, filed under the current tenant (a `tenantId` in `data` is ignored).
+ * Every reader filters by that tenant, so checkout, the owner's list, the admin review queue
+ * and the expiry sweep find the ad as soon as it is created.
  */
 export async function createSponsorAd(data: NewSponsorAd): Promise<SponsorAd> {
-	const result = await db
-		.insert(sponsorAds)
-		.values({
-			...data,
-			createdAt: new Date(),
-			updatedAt: new Date()
-		})
-		.returning();
+	const tenantId = await getTenantId();
+	if (!tenantId) throw new Error('Tenant ID not found');
+
+	const result = await db.insert(sponsorAds).values(newSponsorAdRow(data, tenantId)).returning();
 
 	return result[0];
 }
