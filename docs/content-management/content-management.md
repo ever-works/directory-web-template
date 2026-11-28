@@ -407,7 +407,8 @@ async function checkForLocalChanges(dir: string): Promise<boolean> {
 }
 
 async function tryPushLocalChanges(dir: string, url: string, auth: GitAuth): Promise<boolean> {
-  await git.add({ fs, dir, filepath: '.' });
+  // git.add for new and changed files, git.remove for deleted ones (lib/git/stage-work-tree-changes.ts)
+  await stageWorkTreeChanges({ fs, dir });
   await git.commit({
     fs, dir,
     message: `[Auto] Save local changes before sync - ${new Date().toISOString()}`,
