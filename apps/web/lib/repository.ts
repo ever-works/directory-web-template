@@ -8,7 +8,7 @@ import { fsExists, replaceDirectoryAtomically } from "./lib";
 import { coreConfig } from "@/lib/config/config-service";
 import { getPrimaryContentConfigPath, hasContentConfigFile } from "./content-config-file";
 import { siteGitAuthCallbacks, type SiteGitAuthCallbacks } from "@/lib/git/site-git-token";
-import { stageWorkTreeChanges } from "@/lib/git/stage-work-tree-changes";
+import { saveUnpushedWork, type PushHead } from "@/lib/git/unpushed-work";
 
 /**
  * isomorphic-git `onAuth` / `onAuthFailure` for the data repo: the platform's
@@ -56,26 +56,6 @@ function shouldSync() {
 }
 
 /**
- * Check if there are uncommitted local changes in the repository
- */
-async function checkForLocalChanges(dir: string): Promise<boolean> {
-  if (isReadOnlyContentRuntime()) {
-    return false;
-  }
-  try {
-    const status = await git.statusMatrix({ fs, dir });
-    // Status matrix: [filepath, HEAD, WORKDIR, STAGE]
-    // If HEAD !== WORKDIR or HEAD !== STAGE, there are changes
-    return status.some(([, head, workdir, stage]) =>
-      head !== workdir || head !== stage
-    );
-  } catch (error) {
-    console.error("[SYNC] Failed to check local changes:", error);
-    return false; // Assume no changes on error
-  }
-}
-
-/**
  * Returns true when the runtime cannot meaningfully push back to the data
  * repository (read-only / ephemeral filesystems like Vercel Lambda). In those
  * environments the working tree in /tmp is per-instance and contains stale
@@ -89,44 +69,72 @@ function isReadOnlyContentRuntime(): boolean {
 }
 
 /**
- * Attempt to commit and push local changes
+ * The push `saveUnpushedWork` makes: HEAD to the branch's upstream, or with `remoteRef` to that ref (a
+ * recovery branch).
  */
-async function tryPushLocalChanges(
-  dir: string,
-  url: string,
-  auth: GitAuthFactory
-): Promise<boolean> {
-  if (isReadOnlyContentRuntime()) {
-    console.log("[SYNC] Skipping push: content runtime is read-only (DISABLE_AUTO_SYNC or Vercel).");
-    return false;
-  }
-  try {
-    // Stage all changes, deleted files included (git.add on '.' stages only files that exist)
-    await stageWorkTreeChanges({ fs, dir });
-
-    // Commit
-    const author = {
-      name: 'Website Bot',
-      email: 'bot@ever.works'
-    };
-    await git.commit({
-      fs,
-      dir,
-      message: `[Auto] Save local changes before sync - ${new Date().toISOString()}`,
-      author,
-      committer: author,
-    });
-
-    // Push
-    await withTimeout(
-      git.push({ ...auth(), fs, http, dir, url }),
+function pushHead(dir: string, url: string, auth: GitAuthFactory): PushHead {
+  return (remoteRef) =>
+    withTimeout(
+      git.push({ ...auth(), fs, http, dir, url, ...(remoteRef ? { ref: "HEAD", remoteRef } : {}) }),
       60000 // 1 minute timeout for push
     );
+}
 
-    return true;
-  } catch (error) {
-    console.error("[SYNC] Failed to push local changes:", error);
-    return false;
+/**
+ * Before a fresh clone replaces the checkout at `dest`: pushes its unpushed work (changes in the work
+ * tree, commits the remote does not have, such as an item edit whose push was rejected), normally or to
+ * a recovery branch. A re-clone used to drop that work, although the API had reported the edit saved
+ * (T-2923). A read-only runtime pushes nothing and clones, as before.
+ *
+ * `tipBeforePull` is where the branch was before a pull that failed. A pull that fast-forwarded the
+ * branch and then could not check out (CheckoutConflictError) leaves the branch on the remote's commit
+ * and the work tree on the old one; the branch is put back first, so the pending changes are committed
+ * onto the commit they were made on and not as a commit that reverts the remote's changes.
+ *
+ * @returns `keep` when the work could not be pushed (keep the checkout, the next sync retries),
+ *          `pushed` after the normal push, else `clone`.
+ */
+async function saveCheckoutBeforeClone(
+  dest: string,
+  url: string,
+  auth: GitAuthFactory,
+  tipBeforePull?: BranchTip | null
+): Promise<"keep" | "pushed" | "clone"> {
+  if (isReadOnlyContentRuntime()) {
+    return "clone";
+  }
+  if (tipBeforePull) {
+    const tip = await readBranchTip(dest);
+    if (tip?.ref === tipBeforePull.ref && tip.oid !== tipBeforePull.oid) {
+      try {
+        await git.writeRef({ fs, dir: dest, ref: tipBeforePull.ref, value: tipBeforePull.oid, force: true });
+      } catch (error) {
+        console.error("[SYNC] Keeping the content checkout: could not move its branch back after the failed pull:", error);
+        return "keep";
+      }
+    }
+  }
+  const saved = await saveUnpushedWork({ fs, dir: dest, push: pushHead(dest, url, auth) });
+  if (saved.status === "failed") {
+    console.error("[SYNC] Keeping the content checkout: its unpushed work could not be pushed. The next sync retries.");
+    return "keep";
+  }
+  return saved.status === "pushed" ? "pushed" : "clone";
+}
+
+interface BranchTip {
+  ref: string;
+  oid: string;
+}
+
+/** The branch HEAD is on and its commit, or null when HEAD is detached or has no commit. */
+async function readBranchTip(dir: string): Promise<BranchTip | null> {
+  try {
+    const ref = await git.currentBranch({ fs, dir, fullname: true });
+    if (!ref) return null;
+    return { ref, oid: await git.resolveRef({ fs, dir, ref }) };
+  } catch {
+    return null;
   }
 }
 
@@ -153,7 +161,15 @@ async function cloneRepositoryAtomically(url: string, dest: string, auth: GitAut
   }
 }
 
-export async function pullChanges(url: string, dest: string, auth: GitAuthFactory) {
+/**
+ * Pulls the content checkout at `dest`. After a conflicting pull it pushes the checkout's unpushed work
+ * (`saveCheckoutBeforeClone`) and clones again, or keeps the checkout when that work could not be pushed.
+ * Other pull errors are thrown, for `trySyncRepository`'s fallback clone.
+ *
+ * @returns `true` when the checkout was pulled or cloned again; `false` when it was kept as it is.
+ */
+export async function pullChanges(url: string, dest: string, auth: GitAuthFactory): Promise<boolean> {
+  const tipBeforePull = await readBranchTip(dest);
   try {
     const author = { name: "website" }; // required for git pull for some reason
     await withTimeout(
@@ -167,6 +183,7 @@ export async function pullChanges(url: string, dest: string, auth: GitAuthFactor
         singleBranch: true,
       })
     );
+    return true;
   } catch (err) {
     // Handle all conflict types
     const isConflictError =
@@ -178,47 +195,46 @@ export async function pullChanges(url: string, dest: string, auth: GitAuthFactor
       err.message.includes("Could not find master");
 
     if (isConflictError) {
-      console.error("[SYNC] Conflict detected, checking for local changes...");
+      console.error("[SYNC] Conflict detected, checking for unpushed work...");
 
-      // Check if there are uncommitted local changes
-      const hasLocalChanges = await checkForLocalChanges(dest);
+      // Push the unpushed work (uncommitted changes and commits the remote does not have) before a re-clone
+      const saved = await saveCheckoutBeforeClone(dest, url, auth, tipBeforePull);
 
-      if (hasLocalChanges) {
-        console.log("[SYNC] Found local changes, attempting to push first...");
-        const pushSuccess = await tryPushLocalChanges(dest, url, auth);
+      if (saved === "keep") {
+        return false;
+      }
 
-        if (pushSuccess) {
-          // Push succeeded, retry pull
-          console.log("[SYNC] Push succeeded, retrying pull...");
-          try {
-            const author = { name: "website" };
-            await withTimeout(
-              git.pull({
-                ...auth(),
-                fs,
-                http,
-                url,
-                dir: dest,
-                author,
-                singleBranch: true,
-              })
-            );
-            return;
-          } catch (retryErr) {
-            console.error("[SYNC] Retry pull failed after push, proceeding with reset...", retryErr);
-            // Fall through to reset logic below
-          }
-        } else {
-          console.warn("[SYNC] Push failed, local changes will be lost. Proceeding with reset...");
+      if (saved === "pushed") {
+        // Push succeeded, retry pull
+        console.log("[SYNC] Push succeeded, retrying pull...");
+        try {
+          const author = { name: "website" };
+          await withTimeout(
+            git.pull({
+              ...auth(),
+              fs,
+              http,
+              url,
+              dir: dest,
+              author,
+              singleBranch: true,
+            })
+          );
+          return true;
+        } catch (retryErr) {
+          console.error("[SYNC] Retry pull failed after push, proceeding with reset...", retryErr);
+          // Fall through to reset logic below
         }
       }
 
-      // Reset: delete and re-clone
+      // Reset: delete and re-clone (outside a read-only runtime, the unpushed work is on the remote now)
       console.log("[SYNC] Resetting repository from a fresh clone...");
       await cloneRepositoryAtomically(url, dest, auth);
+      return true;
     } else if (isBranchError) {
       console.error("Repository branch issue detected, trying to clone fresh...");
       await cloneRepositoryAtomically(url, dest, auth);
+      return true;
     } else {
       throw err;
     }
@@ -277,12 +293,15 @@ copyright_year: ${new Date().getFullYear()}
     if (exists) {
       console.log("Pulling repository data...");
       lastSynced = Date.now();
-      await pullChanges(url, dest, auth);
-      return true;
+      const updated = await pullChanges(url, dest, auth);
+      return updated;
     }
   } catch (error) {
     console.error("Error during repository sync check:", error);
-    // Continue with cloning as fallback
+    // Continue with cloning as fallback, once the checkout's unpushed work is on the remote
+    if (exists && (await saveCheckoutBeforeClone(dest, url, auth)) === "keep") {
+      return false;
+    }
   }
 
   try {

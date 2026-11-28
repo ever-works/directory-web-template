@@ -15,16 +15,16 @@ import type { ItemGitService as ItemGitServiceType } from '@/lib/services/item-g
  * and commits. The commit staged with `git.add` on '.', and isomorphic-git's `add` stages only
  * files that exist, so the `Delete item` commit still held the file, the push sent that tree
  * upstream, and every fresh clone of the content repository (a new instance, a pod restart)
- * showed the item again. `commitAndPush`, `pushPendingChanges` and lib/repository.ts
- * `tryPushLocalChanges` now stage through `stageWorkTreeChanges`, which also stages deletions.
- * See T-2904.
+ * showed the item again. `commitAndPush`, `pushPendingChanges` and the content sync's save before a
+ * re-clone (lib/git/unpushed-work.ts `saveUnpushedWork`, which replaced lib/repository.ts
+ * `tryPushLocalChanges` in T-2923) now stage through `stageWorkTreeChanges`, which also stages
+ * deletions. See T-2904.
  *
  * The real ItemGitService works in a real isomorphic-git repository in a temporary folder. CI=true
  * skips the push; where a test needs the push, `git.push` is a spy that records the files of the
  * commit it would send. The location index sync is stubbed, as in item-create-exclusive.spec.ts.
- * lib/repository.ts imports `server-only` and the config service and does not export
- * `tryPushLocalChanges`, so its staging is checked in its source; the helper itself has its own spec
- * (lib/git/__tests__/stage-work-tree-changes.spec.ts).
+ * The three call sites' staging is also checked in their source; the helpers have their own specs
+ * (lib/git/__tests__/stage-work-tree-changes.spec.ts, lib/git/__tests__/unpushed-work.spec.ts).
  */
 const loader = Module as unknown as { _load: (request: string, ...rest: unknown[]) => unknown };
 const originalLoad = loader._load;
@@ -230,9 +230,9 @@ describe('every content commit stages deletions (T-2904)', () => {
 			'await stageWorkTreeChanges({ fs, dir: this.config.dataDir });'
 		],
 		[
-			'lib/repository.ts tryPushLocalChanges',
-			'../../repository.ts',
-			'async function tryPushLocalChanges(',
+			'lib/git/unpushed-work.ts saveUnpushedWork',
+			'../../git/unpushed-work.ts',
+			'export async function saveUnpushedWork(',
 			'await stageWorkTreeChanges({ fs, dir });'
 		]
 	] as const) {

@@ -10,7 +10,7 @@ import { stageWorkTreeChanges } from '../stage-work-tree-changes';
  * Run with: `pnpm --filter @ever-works/web test:unit`
  *
  * `stageWorkTreeChanges` is how the content commits (ItemGitService.commitAndPush and
- * pushPendingChanges, lib/repository.ts tryPushLocalChanges) stage. isomorphic-git's `add` on '.'
+ * pushPendingChanges, lib/git/unpushed-work.ts saveUnpushedWork) stage. isomorphic-git's `add` on '.'
  * stages only files that exist, so a deleted item stayed in the commit and in the pushed repository
  * (T-2904). These run it on a real isomorphic-git repository in a temporary folder.
  */
