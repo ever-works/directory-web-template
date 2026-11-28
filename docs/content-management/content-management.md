@@ -395,29 +395,20 @@ export async function trySyncRepository() {
 
 ### Handling Local Changes
 
-Before pulling remote changes, the system checks for uncommitted local changes (from admin write operations) and pushes them first:
+Before a conflicting or failed pull replaces the checkout with a fresh clone, the sync saves the checkout's unpushed work: changes in the work tree and commits the remote does not have, such as an admin edit whose push was rejected (T-2923):
 
 ```typescript
-// lib/repository.ts
-async function checkForLocalChanges(dir: string): Promise<boolean> {
-  const status = await git.statusMatrix({ fs, dir });
-  return status.some(([, head, workdir, stage]) =>
-    head !== workdir || head !== stage
-  );
-}
+// lib/git/unpushed-work.ts
+// Work-tree changes, and commits that no refs/remotes/origin/* ref holds
+const work = await findUnpushedWork({ fs, dir });
 
-async function tryPushLocalChanges(dir: string, url: string, auth: GitAuth): Promise<boolean> {
-  // git.add for new and changed files, git.remove for deleted ones (lib/git/stage-work-tree-changes.ts)
-  await stageWorkTreeChanges({ fs, dir });
-  await git.commit({
-    fs, dir,
-    message: `[Auto] Save local changes before sync - ${new Date().toISOString()}`,
-    author: { name: 'Website Bot', email: 'bot@ever.works' },
-  });
-  await git.push({ onAuth: () => auth, fs, http, dir, url });
-  return true;
-}
+// Commits the pending changes (lib/git/stage-work-tree-changes.ts), tries the normal push, and when
+// that is rejected pushes HEAD to a new sync-recovery/<ISO time>-<commit> branch. Never throws.
+const saved = await saveUnpushedWork({ fs, dir, push });
+// saved.status: 'nothing-to-save' | 'pushed' | 'recovery-branch' | 'failed'
 ```
+
+`lib/repository.ts` clones again only after one of the pushes got through. When both fail, it keeps the checkout and the next sync retries. See [Content Library](../architecture/content-library.md) for the full flow.
 
 ## Multi-Language Content
 

@@ -147,16 +147,19 @@ sequenceDiagram
         Repo->>Repo: shouldSync() (10s interval)
         alt Needs sync
             Repo->>Git: git.pull()
-            alt Conflict detected
-                Git-->>Repo: MergeConflictError
-                Repo->>Repo: checkForLocalChanges()
-                alt Has local changes
-                    Repo->>Git: git.add + commit + push
-                    Repo->>Git: git.pull (retry)
+            alt Conflict detected, or the pull failed
+                Git-->>Repo: MergeConflictError (or another error)
+                Repo->>Repo: findUnpushedWork() (work tree + commits no remote-tracking ref holds)
+                alt Has unpushed work
+                    Repo->>Git: commit pending changes + push
+                    alt Push rejected
+                        Repo->>Git: push HEAD to branch sync-recovery/TIME-COMMIT
+                    end
+                    alt Both pushes failed
+                        Repo->>Repo: keep the checkout (next sync retries)
+                    end
                 end
-                alt Still fails
-                    Repo->>Git: rm + clone (reset)
-                end
+                Repo->>Git: git.pull (retry, after a normal push) or rm + clone (reset)
             end
         end
     else No local repository
@@ -181,10 +184,12 @@ async function withTimeout<T>(promise: Promise<T>, timeoutMs: number = 120000): 
 
 The system handles merge conflicts through a multi-step strategy:
 
-1. **Detect local changes** via `git.statusMatrix()`
-2. **Attempt push** of local changes before pulling
-3. **Retry pull** after successful push
-4. **Full reset** (delete + re-clone) as last resort
+1. **Detect unpushed work** with `findUnpushedWork` (`lib/git/unpushed-work.ts`): changes in the work tree (`git.statusMatrix()`) and commits that no remote-tracking ref holds, such as an item edit whose push was rejected
+2. **Commit and push** that work before anything replaces the checkout; when the normal push is rejected, push HEAD to a new `sync-recovery/<ISO time>-<commit>` branch of the data repository and log the branch and the commit ids, to be merged there
+3. **Retry pull** after a successful normal push
+4. **Full reset** (delete + re-clone) only once the unpushed work is on the remote. When both pushes fail, the checkout is kept and the next sync retries
+
+A pull that fails for another reason (a timeout, a 401) reaches the fallback clone of `trySyncRepository()`, which pushes the unpushed work first in the same way. `git.pull` merges before it checks out, so a pull whose checkout failed (a conflict, a file it could not write, a timeout) has already moved the branch to the remote's commit while the work tree is still on the old one. The branch is put back where the pull found it before the work is saved; otherwise the save would commit the old work tree on top of the remote's commit, and that push, a fast-forward, would revert the remote's changes. A read-only runtime (Vercel, `DISABLE_AUTO_SYNC`) pushes nothing and clones again, as before.
 
 ### Fallback Behavior
 
