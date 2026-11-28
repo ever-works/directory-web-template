@@ -70,6 +70,10 @@ processed my payment.
       `active` sponsor ad whose `endDate` has passed to `expired` and reports the count.
       An ad past its `endDate` does not block a new sponsorship for the same item, even
       before that run. Rule: `isSponsorAdDueForExpiry` in the same file.
+- [x] AC-10: A new sponsor ad (`POST /api/sponsor-ads/user`) is stored under the
+      tenant it was created on, so checkout, the owner's list, the admin review queue
+      and the expiry sweep find it at once. A `tenantId` passed by a caller is ignored.
+      Rule: `newSponsorAdRow` in `apps/web/lib/sponsor-ads/new-sponsor-ad-row.ts`.
 
 ## 7. Out-of-Scope Considerations
 
