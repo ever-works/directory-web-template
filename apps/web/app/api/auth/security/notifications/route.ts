@@ -54,6 +54,52 @@ function extractSecurityPrefs(
  *     description: "Returns email and in-app channel settings for security events."
  *     security:
  *       - sessionAuth: []
+ *     responses:
+ *       200:
+ *         description: "Security notification preferences"
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   description: "Channel settings per security event; a setting never saved is true"
+ *                   properties:
+ *                     security_alert:
+ *                       type: object
+ *                       properties:
+ *                         in_app: { type: boolean }
+ *                         email: { type: boolean }
+ *                       required: ["in_app", "email"]
+ *                     password_changed:
+ *                       type: object
+ *                       properties:
+ *                         in_app: { type: boolean }
+ *                         email: { type: boolean }
+ *                       required: ["in_app", "email"]
+ *                   required: ["security_alert", "password_changed"]
+ *               required: ["success", "data"]
+ *             example:
+ *               success: true
+ *               data:
+ *                 security_alert: { in_app: true, email: true }
+ *                 password_changed: { in_app: true, email: true }
+ *       401:
+ *         description: "Not signed in"
+ *         content:
+ *           application/json:
+ *             schema: { type: object, properties: { success: { type: boolean, example: false }, error: { type: string } }, required: ["success", "error"] }
+ *             example: { success: false, error: "Unauthorized. Please sign in." }
+ *       500:
+ *         description: "Internal server error"
+ *         content:
+ *           application/json:
+ *             schema: { type: object, properties: { success: { type: boolean, example: false }, error: { type: string } }, required: ["success", "error"] }
+ *             example: { success: false, error: "Internal server error." }
  */
 export async function GET() {
 	try {
@@ -89,6 +135,69 @@ export async function GET() {
  *     description: "Merges the supplied channel toggles into the user's notification preferences."
  *     security:
  *       - sessionAuth: []
+ *     responses:
+ *       200:
+ *         description: "Preferences after the update"
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: object
+ *                   description: "Channel settings per security event; a setting never saved is true"
+ *                   properties:
+ *                     security_alert:
+ *                       type: object
+ *                       properties:
+ *                         in_app: { type: boolean }
+ *                         email: { type: boolean }
+ *                       required: ["in_app", "email"]
+ *                     password_changed:
+ *                       type: object
+ *                       properties:
+ *                         in_app: { type: boolean }
+ *                         email: { type: boolean }
+ *                       required: ["in_app", "email"]
+ *                   required: ["security_alert", "password_changed"]
+ *               required: ["success", "data"]
+ *             example:
+ *               success: true
+ *               data:
+ *                 security_alert: { in_app: true, email: false }
+ *                 password_changed: { in_app: true, email: true }
+ *       401:
+ *         description: "Not signed in"
+ *         content:
+ *           application/json:
+ *             schema: { type: object, properties: { success: { type: boolean, example: false }, error: { type: string } }, required: ["success", "error"] }
+ *             example: { success: false, error: "Unauthorized. Please sign in." }
+ *       422:
+ *         description: "The body is not a map of security event to in_app / email booleans"
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success: { type: boolean, example: false }
+ *                 error: { type: string }
+ *                 details:
+ *                   type: object
+ *                   description: "Zod flatten() output: formErrors and fieldErrors"
+ *               required: ["success", "error", "details"]
+ *             example:
+ *               success: false
+ *               error: "Invalid request body."
+ *               details: { formErrors: [], fieldErrors: { security_alert: ["Invalid input: expected boolean, received string"] } }
+ *       500:
+ *         description: "Internal server error, also when the body is not JSON"
+ *         content:
+ *           application/json:
+ *             schema: { type: object, properties: { success: { type: boolean, example: false }, error: { type: string } }, required: ["success", "error"] }
+ *             example: { success: false, error: "Internal server error." }
  */
 export async function PATCH(req: NextRequest) {
 	try {

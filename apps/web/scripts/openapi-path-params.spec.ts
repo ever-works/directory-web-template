@@ -3,6 +3,8 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, it } from 'node:test';
 
+import { type OpenApiDocument, pathParamMismatches } from './openapi-rules';
+
 /**
  * Run with: `pnpm --filter @ever-works/web test:unit`
  *
@@ -15,17 +17,11 @@ import { describe, it } from 'node:test';
  * OpenAPI also requires every `{name}` in a path to have an `in: path` parameter of that name, and
  * every `in: path` parameter to appear in the path. Without that, the reference's "Try it out" and
  * generated clients have no value for the template (`/api/items/{itemId}/comments` declared `slug`)
- * or ask for one the route never reads (`/api/admin/categories/all` declared `id`) (T-2894).
+ * or ask for one the route never reads (`/api/admin/categories/all` declared `id`) (T-2894). That
+ * rule lives in `openapi-rules.ts`; `openapi-annotations.spec.ts` also runs it on the `@swagger` blocks.
  */
 
 const OPENAPI_FILE = join(__dirname, '..', 'public', 'openapi.json');
-const HTTP_METHODS = ['get', 'put', 'post', 'delete', 'options', 'head', 'patch', 'trace'] as const;
-
-type Parameter = { name?: string; in?: string; $ref?: string };
-type PathItem = { parameters?: Parameter[] } & Partial<
-	Record<(typeof HTTP_METHODS)[number], { parameters?: Parameter[] }>
->;
-type OpenApiDocument = { paths?: Record<string, PathItem>; components?: Record<string, unknown> };
 
 /** The path with every `{name}` replaced by `{}`, so paths that differ only in parameter names match. */
 const routeShape = (path: string): string => path.replace(/\{[^}]*\}/g, '{}');
@@ -38,56 +34,6 @@ function pathsDifferingOnlyInParamNames(paths: Iterable<string>): string[][] {
 		byShape.set(shape, [...(byShape.get(shape) ?? []), path]);
 	}
 	return [...byShape.values()].filter((group) => group.length > 1);
-}
-
-/** The object a local `$ref` (`#/components/parameters/Slug`) points at, or `undefined`. */
-function resolveRef(doc: unknown, ref: string): unknown {
-	if (!ref.startsWith('#/')) return undefined;
-	return ref
-		.slice(2)
-		.split('/')
-		.map((key) => key.replace(/~1/g, '/').replace(/~0/g, '~'))
-		.reduce<unknown>(
-			(node, key) => (node && typeof node === 'object' ? (node as Record<string, unknown>)[key] : undefined),
-			doc
-		);
-}
-
-const formatNames = (names: string[]): string => (names.length ? names.map((name) => `{${name}}`).join(', ') : 'none');
-
-/**
- * One line for each operation whose path template names (`{slug}`) differ from the names of its
- * `in: path` parameters, read from the path item and the operation, with `$ref`s resolved.
- */
-function pathParamMismatches(doc: OpenApiDocument): string[] {
-	const mismatches: string[] = [];
-	for (const [path, item] of Object.entries(doc.paths ?? {})) {
-		const inTemplate = [...new Set([...path.matchAll(/\{([^}]*)\}/g)].map((match) => match[1]))].sort();
-		for (const method of HTTP_METHODS) {
-			const operation = item?.[method];
-			if (!operation) continue;
-			const declared = new Set<string>();
-			for (const parameter of [...(item.parameters ?? []), ...(operation.parameters ?? [])]) {
-				const resolved = (parameter?.$ref ? resolveRef(doc, parameter.$ref) : parameter) as
-					| Parameter
-					| undefined;
-				if (!resolved) {
-					mismatches.push(
-						`${method.toUpperCase()} ${path}: parameter $ref ${parameter?.$ref} does not resolve`
-					);
-					continue;
-				}
-				if (resolved.in === 'path' && typeof resolved.name === 'string') declared.add(resolved.name);
-			}
-			const inParameters = [...declared].sort();
-			if (inTemplate.join('\n') !== inParameters.join('\n')) {
-				mismatches.push(
-					`${method.toUpperCase()} ${path}: the path has ${formatNames(inTemplate)}, its path parameters are ${formatNames(inParameters)}`
-				);
-			}
-		}
-	}
-	return mismatches;
 }
 
 const readSpec = (): OpenApiDocument => JSON.parse(readFileSync(OPENAPI_FILE, 'utf8')) as OpenApiDocument;
